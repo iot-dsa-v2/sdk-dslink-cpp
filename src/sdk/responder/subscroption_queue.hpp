@@ -1,7 +1,6 @@
 #pragma once
 
 namespace dsa {
-namespace responder {
 
 /**
  * maintain a smart queue of subscription updates 
@@ -13,5 +12,4 @@ class SubscriptionQueue {
 };
 
 
-}
 }

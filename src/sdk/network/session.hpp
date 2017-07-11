@@ -1,10 +1,13 @@
 #pragma once
 
+namespace dsa {
+
 /**
-* handshake logic
-* split and join binary data into message frame
+* maintain request and response streams
 */
 
 class Session {
 
 };
+
+}
