@@ -11,6 +11,13 @@
 
 .\vcpkg install openssl:x64-windows
 .\vcpkg install openssl:x64-windows-static
+
+.\vcpkg install msgpack:x64-windows
+.\vcpkg install msgpack:x64-windows-static
+
+.\vcpkg install cppunit:x64-windows
+.\vcpkg install cppunit:x64-windows-static
+
 ```
 1. run `.\vcpkg integrate install`
 1. In visual studio, use `file-open-folder..` instead of creating project 
