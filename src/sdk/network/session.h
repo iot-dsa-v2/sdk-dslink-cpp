@@ -4,6 +4,7 @@
 namespace dsa {
 /**
  * maintain request and response streams
+ * join data before sending when necessary
  */
 class Session {};
 }  // namespace dsa

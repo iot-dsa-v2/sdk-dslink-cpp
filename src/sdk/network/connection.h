@@ -4,7 +4,7 @@
 namespace dsa {
 /**
  * handshake logic
- * split and join binary data into message frame
+ * split and join received data into message frame
  */
 class Connection {};
 }  // namespace dsa
