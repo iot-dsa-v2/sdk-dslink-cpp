@@ -15,8 +15,8 @@
 .\vcpkg install msgpack:x64-windows
 .\vcpkg install msgpack:x64-windows-static
 
-.\vcpkg install cppunit:x64-windows
-.\vcpkg install cppunit:x64-windows-static
+.\vcpkg install gtest:x64-windows
+.\vcpkg install gtest:x64-windows-static
 
 ```
 1. run `.\vcpkg integrate install`
