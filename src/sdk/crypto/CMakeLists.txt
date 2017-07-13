@@ -1,16 +1,18 @@
-if (UNIX)
+include_directories(${PROJECT_INCLUDE_DIR}/dsa/crypto)
+
+if(UNIX)
   set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
+  find_package(OpenSSL REQUIRED)
+  include_directories(${OPENSSL_INCLUDE_DIR})
+else()
+  find_package(OpenSSL REQUIRED)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
+add_library(dsa_crypto OBJECT
+  ecdh.cc
+  hash.cc
+  hmac.cc 
+  misc.cc)
 
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES})
-
-add_library(crypto ecdh.cc hash.cc hmac.cc misc.cc)
-target_link_libraries(crypto ${EXTRA_LIBS})
-target_compile_features(crypto PRIVATE cxx_range_for)
-install (TARGETS crypto
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES} dsa_crypto)
+set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_crypto> PARENT_SCOPE)

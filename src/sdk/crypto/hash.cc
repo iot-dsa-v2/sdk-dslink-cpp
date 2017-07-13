@@ -1,12 +1,13 @@
-#include "crypto.h"
+#include "hash.h"
 
 #include <iostream>
 #include <regex>
 #include <sstream>
 #include <string>
-#include <vector>
 
 #include <openssl/evp.h>
+
+#include "misc.h"
 
 namespace dsa {
 hash::hash(const char *hash_type) : finalized(false) {
@@ -22,14 +23,14 @@ hash::~hash() {
   // EVP_MD_CTX_destroy(mdctx);
 }
 
-void hash::update(std::vector<byte> data) {
-  EVP_DigestUpdate(&mdctx, &data[0], data.size());
+void hash::update(ByteBuffer& content) {
+  EVP_DigestUpdate(&mdctx, content.data(), content.size());
 }
 
 std::string hash::digest_base64() {
   if (finalized) throw std::runtime_error("digest already called");
 
-  byte *md_value = new byte[EVP_MAX_MD_SIZE];
+  uint8_t md_value[EVP_MAX_MD_SIZE];
   uint md_len;
   EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
   finalized = true;
@@ -37,7 +38,6 @@ std::string hash::digest_base64() {
   EVP_MD_CTX_cleanup(&mdctx);
 
   std::string out = base64_encode(md_value, md_len);
-  delete[] md_value;
   return out;
 }
 }  // namespace dsa

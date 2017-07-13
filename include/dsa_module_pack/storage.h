@@ -1,0 +1,6 @@
+#ifndef DSA_MODULE_PACK_STORAGE_H_
+#define DSA_MODULE_PACK_STORAGE_H_
+
+// ...
+
+#endif  // DSA_MODULE_PACK_STORAGE_H_

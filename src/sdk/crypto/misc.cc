@@ -1,4 +1,4 @@
-#include "crypto.h"
+#include "misc.h"
 
 #include <iostream>
 #include <regex>
@@ -10,7 +10,7 @@ static const std::string base64_chars =
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-static inline bool is_base64(byte c) {
+static inline bool is_base64(uint8_t c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
@@ -22,13 +22,13 @@ static int char2int(char input) {
 }
 
 namespace dsa {
-std::string base64_encode(byte const* bytes_to_encode,
+std::string base64_encode(uint8_t const* bytes_to_encode,
                                unsigned int in_len) {
   std::string ret;
   int i = 0;
   int j = 0;
-  byte char_array_3[3];
-  byte char_array_4[4];
+  uint8_t char_array_3[3];
+  uint8_t char_array_4[4];
 
   while (in_len--) {
     char_array_3[i++] = *(bytes_to_encode++);
@@ -68,7 +68,7 @@ std::string base64_decode(std::string const& encoded_string) {
   int i = 0;
   int j = 0;
   int in_ = 0;
-  byte char_array_4[4], char_array_3[3];
+  uint8_t char_array_4[4], char_array_3[3];
   std::string ret;
 
   while (in_len-- && (encoded_string[in_] != '=') &&
@@ -116,21 +116,22 @@ std::string base64url(std::string str) {
   return std::regex_replace(str, equals, "");
 }
 
-std::vector<byte> hex2bin(const char* src) {
-  std::vector<byte> out;
-  while (*src && src[1]) {
-    out.push_back(char2int(*src) * 16 + char2int(src[1]));
-    src += 2;
+std::shared_ptr<ByteBuffer> hex2bin(const char* src) {
+  auto out = std::make_shared<ByteBuffer>();
+
+  int i = 0;
+  while (src[i] && src[i + 1]) {
+    out->safe_append(char2int(src[i]) * 16 + char2int(src[i + 1]));
+    i += 2;
   }
-  return out;
+
+  return std::move(out);
 }
 
-std::vector<byte> gen_salt(int len) {
-  byte* buf = new byte[len];
-  if (!RAND_bytes(buf, len))
+std::shared_ptr<ByteBuffer> gen_salt(int len) {
+  auto out = std::make_shared<ByteBuffer>(len);
+  if (!RAND_bytes(out->data(), len))
     throw std::runtime_error("Unable to generate salt");
-  std::vector<byte> out(buf, buf + len);
-  delete[] buf;
-  return out;
+  return std::move(out);
 }
 }  // namespace dsa
