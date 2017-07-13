@@ -5,7 +5,7 @@
 
 #include <openssl/evp.h>
 
-#include "util.h"
+#include "dsa/util.h"
 
 namespace dsa {
 class hash {

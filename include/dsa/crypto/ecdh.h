@@ -6,7 +6,7 @@
 
 #include <openssl/ec.h>
 
-#include "util.h"
+#include "dsa/util.h"
 
 namespace dsa {
 class ecdh {

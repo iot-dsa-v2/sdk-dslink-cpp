@@ -66,7 +66,7 @@ class Buffer {
   iterator end() { return &_data[_size]; }
 };
 
-typedef BufferPtr BufferPtr;
+typedef std::shared_ptr<Buffer> BufferPtr;
 
 }  // namespace dsa
 

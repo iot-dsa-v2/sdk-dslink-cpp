@@ -1,15 +1,9 @@
 #include "hmac.h"
 
-#include <utility>
-
-#include <openssl/hmac.h>
-
 namespace dsa {
 void hmac::init(const char* alg, Buffer& content) {
   const EVP_MD* md = EVP_get_digestbyname(alg);
   if (md == nullptr) throw std::runtime_error("Failed to initialize HMAC");
-
-  // HMAC_CTX c;
 
   HMAC_CTX_init(&ctx);
 
@@ -18,13 +12,12 @@ void hmac::init(const char* alg, Buffer& content) {
 }
 
 hmac::hmac(const char* alg, Buffer& data) {
-  // ctx = HMAC_CTX_new();
   init(alg, data);
   initialized = true;
 }
 
 hmac::~hmac() {
-  // HMAC_CTX_free(ctx);
+  // NOTE: to be used later if different version of OpenSSL is used
 }
 
 void hmac::update(Buffer& content) {

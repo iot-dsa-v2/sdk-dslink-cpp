@@ -1,16 +1,7 @@
 #include "ecdh.h"
 
-#include <stdexcept>
-#include <string>
-#include <memory>
-#include <utility>
-
-#include <openssl/bn.h>
-#include <openssl/ec.h>
 #include <openssl/ecdh.h>
 #include <openssl/objects.h>
-
-#include "util.h"
 
 template <typename T, typename U>
 inline void CHECK_NE(T a, U b) {
@@ -49,7 +40,7 @@ BufferPtr ecdh::get_public_key() {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
 
-  int size;
+  size_t size;
   point_conversion_form_t form = EC_GROUP_get_point_conversion_form(group);
 
   size = EC_POINT_point2oct(group, pub, form, nullptr, 0, nullptr);
@@ -57,7 +48,7 @@ BufferPtr ecdh::get_public_key() {
 
   uint8_t *out = new uint8_t[size];
 
-  int r = EC_POINT_point2oct(group, pub, form, out, size, nullptr);
+  size_t r = EC_POINT_point2oct(group, pub, form, out, size, nullptr);
   if (r != size) {
     delete[] out;
     throw std::runtime_error("Couldn't get public key");
@@ -83,7 +74,7 @@ bool ecdh::is_key_valid_for_curve(BIGNUM *private_key) {
 
 void ecdh::set_private_key_hex(const char *data) {
   BIGNUM *priv = BN_new();
-  int size = BN_hex2bn(&priv, data);
+  BN_hex2bn(&priv, data);
   if (!is_key_valid_for_curve(priv))
     throw std::runtime_error("invalid key for curve");
 
@@ -124,7 +115,7 @@ BufferPtr ecdh::compute_secret(Buffer& public_key) {
 
   // NOTE: field_size is in bits
   int field_size = EC_GROUP_get_degree(group);
-  size_t size = (field_size + 7) / 8;
+  size_t size = ((size_t)field_size + 7) / 8;
   uint8_t *out = new uint8_t[size];
 
   r = ECDH_compute_key(out, size, pub, key, nullptr);

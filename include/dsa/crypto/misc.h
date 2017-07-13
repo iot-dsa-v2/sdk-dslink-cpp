@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "util.h"
+#include "dsa/util.h"
 
 namespace dsa {
 std::string base64url(std::string str);

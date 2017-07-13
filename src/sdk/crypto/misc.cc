@@ -1,11 +1,8 @@
 #include "misc.h"
 
-#include <iostream>
 #include <regex>
 
 #include <openssl/rand.h>
-
-#include "buffer.h"
 
 static const std::string base64_chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
