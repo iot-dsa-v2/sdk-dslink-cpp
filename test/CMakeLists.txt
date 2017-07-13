@@ -25,14 +25,15 @@ add_subdirectory(${CMAKE_BINARY_DIR}/test/lib/googletest-src
 # The gtest/gtest_main targets carry header search path
 # dependencies automatically when using CMake 2.8.11 or
 # later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include")
-endif()
+#if (CMAKE_VERSION VERSION_LESS 2.8.11)
+include_directories("${gtest_SOURCE_DIR}/include")
+#endif()
 
 include_directories("../src/sdk")
 include_directories("../include")
 
-# Now simply link against gtest or gtest_main as needed. Eg
-add_executable(example example.cc)
-target_link_libraries(example gtest_main dsa_sdk)
-add_test(NAME example_test COMMAND example)
+# TESTS
+set (TEST_LIBS gtest_main dsa_sdk)
+add_executable(buffer util-unittest.cc)
+target_link_libraries(buffer ${TEST_LIBS})
+add_test(NAME buffer_test COMMAND buffer)

@@ -50,7 +50,7 @@ bool Buffer::resize(size_t capacity) {
 void Buffer::append(uint8_t data) { _data[_size++] = data; }
  
 void Buffer::safe_append(uint8_t data) {
-  if (_size + 1 >= _capacity)
+  if (_size >= _capacity)
     resize(_capacity * 2);
   _data[_size++] = data;
 }
