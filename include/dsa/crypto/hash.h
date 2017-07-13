@@ -5,7 +5,7 @@
 
 #include <openssl/evp.h>
 
-#include "dsa/util.h"
+#include "util.h"
 
 namespace dsa {
 class hash {
@@ -24,7 +24,7 @@ class hash {
   hash(const char *hash_type);
   ~hash();
 
-  void update(ByteBuffer& data);
+  void update(Buffer& data);
   std::string digest_base64();
 };
 }  // namespace dsa

@@ -5,6 +5,8 @@
 
 #include <openssl/rand.h>
 
+#include "buffer.h"
+
 static const std::string base64_chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
@@ -116,8 +118,8 @@ std::string base64url(std::string str) {
   return std::regex_replace(str, equals, "");
 }
 
-std::shared_ptr<ByteBuffer> hex2bin(const char* src) {
-  auto out = std::make_shared<ByteBuffer>();
+BufferPtr hex2bin(const char* src) {
+  auto out = std::make_shared<Buffer>();
 
   int i = 0;
   while (src[i] && src[i + 1]) {
@@ -128,10 +130,10 @@ std::shared_ptr<ByteBuffer> hex2bin(const char* src) {
   return std::move(out);
 }
 
-std::shared_ptr<ByteBuffer> gen_salt(int len) {
-  auto out = std::make_shared<ByteBuffer>(len);
-  if (!RAND_bytes(out->data(), len))
+BufferPtr gen_salt(int len) {
+  uint8_t *out = new uint8_t[len];
+  if (!RAND_bytes(out, len))
     throw std::runtime_error("Unable to generate salt");
-  return std::move(out);
+  return std::move(std::make_shared<Buffer>(out, len, len));
 }
 }  // namespace dsa

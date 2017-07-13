@@ -5,7 +5,7 @@
 
 #include <openssl/hmac.h>
 
-#include "dsa/util.h"
+#include "util.h"
 
 namespace dsa {
 class hmac {
@@ -15,12 +15,12 @@ class hmac {
   bool initialized;
 
  public:
-  hmac(const char *alg, ByteBuffer& to_hash);
+  hmac(const char *alg, Buffer& to_hash);
   ~hmac();
 
-  void init(const char *alg, ByteBuffer& to_hash);
-  void update(ByteBuffer& data);
-  std::shared_ptr<ByteBuffer> digest();
+  void init(const char *alg, Buffer& to_hash);
+  void update(Buffer& data);
+  BufferPtr digest();
 };
 }  // namespace dsa
 

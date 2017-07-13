@@ -10,7 +10,7 @@
 #include <openssl/ecdh.h>
 #include <openssl/objects.h>
 
-#include "dsa/util.h"
+#include "util.h"
 
 template <typename T, typename U>
 inline void CHECK_NE(T a, U b) {
@@ -30,19 +30,22 @@ ecdh::ecdh(const char *curve) {
 
 ecdh::~ecdh() { EC_KEY_free(key); }
 
-std::shared_ptr<ByteBuffer> ecdh::get_private_key() {
+BufferPtr ecdh::get_private_key() {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
   if (priv == nullptr) throw std::runtime_error("private key not set");
   int size = BN_num_bytes(priv);
 
-  auto out = std::make_shared<ByteBuffer>(size);
+  uint8_t *out = new uint8_t[size];
 
-  if (size != BN_bn2bin(priv, out->data()))
+  if (size != BN_bn2bin(priv, out)) {
+    delete[] out;
     throw std::runtime_error("private key couldn't be retrieved");
-  return std::move(out);
+  }
+    
+  return std::move(std::make_shared<Buffer>(out, size, size));
 }
 
-std::shared_ptr<ByteBuffer> ecdh::get_public_key() {
+BufferPtr ecdh::get_public_key() {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
 
@@ -52,12 +55,15 @@ std::shared_ptr<ByteBuffer> ecdh::get_public_key() {
   size = EC_POINT_point2oct(group, pub, form, nullptr, 0, nullptr);
   if (size == 0) throw std::runtime_error("Couldn't get public key");
 
-  auto out = std::make_shared<ByteBuffer>(size);
+  uint8_t *out = new uint8_t[size];
 
-  int r = EC_POINT_point2oct(group, pub, form, out->data(), size, nullptr);
-  if (r != size) throw std::runtime_error("Couldn't get public key");
+  int r = EC_POINT_point2oct(group, pub, form, out, size, nullptr);
+  if (r != size) {
+    delete[] out;
+    throw std::runtime_error("Couldn't get public key");
+  }
 
-  return std::move(out);
+  return std::move(std::make_shared<Buffer>(out, size, size));
 }
 
 bool ecdh::is_key_valid_for_curve(BIGNUM *private_key) {
@@ -109,7 +115,7 @@ void ecdh::set_private_key_hex(const char *data) {
   EC_POINT_free(pub);
 }
 
-std::shared_ptr<ByteBuffer> ecdh::compute_secret(ByteBuffer& public_key) {
+BufferPtr ecdh::compute_secret(Buffer& public_key) {
   EC_POINT *pub = EC_POINT_new(group);
   int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
                              nullptr);
@@ -118,14 +124,17 @@ std::shared_ptr<ByteBuffer> ecdh::compute_secret(ByteBuffer& public_key) {
 
   // NOTE: field_size is in bits
   int field_size = EC_GROUP_get_degree(group);
-  auto out = std::make_shared<ByteBuffer>((field_size + 7) / 8);
+  size_t size = (field_size + 7) / 8;
+  uint8_t *out = new uint8_t[size];
 
-  r = ECDH_compute_key(out->data(), out->capacity(), pub, key, nullptr);
+  r = ECDH_compute_key(out, size, pub, key, nullptr);
   EC_POINT_free(pub);
-  if (!r)
+  if (!r) {
+    delete[] out;
     throw std::runtime_error("secret couldn't be computed with given key");
+  }
 
-  return std::move(out);
+  return std::move(std::make_shared<Buffer>(out, size, size));
 }
 
 }  // namespace dsa

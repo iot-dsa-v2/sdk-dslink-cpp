@@ -33,6 +33,8 @@
 
 .vs
 .vscode
+.idea
+cmake-build-debug
 bin
 lib
 build

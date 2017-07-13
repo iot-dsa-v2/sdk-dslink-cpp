@@ -6,7 +6,7 @@
 
 #include <openssl/ec.h>
 
-#include "dsa/util.h"
+#include "util.h"
 
 namespace dsa {
 class ecdh {
@@ -19,9 +19,9 @@ class ecdh {
   ecdh(const char *curve);
   ~ecdh();
 
-  std::shared_ptr<ByteBuffer> get_private_key();
-  std::shared_ptr<ByteBuffer> get_public_key();
-  std::shared_ptr<ByteBuffer> compute_secret(ByteBuffer& public_key);
+  BufferPtr get_private_key();
+  BufferPtr get_public_key();
+  BufferPtr compute_secret(Buffer& public_key);
   void set_private_key_hex(const char *data);
 };
 }  // namespace dsa

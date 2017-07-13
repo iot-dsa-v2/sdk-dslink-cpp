@@ -23,7 +23,7 @@ hash::~hash() {
   // EVP_MD_CTX_destroy(mdctx);
 }
 
-void hash::update(ByteBuffer& content) {
+void hash::update(Buffer& content) {
   EVP_DigestUpdate(&mdctx, content.data(), content.size());
 }
 
