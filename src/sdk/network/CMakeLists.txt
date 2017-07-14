@@ -13,7 +13,8 @@ add_library(dsa_network OBJECT
   connection.cc 
   session.cc 
   tcp_connection.cc 
-  tcp_server.cc)
+  tcp_server.cc
+  tcp_client.cc)
   
 set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES} dsa_network)
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_network> PARENT SCOPE)
