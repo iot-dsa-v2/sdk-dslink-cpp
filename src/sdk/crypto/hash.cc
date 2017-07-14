@@ -25,7 +25,7 @@ std::string hash::digest_base64() {
   if (finalized) throw std::runtime_error("digest already called");
 
   uint8_t md_value[EVP_MAX_MD_SIZE];
-  uint md_len;
+  uint32_t md_len;
   EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
   finalized = true;
 
