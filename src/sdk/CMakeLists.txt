@@ -15,7 +15,7 @@ set(LIB_UTIL "./util")
 option(USE_CRYPTO "Include dsa crypto library" ON)
 option(USE_MESSAGE "Include dsa message library" ON)
 option(USE_NETWORK "Include dsa network library" ON)
-option(USE_REQUESTER "Include dsa requester library" OFF)
+option(USE_REQUESTER "Include dsa requester library" ON)
 option(USE_RESPONDER "Include dsa responder library" ON)
 
 set(SOURCES "")

@@ -1,7 +1,7 @@
 #include "hmac.h"
 
 namespace dsa {
-void hmac::init(const char* alg, Buffer& content) {
+void HMAC::init(const char* alg, Buffer& content) {
   const EVP_MD* md = EVP_get_digestbyname(alg);
   if (md == nullptr) throw std::runtime_error("Failed to initialize HMAC");
 
@@ -11,28 +11,28 @@ void hmac::init(const char* alg, Buffer& content) {
     throw std::runtime_error("Failed to initialize HMAC");
 }
 
-hmac::hmac(const char* alg, Buffer& data) {
+HMAC::HMAC(const char* alg, Buffer& data) {
   init(alg, data);
   initialized = true;
 }
 
-hmac::~hmac() {
+HMAC::~HMAC() {
   // NOTE: to be used later if different version of OpenSSL is used
 }
 
-void hmac::update(Buffer& content) {
+void HMAC::update(Buffer& content) {
   if (!initialized) throw std::runtime_error("HMAC needs to be initialized");
   int r = HMAC_Update(&ctx, content.data(), content.size());
   if (!r) throw std::runtime_error("Failed to update HMAC");
 }
 
-BufferPtr hmac::digest() {
+BufferPtr HMAC::digest() {
   if (!initialized) throw std::runtime_error("HMAC needs to be initialized");
 
   uint8_t* out = new uint8_t[EVP_MAX_MD_SIZE];
   unsigned int size = 0;
 
-  bool r = HMAC_Final(&ctx, out, &size);
+  int r = HMAC_Final(&ctx, out, &size);
   if (!r) {
     delete[] out;
     throw std::runtime_error("Failed to get digest");

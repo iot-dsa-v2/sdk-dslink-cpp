@@ -1,4 +1,4 @@
-include_directories(${PROJECT_INCLUDE_DIR}/dsa/requester)
+include_directories("..")
 
 add_library(dsa_requester OBJECT
  #[[...source files]])

@@ -8,15 +8,15 @@
 #include "dsa/util.h"
 
 namespace dsa {
-class hmac {
+class HMAC {
  private:
   // HMAC_CTX *ctx;
   HMAC_CTX ctx;
   bool initialized;
 
  public:
-  hmac(const char *alg, Buffer& to_hash);
-  ~hmac();
+  HMAC(const char *alg, Buffer& to_hash);
+  ~HMAC();
 
   void init(const char *alg, Buffer& to_hash);
   void update(Buffer& data);

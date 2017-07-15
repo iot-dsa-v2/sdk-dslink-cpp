@@ -1,7 +1,7 @@
 #ifndef DSA_SDK_SUBSCRIPTION_QUEUE_H_
 #define DSA_SDK_SUBSCRIPTION_QUEUE_H_
 
-#include "../../dsax.h";
+#include "dsax.h";
 
 namespace dsa {
 /**

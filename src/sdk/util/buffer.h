@@ -9,13 +9,24 @@
 #include <memory>
 
 namespace dsa {
-class Buffer {
+class Buffer : public std::enable_shared_from_this<Buffer> {
  private:
   enum { default_capacity = 256 };
-  uint8_t * _data;
+  uint8_t *_data;
   size_t _size;
   size_t _capacity;
+
  public:
+  class MessageBuffer {
+   private:
+    std::shared_ptr<Buffer> parent_buf;
+   public:
+    const size_t size;
+    const uint8_t * data;
+    MessageBuffer(std::shared_ptr<Buffer> parent, uint8_t * data, size_t size)
+        : parent_buf(parent), data(data), size(size) {}
+  };
+
   // default constructor
   Buffer();
 
@@ -23,14 +34,14 @@ class Buffer {
   Buffer(size_t capacity);
 
   // shallow copy constructor
-  Buffer(const Buffer& other);
+  Buffer(const Buffer &other);
 
   // dangerous raw pointer constructor
   // data pointer assumed to be stored on heap with correct size and capacity args
-  Buffer(uint8_t* data, size_t size, size_t capacity);
+  Buffer(uint8_t *data, size_t size, size_t capacity);
 
   // assignment operator
-  Buffer& operator=(const Buffer& other);
+  Buffer &operator=(const Buffer &other);
 
   // get current capacity of underlying array
   size_t capacity() const;
@@ -48,20 +59,26 @@ class Buffer {
   void safe_append(uint8_t data);
 
   // copy from pointer `size` number of items
-  void assign(const uint8_t * data, size_t size);
+  void assign(const uint8_t *data, size_t size);
 
   // access underlying array
-  uint8_t * data() const;
+  uint8_t *data();
+
+  // access underlying constant data
+  const uint8_t *data() const;
 
   // access operator
-  uint8_t& operator[](int index);
+  uint8_t &operator[](size_t index);
 
   // const access operator
-  const uint8_t& operator[](int index) const;
+  const uint8_t &operator[](size_t index) const;
+
+  // get buffer
+  MessageBuffer get_message_buffer(size_t offset, size_t size);
 
   // iterator
-  typedef uint8_t * iterator;
-  typedef const uint8_t * const_iterator;
+  typedef uint8_t *iterator;
+  typedef const uint8_t *const_iterator;
   iterator begin() { return &_data[0]; }
   iterator end() { return &_data[_size]; }
 };
@@ -70,14 +87,14 @@ typedef std::shared_ptr<Buffer> BufferPtr;
 
 }  // namespace dsa
 
-inline std::ostream& operator<<(std::ostream& os, const dsa::Buffer& buf) {
+inline std::ostream &operator<<(std::ostream &os, const dsa::Buffer &buf) {
   std::stringstream ss;
   ss << "[";
   if (buf.size() > 0) {
     for (unsigned int i = 0; i < buf.size() - 1; ++i) {
-      ss << std::hex << (unsigned int)(buf[i]) << std::dec << ", ";
+      ss << std::hex << (unsigned int) (buf[i]) << std::dec << ", ";
     }
-    ss << std::hex << (unsigned int)(buf[buf.size() - 1]) << std::dec;
+    ss << std::hex << (unsigned int) (buf[buf.size() - 1]) << std::dec;
   }
   ss << "]";
   return os << ss.str();

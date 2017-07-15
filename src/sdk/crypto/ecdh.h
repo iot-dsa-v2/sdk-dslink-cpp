@@ -9,15 +9,15 @@
 #include "dsa/util.h"
 
 namespace dsa {
-class ecdh {
+class ECDH {
  private:
   EC_KEY *key;
   const EC_GROUP *group;
   bool is_key_valid_for_curve(BIGNUM *private_key);
 
  public:
-  ecdh(const char *curve);
-  ~ecdh();
+  ECDH(const char *curve);
+  ~ECDH();
 
   BufferPtr get_private_key();
   BufferPtr get_public_key();

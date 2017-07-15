@@ -8,7 +8,7 @@
 #include "dsa/util.h"
 
 namespace dsa {
-class hash {
+class Hash {
  private:
   EVP_MD_CTX mdctx;
   bool finalized;
@@ -21,8 +21,8 @@ class hash {
   Init init;
 
  public:
-  hash(const char *hash_type);
-  ~hash();
+  Hash(const char *hash_type);
+  ~Hash();
 
   void update(Buffer& data);
   std::string digest_base64();

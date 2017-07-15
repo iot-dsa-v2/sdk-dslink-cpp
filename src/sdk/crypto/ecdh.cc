@@ -10,7 +10,7 @@ inline void CHECK_NE(T a, U b) {
 
 namespace dsa {
 
-ecdh::ecdh(const char *curve) {
+ECDH::ECDH(const char *curve) {
   int nid = OBJ_sn2nid(curve);
   if (nid == NID_undef) throw std::runtime_error("invalid curve name");
   key = EC_KEY_new_by_curve_name(nid);
@@ -19,9 +19,9 @@ ecdh::ecdh(const char *curve) {
   group = EC_KEY_get0_group(key);
 }
 
-ecdh::~ecdh() { EC_KEY_free(key); }
+ECDH::~ECDH() { EC_KEY_free(key); }
 
-BufferPtr ecdh::get_private_key() {
+BufferPtr ECDH::get_private_key() {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
   if (priv == nullptr) throw std::runtime_error("private key not set");
   int size = BN_num_bytes(priv);
@@ -36,7 +36,7 @@ BufferPtr ecdh::get_private_key() {
   return std::move(std::make_shared<Buffer>(out, size, size));
 }
 
-BufferPtr ecdh::get_public_key() {
+BufferPtr ECDH::get_public_key() {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
 
@@ -57,7 +57,7 @@ BufferPtr ecdh::get_public_key() {
   return std::move(std::make_shared<Buffer>(out, size, size));
 }
 
-bool ecdh::is_key_valid_for_curve(BIGNUM *private_key) {
+bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) {
   if (group == nullptr) throw std::runtime_error("group cannot be null");
   if (private_key == nullptr)
     throw std::runtime_error("private key cannot be null");
@@ -72,7 +72,7 @@ bool ecdh::is_key_valid_for_curve(BIGNUM *private_key) {
   return result;
 }
 
-void ecdh::set_private_key_hex(const char *data) {
+void ECDH::set_private_key_hex(const char *data) {
   BIGNUM *priv = BN_new();
   BN_hex2bn(&priv, data);
   if (!is_key_valid_for_curve(priv))
@@ -106,7 +106,7 @@ void ecdh::set_private_key_hex(const char *data) {
   EC_POINT_free(pub);
 }
 
-BufferPtr ecdh::compute_secret(Buffer& public_key) {
+BufferPtr ECDH::compute_secret(Buffer& public_key) {
   EC_POINT *pub = EC_POINT_new(group);
   int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
                              nullptr);

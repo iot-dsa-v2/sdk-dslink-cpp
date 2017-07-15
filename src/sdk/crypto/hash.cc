@@ -5,7 +5,7 @@
 #include "misc.h"
 
 namespace dsa {
-hash::hash(const char *hash_type) : finalized(false) {
+Hash::Hash(const char *hash_type) : finalized(false) {
   const EVP_MD *md = EVP_get_digestbyname(hash_type);
   if (md == nullptr) throw std::runtime_error("invalid hash type");
   EVP_MD_CTX_init(&mdctx);
@@ -13,15 +13,15 @@ hash::hash(const char *hash_type) : finalized(false) {
     throw std::runtime_error("something went wrong initializing digest");
 }
 
-hash::~hash() {
+Hash::~Hash() {
   // NOTE: to be used later if different version of OpenSSL is used
 }
 
-void hash::update(Buffer& content) {
+void Hash::update(Buffer& content) {
   EVP_DigestUpdate(&mdctx, content.data(), content.size());
 }
 
-std::string hash::digest_base64() {
+std::string Hash::digest_base64() {
   if (finalized) throw std::runtime_error("digest already called");
 
   uint8_t md_value[EVP_MAX_MD_SIZE];

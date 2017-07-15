@@ -1,4 +1,4 @@
-include_directories(${PROJECT_INCLUDE_DIR}/dsa/responder)
+include_directories("..")
 
 add_library(dsa_responder OBJECT
   node_model_manager.cc 

@@ -1,14 +1,15 @@
-include_directories(${PROJECT_INCLUDE_DIR}/dsa/message)
+include_directories("..")
 
 add_library(dsa_message OBJECT
-  abstract_message.cc
-  invoke_message.cc 
-  list_message.cc 
-  list_message.cc 
-  message_factory.cc 
-  observe_message.cc 
-  set_message.cc 
-  subscribe_message.cc)
+        abstract_message.cc
+        invoke_message.cc
+        list_message.cc
+        list_message.cc
+        message_factory.cc
+        observe_message.cc
+        set_message.cc
+        subscribe_message.cc
+        static_header.cc)
 
 set(EXTRA_LIBS ${EXTRA_LIBS} dsa_message)
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_message> PARENT_SCOPE)

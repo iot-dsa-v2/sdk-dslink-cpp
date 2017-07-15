@@ -1,4 +1,4 @@
-include_directories(${PROJECT_INCLUDE_DIR}/dsa/util)
+include_directories("..")
 
 add_library(dsa_util OBJECT
   buffer.cc)

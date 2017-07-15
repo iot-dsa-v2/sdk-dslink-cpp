@@ -1,3 +1,3 @@
 #include <dsa/responder.h>
 
-void main() {}
+int main() {}

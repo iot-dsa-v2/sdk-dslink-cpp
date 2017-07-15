@@ -1,3 +1,3 @@
 #include <dsa/requester.h>
 
-void main() {}
+int main() {}

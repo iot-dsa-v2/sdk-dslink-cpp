@@ -28,7 +28,9 @@ class EnableShared {
 
 template <class _Ty, class... _Types>
 inline std::shared_ptr<_Ty> make_shared(_Types&&... _Args) {
-  return (new _Ty(_STD forward<_Types>(_Args)...))->shared_from_this();
+  // FIXME: this doesn't compile
+  //  return (new _Ty(_STD, std::forward<_Types>(_Args)...))->shared_from_this();
+  return (new _Ty(_Args...))->shared_from_this();
 }
 
 }  // namespace dsa
