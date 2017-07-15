@@ -1,6 +1,8 @@
 #ifndef DSA_SDK_SUBSCRIPTION_QUEUE_H_
 #define DSA_SDK_SUBSCRIPTION_QUEUE_H_
 
+#include "../../dsax.h";
+
 namespace dsa {
 /**
  * maintain a smart queue of subscription updates

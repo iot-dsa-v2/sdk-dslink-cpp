@@ -34,6 +34,6 @@ include_directories("../include")
 
 # TESTS
 set (TEST_LIBS gtest_main dsa_sdk)
-add_executable(buffer util-unittest.cc)
-target_link_libraries(buffer ${TEST_LIBS})
-add_test(NAME buffer_test COMMAND buffer)
+add_executable(util-test util-test.cc)
+target_link_libraries(util-test ${TEST_LIBS})
+add_test(NAME util-test COMMAND util-test)

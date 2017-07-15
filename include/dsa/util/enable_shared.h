@@ -9,25 +9,25 @@ namespace dsa {
 template <class T>
 class EnableShared {
  private:
-  std::shared_ptr<T> _sptr;
+  std::shared_ptr<T> _ptr;
 
  public:
-  Enabled_Shared() { _sptr = shared_ptr<T>(this); }
+  EnableShared() : _ptr(static_cast<T*>(this)) {}
 
-  shared_ptr<T> shared_from_this() {
-    if (_sptr.get()) {
-      return _sptr;
+  std::shared_ptr<T> shared_from_this() {
+    if (_ptr.get()) {
+      return _ptr;
     }
     throw std::runtime_error("shared object used after destory");
   }
 
-  void destory() { _sptr.reset(nullptr); }
+  void destory() { _ptr.reset(); }
 
-  bool destroyed() const { return !_sptr.get(); }
+  bool destroyed() const { return !_ptr.get(); }
 };
 
 template <class _Ty, class... _Types>
-inline shared_ptr<_Ty> make_shared(_Types&&... _Args) {
+inline std::shared_ptr<_Ty> make_shared(_Types&&... _Args) {
   return (new _Ty(_STD forward<_Types>(_Args)...))->shared_from_this();
 }
 
