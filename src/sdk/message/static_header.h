@@ -18,7 +18,7 @@ class StaticHeader {
   uint8_t _type;
   uint32_t _request_id;
  public:
-  StaticHeader(uint8_t * data);
+  StaticHeader(const uint8_t * data);
   const uint32_t &message_size() const;
   const uint16_t &header_size() const;
   const uint8_t &type() const;

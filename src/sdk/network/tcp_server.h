@@ -12,7 +12,7 @@ class TcpServer : public Server {
   boost::asio::ip::tcp::acceptor _acceptor;
   boost::asio::io_service & _io_service;
 
-  void accept_loop(TCPConnectionPtr connection, const boost::system::error_code &error);
+  void accept_loop(TcpServerConnectionPtr connection, const boost::system::error_code &error);
 
  public:
   TcpServer(boost::asio::io_service &io_service, SecurityContextPtr &security_context, unsigned short port);

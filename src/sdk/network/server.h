@@ -7,6 +7,7 @@ namespace dsa {
 class Server {
  private:
   SecurityContextPtr _security_context;
+
  public:
   Server(SecurityContextPtr &security_context);
   const SecurityContext &security_context();

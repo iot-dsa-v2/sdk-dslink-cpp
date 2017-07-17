@@ -23,28 +23,7 @@ class TcpConnection : public Connection {
   tcp_socket _socket;
 
  protected:
-  Buffer _buffer;
-  BufferPtr _shared_secret;
-  BufferPtr _other_public_key;
-  BufferPtr _other_salt;
-  BufferPtr _other_dsid;
-  BufferPtr _other_auth;
-  BufferPtr _other_token;
-  std::string path;
-
-  // parse handshake messages
-  bool parse_f0(uint8_t *data);
-  bool parse_f1(uint8_t *data);
-  bool parse_f2(uint8_t *data);
-  bool parse_f3(uint8_t *data);
-
-  // load handshake messages
-  bool load_f0(Buffer &buf);
-  bool load_f1(Buffer &buf);
-  bool load_f2(Buffer &buf);
-  bool load_f3(Buffer &buf);
-
-  void read_loop(const boost::system::error_code &error, size_t bytes_transferred);
+  void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred);
 
  public:
   TcpConnection(boost::asio::io_service &io_service, const SecurityContext &security_context);
@@ -84,7 +63,7 @@ class TcpClientConnection : public TcpConnection {
   void start();
 };
 
-typedef std::shared_ptr<TcpConnection> TCPConnectionPtr;
+typedef std::shared_ptr<TcpServerConnection> TcpServerConnectionPtr;
 
 }  // namespace dsa
 

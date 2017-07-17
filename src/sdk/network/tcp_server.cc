@@ -9,15 +9,16 @@ TcpServer::TcpServer(boost::asio::io_service &io_service, SecurityContextPtr &se
     boost::asio::ip::tcp::v4(), port)) {}
 
 void TcpServer::start() {
-  auto connection = std::make_shared<TcpConnection>(_io_service, security_context());
+  auto connection = std::make_shared<TcpServerConnection>(_io_service, security_context());
+//  auto connection = new TcpServerConnection(_io_service, security_context());
   _acceptor.async_accept(connection->socket(),
                          boost::bind(&TcpServer::accept_loop, this, std::move(connection),
                                      boost::asio::placeholders::error));
 }
 
-void TcpServer::accept_loop(TCPConnectionPtr connection, const boost::system::error_code &error) {
+void TcpServer::accept_loop(TcpServerConnectionPtr connection, const boost::system::error_code &error) {
   connection->start();
-  auto new_connection = std::make_shared<TcpConnection>(_io_service, security_context());
+  auto new_connection = std::make_shared<TcpServerConnection>(_io_service, security_context());
   _acceptor.async_accept(connection->socket(),
                          boost::bind(&TcpServer::accept_loop, this, std::move(connection),
                                      boost::asio::placeholders::error));
