@@ -1,11 +1,13 @@
 #ifndef DSA_SDK_SESSION_H_
 #define DSA_SDK_SESSION_H_
 
+#include "../util/util.h"
+
 namespace dsa {
 /**
  * maintain request and response streams
  */
-class Session {};
+class Session: public EnableShared<Session> {};
 }  // namespace dsa
 
 #endif // DSA_SDK_SESSION_H_

@@ -4,7 +4,7 @@
 #include <boost/function.hpp>
 #include <boost/asio.hpp>
 
-#include "dsa/util.h"
+#include "../util/util.h"
 
 typedef boost::function0<void> WriteCallback;
 typedef boost::function1<void, dsa::Buffer::MessageBuffer> ReadCallback;
@@ -15,7 +15,7 @@ namespace dsa {
  * handshake logic
  * split and join binary data into message frame
  */
-class Connection : public std::enable_shared_from_this<Connection> {
+class Connection : public EnableShared<Connection> {
  private:
   ReadCallback read_handler;
   void handle_read(Buffer::MessageBuffer buf);
@@ -24,6 +24,7 @@ class Connection : public std::enable_shared_from_this<Connection> {
   virtual void write(BufferPtr buf, WriteCallback callback) = 0;
   virtual void close() = 0;
   virtual void start() = 0;
+  virtual void destory() = 0;
 };
 }  // namespace dsa
 

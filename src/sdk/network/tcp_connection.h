@@ -5,7 +5,10 @@
 
 #include "connection.h"
 #include "security_context.h"
-#include "dsa/util.h"
+
+
+
+#include "../util/enable_shared.h"
 
 namespace dsa {
 
@@ -14,7 +17,7 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Base TCP connection. Used for DSA connections over TCP.
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
-class TcpConnection {
+class TcpConnection : public Connection {
  private:
   const SecurityContext &_security_context;
   tcp_socket _socket;
@@ -55,6 +58,7 @@ class TcpConnection {
   virtual void start();
 
   void close();
+  void destroy();
 };
 
 // TCP server side connection.
