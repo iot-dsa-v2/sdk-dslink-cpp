@@ -3,7 +3,7 @@ project(sdk-dslink-cpp)
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(${PROJECT_INCLUDE_DIR} PARENT SCOPE)
+include_directories(${PROJECT_INCLUDE_DIR} PARENT_SCOPE)
 
 # BUILD OPTIONS
 option(INCLUDE_MODULE_PACK "Include set additional modules" OFF)
