@@ -14,20 +14,20 @@ void Connection::handle_read(Buffer::MessageBuffer buf) {
 }
 
 // Handshake parse functions
-bool Connection::parse_f0(size_t bytes_transferred) {
-  if (bytes_transferred < min_f0_length)
+bool Connection::parse_f0(size_t size) {
+  if (size < min_f0_length)
     return false;
 
   const uint8_t *data = _buffer->data();
 
   StaticHeader header(data);
-  if (header.message_size() != bytes_transferred ||
-      header.header_size() != 11 ||
+  if (header.message_size() != size ||
+      header.header_size() != static_header_size||
       header.type() != 0xf0 ||
       header.request_id() != 0)
     return false;
 
-  uint32_t cur = header.header_size();
+  uint32_t cur = static_header_size;
   uint8_t dsid_length;
 
   std::memcpy(&_dsa_version_major, &data[cur], sizeof(_dsa_version_major));
@@ -37,10 +37,11 @@ bool Connection::parse_f0(size_t bytes_transferred) {
   std::memcpy(&dsid_length, &data[cur], sizeof(dsid_length));
   cur += sizeof(dsid_length);
 
-  if (cur + dsid_length > bytes_transferred) return false;
+  if (cur + dsid_length > size) return false;
 
   _other_dsid = std::make_shared<Buffer>(dsid_length);
   _other_dsid->assign(&data[cur], dsid_length);
+  _other_public_key = std::make_shared<Buffer>()
 
   return true;
 }

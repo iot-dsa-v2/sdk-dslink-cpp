@@ -20,8 +20,6 @@ namespace dsa {
 
 class Connection : public EnableShared<Connection> {
  protected:
-  enum { static_header_size = 11 };
-
   Connection(boost::asio::io_service &io_service1);
   boost::asio::io_service &io_service;
 
@@ -37,10 +35,10 @@ class Connection : public EnableShared<Connection> {
   std::string path;
 
   // parse handshake messages
-  bool parse_f0(size_t bytes_transferred);
-  bool parse_f1(size_t bytes_transferred);
-  bool parse_f2(size_t bytes_transferred);
-  bool parse_f3(size_t bytes_transferred);
+  bool parse_f0(size_t size);
+  bool parse_f1(size_t size);
+  bool parse_f2(size_t size);
+  bool parse_f3(size_t size);
 
   // load handshake messages
   size_t load_f0(Buffer &buf);
@@ -54,33 +52,34 @@ class Connection : public EnableShared<Connection> {
 
  private:
   enum {
-    min_f0_length = 11 + // static header
-        2 +  // client dsid version
-        1 +  // client dsid length
-        20 + // client dsid content
-        65 + // client public key
-        1 +  // client security preference
-        32,  // client salt
-    min_f1_length = 11 + // static header
-        1 +  // broker dsid length
-        20 + // broker dsid content
-        65 + // broker public key
-        32,  // broker salt
-    min_f2_length = 11 + // static header
-        2 +  // client token length
-        0 +  // client token content
-        1 +  // client is requester
-        1 +  // client is responder
-        32,  // client auth
-    min_f3_length = 11 + // static header
-        2 +  // session id length
-        1 +  // session id content
-        2 +  // client path length
-        1 +  // client path content
-        32,  // broker auth
+    static_header_length = 15,
     public_key_length = 65,
     salt_length = 32,
-    auth_length = 32
+    auth_length = 32,
+    min_f0_length = static_header_length +
+        2 +                 // client dsid version
+        1 +                 // client dsid length
+        20 +                // client dsid content
+        public_key_length + // client public key
+        1 +                 // client security preference
+        salt_length,        // client salt
+    min_f1_length = static_header_length +
+        1 +                 // broker dsid length
+        20 +                // broker dsid content
+        public_key_length + // broker public key
+        salt_length,        // broker salt
+    min_f2_length = static_header_length +
+        2 +                 // client token length
+        0 +                 // client token content
+        1 +                 // client is requester
+        1 +                 // client is responder
+        auth_length,        // client auth
+    min_f3_length = static_header_length +
+        2 +                 // session id length
+        1 +                 // session id content
+        2 +                 // client path length
+        1 +                 // client path content
+        auth_length,        // broker auth
   };
 
   ReadCallback read_handler;
