@@ -1,11 +1,7 @@
 #include "tcp_connection.h"
 #include <boost/bind.hpp>
 
-#include <boost/bind.hpp>
-#include <message/static_header.h>
-
 namespace dsa {
-
 
 TcpConnection::TcpConnection(boost::asio::io_service &io_service, const SecurityContext &security_context)
     : Connection(io_service), _security_context(security_context), _socket(io_service) {}

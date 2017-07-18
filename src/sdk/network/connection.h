@@ -54,7 +54,7 @@ class Connection : public EnableShared<Connection> {
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
   void handle_read(Buffer::MessageBuffer buf);
-  
+
   enum {
     static_header_length = 15,
     public_key_length = 65,
