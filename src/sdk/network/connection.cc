@@ -41,7 +41,7 @@ bool Connection::parse_f0(size_t size) {
 
   _other_dsid = std::make_shared<Buffer>(dsid_length);
   _other_dsid->assign(&data[cur], dsid_length);
-  _other_public_key = std::make_shared<Buffer>()
+  _other_public_key = std::make_shared<Buffer>();
 
   return true;
 }
