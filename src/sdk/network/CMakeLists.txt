@@ -19,6 +19,7 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES} PARENT SCOPE)
 
 add_library(dsa_network OBJECT
+        app.cc
         connection.cc
         session.cc
         server.cc

@@ -6,10 +6,10 @@
 namespace dsa {
 class Server {
  private:
-  SecurityContextPtr _security_context;
+  SecurityContext &_security_context;
 
  public:
-  Server(SecurityContextPtr &security_context);
+  Server(SecurityContext &security_context);
   const SecurityContext &security_context();
 };
 }  // namespace dsa

@@ -5,6 +5,7 @@
 
 #include "server.h"
 #include "tcp_connection.h"
+#include "app.h"
 
 namespace dsa {
 class TcpServer : public Server {
@@ -15,7 +16,7 @@ class TcpServer : public Server {
   void accept_loop(TcpServerConnectionPtr connection, const boost::system::error_code &error);
 
  public:
-  TcpServer(boost::asio::io_service &io_service, SecurityContextPtr &security_context, unsigned short port);
+  TcpServer(App &app, unsigned short port);
 
   void start();
 };

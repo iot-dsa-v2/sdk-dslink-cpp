@@ -90,7 +90,7 @@ class Connection : public EnableShared<Connection> {
   virtual void write(BufferPtr buf, size_t size, WriteCallback callback) = 0;
   virtual void close() = 0;
   virtual void start() = 0;
-  virtual void destory() = 0;
+  virtual void destroy() = 0;
 };
 }  // namespace dsa
 

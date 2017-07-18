@@ -43,15 +43,16 @@ class TcpConnection : public Connection {
 // TCP server side connection.
 // Handles server side of DSA handshake and starts read loop.
 class TcpServerConnection : public TcpConnection {
- public:
-  TcpServerConnection(boost::asio::io_service &io_service, const SecurityContext &security_context);
-
-  void start();
-
+ private:
   void f0_received(const boost::system::error_code &error, size_t bytes_transferred);
   void f1_sent(const boost::system::error_code &error, size_t bytes_transferred);
   void f2_received(const boost::system::error_code &error, size_t bytes_transferred);
   void f3_sent(const boost::system::error_code &error, size_t bytes_transferred);
+
+ public:
+  TcpServerConnection(boost::asio::io_service &io_service, const SecurityContext &security_context);
+
+  void start();
 };
 
 // TCP client side connection.
