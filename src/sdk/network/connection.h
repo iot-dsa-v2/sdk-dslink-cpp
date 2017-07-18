@@ -59,34 +59,34 @@ class Connection : public EnableShared<Connection> {
   void handle_read(Buffer::MessageBuffer buf);
 
   enum {
-    static_header_length = 15,
-    public_key_length = 65,
-    salt_length = 32,
-    auth_length = 32,
-    min_f0_length = static_header_length +
+    STATIC_HEADER_LENGTH = 15,
+    PUBLIC_KEY_LENGTH = 65,
+    SALT_LENGTH = 32,
+    AUTH_LENGTH = 32,
+    MIN_F0_LENGTH = STATIC_HEADER_LENGTH +
         2 +                 // client dsa version
         1 +                 // client dsid length
         1 +                 // client dsid content
-        public_key_length + // client public key
+        PUBLIC_KEY_LENGTH + // client public key
         1 +                 // client security preference
-        salt_length,        // client salt
-    min_f1_length = static_header_length +
+        SALT_LENGTH,        // client salt
+    MIN_F1_LENGTH = STATIC_HEADER_LENGTH +
         1 +                 // broker dsid length
         1 +                 // broker dsid content
-        public_key_length + // broker public key
-        salt_length,        // broker salt
-    min_f2_length = static_header_length +
+        PUBLIC_KEY_LENGTH + // broker public key
+        SALT_LENGTH,        // broker salt
+    MIN_F2_LENGTH = STATIC_HEADER_LENGTH +
         2 +                 // client token length
         0 +                 // client token content
         1 +                 // client is requester
         1 +                 // client is responder
-        auth_length,        // client auth
-    min_f3_length = static_header_length +
+        AUTH_LENGTH,        // client auth
+    MIN_F3_LENGTH = STATIC_HEADER_LENGTH +
         2 +                 // session id length
         1 +                 // session id content
         2 +                 // client path length
         1 +                 // client path content
-        auth_length,        // broker auth
+        AUTH_LENGTH,        // broker auth
   };
 
   ReadCallback read_handler;
