@@ -25,20 +25,20 @@ class DynamicHeader {
     TARGET_PATH = 0x80,
     SOURCE_PATH = 0x81
   };
+
   static DynamicHeader* parse(const uint8_t* data, size_t size);
+
+  const uint8_t& name() const;
+  // total size in bytes of this header
+  const uint16_t& size() const;
+  virtual void write(uint8_t * data) = 0;
 
  private:
   uint8_t _name;
   uint16_t _size;
 
  protected:
-  DynamicHeader(const uint8_t name, const uint16_t size);
-
- public:
-  const uint8_t& name() const;
-  // total size in bytes of this header
-  const uint16_t& size() const;
-  virtual void write(uint8_t * data) = 0;
+  DynamicHeader(const uint8_t key, const uint16_t size);
 };
 
 class DynamicStringHeader : public DynamicHeader {

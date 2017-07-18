@@ -58,6 +58,9 @@ class Connection : public EnableShared<Connection> {
 
   void handle_read(Buffer::MessageBuffer buf);
 
+  // for this to be successful, _other_salt and _other_public_key need to valid
+  void compute_secret();
+
   enum {
     STATIC_HEADER_LENGTH = 15,
     PUBLIC_KEY_LENGTH = 65,

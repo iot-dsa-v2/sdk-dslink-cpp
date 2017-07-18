@@ -1,8 +1,9 @@
 #include "dynamic_header.h"
+
 namespace dsa {
 
-DynamicHeader::DynamicHeader(const uint8_t name, const uint16_t size)
-    : _name(name), _size(size) {}
+DynamicHeader::DynamicHeader(const uint8_t key, const uint16_t size)
+    : _name(key), _size(size) {}
 
 const uint8_t &DynamicHeader::name() const { return _name; }
 

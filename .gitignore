@@ -39,3 +39,5 @@ cmake-build-release
 bin
 lib
 build
+include/gtest
+include/gmock
