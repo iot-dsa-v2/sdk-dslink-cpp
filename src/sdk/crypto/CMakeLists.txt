@@ -7,7 +7,7 @@ endif()
 
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES} PARENT SCOPE)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES} PARENT_SCOPE)
 
 add_library(dsa_crypto OBJECT
   ecdh.cc
