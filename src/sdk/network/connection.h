@@ -6,7 +6,8 @@
 #include <boost/function.hpp>
 #include <boost/asio.hpp>
 
-#include "../util/util.h"
+#include "util/util.h"
+#include "message/static_header.h"
 
 typedef boost::function0<void> WriteCallback;
 typedef boost::function1<void, dsa::Buffer::MessageBuffer> ReadCallback;
@@ -30,9 +31,13 @@ class Connection : public EnableShared<Connection> {
   BufferPtr _other_dsid;
   BufferPtr _other_auth;
   BufferPtr _other_token;
+  BufferPtr _session_id;
+  BufferPtr _path;
   uint8_t _dsa_version_major;
   uint8_t _dsa_version_minor;
-  std::string path;
+  bool _is_requester;
+  bool _is_responder;
+  bool _security_preference;
 
   // parse handshake messages
   bool parse_f0(size_t size);
@@ -49,8 +54,7 @@ class Connection : public EnableShared<Connection> {
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
   void handle_read(Buffer::MessageBuffer buf);
-
- private:
+  
   enum {
     static_header_length = 15,
     public_key_length = 65,
@@ -83,6 +87,8 @@ class Connection : public EnableShared<Connection> {
   };
 
   ReadCallback read_handler;
+
+  static bool valid_handshake_header(StaticHeader &header, size_t size, uint8_t type);
 
  public:
   void set_read_handler(ReadCallback callback);

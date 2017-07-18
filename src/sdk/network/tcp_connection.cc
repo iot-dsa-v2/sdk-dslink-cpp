@@ -34,7 +34,7 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
 
     while (cur < total_bytes) {
       // always want full static header instead of just message size to make sure it's a valid message
-      if (total_bytes - cur < static_header_size) {
+      if (total_bytes - cur < static_header_length) {
         size_t partial_size = total_bytes - cur;
         _buffer->assign(&data[cur], partial_size);
         _socket.async_read_some(boost::asio::buffer(_buffer->data() + partial_size, _buffer->capacity() - partial_size),
