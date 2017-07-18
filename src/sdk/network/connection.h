@@ -8,6 +8,7 @@
 
 #include "util/util.h"
 #include "message/static_header.h"
+#include "app.h"
 
 typedef boost::function0<void> WriteCallback;
 typedef boost::function1<void, dsa::Buffer::MessageBuffer> ReadCallback;
@@ -21,8 +22,8 @@ namespace dsa {
 
 class Connection : public EnableShared<Connection> {
  protected:
-  Connection(boost::asio::io_service &io_service1);
-  boost::asio::io_service &io_service;
+  Connection(const App &app);
+  const App &_app;
 
   BufferPtr _buffer;
   BufferPtr _shared_secret;
@@ -33,6 +34,8 @@ class Connection : public EnableShared<Connection> {
   BufferPtr _other_token;
   BufferPtr _session_id;
   BufferPtr _path;
+  BufferPtr _token;
+  BufferPtr _auth;
   uint8_t _dsa_version_major;
   uint8_t _dsa_version_minor;
   bool _is_requester;
@@ -61,15 +64,15 @@ class Connection : public EnableShared<Connection> {
     salt_length = 32,
     auth_length = 32,
     min_f0_length = static_header_length +
-        2 +                 // client dsid version
+        2 +                 // client dsa version
         1 +                 // client dsid length
-        20 +                // client dsid content
+        1 +                 // client dsid content
         public_key_length + // client public key
         1 +                 // client security preference
         salt_length,        // client salt
     min_f1_length = static_header_length +
         1 +                 // broker dsid length
-        20 +                // broker dsid content
+        1 +                 // broker dsid content
         public_key_length + // broker public key
         salt_length,        // broker salt
     min_f2_length = static_header_length +

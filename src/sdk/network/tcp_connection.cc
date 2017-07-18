@@ -3,8 +3,8 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(boost::asio::io_service &io_service, const SecurityContext &security_context)
-    : Connection(io_service), _security_context(security_context), _socket(io_service) {}
+TcpConnection::TcpConnection(const App &app)
+    : Connection(app), _socket(app.io_service()) {}
 
 void TcpConnection::close() { _socket.close(); }
 void TcpConnection::destroy() {
@@ -58,8 +58,8 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
       }
 
       // post job with message buffer
-      io_service.post(boost::bind(&TcpConnection::handle_read, this,
-                                  buf->get_message_buffer(cur, header.message_size())));
+      _app.io_service().post(boost::bind(&TcpConnection::handle_read, this,
+                                         buf->get_message_buffer(cur, header.message_size())));
 
       cur += header.message_size();
     }
@@ -83,8 +83,8 @@ void TcpConnection::write(BufferPtr buf, size_t size, WriteCallback callback) {
 
 tcp_socket &TcpConnection::socket() { return _socket; }
 
-TcpServerConnection::TcpServerConnection(boost::asio::io_service &io_service, const SecurityContext &security_context)
-    : TcpConnection(io_service, security_context) {}
+TcpServerConnection::TcpServerConnection(const App &app)
+    : TcpConnection(app) {}
 
 void TcpServerConnection::start() {
   socket().async_read_some(boost::asio::buffer(_buffer->data(), _buffer->capacity()),

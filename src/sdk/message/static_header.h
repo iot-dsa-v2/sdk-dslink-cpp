@@ -20,12 +20,15 @@ class StaticHeader {
   uint32_t _request_id;
   uint32_t _ack_id;
  public:
-  StaticHeader(const uint8_t * data);
+  StaticHeader(const uint8_t *data);
+  StaticHeader(uint32_t message_size, uint16_t header_size, uint8_t type, uint32_t request_id, uint32_t ack_id);
+
   const uint32_t &message_size() const;
   const uint16_t &header_size() const;
   const uint8_t &type() const;
   const uint32_t &request_id() const;
   const uint32_t &ack_id() const;
+  void write(uint8_t *data);
 };
 
 }  // namespace dsa

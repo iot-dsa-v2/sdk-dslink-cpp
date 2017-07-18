@@ -2,15 +2,15 @@
 #define  DSA_SDK_SERVER_H
 
 #include "security_context.h"
+#include "app.h"
 
 namespace dsa {
 class Server {
- private:
-  SecurityContext &_security_context;
+ protected:
+  const App &_app;
 
  public:
-  Server(SecurityContext &security_context);
-  const SecurityContext &security_context();
+  Server(const App &app);
 };
 }  // namespace dsa
 

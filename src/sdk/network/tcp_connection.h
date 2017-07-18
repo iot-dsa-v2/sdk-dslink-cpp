@@ -6,9 +6,7 @@
 #include "connection.h"
 #include "security_context.h"
 
-
-
-#include "../util/enable_shared.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
 
@@ -19,14 +17,13 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // and separating incoming messages.
 class TcpConnection : public Connection {
  private:
-  const SecurityContext &_security_context;
   tcp_socket _socket;
 
  protected:
   void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred);
 
  public:
-  TcpConnection(boost::asio::io_service &io_service, const SecurityContext &security_context);
+  TcpConnection(const App &app);
 
   void error_check_wrap(WriteCallback callback, const boost::system::error_code &error);
 
@@ -50,7 +47,7 @@ class TcpServerConnection : public TcpConnection {
   void f3_sent(const boost::system::error_code &error, size_t bytes_transferred);
 
  public:
-  TcpServerConnection(boost::asio::io_service &io_service, const SecurityContext &security_context);
+  TcpServerConnection(const App &app);
 
   void start();
 };
@@ -59,7 +56,7 @@ class TcpServerConnection : public TcpConnection {
 // Handles client side of DSA handshake and starts read loop.
 class TcpClientConnection : public TcpConnection {
  public:
-  TcpClientConnection(boost::asio::io_service &io_service, const SecurityContext &security_context);
+  TcpClientConnection(const App &app);
 
   void start();
 };

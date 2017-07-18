@@ -1,9 +1,11 @@
-#include <message/static_header.h>
 #include "connection.h"
+
+#include "message/static_header.h"
+#include "security_context.h"
 
 namespace dsa {
 
-Connection::Connection(boost::asio::io_service &io_service) : io_service(io_service), _buffer(new Buffer()) {}
+Connection::Connection(const App &app) : _app(app), _buffer(new Buffer()) {}
 
 void Connection::set_read_handler(ReadCallback callback) {
   read_handler = callback;
@@ -162,19 +164,102 @@ bool Connection::parse_f3(size_t size) {
 
 // Handshake load functions
 size_t Connection::load_f0(Buffer &buf) {
-  return 0;
+  uint8_t dsid_length = (uint8_t)_app.security_context().dsid().size();
+
+  // ensure buf is large enough
+  buf.resize(min_f0_length + _app.security_context().dsid().size());
+
+  // leave message size blank for now
+  StaticHeader header(0, static_header_length, 0xf0, 0, 0);
+  uint8_t *data = buf.data();
+  header.write(data);
+  uint32_t cur = static_header_length;
+  data[cur++] = 2; // version major
+  data[cur++] = 0; // version minor
+  data[cur++] = dsid_length;
+  std::memcpy(&data[cur], _app.security_context().dsid().c_str(), dsid_length);
+  cur += dsid_length;
+  std::memcpy(&data[cur], _app.security_context().public_key().data(), public_key_length);
+  data[cur++] = 0; // no encryption for now
+  std::memcpy(&data[cur], _app.security_context().salt().data(), salt_length);
+  cur += salt_length;
+  std::memcpy(data, &cur, sizeof(cur)); // write total size
+
+  return cur;
 }
 
 size_t Connection::load_f1(Buffer &buf) {
-  return 0;
+  uint8_t dsid_length = (uint8_t)_app.security_context().dsid().size();
+
+  // ensure buf is large enough
+  buf.resize(min_f1_length + dsid_length);
+
+  // leave message size blank for now
+  StaticHeader header(0, static_header_length, 0xf1, 0, 0);
+  uint8_t *data = buf.data();
+  header.write(data);
+  uint32_t cur = static_header_length;
+  data[cur++] = dsid_length;
+  std::memcpy(&data[cur], _app.security_context().dsid().c_str(), dsid_length);
+  cur += dsid_length;
+  std::memcpy(&data[cur], _app.security_context().public_key().data(), public_key_length);
+  cur += public_key_length;
+  std::memcpy(&data[cur], _app.security_context().salt().data(), salt_length);
+  cur += salt_length;
+  std::memcpy(data, &cur, sizeof(cur));
+
+  return cur;
 }
 
 size_t Connection::load_f2(Buffer &buf) {
-  return 0;
+  uint16_t token_length = (uint16_t)_token->size();
+
+  // ensure buf is large enough
+  buf.resize(min_f2_length + token_length);
+
+  // leave message size blank for now
+  StaticHeader header(0, static_header_length, 0xf2, 0, 0);
+  uint8_t *data = buf.data();
+  header.write(data);
+  uint32_t cur = static_header_length;
+  std::memcpy(&data[cur], &token_length, sizeof(token_length));
+  cur += sizeof(token_length);
+  std::memcpy(&data[cur], _token->data(), token_length);
+  cur += token_length;
+  data[cur++] = (uint8_t)(_is_requester ? 1 : 0);
+  data[cur++] = (uint8_t)(_is_responder ? 1 : 0);
+  std::memcpy(&data[cur], _auth->data(), auth_length);
+  cur += auth_length;
+  std::memcpy(data, &cur, sizeof(cur));
+
+  return cur;
 }
 
 size_t Connection::load_f3(Buffer &buf) {
-  return 0;
+  uint16_t session_id_length = (uint16_t)_session_id->size();
+  uint16_t path_length = (uint16_t)_path->size();
+
+  // ensure buf is large enough
+  buf.resize(min_f2_length + session_id_length);
+
+  // leave message size blank for now
+  StaticHeader header(0, static_header_length, 0xf3, 0, 0);
+  uint8_t *data = buf.data();
+  header.write(data);
+  uint32_t cur = static_header_length;
+  std::memcpy(&data[cur], &session_id_length, sizeof(session_id_length));
+  cur += sizeof(session_id_length);
+  std::memcpy(&data[cur], _session_id->data(), session_id_length);
+  cur += session_id_length;
+  std::memcpy(&data[cur], &path_length, sizeof(path_length));
+  cur += sizeof(path_length);
+  std::memcpy(&data[cur], _path->data(), path_length);
+  cur += path_length;
+  std::memcpy(&data[cur], _auth->data(), auth_length);
+  cur += auth_length;
+  std::memcpy(data, &cur, sizeof(cur));
+
+  return cur;
 }
 
 }  // namespace dsa

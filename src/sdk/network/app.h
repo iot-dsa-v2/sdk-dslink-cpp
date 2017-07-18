@@ -27,8 +27,8 @@ class App {
  public:
   App(std::string name);
   App(std::string name, std::shared_ptr<boost::asio::io_service> io_service);
-  boost::asio::io_service &io_service();
-  SecurityContext &security_context();
+  boost::asio::io_service &io_service() const;
+  SecurityContext &security_context() const;
   std::string name() const;
   void run(unsigned int thread_count = 5);
 };

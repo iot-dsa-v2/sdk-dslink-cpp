@@ -11,12 +11,11 @@ namespace dsa {
 class TcpServer : public Server {
  private:
   boost::asio::ip::tcp::acceptor _acceptor;
-  boost::asio::io_service & _io_service;
 
   void accept_loop(TcpServerConnectionPtr connection, const boost::system::error_code &error);
 
  public:
-  TcpServer(App &app, unsigned short port);
+  TcpServer(const App &app, unsigned short port);
 
   void start();
 };
