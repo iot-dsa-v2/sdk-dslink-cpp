@@ -11,7 +11,7 @@ TcpServer::TcpServer(const App &app, unsigned short port)
 void TcpServer::start() {
   auto connection = std::make_shared<TcpServerConnection>(_app);
   _acceptor.async_accept(connection->socket(),
-                         boost::bind(&TcpServer::accept_loop, this, std::move(connection),
+                         boost::bind(&TcpServer::accept_loop, this, connection,
                                      boost::asio::placeholders::error));
 }
 
@@ -19,7 +19,7 @@ void TcpServer::accept_loop(TcpServerConnectionPtr connection, const boost::syst
   connection->connect();
   auto new_connection = std::make_shared<TcpServerConnection>(_app);
   _acceptor.async_accept(connection->socket(),
-                         boost::bind(&TcpServer::accept_loop, this, std::move(connection),
+                         boost::bind(&TcpServer::accept_loop, this, connection,
                                      boost::asio::placeholders::error));
 }
 
