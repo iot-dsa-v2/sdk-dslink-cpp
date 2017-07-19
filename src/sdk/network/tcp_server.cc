@@ -4,9 +4,10 @@
 
 namespace dsa {
 
-TcpServer::TcpServer(const App &app, unsigned short port)
-    : Server(app), _acceptor(app.io_service(), boost::asio::ip::tcp::endpoint(
-    boost::asio::ip::tcp::v4(), port)) {}
+using tcp = boost::asio::ip::tcp;
+
+TcpServer::TcpServer(const App &app, const Config &config)
+    : Server(app), config(config), _acceptor(app.io_service(), tcp::endpoint(tcp::v4(), config.port())) {}
 
 void TcpServer::start() {
   // start taking connections

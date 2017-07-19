@@ -19,9 +19,19 @@ class TcpServer : public Server {
   void accept_loop();
 
  public:
-  TcpServer(const App &app, unsigned short port);
+  class Config {
+   private:
+    unsigned short _port{8080};
 
+   public:
+    void set_port(unsigned short port) { _port = port; }
+    unsigned short port() const { return _port; }
+  };
+
+  TcpServer(const App &app, const Config &config);
   void start() override;
+
+  const Config config;
 };
 
 typedef std::shared_ptr<TcpServer> TcpServerPtr;
