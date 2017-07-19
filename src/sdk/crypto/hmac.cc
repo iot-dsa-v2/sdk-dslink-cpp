@@ -20,7 +20,7 @@ HMAC::~HMAC() {
   // NOTE: to be used later if different version of OpenSSL is used
 }
 
-void HMAC::update(Buffer& content) {
+void HMAC::update(const Buffer& content) {
   if (!initialized) throw std::runtime_error("HMAC needs to be initialized");
   int r = HMAC_Update(&ctx, content.data(), content.size());
   if (!r) throw std::runtime_error("Failed to update HMAC");

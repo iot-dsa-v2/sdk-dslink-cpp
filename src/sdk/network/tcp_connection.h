@@ -1,6 +1,7 @@
 #ifndef DSA_SDK_TCP_CONNECTION_H_
 #define DSA_SDK_TCP_CONNECTION_H_
 
+#include <memory>
 #include <boost/asio.hpp>
 
 #include "connection.h"
@@ -15,12 +16,11 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Base TCP connection. Used for DSA connections over TCP.
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
-class TcpConnection : public Connection {
- private:
-  tcp_socket _socket;
-
- protected:
+class TcpConnection : public Connection  {
+ public:
   void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred);
+  tcp_socket _socket;
+  boost::asio::io_service::strand _strand;
 
  public:
   TcpConnection(const App &app);
@@ -34,7 +34,6 @@ class TcpConnection : public Connection {
   virtual void start();
 
   void close();
-  void destroy();
 };
 
 // TCP server side connection.
@@ -42,9 +41,8 @@ class TcpConnection : public Connection {
 class TcpServerConnection : public TcpConnection {
  private:
   void f0_received(const boost::system::error_code &error, size_t bytes_transferred);
-  void f1_sent(const boost::system::error_code &error, size_t bytes_transferred);
   void f2_received(const boost::system::error_code &error, size_t bytes_transferred);
-  void f3_sent(const boost::system::error_code &error, size_t bytes_transferred);
+  void send_f3();
 
  public:
   TcpServerConnection(const App &app);
@@ -59,6 +57,9 @@ class TcpClientConnection : public TcpConnection {
   TcpClientConnection(const App &app);
 
   void start();
+
+  void f1_received(const boost::system::error_code &error, size_t bytes_transferred);
+  void f3_received(const boost::system::error_code &error, size_t bytes_transferred);
 };
 
 typedef std::shared_ptr<TcpServerConnection> TcpServerConnectionPtr;

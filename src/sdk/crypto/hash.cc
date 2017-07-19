@@ -17,7 +17,7 @@ Hash::~Hash() {
   // NOTE: to be used later if different version of OpenSSL is used
 }
 
-void Hash::update(Buffer& content) {
+void Hash::update(const Buffer& content) {
   EVP_DigestUpdate(&mdctx, content.data(), content.size());
 }
 

@@ -14,7 +14,7 @@ int RefCheck::count = 0;
 TEST(EnableSharedTest, RefCheck) {
   std::shared_ptr<RefCheck> ptr = dsa::make_shared<RefCheck>(1);
   EXPECT_EQ(RefCheck::count, 1);
-  ptr->destory();
+  ptr->destroy();
   EXPECT_EQ(RefCheck::count, 1);
   ptr.reset();
   EXPECT_EQ(RefCheck::count, 0);

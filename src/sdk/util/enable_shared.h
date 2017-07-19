@@ -18,18 +18,36 @@ class EnableShared {
     if (_ptr.get()) {
       return _ptr;
     }
-    throw std::runtime_error("shared object used after destory");
+    throw std::runtime_error("shared object used after destroy");
   }
 
-  void destory() { _ptr.reset(); }
+  virtual void destroy() { _ptr.reset(); }
 
   bool destroyed() const { return !_ptr.get(); }
+};
+
+class MultipleInheritableEnableSharedFromThis : public EnableShared<MultipleInheritableEnableSharedFromThis> {
+ public:
+  virtual ~MultipleInheritableEnableSharedFromThis() {}
+};
+
+template <class T>
+class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFromThis {
+ public:
+  std::shared_ptr<T> shared_from_this() {
+    return std::dynamic_pointer_cast<T>(MultipleInheritableEnableSharedFromThis::shared_from_this());
+  }
+
+  template <class Down>
+  std::shared_ptr<Down> shared_from_this() {
+    return std::dynamic_pointer_cast<Down>(MultipleInheritableEnableSharedFromThis::shared_from_this());
+  }
 };
 
 template <class _Ty, class... _Types>
 inline std::shared_ptr<_Ty> make_shared(_Types&&... _Args) {
   // FIXME: this doesn't compile
-  //  return (new _Ty(_STD, std::forward<_Types>(_Args)...))->shared_from_this();
+//    return (new _Ty(_STD, std::forward<_Types>(_Args)...))->shared_from_this();
   return (new _Ty(_Args...))->shared_from_this();
 }
 

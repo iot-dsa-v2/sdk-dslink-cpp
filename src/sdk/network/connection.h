@@ -1,17 +1,19 @@
 #ifndef DSA_SDK_CONNECTION_H_
 #define DSA_SDK_CONNECTION_H_
 
-#include <queue>
+#include <memory>
+#include <functional>
 
-#include <boost/function.hpp>
 #include <boost/asio.hpp>
+#include <boost/function.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "util/util.h"
 #include "message/static_header.h"
 #include "app.h"
 
-typedef boost::function0<void> WriteCallback;
-typedef boost::function1<void, dsa::Buffer::MessageBuffer> ReadCallback;
+typedef boost::function<void()> WriteCallback;
+typedef boost::function<void(dsa::Buffer::MessageBuffer)> ReadCallback;
 
 namespace dsa {
 
@@ -19,13 +21,13 @@ namespace dsa {
  * handshake logic
  * split and join binary data into message frame
  */
-
-class Connection : public EnableShared<Connection> {
+class Connection : public InheritableEnableShared<Connection> {
  protected:
   Connection(const App &app);
   const App &_app;
 
-  BufferPtr _buffer;
+  BufferPtr _read_buffer;
+  BufferPtr _write_buffer;
   BufferPtr _shared_secret;
   BufferPtr _other_public_key;
   BufferPtr _other_salt;
@@ -94,14 +96,16 @@ class Connection : public EnableShared<Connection> {
 
   ReadCallback read_handler;
 
-  static bool valid_handshake_header(StaticHeader &header, size_t size, uint8_t type);
+  static bool valid_handshake_header(StaticHeader &header, size_t expected_size, uint8_t expected_type);
+
+  void success_or_close(const boost::system::error_code &error);
 
  public:
   void set_read_handler(ReadCallback callback);
+  virtual void destroy();
   virtual void write(BufferPtr buf, size_t size, WriteCallback callback) = 0;
   virtual void close() = 0;
   virtual void start() = 0;
-  virtual void destroy() = 0;
 };
 }  // namespace dsa
 

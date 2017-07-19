@@ -19,9 +19,9 @@ class ECDH {
   ECDH(const char *curve);
   ~ECDH();
 
-  BufferPtr get_private_key();
-  BufferPtr get_public_key();
-  BufferPtr compute_secret(Buffer& public_key);
+  BufferPtr get_private_key() const;
+  BufferPtr get_public_key() const;
+  BufferPtr compute_secret(Buffer& public_key) const;
   void set_private_key_hex(const char *data);
 };
 }  // namespace dsa

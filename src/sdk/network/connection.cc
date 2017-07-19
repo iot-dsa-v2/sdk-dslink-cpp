@@ -1,11 +1,10 @@
 #include "connection.h"
 
-#include "message/static_header.h"
 #include "security_context.h"
 
 namespace dsa {
 
-Connection::Connection(const App &app) : _app(app), _buffer(new Buffer()) {}
+Connection::Connection(const App &app) : _app(app), _read_buffer(new Buffer()), _write_buffer(new Buffer()) {}
 
 void Connection::set_read_handler(ReadCallback callback) {
   read_handler = callback;
@@ -15,19 +14,28 @@ void Connection::handle_read(Buffer::MessageBuffer buf) {
   read_handler(buf);
 }
 
-//void Connection::compute_secret() {
-//  _shared_secret = _app.security_context().ecdh().compute_secret(*_other_public);
-//
-//  /* compute broker auth */
-//  dsa::hmac hmac("sha256", *shared_secret);
-//  hmac.update(*client_salt);
-//  auth = hmac.digest();
-//
-//  /* compute client auth */
-//  dsa::hmac client_hmac("sha256", *shared_secret);
-//  client_hmac.update(*salt);
-//  client_auth = client_hmac.digest();
-//}
+void Connection::success_or_close(const boost::system::error_code &error) {
+  if (error) close();
+}
+
+void Connection::destroy() {
+//  EnableShared<Connection>::destroy();
+  close();
+}
+
+void Connection::compute_secret() {
+  _shared_secret = _app.security_context().ecdh().compute_secret(*_other_public_key);
+
+  /* compute user auth */
+  dsa::HMAC hmac("sha256", *_shared_secret);
+  hmac.update(*_other_salt);
+  _auth = hmac.digest();
+
+  /* compute other auth */
+  dsa::HMAC other_hmac("sha256", *_shared_secret);
+  other_hmac.update(_app.security_context().salt());
+  _other_auth = other_hmac.digest();
+}
 
 bool Connection::valid_handshake_header(StaticHeader &header, size_t expected_size, uint8_t expected_type) {
   return (
@@ -44,7 +52,7 @@ bool Connection::parse_f0(size_t size) {
   if (size < MIN_F0_LENGTH)
     return false;
 
-  const uint8_t *data = _buffer->data();
+  const uint8_t *data = _read_buffer->data();
 
   StaticHeader header(data);
   if (!valid_handshake_header(header, size, 0xf0))
@@ -81,7 +89,7 @@ bool Connection::parse_f1(size_t size) {
   if (size < MIN_F1_LENGTH)
     return false;
 
-  const uint8_t *data = _buffer->data();
+  const uint8_t *data = _read_buffer->data();
 
   StaticHeader header(data);
   if (!valid_handshake_header(header, size, 0xf1))
@@ -112,7 +120,7 @@ bool Connection::parse_f2(size_t size) {
   if (size < MIN_F2_LENGTH)
     return false;
 
-  const uint8_t *data = _buffer->data();
+  const uint8_t *data = _read_buffer->data();
 
   StaticHeader header(data);
   if (!valid_handshake_header(header, size, 0xf2))
@@ -142,7 +150,7 @@ bool Connection::parse_f3(size_t size) {
   if (size < MIN_F3_LENGTH)
     return false;
 
-  const uint8_t *data = _buffer->data();
+  const uint8_t *data = _read_buffer->data();
 
   StaticHeader header(data);
   if (!valid_handshake_header(header, size, 0xf3))

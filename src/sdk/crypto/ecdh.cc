@@ -21,7 +21,7 @@ ECDH::ECDH(const char *curve) {
 
 ECDH::~ECDH() { EC_KEY_free(key); }
 
-BufferPtr ECDH::get_private_key() {
+BufferPtr ECDH::get_private_key() const {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
   if (priv == nullptr) throw std::runtime_error("private key not set");
   int size = BN_num_bytes(priv);
@@ -36,7 +36,7 @@ BufferPtr ECDH::get_private_key() {
   return std::move(std::make_shared<Buffer>(out, size, size));
 }
 
-BufferPtr ECDH::get_public_key() {
+BufferPtr ECDH::get_public_key() const {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
 
@@ -106,7 +106,7 @@ void ECDH::set_private_key_hex(const char *data) {
   EC_POINT_free(pub);
 }
 
-BufferPtr ECDH::compute_secret(Buffer& public_key) {
+BufferPtr ECDH::compute_secret(Buffer& public_key) const {
   EC_POINT *pub = EC_POINT_new(group);
   int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
                              nullptr);

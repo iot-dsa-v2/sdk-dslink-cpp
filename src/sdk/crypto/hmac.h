@@ -19,7 +19,7 @@ class HMAC {
   ~HMAC();
 
   void init(const char *alg, Buffer& to_hash);
-  void update(Buffer& data);
+  void update(const Buffer& data);
   BufferPtr digest();
 };
 }  // namespace dsa

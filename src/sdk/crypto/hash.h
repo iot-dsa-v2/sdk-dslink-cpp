@@ -24,7 +24,7 @@ class Hash {
   Hash(const char *hash_type);
   ~Hash();
 
-  void update(Buffer& data);
+  void update(const Buffer& data);
   std::string digest_base64();
 };
 }  // namespace dsa
