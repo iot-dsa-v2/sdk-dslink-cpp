@@ -34,12 +34,12 @@ class MultipleInheritableEnableSharedFromThis : public EnableShared<MultipleInhe
 template <class T>
 class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFromThis {
  public:
-  std::shared_ptr<T> shared_from_this() {
+  std::shared_ptr<T> share_this() {
     return std::dynamic_pointer_cast<T>(MultipleInheritableEnableSharedFromThis::shared_from_this());
   }
 
   template <class Down>
-  std::shared_ptr<Down> shared_from_this() {
+  std::shared_ptr<Down> share_this() {
     return std::dynamic_pointer_cast<Down>(MultipleInheritableEnableSharedFromThis::shared_from_this());
   }
 };
