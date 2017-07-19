@@ -16,7 +16,7 @@ void TcpServer::start() {
 }
 
 void TcpServer::accept_loop(TcpServerConnectionPtr connection, const boost::system::error_code &error) {
-  connection->start();
+  connection->connect();
   auto new_connection = std::make_shared<TcpServerConnection>(_app);
   _acceptor.async_accept(connection->socket(),
                          boost::bind(&TcpServer::accept_loop, this, std::move(connection),

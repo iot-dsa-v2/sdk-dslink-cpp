@@ -102,10 +102,10 @@ class Connection : public InheritableEnableShared<Connection> {
 
  public:
   void set_read_handler(ReadCallback callback);
-  virtual void destroy();
+  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteCallback callback) = 0;
   virtual void close() = 0;
-  virtual void start() = 0;
+  virtual void connect() = 0;
 };
 }  // namespace dsa
 

@@ -11,7 +11,7 @@ void TcpConnection::close() {
   _socket.close();
 }
 
-void TcpConnection::start() {
+void TcpConnection::connect() {
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpConnection::read_loop, shared_from_this<TcpConnection>(), 0,
                                       boost::asio::placeholders::error,
@@ -90,7 +90,7 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 TcpServerConnection::TcpServerConnection(const App &app)
     : TcpConnection(app) {}
 
-void TcpServerConnection::start() {
+void TcpServerConnection::connect() {
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpServerConnection::f0_received, shared_from_this<TcpServerConnection>(),
                                       boost::asio::placeholders::error,
@@ -134,7 +134,7 @@ TcpClientConnection::TcpClientConnection(const App &app) : TcpConnection(app), c
 
 TcpClientConnection::TcpClientConnection(const App &app, const Config &config) : TcpConnection(app), config(config) {}
 
-void TcpClientConnection::start() {
+void TcpClientConnection::connect() {
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_app.io_service());
   tcp::resolver::query query(config.host(), std::to_string(config.port()));

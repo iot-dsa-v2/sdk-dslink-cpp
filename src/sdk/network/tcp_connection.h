@@ -31,7 +31,7 @@ class TcpConnection : public Connection {
 
   tcp_socket &socket();
 
-  virtual void start() override;
+  void connect() override;
 
   void close() override;
 };
@@ -47,7 +47,7 @@ class TcpServerConnection : public TcpConnection {
  public:
   explicit TcpServerConnection(const App &app);
 
-  void start() override;
+  void connect() override;
 };
 
 // TCP client side connection.
@@ -71,11 +71,10 @@ class TcpClientConnection : public TcpConnection {
   explicit TcpClientConnection(const App &app);
   TcpClientConnection(const App &app, const Config &config);
 
-  void start() override;
+  void connect() override;
   void start_handshake(const boost::system::error_code &error);
 
  private:
-  bool connect_to_host();
   void f1_received(const boost::system::error_code &error, size_t bytes_transferred);
   void f3_received(const boost::system::error_code &error, size_t bytes_transferred);
 };
