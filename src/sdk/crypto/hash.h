@@ -10,7 +10,7 @@
 namespace dsa {
 class Hash {
  private:
-  EVP_MD_CTX mdctx;
+  EVP_MD_CTX *mdctx;
   bool finalized;
 
   // hack-ish static initialization
@@ -21,7 +21,7 @@ class Hash {
   Init init;
 
  public:
-  Hash(const char *hash_type);
+  explicit Hash(const char *hash_type);
   ~Hash();
 
   void update(const Buffer& data);

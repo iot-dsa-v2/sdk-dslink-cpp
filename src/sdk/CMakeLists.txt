@@ -77,7 +77,7 @@ endif()
 message(">> adding util library...")
 add_subdirectory(${LIB_UTIL})
 
-add_library(dsa_sdk ${SOURCES})
+add_library(dsa_sdk STATIC ${SOURCES})
 target_link_libraries(dsa_sdk ${EXTRA_LIBS})
 target_compile_features(dsa_sdk PRIVATE cxx_range_for)
 install (TARGETS dsa_sdk

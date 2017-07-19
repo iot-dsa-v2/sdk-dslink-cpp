@@ -9,14 +9,7 @@ if (UNIX)
 endif ()
 find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
 include_directories(${Boost_INCLUDE_DIRS} PARENT_SCOPE)
-
-if(UNIX)
-    set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
-endif()
-
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES} PARENT_SCOPE)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES} PARENT_SCOPE)
 
 add_library(dsa_network OBJECT
         app.cc
@@ -27,5 +20,4 @@ add_library(dsa_network OBJECT
         tcp_connection.cc
         tcp_server.cc)
 
-set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES} dsa_network)
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_network> PARENT_SCOPE)

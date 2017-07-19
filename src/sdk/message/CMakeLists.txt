@@ -15,5 +15,4 @@ add_library(dsa_message OBJECT
 #        response/set_response_message.cc
 )
 
-set(EXTRA_LIBS ${EXTRA_LIBS} dsa_message)
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_message> PARENT_SCOPE)

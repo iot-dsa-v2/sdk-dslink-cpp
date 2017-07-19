@@ -10,8 +10,7 @@
 namespace dsa {
 class HMAC {
  private:
-  // HMAC_CTX *ctx;
-  HMAC_CTX ctx;
+  HMAC_CTX *ctx;
   bool initialized;
 
  public:
