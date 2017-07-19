@@ -4,6 +4,7 @@
 using namespace dsa;
 
 TEST(AppTest, NewApp) {
-//  std::shared_ptr<App> app = std::make_shared<App>("test");
-//  ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
+  std::shared_ptr<App> app;
+  ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
+//  ASSERT_NO_FATAL_FAILURE(app->run());
 }

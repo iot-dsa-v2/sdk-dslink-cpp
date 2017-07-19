@@ -48,13 +48,13 @@ include_directories("../include")
 #
 add_subdirectory("./sdk")
 
-find_package(Threads)
-set(TEST_LIBS ${TEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-if (UNIX)
-	set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
-	set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
-endif ()
-find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
+#find_package(Threads)
+#set(TEST_LIBS ${TEST_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+#if (UNIX)
+#	set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
+#	set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
+#endif ()
+#find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
 
 # TESTS
 set(TEST_LIBS ${TEST_LIBS} gtest_main dsa_sdk)
