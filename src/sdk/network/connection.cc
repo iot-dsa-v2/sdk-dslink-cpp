@@ -40,7 +40,7 @@ void Connection::compute_secret() {
 bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type) {
   return (
       header.message_size() != expected_size &&
-      header.header_size() != STATIC_HEADER_LENGTH &&
+      header.header_size() != StaticHeaderLength &&
       header.type() != expected_type &&
       header.request_id() != 0 &&
       header.ack_id() != 0
@@ -49,7 +49,7 @@ bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_s
 
 // Handshake parse functions
 bool Connection::parse_f0(size_t size) {
-  if (size < MIN_F0_LENGTH)
+  if (size < MinF0Length)
     return false;
 
   const uint8_t *data = _read_buffer->data();
@@ -58,7 +58,7 @@ bool Connection::parse_f0(size_t size) {
   if (!valid_handshake_header(header, size, 0xf0))
     return false;
 
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   uint8_t dsid_length;
 
   std::memcpy(&_dsa_version_major, &data[cur], sizeof(_dsa_version_major));
@@ -68,25 +68,25 @@ bool Connection::parse_f0(size_t size) {
   std::memcpy(&dsid_length, &data[cur], sizeof(dsid_length));
   cur += sizeof(dsid_length);
 
-  if (cur + dsid_length + PUBLIC_KEY_LENGTH + 1 + SALT_LENGTH > size) return false;
+  if (cur + dsid_length + PublicKeyLength + 1 + SaltLength > size) return false;
 
   _other_dsid = std::make_shared<Buffer>(dsid_length);
   _other_dsid->assign(&data[cur], dsid_length);
 
   cur += dsid_length;
-  _other_public_key = std::make_shared<Buffer>(PUBLIC_KEY_LENGTH);
-  _other_public_key->assign(&data[cur], PUBLIC_KEY_LENGTH);
-  cur += PUBLIC_KEY_LENGTH;
+  _other_public_key = std::make_shared<Buffer>(PublicKeyLength);
+  _other_public_key->assign(&data[cur], PublicKeyLength);
+  cur += PublicKeyLength;
   _security_preference = data[cur];
   cur += 1;
-  _other_salt = std::make_shared<Buffer>(SALT_LENGTH);
-  _other_salt->assign(&data[cur], SALT_LENGTH);
+  _other_salt = std::make_shared<Buffer>(SaltLength);
+  _other_salt->assign(&data[cur], SaltLength);
 
   return cur == size;
 }
 
 bool Connection::parse_f1(size_t size) {
-  if (size < MIN_F1_LENGTH)
+  if (size < MinF1Length)
     return false;
 
   const uint8_t *data = _read_buffer->data();
@@ -95,29 +95,29 @@ bool Connection::parse_f1(size_t size) {
   if (!valid_handshake_header(header, size, 0xf1))
     return false;
 
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   uint8_t dsid_length;
 
   std::memcpy(&dsid_length, &data[cur], sizeof(dsid_length));
   cur += sizeof(dsid_length);
 
-  if (cur + dsid_length + PUBLIC_KEY_LENGTH + SALT_LENGTH > size)
+  if (cur + dsid_length + PublicKeyLength + SaltLength > size)
     return false;
 
   _other_dsid = std::make_shared<Buffer>(dsid_length);
   _other_dsid->assign(&data[cur], dsid_length);
   cur += dsid_length;
-  _other_public_key = std::make_shared<Buffer>(PUBLIC_KEY_LENGTH);
-  _other_public_key->assign(&data[cur], PUBLIC_KEY_LENGTH);
-  cur += PUBLIC_KEY_LENGTH;
-  _other_salt = std::make_shared<Buffer>(SALT_LENGTH);
-  _other_salt->assign(&data[cur], SALT_LENGTH);
+  _other_public_key = std::make_shared<Buffer>(PublicKeyLength);
+  _other_public_key->assign(&data[cur], PublicKeyLength);
+  cur += PublicKeyLength;
+  _other_salt = std::make_shared<Buffer>(SaltLength);
+  _other_salt->assign(&data[cur], SaltLength);
 
   return cur == size;
 }
 
 bool Connection::parse_f2(size_t size) {
-  if (size < MIN_F2_LENGTH)
+  if (size < MinF2Length)
     return false;
 
   const uint8_t *data = _read_buffer->data();
@@ -126,13 +126,13 @@ bool Connection::parse_f2(size_t size) {
   if (!valid_handshake_header(header, size, 0xf2))
     return false;
 
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   uint16_t token_length;
 
   std::memcpy(&token_length, &data[cur], sizeof(token_length));
   cur += sizeof(token_length);
 
-  if (cur + token_length + 2 + AUTH_LENGTH > size)
+  if (cur + token_length + 2 + AuthLength > size)
     return false;
 
   _other_token = std::make_shared<Buffer>(token_length);
@@ -140,14 +140,14 @@ bool Connection::parse_f2(size_t size) {
   cur += token_length;
   _is_requester = data[cur++];
   _is_responder = data[cur++];
-  _other_auth = std::make_shared<Buffer>(AUTH_LENGTH);
-  _other_auth->assign(&data[cur], AUTH_LENGTH);
+  _other_auth = std::make_shared<Buffer>(AuthLength);
+  _other_auth->assign(&data[cur], AuthLength);
 
   return cur == size;
 }
 
 bool Connection::parse_f3(size_t size) {
-  if (size < MIN_F3_LENGTH)
+  if (size < MinF3Length)
     return false;
 
   const uint8_t *data = _read_buffer->data();
@@ -156,7 +156,7 @@ bool Connection::parse_f3(size_t size) {
   if (!valid_handshake_header(header, size, 0xf3))
     return false;
 
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   uint16_t session_id_length, path_length;
 
   std::memcpy(&session_id_length, &data[cur], sizeof(session_id_length));
@@ -171,15 +171,15 @@ bool Connection::parse_f3(size_t size) {
   std::memcpy(&path_length, &data[cur], sizeof(path_length));
   cur += sizeof(path_length);
 
-  if (cur + path_length + AUTH_LENGTH > size)
+  if (cur + path_length + AuthLength > size)
     return false;
 
   _path = std::make_shared<Buffer>(path_length);
   _path->assign(&data[cur], path_length);
   cur += path_length;
-  _other_auth = std::make_shared<Buffer>(AUTH_LENGTH);
-  _other_auth->assign(&data[cur], AUTH_LENGTH);
-  cur += AUTH_LENGTH;
+  _other_auth = std::make_shared<Buffer>(AuthLength);
+  _other_auth->assign(&data[cur], AuthLength);
+  cur += AuthLength;
 
   return cur == size;
 }
@@ -189,22 +189,22 @@ size_t Connection::load_f0(Buffer &buf) {
   uint8_t dsid_length = (uint8_t)_app.security_context().dsid().size();
 
   // ensure buf is large enough
-  buf.resize(MIN_F0_LENGTH + _app.security_context().dsid().size());
+  buf.resize(MinF0Length + _app.security_context().dsid().size());
 
   // leave message size blank for now
-  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf0, 0, 0);
+  StaticHeaders header(0, StaticHeaderLength, 0xf0, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   data[cur++] = 2; // version major
   data[cur++] = 0; // version minor
   data[cur++] = dsid_length;
   std::memcpy(&data[cur], _app.security_context().dsid().c_str(), dsid_length);
   cur += dsid_length;
-  std::memcpy(&data[cur], _app.security_context().public_key().data(), PUBLIC_KEY_LENGTH);
+  std::memcpy(&data[cur], _app.security_context().public_key().data(), PublicKeyLength);
   data[cur++] = 0; // no encryption for now
-  std::memcpy(&data[cur], _app.security_context().salt().data(), SALT_LENGTH);
-  cur += SALT_LENGTH;
+  std::memcpy(&data[cur], _app.security_context().salt().data(), SaltLength);
+  cur += SaltLength;
   std::memcpy(data, &cur, sizeof(cur)); // write total size
 
   return cur;
@@ -214,20 +214,20 @@ size_t Connection::load_f1(Buffer &buf) {
   uint8_t dsid_length = (uint8_t)_app.security_context().dsid().size();
 
   // ensure buf is large enough
-  buf.resize(MIN_F1_LENGTH + dsid_length);
+  buf.resize(MinF1Length + dsid_length);
 
   // leave message size blank for now
-  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf1, 0, 0);
+  StaticHeaders header(0, StaticHeaderLength, 0xf1, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   data[cur++] = dsid_length;
   std::memcpy(&data[cur], _app.security_context().dsid().c_str(), dsid_length);
   cur += dsid_length;
-  std::memcpy(&data[cur], _app.security_context().public_key().data(), PUBLIC_KEY_LENGTH);
-  cur += PUBLIC_KEY_LENGTH;
-  std::memcpy(&data[cur], _app.security_context().salt().data(), SALT_LENGTH);
-  cur += SALT_LENGTH;
+  std::memcpy(&data[cur], _app.security_context().public_key().data(), PublicKeyLength);
+  cur += PublicKeyLength;
+  std::memcpy(&data[cur], _app.security_context().salt().data(), SaltLength);
+  cur += SaltLength;
   std::memcpy(data, &cur, sizeof(cur));
 
   return cur;
@@ -237,21 +237,21 @@ size_t Connection::load_f2(Buffer &buf) {
   uint16_t token_length = (uint16_t)_token->size();
 
   // ensure buf is large enough
-  buf.resize(MIN_F2_LENGTH + token_length);
+  buf.resize(MinF2Length + token_length);
 
   // leave message size blank for now
-  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf2, 0, 0);
+  StaticHeaders header(0, StaticHeaderLength, 0xf2, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   std::memcpy(&data[cur], &token_length, sizeof(token_length));
   cur += sizeof(token_length);
   std::memcpy(&data[cur], _token->data(), token_length);
   cur += token_length;
   data[cur++] = (uint8_t)(_is_requester ? 1 : 0);
   data[cur++] = (uint8_t)(_is_responder ? 1 : 0);
-  std::memcpy(&data[cur], _auth->data(), AUTH_LENGTH);
-  cur += AUTH_LENGTH;
+  std::memcpy(&data[cur], _auth->data(), AuthLength);
+  cur += AuthLength;
   std::memcpy(data, &cur, sizeof(cur));
 
   return cur;
@@ -262,13 +262,13 @@ size_t Connection::load_f3(Buffer &buf) {
   uint16_t path_length = (uint16_t)_path->size();
 
   // ensure buf is large enough
-  buf.resize(MIN_F2_LENGTH + session_id_length);
+  buf.resize(MinF2Length + session_id_length);
 
   // leave message size blank for now
-  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf3, 0, 0);
+  StaticHeaders header(0, StaticHeaderLength, 0xf3, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
-  uint32_t cur = STATIC_HEADER_LENGTH;
+  uint32_t cur = StaticHeaderLength;
   std::memcpy(&data[cur], &session_id_length, sizeof(session_id_length));
   cur += sizeof(session_id_length);
   std::memcpy(&data[cur], _session_id->data(), session_id_length);
@@ -277,8 +277,8 @@ size_t Connection::load_f3(Buffer &buf) {
   cur += sizeof(path_length);
   std::memcpy(&data[cur], _path->data(), path_length);
   cur += path_length;
-  std::memcpy(&data[cur], _auth->data(), AUTH_LENGTH);
-  cur += AUTH_LENGTH;
+  std::memcpy(&data[cur], _auth->data(), AuthLength);
+  cur += AuthLength;
   std::memcpy(data, &cur, sizeof(cur));
 
   return cur;

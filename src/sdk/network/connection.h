@@ -64,34 +64,34 @@ class Connection : public InheritableEnableShared<Connection> {
   void compute_secret();
 
   enum {
-    STATIC_HEADER_LENGTH = 15,
-    PUBLIC_KEY_LENGTH = 65,
-    SALT_LENGTH = 32,
-    AUTH_LENGTH = 32,
-    MIN_F0_LENGTH = STATIC_HEADER_LENGTH +
+    StaticHeaderLength = 15,
+    PublicKeyLength = 65,
+    SaltLength = 32,
+    AuthLength = 32,
+    MinF0Length = StaticHeaderLength +
         2 +                 // client dsa version
         1 +                 // client dsid length
         1 +                 // client dsid content
-        PUBLIC_KEY_LENGTH + // client public key
+        PublicKeyLength +   // client public key
         1 +                 // client security preference
-        SALT_LENGTH,        // client salt
-    MIN_F1_LENGTH = STATIC_HEADER_LENGTH +
+        SaltLength,         // client salt
+    MinF1Length = StaticHeaderLength +
         1 +                 // broker dsid length
         1 +                 // broker dsid content
-        PUBLIC_KEY_LENGTH + // broker public key
-        SALT_LENGTH,        // broker salt
-    MIN_F2_LENGTH = STATIC_HEADER_LENGTH +
+        PublicKeyLength +   // broker public key
+        SaltLength,         // broker salt
+    MinF2Length = StaticHeaderLength +
         2 +                 // client token length
         0 +                 // client token content
         1 +                 // client is requester
         1 +                 // client is responder
-        AUTH_LENGTH,        // client auth
-    MIN_F3_LENGTH = STATIC_HEADER_LENGTH +
+        AuthLength,         // client auth
+    MinF3Length = StaticHeaderLength +
         2 +                 // session id length
         1 +                 // session id content
         2 +                 // client path length
         1 +                 // client path content
-        AUTH_LENGTH,        // broker auth
+        AuthLength,         // broker auth
   };
 
   ReadCallback read_handler;

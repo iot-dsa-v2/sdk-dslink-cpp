@@ -2,6 +2,7 @@
 #define DSA_SDK_STATIC_HEADER_H
 
 #include <cstdint>
+#include <cstddef>
 namespace dsa {
 
 class StaticHeaders {

@@ -31,7 +31,7 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
 
     while (cur < total_bytes) {
       // always want full static header instead of just message size to make sure it's a valid message
-      if (total_bytes - cur < STATIC_HEADER_LENGTH) {
+      if (total_bytes - cur < StaticHeaderLength) {
         size_t partial_size = total_bytes - cur;
         _read_buffer->assign(&data[cur], partial_size);
         _socket.async_read_some(boost::asio::buffer(_read_buffer->data() + partial_size,
@@ -168,7 +168,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
 void TcpClientConnection::f3_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error && !destroyed() && parse_f3(bytes_transferred)) {
     uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
-    for (size_t i = 0; i < AUTH_LENGTH; ++i)
+    for (size_t i = 0; i < AuthLength; ++i)
       if (auth[i] != other_auth[i]) return;
     _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                             boost::bind(&TcpClientConnection::read_loop, shared_from_this<TcpClientConnection>(), 0,
