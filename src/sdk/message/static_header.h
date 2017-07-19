@@ -6,15 +6,6 @@
 namespace dsa {
 
 class StaticHeaders {
- public:
-  static const size_t MESSAGE_SIZE_OFFSET = 0;
-  static const size_t HEADER_SIZE_OFFSET =
-      MESSAGE_SIZE_OFFSET + sizeof(uint32_t);
-  static const size_t TYPE_OFFSET = HEADER_SIZE_OFFSET + sizeof(uint16_t);
-  static const size_t REQUEST_ID_OFFSET = TYPE_OFFSET + sizeof(uint8_t);
-  static const size_t ACK_ID_OFFSET = REQUEST_ID_OFFSET + sizeof(uint32_t);
-  static const size_t TOTAL_SIZE = ACK_ID_OFFSET + sizeof(uint32_t);
-
  private:
   uint32_t _message_size;
   uint16_t _header_size;
@@ -23,15 +14,24 @@ class StaticHeaders {
   uint32_t _ack_id;
 
  public:
+  enum {
+    MessageSizeOffset = 0,
+    HeaderSizeOffset = MessageSizeOffset + sizeof(uint32_t),
+    TypeOffset = HeaderSizeOffset + sizeof(uint16_t),
+    RequestIdOffset = TypeOffset + sizeof(uint8_t),
+    AckIdOffset = RequestIdOffset + sizeof(uint32_t),
+    TotalSize = AckIdOffset + sizeof(uint32_t)
+  };
+
   StaticHeaders(const uint8_t *data);
   StaticHeaders(uint32_t message_size, uint16_t header_size, uint8_t type,
                 uint32_t request_id, uint32_t ack_id);
 
-  const uint32_t &message_size() const;
-  const uint16_t &header_size() const;
-  const uint8_t &type() const;
-  const uint32_t &request_id() const;
-  const uint32_t &ack_id() const;
+  const uint32_t &message_size() const { return _message_size; };
+  const uint16_t &header_size() const { return _header_size; };
+  const uint8_t &type() const { return _type; };
+  const uint32_t &request_id() const { return _request_id; };
+  const uint32_t &ack_id() const { return _ack_id; };
   void write(uint8_t *data);
 };
 

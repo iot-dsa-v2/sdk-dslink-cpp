@@ -17,18 +17,6 @@ App::App(std::string name)
 App::App(std::string name, std::shared_ptr<boost::asio::io_service> io_service)
     : _name(name), _io_service(io_service), _security_context(new SecurityContext(name + "-")) {}
 
-boost::asio::io_service &App::io_service() const {
-  return *_io_service;
-}
-
-SecurityContext &App::security_context() const {
-  return *_security_context;
-}
-
-std::string App::name() const {
-  return _name;
-}
-
 void worker_thread(std::shared_ptr<boost::asio::io_service> io_service) {
   while (true) {
     try {

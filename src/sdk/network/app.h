@@ -15,7 +15,6 @@ class io_service;
 }
 
 namespace dsa {
-
 class SecurityContext;
 
 class App {
@@ -25,14 +24,13 @@ class App {
   std::string _name;
 
  public:
-  App(std::string name);
+  explicit App(std::string name);
   App(std::string name, std::shared_ptr<boost::asio::io_service> io_service);
-  boost::asio::io_service &io_service() const;
-  SecurityContext &security_context() const;
-  std::string name() const;
+  boost::asio::io_service &io_service() const { return *_io_service; };
+  SecurityContext &security_context() const { return *_security_context; };
+  const std::string &name() const { return _name; };
   void run(unsigned int thread_count = 5);
 };
-
 }  // namespace dsa
 
 #endif //DSA_SDK_NETWORK_APP_H_
