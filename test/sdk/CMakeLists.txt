@@ -1,0 +1,18 @@
+#
+set(SOURCES "")
+
+#
+foreach(dir "./crypto"
+	    "./message"		
+	    "./network"		
+	    "./requester"		
+	    "./responder"		
+	    "./util")
+  add_subdirectory(${dir})
+endforeach()
+
+#
+set(SOURCES ${SOURCES} PARENT_SCOPE)
+
+set(TARGET_NAME "sdk-test")
+add_library(${TARGET_NAME} ${SOURCES})

@@ -40,8 +40,19 @@ endif (WIN32)
 include_directories("../src/sdk")
 include_directories("../include")
 
+#
+# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+# include(CMakeHelpers)
+# print("dsa-test")
+
+#
+add_subdirectory("./sdk")
+
 # TESTS
-set (TEST_LIBS ${TEST_LIBS} gtest_main dsa_sdk)
-add_executable(util-test util-test.cc)
-target_link_libraries(util-test ${TEST_LIBS})
-add_test(NAME util-test COMMAND util-test)
+set(TEST_LIBS ${TEST_LIBS} gtest_main dsa_sdk)
+set(TARGET_NAME "dsa-test") 
+
+add_executable(${TARGET_NAME} ${SOURCES})
+target_link_libraries(${TARGET_NAME} ${TEST_LIBS})
+
+add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
