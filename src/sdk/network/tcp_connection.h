@@ -8,6 +8,7 @@
 #include "security_context.h"
 
 #include "util/enable_shared.h"
+#include "tcp_server.h"
 
 namespace dsa {
 
@@ -17,10 +18,12 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
 class TcpConnection : public Connection {
- public:
+ protected:
   void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) override;
   tcp_socket _socket;
   boost::asio::io_service::strand _strand;
+
+  virtual void start_handshake(const boost::system::error_code &error) = 0;
 
  public:
   explicit TcpConnection(const App &app);
@@ -31,9 +34,8 @@ class TcpConnection : public Connection {
 
   tcp_socket &socket();
 
-  void connect() override;
-
   void close() override;
+  void connect() override = 0;
 };
 
 // TCP server side connection.
@@ -44,6 +46,16 @@ class TcpServerConnection : public TcpConnection {
   void f2_received(const boost::system::error_code &error, size_t bytes_transferred);
   void send_f3();
 
+  TcpServerPtr _server;
+
+  friend class TcpServer;
+  // this function should only be used by TcpServer
+  void async_accept_connection_then_loop(const TcpServerPtr &server);
+  void continue_accept_loop(const boost::system::error_code &error);
+
+ protected:
+  void start_handshake(const boost::system::error_code &error) override;
+
  public:
   explicit TcpServerConnection(const App &app);
 
@@ -53,6 +65,13 @@ class TcpServerConnection : public TcpConnection {
 // TCP client side connection.
 // Handles client side of DSA handshake and starts read loop.
 class TcpClientConnection : public TcpConnection {
+ private:
+  void f1_received(const boost::system::error_code &error, size_t bytes_transferred);
+  void f3_received(const boost::system::error_code &error, size_t bytes_transferred);
+
+ protected:
+  void start_handshake(const boost::system::error_code &error) override;
+
  public:
   struct Config {
    private:
@@ -72,11 +91,7 @@ class TcpClientConnection : public TcpConnection {
   TcpClientConnection(const App &app, const Config &config);
 
   void connect() override;
-  void start_handshake(const boost::system::error_code &error);
 
- private:
-  void f1_received(const boost::system::error_code &error, size_t bytes_transferred);
-  void f3_received(const boost::system::error_code &error, size_t bytes_transferred);
 };
 
 typedef std::shared_ptr<TcpServerConnection> TcpServerConnectionPtr;

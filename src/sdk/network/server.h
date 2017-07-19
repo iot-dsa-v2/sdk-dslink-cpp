@@ -3,14 +3,17 @@
 
 #include "security_context.h"
 #include "app.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
-class Server {
+class Server : public InheritableEnableShared<Server> {
  protected:
   const App &_app;
 
  public:
-  Server(const App &app);
+  explicit Server(const App &app);
+  virtual void start() = 0;
+  void stop();
 };
 }  // namespace dsa
 

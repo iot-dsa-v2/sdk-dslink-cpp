@@ -1,6 +1,6 @@
 #include "tcp_server.h"
 
-#include <boost/bind.hpp>
+#include "tcp_connection.h"
 
 namespace dsa {
 
@@ -9,18 +9,17 @@ TcpServer::TcpServer(const App &app, unsigned short port)
     boost::asio::ip::tcp::v4(), port)) {}
 
 void TcpServer::start() {
-  auto connection = std::make_shared<TcpServerConnection>(_app);
-  _acceptor.async_accept(connection->socket(),
-                         boost::bind(&TcpServer::accept_loop, this, connection,
-                                     boost::asio::placeholders::error));
+  // start taking connections
+  accept_loop();
 }
 
-void TcpServer::accept_loop(TcpServerConnectionPtr connection, const boost::system::error_code &error) {
-  connection->connect();
-  auto new_connection = std::make_shared<TcpServerConnection>(_app);
-  _acceptor.async_accept(connection->socket(),
-                         boost::bind(&TcpServer::accept_loop, this, connection,
-                                     boost::asio::placeholders::error));
+void TcpServer::accept_loop() {
+  if (!destroyed()) {
+    auto new_connection = std::make_shared<TcpServerConnection>(_app);
+
+    // this will call accept_loop() once new connection is accepted
+    new_connection->async_accept_connection_then_loop(share_this<TcpServer>());
+  }
 }
 
 }  // namespace dsa
