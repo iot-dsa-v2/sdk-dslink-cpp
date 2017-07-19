@@ -11,6 +11,17 @@ namespace dsa {
 
 class Message {
  public:
+  enum {  // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Header-Structure.md
+    SUBSCRIBE_REQUEST_TYPE = 0x01,
+    LIST_REQUEST_TYPE = 0x02,
+    INVOKE_REQUEST_TYPE = 0x03,
+    SET_REQUEST_TYPE = 0x04,
+    SUBSCRIBE_RESPONSE_TYPE = 0x81,
+    LIST_RESPONSE_TYPE = 0x82,
+    INVOKE_RESPONSE_TYPE = 0x83,
+    SET_RESPONSE_TYPE = 0x84
+  };
+
   StaticHeaders static_headers;
 
   std::unique_ptr<MessageBuffer> body;
