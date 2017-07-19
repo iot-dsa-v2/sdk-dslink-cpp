@@ -37,7 +37,7 @@ void Connection::compute_secret() {
   _other_auth = other_hmac.digest();
 }
 
-bool Connection::valid_handshake_header(StaticHeader &header, size_t expected_size, uint8_t expected_type) {
+bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type) {
   return (
       header.message_size() != expected_size &&
       header.header_size() != STATIC_HEADER_LENGTH &&
@@ -54,7 +54,7 @@ bool Connection::parse_f0(size_t size) {
 
   const uint8_t *data = _read_buffer->data();
 
-  StaticHeader header(data);
+  StaticHeaders header(data);
   if (!valid_handshake_header(header, size, 0xf0))
     return false;
 
@@ -91,7 +91,7 @@ bool Connection::parse_f1(size_t size) {
 
   const uint8_t *data = _read_buffer->data();
 
-  StaticHeader header(data);
+  StaticHeaders header(data);
   if (!valid_handshake_header(header, size, 0xf1))
     return false;
 
@@ -122,7 +122,7 @@ bool Connection::parse_f2(size_t size) {
 
   const uint8_t *data = _read_buffer->data();
 
-  StaticHeader header(data);
+  StaticHeaders header(data);
   if (!valid_handshake_header(header, size, 0xf2))
     return false;
 
@@ -152,7 +152,7 @@ bool Connection::parse_f3(size_t size) {
 
   const uint8_t *data = _read_buffer->data();
 
-  StaticHeader header(data);
+  StaticHeaders header(data);
   if (!valid_handshake_header(header, size, 0xf3))
     return false;
 
@@ -192,7 +192,7 @@ size_t Connection::load_f0(Buffer &buf) {
   buf.resize(MIN_F0_LENGTH + _app.security_context().dsid().size());
 
   // leave message size blank for now
-  StaticHeader header(0, STATIC_HEADER_LENGTH, 0xf0, 0, 0);
+  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf0, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = STATIC_HEADER_LENGTH;
@@ -217,7 +217,7 @@ size_t Connection::load_f1(Buffer &buf) {
   buf.resize(MIN_F1_LENGTH + dsid_length);
 
   // leave message size blank for now
-  StaticHeader header(0, STATIC_HEADER_LENGTH, 0xf1, 0, 0);
+  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf1, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = STATIC_HEADER_LENGTH;
@@ -240,7 +240,7 @@ size_t Connection::load_f2(Buffer &buf) {
   buf.resize(MIN_F2_LENGTH + token_length);
 
   // leave message size blank for now
-  StaticHeader header(0, STATIC_HEADER_LENGTH, 0xf2, 0, 0);
+  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf2, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = STATIC_HEADER_LENGTH;
@@ -265,7 +265,7 @@ size_t Connection::load_f3(Buffer &buf) {
   buf.resize(MIN_F2_LENGTH + session_id_length);
 
   // leave message size blank for now
-  StaticHeader header(0, STATIC_HEADER_LENGTH, 0xf3, 0, 0);
+  StaticHeaders header(0, STATIC_HEADER_LENGTH, 0xf3, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = STATIC_HEADER_LENGTH;

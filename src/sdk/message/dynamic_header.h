@@ -28,13 +28,13 @@ class DynamicHeader {
 
   static DynamicHeader* parse(const uint8_t* data, size_t size);
 
-  const uint8_t& name() const;
+  const uint8_t& key() const;
   // total size in bytes of this header
   const uint16_t& size() const;
   virtual void write(uint8_t * data) = 0;
 
  private:
-  uint8_t _name;
+  uint8_t _key;
   uint16_t _size;
 
  protected:
@@ -48,7 +48,7 @@ class DynamicStringHeader : public DynamicHeader {
  public:
   DynamicStringHeader(const uint8_t* data, const uint16_t size,
                       const std::string& str);
-  DynamicStringHeader(const uint8_t name, const std::string& str);
+  DynamicStringHeader(const uint8_t key, const std::string& str);
   const std::string& value() const;
   void write(uint8_t * data);
 };
@@ -60,7 +60,7 @@ class DynamicByteHeader : public DynamicHeader {
  public:
   const uint8_t& value() const;
   DynamicByteHeader(const uint8_t* data);
-  DynamicByteHeader(const uint8_t name, const uint8_t value);
+  DynamicByteHeader(const uint8_t key, const uint8_t value);
   void write(uint8_t * data);
 };
 
@@ -68,7 +68,7 @@ class DynamicBoolHeader : public DynamicHeader {
  protected:
  public:
   DynamicBoolHeader(const uint8_t* data);
-  DynamicBoolHeader(const uint8_t name);
+  DynamicBoolHeader(const uint8_t key);
   void write(uint8_t * data);
 };
 

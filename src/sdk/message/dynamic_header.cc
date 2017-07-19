@@ -3,9 +3,9 @@
 namespace dsa {
 
 DynamicHeader::DynamicHeader(const uint8_t key, const uint16_t size)
-    : _name(key), _size(size) {}
+    : _key(key), _size(size) {}
 
-const uint8_t &DynamicHeader::name() const { return _name; }
+const uint8_t &DynamicHeader::key() const { return _key; }
 
 // total size in bytes of this header
 const uint16_t &DynamicHeader::size() const { return _size; }
@@ -67,14 +67,14 @@ DynamicStringHeader::DynamicStringHeader(const uint8_t *data,
                                          const uint16_t size,
                                          const std::string &str)
     : DynamicHeader(*data, size), _value(str) {}
-DynamicStringHeader::DynamicStringHeader(const uint8_t name,
+DynamicStringHeader::DynamicStringHeader(const uint8_t key,
                                          const std::string &str)
-    : DynamicHeader(name,
+    : DynamicHeader(key,
                     str.length() > 127 ? str.length() + 3 : str.length() + 2),
       _value(str) {}
 const std::string &DynamicStringHeader::value() const { return _value; }
 void DynamicStringHeader::write(uint8_t *data) {
-  data[0] = name();
+  data[0] = key();
   if (_value.length() > 127) {
     data[1] = _value.length();
     memcpy(data + 2, _value.c_str(), _value.length());
@@ -89,21 +89,21 @@ void DynamicStringHeader::write(uint8_t *data) {
 DynamicByteHeader::DynamicByteHeader(const uint8_t *data)
     : DynamicHeader(*data, 2), _value(data[1]) {}
 
-DynamicByteHeader::DynamicByteHeader(const uint8_t name, const uint8_t value)
-    : DynamicHeader(name, 2), _value(value) {}
+DynamicByteHeader::DynamicByteHeader(const uint8_t key, const uint8_t value)
+    : DynamicHeader(key, 2), _value(value) {}
 
 const uint8_t &DynamicByteHeader::value() const { return _value; }
 void DynamicByteHeader::write(uint8_t *data) {
-  data[0] = name();
+  data[0] = key();
   data[1] = _value;
 }
 
 DynamicBoolHeader::DynamicBoolHeader(const uint8_t *data)
     : DynamicHeader(*data, 1) {}
 
-DynamicBoolHeader::DynamicBoolHeader(const uint8_t name)
-    : DynamicHeader(name, 1) {}
+DynamicBoolHeader::DynamicBoolHeader(const uint8_t key)
+    : DynamicHeader(key, 1) {}
 
-void DynamicBoolHeader::write(uint8_t *data) { data[0] = name(); }
+void DynamicBoolHeader::write(uint8_t *data) { data[0] = key(); }
 
 }  // namespace dsa

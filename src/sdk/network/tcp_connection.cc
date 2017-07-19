@@ -42,7 +42,7 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
         return;
       }
 
-      StaticHeader header(&data[cur]);
+      StaticHeaders header(&data[cur]);
       if (header.message_size() < total_bytes - cur) {
         size_t partial_size = total_bytes - cur;
 

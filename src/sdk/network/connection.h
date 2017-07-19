@@ -96,7 +96,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
   ReadCallback read_handler;
 
-  static bool valid_handshake_header(StaticHeader &header, size_t expected_size, uint8_t expected_type);
+  static bool valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type);
 
   void success_or_close(const boost::system::error_code &error);
 
