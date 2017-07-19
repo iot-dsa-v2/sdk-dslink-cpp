@@ -13,11 +13,11 @@
 namespace dsa {
 
 Message* parseMessage(const MessageBuffer& buffer) throw(
-    const std::exception&) {
-  if (buffer.size < StaticHeaders::TOTAL_SIZE) {
+const std::exception&) {
+  if (buffer.size < StaticHeaders::TotalSize) {
     return nullptr;
   }
-  uint8_t type = buffer.data[StaticHeaders::TYPE_OFFSET];
+  uint8_t type = buffer.data[StaticHeaders::TypeOffset];
 
   switch (type) {
     case Message::SUBSCRIBE_REQUEST_TYPE:
@@ -36,6 +36,8 @@ Message* parseMessage(const MessageBuffer& buffer) throw(
       return new InvokeResponseMessage(buffer);
     case Message::SET_RESPONSE_TYPE:
       return new SetResponseMessage(buffer);
+    default:
+      throw std::runtime_error("stuff");
   }
 }
 
