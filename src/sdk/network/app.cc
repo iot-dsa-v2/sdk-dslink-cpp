@@ -7,14 +7,20 @@
 #include "tcp_connection.h"
 
 namespace dsa {
+class io_service_work : public boost::asio::io_service::work {
+ public:
+  explicit io_service_work(boost::asio::io_service &io_service) : boost::asio::io_service::work(io_service) {}
+};
 
 App::App(std::string name)
-    : _name(name), _io_service(new boost::asio::io_service), _security_context(new SecurityContext(name + "-")) {}
+    : _name(name), _io_service(new boost::asio::io_service), _security_context(new SecurityContext(name + "-")),
+      _threads(new boost::thread_group) {}
 
 App::App(std::string name, std::shared_ptr<boost::asio::io_service> io_service)
-    : _name(name), _io_service(std::move(io_service)), _security_context(new SecurityContext(name + "-")) {}
+    : _name(name), _io_service(std::move(io_service)), _security_context(new SecurityContext(name + "-")),
+      _threads(new boost::thread_group) {}
 
-void worker_thread(std::shared_ptr<boost::asio::io_service> io_service) {
+void worker_thread(const std::shared_ptr<boost::asio::io_service> &io_service) {
   while (true) {
     try {
       boost::system::error_code err;
@@ -32,39 +38,52 @@ void worker_thread(std::shared_ptr<boost::asio::io_service> io_service) {
   }
 }
 
-void App::add_server(Server::Type type, Server::Config config) {
+ServerPtr App::new_server(Server::Type type, const Server::Config &config) {
   switch (type) {
     case Server::TCP:
-      _servers.push_back(std::shared_ptr<Server>(new TcpServer(*this, config)));
-      return;
+      return std::shared_ptr<Server>(new TcpServer(*this, config));
     default:
       throw std::runtime_error("invalid server type");
   }
 }
 
-ClientPtr App::new_client(Client::Config config) {
-  return std::shared_ptr<Connection>(new TcpClientConnection(*this, config));
+ClientPtr App::new_client(Client::Type type, const Client::Config &config) {
+  switch (type) {
+    case Client::TCP:
+      return std::shared_ptr<Connection>(new TcpClientConnection(*this, config));
+    default:
+      throw std::runtime_error("invalid client type");
+  }
 }
 
-void App::run(unsigned int thread_count) {
+void App::async_start(unsigned int thread_count) {
   if (thread_count == 0u) return;
 
-  boost::asio::io_service::work work(*_io_service);
+  _work.reset(new io_service_work(*_io_service));
 
-  boost::thread_group threads;
   for (size_t i = 0; i < thread_count; ++i)
-    threads.create_thread(boost::bind(worker_thread, _io_service));
-
-  // start servers
-  for (ServerPtr server : _servers)
-    server->start();
-
-  threads.join_all();
+    _threads->create_thread(boost::bind(worker_thread, _io_service));
 }
 
-void App::async_run(unsigned int thread_count) {
-  boost::thread_group threads;
-  threads.create_thread(boost::bind(&App::run, this, thread_count));
+void App::wait() {
+  _threads->join_all();
+}
+
+void App::start(unsigned int thread_count) {
+  async_start(thread_count);
+  wait();
+}
+
+void App::sleep(unsigned int milliseconds) {
+  boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
+}
+
+void App::graceful_stop() {
+  _work.reset();
+}
+
+void App::stop() {
+  _io_service->stop();
 }
 
 }  // namespace dsa

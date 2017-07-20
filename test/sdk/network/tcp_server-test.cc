@@ -5,20 +5,50 @@
 
 using namespace dsa;
 
-TEST(TcpServerTest, NewServer) {
+TEST(TcpServerTest, OneClient) {
   std::shared_ptr<App> app;
   ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
 
-  Server::Config config;
-  config.set_port(8080);
+  app->async_start(2);
 
-  app->add_server(Server::TCP, config);
+  Server::Config server_config("/test/path", 8080);
+  Client::Config client_config("127.0.0.1", 8080);
 
-  Client::Config client_config;
-  client_config.set_host("127.0.0.1");
-  client_config.set_port(8080);
+  ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
+  tcp_server->start();
 
-  ClientPtr client = app->new_client(client_config);
-  client->connect();
-  app->run();
+  app->sleep(2000);
+
+  ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
+  tcp_client->connect();
+
+  app->sleep(2000);
+
+  app->stop();
+  app->wait();
+}
+
+TEST(TcpServerTest, MultipleClients) {
+  std::shared_ptr<App> app;
+  ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
+
+  app->async_start(10);
+
+  Server::Config server_config("/test/path", 8080);
+  Client::Config client_config("127.0.0.1", 8080);
+
+  ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
+  tcp_server->start();
+
+  app->sleep(2000);
+
+  for (unsigned int i = 0; i < 10; ++i) {
+    (app->new_client(Client::TCP, client_config))->connect();
+    app->sleep(100);
+  }
+
+  app->sleep(2000);
+
+  app->stop();
+  app->wait();
 }

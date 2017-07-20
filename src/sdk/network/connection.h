@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include <atomic>
+#include <utility>
 
 #include "util/util.h"
 #include "message/static_header.h"
@@ -82,11 +83,22 @@ class Connection : public InheritableEnableShared<Connection> {
     std::string _token{"null"};
 
    public:
-    void set_host(std::string host) { _host = host; }
+    Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
+    Config() = default;
+    Config(const Config &) = default;
+    Config &operator=(const Config &) = default;
+    Config(Config&&) = default;
+    Config &operator=(Config&&) = default;
+    ~Config() = default;
+    void set_host(std::string host) { _host = std::move(host); }
     void set_port(unsigned short port) { _port = port; }
     const std::string &host() const { return _host; }
     unsigned short port() const { return _port; }
     const std::string &token() const { return _token; }
+  };
+
+  enum Type {
+    TCP
   };
 
   enum {

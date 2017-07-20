@@ -93,8 +93,10 @@ void TcpServerConnection::async_accept_connection_then_loop(const TcpServerPtr &
 }
 
 void TcpServerConnection::connect() {
-  _server->_acceptor->async_accept(_socket, boost::bind(&TcpServerConnection::continue_accept_loop, share_this<TcpServerConnection>(),
-                                                     boost::asio::placeholders::error));
+  _server->_acceptor->async_accept(_socket,
+                                   boost::bind(&TcpServerConnection::continue_accept_loop,
+                                               share_this<TcpServerConnection>(),
+                                               boost::asio::placeholders::error));
 }
 
 void TcpServerConnection::continue_accept_loop(const boost::system::error_code &error) {
@@ -190,7 +192,8 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
                             boost::bind(&TcpClientConnection::f3_received,
                                         share_this<TcpClientConnection>(),
                                         boost::asio::placeholders::error,
-                                        boost::asio::placeholders::bytes_transferred)); }
+                                        boost::asio::placeholders::bytes_transferred));
+  }
 }
 
 void TcpClientConnection::f3_received(const boost::system::error_code &error, size_t bytes_transferred) {

@@ -1,6 +1,8 @@
 #ifndef  DSA_SDK_SERVER_H
 #define  DSA_SDK_SERVER_H
 
+#include <utility>
+
 #include "security_context.h"
 #include "util/enable_shared.h"
 
@@ -18,10 +20,17 @@ class Server : public InheritableEnableShared<Server> {
 
   class Config {
    private:
+    std::string _path{"/"};
     unsigned short _port{8080};
-    std::string _path{"/example/path"};
 
    public:
+    Config(std::string path, unsigned short port) : _path(std::move(path)), _port(port) {}
+    Config() = default;
+    ~Config() = default;
+    Config(Config&&) = default;
+    Config(const Config &) = default;
+    Config &operator=(Config&&) = default;
+    Config &operator=(const Config &) = default;
     void set_port(unsigned short port) { _port = port; }
     void set_path(const char *path) { _path = path; }
     unsigned short port() const { return _port; }
