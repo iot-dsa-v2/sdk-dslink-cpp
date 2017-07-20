@@ -27,11 +27,11 @@ class StaticHeaders {
   StaticHeaders(uint32_t message_size, uint16_t header_size, uint8_t type,
                 uint32_t request_id, uint32_t ack_id);
 
-  const uint32_t &message_size() const { return _message_size; };
-  const uint16_t &header_size() const { return _header_size; };
-  const uint8_t &type() const { return _type; };
-  const uint32_t &request_id() const { return _request_id; };
-  const uint32_t &ack_id() const { return _ack_id; };
+  uint32_t message_size() const { return _message_size; };
+  uint16_t header_size() const { return _header_size; };
+  uint8_t type() const { return _type; };
+  uint32_t request_id() const { return _request_id; };
+  uint32_t ack_id() const { return _ack_id; };
   void write(uint8_t *data);
 };
 

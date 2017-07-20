@@ -26,7 +26,7 @@ class EnableShared {
   bool destroyed() const { return !_ptr.get(); }
 };
 
-class MultipleInheritableEnableSharedFromThis : public std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis> {
+class MultipleInheritableEnableSharedFromThis : public virtual std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis> {
  public:
   virtual ~MultipleInheritableEnableSharedFromThis() {}
 };

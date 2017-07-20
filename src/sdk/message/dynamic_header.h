@@ -26,20 +26,27 @@ class DynamicHeader {
     SourcePath = 0x81
   };
 
-  static DynamicHeader* parse(const uint8_t* data,
-                              size_t size) throw(const std::runtime_error&);
+  enum Offset {
+    Key = 0,
+    ByteValue = Key + sizeof(uint8_t),
+    StringLength = Key + sizeof(uint8_t),
+    StringValue = StringLength + sizeof(uint16_t)
+  };
 
-  const uint8_t& key() const { return _key; }
+  static DynamicHeader* parse(const uint8_t* data, uint16_t size) throw(const std::runtime_error &);
+
+  uint8_t key() const { return _key; }
+
   // total size in bytes of this header
-  const uint16_t& size() const { return _size; }
+  uint16_t size() const { return _size; }
+
   virtual void write(uint8_t* data) = 0;
 
- private:
+ protected:
   uint8_t _key;
   uint16_t _size;
 
- protected:
-  DynamicHeader(const uint8_t key, const uint16_t size);
+  DynamicHeader(uint8_t key, size_t size);
 };
 
 class DynamicStringHeader : public DynamicHeader {
@@ -47,30 +54,29 @@ class DynamicStringHeader : public DynamicHeader {
   std::string _value;
 
  public:
-  DynamicStringHeader(const uint8_t* data, const uint16_t size,
-                      const std::string& str);
-  DynamicStringHeader(const uint8_t key, const std::string& str);
+  DynamicStringHeader(const uint8_t* data, uint16_t size, std::string str);
+  DynamicStringHeader(uint8_t key, std::string str);
   const std::string& value() const;
-  void write(uint8_t* data);
+  void write(uint8_t* data) override;
 };
 
 class DynamicByteHeader : public DynamicHeader {
  private:
-  uint16_t _value;
+  uint8_t _value;
 
  public:
-  const uint8_t& value() const;
-  DynamicByteHeader(const uint8_t* data);
-  DynamicByteHeader(const uint8_t key, const uint8_t value);
-  void write(uint8_t* data);
+  const uint8_t& value() const { return _value; };
+  explicit DynamicByteHeader(const uint8_t* data);
+  DynamicByteHeader(uint8_t key, uint8_t value);
+  void write(uint8_t* data) override;
 };
 
 class DynamicBoolHeader : public DynamicHeader {
  protected:
  public:
-  DynamicBoolHeader(const uint8_t* data);
-  DynamicBoolHeader(const uint8_t key);
-  void write(uint8_t* data);
+  explicit DynamicBoolHeader(const uint8_t* data);
+  explicit DynamicBoolHeader(uint8_t key);
+  void write(uint8_t* data) override;
 };
 
 }  // namespace dsa

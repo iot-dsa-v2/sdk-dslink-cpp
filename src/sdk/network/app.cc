@@ -69,7 +69,7 @@ void App::wait() {
   _threads->join_all();
 }
 
-void App::start(unsigned int thread_count) {
+void App::run(unsigned int thread_count) {
   async_start(thread_count);
   wait();
 }

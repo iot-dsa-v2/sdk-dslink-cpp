@@ -38,7 +38,7 @@ class App {
   const std::string &name() const { return _name; };
 
   // start io_service and wait forever
-  void start(unsigned int thread_count = 5);
+  void run(unsigned int thread_count = 5);
 
   // start io_service asynchronously and continue
   void async_start(unsigned int thread_count = 5);

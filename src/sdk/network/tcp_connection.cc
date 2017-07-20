@@ -55,7 +55,7 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
 
       // post job with message buffer
       _app.io_service().post(boost::bind(&TcpConnection::handle_read, shared_from_this(),
-                                         buf->get_message_buffer(cur, header.message_size())));
+                                         buf->get_shared_buffer(cur, header.message_size())));
 
       cur += header.message_size();
     }
