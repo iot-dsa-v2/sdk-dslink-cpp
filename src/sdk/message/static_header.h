@@ -1,8 +1,8 @@
 #ifndef DSA_SDK_STATIC_HEADER_H
 #define DSA_SDK_STATIC_HEADER_H
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 namespace dsa {
 
 class StaticHeaders {
@@ -14,7 +14,7 @@ class StaticHeaders {
   uint32_t _ack_id;
 
  public:
-  enum {
+  enum : size_t {
     MessageSizeOffset = 0,
     HeaderSizeOffset = MessageSizeOffset + sizeof(uint32_t),
     TypeOffset = HeaderSizeOffset + sizeof(uint16_t),

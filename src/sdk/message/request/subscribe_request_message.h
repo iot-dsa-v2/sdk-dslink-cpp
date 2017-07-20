@@ -9,7 +9,9 @@ namespace dsa {
 class SubscribeRequestMessage : public RequestMessage {
  public:
   SubscribeRequestMessage(const SharedBuffer& buffer);
-  void parseDynamicHeaders();
+
+ protected:
+  void parseDynamicHeaders(const uint8_t* data, size_t size);
 };
 
 }  // namespace dsa

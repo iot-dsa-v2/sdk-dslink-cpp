@@ -13,7 +13,7 @@
 namespace dsa {
 
 Message* parseMessage(const SharedBuffer& buffer) throw(
-const std::exception&) {
+const std::runtime_error&) {
   if (buffer.size < StaticHeaders::TotalSize) {
     return nullptr;
   }
@@ -37,7 +37,7 @@ const std::exception&) {
     case Message::SET_RESPONSE_TYPE:
       return new SetResponseMessage(buffer);
     default:
-      throw std::runtime_error("stuff");
+      throw std::runtime_error("invalid message type");
   }
 }
 

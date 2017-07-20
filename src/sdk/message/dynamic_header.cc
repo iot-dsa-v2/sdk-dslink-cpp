@@ -5,32 +5,28 @@ namespace dsa {
 DynamicHeader::DynamicHeader(const uint8_t key, const uint16_t size)
     : _key(key), _size(size) {}
 
-const uint8_t &DynamicHeader::key() const { return _key; }
-
-// total size in bytes of this header
-const uint16_t &DynamicHeader::size() const { return _size; }
-
-DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) {
+DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
+    const std::runtime_error &) {
   switch (*data) {
-    case STATUS:
-    case SEQUENCE_ID:
-    case PAGE_ID:
-    case ALIAS_COUNT:
-    case PRIORITY:
-    case QOS:
-    case UPDATE_FREQUENCY:
-    case QUQUE_SIZE:
-    case QUEUE_TIME:
-    case MAX_PERMISSION: {
+    case Status:
+    case SequenceId:
+    case PageId:
+    case AliasCount:
+    case Priority:
+    case Qos:
+    case UpdateFrequency:
+    case QueueSize:
+    case QueueTime:
+    case MaxPermission: {
       if (size >= 2) {
         return new DynamicByteHeader(data);
       }
-      break;
+      throw new std::runtime_error("invalid size for DynamicByteHeader");
     }
-    case BASE_PATH:
-    case PERMISSION_TOKEN:
-    case TARGET_PATH:
-    case SOURCE_PATH: {
+    case BasePath:
+    case PermissionToken:
+    case TargetPath:
+    case SourcePath: {
       if (size > 0) {
         uint8_t size1 = data[1];
         uint16_t total_size;
@@ -50,17 +46,18 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) {
           }
         }
       }
-      break;
+      throw new std::runtime_error("invalid size for DynamicStringHeader");
     }
-    case NO_STREAM:
-    case SKIPPABLE: {
+    case NoStream:
+    case Skippable: {
       if (size >= 1) {
         return new DynamicBoolHeader(data);
       }
-      break;
+      throw new std::runtime_error("invalid size for DynamicBoolHeader");
     }
+    default:
+      throw new std::runtime_error("invalid dynamic header key");
   }
-  return nullptr;
 }
 
 DynamicStringHeader::DynamicStringHeader(const uint8_t *data,

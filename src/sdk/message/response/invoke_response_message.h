@@ -9,7 +9,9 @@ namespace dsa {
 class InvokeResponseMessage : public ResponseMessage {
  public:
   InvokeResponseMessage(const SharedBuffer& buffer);
-  void parseDynamicHeaders();
+
+ protected:
+  void parseDynamicHeaders(const uint8_t* data, size_t size);
 };
 
 }  // namespace dsa
