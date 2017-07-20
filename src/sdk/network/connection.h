@@ -4,18 +4,20 @@
 #include <memory>
 #include <functional>
 
-#include <boost/asio.hpp>
-#include <boost/function.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 #include "util/util.h"
 #include "message/static_header.h"
-#include "app.h"
 
-typedef boost::function<void()> WriteCallback;
-typedef boost::function<void(dsa::Buffer::SharedBuffer)> ReadCallback;
+typedef std::function<void()> WriteCallback;
+typedef std::function<void(dsa::Buffer::SharedBuffer)> ReadCallback;
+
+namespace boost {
+namespace system {
+class error_code;
+}
+}
 
 namespace dsa {
+class App;
 
 /**
  * handshake logic
@@ -23,7 +25,7 @@ namespace dsa {
  */
 class Connection : public InheritableEnableShared<Connection> {
  protected:
-  Connection(const App &app);
+  explicit Connection(const App &app);
   const App &_app;
 
   BufferPtr _read_buffer;
@@ -70,6 +72,18 @@ class Connection : public InheritableEnableShared<Connection> {
   void success_or_close(const boost::system::error_code &error);
 
  public:
+  class Config {
+   private:
+    std::string _host{"127.0.0.1"};
+    unsigned short _port{8080};
+
+   public:
+    void set_host(std::string host) { _host = host; }
+    void set_port(unsigned short port) { _port = port; }
+    const std::string &host() const { return _host; }
+    unsigned short port() const { return _port; }
+  };
+
   enum {
     StaticHeaderLength = 15,
     PublicKeyLength = 65,

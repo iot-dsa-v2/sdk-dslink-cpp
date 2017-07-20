@@ -13,6 +13,8 @@ void TcpConnection::close() {
 
 void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */) {
+    std::cout << "in read loop" << std::endl;
+
     BufferPtr buf = std::move(_read_buffer);
     _read_buffer.reset(new Buffer());
 
@@ -103,6 +105,8 @@ void TcpServerConnection::continue_accept_loop(const boost::system::error_code &
 void TcpServerConnection::start_handshake(const boost::system::error_code &error) {
   if (error != nullptr) throw std::runtime_error("Client connection dropped unexpectedly");
 
+  std::cout << "Server: handshake start" << std::endl;
+
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpServerConnection::f0_received, share_this<TcpServerConnection>(),
                                       boost::asio::placeholders::error,
@@ -115,6 +119,8 @@ void TcpServerConnection::start_handshake(const boost::system::error_code &error
 }
 
 void TcpServerConnection::f0_received(const boost::system::error_code &error, size_t bytes_transferred) {
+  std::cout << "Server: f0 received" << std::endl;
+
   if (!error /* && !destroyed() */ && parse_f0(bytes_transferred)) {
     _strand.post(boost::bind(&TcpServerConnection::compute_secret, this));
     _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
@@ -159,6 +165,8 @@ void TcpClientConnection::connect() {
 void TcpClientConnection::start_handshake(const boost::system::error_code &error) {
   if (error != nullptr) throw std::runtime_error("Couldn't connect to specified host");
 
+  std::cout << "Client: handshake start" << std::endl;
+
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpClientConnection::f1_received,
                                       share_this<TcpClientConnection>(),
@@ -173,6 +181,8 @@ void TcpClientConnection::start_handshake(const boost::system::error_code &error
 
 void TcpClientConnection::f1_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */ && parse_f1(bytes_transferred)) {
+    std::cout << "Client: f1 received" << std::endl;
+
     // server should be parsing f0 and waiting for f2 at this point
     // so we can compute the shared secret synchronously
     compute_secret();
@@ -192,6 +202,8 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
 
 void TcpClientConnection::f3_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */ && parse_f3(bytes_transferred)) {
+    std::cout << "Client: f3 received" << std::endl;
+
     uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
     for (size_t i = 0; i < AuthLength; ++i)
       if (auth[i] != other_auth[i]) return;

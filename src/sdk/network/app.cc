@@ -4,6 +4,7 @@
 #include <boost/thread.hpp>
 
 #include "tcp_server.h"
+#include "tcp_connection.h"
 
 namespace dsa {
 
@@ -31,7 +32,7 @@ void worker_thread(std::shared_ptr<boost::asio::io_service> io_service) {
   }
 }
 
- void App::add_server(Server::Type type, Server::Config config) {
+void App::add_server(Server::Type type, Server::Config config) {
   switch (type) {
     case Server::TCP:
       _servers.push_back(std::shared_ptr<Server>(new TcpServer(*this, config)));
@@ -41,8 +42,12 @@ void worker_thread(std::shared_ptr<boost::asio::io_service> io_service) {
   }
 }
 
+ClientPtr App::new_client(Client::Config config) {
+  return std::shared_ptr<Connection>(new TcpClientConnection(*this, config));
+}
+
 void App::run(unsigned int thread_count) {
-  if (!thread_count) return;
+  if (thread_count == 0u) return;
 
   boost::asio::io_service::work work(*_io_service);
 
@@ -55,6 +60,11 @@ void App::run(unsigned int thread_count) {
     server->start();
 
   threads.join_all();
+}
+
+void App::async_run(unsigned int thread_count) {
+  boost::thread_group threads;
+  threads.create_thread(boost::bind(&App::run, this, thread_count));
 }
 
 }  // namespace dsa

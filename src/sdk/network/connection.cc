@@ -1,5 +1,10 @@
 #include "connection.h"
 
+#include <boost/asio.hpp>
+
+#include "app.h"
+//#include "dsa/crypto.h"
+
 namespace dsa {
 
 Connection::Connection(const App &app) : _app(app), _read_buffer(new Buffer()), _write_buffer(new Buffer()) {}

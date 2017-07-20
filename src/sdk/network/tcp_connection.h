@@ -73,18 +73,6 @@ class TcpClientConnection : public TcpConnection {
   void start_handshake(const boost::system::error_code &error) override;
 
  public:
-  class Config {
-   private:
-    std::string _host{"127.0.0.1"};
-    unsigned short _port{8080};
-
-   public:
-    void set_host(std::string host) { _host = host; }
-    void set_port(unsigned short port) { _port = port; }
-    const std::string &host() const { return _host; }
-    unsigned short port() const { return _port; }
-  };
-
   const Config config;
 
   explicit TcpClientConnection(const App &app);

@@ -9,6 +9,7 @@
 #include <string>
 
 #include "server.h"
+#include "client.h"
 #include "security_context.h"
 
 namespace boost {
@@ -34,7 +35,9 @@ class App {
   SecurityContext &security_context() const { return *_security_context; };
   const std::string &name() const { return _name; };
   void run(unsigned int thread_count = 5);
+  void async_run(unsigned int thread_count = 5);
   void add_server(Server::Type type, Server::Config config);
+  ClientPtr new_client(Client::Config config);
 };
 }  // namespace dsa
 
