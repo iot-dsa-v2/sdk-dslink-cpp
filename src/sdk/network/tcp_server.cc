@@ -17,7 +17,7 @@ void TcpServer::start() {
 
 void TcpServer::accept_loop() {
 //  if (!destroyed()) {
-  auto new_connection = std::make_shared<TcpServerConnection>(_app);
+  auto new_connection = std::make_shared<TcpServerConnection>(_app, _config);
 
   // this will call accept_loop() once new connection is accepted
   new_connection->async_accept_connection_then_loop(share_this<TcpServer>());

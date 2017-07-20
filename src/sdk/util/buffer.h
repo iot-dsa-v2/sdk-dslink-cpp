@@ -5,6 +5,7 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <memory>
 
@@ -23,18 +24,21 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
    public:
     const size_t size;
     const uint8_t * data;
-    SharedBuffer(std::shared_ptr<Buffer> parent, uint8_t * data, size_t size)
-        : _parent_buf(parent), data(data), size(size) {}
+    SharedBuffer(std::shared_ptr<Buffer> parent, const uint8_t * data, size_t size)
+        : _parent_buf(std::move(parent)), data(data), size(size) {}
   };
 
   // default constructor
   Buffer();
 
   // set capacity constructor
-  Buffer(size_t capacity);
+  explicit Buffer(size_t capacity);
 
   // shallow copy constructor
   Buffer(const Buffer &other);
+
+  // string copy constructor
+  explicit Buffer(std::string data);
 
   // dangerous raw pointer constructor
   // data pointer assumed to be stored on heap with correct size and capacity args

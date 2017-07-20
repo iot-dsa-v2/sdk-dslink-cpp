@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <functional>
+#include <atomic>
 
 #include "util/util.h"
 #include "message/static_header.h"
@@ -25,6 +26,7 @@ class App;
  */
 class Connection : public InheritableEnableShared<Connection> {
  protected:
+  static std::atomic_uint _connection_count;
   explicit Connection(const App &app);
   const App &_app;
 
@@ -38,7 +40,7 @@ class Connection : public InheritableEnableShared<Connection> {
   BufferPtr _other_token;
   BufferPtr _session_id;
   BufferPtr _path;
-  BufferPtr _token;
+  BufferPtr _token{std::make_shared<Buffer>("null")};
   BufferPtr _auth;
   uint8_t _dsa_version_major;
   uint8_t _dsa_version_minor;
@@ -48,6 +50,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
   // parse handshake messages
   bool parse_f0(size_t size);
+  bool parse_f0(Buffer &buf, size_t size);
   bool parse_f1(size_t size);
   bool parse_f2(size_t size);
   bool parse_f3(size_t size);
@@ -76,38 +79,39 @@ class Connection : public InheritableEnableShared<Connection> {
    private:
     std::string _host{"127.0.0.1"};
     unsigned short _port{8080};
+    std::string _token{"null"};
 
    public:
     void set_host(std::string host) { _host = host; }
     void set_port(unsigned short port) { _port = port; }
     const std::string &host() const { return _host; }
     unsigned short port() const { return _port; }
+    const std::string &token() const { return _token; }
   };
 
   enum {
-    StaticHeaderLength = 15,
     PublicKeyLength = 65,
     SaltLength = 32,
     AuthLength = 32,
-    MinF0Length = StaticHeaderLength +
+    MinF0Length = StaticHeaders::TotalSize +
         2 +                 // client dsa version
         1 +                 // client dsid length
         1 +                 // client dsid content
         PublicKeyLength +   // client public key
         1 +                 // client security preference
         SaltLength,         // client salt
-    MinF1Length = StaticHeaderLength +
+    MinF1Length = StaticHeaders::TotalSize +
         1 +                 // broker dsid length
         1 +                 // broker dsid content
         PublicKeyLength +   // broker public key
         SaltLength,         // broker salt
-    MinF2Length = StaticHeaderLength +
+    MinF2Length = StaticHeaders::TotalSize +
         2 +                 // client token length
         0 +                 // client token content
         1 +                 // client is requester
         1 +                 // client is responder
         AuthLength,         // client auth
-    MinF3Length = StaticHeaderLength +
+    MinF3Length = StaticHeaders::TotalSize +
         2 +                 // session id length
         1 +                 // session id content
         2 +                 // client path length

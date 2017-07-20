@@ -19,10 +19,13 @@ class Server : public InheritableEnableShared<Server> {
   class Config {
    private:
     unsigned short _port{8080};
+    std::string _path{"/example/path"};
 
    public:
     void set_port(unsigned short port) { _port = port; }
+    void set_path(const char *path) { _path = path; }
     unsigned short port() const { return _port; }
+    const std::string &path() const { return _path; }
   };
 
   explicit Server(const App &app);

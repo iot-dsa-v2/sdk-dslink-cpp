@@ -2,12 +2,12 @@
 #define DSA_SDK_TCP_CONNECTION_H_
 
 #include <memory>
+
 #include <boost/asio.hpp>
 
+#include "util/enable_shared.h"
 #include "connection.h"
 #include "security_context.h"
-
-#include "util/enable_shared.h"
 #include "tcp_server.h"
 
 namespace dsa {
@@ -57,7 +57,7 @@ class TcpServerConnection : public TcpConnection {
   void start_handshake(const boost::system::error_code &error) override;
 
  public:
-  explicit TcpServerConnection(const App &app);
+  explicit TcpServerConnection(const App &app, const Server::Config &config);
 
   void connect() override;
 };

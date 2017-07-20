@@ -13,10 +13,10 @@ StaticHeaders::StaticHeaders(const uint8_t *data) {
 }
 
 StaticHeaders::StaticHeaders(uint32_t message_size,
-                           uint16_t header_size,
-                           uint8_t type,
-                           uint32_t request_id,
-                           uint32_t ack_id)
+                             uint16_t header_size,
+                             uint8_t type,
+                             uint32_t request_id,
+                             uint32_t ack_id)
     : _message_size(message_size), _header_size(header_size), _request_id(request_id), _type(type), _ack_id(ack_id) {}
 
 void StaticHeaders::write(uint8_t *data) {

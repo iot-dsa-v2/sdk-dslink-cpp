@@ -1,8 +1,5 @@
 #include "buffer.h"
 
-#include <cstring>
-#include <iostream>
-
 namespace dsa {
 
 Buffer::Buffer()
@@ -11,7 +8,7 @@ Buffer::Buffer()
 Buffer::Buffer(size_t capacity)
     : _data(new uint8_t[capacity]), _size(0), _capacity(capacity) {
   if (capacity < 1)
-    throw new std::runtime_error("Invalid capacity for buffer constructor");
+    throw std::runtime_error("Invalid capacity for buffer constructor");
 }
 
 Buffer::Buffer(const Buffer &other)
@@ -22,6 +19,11 @@ Buffer::Buffer(const Buffer &other)
 
 Buffer::Buffer(uint8_t *data, size_t size, size_t capacity)
     : _data(data), _size(size), _capacity(capacity) {}
+
+Buffer::Buffer(std::string data) : _size(data.size()), _capacity(data.size()) {
+  _data = new uint8_t[_capacity];
+  std::memcpy(_data, data.c_str(), data.size());
+}
 
 Buffer &Buffer::operator=(const Buffer &other) {
   delete[] _data;
@@ -39,7 +41,7 @@ size_t Buffer::size() const { return _size; }
 bool Buffer::resize(size_t capacity) {
   if (capacity <= _capacity)
     return false;
-  uint8_t *new_data = new uint8_t[capacity];
+  auto new_data = new uint8_t[capacity];
   std::memcpy(new_data, _data, _size);
   delete[] _data;
   _data = new_data;
@@ -71,7 +73,7 @@ void Buffer::assign(const uint8_t *data, size_t size) {
 uint8_t &Buffer::operator[](size_t index) {
   if (index >= _size) {
     if (index >= _capacity) {
-      throw new std::runtime_error("Buffer access, index out of bounds");
+      throw std::runtime_error("Buffer access, index out of bounds");
     }
     _size = index + 1;
   }
@@ -80,7 +82,7 @@ uint8_t &Buffer::operator[](size_t index) {
 
 const uint8_t &Buffer::operator[](size_t index) const {
   if (index >= _size) {
-    throw new std::runtime_error("Buffer access, index out of bounds");
+    throw std::runtime_error("Buffer access, index out of bounds");
   }
   return _data[index];
 }
