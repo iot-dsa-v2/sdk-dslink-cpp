@@ -88,7 +88,7 @@ void TcpServerConnection::async_accept_connection_then_loop(const TcpServerPtr &
 }
 
 void TcpServerConnection::connect() {
-  _server->_acceptor->async_accept(_socket, boost::bind(&TcpServerConnection::start_handshake, share_this<TcpServerConnection>(),
+  _server->_acceptor->async_accept(_socket, boost::bind(&TcpServerConnection::continue_accept_loop, share_this<TcpServerConnection>(),
                                                      boost::asio::placeholders::error));
 }
 

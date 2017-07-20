@@ -1,5 +1,7 @@
 #include "security_context.h"
 
+#include "connection.h"
+
 namespace dsa {
 
 SecurityContext::SecurityContext(std::string dsid_prefix)
@@ -8,6 +10,7 @@ SecurityContext::SecurityContext(std::string dsid_prefix)
   Hash hash("sha256");
   hash.update(*_public_key);
   _dsid = dsid_prefix + base64url(hash.digest_base64());
+  _salt = gen_salt(Connection::SaltLength);
 }
 
 }  // namespace dsa

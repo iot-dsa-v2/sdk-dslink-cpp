@@ -1,7 +1,5 @@
 #include "connection.h"
 
-#include "security_context.h"
-
 namespace dsa {
 
 Connection::Connection(const App &app) : _app(app), _read_buffer(new Buffer()), _write_buffer(new Buffer()) {}
@@ -211,7 +209,7 @@ size_t Connection::load_f0(Buffer &buf) {
 }
 
 size_t Connection::load_f1(Buffer &buf) {
-  uint8_t dsid_length = (uint8_t)_app.security_context().dsid().size();
+  auto dsid_length = (uint8_t)_app.security_context().dsid().size();
 
   // ensure buf is large enough
   buf.resize(MinF1Length + dsid_length);

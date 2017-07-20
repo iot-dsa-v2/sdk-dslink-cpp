@@ -63,6 +63,13 @@ class Connection : public InheritableEnableShared<Connection> {
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();
 
+  ReadCallback read_handler;
+
+  static bool valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type);
+
+  void success_or_close(const boost::system::error_code &error);
+
+ public:
   enum {
     StaticHeaderLength = 15,
     PublicKeyLength = 65,
@@ -94,13 +101,6 @@ class Connection : public InheritableEnableShared<Connection> {
         AuthLength,         // broker auth
   };
 
-  ReadCallback read_handler;
-
-  static bool valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type);
-
-  void success_or_close(const boost::system::error_code &error);
-
- public:
   void set_read_handler(ReadCallback callback);
 //  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteCallback callback) = 0;

@@ -16,7 +16,7 @@ class SecurityContext {
   std::string _dsid;
 
  public:
-  SecurityContext(std::string dsid_prefix);
+  explicit SecurityContext(std::string dsid_prefix);
   const Buffer &public_key() const { return *_public_key; };
   const Buffer &salt() const { return *_salt; };
   const ECDH &ecdh() const { return _ecdh; };
