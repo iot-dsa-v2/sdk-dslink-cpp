@@ -5,6 +5,10 @@ namespace dsa {
 Buffer::Buffer()
     : _data(new uint8_t[default_capacity]), _size(0), _capacity(default_capacity) {}
 
+Buffer::~Buffer() {
+  delete[] _data;
+}
+
 Buffer::Buffer(size_t capacity)
     : _data(new uint8_t[capacity]), _size(0), _capacity(capacity) {
   if (capacity < 1)
@@ -87,7 +91,7 @@ const uint8_t &Buffer::operator[](size_t index) const {
   return _data[index];
 }
 
-Buffer::SharedBuffer Buffer::get_message_buffer(size_t offset, size_t message_size) {
+Buffer::SharedBuffer Buffer::get_shared_buffer(size_t offset, size_t message_size) {
   return Buffer::SharedBuffer(shared_from_this(), &_data[offset], message_size);
 }
 

@@ -31,6 +31,9 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   // default constructor
   Buffer();
 
+  // deconstructor
+  ~Buffer();
+
   // set capacity constructor
   explicit Buffer(size_t capacity);
 
@@ -78,7 +81,7 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   const uint8_t &operator[](size_t index) const;
 
   // get buffer
-  SharedBuffer get_message_buffer(size_t offset, size_t size);
+  SharedBuffer get_shared_buffer(size_t offset, size_t size);
 
   // iterator
   typedef uint8_t *iterator;
