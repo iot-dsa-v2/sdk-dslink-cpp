@@ -1,13 +1,9 @@
-//
-// Created by Ben Richards on 7/17/17.
-//
-
 #include "app.h"
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-#include "security_context.h"
+#include "tcp_server.h"
 
 namespace dsa {
 
@@ -23,7 +19,7 @@ void worker_thread(std::shared_ptr<boost::asio::io_service> io_service) {
       boost::system::error_code err;
       io_service->run(err);
 
-      if (err) {
+      if (err != nullptr) {
         // TODO: log error message to file?
       } else {
         return;
@@ -35,6 +31,16 @@ void worker_thread(std::shared_ptr<boost::asio::io_service> io_service) {
   }
 }
 
+ void App::add_server(Server::Type type, Server::Config config) {
+  switch (type) {
+    case Server::TCP:
+      _servers.push_back(std::shared_ptr<Server>(new TcpServer(*this, config)));
+      return;
+    default:
+      throw std::runtime_error("invalid server type");
+  }
+}
+
 void App::run(unsigned int thread_count) {
   if (!thread_count) return;
 
@@ -43,6 +49,10 @@ void App::run(unsigned int thread_count) {
   boost::thread_group threads;
   for (size_t i = 0; i < thread_count; ++i)
     threads.create_thread(boost::bind(worker_thread, _io_service));
+
+  // start servers
+  for (ServerPtr server : _servers)
+    server->start();
 
   threads.join_all();
 }

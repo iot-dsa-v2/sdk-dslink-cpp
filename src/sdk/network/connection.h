@@ -102,7 +102,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
  public:
   void set_read_handler(ReadCallback callback);
-  void destroy() override;
+//  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteCallback callback) = 0;
   virtual void close() = 0;
   virtual void connect() = 0;

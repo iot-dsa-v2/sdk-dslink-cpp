@@ -7,6 +7,7 @@
 
 #include "server.h"
 #include "app.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
 class TcpServerConnection;
@@ -14,24 +15,16 @@ class TcpServerConnection;
 class TcpServer : public Server {
  private:
   friend class TcpServerConnection;
-  boost::asio::ip::tcp::acceptor _acceptor;
+  std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
 
   void accept_loop();
 
+  Config _config;
+
  public:
-  class Config {
-   private:
-    unsigned short _port{8080};
-
-   public:
-    void set_port(unsigned short port) { _port = port; }
-    unsigned short port() const { return _port; }
-  };
-
   TcpServer(const App &app, const Config &config);
   void start() override;
-
-  const Config config;
+  std::string type() override { return "TCP"; }
 };
 
 typedef std::shared_ptr<TcpServer> TcpServerPtr;

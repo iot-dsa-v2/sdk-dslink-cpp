@@ -18,10 +18,10 @@ void Connection::success_or_close(const boost::system::error_code &error) {
   if (error) close();
 }
 
-void Connection::destroy() {
-//  EnableShared<Connection>::destroy();
-  close();
-}
+//void Connection::destroy() {
+////  EnableShared<Connection>::destroy();
+//  close();
+//}
 
 void Connection::compute_secret() {
   _shared_secret = _app.security_context().ecdh().compute_secret(*_other_public_key);

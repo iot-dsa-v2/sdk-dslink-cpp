@@ -7,7 +7,8 @@ namespace dsa {
 using tcp = boost::asio::ip::tcp;
 
 TcpServer::TcpServer(const App &app, const Config &config)
-    : Server(app), config(config), _acceptor(app.io_service(), tcp::endpoint(tcp::v4(), config.port())) {}
+    : Server(app), _config(config),
+      _acceptor(new tcp::acceptor(app.io_service(), tcp::endpoint(tcp::v4(), config.port()))) {}
 
 void TcpServer::start() {
   // start taking connections
@@ -15,12 +16,12 @@ void TcpServer::start() {
 }
 
 void TcpServer::accept_loop() {
-  if (!destroyed()) {
-    auto new_connection = std::make_shared<TcpServerConnection>(_app);
+//  if (!destroyed()) {
+  auto new_connection = std::make_shared<TcpServerConnection>(_app);
 
-    // this will call accept_loop() once new connection is accepted
-    new_connection->async_accept_connection_then_loop(share_this<TcpServer>());
-  }
+  // this will call accept_loop() once new connection is accepted
+  new_connection->async_accept_connection_then_loop(share_this<TcpServer>());
+//  }
 }
 
 }  // namespace dsa
