@@ -27,12 +27,14 @@ class Message {
   std::unique_ptr<SharedBuffer> body;
   std::unique_ptr<DynamicByteHeader> priority;
 
-  virtual void parseDynamicHeaders()
+  Message(const SharedBuffer& buffer);
 
+  virtual void parseDynamicHeaders() = 0;
 };
 
 class RequestMessage : public Message {
  public:
+  RequestMessage(const SharedBuffer& buffer);
   std::unique_ptr<DynamicStringHeader> target_path;
   std::unique_ptr<DynamicStringHeader> permission_token;
   std::unique_ptr<DynamicBoolHeader> no_stream;
@@ -40,6 +42,7 @@ class RequestMessage : public Message {
 
 class ResponseMessage : public Message {
  public:
+   ResponseMessage(const SharedBuffer& buffer);
   std::unique_ptr<DynamicByteHeader> status;
 };
 

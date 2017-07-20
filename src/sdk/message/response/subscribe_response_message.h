@@ -9,6 +9,7 @@ namespace dsa {
 class SubscribeResponseMessage : public ResponseMessage {
  public:
   SubscribeResponseMessage(const SharedBuffer& buffer);
+  void parseDynamicHeaders();
 };
 
 }  // namespace dsa

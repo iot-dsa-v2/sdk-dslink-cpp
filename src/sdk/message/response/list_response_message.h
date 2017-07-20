@@ -9,6 +9,7 @@ namespace dsa {
 class ListResponseMessage : public ResponseMessage {
  public:
   ListResponseMessage(const SharedBuffer& buffer);
+  void parseDynamicHeaders();
 };
 
 }  // namespace dsa

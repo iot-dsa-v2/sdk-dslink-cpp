@@ -9,6 +9,7 @@ namespace dsa {
 class ListRequestMessage : public RequestMessage {
  public:
   ListRequestMessage(const SharedBuffer& buffer);
+  void parseDynamicHeaders();
 };
 
 }  // namespace dsa
