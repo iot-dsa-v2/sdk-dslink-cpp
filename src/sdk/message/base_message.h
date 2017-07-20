@@ -24,8 +24,11 @@ class Message {
 
   StaticHeaders static_headers;
 
-  std::unique_ptr<MessageBuffer> body;
+  std::unique_ptr<SharedBuffer> body;
   std::unique_ptr<DynamicByteHeader> priority;
+
+  virtual void parseDynamicHeaders()
+
 };
 
 class RequestMessage : public Message {

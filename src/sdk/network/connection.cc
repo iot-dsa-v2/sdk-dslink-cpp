@@ -10,7 +10,7 @@ void Connection::set_read_handler(ReadCallback callback) {
   read_handler = callback;
 }
 
-void Connection::handle_read(Buffer::MessageBuffer buf) {
+void Connection::handle_read(Buffer::SharedBuffer buf) {
   read_handler(buf);
 }
 

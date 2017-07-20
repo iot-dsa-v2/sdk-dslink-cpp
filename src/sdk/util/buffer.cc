@@ -85,8 +85,8 @@ const uint8_t &Buffer::operator[](size_t index) const {
   return _data[index];
 }
 
-Buffer::MessageBuffer Buffer::get_message_buffer(size_t offset, size_t message_size) {
-  return Buffer::MessageBuffer(shared_from_this(), &_data[offset], message_size);
+Buffer::SharedBuffer Buffer::get_message_buffer(size_t offset, size_t message_size) {
+  return Buffer::SharedBuffer(shared_from_this(), &_data[offset], message_size);
 }
 
 } // namespace dsa

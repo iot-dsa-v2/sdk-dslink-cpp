@@ -8,7 +8,7 @@ namespace dsa {
 
 class SubscribeRequestMessage : public RequestMessage {
  public:
-  SubscribeRequestMessage(const MessageBuffer& buffer);
+  SubscribeRequestMessage(const SharedBuffer& buffer);
 };
 
 }  // namespace dsa

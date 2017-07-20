@@ -13,7 +13,7 @@
 #include "app.h"
 
 typedef boost::function<void()> WriteCallback;
-typedef boost::function<void(dsa::Buffer::MessageBuffer)> ReadCallback;
+typedef boost::function<void(dsa::Buffer::SharedBuffer)> ReadCallback;
 
 namespace dsa {
 
@@ -58,7 +58,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
-  void handle_read(Buffer::MessageBuffer buf);
+  void handle_read(Buffer::SharedBuffer buf);
 
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();

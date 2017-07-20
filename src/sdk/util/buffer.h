@@ -17,13 +17,13 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   size_t _capacity;
 
  public:
-  class MessageBuffer {
+  class SharedBuffer {
    private:
     std::shared_ptr<Buffer> _parent_buf;
    public:
     const size_t size;
     const uint8_t * data;
-    MessageBuffer(std::shared_ptr<Buffer> parent, uint8_t * data, size_t size)
+    SharedBuffer(std::shared_ptr<Buffer> parent, uint8_t * data, size_t size)
         : _parent_buf(parent), data(data), size(size) {}
   };
 
@@ -74,7 +74,7 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   const uint8_t &operator[](size_t index) const;
 
   // get buffer
-  MessageBuffer get_message_buffer(size_t offset, size_t size);
+  SharedBuffer get_message_buffer(size_t offset, size_t size);
 
   // iterator
   typedef uint8_t *iterator;
@@ -84,8 +84,8 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
 };
 
 typedef std::shared_ptr<Buffer> BufferPtr;
-typedef std::shared_ptr<Buffer::MessageBuffer> MessageBufferPtr;
-typedef Buffer::MessageBuffer MessageBuffer;
+typedef std::shared_ptr<Buffer::SharedBuffer> MessageBufferPtr;
+typedef Buffer::SharedBuffer SharedBuffer;
 
 }  // namespace dsa
 

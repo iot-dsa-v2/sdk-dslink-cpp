@@ -12,7 +12,7 @@
 
 namespace dsa {
 
-Message* parseMessage(const MessageBuffer& buffer) throw(
+Message* parseMessage(const SharedBuffer& buffer) throw(
 const std::exception&) {
   if (buffer.size < StaticHeaders::TotalSize) {
     return nullptr;
