@@ -80,7 +80,7 @@ void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
                                        boost::asio::placeholders::error));
 }
 
-void TcpConnection::start() {
+void TcpConnection::start() throw() {
   if (_read_handler == nullptr)
     throw std::runtime_error("Error: connection started with no read handler");
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),

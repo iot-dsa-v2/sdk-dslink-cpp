@@ -16,6 +16,7 @@ void Session::start() const {
 
   // TODO: implement this
   std::cout << "Session start" << std::endl;
+//  _connection->start();
 }
 
 void Session::stop() {

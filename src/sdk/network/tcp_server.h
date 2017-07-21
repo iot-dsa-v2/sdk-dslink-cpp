@@ -25,7 +25,7 @@ class TcpServer : public Server {
   Config _config;
 
  public:
-  TcpServer(const App &app, const Config &config);
+  TcpServer(App &app, const Config &config);
   void start() override;
   void stop() override;
   std::string type() override { return "TCP"; }

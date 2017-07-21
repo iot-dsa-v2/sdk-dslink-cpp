@@ -13,6 +13,7 @@
 #include "server.h"
 #include "client.h"
 #include "security_context.h"
+#include "util/enable_shared.h"
 
 namespace boost {
 class thread_group;
@@ -23,7 +24,7 @@ class io_service;
 
 namespace dsa {
 class io_service_work;
-class AppClosable;
+class GracefullyClosable;
 
 class App {
  private:
@@ -36,14 +37,14 @@ class App {
 
  protected:
   //////////////////////////////////////////////////
-  // AppClosable components only get access to the
+  // GracefullyClosable components only get access to the
   // register and un-register functions
   //////////////////////////////////////////////////
-  std::unordered_map<void *, std::weak_ptr<AppClosable>> _registry;
-  friend class AppClosable;
+  std::unordered_map<void *, std::weak_ptr<GracefullyClosable>> _registry;
+  friend class GracefullyClosable;
 
   // register new component
-  void register_component(const std::shared_ptr<AppClosable> &component);
+  void register_component(std::shared_ptr<GracefullyClosable> component);
   // un-register dead component
   void unregister_component(void *component);
 
@@ -73,26 +74,10 @@ class App {
   void sleep(unsigned int milliseconds);
 
   // get new server
-  ServerPtr new_server(Server::Type type, const Server::Config &config);
+  std::shared_ptr<Server> new_server(Server::Type type, const Server::Config &config);
 
   // get new client
   ClientPtr new_client(Client::Type type, const Client::Config &config);
-};
-
-// interface that classes must adhere to in order to perform a graceful stop
-class AppClosable : public std::enable_shared_from_this<AppClosable> {
- public:
-  App &_app;
-
-  // this should gracefully stop any running process
-  // that the inheriting object has running
-  virtual void operator()() = 0;
-
-  // this ensures that the component is registered with the app
-  explicit AppClosable(App &app);
-
-  // ensures that components remove themselves from register once dead
-  virtual ~AppClosable();
 };
 }  // namespace dsa
 

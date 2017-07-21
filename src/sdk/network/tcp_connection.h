@@ -34,7 +34,7 @@ class TcpConnection : virtual public Connection {
 
   void close() override;
   void connect() override = 0;
-  void start() override;
+  void start() throw() override;
 };
 
 // TCP server side connection.

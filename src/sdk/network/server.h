@@ -1,18 +1,18 @@
 #ifndef  DSA_SDK_NETWORK_SERVER_H
 #define  DSA_SDK_NETWORK_SERVER_H
 
+#include <iostream>
+#include <string>
 #include <atomic>
 #include <utility>
 #include <map>
 
-#include "util/enable_shared.h"
-#include "security_context.h"
-#include "app.h"
+#include "gracefully_closable.h"
 
 namespace dsa {
 class Session;
 
-class Server : public InheritableEnableShared<Server>, virtual public AppClosable {
+class Server : public GracefullyClosable {
  protected:
   std::map<std::string, std::shared_ptr<Session>> _sessions;
   std::atomic_long _session_count{0};
@@ -41,7 +41,7 @@ class Server : public InheritableEnableShared<Server>, virtual public AppClosabl
     const std::string &path() const { return _path; }
   };
 
-  explicit Server(App &app) : AppClosable(app) {}
+  explicit Server(App &app) : GracefullyClosable(app) {}
   virtual std::shared_ptr<Session> get_session(const std::string &session_id) = 0;
   virtual std::shared_ptr<Session> create_session() = 0;
   virtual std::string get_new_session_id() = 0;
@@ -49,6 +49,8 @@ class Server : public InheritableEnableShared<Server>, virtual public AppClosabl
   virtual void start() = 0;
   virtual void stop();
   virtual std::string type() = 0;
+
+  void operator()() override { stop(); }
 };
 
 typedef std::shared_ptr<Server> ServerPtr;

@@ -96,25 +96,14 @@ void App::stop() {
   _io_service->stop();
 }
 
-void App::register_component(const std::shared_ptr<AppClosable> &component) {
+void App::register_component(std::shared_ptr<GracefullyClosable> component) {
   std::lock_guard<std::mutex> lock(_register_key);
-  _registry[component.get()] = component;
+  _registry[component.get()] = std::move(component);
 }
 
 void App::unregister_component(void *component) {
   std::lock_guard<std::mutex> lock(_register_key);
   _registry.erase(component);
-}
-
-////////////////////////
-// AppClosable
-///////////////////////
-AppClosable::AppClosable(App &app) : _app(app) {
-  _app.register_component(shared_from_this());
-}
-
-AppClosable::~AppClosable() {
-  _app.unregister_component(this);
 }
 
 }  // namespace dsa

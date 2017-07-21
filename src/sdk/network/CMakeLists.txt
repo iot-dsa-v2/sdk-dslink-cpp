@@ -13,6 +13,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES} PARENT_SCOPE)
 
 add_library(dsa_network OBJECT
         app.cc
+        gracefully_closable.cc
         connection.cc
         session.cc
         server.cc
