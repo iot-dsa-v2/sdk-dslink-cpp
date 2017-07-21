@@ -26,16 +26,17 @@ class TcpConnection : public Connection {
   virtual void start_handshake(const boost::system::error_code &error) = 0;
 
  public:
-  explicit TcpConnection(const App &app);
+  explicit TcpConnection(const App &app, const Config &config);
 
-  void error_check_wrap(WriteCallback callback, const boost::system::error_code &error);
+  void error_check_wrap(WriteHandler callback, const boost::system::error_code &error);
 
-  void write(BufferPtr buf, size_t size, WriteCallback callback) override;
+  void write(BufferPtr buf, size_t size, WriteHandler callback) override;
 
   tcp_socket &socket();
 
   void close() override;
   void connect() override = 0;
+  void start() override;
 };
 
 // TCP server side connection.
@@ -73,8 +74,6 @@ class TcpClientConnection : public TcpConnection {
   void start_handshake(const boost::system::error_code &error) override;
 
  public:
-  const Config config;
-
   explicit TcpClientConnection(const App &app);
   TcpClientConnection(const App &app, const Config &config);
 

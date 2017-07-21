@@ -83,6 +83,8 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   // get buffer
   SharedBuffer get_shared_buffer(size_t offset, size_t size);
 
+  std::string to_string() { return std::move(std::string(reinterpret_cast<char *>(_data), _size)); }
+
   // iterator
   typedef uint8_t *iterator;
   typedef const uint8_t *const_iterator;

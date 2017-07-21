@@ -7,20 +7,15 @@
 
 namespace dsa {
 
-Connection::Connection(const App &app)
-    : _app(app),
-      _read_buffer(new Buffer()),
-      _write_buffer(new Buffer()),
-      _session_id(std::make_shared<Buffer>(std::to_string(_connection_count++))) {}
+Connection::Connection(const App &app, const Config &config)
+    : _app(app), _read_buffer(new Buffer()), _write_buffer(new Buffer()), _config(config) {}
 
-std::atomic_uint Connection::_connection_count{0};
-
-void Connection::set_read_handler(ReadCallback callback) {
-  read_handler = std::move(callback);
+void Connection::set_read_handler(ReadHandler handler) {
+  _read_handler.reset(new ReadHandler(handler));
 }
 
 void Connection::handle_read(Buffer::SharedBuffer buf) {
-  read_handler(std::move(buf));
+  (*_read_handler)(std::move(buf));
 }
 
 void Connection::success_or_close(const boost::system::error_code &error) {
@@ -125,7 +120,7 @@ bool Connection::parse_f0(Buffer &buf, size_t size) {
   _other_public_key = std::make_shared<Buffer>(PublicKeyLength);
   _other_public_key->assign(&data[cur], PublicKeyLength);
   cur += PublicKeyLength;
-  _security_preference = data[cur++];
+  _security_preference = (data[cur++] != 0u);
   _other_salt = std::make_shared<Buffer>(SaltLength);
   _other_salt->assign(&data[cur], SaltLength);
   cur += SaltLength;
@@ -177,18 +172,30 @@ bool Connection::parse_f2(size_t size) {
 
   uint32_t cur = StaticHeaders::TotalSize;
   uint16_t token_length;
+  uint16_t session_id_length;
 
   std::memcpy(&token_length, &data[cur], sizeof(token_length));
   cur += sizeof(token_length);
 
-  if (cur + token_length + 2 + AuthLength > size)
+  // prevent accidental read in unowned memory
+  if (cur + token_length + 2 + sizeof(session_id_length) > size)
     return false;
 
   _other_token = std::make_shared<Buffer>(token_length);
   _other_token->assign(&data[cur], token_length);
   cur += token_length;
-  _is_requester = data[cur++];
-  _is_responder = data[cur++];
+  _is_requester = (data[cur++] != 0u);
+  _is_responder = (data[cur++] != 0u);
+  std::memcpy(&session_id_length, &data[cur], sizeof(session_id_length));
+  cur += sizeof(session_id_length);
+
+  // prevent accidental read in unowned memory
+  if (cur + session_id_length + AuthLength > size)
+    return false;
+
+  _session_id = std::make_shared<Buffer>(session_id_length);
+  _session_id->assign(&data[cur], session_id_length);
+  cur += session_id_length;
   _other_auth = std::make_shared<Buffer>(AuthLength);
   _other_auth->assign(&data[cur], AuthLength);
   cur += AuthLength;
@@ -288,7 +295,8 @@ size_t Connection::load_f1(Buffer &buf) {
 }
 
 size_t Connection::load_f2(Buffer &buf) {
-  auto token_length = (uint16_t) _token->size();
+  auto token_length = (uint16_t)_config.token()->size();
+  auto session_id_length = (uint16_t)_config.session_id()->size();
 
   // ensure buf is large enough
   buf.resize(MinF2Length + token_length);
@@ -300,10 +308,14 @@ size_t Connection::load_f2(Buffer &buf) {
   uint32_t cur = StaticHeaders::TotalSize;
   std::memcpy(&data[cur], &token_length, sizeof(token_length));
   cur += sizeof(token_length);
-  std::memcpy(&data[cur], _token->data(), token_length);
+  std::memcpy(&data[cur], _config.token()->data(), token_length);
   cur += token_length;
   data[cur++] = (uint8_t) (_is_requester ? 1 : 0);
   data[cur++] = (uint8_t) (_is_responder ? 1 : 0);
+  std::memcpy(&data[cur], &session_id_length, sizeof(session_id_length));
+  cur += sizeof(session_id_length);
+  std::memcpy(&data[cur], _config.session_id()->data(), session_id_length);
+  cur += session_id_length;
   std::memcpy(&data[cur], _auth->data(), AuthLength);
   cur += AuthLength;
   std::memcpy(data, &cur, sizeof(cur));
@@ -312,8 +324,8 @@ size_t Connection::load_f2(Buffer &buf) {
 }
 
 size_t Connection::load_f3(Buffer &buf) {
-  uint16_t session_id_length = (uint16_t) _session_id->size();
-  uint16_t path_length = (uint16_t) _path->size();
+  auto session_id_length = (uint16_t) _session_id->size();
+  auto path_length = (uint16_t) _path->size();
 
   // ensure buf is large enough
   buf.resize(MinF2Length + session_id_length);

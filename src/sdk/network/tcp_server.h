@@ -4,7 +4,9 @@
 #include <memory>
 
 #include <boost/asio.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
+#include "session.h"
 #include "server.h"
 #include "app.h"
 #include "util/enable_shared.h"
@@ -16,6 +18,7 @@ class TcpServer : public Server {
  private:
   friend class TcpServerConnection;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
+  boost::shared_mutex _sessions_key;
 
   void accept_loop();
 
@@ -25,6 +28,10 @@ class TcpServer : public Server {
   TcpServer(const App &app, const Config &config);
   void start() override;
   std::string type() override { return "TCP"; }
+
+  SessionPtr get_session(const std::string &session_id) override;
+  SessionPtr create_session() override;
+  std::string get_new_session_id() override;
 };
 
 typedef std::shared_ptr<TcpServer> TcpServerPtr;
