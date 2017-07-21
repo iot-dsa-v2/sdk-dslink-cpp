@@ -4,8 +4,7 @@
 
 namespace dsa {
 
-DynamicHeader::DynamicHeader(uint8_t key, size_t size)
-    : _key(key) {
+DynamicHeader::DynamicHeader(uint8_t key, size_t size) : _key(key) {
   if (size > std::numeric_limits<uint16_t>::max())
     throw std::runtime_error("Header size too large");
   _size = uint16_t(size);
@@ -34,22 +33,12 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
     case TargetPath:
     case SourcePath: {
       if (size > 0) {
-        uint8_t size1 = data[1];
-        uint16_t total_size;
-        if (size1 < 128) {
-          total_size = uint16_t(size1 + 2);
-          if (total_size <= size) {
-            return new DynamicStringHeader(
-                data, total_size, std::string((char *)data + 2, (size_t)size1));
-          }
-
-        } else {
-          auto size2 = uint16_t(((size1 << 8) | data[2]) & 0x7fff);
-          total_size = uint16_t(size1 + 3);
-          if (total_size <= size) {
-            return new DynamicStringHeader(
-                data, total_size, std::string((char *)data + 3, (size_t)size2));
-          }
+        uint16_t str_size;
+        memcpy(&str_size, data + 1, sizeof(str_size));
+        if (str_size + 3 <= size) {
+          return new DynamicStringHeader(
+              data, str_size + 3,
+              std::string((char *)data + 3, (size_t)str_size));
         }
       }
       throw std::runtime_error("invalid size for DynamicStringHeader");
@@ -66,7 +55,8 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
   }
 }
 
-DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size, std::string str)
+DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size,
+                                         std::string str)
     : DynamicHeader(*data, size), _value(std::move(str)) {}
 
 DynamicStringHeader::DynamicStringHeader(const uint8_t key, std::string str)
@@ -76,8 +66,9 @@ const std::string &DynamicStringHeader::value() const { return _value; }
 
 void DynamicStringHeader::write(uint8_t *data) {
   data[Key] = _key;
-  std::memcpy(&data[StringLength], &_size, sizeof(_size));
-  std::memcpy(&data[StringValue], _value.c_str(), _size);
+  uint16_t size2 = _value.length();
+  memcpy(data + StringLength, &size2, sizeof(size2));
+  memcpy(data + StringValue, _value.c_str(), size2);
 }
 
 DynamicByteHeader::DynamicByteHeader(const uint8_t *data)
