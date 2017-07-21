@@ -10,6 +10,11 @@ class SubscribeRequestMessage : public RequestMessage {
  public:
   SubscribeRequestMessage(const SharedBuffer& buffer);
 
+  std::unique_ptr<DynamicByteHeader> qos;
+  std::unique_ptr<DynamicByteHeader> update_frequency;
+  std::unique_ptr<DynamicByteHeader> queue_size;
+  std::unique_ptr<DynamicByteHeader> queue_time;
+
  protected:
   void parseDynamicHeaders(const uint8_t* data, size_t size);
 };

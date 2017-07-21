@@ -29,8 +29,7 @@ class Message {
   std::unique_ptr<DynamicByteHeader> priority;
 
   explicit Message(const SharedBuffer &buffer);
- protected:
-  virtual void parseDynamicHeaders(const uint8_t *data, size_t size) = 0;
+
 };
 
 class RequestMessage : public Message {
