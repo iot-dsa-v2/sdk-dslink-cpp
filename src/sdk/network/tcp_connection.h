@@ -17,16 +17,15 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Base TCP connection. Used for DSA connections over TCP.
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
-class TcpConnection : public Connection {
+class TcpConnection : virtual public Connection {
  protected:
   void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) override;
   tcp_socket _socket;
   boost::asio::io_service::strand _strand;
 
-  virtual void start_handshake(const boost::system::error_code &error) = 0;
-
  public:
   explicit TcpConnection(const App &app, const Config &config);
+  ~TcpConnection() override;
 
   void error_check_wrap(WriteHandler callback, const boost::system::error_code &error);
 
@@ -47,20 +46,23 @@ class TcpServerConnection : public TcpConnection {
   void f2_received(const boost::system::error_code &error, size_t bytes_transferred);
   void send_f3();
 
-  TcpServerPtr _server;
-
-  friend class TcpServer;
-  // this function should only be used by TcpServer
-  void async_accept_connection_then_loop(const TcpServerPtr &server);
-  void continue_accept_loop(const boost::system::error_code &error);
+  // weak pointer needed here in order for the server to be able to be freed once TcpServer::stop is called.
+  // std::weak_ptr::lock implementation just copies a shared pointer so performance
+  // cost should be minimal. this pointer should rarely be touched by connection.
+  std::weak_ptr<TcpServer> _server;
 
  protected:
-  void start_handshake(const boost::system::error_code &error) override;
+  void start_handshake();
 
  public:
   explicit TcpServerConnection(const App &app, const Server::Config &config);
+  ~TcpServerConnection() override {
+    std::cout << "~TcpServerConnection()" << std::endl;
+  }
 
   void connect() override;
+
+  inline void set_server(const std::shared_ptr<TcpServer> &server);
 };
 
 // TCP client side connection.
@@ -71,11 +73,14 @@ class TcpClientConnection : public TcpConnection {
   void f3_received(const boost::system::error_code &error, size_t bytes_transferred);
 
  protected:
-  void start_handshake(const boost::system::error_code &error) override;
+  void start_handshake(const boost::system::error_code &error);
 
  public:
   explicit TcpClientConnection(const App &app);
   TcpClientConnection(const App &app, const Config &config);
+  ~TcpClientConnection() override {
+    std::cout << "~TcpClientConnection()" << std::endl;
+  }
 
   void connect() override;
 

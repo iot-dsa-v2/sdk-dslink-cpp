@@ -184,13 +184,14 @@ bool Connection::parse_f2(size_t size) {
   _other_token = std::make_shared<Buffer>(token_length);
   _other_token->assign(&data[cur], token_length);
   cur += token_length;
+
   _is_requester = (data[cur++] != 0u);
   _is_responder = (data[cur++] != 0u);
   std::memcpy(&session_id_length, &data[cur], sizeof(session_id_length));
   cur += sizeof(session_id_length);
 
   // prevent accidental read in unowned memory
-  if (cur + session_id_length + AuthLength > size)
+  if (cur + session_id_length + AuthLength != size)
     return false;
 
   _session_id = std::make_shared<Buffer>(session_id_length);
@@ -314,8 +315,10 @@ size_t Connection::load_f2(Buffer &buf) {
   data[cur++] = (uint8_t) (_is_responder ? 1 : 0);
   std::memcpy(&data[cur], &session_id_length, sizeof(session_id_length));
   cur += sizeof(session_id_length);
-  std::memcpy(&data[cur], _config.session_id()->data(), session_id_length);
-  cur += session_id_length;
+  if (session_id_length > 0) {
+    std::memcpy(&data[cur], _config.session_id()->data(), session_id_length);
+    cur += session_id_length;
+  }
   std::memcpy(&data[cur], _auth->data(), AuthLength);
   cur += AuthLength;
   std::memcpy(data, &cur, sizeof(cur));

@@ -16,16 +16,17 @@ class TcpServerConnection;
 
 class TcpServer : public Server {
  private:
-  friend class TcpServerConnection;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   boost::shared_mutex _sessions_key;
+  std::shared_ptr<TcpServerConnection> _new_connection;
 
-  void accept_loop();
+  void accept_loop(const boost::system::error_code &error);
 
   Config _config;
 
  public:
   TcpServer(const App &app, const Config &config);
+  ~TcpServer() override;
   void start() override;
   std::string type() override { return "TCP"; }
 

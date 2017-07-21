@@ -10,9 +10,10 @@ Buffer::~Buffer() {
 }
 
 Buffer::Buffer(size_t capacity)
-    : _data(new uint8_t[capacity]), _size(0), _capacity(capacity) {
+    : _size(0), _capacity(capacity) {
   if (capacity < 1)
-    throw std::runtime_error("Invalid capacity for buffer constructor");
+    _capacity = default_capacity;
+  _data = new uint8_t[_capacity];
 }
 
 Buffer::Buffer(const Buffer &other)

@@ -1,3 +1,4 @@
+#include <boost/bind.hpp>
 #include "tcp_server.h"
 
 #include "tcp_connection.h"
@@ -9,20 +10,34 @@ using tcp = boost::asio::ip::tcp;
 
 TcpServer::TcpServer(const App &app, const Config &config)
     : Server(app), _config(config),
-      _acceptor(new tcp::acceptor(app.io_service(), tcp::endpoint(tcp::v4(), config.port()))) {}
+      _acceptor(new tcp::acceptor(app.io_service(), tcp::endpoint(tcp::v4(), config.port()))) {
+  std::cout << "TcpServer()" << std::endl;
+}
+
+TcpServer::~TcpServer() {
+  _acceptor.reset();
+  std::cout << "~TcpServer()" << std::endl;
+}
 
 void TcpServer::start() {
   // start taking connections
-  accept_loop();
+  _new_connection = std::make_shared<TcpServerConnection>(_app, _config);
+
+  _acceptor->async_accept(_new_connection->socket(),
+                          boost::bind(&TcpServer::accept_loop,
+                                      share_this<TcpServer>(),
+                                      boost::asio::placeholders::error));
 }
 
-void TcpServer::accept_loop() {
-//  if (!destroyed()) {
-  auto new_connection = std::make_shared<TcpServerConnection>(_app, _config);
-
-  // this will call accept_loop() once new connection is accepted
-  new_connection->async_accept_connection_then_loop(share_this<TcpServer>());
-//  }
+void TcpServer::accept_loop(const boost::system::error_code &error) {
+  if (!error) {
+    _new_connection->connect();
+    _new_connection.reset(new TcpServerConnection(_app, _config));
+    _acceptor->async_accept(_new_connection->socket(),
+                            boost::bind(&TcpServer::accept_loop,
+                                        share_this<TcpServer>(),
+                                        boost::asio::placeholders::error));
+  }
 }
 
 SessionPtr TcpServer::get_session(const std::string &session_id) {

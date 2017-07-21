@@ -100,6 +100,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
  protected:
   explicit Connection(const App &app, const Config &config);
+  virtual ~Connection() = default;
   const App &_app;
   Config _config;
   std::shared_ptr<Session> _session;

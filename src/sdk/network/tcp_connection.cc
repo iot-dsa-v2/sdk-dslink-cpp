@@ -5,7 +5,13 @@
 namespace dsa {
 
 TcpConnection::TcpConnection(const App &app, const Config &config)
-    : Connection(app, config), _socket(app.io_service()), _strand(app.io_service()) {}
+    : Connection(app, config), _socket(app.io_service()), _strand(app.io_service()) {
+//  std::cout << "TcpConnection()" << std::endl;
+}
+
+TcpConnection::~TcpConnection() {
+//  std::cout << "~TcpConnection" << std::endl;
+}
 
 void TcpConnection::close() {
   _socket.close();
@@ -91,34 +97,18 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 // TcpServerConnection
 //////////////////////////////////////
 TcpServerConnection::TcpServerConnection(const App &app, const Server::Config &config)
-    : TcpConnection(app, Config()) {
+    : Connection(app, Config()), TcpConnection(app, Config()) {
+  std::cout << "TcpServerConnection()" << std::endl;
   _path = std::make_shared<Buffer>(config.path());
 }
 
-void TcpServerConnection::async_accept_connection_then_loop(const TcpServerPtr &server) {
-  _server = server;
-  connect();
-}
+void TcpServerConnection::set_server(const std::shared_ptr<TcpServer> &server) { _server = server; }
 
 void TcpServerConnection::connect() {
-  // accept a client using the server's acceptor then -> continue_accept_loop(...)
-  _server->_acceptor->async_accept(_socket,
-                                   boost::bind(&TcpServerConnection::continue_accept_loop,
-                                               share_this<TcpServerConnection>(),
-                                               boost::asio::placeholders::error));
+  start_handshake();
 }
 
-void TcpServerConnection::continue_accept_loop(const boost::system::error_code &error) {
-  // give acceptor back to the server by continuing the accept loop
-  _app.io_service().dispatch(boost::bind(&TcpServer::accept_loop, _server));
-
-  // start handshake with client
-  start_handshake(error);
-}
-
-void TcpServerConnection::start_handshake(const boost::system::error_code &error) {
-  if (error != nullptr) throw std::runtime_error("Client connection dropped unexpectedly");
-
+void TcpServerConnection::start_handshake() {
   // start listening for f0
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpServerConnection::f0_received, share_this<TcpServerConnection>(),
@@ -148,10 +138,15 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error, si
 void TcpServerConnection::f2_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */ && parse_f2(bytes_transferred)) {
     // setup session now that client session id has been parsed
-    _session = _server->get_session(_session_id->to_string());
-    if (_session == nullptr) {
-      _session = _server->create_session();
-      _session_id = _session->session_id();
+    if (auto server = _server.lock()) {
+      _session = server->get_session(_session_id->to_string());
+      if (_session == nullptr) {
+        _session = server->create_session();
+        _session_id = _session->session_id();
+      }
+    } else {
+      // if server no longer exists, connection needs to shutdown
+      return;
     }
 
     // wait for shared secret computation to finish then send f3
@@ -174,10 +169,13 @@ void TcpServerConnection::send_f3() {
 //////////////////////////////////
 // TcpClientConnection
 //////////////////////////////////
-TcpClientConnection::TcpClientConnection(const App &app) : TcpConnection(app, Config()) {}
+TcpClientConnection::TcpClientConnection(const App &app)
+    : Connection(app, Config()), TcpConnection(app, Config()) {}
 
 TcpClientConnection::TcpClientConnection(const App &app, const Config &config)
-    : TcpConnection(app, config) {}
+    : Connection(app, Config()), TcpConnection(app, config) {
+  std::cout << "TcpClientConnection()" << std::endl;
+}
 
 void TcpClientConnection::connect() {
   using tcp = boost::asio::ip::tcp;

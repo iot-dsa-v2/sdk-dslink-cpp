@@ -15,6 +15,7 @@ void Session::start() const {
     throw std::runtime_error("Session started without connection");
 
   // TODO: implement this
+  std::cout << "Session start" << std::endl;
 }
 
 }  // namespace dsa
