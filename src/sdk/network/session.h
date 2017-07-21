@@ -9,22 +9,30 @@
 #include "app.h"
 
 namespace dsa {
+
+//////////////////////////////////////////
 // maintain request and response streams
-class Session: public EnableShared<Session> {
+//////////////////////////////////////////
+class Session: public std::enable_shared_from_this<Session> {
  private:
   static std::atomic_long _session_count;
   std::unique_ptr<boost::asio::io_service::strand> _strand;
-  std::shared_ptr<Connection> _connection;
-  long _session_id;
+  BufferPtr _session_id;
+  ConnectionPtr _connection;
 
  public:
-  explicit Session(std::shared_ptr<Connection> connection);
+  explicit Session(BufferPtr session_id, const ConnectionPtr &connection = nullptr);
+  explicit Session(const std::string &session_id, ConnectionPtr connection = nullptr);
 
-  long session_id() const { return _session_id; }
+  const BufferPtr &session_id() const { return _session_id; }
 
   void start() const;
 
+  void set_connection(const ConnectionPtr &connection) { _connection = connection; };
 };
+
+typedef std::shared_ptr<Session> SessionPtr;
+
 }  // namespace dsa
 
 #endif // DSA_SDK_SESSION_H_

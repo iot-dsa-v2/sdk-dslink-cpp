@@ -1,17 +1,22 @@
-#ifndef  DSA_SDK_SERVER_H
-#define  DSA_SDK_SERVER_H
+#ifndef  DSA_SDK_NETWORK_SERVER_H
+#define  DSA_SDK_NETWORK_SERVER_H
 
+#include <atomic>
 #include <utility>
+#include <map>
 
-#include "security_context.h"
 #include "util/enable_shared.h"
+#include "security_context.h"
 
 namespace dsa {
 class App;
+class Session;
 
 class Server : public InheritableEnableShared<Server> {
  protected:
   const App &_app;
+  std::map<std::string, std::shared_ptr<Session>> _sessions;
+  std::atomic_long _session_count{0};
 
  public:
   enum Type {
@@ -38,8 +43,13 @@ class Server : public InheritableEnableShared<Server> {
   };
 
   explicit Server(const App &app);
-  virtual void start() = 0;
   void stop();
+  virtual std::shared_ptr<Session> get_session(const std::string &session_id) = 0;
+  virtual std::shared_ptr<Session> create_session() = 0;
+  virtual std::string get_new_session_id() = 0;
+
+
+  virtual void start() = 0;
   virtual std::string type() = 0;
 };
 
@@ -47,4 +57,4 @@ typedef std::shared_ptr<Server> ServerPtr;
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_SERVER_H
+#endif  // DSA_SDK_NETWORK_SERVER_H

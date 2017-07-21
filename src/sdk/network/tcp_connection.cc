@@ -4,8 +4,8 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(const App &app)
-    : Connection(app), _socket(app.io_service()), _strand(app.io_service()) {}
+TcpConnection::TcpConnection(const App &app, const Config &config)
+    : Connection(app, config), _socket(app.io_service()), _strand(app.io_service()) {}
 
 void TcpConnection::close() {
   _socket.close();
@@ -67,14 +67,22 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
   }
 }
 
-void TcpConnection::error_check_wrap(WriteCallback callback, const boost::system::error_code &error) {
+void TcpConnection::error_check_wrap(WriteHandler callback, const boost::system::error_code &error) {
   if (!error /* && !destroyed() */) callback();
 }
 
-void TcpConnection::write(BufferPtr buf, size_t size, WriteCallback callback) {
+void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
   boost::asio::async_write(_socket, boost::asio::buffer(buf->data(), size),
                            boost::bind(&TcpConnection::error_check_wrap, share_this<TcpConnection>(), callback,
                                        boost::asio::placeholders::error));
+}
+
+void TcpConnection::start() {
+  if (_read_handler == nullptr)
+    throw std::runtime_error("Error: connection started with no read handler");
+  _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
+                          boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
+                                      boost::asio::placeholders::error, 0));
 }
 
 tcp_socket &TcpConnection::socket() { return _socket; }
@@ -83,7 +91,7 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 // TcpServerConnection
 //////////////////////////////////////
 TcpServerConnection::TcpServerConnection(const App &app, const Server::Config &config)
-    : TcpConnection(app) {
+    : TcpConnection(app, Config()) {
   _path = std::make_shared<Buffer>(config.path());
 }
 
@@ -93,6 +101,7 @@ void TcpServerConnection::async_accept_connection_then_loop(const TcpServerPtr &
 }
 
 void TcpServerConnection::connect() {
+  // accept a client using the server's acceptor then -> continue_accept_loop(...)
   _server->_acceptor->async_accept(_socket,
                                    boost::bind(&TcpServerConnection::continue_accept_loop,
                                                share_this<TcpServerConnection>(),
@@ -100,20 +109,23 @@ void TcpServerConnection::connect() {
 }
 
 void TcpServerConnection::continue_accept_loop(const boost::system::error_code &error) {
-  // async_accept_connection_then_loop was used, continue the loop
+  // give acceptor back to the server by continuing the accept loop
   _app.io_service().dispatch(boost::bind(&TcpServer::accept_loop, _server));
 
-  // start handshake
+  // start handshake with client
   start_handshake(error);
 }
 
 void TcpServerConnection::start_handshake(const boost::system::error_code &error) {
   if (error != nullptr) throw std::runtime_error("Client connection dropped unexpectedly");
+
+  // start listening for f0
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpServerConnection::f0_received, share_this<TcpServerConnection>(),
                                       boost::asio::placeholders::error,
                                       boost::asio::placeholders::bytes_transferred));
 
+  // prepare and send f1 then make sure it was successful [success_or_close(...)]
   size_t f1_size = load_f1(*_write_buffer);
   boost::asio::async_write(_socket, boost::asio::buffer(_write_buffer->data(), f1_size),
                            boost::bind(&TcpServerConnection::success_or_close, share_this<TcpServerConnection>(),
@@ -122,7 +134,10 @@ void TcpServerConnection::start_handshake(const boost::system::error_code &error
 
 void TcpServerConnection::f0_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */ && parse_f0(bytes_transferred)) {
+    // start shared_secret computation
     _strand.post(boost::bind(&TcpServerConnection::compute_secret, this));
+
+    // read and goto -> f2_received()
     _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                             boost::bind(&TcpServerConnection::f2_received, share_this<TcpServerConnection>(),
                                         boost::asio::placeholders::error,
@@ -132,31 +147,42 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error, si
 
 void TcpServerConnection::f2_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */ && parse_f2(bytes_transferred)) {
-    // wait for shared secret computation to finish
+    // setup session now that client session id has been parsed
+    _session = _server->get_session(_session_id->to_string());
+    if (_session == nullptr) {
+      _session = _server->create_session();
+      _session_id = _session->session_id();
+    }
+
+    // wait for shared secret computation to finish then send f3
     _strand.post(boost::bind(&TcpServerConnection::send_f3, share_this<TcpServerConnection>()));
+
+    // start session
+    _session->set_connection(shared_from_this());
+    _session->start();
   }
 }
 
 void TcpServerConnection::send_f3() {
-  // send f3 and start listening for requests
+  // send f3
   size_t f3_size = load_f3(*_read_buffer);
   boost::asio::async_write(_socket, boost::asio::buffer(_read_buffer->data(), f3_size),
-                           boost::bind(&TcpServerConnection::read_loop, share_this<TcpServerConnection>(), 0,
-                                       boost::asio::placeholders::error, 0));
+                           boost::bind(&TcpServerConnection::success_or_close, shared_from_this(),
+                                       boost::asio::placeholders::error));
 }
 
 //////////////////////////////////
 // TcpClientConnection
 //////////////////////////////////
-TcpClientConnection::TcpClientConnection(const App &app) : TcpConnection(app) {}
+TcpClientConnection::TcpClientConnection(const App &app) : TcpConnection(app, Config()) {}
 
 TcpClientConnection::TcpClientConnection(const App &app, const Config &config)
-    : TcpConnection(app), config(config) {}
+    : TcpConnection(app, config) {}
 
 void TcpClientConnection::connect() {
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_app.io_service());
-  tcp::resolver::query query(config.host(), std::to_string(config.port()));
+  tcp::resolver::query query(_config.host(), std::to_string(_config.port()));
   tcp::endpoint endpoint = *resolver.resolve(query);
   _socket.async_connect(*resolver.resolve(query),
                         boost::bind(&TcpClientConnection::start_handshake, share_this<TcpClientConnection>(),
