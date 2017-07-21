@@ -7,14 +7,13 @@
 
 #include "util/enable_shared.h"
 #include "security_context.h"
+#include "app.h"
 
 namespace dsa {
-class App;
 class Session;
 
-class Server : public InheritableEnableShared<Server> {
+class Server : public InheritableEnableShared<Server>, virtual public AppClosable {
  protected:
-  const App &_app;
   std::map<std::string, std::shared_ptr<Session>> _sessions;
   std::atomic_long _session_count{0};
 
@@ -42,14 +41,13 @@ class Server : public InheritableEnableShared<Server> {
     const std::string &path() const { return _path; }
   };
 
-  explicit Server(const App &app);
-  void stop();
+  explicit Server(App &app) : AppClosable(app) {}
   virtual std::shared_ptr<Session> get_session(const std::string &session_id) = 0;
   virtual std::shared_ptr<Session> create_session() = 0;
   virtual std::string get_new_session_id() = 0;
 
-
   virtual void start() = 0;
+  virtual void stop();
   virtual std::string type() = 0;
 };
 

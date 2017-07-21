@@ -25,7 +25,6 @@ class TcpConnection : virtual public Connection {
 
  public:
   explicit TcpConnection(const App &app, const Config &config);
-  ~TcpConnection() override;
 
   void error_check_wrap(WriteHandler callback, const boost::system::error_code &error);
 
@@ -56,13 +55,10 @@ class TcpServerConnection : public TcpConnection {
 
  public:
   explicit TcpServerConnection(const App &app, const Server::Config &config);
-  ~TcpServerConnection() override {
-    std::cout << "~TcpServerConnection()" << std::endl;
-  }
 
   void connect() override;
 
-  inline void set_server(const std::shared_ptr<TcpServer> &server);
+  inline void set_server(std::shared_ptr<TcpServer> server) { _server = std::move(server); };
 };
 
 // TCP client side connection.
@@ -78,9 +74,6 @@ class TcpClientConnection : public TcpConnection {
  public:
   explicit TcpClientConnection(const App &app);
   TcpClientConnection(const App &app, const Config &config);
-  ~TcpClientConnection() override {
-    std::cout << "~TcpClientConnection()" << std::endl;
-  }
 
   void connect() override;
 

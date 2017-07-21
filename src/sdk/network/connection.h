@@ -103,7 +103,9 @@ class Connection : public InheritableEnableShared<Connection> {
   virtual ~Connection() = default;
   const App &_app;
   Config _config;
-  std::shared_ptr<Session> _session;
+
+  // this should rarely be touched
+  std::weak_ptr<Session> _session;
   std::unique_ptr<ReadHandler> _read_handler;
 
   BufferPtr _read_buffer;

@@ -1,16 +1,13 @@
 #include "tcp_connection.h"
 
+#include <memory>
+
 #include <boost/bind.hpp>
 
 namespace dsa {
 
 TcpConnection::TcpConnection(const App &app, const Config &config)
     : Connection(app, config), _socket(app.io_service()), _strand(app.io_service()) {
-//  std::cout << "TcpConnection()" << std::endl;
-}
-
-TcpConnection::~TcpConnection() {
-//  std::cout << "~TcpConnection" << std::endl;
 }
 
 void TcpConnection::close() {
@@ -98,11 +95,8 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 //////////////////////////////////////
 TcpServerConnection::TcpServerConnection(const App &app, const Server::Config &config)
     : Connection(app, Config()), TcpConnection(app, Config()) {
-  std::cout << "TcpServerConnection()" << std::endl;
   _path = std::make_shared<Buffer>(config.path());
 }
-
-void TcpServerConnection::set_server(const std::shared_ptr<TcpServer> &server) { _server = server; }
 
 void TcpServerConnection::connect() {
   start_handshake();
@@ -140,21 +134,25 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error, si
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
       _session = server->get_session(_session_id->to_string());
-      if (_session == nullptr) {
-        _session = server->create_session();
-        _session_id = _session->session_id();
-      }
+      if (_session.expired()) _session = server->create_session();
     } else {
       // if server no longer exists, connection needs to shutdown
       return;
     }
 
+    if (auto session = _session.lock())
+      _session_id = session->session_id();
+    else
+      return;
+
     // wait for shared secret computation to finish then send f3
     _strand.post(boost::bind(&TcpServerConnection::send_f3, share_this<TcpServerConnection>()));
 
     // start session
-    _session->set_connection(shared_from_this());
-    _session->start();
+    if (auto session = _session.lock()) {
+      session->set_connection(shared_from_this());
+      session->start();
+    }
   }
 }
 
@@ -173,9 +171,7 @@ TcpClientConnection::TcpClientConnection(const App &app)
     : Connection(app, Config()), TcpConnection(app, Config()) {}
 
 TcpClientConnection::TcpClientConnection(const App &app, const Config &config)
-    : Connection(app, Config()), TcpConnection(app, config) {
-  std::cout << "TcpClientConnection()" << std::endl;
-}
+    : Connection(app, Config()), TcpConnection(app, config) {}
 
 void TcpClientConnection::connect() {
   using tcp = boost::asio::ip::tcp;

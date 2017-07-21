@@ -7,6 +7,8 @@
 
 #include <memory>
 #include <string>
+#include <mutex>
+#include <unordered_map>
 
 #include "server.h"
 #include "client.h"
@@ -21,6 +23,7 @@ class io_service;
 
 namespace dsa {
 class io_service_work;
+class AppClosable;
 
 class App {
  private:
@@ -29,6 +32,20 @@ class App {
   std::shared_ptr<SecurityContext> _security_context;
   std::shared_ptr<boost::thread_group> _threads;
   std::string _name;
+  std::mutex _register_key;
+
+ protected:
+  //////////////////////////////////////////////////
+  // AppClosable components only get access to the
+  // register and un-register functions
+  //////////////////////////////////////////////////
+  std::unordered_map<void *, std::weak_ptr<AppClosable>> _registry;
+  friend class AppClosable;
+
+  // register new component
+  void register_component(const std::shared_ptr<AppClosable> &component);
+  // un-register dead component
+  void unregister_component(void *component);
 
  public:
   explicit App(std::string name);
@@ -60,6 +77,22 @@ class App {
 
   // get new client
   ClientPtr new_client(Client::Type type, const Client::Config &config);
+};
+
+// interface that classes must adhere to in order to perform a graceful stop
+class AppClosable : public std::enable_shared_from_this<AppClosable> {
+ public:
+  App &_app;
+
+  // this should gracefully stop any running process
+  // that the inheriting object has running
+  virtual void operator()() = 0;
+
+  // this ensures that the component is registered with the app
+  explicit AppClosable(App &app);
+
+  // ensures that components remove themselves from register once dead
+  virtual ~AppClosable();
 };
 }  // namespace dsa
 

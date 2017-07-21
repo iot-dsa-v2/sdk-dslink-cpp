@@ -18,4 +18,8 @@ void Session::start() const {
   std::cout << "Session start" << std::endl;
 }
 
+void Session::stop() {
+  _connection.reset();
+}
+
 }  // namespace dsa

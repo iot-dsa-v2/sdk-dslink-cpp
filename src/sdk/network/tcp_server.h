@@ -26,8 +26,8 @@ class TcpServer : public Server {
 
  public:
   TcpServer(const App &app, const Config &config);
-  ~TcpServer() override;
   void start() override;
+  void stop() override;
   std::string type() override { return "TCP"; }
 
   SessionPtr get_session(const std::string &session_id) override;

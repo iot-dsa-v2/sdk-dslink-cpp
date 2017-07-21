@@ -12,6 +12,9 @@ class io_service_work : public boost::asio::io_service::work {
   explicit io_service_work(boost::asio::io_service &io_service) : boost::asio::io_service::work(io_service) {}
 };
 
+//////////////
+// App
+//////////////
 App::App(std::string name)
     : _name(name), _io_service(new boost::asio::io_service), _security_context(new SecurityContext(name + "-")),
       _threads(new boost::thread_group) {}
@@ -80,10 +83,38 @@ void App::sleep(unsigned int milliseconds) {
 
 void App::graceful_stop() {
   _work.reset();
+
+  // tell all registered components to shutdown
+  for (auto &kv : _registry) {
+    if (auto component = kv.second.lock()) {
+      (*component)();
+    }
+  }
 }
 
 void App::stop() {
   _io_service->stop();
+}
+
+void App::register_component(const std::shared_ptr<AppClosable> &component) {
+  std::lock_guard<std::mutex> lock(_register_key);
+  _registry[component.get()] = component;
+}
+
+void App::unregister_component(void *component) {
+  std::lock_guard<std::mutex> lock(_register_key);
+  _registry.erase(component);
+}
+
+////////////////////////
+// AppClosable
+///////////////////////
+AppClosable::AppClosable(App &app) : _app(app) {
+  _app.register_component(shared_from_this());
+}
+
+AppClosable::~AppClosable() {
+  _app.unregister_component(this);
 }
 
 }  // namespace dsa

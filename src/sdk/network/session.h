@@ -28,6 +28,8 @@ class Session: public std::enable_shared_from_this<Session> {
 
   void start() const;
 
+  void stop();
+
   void set_connection(const ConnectionPtr &connection) { _connection = connection; };
 };
 

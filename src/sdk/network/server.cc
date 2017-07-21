@@ -4,10 +4,10 @@
 
 namespace dsa {
 
-Server::Server(const App &app) : _app(app) {}
-
 void Server::stop() {
-//  destroy();
+  for (auto& kv : _sessions) {
+    kv.second.reset();
+  }
 }
 
 }  // namespace dsa
