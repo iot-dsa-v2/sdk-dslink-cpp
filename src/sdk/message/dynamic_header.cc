@@ -66,9 +66,9 @@ const std::string &DynamicStringHeader::value() const { return _value; }
 
 void DynamicStringHeader::write(uint8_t *data) {
   data[Key] = _key;
-  uint16_t size2 = _value.length();
-  memcpy(data + StringLength, &size2, sizeof(size2));
-  memcpy(data + StringValue, _value.c_str(), size2);
+  uint16_t str_size = _value.length();
+  memcpy(data + StringLength, &str_size, sizeof(str_size));
+  memcpy(data + StringValue, _value.c_str(), str_size);
 }
 
 DynamicByteHeader::DynamicByteHeader(const uint8_t *data)
