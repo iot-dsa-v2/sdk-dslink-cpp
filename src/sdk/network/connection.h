@@ -38,6 +38,7 @@ class Connection : public InheritableEnableShared<Connection> {
     BufferPtr _session_id{std::make_shared<Buffer>("")};
     // handshake timeout is in milliseconds
     unsigned int _handshake_timeout{1000};
+    unsigned int _max_pending_messages{20};
 
    public:
     Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
@@ -54,12 +55,14 @@ class Connection : public InheritableEnableShared<Connection> {
     void set_session_id(const std::string &session_id) { _session_id = std::make_shared<Buffer>(session_id); }
     // handshake timeout is in milliseconds
     void set_handshake_timeout(unsigned int timeout) { _handshake_timeout = timeout; }
+    void set_max_pending_messages(unsigned int max_pending) { _max_pending_messages = max_pending; }
 
     const std::string &host() const { return _host; }
     unsigned short port() const { return _port; }
     const BufferPtr &token() const { return _token; }
     const BufferPtr &session_id() const { return _session_id; }
     unsigned int handshake_timout() const { return _handshake_timeout; }
+    unsigned int max_pending_messages() const { return _max_pending_messages; }
   };
 
   enum Type {
@@ -132,6 +135,7 @@ class Connection : public InheritableEnableShared<Connection> {
   bool _is_requester;
   bool _is_responder;
   bool _security_preference;
+  std::atomic_uint _pending_messages{0};
   std::unique_ptr<boost::asio::deadline_timer> _deadline;
 
   // parse handshake messages

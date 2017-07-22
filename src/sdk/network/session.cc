@@ -1,6 +1,6 @@
 #include "session.h"
 
-#include <utility>
+#include <functional>
 
 namespace dsa {
 
@@ -15,12 +15,16 @@ void Session::start() const {
     throw std::runtime_error("Session started without connection");
 
   // TODO: implement this
-  std::cout << "Session start" << std::endl;
+//  _connection->set_read_handler(std::bind(&Session::message_handler, this, std::placeholders::_1));
 //  _connection->start();
 }
 
 void Session::stop() {
   _connection.reset();
+}
+
+void Session::message_handler(SharedBuffer message_buffer) {
+
 }
 
 }  // namespace dsa

@@ -69,13 +69,19 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
   }
 }
 
-void TcpConnection::error_check_wrap(WriteHandler callback, const boost::system::error_code &error) {
+void TcpConnection::write_handler(WriteHandler callback, const boost::system::error_code &error) {
   if (!error /* && !destroyed() */) callback();
 }
 
 void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
+  // check to see if current number of pending messages is above allowed limit
+  if (++_pending_messages > _config.max_pending_messages()) {
+    close();
+    return;
+  }
+
   boost::asio::async_write(_socket, boost::asio::buffer(buf->data(), size),
-                           boost::bind(&TcpConnection::error_check_wrap, share_this<TcpConnection>(), callback,
+                           boost::bind(&TcpConnection::write_handler, share_this<TcpConnection>(), callback,
                                        boost::asio::placeholders::error));
 }
 
