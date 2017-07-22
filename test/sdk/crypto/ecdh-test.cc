@@ -29,7 +29,7 @@ TEST(ECDHTest, get_private_key) {
   EXPECT_EQ(32, pkey1_size);
   EXPECT_EQ(32, pkey2->size());
 
-  EXPECT_NE(0, strncmp((const char *)pkey1->data(), 
+  EXPECT_NE(0, memcmp((const char *)pkey1->data(), 
 		       (const char *)pkey2->data(), pkey1_size));
 }
 
@@ -50,7 +50,7 @@ TEST(ECDHTest, get_public_key) {
   EXPECT_EQ(65, pkey1_size);
   EXPECT_EQ(65, pkey2->size());
 
-  EXPECT_NE(0, strncmp((const char *)pkey1->data(), 
+  EXPECT_NE(0, memcmp((const char *)pkey1->data(), 
 		       (const char *)pkey2->data(), pkey1_size));
 }
 
@@ -96,7 +96,7 @@ TEST(ECDHTest, compute_secret) {
   size_t B_ss_size = B_shared_secret->size();
 
   EXPECT_EQ(B_ss_size, A_ss_size);
-  EXPECT_EQ(0, strncmp((const char *)A_shared_secret->data(),
+  EXPECT_EQ(0, memcmp((const char *)A_shared_secret->data(),
 		    (const char *)B_shared_secret->data(), A_ss_size));
 }
 
