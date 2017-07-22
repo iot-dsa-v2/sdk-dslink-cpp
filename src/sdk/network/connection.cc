@@ -1,17 +1,20 @@
 #include "connection.h"
 
 #include <boost/asio.hpp>
-#include <utility>
 
 #include "app.h"
 
 namespace dsa {
 
 Connection::Connection(const App &app, const Config &config)
-    : _app(app), _read_buffer(new Buffer()), _write_buffer(new Buffer()), _config(config) {}
+    : _app(app),
+      _read_buffer(new Buffer()),
+      _write_buffer(new Buffer()),
+      _config(config),
+      _deadline(new boost::asio::deadline_timer(app.io_service())) {}
 
 void Connection::set_read_handler(ReadHandler handler) {
-  _read_handler.reset(new ReadHandler(handler));
+  _read_handler.reset(new ReadHandler(std::move(handler)));
 }
 
 void Connection::handle_read(Buffer::SharedBuffer buf) {
@@ -49,6 +52,10 @@ bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_s
           header.request_id() == 0 &&
           header.ack_id() == 0
   );
+}
+
+void Connection::timeout(const boost::system::error_code &error) {
+  if (!error) close();
 }
 
 // Handshake parse functions
@@ -296,8 +303,8 @@ size_t Connection::load_f1(Buffer &buf) {
 }
 
 size_t Connection::load_f2(Buffer &buf) {
-  auto token_length = (uint16_t)_config.token()->size();
-  auto session_id_length = (uint16_t)_config.session_id()->size();
+  auto token_length = (uint16_t) _config.token()->size();
+  auto session_id_length = (uint16_t) _config.session_id()->size();
 
   // ensure buf is large enough
   buf.resize(MinF2Length + token_length);

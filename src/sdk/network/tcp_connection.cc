@@ -1,7 +1,5 @@
 #include "tcp_connection.h"
 
-#include <memory>
-
 #include <boost/bind.hpp>
 
 namespace dsa {
@@ -11,7 +9,8 @@ TcpConnection::TcpConnection(const App &app, const Config &config)
 }
 
 void TcpConnection::close() {
-  _socket.close();
+  _socket.cancel();
+  _deadline->cancel();
 }
 
 void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) {
@@ -103,6 +102,12 @@ void TcpServerConnection::connect() {
 }
 
 void TcpServerConnection::start_handshake() {
+  // start timeout timer with handshake timeout specified in config
+  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+  _deadline->async_wait(boost::bind(&TcpServerConnection::timeout,
+                                    share_this<TcpServerConnection>(),
+                                    boost::asio::placeholders::error));
+
   // start listening for f0
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpServerConnection::f0_received, share_this<TcpServerConnection>(),
@@ -117,6 +122,11 @@ void TcpServerConnection::start_handshake() {
 }
 
 void TcpServerConnection::f0_received(const boost::system::error_code &error, size_t bytes_transferred) {
+  // reset timeout
+  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+  _deadline->async_wait(boost::bind(&TcpServerConnection::timeout, share_this<TcpServerConnection>(),
+                                    boost::asio::placeholders::error));
+
   if (!error /* && !destroyed() */ && parse_f0(bytes_transferred)) {
     // start shared_secret computation
     _strand.post(boost::bind(&TcpServerConnection::compute_secret, this));
@@ -130,6 +140,9 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error, si
 }
 
 void TcpServerConnection::f2_received(const boost::system::error_code &error, size_t bytes_transferred) {
+  // stop timeout timer
+  _deadline->cancel();
+
   if (!error /* && !destroyed() */ && parse_f2(bytes_transferred)) {
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
@@ -185,6 +198,11 @@ void TcpClientConnection::connect() {
 
 void TcpClientConnection::start_handshake(const boost::system::error_code &error) {
   if (error != nullptr) throw std::runtime_error("Couldn't connect to specified host");
+  // start timeout timer
+  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+  _deadline->async_wait(boost::bind(&TcpClientConnection::timeout, share_this<TcpClientConnection>(),
+                                    boost::asio::placeholders::error));
+
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpClientConnection::f1_received,
                                       share_this<TcpClientConnection>(),
@@ -199,6 +217,9 @@ void TcpClientConnection::start_handshake(const boost::system::error_code &error
 
 void TcpClientConnection::f1_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */ && parse_f1(bytes_transferred)) {
+    // cancel timer before timeout
+    _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+
     // server should be parsing f0 and waiting for f2 at this point
     // so we can compute the shared secret synchronously
     compute_secret();
@@ -207,6 +228,10 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
                              boost::bind(&TcpClientConnection::success_or_close,
                                          share_this<TcpClientConnection>(),
                                          boost::asio::placeholders::error));
+
+    // restart timeout timer
+    _deadline->async_wait(boost::bind(&TcpClientConnection::timeout, share_this<TcpClientConnection>(),
+                                      boost::asio::placeholders::error));
 
     _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                             boost::bind(&TcpClientConnection::f3_received,
@@ -217,6 +242,9 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
 }
 
 void TcpClientConnection::f3_received(const boost::system::error_code &error, size_t bytes_transferred) {
+  // stop timeout timer
+  _deadline->cancel();
+
   if (!error /* && !destroyed() */ && parse_f3(bytes_transferred)) {
     uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
     for (size_t i = 0; i < AuthLength; ++i)

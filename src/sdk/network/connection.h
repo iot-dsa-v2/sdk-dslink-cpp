@@ -6,6 +6,8 @@
 #include <atomic>
 #include <utility>
 
+#include <boost/asio/deadline_timer.hpp>
+
 #include "util/util.h"
 #include "message/static_header.h"
 
@@ -34,6 +36,8 @@ class Connection : public InheritableEnableShared<Connection> {
     unsigned short _port{8080};
     BufferPtr _token{std::make_shared<Buffer>("")};
     BufferPtr _session_id{std::make_shared<Buffer>("")};
+    // handshake timeout is in milliseconds
+    unsigned int _handshake_timeout{1000};
 
    public:
     Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
@@ -48,11 +52,14 @@ class Connection : public InheritableEnableShared<Connection> {
     void set_port(unsigned short port) { _port = port; }
     void set_token(const std::string &token) { _token = std::make_shared<Buffer>(token); }
     void set_session_id(const std::string &session_id) { _session_id = std::make_shared<Buffer>(session_id); }
+    // handshake timeout is in milliseconds
+    void set_handshake_timeout(unsigned int timeout) { _handshake_timeout = timeout; }
 
     const std::string &host() const { return _host; }
     unsigned short port() const { return _port; }
     const BufferPtr &token() const { return _token; }
     const BufferPtr &session_id() const { return _session_id; }
+    unsigned int handshake_timout() const { return _handshake_timeout; }
   };
 
   enum Type {
@@ -125,6 +132,7 @@ class Connection : public InheritableEnableShared<Connection> {
   bool _is_requester;
   bool _is_responder;
   bool _security_preference;
+  std::unique_ptr<boost::asio::deadline_timer> _deadline;
 
   // parse handshake messages
   bool parse_f0(size_t size);
@@ -149,6 +157,8 @@ class Connection : public InheritableEnableShared<Connection> {
   static bool valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type);
 
   void success_or_close(const boost::system::error_code &error);
+
+  void timeout(const boost::system::error_code &error);
 };
 
 typedef std::shared_ptr<Connection> ConnectionPtr;

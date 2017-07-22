@@ -35,8 +35,10 @@ class Server : public GracefullyClosable {
     Config(const Config &) = default;
     Config &operator=(Config&&) = default;
     Config &operator=(const Config &) = default;
+
     void set_port(unsigned short port) { _port = port; }
     void set_path(const char *path) { _path = path; }
+
     unsigned short port() const { return _port; }
     const std::string &path() const { return _path; }
   };

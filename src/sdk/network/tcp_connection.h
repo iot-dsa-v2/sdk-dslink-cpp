@@ -25,6 +25,7 @@ class TcpConnection : virtual public Connection {
 
  public:
   explicit TcpConnection(const App &app, const Config &config);
+  ~TcpConnection() override { _socket.close(); }
 
   void error_check_wrap(WriteHandler callback, const boost::system::error_code &error);
 
