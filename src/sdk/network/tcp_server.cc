@@ -1,4 +1,5 @@
 #include <boost/bind.hpp>
+#include <boost/thread.hpp>
 #include "tcp_server.h"
 
 #include "tcp_connection.h"
