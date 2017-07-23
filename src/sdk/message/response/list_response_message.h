@@ -8,6 +8,8 @@ namespace dsa {
 
 class ListResponseMessage : public ResponseMessage {
  public:
+  std::unique_ptr<DynamicStringHeader> base_path;
+
   ListResponseMessage(const SharedBuffer& buffer);
 
  protected:

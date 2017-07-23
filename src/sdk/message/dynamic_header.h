@@ -33,7 +33,8 @@ class DynamicHeader {
     StringValue = StringLength + sizeof(uint16_t)
   };
 
-  static DynamicHeader* parse(const uint8_t* data, uint16_t size) throw(const std::runtime_error &);
+  static DynamicHeader* parse(const uint8_t* data,
+                              uint16_t size) throw(const std::runtime_error&);
 
   uint8_t key() const { return _key; }
 
@@ -65,9 +66,20 @@ class DynamicByteHeader : public DynamicHeader {
   uint8_t _value;
 
  public:
-  const uint8_t& value() const { return _value; };
+  const uint8_t value() const { return _value; };
   explicit DynamicByteHeader(const uint8_t* data);
   DynamicByteHeader(uint8_t key, uint8_t value);
+  void write(uint8_t* data) override;
+};
+
+class DynamicIntHeader : public DynamicHeader {
+ private:
+  int32_t _value;
+
+ public:
+  const int32_t value() const { return _value; };
+  explicit DynamicIntHeader(const uint8_t* data);
+  DynamicIntHeader(uint8_t key, int32_t value);
   void write(uint8_t* data) override;
 };
 

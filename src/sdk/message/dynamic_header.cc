@@ -82,6 +82,19 @@ void DynamicByteHeader::write(uint8_t *data) {
   data[1] = _value;
 }
 
+DynamicIntHeader::DynamicIntHeader(const uint8_t *data)
+    : DynamicHeader(*data, 5) {
+  memcpy(&_value, data + 1, sizeof(_value));
+}
+
+DynamicIntHeader::DynamicIntHeader(const uint8_t key, const int32_t value)
+    : DynamicHeader(key, 5), _value(value) {}
+
+void DynamicIntHeader::write(uint8_t *data) {
+  data[0] = key();
+  memcpy(data + 1, &_value, sizeof(_value));
+}
+
 DynamicBoolHeader::DynamicBoolHeader(const uint8_t *data)
     : DynamicHeader(*data, 1) {}
 

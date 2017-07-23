@@ -10,6 +10,10 @@ class InvokeRequestMessage : public RequestMessage {
  public:
   InvokeRequestMessage(const SharedBuffer& buffer);
 
+  std::unique_ptr<DynamicIntHeader> sequence_id;
+  std::unique_ptr<DynamicByteHeader> max_permission;
+  std::unique_ptr<DynamicBoolHeader> skippable;
+    
  protected:
   void parseDynamicHeaders(const uint8_t* data, size_t size);
 };

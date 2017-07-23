@@ -27,22 +27,25 @@ class Message {
   std::unique_ptr<SharedBuffer> body;
 
   std::unique_ptr<DynamicByteHeader> priority;
+  std::unique_ptr<DynamicIntHeader> sequence_id;
+  std::unique_ptr<DynamicIntHeader> page_id;
 
-  explicit Message(const SharedBuffer &buffer);
-
+  explicit Message(const SharedBuffer& buffer);
 };
 
 class RequestMessage : public Message {
  public:
-  explicit RequestMessage(const SharedBuffer &buffer);
+  explicit RequestMessage(const SharedBuffer& buffer);
   std::unique_ptr<DynamicStringHeader> target_path;
   std::unique_ptr<DynamicStringHeader> permission_token;
   std::unique_ptr<DynamicBoolHeader> no_stream;
+  std::unique_ptr<DynamicByteHeader> alias_count;
 };
 
 class ResponseMessage : public Message {
  public:
-  explicit ResponseMessage(const SharedBuffer &buffer);
+  explicit ResponseMessage(const SharedBuffer& buffer);
+  std::unique_ptr<DynamicStringHeader> source_path;
   std::unique_ptr<DynamicByteHeader> status;
 };
 
