@@ -11,9 +11,6 @@
 #include "util/util.h"
 #include "message/static_header.h"
 
-typedef std::function<void()> WriteHandler;
-typedef std::function<void(dsa::Buffer::SharedBuffer)> ReadHandler;
-
 namespace boost {
 namespace system {
 class error_code;
@@ -23,6 +20,9 @@ class error_code;
 namespace dsa {
 class App;
 class Session;
+
+typedef std::function<void()> WriteHandler;
+typedef std::function<void(std::shared_ptr<Session>, Buffer::SharedBuffer)> MessageHandler;
 
 /**
  * handshake logic
@@ -39,9 +39,11 @@ class Connection : public InheritableEnableShared<Connection> {
     // handshake timeout is in milliseconds
     unsigned int _handshake_timeout{1000};
     unsigned int _max_pending_messages{20};
+    MessageHandler _message_handler{[](std::shared_ptr<Session> s, Buffer::SharedBuffer b){}};
 
    public:
     Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
+    Config(MessageHandler message_handler) : _message_handler(message_handler) {}
     Config() = default;
     Config(const Config &) = default;
     Config &operator=(const Config &) = default;
@@ -56,6 +58,7 @@ class Connection : public InheritableEnableShared<Connection> {
     // handshake timeout is in milliseconds
     void set_handshake_timeout(unsigned int timeout) { _handshake_timeout = timeout; }
     void set_max_pending_messages(unsigned int max_pending) { _max_pending_messages = max_pending; }
+    void set_message_handler(MessageHandler message_handler) { _message_handler = std::move(message_handler); }
 
     const std::string &host() const { return _host; }
     unsigned short port() const { return _port; }
@@ -63,6 +66,7 @@ class Connection : public InheritableEnableShared<Connection> {
     const BufferPtr &session_id() const { return _session_id; }
     unsigned int handshake_timout() const { return _handshake_timeout; }
     unsigned int max_pending_messages() const { return _max_pending_messages; }
+    MessageHandler message_handler() const { return _message_handler; }
   };
 
   enum Type {
@@ -101,7 +105,7 @@ class Connection : public InheritableEnableShared<Connection> {
         AuthLength,         // broker auth
   };
 
-  void set_read_handler(ReadHandler handler);
+  void set_message_handler(MessageHandler handler) { _message_handler = handler; }
 //  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
   virtual void close() = 0;
@@ -110,13 +114,12 @@ class Connection : public InheritableEnableShared<Connection> {
 
  protected:
   explicit Connection(const App &app, const Config &config);
-  virtual ~Connection() = default;
+  ~Connection() override = default;
   const App &_app;
   Config _config;
 
   // this should rarely be touched
-  std::weak_ptr<Session> _session;
-  std::unique_ptr<ReadHandler> _read_handler;
+  std::shared_ptr<Session> _session;
 
   BufferPtr _read_buffer;
   BufferPtr _write_buffer;
@@ -137,6 +140,7 @@ class Connection : public InheritableEnableShared<Connection> {
   bool _security_preference;
   std::atomic_uint _pending_messages{0};
   std::unique_ptr<boost::asio::deadline_timer> _deadline;
+  MessageHandler _message_handler;
 
   // parse handshake messages
   bool parse_f0(size_t size);
@@ -153,7 +157,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
-  void handle_read(Buffer::SharedBuffer buf);
+  void handle_message(Buffer::SharedBuffer buf);
 
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();

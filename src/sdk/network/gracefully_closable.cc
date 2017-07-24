@@ -6,7 +6,7 @@ namespace dsa {
 GracefullyClosable::GracefullyClosable(App &app) : _app(app) {}
 
 GracefullyClosable::~GracefullyClosable() {
-  _app.unregister_component(this);
+//  _app.unregister_component(this);
 }
 
 void GracefullyClosable::register_this() {

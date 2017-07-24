@@ -14,11 +14,6 @@ void Session::start() const {
   if (_connection == nullptr)
     throw std::runtime_error("Session started without connection");
 
-  auto shared_this = shared_from_this();
-  _connection->set_read_handler([=](Buffer::SharedBuffer buf) {
-    shared_this->message_handler(buf);
-  });
-
   _connection->start();
 }
 
@@ -27,10 +22,6 @@ void Session::stop() {
     _connection->close();
     _connection.reset();
   }
-}
-
-void Session::message_handler(SharedBuffer message_buffer) const {
-
 }
 
 }  // namespace dsa

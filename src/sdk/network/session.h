@@ -20,8 +20,6 @@ class Session: public std::enable_shared_from_this<Session> {
   BufferPtr _session_id;
   ConnectionPtr _connection;
 
-  void message_handler(SharedBuffer message_buffer) const;
-
  public:
   explicit Session(BufferPtr session_id, const ConnectionPtr &connection = nullptr);
   explicit Session(const std::string &session_id, ConnectionPtr connection = nullptr);

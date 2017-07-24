@@ -1,6 +1,7 @@
 #include "connection.h"
 
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 
 #include "app.h"
 
@@ -11,24 +12,17 @@ Connection::Connection(const App &app, const Config &config)
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),
       _config(config),
-      _deadline(new boost::asio::deadline_timer(app.io_service())) {}
+      _deadline(new boost::asio::deadline_timer(app.io_service())),
+      _message_handler(config.message_handler()) {}
 
-void Connection::set_read_handler(ReadHandler handler) {
-  _read_handler.reset(new ReadHandler(std::move(handler)));
-}
-
-void Connection::handle_read(Buffer::SharedBuffer buf) {
-  (*_read_handler)(std::move(buf));
+void Connection::handle_message(Buffer::SharedBuffer buf) {
+  if (_session != nullptr)
+    _message_handler(_session, std::move(buf));
 }
 
 void Connection::success_or_close(const boost::system::error_code &error) {
   if (error != nullptr) close();
 }
-
-//void Connection::destroy() {
-////  EnableShared<Connection>::destroy();
-//  close();
-//}
 
 void Connection::compute_secret() {
   _shared_secret = _app.security_context().ecdh().compute_secret(*_other_public_key);
@@ -60,7 +54,7 @@ void Connection::timeout(const boost::system::error_code &error) {
 
 void Connection::reset_standard_deadline_timer() {
   _deadline->expires_from_now(boost::posix_time::minutes(1));
-  _deadline->async_wait(std::bind(&Connection::timeout, shared_from_this(), boost::asio::placeholders::error));
+  _deadline->async_wait(boost::bind(&Connection::timeout, share_this<Connection>(), boost::asio::placeholders::error));
 }
 
 // Handshake parse functions
@@ -277,9 +271,6 @@ size_t Connection::load_f0(Buffer &buf) {
   std::memcpy(&data[cur], _app.security_context().salt().data(), SaltLength);
   cur += SaltLength;
   std::memcpy(data, &cur, sizeof(cur)); // write total size
-
-//  parse_f0(buf, cur);
-//  std::cout << "f0 valid: " << parse_f0(buf, cur) << std::endl;
 
   return cur;
 }

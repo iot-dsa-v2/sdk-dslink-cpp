@@ -10,10 +10,14 @@
 #include <memory>
 
 #include "gracefully_closable.h"
+#include "util/buffer.h"
 
 namespace dsa {
 class SessionManager;
 class Connection;
+class Session;
+
+typedef std::function<void (std::shared_ptr<Session>, Buffer::SharedBuffer)> MessageHandler;
 
 class Server : public GracefullyClosable {
  private:
@@ -30,6 +34,7 @@ class Server : public GracefullyClosable {
    private:
     std::string _path{"/"};
     unsigned short _port{8080};
+    MessageHandler _message_handler{[](std::shared_ptr<Session> s, Buffer::SharedBuffer b){}};
 
    public:
     Config(std::string path, unsigned short port) : _path(std::move(path)), _port(port) {}
@@ -42,9 +47,11 @@ class Server : public GracefullyClosable {
 
     void set_port(unsigned short port) { _port = port; }
     void set_path(const char *path) { _path = path; }
+    void set_message_handler(MessageHandler message_handler) { _message_handler = std::move(message_handler); }
 
     unsigned short port() const { return _port; }
     const std::string &path() const { return _path; }
+    MessageHandler message_handler() const { return _message_handler; }
   };
 
   explicit Server(App &app);

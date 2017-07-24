@@ -18,7 +18,7 @@ void TcpConnection::close() {
 void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) {
   // reset deadline timer for each new message
   reset_standard_deadline_timer();
-  
+
   if (!error /* && !destroyed() */) {
     std::cout << std::endl << "in read loop" << std::endl;
 
@@ -61,7 +61,7 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
       }
 
       // post job with message buffer
-      _app.io_service().post(boost::bind(&TcpConnection::handle_read, shared_from_this(),
+      _app.io_service().post(boost::bind(&TcpConnection::handle_message, shared_from_this(),
                                          buf->get_shared_buffer(cur, header.message_size)));
 
       cur += header.message_size;
@@ -91,8 +91,8 @@ void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
 }
 
 void TcpConnection::start() throw() {
-  if (_read_handler == nullptr)
-    throw std::runtime_error("Error: connection started with no read handler");
+  if (_session == nullptr)
+    throw std::runtime_error("Error: connection started with no session");
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
                                       boost::asio::placeholders::error, 0));
@@ -104,7 +104,7 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 // TcpServerConnection
 //////////////////////////////////////
 TcpServerConnection::TcpServerConnection(const App &app, const Server::Config &config)
-    : Connection(app, Config()), TcpConnection(app, Config()) {
+    : Connection(app, Config()), TcpConnection(app, Config(config.message_handler())) {
   _path = std::make_shared<Buffer>(config.path());
 }
 
@@ -158,25 +158,20 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error, si
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
       _session = server->session_manager()->get_session(_session_id->to_string());
-      if (_session.expired()) _session = server->session_manager()->create_session();
+      if (_session == nullptr) _session = server->session_manager()->create_session();
     } else {
       // if server no longer exists, connection needs to shutdown
       return;
     }
 
-    if (auto session = _session.lock())
-      _session_id = session->session_id();
-    else
-      return;
+    _session_id = _session->session_id();
 
     // wait for shared secret computation to finish then send f3
     _strand.post(boost::bind(&TcpServerConnection::send_f3, share_this<TcpServerConnection>()));
 
     // start session
-    if (auto session = _session.lock()) {
-      session->set_connection(shared_from_this());
-      session->start();
-    }
+    _session->set_connection(shared_from_this());
+    _session->start();
   }
 }
 
