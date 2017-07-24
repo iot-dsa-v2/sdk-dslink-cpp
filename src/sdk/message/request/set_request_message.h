@@ -11,7 +11,7 @@ class SetRequestMessage : public RequestMessage {
   SetRequestMessage(const SharedBuffer& buffer);
 
  protected:
-  void parseDynamicHeaders(const uint8_t* data, size_t size);
+  void parse_dynamic_headers(const uint8_t* data, size_t size);
 };
 
 }  // namespace dsa

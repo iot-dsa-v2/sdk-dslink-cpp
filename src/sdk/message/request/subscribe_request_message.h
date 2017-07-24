@@ -16,7 +16,7 @@ class SubscribeRequestMessage : public RequestMessage {
   std::unique_ptr<DynamicByteHeader> queue_time;
 
  protected:
-  void parseDynamicHeaders(const uint8_t* data, size_t size);
+  void parse_dynamic_headers(const uint8_t* data, size_t size);
 };
 
 }  // namespace dsa

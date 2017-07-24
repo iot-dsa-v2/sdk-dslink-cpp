@@ -4,11 +4,11 @@ namespace dsa {
 
 InvokeRequestMessage::InvokeRequestMessage(const SharedBuffer& buffer)
     : RequestMessage(buffer) {
-  parseDynamicHeaders(buffer.data + StaticHeaders::TotalSize,
+  parse_dynamic_headers(buffer.data + StaticHeaders::TotalSize,
                       static_headers.header_size() - StaticHeaders::TotalSize);
 }
 
-void InvokeRequestMessage::parseDynamicHeaders(const uint8_t* data,
+void InvokeRequestMessage::parse_dynamic_headers(const uint8_t* data,
                                                size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);

@@ -80,7 +80,7 @@ class DynamicIntHeader : public DynamicHeader {
   const int32_t value() const { return _value; };
   explicit DynamicIntHeader(const uint8_t* data);
   DynamicIntHeader(uint8_t key, int32_t value);
-  void write(uint8_t* data) constoverride;
+  void write(uint8_t* data) const override;
 };
 
 class DynamicBoolHeader : public DynamicHeader {
