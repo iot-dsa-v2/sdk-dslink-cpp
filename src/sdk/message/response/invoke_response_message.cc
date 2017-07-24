@@ -14,52 +14,52 @@ void InvokeResponseMessage::parse_dynamic_headers(const uint8_t* data,
     uint8_t key = header->key();
 
     if (key == DynamicHeader::Priority) {
-      priority.reset(static_cast<DynamicByteHeader*>(header));
+      priority.reset(dynamic_cast<DynamicByteHeader*>(header));
     }  //
     else if (key == DynamicHeader::Status) {
-      status.reset(static_cast<DynamicByteHeader*>(header));
+      status.reset(dynamic_cast<DynamicByteHeader*>(header));
     }  //
-     else if (key == DynamicHeader::SequenceId) {
-      sequence_id.reset(static_cast<DynamicIntHeader*>(header));
+    else if (key == DynamicHeader::SequenceId) {
+      sequence_id.reset(dynamic_cast<DynamicIntHeader*>(header));
     } //
-     else if (key == DynamicHeader::PageId) {
-      page_id.reset(static_cast<DynamicIntHeader*>(header));
+    else if (key == DynamicHeader::PageId) {
+      page_id.reset(dynamic_cast<DynamicIntHeader*>(header));
     } //
     // else if (key == DynamicHeader::AliasCount) {
-    //  alias_count.reset(static_cast<DynamicByteHeader*>(header));
+    //  alias_count.reset(dynamic_cast<DynamicByteHeader*>(header));
     //} //
     // else if (key == DynamicHeader::TargetPath) {
-    //  target_path.reset(static_cast<DynamicStringHeader*>(header));
+    //  target_path.reset(dynamic_cast<DynamicStringHeader*>(header));
     //}  //
     // else if (key == DynamicHeader::PermissionToken) {
-    //  permission_token.reset(static_cast<DynamicStringHeader*>(header));
+    //  permission_token.reset(dynamic_cast<DynamicStringHeader*>(header));
     //}  //
     // else if (key == DynamicHeader::MaxPermission) {
-    //  max_permission_token.reset(static_cast<DynamicByteHeader*>(header));
+    //  max_permission_token.reset(dynamic_cast<DynamicByteHeader*>(header));
     //} //
     // else if (key == DynamicHeader::NoStream) {
-    //  no_stream.reset(static_cast<DynamicBoolHeader*>(header));
+    //  no_stream.reset(dynamic_cast<DynamicBoolHeader*>(header));
     //}  //
     // else if (key == DynamicHeader::Qos) {
-    //  qos.reset(static_cast<DynamicByteHeader*>(header));
+    //  qos.reset(dynamic_cast<DynamicByteHeader*>(header));
     //}  //
     // else if (key == DynamicHeader::QueueSize) {
-    //  queue_size.reset(static_cast<DynamicByteHeader*>(header));
+    //  queue_size.reset(dynamic_cast<DynamicByteHeader*>(header));
     //}  //
     // else if (key == DynamicHeader::QueueTime) {
-    //  queue_time.reset(static_cast<DynamicByteHeader*>(header));
+    //  queue_time.reset(dynamic_cast<DynamicByteHeader*>(header));
     //}  //
     // else if (key == DynamicHeader::UpdateFrequency) {
-    //  update_frequency.reset(static_cast<DynamicByteHeader*>(header));
+    //  update_frequency.reset(dynamic_cast<DynamicByteHeader*>(header));
     //}  //
     // else if (key == DynamicHeader::BasePath) {
-    //  base_path.reset(static_cast<DynamicStringHeader*>(header));
+    //  base_path.reset(dynamic_cast<DynamicStringHeader*>(header));
     //} //
     // else if (key == DynamicHeader::SourcePath) {
-    //  source_path.reset(static_cast<DynamicStringHeader*>(header));
+    //  source_path.reset(dynamic_cast<DynamicStringHeader*>(header));
     //} //
      else if (key == DynamicHeader::Skippable) {
-      skippable.reset(static_cast<DynamicBoolHeader*>(header));
+      skippable.reset(dynamic_cast<DynamicBoolHeader*>(header));
     } //
   }
 }
