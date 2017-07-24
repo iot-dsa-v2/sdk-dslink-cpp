@@ -65,124 +65,124 @@ void SubscribeResponseMessage::parse_dynamic_headers(const uint8_t* data,
 }
 
 void SubscribeResponseMessage::write_dynamic_data(uint8_t* data) const {
-  if (priority.get()) {
+  if (priority != nullptr) {
     priority->write(data);
     data += priority->size();
   }
-  if (status.get()) {
+  if (status != nullptr) {
     status->write(data);
     data += status->size();
   }
-  if (sequence_id.get()) {
+  if (sequence_id != nullptr) {
     sequence_id->write(data);
     data += sequence_id->size();
   }
-  if (page_id.get()) {
+  if (page_id != nullptr) {
     page_id->write(data);
     data += page_id->size();
   }
-  //if (alias_count.get()) {
+  //if (alias_count != nullptr) {
   //  alias_count->write(data);
   //  data += alias_count->size();
   //}
-  //if (permission_token.get()) {
+  //if (permission_token != nullptr) {
   //  permission_token->write(data);
   //  data += permission_token->size();
   //}
-  //if (max_permission.get()) {
+  //if (max_permission != nullptr) {
   //  max_permission->write(data);
   //  data += max_permission->size();
   //}
-  //if (no_stream.get()) {
+  //if (no_stream != nullptr) {
   //  no_stream->write(data);
   //  data += no_stream->size();
   //}
-  //if (qos.get()) {
+  //if (qos != nullptr) {
   //  qos->write(data);
   //  data += qos->size();
   //}
-  //if (queue_size.get()) {
+  //if (queue_size != nullptr) {
   //  queue_size->write(data);
   //  data += queue_size->size();
   //}
-  //if (queue_time.get()) {
+  //if (queue_time != nullptr) {
   //  queue_time->write(data);
   //  data += queue_time->size();
   //}
-  //if (update_frequency.get()) {
+  //if (update_frequency != nullptr) {
   //  update_frequency->write(data);
   //  data += update_frequency->size();
   //}
-  //if (base_path.get()) {
+  //if (base_path != nullptr) {
   //  base_path->write(data);
   //  data += base_path->size();
   //}
-  if (source_path.get()) {
+  if (source_path != nullptr) {
     source_path->write(data);
     data += source_path->size();
   }
-  //if (skippable.get()) {
+  //if (skippable != nullptr) {
   //  skippable->write(data);
   //  data += skippable->size();
   //}
 
-  if (body.get()) {
+  if (body != nullptr) {
     memcpy(data, body->data, body->size);
   }
 }
 void SubscribeResponseMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize;
-  if (priority.get()) {
+  if (priority != nullptr) {
     header_size += priority->size();
   }
-  if (status.get()) {
+  if (status != nullptr) {
     header_size += status->size();
   }
-  if (sequence_id.get()) {
+  if (sequence_id != nullptr) {
     header_size += sequence_id->size();
   }
-  if (page_id.get()) {
+  if (page_id != nullptr) {
     header_size += page_id->size();
   }
-  //if (alias_count.get()) {
+  //if (alias_count != nullptr) {
   //  header_size += alias_count->size();
   //}
-  //if (target_path.get()) {
+  //if (target_path != nullptr) {
   //  header_size += target_path->size();
   //}
-  //if (permission_token.get()) {
+  //if (permission_token != nullptr) {
   //  header_size += permission_token->size();
   //}
-  //if (max_permission.get()) {
+  //if (max_permission != nullptr) {
   //  header_size += max_permission->size();
   //}
-  //if (no_stream.get()) {
+  //if (no_stream != nullptr) {
   //  header_size += no_stream->size();
   //}
-  //if (qos.get()) {
+  //if (qos != nullptr) {
   //  header_size += qos->size();
   //}
-  //if (queue_size.get()) {
+  //if (queue_size != nullptr) {
   //  header_size += queue_size->size();
   //}
-  //if (queue_time.get()) {
+  //if (queue_time != nullptr) {
   //  header_size += queue_time->size();
   //}
-  //if (update_frequency.get()) {
+  //if (update_frequency != nullptr) {
   //  header_size += update_frequency->size();
   //}
-  //if (base_path.get()) {
+  //if (base_path != nullptr) {
   //  header_size += base_path->size();
   //}
-  if (source_path.get()) {
+  if (source_path != nullptr) {
     header_size += source_path->size();
   }
-  //if (skippable.get()) {
+  //if (skippable != nullptr) {
   //  header_size += skippable->size();
   //}
 
   uint32_t message_size = header_size;
-  if (body.get()) {
+  if (body != nullptr) {
     message_size += body->size;
   }
   static_headers.message_size = message_size;

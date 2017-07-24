@@ -15,7 +15,7 @@ class EnableShared {
   EnableShared() : _ptr(static_cast<T*>(this)) {}
 
   std::shared_ptr<T> shared_from_this() {
-    if (_ptr.get()) {
+    if (_ptr != nullptr) {
       return _ptr;
     }
     throw std::runtime_error("shared object used after destroy");
