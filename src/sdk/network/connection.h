@@ -163,6 +163,8 @@ class Connection : public InheritableEnableShared<Connection> {
   void success_or_close(const boost::system::error_code &error);
 
   void timeout(const boost::system::error_code &error);
+
+  void reset_standard_deadline_timer();
 };
 
 typedef std::shared_ptr<Connection> ConnectionPtr;

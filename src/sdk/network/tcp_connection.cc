@@ -16,6 +16,9 @@ void TcpConnection::close() {
 }
 
 void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) {
+  // reset deadline timer for each new message
+  reset_standard_deadline_timer();
+  
   if (!error /* && !destroyed() */) {
     std::cout << std::endl << "in read loop" << std::endl;
 
@@ -261,6 +264,9 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error, si
                             boost::bind(&TcpClientConnection::read_loop, share_this<TcpClientConnection>(), 0,
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred));
+
+    // start standard dsa 1 minute timeout
+    reset_standard_deadline_timer();
   }
 }
 

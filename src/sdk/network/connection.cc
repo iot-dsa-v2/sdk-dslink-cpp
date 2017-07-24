@@ -58,6 +58,11 @@ void Connection::timeout(const boost::system::error_code &error) {
   if (!error) close();
 }
 
+void Connection::reset_standard_deadline_timer() {
+  _deadline->expires_from_now(boost::posix_time::minutes(1));
+  _deadline->async_wait(std::bind(&Connection::timeout, shared_from_this(), boost::asio::placeholders::error));
+}
+
 // Handshake parse functions
 bool Connection::parse_f0(size_t size) {
   if (size < MinF0Length)
