@@ -1,8 +1,10 @@
 #include "dsa/crypto.h"
 #include "gtest/gtest.h"
+#include <boost/format.hpp>
 
 
 using namespace dsa;
+using boost::format;
 
 
 //---------------------------------------------
@@ -89,12 +91,15 @@ class BufferExt : public Buffer {
     memcpy(_data, other.data(), _size);
   }
   
-  void print() {
+  std::string hexstr() {
     uint8_t *ptr = _data;
+    boost::format formater("%02x");
+    std::string out;
     for(uint i=0; i<_size; ++i) {
-      printf("%02x", *ptr++);
+      formater % (int)_data[i];
+      out += formater.str();
     }
-    printf("\n");
+    return out;
   }
 
   bool operator==(const BufferExt &other) {
@@ -111,35 +116,86 @@ class BufferExt : public Buffer {
 };
 
 
-TEST(HandshakeTest, KeyPairs) {
-  CryptoTest ct("prime256v1");
+//---------------------------------------------
+TEST(HandshakeTest, ClientInfo) {
+  char curve_name[] = "prime256v1";
+  char client_private_key[] = "55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59";
 
-  //Buffer other(public_key);
-  std::string str_public_key("0415caf59c92efecb9253ea43912b419941fdb59a23d5d1289027128bf3d6ee4cb86fbe251b675a8d9bd991a65caa1bb23f8a8e0dd4eb0974f6b1eaa3436cec0e9");
-  Buffer other;
-  size_t size = str_public_key.size();
-  other.assign((uint8_t *)str_public_key.c_str(), size);
+  CryptoTest ct(curve_name);
 
-  BufferPtr out = ct.compute_public_key("55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59");
-  BufferExt outExt = BufferExt(*out);
-  //--
-  outExt.print();
-  std::cout << str_public_key.c_str() << std::endl;
-  //--
-  std::cout << (outExt == other) << std::endl;
+  // Keys
+  BufferPtr public_key = ct.compute_public_key(client_private_key);
+  BufferExt public_key_ext(*public_key);
 
-  //out = ct.compute_public_key("82848ef9d9204097a98a8c393e06aac9cb9a1ba3cdabf772f4ca7e6899b9f277");
-  //print(out->data(), *out->get());
+  //Buffer other(other_public_key);
+  std::string expected_public_key("0415caf59c92efecb9253ea43912b419941fdb59a23d5d1289027128bf3d6ee4cb86fbe251b675a8d9bd991a65caa1bb23f8a8e0dd4eb0974f6b1eaa3436cec0e9");
+  EXPECT_EQ(expected_public_key, public_key_ext.hexstr());
 
+  // DsId
+  ECDH ecdh(curve_name);
+  ecdh.set_private_key_hex(client_private_key);
 
-  ECDH ecdh("prime256v1");
-  BufferPtr priv_key = ecdh.get_private_key();
-  BufferPtr public_key = ecdh.get_public_key();
-  out = ct.compute_public_key(priv_key->data(), priv_key->size());
-  outExt = BufferExt(*out);
-  // std::cout << (outExt == public_key) << std::endl;
+  Hash hash("sha256");
+  hash.update(*ecdh.get_public_key());
 
+  EXPECT_EQ("TTDXtL-U_NQ2sgFRU5w0HrZVib2D-O4CxXQrKk4hUsI", base64url(hash.digest_base64()));
 
-  // BufferPtr out = ct.compute_public_key("55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59");
-  // out = ct.compute_public_key("82848ef9d9204097a98a8c393e06aac9cb9a1ba3cdabf772f4ca7e6899b9f277");
+  // Shared secret
+  char server_private_key[] = "82848ef9d9204097a98a8c393e06aac9cb9a1ba3cdabf772f4ca7e6899b9f277";
+
+  ECDH other_ecdh(curve_name);
+  other_ecdh.set_private_key_hex(server_private_key);
+  BufferPtr shared_secret = ecdh.compute_secret(*other_ecdh.get_public_key());
+
+  EXPECT_EQ("5f67b2cb3a0906afdcf5175ed9316762a8e18ce26053e8c51b760c489343d0d1",
+	    BufferExt(*shared_secret).hexstr());
+ 
+  // Auth
+  const char server_salt[] = "eccbc87e4b5ce2fe28308fd9f2a7baf3a87ff679a2f3e71d9181a67b7542122c";
+  Buffer server_salt_buffer;
+  server_salt_buffer.assign((uint8_t*) server_salt, sizeof(server_salt));
+
+  std::cout << BufferExt(server_salt_buffer).hexstr() << std::endl;
+
+  std::cout << sizeof(server_salt) << std::endl;
+
+  dsa::HMAC hmac("sha256", *shared_secret);
+  hmac.update(server_salt_buffer);
+  std::cout << BufferExt(*hmac.digest()).hexstr() << std::endl;
+
+  /*
+          123456789012345678901234567890123456789012345678901234567890....
+actual:   4185d5b05c5614abb59533d2c13042f48a1380ab8def3836d7a5e20f9df55c42
+expected: f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fac8b2ba
+  */
+
+  // client calculate the auth with broker salt: =0x
+  // var clientAuth = crypto.createHmac('sha256', clientSharedSecret).update(brokerSalt).digest();
 }
+
+
+TEST(HandshakeTest, ServerInfo) {
+  char curve_name[] = "prime256v1";
+  char server_private_key[] = "82848ef9d9204097a98a8c393e06aac9cb9a1ba3cdabf772f4ca7e6899b9f277";
+
+  CryptoTest ct(curve_name);
+
+  // Keys
+  BufferPtr public_key = ct.compute_public_key(server_private_key);
+  BufferExt public_key_ext(*public_key);
+
+  //Buffer other(other_public_key);
+  std::string expected_public_key("04f9e64edcec5ea0a645bd034e46ff209dd9fb21d8aba74a5531dc6dcbea28d696c6c9386d924ebc2f48092a1d6c8b2ca907005cca7e8d2a58783b8a765d8eb29d");
+  EXPECT_EQ(expected_public_key, public_key_ext.hexstr());
+
+  // DsId
+  ECDH ecdh(curve_name);
+  ecdh.set_private_key_hex(server_private_key);
+
+  Hash hash("sha256");
+  hash.update(*ecdh.get_public_key());
+
+  EXPECT_EQ("g675gaSQogzMxjJFvL7HsCbyS8B0Ly2_Abhkw_-g4iI", base64url(hash.digest_base64()));
+}
+
+
