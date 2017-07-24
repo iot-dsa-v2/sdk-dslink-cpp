@@ -74,7 +74,7 @@ class App {
   void sleep(unsigned int milliseconds);
 
   // get new server
-  std::shared_ptr<Server> new_server(Server::Type type, const Server::Config &config);
+  std::shared_ptr<Server> new_server(Server::Protocol type, const Server::Config &config);
 
   // get new client
   ClientPtr new_client(Client::Type type, const Client::Config &config);

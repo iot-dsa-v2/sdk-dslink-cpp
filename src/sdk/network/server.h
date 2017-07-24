@@ -26,7 +26,7 @@ class Server : public GracefullyClosable {
  public:
   std::shared_ptr<SessionManager> session_manager() { return _session_manager; }
 
-  enum Type {
+  enum Protocol {
     TCP
   };
 
