@@ -2,6 +2,8 @@
 
 #include <boost/bind.hpp>
 
+#include "session_manager.h"
+
 namespace dsa {
 
 TcpConnection::TcpConnection(const App &app, const Config &config)
@@ -152,8 +154,8 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error, si
   if (!error /* && !destroyed() */ && parse_f2(bytes_transferred)) {
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
-      _session = server->get_session(_session_id->to_string());
-      if (_session.expired()) _session = server->create_session();
+      _session = server->session_manager()->get_session(_session_id->to_string());
+      if (_session.expired()) _session = server->session_manager()->create_session();
     } else {
       // if server no longer exists, connection needs to shutdown
       return;

@@ -1,15 +1,15 @@
 #include "server.h"
 
 #include "session.h"
+#include "session_manager.h"
 
 namespace dsa {
 
+Server::Server(App &app) : GracefullyClosable(app), _session_manager(new SessionManager) {}
+
 void Server::stop() {
-  for (auto& kv : _sessions) {
-    if (kv.second != nullptr) {
-      kv.second->stop();
-      kv.second.reset();
-    }
+  if (_session_manager != nullptr) {
+    _session_manager->end_all_sessions();
   }
 }
 

@@ -18,6 +18,7 @@ add_library(dsa_network OBJECT
         session.cc
         server.cc
         security_context.cc
+        session_manager.cc
         tcp_connection.cc
         tcp_server.cc)
 

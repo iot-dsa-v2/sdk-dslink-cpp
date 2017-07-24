@@ -10,14 +10,15 @@
 #include "gracefully_closable.h"
 
 namespace dsa {
-class Session;
+class SessionManager;
 
 class Server : public GracefullyClosable {
- protected:
-  std::map<std::string, std::shared_ptr<Session>> _sessions;
-  std::atomic_long _session_count{0};
+ private:
+  std::shared_ptr<SessionManager> _session_manager;
 
  public:
+  std::shared_ptr<SessionManager> session_manager() { return _session_manager; }
+
   enum Type {
     TCP
   };
@@ -43,10 +44,7 @@ class Server : public GracefullyClosable {
     const std::string &path() const { return _path; }
   };
 
-  explicit Server(App &app) : GracefullyClosable(app) {}
-  virtual std::shared_ptr<Session> get_session(const std::string &session_id) = 0;
-  virtual std::shared_ptr<Session> create_session() = 0;
-  virtual std::string get_new_session_id() = 0;
+  explicit Server(App &app);
 
   virtual void start() = 0;
   virtual void stop();
