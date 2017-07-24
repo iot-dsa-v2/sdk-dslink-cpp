@@ -6,7 +6,10 @@ namespace dsa {
 
 void Server::stop() {
   for (auto& kv : _sessions) {
-    kv.second.reset();
+    if (kv.second != nullptr) {
+      kv.second->stop();
+      kv.second.reset();
+    }
   }
 }
 
