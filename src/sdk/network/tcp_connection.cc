@@ -38,11 +38,11 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
       }
 
       StaticHeaders header(&data[cur]);
-      if (header.message_size() < total_bytes - cur) {
+      if (header.message_size < total_bytes - cur) {
         size_t partial_size = total_bytes - cur;
 
         // make sure buffer capacity is enough to read full message
-        _read_buffer->resize(header.message_size());
+        _read_buffer->resize(header.message_size);
         _read_buffer->assign(&data[cur], partial_size);
 
         // read the rest of the message
@@ -57,9 +57,9 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
 
       // post job with message buffer
       _app.io_service().post(boost::bind(&TcpConnection::handle_read, shared_from_this(),
-                                         buf->get_shared_buffer(cur, header.message_size())));
+                                         buf->get_shared_buffer(cur, header.message_size)));
 
-      cur += header.message_size();
+      cur += header.message_size;
     }
 
     _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
