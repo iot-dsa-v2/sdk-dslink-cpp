@@ -14,13 +14,12 @@ void Session::start() const {
   if (_connection == nullptr)
     throw std::runtime_error("Session started without connection");
 
-  std::cout << "session start" << std::endl;
-  std::string session_id = "test/session/id";
-  Session new_session(session_id);
-  auto handler = std::bind(&Session::stop, &new_session);
-  // TODO: implement this
-//  _connection->set_read_handler(std::bind(&Session::message_handler, this, std::placeholders::_1));
-//  _connection->start();
+  auto shared_this = shared_from_this();
+  _connection->set_read_handler([=](Buffer::SharedBuffer buf) {
+    shared_this->message_handler(buf);
+  });
+
+  _connection->start();
 }
 
 void Session::stop() {
@@ -30,7 +29,7 @@ void Session::stop() {
   }
 }
 
-void Session::message_handler(SharedBuffer message_buffer) {
+void Session::message_handler(SharedBuffer message_buffer) const {
 
 }
 

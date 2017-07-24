@@ -1,16 +1,19 @@
 #ifndef  DSA_SDK_NETWORK_SERVER_H
 #define  DSA_SDK_NETWORK_SERVER_H
 
+#include <functional>
 #include <iostream>
 #include <string>
 #include <atomic>
 #include <utility>
 #include <map>
+#include <memory>
 
 #include "gracefully_closable.h"
 
 namespace dsa {
 class SessionManager;
+class Connection;
 
 class Server : public GracefullyClosable {
  private:
