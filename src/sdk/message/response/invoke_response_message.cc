@@ -4,7 +4,7 @@ namespace dsa {
 InvokeResponseMessage::InvokeResponseMessage(const SharedBuffer& buffer)
     : ResponseMessage(buffer) {
   parse_dynamic_headers(buffer.data + StaticHeaders::TotalSize,
-                      static_headers.header_size() - StaticHeaders::TotalSize);
+                      static_headers.header_size - StaticHeaders::TotalSize);
 }
 
 void InvokeResponseMessage::parse_dynamic_headers(const uint8_t* data,

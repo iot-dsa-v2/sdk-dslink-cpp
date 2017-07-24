@@ -5,11 +5,11 @@
 namespace dsa {
 
 StaticHeaders::StaticHeaders(const uint8_t *data) {
-  std::memcpy(&_message_size, &data[MessageSizeOffset], sizeof(_message_size));
-  std::memcpy(&_header_size, &data[HeaderSizeOffset], sizeof(_header_size));
-  std::memcpy(&_type, &data[TypeOffset], sizeof(_type));
-  std::memcpy(&_request_id, &data[RequestIdOffset], sizeof(_request_id));
-  std::memcpy(&_ack_id, &data[AckIdOffset], sizeof(_ack_id));
+  std::memcpy(&message_size, &data[MessageSizeOffset], sizeof(message_size));
+  std::memcpy(&header_size, &data[HeaderSizeOffset], sizeof(header_size));
+  std::memcpy(&type, &data[TypeOffset], sizeof(type));
+  std::memcpy(&request_id, &data[RequestIdOffset], sizeof(request_id));
+  std::memcpy(&ack_id, &data[AckIdOffset], sizeof(ack_id));
 }
 
 StaticHeaders::StaticHeaders(uint32_t message_size,
@@ -17,14 +17,14 @@ StaticHeaders::StaticHeaders(uint32_t message_size,
                              uint8_t type,
                              uint32_t request_id,
                              uint32_t ack_id)
-    : _message_size(message_size), _header_size(header_size), _request_id(request_id), _type(type), _ack_id(ack_id) {}
+    : message_size(message_size), header_size(header_size), request_id(request_id), type(type), ack_id(ack_id) {}
 
 void StaticHeaders::write(uint8_t *data) {
-  std::memcpy(&data[MessageSizeOffset], &_message_size, sizeof(_message_size));
-  std::memcpy(&data[HeaderSizeOffset], &_header_size, sizeof(_header_size));
-  std::memcpy(&data[TypeOffset], &_type, sizeof(_type));
-  std::memcpy(&data[RequestIdOffset], &_request_id, sizeof(_request_id));
-  std::memcpy(&data[AckIdOffset], &_ack_id, sizeof(_ack_id));
+  std::memcpy(&data[MessageSizeOffset], &message_size, sizeof(message_size));
+  std::memcpy(&data[HeaderSizeOffset], &header_size, sizeof(header_size));
+  std::memcpy(&data[TypeOffset], &type, sizeof(type));
+  std::memcpy(&data[RequestIdOffset], &request_id, sizeof(request_id));
+  std::memcpy(&data[AckIdOffset], &ack_id, sizeof(ack_id));
 }
 
 }  // namespace dsa

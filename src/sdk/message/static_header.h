@@ -5,15 +5,7 @@
 #include <cstdint>
 namespace dsa {
 
-class StaticHeaders {
- private:
-  uint32_t _message_size;
-  uint16_t _header_size;
-  uint8_t _type;
-  uint32_t _request_id;
-  uint32_t _ack_id;
-
- public:
+struct StaticHeaders {
   enum : size_t {
     MessageSizeOffset = 0,
     HeaderSizeOffset = MessageSizeOffset + sizeof(uint32_t),
@@ -23,15 +15,17 @@ class StaticHeaders {
     TotalSize = AckIdOffset + sizeof(uint32_t)
   };
 
+  uint32_t message_size;
+  uint16_t header_size;
+  uint8_t type;
+  uint32_t request_id;
+  uint32_t ack_id;
+
   StaticHeaders(const uint8_t *data);
   StaticHeaders(uint32_t message_size, uint16_t header_size, uint8_t type,
                 uint32_t request_id, uint32_t ack_id);
 
-  uint32_t message_size() const { return _message_size; };
-  uint16_t header_size() const { return _header_size; };
-  uint8_t type() const { return _type; };
-  uint32_t request_id() const { return _request_id; };
-  uint32_t ack_id() const { return _ack_id; };
+
   void write(uint8_t *data);
 };
 
