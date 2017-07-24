@@ -14,6 +14,7 @@ void Session::start() const {
   if (_connection == nullptr)
     throw std::runtime_error("Session started without connection");
 
+  std::cout << "session start" << std::endl;
   // TODO: implement this
 //  _connection->set_read_handler(std::bind(&Session::message_handler, this, std::placeholders::_1));
 //  _connection->start();

@@ -20,7 +20,7 @@ TEST(TcpServerTest, OneClient) {
   ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
   tcp_client->connect();
 
-  app->sleep(2000);
+  app->sleep(1000);
 
   app->graceful_stop();
 
