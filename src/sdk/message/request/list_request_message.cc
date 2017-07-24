@@ -32,9 +32,9 @@ void ListRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t size)
     else if (key == DynamicHeader::PermissionToken) {
       permission_token.reset(static_cast<DynamicStringHeader*>(header));
     }  //
-       // else if (key == DynamicHeader::MaxPermission) {
-       //  max_permission_token.reset(static_cast<DynamicByteHeader*>(header));
-       //} //
+    // else if (key == DynamicHeader::MaxPermission) {
+    //  max_permission_token.reset(static_cast<DynamicByteHeader*>(header));
+    //} //
     else if (key == DynamicHeader::NoStream) {
       no_stream.reset(static_cast<DynamicBoolHeader*>(header));
     }  //
@@ -60,6 +60,128 @@ void ListRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t size)
     //  skippable.reset(static_cast<DynamicBoolHeader*>(header));
     //} //
   }
+}
+
+
+void ListRequestMessage::write_dynamic_data(uint8_t* data) const {
+  if (priority.get()) {
+    priority->write(data);
+    data += priority->size();
+  }
+  //if (status.get()) {
+  //  status->write(data);
+  //  data += status->size();
+  //}
+  //if (sequence_id.get()) {
+  //  sequence_id->write(data);
+  //  data += sequence_id->size();
+  //}
+  //if (page_id.get()) {
+  //  page_id->write(data);
+  //  data += page_id->size();
+  //}
+  if (alias_count.get()) {
+    alias_count->write(data);
+    data += alias_count->size();
+  }
+  if (permission_token.get()) {
+    permission_token->write(data);
+    data += permission_token->size();
+  }
+  //if (max_permission.get()) {
+  //  max_permission->write(data);
+  //  data += max_permission->size();
+  //}
+  if (no_stream.get()) {
+    no_stream->write(data);
+    data += no_stream->size();
+  }
+  //if (qos.get()) {
+  //  qos->write(data);
+  //  data += qos->size();
+  //}
+  //if (queue_size.get()) {
+  //  queue_size->write(data);
+  //  data += queue_size->size();
+  //}
+  //if (queue_time.get()) {
+  //  queue_time->write(data);
+  //  data += queue_time->size();
+  //}
+  //if (update_frequency.get()) {
+  //  update_frequency->write(data);
+  //  data += update_frequency->size();
+  //}
+  //if (base_path.get()) {
+  //  base_path->write(data);
+  //  data += base_path->size();
+  //}
+  //if (source_path.get()) {
+  //  source_path->write(data);
+  //  data += source_path->size();
+  //}
+  //if (skippable.get()) {
+  //  skippable->write(data);
+  //  data += skippable->size();
+  //}
+}
+void ListRequestMessage::update_static_header() {
+  uint32_t header_size = StaticHeaders::TotalSize;
+  if (priority.get()) {
+    header_size += priority->size();
+  }
+  //if (status.get()) {
+  //  header_size += status->size();
+  //}
+  //if (sequence_id.get()) {
+  //  header_size += sequence_id->size();
+  //}
+  //if (page_id.get()) {
+  //  header_size += page_id->size();
+  //}
+  if (alias_count.get()) {
+    header_size += alias_count->size();
+  }
+  if (target_path.get()) {
+    header_size += target_path->size();
+  }
+  if (permission_token.get()) {
+    header_size += permission_token->size();
+  }
+  //if (max_permission.get()) {
+  //  header_size += max_permission->size();
+  //}
+  if (no_stream.get()) {
+    header_size += no_stream->size();
+  }
+  //if (qos.get()) {
+  //  header_size += qos->size();
+  //}
+  //if (queue_size.get()) {
+  //  header_size += queue_size->size();
+  //}
+  //if (queue_time.get()) {
+  //  header_size += queue_time->size();
+  //}
+  //if (update_frequency.get()) {
+  //  header_size += update_frequency->size();
+  //}
+  //if (base_path.get()) {
+  //  header_size += base_path->size();
+  //}
+  //if (source_path.get()) {
+  //  header_size += source_path->size();
+  //}
+  //if (skippable.get()) {
+  //  header_size += skippable->size();
+  //}
+
+  uint32_t message_size = header_size;
+  //if (body.get()) {
+  //  message_size += body->size;
+  //}
+  static_headers.message_size = message_size;
+  static_headers.header_size = header_size;
 }
 
 }  // namespace dsa

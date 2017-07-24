@@ -90,7 +90,7 @@ DynamicIntHeader::DynamicIntHeader(const uint8_t *data)
 DynamicIntHeader::DynamicIntHeader(const uint8_t key, const int32_t value)
     : DynamicHeader(key, 5), _value(value) {}
 
-void DynamicIntHeader::write(uint8_t *data) {
+void DynamicIntHeader::write(uint8_t *data) const {
   data[0] = key();
   memcpy(data + 1, &_value, sizeof(_value));
 }

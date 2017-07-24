@@ -12,8 +12,13 @@ class InvokeRequestMessage : public RequestMessage {
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicByteHeader> max_permission;
-  std::unique_ptr<DynamicBoolHeader> skippable;
-    
+
+ public:
+  // write dynamic header and body
+  void write_dynamic_data(uint8_t* data) const;
+  // measure the size and header size
+  void update_static_header();
+
  protected:
   void parse_dynamic_headers(const uint8_t* data, size_t size);
 };

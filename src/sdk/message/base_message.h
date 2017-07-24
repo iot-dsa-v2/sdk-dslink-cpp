@@ -31,6 +31,16 @@ class Message {
   std::unique_ptr<DynamicIntHeader> page_id;
 
   explicit Message(const SharedBuffer& buffer);
+
+ public:
+  
+  // update_static_header must be called before write
+  void write(uint8_t* data);
+  // write dynamic header and body
+  virtual void write_dynamic_data(uint8_t* data) const = 0;
+  // measure the size and header size
+  virtual void update_static_header() = 0;
+
 };
 
 class RequestMessage : public Message {
