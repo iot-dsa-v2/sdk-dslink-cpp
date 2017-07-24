@@ -64,7 +64,7 @@ DynamicStringHeader::DynamicStringHeader(const uint8_t key, std::string str)
 
 const std::string &DynamicStringHeader::value() const { return _value; }
 
-void DynamicStringHeader::write(uint8_t *data) {
+void DynamicStringHeader::write(uint8_t *data) const {
   data[Key] = _key;
   uint16_t str_size = _value.length();
   memcpy(data + StringLength, &str_size, sizeof(str_size));
@@ -77,7 +77,7 @@ DynamicByteHeader::DynamicByteHeader(const uint8_t *data)
 DynamicByteHeader::DynamicByteHeader(const uint8_t key, const uint8_t value)
     : DynamicHeader(key, 2), _value(value) {}
 
-void DynamicByteHeader::write(uint8_t *data) {
+void DynamicByteHeader::write(uint8_t *data) const {
   data[0] = key();
   data[1] = _value;
 }
@@ -101,6 +101,6 @@ DynamicBoolHeader::DynamicBoolHeader(const uint8_t *data)
 DynamicBoolHeader::DynamicBoolHeader(const uint8_t key)
     : DynamicHeader(key, 1) {}
 
-void DynamicBoolHeader::write(uint8_t *data) { data[0] = key(); }
+void DynamicBoolHeader::write(uint8_t *data) const { data[0] = key(); }
 
 }  // namespace dsa

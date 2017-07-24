@@ -41,7 +41,7 @@ class DynamicHeader {
   // total size in bytes of this header
   uint16_t size() const { return _size; }
 
-  virtual void write(uint8_t* data) = 0;
+  virtual void write(uint8_t* data) const = 0;
 
  protected:
   uint8_t _key;
@@ -58,7 +58,7 @@ class DynamicStringHeader : public DynamicHeader {
   DynamicStringHeader(const uint8_t* data, uint16_t size, std::string str);
   DynamicStringHeader(uint8_t key, std::string str);
   const std::string& value() const;
-  void write(uint8_t* data) override;
+  void write(uint8_t* data) const override;
 };
 
 class DynamicByteHeader : public DynamicHeader {
@@ -69,7 +69,7 @@ class DynamicByteHeader : public DynamicHeader {
   const uint8_t value() const { return _value; };
   explicit DynamicByteHeader(const uint8_t* data);
   DynamicByteHeader(uint8_t key, uint8_t value);
-  void write(uint8_t* data) override;
+  void write(uint8_t* data) const override;
 };
 
 class DynamicIntHeader : public DynamicHeader {
@@ -80,7 +80,7 @@ class DynamicIntHeader : public DynamicHeader {
   const int32_t value() const { return _value; };
   explicit DynamicIntHeader(const uint8_t* data);
   DynamicIntHeader(uint8_t key, int32_t value);
-  void write(uint8_t* data) override;
+  void write(uint8_t* data) constoverride;
 };
 
 class DynamicBoolHeader : public DynamicHeader {
@@ -88,7 +88,7 @@ class DynamicBoolHeader : public DynamicHeader {
  public:
   explicit DynamicBoolHeader(const uint8_t* data);
   explicit DynamicBoolHeader(uint8_t key);
-  void write(uint8_t* data) override;
+  void write(uint8_t* data) const override;
 };
 
 }  // namespace dsa
