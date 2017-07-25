@@ -59,7 +59,7 @@ DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size,
                                          std::string str)
     : DynamicHeader(*data, size), _value(std::move(str)) {}
 
-DynamicStringHeader::DynamicStringHeader(const uint8_t key, std::string str)
+DynamicStringHeader::DynamicStringHeader(const uint8_t key, const std::string& str)
     : DynamicHeader(key, str.length() + 3), _value(std::move(str)) {}
 
 const std::string &DynamicStringHeader::value() const { return _value; }

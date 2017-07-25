@@ -2,12 +2,14 @@
 #define DSA_SDK_DYNAMIC_HEADER_H
 
 #include <cstdint>
+#include <memory>
 #include <string>
+
 namespace dsa {
 
 class DynamicHeader {
  public:
-  enum {  // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Header-Structure.md
+  enum DynamicKey : uint8_t {  // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Header-Structure.md
     Status = 0x00,
     SequenceId = 0x01,
     PageId = 0x02,
@@ -56,9 +58,29 @@ class DynamicStringHeader : public DynamicHeader {
 
  public:
   DynamicStringHeader(const uint8_t* data, uint16_t size, std::string str);
-  DynamicStringHeader(uint8_t key, std::string str);
+  DynamicStringHeader(uint8_t key, const std::string& str);
   const std::string& value() const;
   void write(uint8_t* data) const override;
+
+  static const std::string& read_value(
+      const std::unique_ptr<DynamicStringHeader>& header) {
+    if (header == nullptr) return "";
+    return header->value();
+  }
+  // return true when the length of content is changed
+  static bool write_value(std::unique_ptr<DynamicStringHeader>& header,
+                          DynamicKey key, const std::string& value) {
+    if (value == "") {
+      if (header != nullptr) {
+        header.reset();
+        return true;
+      }
+    } else {
+      header.reset(new DynamicStringHeader(key, value));
+      return true;
+    }
+    return false;
+  }
 };
 
 class DynamicByteHeader : public DynamicHeader {
@@ -70,6 +92,28 @@ class DynamicByteHeader : public DynamicHeader {
   explicit DynamicByteHeader(const uint8_t* data);
   DynamicByteHeader(uint8_t key, uint8_t value);
   void write(uint8_t* data) const override;
+
+  static uint8_t read_value(const std::unique_ptr<DynamicByteHeader>& header) {
+    if (header == nullptr) return 0;
+    return header->value();
+  }
+  // return true when the length of content is changed
+  static bool write_value(std::unique_ptr<DynamicByteHeader>& header,
+                          DynamicKey key, uint8_t value) {
+    if (value == 0) {
+      if (header != nullptr) {
+        header.reset();
+        return true;
+      }
+    } else {
+      if (header != nullptr) {
+        header.reset(new DynamicByteHeader(key, value));
+        return true;
+      }
+      header.reset(new DynamicByteHeader(key, value));
+    }
+    return false;
+  }
 };
 
 class DynamicIntHeader : public DynamicHeader {
@@ -81,6 +125,28 @@ class DynamicIntHeader : public DynamicHeader {
   explicit DynamicIntHeader(const uint8_t* data);
   DynamicIntHeader(uint8_t key, int32_t value);
   void write(uint8_t* data) const override;
+
+  static int32_t read_value(const std::unique_ptr<DynamicIntHeader>& header) {
+    if (header == nullptr) return 0;
+    return header->value();
+  }
+  // return true when the length of content is changed
+  static bool write_value(std::unique_ptr<DynamicIntHeader>& header,
+                          DynamicKey key, int32_t value) {
+    if (value == 0) {
+      if (header != nullptr) {
+        header.reset();
+        return true;
+      }
+    } else {
+      if (header != nullptr) {
+        header.reset(new DynamicIntHeader(key, value));
+        return true;
+      }
+      header.reset(new DynamicIntHeader(key, value));
+    }
+    return false;
+  }
 };
 
 class DynamicBoolHeader : public DynamicHeader {
@@ -89,6 +155,26 @@ class DynamicBoolHeader : public DynamicHeader {
   explicit DynamicBoolHeader(const uint8_t* data);
   explicit DynamicBoolHeader(uint8_t key);
   void write(uint8_t* data) const override;
+
+  static bool read_value(const std::unique_ptr<DynamicBoolHeader>& header) {
+    return (header != nullptr);
+  }
+  // return true when the length of content is changed
+  static bool write_value(std::unique_ptr<DynamicBoolHeader>& header,
+                          DynamicKey key, bool value) {
+    if (value) {
+      if (header == nullptr) {
+        header.reset(new DynamicBoolHeader(key));
+        return true;
+      }
+    } else {
+      if (header != nullptr) {
+        header.reset();
+        return true;
+      }
+    }
+    return false;
+  }
 };
 
 }  // namespace dsa

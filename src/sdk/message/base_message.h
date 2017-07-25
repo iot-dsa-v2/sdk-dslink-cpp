@@ -65,6 +65,19 @@ class RequestMessage : public Message {
   std::unique_ptr<DynamicStringHeader> permission_token;
   std::unique_ptr<DynamicBoolHeader> no_stream;
   std::unique_ptr<DynamicByteHeader> alias_count;
+
+ public:
+  const std::string& get_target_path() const;
+  void set_target_path(const std::string& value);
+
+  const std::string& get_permission_token() const;
+  void set_permission_token(const std::string& value);
+
+  bool get_no_stream() const;
+  void set_no_stream(bool value);
+
+  uint8_t get_alias_count() const;
+  void set_alias_count(uint8_t value);
 };
 
 class ResponseMessage : public Message {
@@ -74,6 +87,13 @@ class ResponseMessage : public Message {
  protected:
   std::unique_ptr<DynamicStringHeader> source_path;
   std::unique_ptr<DynamicByteHeader> status;
+
+ public:
+  bool get_source_path() const;
+  void set_source_path(bool value);
+
+  uint8_t get_status() const;
+  void set_status(uint8_t value);
 };
 
 }  // namespace dsa
