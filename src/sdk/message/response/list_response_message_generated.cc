@@ -10,14 +10,14 @@ void ListResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size
     } 
     else if (key == DynamicHeader::Status) {
       status.reset(static_cast<DynamicByteHeader*>(header));
-    } 	
+    }   
     else if (key == DynamicHeader::SequenceId) {
       sequence_id.reset(static_cast<DynamicIntHeader*>(header));
     } 
-     else if (key == DynamicHeader::BasePath) {
+    else if (key == DynamicHeader::BasePath) {
       base_path.reset(static_cast<DynamicStringHeader*>(header));
     } 
-     else if (key == DynamicHeader::SourcePath) {
+    else if (key == DynamicHeader::SourcePath) {
       source_path.reset(static_cast<DynamicStringHeader*>(header));
     }
   }

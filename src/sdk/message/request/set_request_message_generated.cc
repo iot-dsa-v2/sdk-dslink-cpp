@@ -8,16 +8,16 @@ void SetRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t size) 
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::PageId) {
+    else if (key == DynamicHeader::PageId) {
       page_id.reset(static_cast<DynamicIntHeader*>(header));
     } 
-     else if (key == DynamicHeader::AliasCount) {
+    else if (key == DynamicHeader::AliasCount) {
       alias_count.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::TargetPath) {
+    else if (key == DynamicHeader::TargetPath) {
       target_path.reset(static_cast<DynamicStringHeader*>(header));
     } 
-     else if (key == DynamicHeader::PermissionToken) {
+    else if (key == DynamicHeader::PermissionToken) {
       permission_token.reset(static_cast<DynamicStringHeader*>(header));
     }
   }

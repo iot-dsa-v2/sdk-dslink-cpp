@@ -7,26 +7,26 @@ void InvokeRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t siz
     uint8_t key = header->key();
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
-    } 	
+    }   
     else if (key == DynamicHeader::SequenceId) {
       sequence_id.reset(static_cast<DynamicIntHeader*>(header));
     } 
-     else if (key == DynamicHeader::PageId) {
+    else if (key == DynamicHeader::PageId) {
       page_id.reset(static_cast<DynamicIntHeader*>(header));
     } 
-     else if (key == DynamicHeader::AliasCount) {
+    else if (key == DynamicHeader::AliasCount) {
       alias_count.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::TargetPath) {
+    else if (key == DynamicHeader::TargetPath) {
       target_path.reset(static_cast<DynamicStringHeader*>(header));
     } 
-     else if (key == DynamicHeader::PermissionToken) {
+    else if (key == DynamicHeader::PermissionToken) {
       permission_token.reset(static_cast<DynamicStringHeader*>(header));
     } 
-     else if (key == DynamicHeader::MaxPermission) {
+    else if (key == DynamicHeader::MaxPermission) {
       max_permission.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::NoStream) {
+    else if (key == DynamicHeader::NoStream) {
       no_stream.reset(static_cast<DynamicBoolHeader*>(header));
     }
   }

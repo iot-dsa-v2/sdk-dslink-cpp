@@ -193,55 +193,55 @@ void ${typename}::parse_dynamic_headers(const uint8_t* data, size_t size) {
       sequence_id.reset(static_cast<DynamicIntHeader*>(header));
     }`;
     if (configs.PageId) data+=` 
-     else if (key == DynamicHeader::PageId) {
+    else if (key == DynamicHeader::PageId) {
       page_id.reset(static_cast<DynamicIntHeader*>(header));
     }`;
     if (configs.AliasCount) data+=` 
-     else if (key == DynamicHeader::AliasCount) {
+    else if (key == DynamicHeader::AliasCount) {
       alias_count.reset(static_cast<DynamicByteHeader*>(header));
     }`;
     if (configs.TargetPath) data+=` 
-     else if (key == DynamicHeader::TargetPath) {
+    else if (key == DynamicHeader::TargetPath) {
       target_path.reset(static_cast<DynamicStringHeader*>(header));
     }`;
     if (configs.PermissionToken) data+=` 
-     else if (key == DynamicHeader::PermissionToken) {
+    else if (key == DynamicHeader::PermissionToken) {
       permission_token.reset(static_cast<DynamicStringHeader*>(header));
     }`;
     if (configs.MaxPermission) data+=` 
-     else if (key == DynamicHeader::MaxPermission) {
+    else if (key == DynamicHeader::MaxPermission) {
       max_permission.reset(static_cast<DynamicByteHeader*>(header));
     }`;
     if (configs.NoStream) data+=` 
-     else if (key == DynamicHeader::NoStream) {
+    else if (key == DynamicHeader::NoStream) {
       no_stream.reset(static_cast<DynamicBoolHeader*>(header));
     }`;
     if (configs.Qos) data+=` 
-     else if (key == DynamicHeader::Qos) {
+    else if (key == DynamicHeader::Qos) {
       qos.reset(static_cast<DynamicByteHeader*>(header));
     }`;
     if (configs.QueueSize) data+=` 
-     else if (key == DynamicHeader::QueueSize) {
+    else if (key == DynamicHeader::QueueSize) {
       queue_size.reset(static_cast<DynamicByteHeader*>(header));
     }`;
     if (configs.QueueTime) data+=` 
-     else if (key == DynamicHeader::QueueTime) {
+    else if (key == DynamicHeader::QueueTime) {
       queue_time.reset(static_cast<DynamicByteHeader*>(header));
     }`;
     if (configs.UpdateFrequency) data+=` 
-     else if (key == DynamicHeader::UpdateFrequency) {
+    else if (key == DynamicHeader::UpdateFrequency) {
       update_frequency.reset(static_cast<DynamicByteHeader*>(header));
     }`;    
     if (configs.BasePath) data+=` 
-     else if (key == DynamicHeader::BasePath) {
+    else if (key == DynamicHeader::BasePath) {
       base_path.reset(static_cast<DynamicStringHeader*>(header));
     }`;    
     if (configs.SourcePath) data+=` 
-     else if (key == DynamicHeader::SourcePath) {
+    else if (key == DynamicHeader::SourcePath) {
       source_path.reset(static_cast<DynamicStringHeader*>(header));
     }`;    
     if (configs.Skippable) data+=` 
-     else if (key == DynamicHeader::Skippable) {
+    else if (key == DynamicHeader::Skippable) {
       skippable.reset(static_cast<DynamicBoolHeader*>(header));
     }`;    
     data+=`

@@ -8,28 +8,28 @@ void SubscribeRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t 
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::AliasCount) {
+    else if (key == DynamicHeader::AliasCount) {
       alias_count.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::TargetPath) {
+    else if (key == DynamicHeader::TargetPath) {
       target_path.reset(static_cast<DynamicStringHeader*>(header));
     } 
-     else if (key == DynamicHeader::PermissionToken) {
+    else if (key == DynamicHeader::PermissionToken) {
       permission_token.reset(static_cast<DynamicStringHeader*>(header));
     } 
-     else if (key == DynamicHeader::NoStream) {
+    else if (key == DynamicHeader::NoStream) {
       no_stream.reset(static_cast<DynamicBoolHeader*>(header));
     } 
-     else if (key == DynamicHeader::Qos) {
+    else if (key == DynamicHeader::Qos) {
       qos.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::QueueSize) {
+    else if (key == DynamicHeader::QueueSize) {
       queue_size.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::QueueTime) {
+    else if (key == DynamicHeader::QueueTime) {
       queue_time.reset(static_cast<DynamicByteHeader*>(header));
     } 
-     else if (key == DynamicHeader::UpdateFrequency) {
+    else if (key == DynamicHeader::UpdateFrequency) {
       update_frequency.reset(static_cast<DynamicByteHeader*>(header));
     }
   }

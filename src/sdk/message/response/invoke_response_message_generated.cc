@@ -10,14 +10,14 @@ void InvokeResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t si
     } 
     else if (key == DynamicHeader::Status) {
       status.reset(static_cast<DynamicByteHeader*>(header));
-    } 	
+    }   
     else if (key == DynamicHeader::SequenceId) {
       sequence_id.reset(static_cast<DynamicIntHeader*>(header));
     } 
-     else if (key == DynamicHeader::PageId) {
+    else if (key == DynamicHeader::PageId) {
       page_id.reset(static_cast<DynamicIntHeader*>(header));
     } 
-     else if (key == DynamicHeader::Skippable) {
+    else if (key == DynamicHeader::Skippable) {
       skippable.reset(static_cast<DynamicBoolHeader*>(header));
     }
   }
