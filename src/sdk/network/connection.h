@@ -140,7 +140,6 @@ class Connection : public InheritableEnableShared<Connection> {
 
   // parse handshake messages
   bool parse_f0(size_t size);
-  bool parse_f0(Buffer &buf, size_t size);
   bool parse_f1(size_t size);
   bool parse_f2(size_t size);
   bool parse_f3(size_t size);

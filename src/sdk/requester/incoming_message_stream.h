@@ -5,6 +5,9 @@
 
 namespace dsa {
 
+class IncomingMessageStream {
+
+};
 
 }  // namespace dsa
 

@@ -6,6 +6,6 @@ add_library(dsa_responder OBJECT
         node_model.cc
         node_state_manager.cc
         node_state.cc
-        subscription_queue.cc)
+        outgoing_message_stream.cc)
 
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_responder> PARENT_SCOPE)

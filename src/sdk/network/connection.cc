@@ -98,44 +98,6 @@ bool Connection::parse_f0(size_t size) {
   return cur == size;
 }
 
-bool Connection::parse_f0(Buffer &buf, size_t size) {
-  if (size < MinF0Length)
-    return false;
-
-  const uint8_t *data = buf.data();
-
-  StaticHeaders header(data);
-
-  if (!valid_handshake_header(header, size, 0xf0))
-    return false;
-
-  uint32_t cur = StaticHeaders::TotalSize;
-  uint8_t dsid_length;
-
-  std::memcpy(&_dsa_version_major, &data[cur], sizeof(_dsa_version_major));
-  cur += sizeof(_dsa_version_major);
-  std::memcpy(&_dsa_version_minor, &data[cur], sizeof(_dsa_version_minor));
-  cur += sizeof(_dsa_version_minor);
-  std::memcpy(&dsid_length, &data[cur], sizeof(dsid_length));
-  cur += sizeof(dsid_length);
-
-  if (cur + dsid_length + PublicKeyLength + 1 + SaltLength > size) return false;
-
-  _other_dsid = std::make_shared<Buffer>(dsid_length);
-  _other_dsid->assign(&data[cur], dsid_length);
-
-  cur += dsid_length;
-  _other_public_key = std::make_shared<Buffer>(PublicKeyLength);
-  _other_public_key->assign(&data[cur], PublicKeyLength);
-  cur += PublicKeyLength;
-  _security_preference = (data[cur++] != 0u);
-  _other_salt = std::make_shared<Buffer>(SaltLength);
-  _other_salt->assign(&data[cur], SaltLength);
-  cur += SaltLength;
-
-  return cur == size;
-}
-
 bool Connection::parse_f1(size_t size) {
   if (size < MinF1Length)
     return false;

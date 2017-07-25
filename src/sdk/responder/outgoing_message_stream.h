@@ -8,7 +8,7 @@ namespace dsa {
  * maintain a smart queue of subscription updates
  * this queue works for a single subscription from a single client
  */
-class SubscriptionQueue {
+class OutgoingMessageStream {
   uint8_t qos_level;
 };
 }  // namespace dsa

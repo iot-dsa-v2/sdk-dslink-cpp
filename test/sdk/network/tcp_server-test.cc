@@ -24,7 +24,7 @@ TEST(TcpServerTest, OneClient) {
 
   app->graceful_stop();
 
-//  tcp_server->stop();
+  tcp_server->stop();
 
   app->wait();
 }

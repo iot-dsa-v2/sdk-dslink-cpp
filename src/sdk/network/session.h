@@ -7,6 +7,8 @@
 #include <boost/asio.hpp>
 
 #include "app.h"
+#include "responder/outgoing_message_stream.h"
+#include "requester/incoming_message_stream.h"
 
 namespace dsa {
 
@@ -19,6 +21,8 @@ class Session: public std::enable_shared_from_this<Session> {
   std::unique_ptr<boost::asio::io_service::strand> _strand;
   BufferPtr _session_id;
   ConnectionPtr _connection;
+  std::vector<OutgoingMessageStream> _outgoing_messages;
+  std::vector<IncomingMessageStream> _incoming_messages;
 
  public:
   explicit Session(BufferPtr session_id, const ConnectionPtr &connection = nullptr);
