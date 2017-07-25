@@ -2,170 +2,170 @@ const fs = require('fs');
 
 
 const messages = {
-	"Request":{
-		"Invoke":{
-			"Body":true,
-			"Priority":true,
-			"Status":false,
-			"SequenceId":true,
-			"PageId":true,
-			"AliasCount":true,
-			"TargetPath":true,
-			"PermissionToken":true,
-			"MaxPermission":true,
-			"NoStream":true,
-			"Qos":false,
-			"QueueSize":false,
-			"QueueTime":false,
-			"UpdateFrequency":false,
-			"BasePath":false,
-			"SourcePath":false,
-			"Skippable":false,
-			
-		},
-		"List":{
-			"Body":false,
-			"Priority":true,
-			"Status":false,
-			"SequenceId":false,
-			"PageId":false,
-			"AliasCount":true,
-			"TargetPath":true,
-			"PermissionToken":true,
-			"MaxPermission":false,
-			"NoStream":true,
-			"Qos":false,
-			"QueueSize":false,
-			"QueueTime":false,
-			"UpdateFrequency":false,
-			"BasePath":false,
-			"SourcePath":false,
-			"Skippable":false,
-			
-		},
-		"Set":{
-			"Body":true,
-			"Priority":true,
-			"Status":false,
-			"SequenceId":false,
-			"PageId":true,
-			"AliasCount":true,
-			"TargetPath":true,
-			"PermissionToken":true,
-			"MaxPermission":false,
-			"NoStream":false,
-			"Qos":false,
-			"QueueSize":false,
-			"QueueTime":false,
-			"UpdateFrequency":false,
-			"BasePath":false,
-			"SourcePath":false,
-			"Skippable":false,
-			
-		},
-		"Subscribe":{
-			"Body":false,
-			"Priority":true,
-			"Status":false,
-			"SequenceId":false,
-			"PageId":false,
-			"AliasCount":true,
-			"TargetPath":true,
-			"PermissionToken":true,
-			"MaxPermission":false,
-			"NoStream":true,
-			"Qos":true,
-			"QueueSize":true,
-			"QueueTime":true,
-			"UpdateFrequency":true,
-			"BasePath":false,
-			"SourcePath":false,
-			"Skippable":false,
-			
-		}
-	},
-	"Response":{
-		"Invoke":{
-			"Body":true,
-			"Priority":true,
-			"Status":true,
-			"SequenceId":true,
-			"PageId":true,
-			"AliasCount":false,
-			"TargetPath":false,
-			"PermissionToken":false,
-			"MaxPermission":false,
-			"NoStream":false,
-			"Qos":false,
-			"QueueSize":false,
-			"QueueTime":false,
-			"UpdateFrequency":false,
-			"BasePath":false,
-			"SourcePath":false,
-			"Skippable":true,
-			
-		},
-		"List":{
-			"Body":true,
-			"Priority":true,
-			"Status":true,
-			"SequenceId":true,
-			"PageId":false,
-			"AliasCount":false,
-			"TargetPath":false,
-			"PermissionToken":false,
-			"MaxPermission":false,
-			"NoStream":false,
-			"Qos":false,
-			"QueueSize":false,
-			"QueueTime":false,
-			"UpdateFrequency":false,
-			"BasePath":true,
-			"SourcePath":true,
-			"Skippable":false,
-			
-		},
-		"Set":{
-			"Body":false,
-			"Priority":true,
-			"Status":true,
-			"SequenceId":false,
-			"PageId":false,
-			"AliasCount":false,
-			"TargetPath":false,
-			"PermissionToken":false,
-			"MaxPermission":false,
-			"NoStream":false,
-			"Qos":false,
-			"QueueSize":false,
-			"QueueTime":false,
-			"UpdateFrequency":false,
-			"BasePath":false,
-			"SourcePath":false,
-			"Skippable":false,
-			
-		},
-		"Subscribe":{
-			"Body":true,
-			"Priority":true,
-			"Status":false,
-			"SequenceId":false,
-			"PageId":false,
-			"AliasCount":false,
-			"TargetPath":false,
-			"PermissionToken":false,
-			"MaxPermission":false,
-			"NoStream":false,
-			"Qos":false,
-			"QueueSize":false,
-			"QueueTime":false,
-			"UpdateFrequency":false,
-			"BasePath":false,
-			"SourcePath":false,
-			"Skippable":false,
-			
-		}
-	}
+  "Request":{
+    "Invoke":{
+      "Body":true,
+      "Priority":true,
+      "Status":false,
+      "SequenceId":true,
+      "PageId":true,
+      "AliasCount":true,
+      "TargetPath":true,
+      "PermissionToken":true,
+      "MaxPermission":true,
+      "NoStream":true,
+      "Qos":false,
+      "QueueSize":false,
+      "QueueTime":false,
+      "UpdateFrequency":false,
+      "BasePath":false,
+      "SourcePath":false,
+      "Skippable":false,
+      
+    },
+    "List":{
+      "Body":false,
+      "Priority":true,
+      "Status":false,
+      "SequenceId":false,
+      "PageId":false,
+      "AliasCount":true,
+      "TargetPath":true,
+      "PermissionToken":true,
+      "MaxPermission":false,
+      "NoStream":true,
+      "Qos":false,
+      "QueueSize":false,
+      "QueueTime":false,
+      "UpdateFrequency":false,
+      "BasePath":false,
+      "SourcePath":false,
+      "Skippable":false,
+      
+    },
+    "Set":{
+      "Body":true,
+      "Priority":true,
+      "Status":false,
+      "SequenceId":false,
+      "PageId":true,
+      "AliasCount":true,
+      "TargetPath":true,
+      "PermissionToken":true,
+      "MaxPermission":false,
+      "NoStream":false,
+      "Qos":false,
+      "QueueSize":false,
+      "QueueTime":false,
+      "UpdateFrequency":false,
+      "BasePath":false,
+      "SourcePath":false,
+      "Skippable":false,
+      
+    },
+    "Subscribe":{
+      "Body":false,
+      "Priority":true,
+      "Status":false,
+      "SequenceId":false,
+      "PageId":false,
+      "AliasCount":true,
+      "TargetPath":true,
+      "PermissionToken":true,
+      "MaxPermission":false,
+      "NoStream":true,
+      "Qos":true,
+      "QueueSize":true,
+      "QueueTime":true,
+      "UpdateFrequency":true,
+      "BasePath":false,
+      "SourcePath":false,
+      "Skippable":false,
+      
+    }
+  },
+  "Response":{
+    "Invoke":{
+      "Body":true,
+      "Priority":true,
+      "Status":true,
+      "SequenceId":true,
+      "PageId":true,
+      "AliasCount":false,
+      "TargetPath":false,
+      "PermissionToken":false,
+      "MaxPermission":false,
+      "NoStream":false,
+      "Qos":false,
+      "QueueSize":false,
+      "QueueTime":false,
+      "UpdateFrequency":false,
+      "BasePath":false,
+      "SourcePath":false,
+      "Skippable":true,
+      
+    },
+    "List":{
+      "Body":true,
+      "Priority":true,
+      "Status":true,
+      "SequenceId":true,
+      "PageId":false,
+      "AliasCount":false,
+      "TargetPath":false,
+      "PermissionToken":false,
+      "MaxPermission":false,
+      "NoStream":false,
+      "Qos":false,
+      "QueueSize":false,
+      "QueueTime":false,
+      "UpdateFrequency":false,
+      "BasePath":true,
+      "SourcePath":true,
+      "Skippable":false,
+      
+    },
+    "Set":{
+      "Body":false,
+      "Priority":true,
+      "Status":true,
+      "SequenceId":false,
+      "PageId":false,
+      "AliasCount":false,
+      "TargetPath":false,
+      "PermissionToken":false,
+      "MaxPermission":false,
+      "NoStream":false,
+      "Qos":false,
+      "QueueSize":false,
+      "QueueTime":false,
+      "UpdateFrequency":false,
+      "BasePath":false,
+      "SourcePath":false,
+      "Skippable":false,
+      
+    },
+    "Subscribe":{
+      "Body":true,
+      "Priority":true,
+      "Status":false,
+      "SequenceId":false,
+      "PageId":false,
+      "AliasCount":false,
+      "TargetPath":false,
+      "PermissionToken":false,
+      "MaxPermission":false,
+      "NoStream":false,
+      "Qos":false,
+      "QueueSize":false,
+      "QueueTime":false,
+      "UpdateFrequency":false,
+      "BasePath":false,
+      "SourcePath":false,
+      "Skippable":false,
+      
+    }
+  }
 };
 
 function gen_source(path, typename, header, configs) {
@@ -180,15 +180,15 @@ void ${typename}::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
     uint8_t key = header->key();`;
-	if (configs.Priority) data+=`
+    if (configs.Priority) data+=`
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
     }`;
-	if (configs.Status) data+=` 
+    if (configs.Status) data+=` 
     else if (key == DynamicHeader::Status) {
       status.reset(static_cast<DynamicByteHeader*>(header));
     }`; 
-    if (configs.SequenceId) data+=` 	
+    if (configs.SequenceId) data+=`   
     else if (key == DynamicHeader::SequenceId) {
       sequence_id.reset(static_cast<DynamicIntHeader*>(header));
     }`;
@@ -396,7 +396,7 @@ void ${typename}::update_static_header() {
   if (skippable != nullptr) {
     header_size += skippable->size();
   }`
-  	data+=`
+    data+=`
 
   uint32_t message_size = header_size;`
     if (configs.Body) data+=` 
@@ -415,16 +415,16 @@ fs.writeFileSync(path, data);
 }
 
 for (type in messages){
-	let type_l = type.toLowerCase();
-	for (method in messages[type]){
-		let method_l = method.toLowerCase();
-		let configs = messages[type][method];
-		gen_source(
-			`${type_l}/${method_l}_${type_l}_message_generated.cc`, 
-			`${method}${type}Message`,
-			`${method_l}_${type_l}_message.h`,
-			configs
-		);
-	}
+  let type_l = type.toLowerCase();
+  for (method in messages[type]){
+    let method_l = method.toLowerCase();
+    let configs = messages[type][method];
+    gen_source(
+      `${type_l}/${method_l}_${type_l}_message_generated.cc`, 
+      `${method}${type}Message`,
+      `${method_l}_${type_l}_message.h`,
+      configs
+    );
+  }
 }
 
