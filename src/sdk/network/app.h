@@ -26,7 +26,7 @@ namespace dsa {
 class io_service_work;
 class GracefullyClosable;
 
-class App {
+class App : public std::enable_shared_from_this<App> {
  private:
   std::shared_ptr<boost::asio::io_service> _io_service;
   std::shared_ptr<io_service_work> _work;
@@ -77,7 +77,7 @@ class App {
   std::shared_ptr<Server> new_server(Server::Protocol type, const Server::Config &config);
 
   // get new client
-  ClientPtr new_client(Client::Type type, const Client::Config &config);
+  ClientPtr new_client(Client::Protocol type, const Client::Config &config);
 };
 }  // namespace dsa
 

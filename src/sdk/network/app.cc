@@ -44,16 +44,16 @@ void worker_thread(const std::shared_ptr<boost::asio::io_service> &io_service) {
 ServerPtr App::new_server(Server::Protocol type, const Server::Config &config) {
   switch (type) {
     case Server::TCP:
-      return std::shared_ptr<Server>(new TcpServer(*this, config));
+      return std::shared_ptr<Server>(new TcpServer(shared_from_this(), config));
     default:
       throw std::runtime_error("invalid server type");
   }
 }
 
-ClientPtr App::new_client(Client::Type type, const Client::Config &config) {
+ClientPtr App::new_client(Client::Protocol type, const Client::Config &config) {
   switch (type) {
     case Client::TCP:
-      return std::shared_ptr<Connection>(new TcpClientConnection(*this, config));
+      return std::shared_ptr<Connection>(new TcpClientConnection(shared_from_this(), config));
     default:
       throw std::runtime_error("invalid client type");
   }

@@ -24,10 +24,6 @@ class Session;
 typedef std::function<void()> WriteHandler;
 typedef std::function<void(std::shared_ptr<Session>, Buffer::SharedBuffer)> MessageHandler;
 
-/**
- * handshake logic
- * split and join binary data into message frame
- */
 class Connection : public InheritableEnableShared<Connection> {
  public:
   class Config {
@@ -69,7 +65,7 @@ class Connection : public InheritableEnableShared<Connection> {
     MessageHandler message_handler() const { return _message_handler; }
   };
 
-  enum Type {
+  enum Protocol {
     TCP
   };
 
@@ -105,7 +101,7 @@ class Connection : public InheritableEnableShared<Connection> {
         AuthLength,         // broker auth
   };
 
-  void set_message_handler(MessageHandler handler) { _message_handler = handler; }
+  void set_message_handler(MessageHandler handler) { _message_handler = std::move(handler); }
 //  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
   virtual void close() = 0;
@@ -113,9 +109,9 @@ class Connection : public InheritableEnableShared<Connection> {
   virtual void start() = 0;
 
  protected:
-  explicit Connection(const App &app, const Config &config);
+  explicit Connection(std::shared_ptr<const App> app, const Config &config);
   ~Connection() override = default;
-  const App &_app;
+  std::shared_ptr<const App> _app;
   Config _config;
 
   // this should rarely be touched

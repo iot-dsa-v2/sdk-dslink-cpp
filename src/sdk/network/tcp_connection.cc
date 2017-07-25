@@ -6,8 +6,8 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(const App &app, const Config &config)
-    : Connection(app, config), _socket(app.io_service()), _strand(app.io_service()) {
+TcpConnection::TcpConnection(std::shared_ptr<App> app, const Config &config)
+    : Connection(app, config), _socket(app->io_service()), _strand(app->io_service()) {
 }
 
 void TcpConnection::close() {
@@ -61,7 +61,7 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
       }
 
       // post job with message buffer
-      _app.io_service().post(boost::bind(&TcpConnection::handle_message, shared_from_this(),
+      _app->io_service().post(boost::bind(&TcpConnection::handle_message, shared_from_this(),
                                          buf->get_shared_buffer(cur, header.message_size)));
 
       cur += header.message_size;
@@ -103,7 +103,7 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 //////////////////////////////////////
 // TcpServerConnection
 //////////////////////////////////////
-TcpServerConnection::TcpServerConnection(const App &app, const Server::Config &config)
+TcpServerConnection::TcpServerConnection(std::shared_ptr<App> app, const Server::Config &config)
     : Connection(app, Config()), TcpConnection(app, Config(config.message_handler())) {
   _path = std::make_shared<Buffer>(config.path());
 }
@@ -186,15 +186,15 @@ void TcpServerConnection::send_f3() {
 //////////////////////////////////
 // TcpClientConnection
 //////////////////////////////////
-TcpClientConnection::TcpClientConnection(const App &app)
+TcpClientConnection::TcpClientConnection(std::shared_ptr<App> app)
     : Connection(app, Config()), TcpConnection(app, Config()) {}
 
-TcpClientConnection::TcpClientConnection(const App &app, const Config &config)
+TcpClientConnection::TcpClientConnection(std::shared_ptr<App> app, const Config &config)
     : Connection(app, Config()), TcpConnection(app, config) {}
 
 void TcpClientConnection::connect() {
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(_app.io_service());
+  tcp::resolver resolver(_app->io_service());
   tcp::resolver::query query(_config.host(), std::to_string(_config.port()));
   tcp::endpoint endpoint = *resolver.resolve(query);
   _socket.async_connect(*resolver.resolve(query),

@@ -54,7 +54,7 @@ class Server : public GracefullyClosable {
     MessageHandler message_handler() const { return _message_handler; }
   };
 
-  explicit Server(App &app);
+  explicit Server(std::shared_ptr<App> app);
 
   virtual void start() = 0;
   virtual void stop();

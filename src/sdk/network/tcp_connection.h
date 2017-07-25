@@ -24,7 +24,7 @@ class TcpConnection : virtual public Connection {
   boost::asio::io_service::strand _strand;
 
  public:
-  explicit TcpConnection(const App &app, const Config &config);
+  explicit TcpConnection(std::shared_ptr<App> app, const Config &config);
   ~TcpConnection() override { _socket.close(); }
 
   void write_handler(WriteHandler callback, const boost::system::error_code &error);
@@ -55,7 +55,7 @@ class TcpServerConnection : public TcpConnection {
   void start_handshake();
 
  public:
-  explicit TcpServerConnection(const App &app, const Server::Config &config);
+  explicit TcpServerConnection(std::shared_ptr<App> app, const Server::Config &config);
 
   void connect() override;
 
@@ -73,8 +73,8 @@ class TcpClientConnection : public TcpConnection {
   void start_handshake(const boost::system::error_code &error);
 
  public:
-  explicit TcpClientConnection(const App &app);
-  TcpClientConnection(const App &app, const Config &config);
+  explicit TcpClientConnection(std::shared_ptr<App> app);
+  TcpClientConnection(std::shared_ptr<App> app, const Config &config);
 
   void connect() override;
 
