@@ -3,7 +3,7 @@
 namespace dsa {
 Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data){};
 
-void Message::write(uint8_t* data) {
+void Message::write(uint8_t* data) const {
   static_headers.write(data);
   write_dynamic_data(data + StaticHeaders::TotalSize);
 }

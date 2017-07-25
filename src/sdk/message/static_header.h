@@ -25,8 +25,7 @@ struct StaticHeaders {
   StaticHeaders(uint32_t message_size, uint16_t header_size, uint8_t type,
                 uint32_t request_id, uint32_t ack_id);
 
-
-  void write(uint8_t *data);
+  void write(uint8_t *data) const;
 };
 
 }  // namespace dsa
