@@ -28,7 +28,7 @@ class Message {
   uint32_t size() const { return static_headers.message_size; }
 
   // update_static_header must be called before write
-  void write(uint8_t* data) const;
+  void write(uint8_t* data) const throw(const std::runtime_error&);
   // measure the size and header size
   virtual void update_static_header() = 0;
 
@@ -44,6 +44,16 @@ class Message {
   std::unique_ptr<DynamicByteHeader> priority;
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
+
+ public:
+  uint8_t get_priority() const;
+  void set_priority(uint8_t value);
+
+  int32_t get_sequence_id() const;
+  void set_sequence_id(int32_t value);
+
+  int32_t get_page_id() const;
+  void set_page_id(int32_t value);
 };
 
 class RequestMessage : public Message {

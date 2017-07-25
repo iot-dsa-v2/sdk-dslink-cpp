@@ -6,7 +6,8 @@
 
 namespace dsa {
 
-Message* parseMessage(const SharedBuffer& buffer) throw(const std::runtime_error&);
+Message* parseMessage(const SharedBuffer& buffer) throw(
+    const std::runtime_error&);
 
 }  // namespace dsa
 
