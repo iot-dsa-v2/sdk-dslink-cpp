@@ -85,11 +85,9 @@ void App::graceful_stop() {
   _work.reset();
 
   // tell all registered components to shutdown
-  for (auto &kv : _registry) {
-    if (auto component = kv.second.lock()) {
-      (*component)();
-    }
-  }
+  for (auto &kv : _registry)
+    if (auto component = kv.second.lock())
+      component->stop();
 }
 
 void App::stop() {

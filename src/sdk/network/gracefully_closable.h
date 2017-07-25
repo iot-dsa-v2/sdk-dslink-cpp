@@ -13,7 +13,7 @@ class GracefullyClosable : public InheritableEnableShared<GracefullyClosable> {
 
   // this should gracefully stop any running process
   // that the inheriting object has running
-  virtual void operator()() = 0;
+  virtual void stop() = 0;
 
   // this ensures that the component is registered with the app
   explicit GracefullyClosable(std::shared_ptr<App> app);

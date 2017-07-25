@@ -57,10 +57,8 @@ class Server : public GracefullyClosable {
   explicit Server(std::shared_ptr<App> app);
 
   virtual void start() = 0;
-  virtual void stop();
+  void stop() override;
   virtual std::string type() = 0;
-
-  void operator()() override { stop(); }
 };
 
 typedef std::shared_ptr<Server> ServerPtr;
