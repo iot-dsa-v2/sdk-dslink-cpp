@@ -55,6 +55,8 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
   }
 }
 
+const std::string DynamicStringHeader::BLANK_STRING = "";
+
 DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size,
                                          std::string str)
     : DynamicHeader(*data, size), _value(std::move(str)) {}

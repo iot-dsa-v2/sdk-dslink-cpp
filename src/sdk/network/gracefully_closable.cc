@@ -1,12 +1,14 @@
 #include "gracefully_closable.h"
 
+#include <utility>
+
 #include "app.h"
 
 namespace dsa {
-GracefullyClosable::GracefullyClosable(std::shared_ptr<App> app) : _app(app) {}
+GracefullyClosable::GracefullyClosable(std::shared_ptr<App> app) : _app(std::move(app)) {}
 
 GracefullyClosable::~GracefullyClosable() {
-//  _app.unregister_component(this);
+  _app->unregister_component(this);
 }
 
 void GracefullyClosable::register_this() {

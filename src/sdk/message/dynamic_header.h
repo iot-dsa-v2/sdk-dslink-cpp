@@ -35,7 +35,7 @@ class DynamicHeader {
     StringValue = StringLength + sizeof(uint16_t)
   };
 
-  static DynamicHeader* parse(const uint8_t* data,
+  static DynamicHeader *parse(const uint8_t *data,
                               uint16_t size) throw(const std::runtime_error&);
 
   uint8_t key() const { return _key; }
@@ -43,7 +43,7 @@ class DynamicHeader {
   // total size in bytes of this header
   uint16_t size() const { return _size; }
 
-  virtual void write(uint8_t* data) const = 0;
+  virtual void write(uint8_t *data) const = 0;
 
  protected:
   uint8_t _key;
@@ -55,22 +55,23 @@ class DynamicHeader {
 class DynamicStringHeader : public DynamicHeader {
  private:
   std::string _value;
+  static const std::string BLANK_STRING;
 
  public:
-  DynamicStringHeader(const uint8_t* data, uint16_t size, std::string str);
-  DynamicStringHeader(uint8_t key, const std::string& str);
-  const std::string& value() const;
-  void write(uint8_t* data) const override;
+  DynamicStringHeader(const uint8_t *data, uint16_t size, std::string str);
+  DynamicStringHeader(uint8_t key, const std::string &str);
+  const std::string &value() const;
+  void write(uint8_t *data) const override;
 
-  static const std::string& read_value(
-      const std::unique_ptr<DynamicStringHeader>& header) {
-    if (header == nullptr) return "";
+  static const std::string &read_value(const std::unique_ptr<DynamicStringHeader> &header) throw() {
+    if (header == nullptr)
+      return BLANK_STRING;
     return header->value();
   }
   // return true when the length of content is changed
-  static bool write_value(std::unique_ptr<DynamicStringHeader>& header,
-                          DynamicKey key, const std::string& value) {
-    if (value == "") {
+  static bool write_value(std::unique_ptr<DynamicStringHeader> &header,
+                          DynamicKey key, const std::string &value) {
+    if (value.empty()) {
       if (header != nullptr) {
         header.reset();
         return true;
@@ -89,16 +90,16 @@ class DynamicByteHeader : public DynamicHeader {
 
  public:
   const uint8_t value() const { return _value; };
-  explicit DynamicByteHeader(const uint8_t* data);
+  explicit DynamicByteHeader(const uint8_t *data);
   DynamicByteHeader(uint8_t key, uint8_t value);
-  void write(uint8_t* data) const override;
+  void write(uint8_t *data) const override;
 
-  static uint8_t read_value(const std::unique_ptr<DynamicByteHeader>& header) {
+  static uint8_t read_value(const std::unique_ptr<DynamicByteHeader> &header) {
     if (header == nullptr) return 0;
     return header->value();
   }
   // return true when the length of content is changed
-  static bool write_value(std::unique_ptr<DynamicByteHeader>& header,
+  static bool write_value(std::unique_ptr<DynamicByteHeader> &header,
                           DynamicKey key, uint8_t value) {
     if (value == 0) {
       if (header != nullptr) {
@@ -122,16 +123,16 @@ class DynamicIntHeader : public DynamicHeader {
 
  public:
   const int32_t value() const { return _value; };
-  explicit DynamicIntHeader(const uint8_t* data);
+  explicit DynamicIntHeader(const uint8_t *data);
   DynamicIntHeader(uint8_t key, int32_t value);
-  void write(uint8_t* data) const override;
+  void write(uint8_t *data) const override;
 
-  static int32_t read_value(const std::unique_ptr<DynamicIntHeader>& header) {
+  static int32_t read_value(const std::unique_ptr<DynamicIntHeader> &header) {
     if (header == nullptr) return 0;
     return header->value();
   }
   // return true when the length of content is changed
-  static bool write_value(std::unique_ptr<DynamicIntHeader>& header,
+  static bool write_value(std::unique_ptr<DynamicIntHeader> &header,
                           DynamicKey key, int32_t value) {
     if (value == 0) {
       if (header != nullptr) {
@@ -152,15 +153,15 @@ class DynamicIntHeader : public DynamicHeader {
 class DynamicBoolHeader : public DynamicHeader {
  protected:
  public:
-  explicit DynamicBoolHeader(const uint8_t* data);
+  explicit DynamicBoolHeader(const uint8_t *data);
   explicit DynamicBoolHeader(uint8_t key);
-  void write(uint8_t* data) const override;
+  void write(uint8_t *data) const override;
 
-  static bool read_value(const std::unique_ptr<DynamicBoolHeader>& header) {
+  static bool read_value(const std::unique_ptr<DynamicBoolHeader> &header) {
     return (header != nullptr);
   }
   // return true when the length of content is changed
-  static bool write_value(std::unique_ptr<DynamicBoolHeader>& header,
+  static bool write_value(std::unique_ptr<DynamicBoolHeader> &header,
                           DynamicKey key, bool value) {
     if (value) {
       if (header == nullptr) {

@@ -39,7 +39,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
    public:
     Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
-    Config(MessageHandler message_handler) : _message_handler(message_handler) {}
+    Config(MessageHandler message_handler) : _message_handler(std::move(message_handler)) {}
     Config() = default;
     Config(const Config &) = default;
     Config &operator=(const Config &) = default;

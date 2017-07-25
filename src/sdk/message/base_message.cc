@@ -89,9 +89,9 @@ ResponseMessage::ResponseMessage(const SharedBuffer& buffer)
 const std::string& ResponseMessage::get_source_path() const {
   return DynamicStringHeader::read_value(source_path);
 }
+
 void ResponseMessage::set_source_path(const std::string& value) {
-  if (DynamicStringHeader::write_value(source_path, DynamicHeader::SourcePath,
-                                       value)) {
+  if (DynamicStringHeader::write_value(source_path, DynamicHeader::SourcePath, value)) {
     static_headers.message_size = 0;
   }
 }

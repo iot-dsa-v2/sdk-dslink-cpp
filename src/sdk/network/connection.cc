@@ -31,11 +31,13 @@ void Connection::compute_secret() {
   dsa::HMAC hmac("sha256", *_shared_secret);
   hmac.update(*_other_salt);
   _auth = hmac.digest();
+  std::cout << _auth << std::endl;
 
   /* compute other auth */
   dsa::HMAC other_hmac("sha256", *_shared_secret);
   other_hmac.update(_app->security_context().salt());
   _other_auth = other_hmac.digest();
+  std::cout << _other_auth << std::endl;
 }
 
 bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type) {
