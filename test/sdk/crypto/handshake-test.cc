@@ -95,7 +95,7 @@ class BufferExt : public Buffer {
     uint8_t *ptr = _data;
     boost::format formater("%02x");
     std::string out;
-    for(uint i=0; i<_size; ++i) {
+    for(uint32_t i=0; i<_size; ++i) {
       formater % (int)_data[i];
       out += formater.str();
     }
