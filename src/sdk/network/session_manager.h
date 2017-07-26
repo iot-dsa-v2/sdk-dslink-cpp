@@ -9,6 +9,7 @@
 #include <atomic>
 #include <memory>
 
+#include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
 namespace dsa {
