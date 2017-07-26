@@ -11,9 +11,9 @@ class SubscribeRequestMessage : public RequestMessage {
   SubscribeRequestMessage(const SharedBuffer& buffer);
 
   std::unique_ptr<DynamicByteHeader> qos;
-  std::unique_ptr<DynamicByteHeader> update_frequency;
-  std::unique_ptr<DynamicByteHeader> queue_size;
-  std::unique_ptr<DynamicByteHeader> queue_time;
+  //std::unique_ptr<DynamicByteHeader> update_frequency;
+  std::unique_ptr<DynamicIntHeader> queue_size;
+  std::unique_ptr<DynamicIntHeader> queue_time;
 
  public:
   // measure the size and header size

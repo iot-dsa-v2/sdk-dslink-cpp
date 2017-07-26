@@ -4,33 +4,23 @@ namespace dsa {
 void SubscribeRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
-    uint8_t key = header->key();
+    uint8_t key = header->key();;
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
-    } 
-    else if (key == DynamicHeader::AliasCount) {
+    } else if (key == DynamicHeader::AliasCount) {
       alias_count.reset(static_cast<DynamicByteHeader*>(header));
-    } 
-    else if (key == DynamicHeader::TargetPath) {
+    } else if (key == DynamicHeader::TargetPath) {
       target_path.reset(static_cast<DynamicStringHeader*>(header));
-    } 
-    else if (key == DynamicHeader::PermissionToken) {
+    } else if (key == DynamicHeader::PermissionToken) {
       permission_token.reset(static_cast<DynamicStringHeader*>(header));
-    } 
-    else if (key == DynamicHeader::NoStream) {
+    } else if (key == DynamicHeader::NoStream) {
       no_stream.reset(static_cast<DynamicBoolHeader*>(header));
-    } 
-    else if (key == DynamicHeader::Qos) {
+    } else if (key == DynamicHeader::Qos) {
       qos.reset(static_cast<DynamicByteHeader*>(header));
-    } 
-    else if (key == DynamicHeader::QueueSize) {
-      queue_size.reset(static_cast<DynamicByteHeader*>(header));
-    } 
-    else if (key == DynamicHeader::QueueTime) {
-      queue_time.reset(static_cast<DynamicByteHeader*>(header));
-    } 
-    else if (key == DynamicHeader::UpdateFrequency) {
-      update_frequency.reset(static_cast<DynamicByteHeader*>(header));
+    } else if (key == DynamicHeader::QueueSize) {
+      queue_size.reset(static_cast<DynamicIntHeader*>(header));
+    } else if (key == DynamicHeader::QueueTime) {
+      queue_time.reset(static_cast<DynamicIntHeader*>(header));
     }
   }
 }
@@ -63,10 +53,6 @@ void SubscribeRequestMessage::write_dynamic_data(uint8_t* data) const {
   if (queue_time != nullptr) {
     queue_time->write(data);
     data += queue_time->size();
-  } 
-  if (update_frequency != nullptr) {
-    update_frequency->write(data);
-    data += update_frequency->size();
   }
 }
 void SubscribeRequestMessage::update_static_header() {
@@ -94,9 +80,6 @@ void SubscribeRequestMessage::update_static_header() {
   } 
   if (queue_time != nullptr) {
     header_size += queue_time->size();
-  } 
-  if (update_frequency != nullptr) {
-    header_size += update_frequency->size();
   }
 
   uint32_t message_size = header_size;

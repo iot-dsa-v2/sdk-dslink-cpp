@@ -4,20 +4,16 @@ namespace dsa {
 void InvokeResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
-    uint8_t key = header->key();
+    uint8_t key = header->key();;
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
-    } 
-    else if (key == DynamicHeader::Status) {
+    } else if (key == DynamicHeader::Status) {
       status.reset(static_cast<DynamicByteHeader*>(header));
-    }   
-    else if (key == DynamicHeader::SequenceId) {
+    } else if (key == DynamicHeader::SequenceId) {
       sequence_id.reset(static_cast<DynamicIntHeader*>(header));
-    } 
-    else if (key == DynamicHeader::PageId) {
+    } else if (key == DynamicHeader::PageId) {
       page_id.reset(static_cast<DynamicIntHeader*>(header));
-    } 
-    else if (key == DynamicHeader::Skippable) {
+    } else if (key == DynamicHeader::Skippable) {
       skippable.reset(static_cast<DynamicBoolHeader*>(header));
     }
   }
@@ -43,7 +39,7 @@ void InvokeResponseMessage::write_dynamic_data(uint8_t* data) const {
   if (skippable != nullptr) {
     skippable->write(data);
     data += skippable->size();
-  }; 
+  } 
   if (body != nullptr) {
     memcpy(data, body->data, body->size);
   }

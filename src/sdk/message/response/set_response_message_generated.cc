@@ -4,11 +4,10 @@ namespace dsa {
 void SetResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
-    uint8_t key = header->key();
+    uint8_t key = header->key();;
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
-    } 
-    else if (key == DynamicHeader::Status) {
+    } else if (key == DynamicHeader::Status) {
       status.reset(static_cast<DynamicByteHeader*>(header));
     }
   }
