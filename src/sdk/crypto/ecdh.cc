@@ -110,7 +110,7 @@ BufferPtr ECDH::compute_secret(Buffer &public_key) const {
   EC_POINT *pub = EC_POINT_new(group);
   int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
                              nullptr);
-  if ((r != 0) || pub == nullptr)
+  if ((r == 0) || pub == nullptr)
     throw std::runtime_error("secret couldn't be computed with given key");
 
   // NOTE: field_size is in bits

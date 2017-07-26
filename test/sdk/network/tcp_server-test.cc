@@ -17,12 +17,16 @@ TEST(TcpServerTest, OneClient) {
   ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
   tcp_server->start();
 
+  app->sleep(1000);
+
   ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
   tcp_client->connect();
 
+  app->sleep(2000);
+
   app->graceful_stop();
 
-  tcp_server->stop();
+//  tcp_server->stop();
 
   app->wait();
 }
