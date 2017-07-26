@@ -3,8 +3,11 @@
 
 #include <memory>
 #include <atomic>
+#include <map>
+#include <queue>
 
 #include <boost/asio.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 #include "app.h"
 #include "responder/outgoing_message_stream.h"
@@ -18,11 +21,15 @@ namespace dsa {
 class Session: public std::enable_shared_from_this<Session> {
  private:
   static std::atomic_long _session_count;
-  std::unique_ptr<boost::asio::io_service::strand> _strand;
+  std::atomic_long _stream_count;
   BufferPtr _session_id;
   ConnectionPtr _connection;
-  std::vector<OutgoingMessageStream> _outgoing_messages;
-  std::vector<IncomingMessageStream> _incoming_messages;
+  std::map<unsigned int, std::shared_ptr<OutgoingMessageStream>> _outgoing_streams;
+  std::queue<unsigned int> _ready_streams;
+
+  friend class OutgoingMessageStream;
+  std::unique_ptr<boost::asio::io_service::strand> _strand;
+  void add_ready_stream(unsigned int stream_id);
 
  public:
   explicit Session(BufferPtr session_id, const ConnectionPtr &connection = nullptr);
@@ -35,6 +42,7 @@ class Session: public std::enable_shared_from_this<Session> {
   void stop();
 
   void set_connection(const ConnectionPtr &connection) { _connection = connection; };
+
 };
 
 typedef std::shared_ptr<Session> SessionPtr;

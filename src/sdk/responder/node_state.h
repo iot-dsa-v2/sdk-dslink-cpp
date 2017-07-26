@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <boost/asio/strand.hpp>
 
@@ -13,7 +14,7 @@
 namespace dsa {
 
 // maintain streams of a node
-class NodeState {
+class NodeState : public std::enable_shared_from_this<NodeState> {
  private:
   boost::asio::io_service::strand _strand;
   std::string _path;
@@ -21,6 +22,8 @@ class NodeState {
   std::vector<std::shared_ptr<OutgoingMessageStream>> _subscription_streams;
   std::vector<std::shared_ptr<OutgoingMessageStream>> _list_streams;
   std::unique_ptr<ValueUpdate> _last_value;
+
+  void _handle_new_value(ValueUpdate value);
 
  public:
   explicit NodeState(boost::asio::io_service &io_service, std::string path);

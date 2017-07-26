@@ -24,4 +24,10 @@ void Session::stop() {
   }
 }
 
+void Session::add_ready_stream(unsigned int stream_id) {
+  _strand->post([=]() {
+    _ready_streams.push(stream_id);
+  });
+}
+
 }  // namespace dsa
