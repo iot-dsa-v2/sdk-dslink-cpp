@@ -151,9 +151,10 @@ TEST(HandshakeTest, ClientInfo) {
 	    BufferExt(*shared_secret).hexstr());
  
   // Auth
+#if 0
   const char server_salt[] = "eccbc87e4b5ce2fe28308fd9f2a7baf3a87ff679a2f3e71d9181a67b7542122c";
   Buffer server_salt_buffer;
-  server_salt_buffer.assign((uint8_t*) server_salt, sizeof(server_salt));
+  server_salt_buffer.assign((uint8_t*) server_salt, sizeof(server_salt)-1);
 
   std::cout << BufferExt(server_salt_buffer).hexstr() << std::endl;
 
@@ -162,15 +163,7 @@ TEST(HandshakeTest, ClientInfo) {
   dsa::HMAC hmac("sha256", *shared_secret);
   hmac.update(server_salt_buffer);
   std::cout << BufferExt(*hmac.digest()).hexstr() << std::endl;
-
-  /*
-          123456789012345678901234567890123456789012345678901234567890....
-actual:   4185d5b05c5614abb59533d2c13042f48a1380ab8def3836d7a5e20f9df55c42
-expected: f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fac8b2ba
-  */
-
-  // client calculate the auth with broker salt: =0x
-  // var clientAuth = crypto.createHmac('sha256', clientSharedSecret).update(brokerSalt).digest();
+#endif
 }
 
 
@@ -196,6 +189,35 @@ TEST(HandshakeTest, ServerInfo) {
   hash.update(*ecdh.get_public_key());
 
   EXPECT_EQ("g675gaSQogzMxjJFvL7HsCbyS8B0Ly2_Abhkw_-g4iI", base64url(hash.digest_base64()));
+
+  // Shared secret
+  char client_private_key[] = "55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59";
+  ECDH other_ecdh(curve_name);
+  other_ecdh.set_private_key_hex(client_private_key);
+  BufferPtr shared_secret = ecdh.compute_secret(*other_ecdh.get_public_key());
+
+  EXPECT_EQ("5f67b2cb3a0906afdcf5175ed9316762a8e18ce26053e8c51b760c489343d0d1",
+  	    BufferExt(*shared_secret).hexstr());
+
+}
+
+TEST(HandShakeTest, HMAC) {
+  const char key[] = "key";
+  dsa::Buffer key_buffer;
+  key_buffer.assign((uint8_t*)key, 3);
+
+  const char message[] = "The quick brown fox jumps over the lazy dog";
+  dsa::Buffer message_buffer;
+  message_buffer.assign((const uint8_t*)message, 43);
+
+  dsa::HMAC hmac("sha256", key_buffer);
+  hmac.update(message_buffer);
+
+  BufferPtr auth_message = hmac.digest();
+
+  EXPECT_EQ("f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8",
+	    BufferExt(*auth_message).hexstr());
+
 }
 
 
