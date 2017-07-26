@@ -66,7 +66,7 @@ bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) {
   BIGNUM *order = BN_new();
   if (order == nullptr)
     throw std::runtime_error("something went wrong, order can't be null");
-  bool result = (EC_GROUP_get_order(group, order, nullptr) == 0) &&
+  bool result = EC_GROUP_get_order(group, order, nullptr) &&
       (BN_cmp(private_key, order) < 0);
   BN_free(order);
   return result;

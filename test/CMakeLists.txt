@@ -41,6 +41,10 @@ find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
 
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+set(TEST_LIBS ${TEST_LIBS} ${OPENSSL_LIBRARIES})
+
 include_directories("../src/sdk")
 include_directories("../include")
 
