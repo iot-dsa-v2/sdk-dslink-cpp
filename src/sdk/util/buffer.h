@@ -24,8 +24,11 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
    public:
     const size_t size;
     const uint8_t * data;
+
     SharedBuffer(std::shared_ptr<Buffer> parent, const uint8_t * data, size_t size)
         : _parent_buf(std::move(parent)), data(data), size(size) {}
+
+    SharedBuffer(const SharedBuffer &buf) : _parent_buf(buf._parent_buf), size(buf.size), data(data) {}
   };
 
   // default constructor
@@ -95,6 +98,7 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
 typedef std::shared_ptr<Buffer> BufferPtr;
 typedef std::shared_ptr<Buffer::SharedBuffer> MessageBufferPtr;
 typedef Buffer::SharedBuffer SharedBuffer;
+typedef const Buffer::SharedBuffer ValueUpdate;
 
 }  // namespace dsa
 
