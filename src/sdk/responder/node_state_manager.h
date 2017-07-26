@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 
+#include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
 #include "network/app.h"

@@ -3,6 +3,16 @@ cmake_minimum_required(VERSION 3.7)
 
 set(CMAKE_CXX_STANDARD 11)
 
+find_package(Threads)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+if (UNIX)
+    set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
+    set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
+endif ()
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
+include_directories(${Boost_INCLUDE_DIRS})
+set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
+
 # LIBRARIES:
 set(LIB_CRYPTO "./crypto")
 set(LIB_MESSAGE "./message")
