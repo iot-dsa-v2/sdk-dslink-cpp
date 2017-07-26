@@ -151,19 +151,20 @@ TEST(HandshakeTest, ClientInfo) {
 	    BufferExt(*shared_secret).hexstr());
  
   // Auth
-#if 0
-  const char server_salt[] = "eccbc87e4b5ce2fe28308fd9f2a7baf3a87ff679a2f3e71d9181a67b7542122c";
+  // const char server_salt[] = "eccbc87e4b5ce2fe28308fd9f2a7baf3a87ff679a2f3e71d9181a67b7542122c";
+  const unsigned char server_salt[] = {0xec, 0xcb, 0xc8, 0x7e, 0x4b, 0x5c, 0xe2, 0xfe,
+                              0x28, 0x30, 0x8f, 0xd9, 0xf2, 0xa7, 0xba, 0xf3,
+                              0xa8, 0x7f, 0xf6, 0x79, 0xa2, 0xf3, 0xe7, 0x1d,
+			      0x91, 0x81, 0xa6, 0x7b, 0x75, 0x42, 0x12, 0x2c};
+
   Buffer server_salt_buffer;
-  server_salt_buffer.assign((uint8_t*) server_salt, sizeof(server_salt)-1);
-
-  std::cout << BufferExt(server_salt_buffer).hexstr() << std::endl;
-
-  std::cout << sizeof(server_salt) << std::endl;
+  server_salt_buffer.assign((uint8_t*) server_salt, sizeof(server_salt));
 
   dsa::HMAC hmac("sha256", *shared_secret);
   hmac.update(server_salt_buffer);
-  std::cout << BufferExt(*hmac.digest()).hexstr() << std::endl;
-#endif
+
+  EXPECT_EQ("f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fac8b2ba",
+	    BufferExt(*hmac.digest()).hexstr());
 }
 
 
@@ -199,7 +200,22 @@ TEST(HandshakeTest, ServerInfo) {
   EXPECT_EQ("5f67b2cb3a0906afdcf5175ed9316762a8e18ce26053e8c51b760c489343d0d1",
   	    BufferExt(*shared_secret).hexstr());
 
+  // Server Auth
+  // const char client_salt[] = "c4ca4238a0b923820dcc509a6f75849bc81e728d9d4c2f636f067f89cc14862c";
+  const unsigned char client_salt[] = {0xc4, 0xca, 0x42, 0x38, 0xa0, 0xb9, 0x23, 0x82,
+				       0x0d, 0xcc, 0x50, 0x9a, 0x6f, 0x75, 0x84, 0x9b,
+				       0xc8, 0x1e, 0x72, 0x8d, 0x9d, 0x4c, 0x2f, 0x63,
+				       0x6f, 0x06, 0x7f, 0x89, 0xcc, 0x14, 0x86, 0x2c};
+  dsa::Buffer client_salt_buffer;
+  client_salt_buffer.assign((uint8_t*) client_salt, sizeof(client_salt));
+
+  dsa::HMAC hmac("sha256", *shared_secret);
+  hmac.update(client_salt_buffer);
+
+  EXPECT_EQ("e709059f1ebb84cfb8c34d53fdba7fbf20b1fe3dff8c343050d2b5c7c62be85a",
+	    BufferExt(*hmac.digest()).hexstr());
 }
+
 
 TEST(HandShakeTest, HMAC) {
   const char key[] = "key";
