@@ -5,6 +5,7 @@ add_library(dsa_message OBJECT
         message_factory.cc
         static_header.cc
         dynamic_header.cc
+		subscribe_option.cc
         request/invoke_request_message.cc
         request/subscribe_request_message.cc
         request/list_request_message.cc
