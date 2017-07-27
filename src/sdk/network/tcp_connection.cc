@@ -92,7 +92,7 @@ void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
                                        boost::asio::placeholders::error));
 }
 
-void TcpConnection::start() throw() {
+void TcpConnection::start() throw(const std::runtime_error&) {
   if (_session == nullptr)
     throw std::runtime_error("Error: connection started with no session");
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
