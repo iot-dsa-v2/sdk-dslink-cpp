@@ -31,6 +31,9 @@ Buffer::Buffer(std::string data) : _size(data.size()), _capacity(data.size()) {
 }
 
 Buffer &Buffer::operator=(const Buffer &other) {
+  if (shared_from_this().use_count() > 2) {
+    throw std::runtime_error("Buffer =, can't not resize a buffer that's already shared");
+  }
   delete[] _data;
   _data = new uint8_t[other.capacity()];
   _size = other.size();
@@ -44,6 +47,9 @@ size_t Buffer::capacity() const { return _capacity; }
 size_t Buffer::size() const { return _size; }
 
 bool Buffer::resize(size_t capacity) {
+  if (shared_from_this().use_count() > 2) {
+    throw std::runtime_error("Buffer resize, can't not resize a buffer that's already shared");
+  }
   if (capacity <= _capacity)
     return false;
   auto new_data = new uint8_t[capacity];
@@ -68,8 +74,7 @@ uint8_t *Buffer::data() { return _data; }
 
 void Buffer::assign(const uint8_t *data, size_t size) {
   if (_capacity < size) {
-    delete[] _data;
-    _data = new uint8_t[size];
+    throw std::runtime_error("Buffer assign, not enough capacity");
   }
   _size = size;
   std::memcpy(_data, data, _size);
