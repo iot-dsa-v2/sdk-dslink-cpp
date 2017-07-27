@@ -4,7 +4,8 @@ namespace dsa {
 void ListRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
-    size += header->size();
+    data += header->size();
+    size -= header->size();
     uint8_t key = header->key();;
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
@@ -32,6 +33,10 @@ void ListRequestMessage::write_dynamic_data(uint8_t* data) const {
   if (permission_token != nullptr) {
     permission_token->write(data);
     data += permission_token->size();
+  } 
+  if (target_path != nullptr) {
+    target_path->write(data);
+    data += target_path->size();
   } 
   if (no_stream != nullptr) {
     no_stream->write(data);

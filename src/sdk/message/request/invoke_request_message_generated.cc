@@ -4,7 +4,8 @@ namespace dsa {
 void InvokeRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
-    size += header->size();
+    data += header->size();
+    size -= header->size();
     uint8_t key = header->key();;
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicByteHeader*>(header));
@@ -50,6 +51,10 @@ void InvokeRequestMessage::write_dynamic_data(uint8_t* data) const {
   if (max_permission != nullptr) {
     max_permission->write(data);
     data += max_permission->size();
+  } 
+  if (target_path != nullptr) {
+    target_path->write(data);
+    data += target_path->size();
   } 
   if (no_stream != nullptr) {
     no_stream->write(data);
