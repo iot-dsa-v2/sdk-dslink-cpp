@@ -179,6 +179,7 @@ data+=`
 void ${typename}::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
+    size += header->size();
     uint8_t key = header->key();`;
     if (configs.Priority) data+=`;
     if (key == DynamicHeader::Priority) {
