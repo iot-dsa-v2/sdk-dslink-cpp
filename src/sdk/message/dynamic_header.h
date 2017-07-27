@@ -1,9 +1,9 @@
 #ifndef DSA_SDK_DYNAMIC_HEADER_H
 #define DSA_SDK_DYNAMIC_HEADER_H
 
-#include <cstdint>
-#include <memory>
 #include <string>
+
+#include "../util/exception.h"
 
 namespace dsa {
 
@@ -36,7 +36,7 @@ class DynamicHeader {
   };
 
   static DynamicHeader *parse(const uint8_t *data,
-                              uint16_t size) throw(const std::runtime_error&);
+                              uint16_t size) throw(const MessageParsingError&);
 
   uint8_t key() const { return _key; }
 

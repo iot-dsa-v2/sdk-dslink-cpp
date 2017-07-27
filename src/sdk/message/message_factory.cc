@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "message_factory.h"
 
 #include "request/invoke_request_message.h"
@@ -13,7 +15,7 @@
 namespace dsa {
 
 Message* parseMessage(const SharedBuffer& buffer) throw(
-const std::runtime_error&) {
+const MessageParsingError&) {
   if (buffer.size < StaticHeaders::TotalSize) {
     return nullptr;
   }
@@ -37,7 +39,7 @@ const std::runtime_error&) {
     case MessageType::SetResponse:
       return new SetResponseMessage(buffer);
     default:
-      throw std::runtime_error("invalid message type");
+      throw MessageParsingError("invalid message type");
   }
 }
 

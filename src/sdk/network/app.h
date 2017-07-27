@@ -5,7 +5,6 @@
 #ifndef DSA_SDK_NETWORK_APP_H_
 #define DSA_SDK_NETWORK_APP_H_
 
-#include <memory>
 #include <string>
 #include <mutex>
 #include <unordered_map>

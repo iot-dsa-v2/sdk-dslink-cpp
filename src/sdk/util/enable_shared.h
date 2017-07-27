@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_UTIL_ENABLE_SHARED_H_
 #define DSA_SDK_UTIL_ENABLE_SHARED_H_
 
-#include <memory>
 #include <stdexcept>
 
 namespace dsa {

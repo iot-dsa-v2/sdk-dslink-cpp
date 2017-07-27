@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "tcp_connection.h"
 
 #include <boost/bind.hpp>

@@ -7,7 +7,6 @@
 
 #include <atomic>
 #include <map>
-#include <memory>
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>

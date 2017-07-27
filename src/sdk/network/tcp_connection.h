@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_TCP_CONNECTION_H_
 #define DSA_SDK_TCP_CONNECTION_H_
 
-#include <memory>
 
 #include <boost/asio.hpp>
 
@@ -35,7 +34,7 @@ class TcpConnection : virtual public Connection {
 
   void close() override;
   void connect() override = 0;
-  void start() throw() override;
+  void start() throw(const std::runtime_error&) override;
 };
 
 // TCP server side connection.

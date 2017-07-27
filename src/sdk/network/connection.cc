@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "connection.h"
 
 #include <boost/asio.hpp>

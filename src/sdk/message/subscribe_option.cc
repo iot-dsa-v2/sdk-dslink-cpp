@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "subscribe_option.h"
 
 namespace dsa {

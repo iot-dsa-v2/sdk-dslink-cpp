@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "security_context.h"
 
 #include "connection.h"

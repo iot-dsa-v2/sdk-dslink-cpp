@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "gracefully_closable.h"
 
 #include <utility>

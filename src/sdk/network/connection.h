@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_CONNECTION_H_
 #define DSA_SDK_CONNECTION_H_
 
-#include <memory>
 #include <functional>
 #include <atomic>
 #include <utility>

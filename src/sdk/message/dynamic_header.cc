@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "dynamic_header.h"
 
 #include <limits>
@@ -6,12 +8,12 @@ namespace dsa {
 
 DynamicHeader::DynamicHeader(uint8_t key, size_t size) : _key(key) {
   if (size > std::numeric_limits<uint16_t>::max())
-    throw std::runtime_error("Header size too large");
+    throw MessageParsingError("Header size too large");
   _size = uint16_t(size);
 }
 
 DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
-    const std::runtime_error &) {
+    const MessageParsingError &) {
   switch (*data) {
     case Status:
     case SequenceId:
@@ -26,7 +28,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
       if (size >= 2) {
         return new DynamicByteHeader(data);
       }
-      throw std::runtime_error("invalid size for DynamicByteHeader");
+      throw MessageParsingError("invalid size for DynamicByteHeader");
     }
     case BasePath:
     case PermissionToken:
@@ -41,17 +43,17 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
               std::string((char *)data + 3, (size_t)str_size));
         }
       }
-      throw std::runtime_error("invalid size for DynamicStringHeader");
+      throw MessageParsingError("invalid size for DynamicStringHeader");
     }
     case NoStream:
     case Skippable: {
       if (size >= 1) {
         return new DynamicBoolHeader(data);
       }
-      throw std::runtime_error("invalid size for DynamicBoolHeader");
+      throw MessageParsingError("invalid size for DynamicBoolHeader");
     }
     default:
-      throw std::runtime_error("invalid dynamic header key");
+      throw MessageParsingError("invalid dynamic header key");
   }
 }
 

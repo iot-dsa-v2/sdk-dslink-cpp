@@ -2,8 +2,6 @@
 #define DSA_SDK_SUBSCRIBE_OPTION_H
 
 #include <cstddef>
-#include <cstdint>
-
 namespace dsa {
 
 struct SubscribeOption {

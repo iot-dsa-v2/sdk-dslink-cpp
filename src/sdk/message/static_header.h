@@ -2,7 +2,6 @@
 #define DSA_SDK_STATIC_HEADER_H
 
 #include <cstddef>
-#include <cstdint>
 namespace dsa {
 
 enum MessageType : uint8_t {  // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Header-Structure.md

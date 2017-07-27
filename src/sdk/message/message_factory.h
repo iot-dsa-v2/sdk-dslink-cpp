@@ -2,12 +2,13 @@
 #define DSA_SDK_MESSAGE_MESSAGE_FACTORY_H_
 
 #include "../util/buffer.h"
+#include "../util/exception.h"
 #include "base_message.h"
 
 namespace dsa {
 
 Message* parseMessage(const SharedBuffer& buffer) throw(
-    const std::runtime_error&);
+    const MessageParsingError&);
 
 }  // namespace dsa
 

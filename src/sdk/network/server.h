@@ -7,7 +7,6 @@
 #include <atomic>
 #include <utility>
 #include <map>
-#include <memory>
 
 #include "gracefully_closable.h"
 #include "util/buffer.h"

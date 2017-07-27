@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "node_model.h"
 
 #include "node_state.h"

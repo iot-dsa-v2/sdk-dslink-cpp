@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_TCP_SERVER_H_
 #define DSA_SDK_TCP_SERVER_H_
 
-#include <memory>
 
 #include <boost/asio.hpp>
 

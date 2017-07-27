@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "app.h"
 
 #include <boost/asio.hpp>

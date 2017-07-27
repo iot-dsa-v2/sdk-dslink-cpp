@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_BASE_MESSAGE_H_
 #define DSA_SDK_BASE_MESSAGE_H_
 
-#include <memory>
 
 #include "../util/buffer.h"
 #include "dynamic_header.h"
@@ -19,7 +18,7 @@ class Message {
   uint32_t size() const { return static_headers.message_size; }
 
   // update_static_header must be called before write
-  void write(uint8_t* data) const throw(const std::runtime_error&);
+  void write(uint8_t* data) const throw(const MessageParsingError&);
   // measure the size and header size
   virtual void update_static_header() = 0;
 

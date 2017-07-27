@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "outgoing_message_stream.h"
 
 #include "network/session.h"

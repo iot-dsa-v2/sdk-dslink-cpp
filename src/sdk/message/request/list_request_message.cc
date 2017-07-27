@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "list_request_message.h"
 
 namespace dsa {

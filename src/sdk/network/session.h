@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_SESSION_H_
 #define DSA_SDK_SESSION_H_
 
-#include <memory>
 #include <atomic>
 #include <map>
 #include <queue>

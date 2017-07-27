@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "invoke_request_message.h"
 
 namespace dsa {

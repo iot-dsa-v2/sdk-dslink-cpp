@@ -2,7 +2,6 @@
 #define DSA_SDK_CRYPTO_ECDH_H_
 
 #include <vector>
-#include <memory>
 
 #include <openssl/ec.h>
 

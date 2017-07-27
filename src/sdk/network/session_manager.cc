@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "session_manager.h"
 
 #include "session.h"

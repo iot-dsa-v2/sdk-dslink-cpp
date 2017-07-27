@@ -1,13 +1,15 @@
+#include "dsa_common.h"
+
 #include "base_message.h"
 
 namespace dsa {
 Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data){};
 Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
 
-void Message::write(uint8_t* data) const throw(const std::runtime_error&) {
+void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
   if (!static_headers.message_size) {
     // message_size shouldn't be 0
-    throw std::runtime_error("invalid message size");
+    throw MessageParsingError("invalid message size");
   }
   static_headers.write(data);
   write_dynamic_data(data + StaticHeaders::TotalSize);

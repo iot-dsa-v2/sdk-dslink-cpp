@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_NODE_MODEL_H_
 #define DSA_SDK_NODE_MODEL_H_
 
-#include <memory>
 #include <vector>
 
 #include "dsa/util.h"

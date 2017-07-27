@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "server.h"
 
 #include "session.h"

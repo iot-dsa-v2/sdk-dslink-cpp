@@ -1,6 +1,7 @@
 #ifndef DSA_SDK_MESSAGE_H_
 #define DSA_SDK_MESSAGE_H_
 
+#include "dsa_common.h"
 #include "message/request/invoke_request_message.h"
 #include "message/response/invoke_response_message.h"
 #include "message/request/list_request_message.h"

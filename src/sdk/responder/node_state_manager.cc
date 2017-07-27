@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "node_state_manager.h"
 
 namespace dsa {
