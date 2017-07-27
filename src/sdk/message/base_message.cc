@@ -2,6 +2,7 @@
 
 namespace dsa {
 Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data){};
+Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
 
 void Message::write(uint8_t* data) const throw(const std::runtime_error&) {
   if (!static_headers.message_size) {
@@ -42,6 +43,7 @@ void Message::set_page_id(int32_t value) {
 }
 
 RequestMessage::RequestMessage(const SharedBuffer& buffer) : Message(buffer){};
+RequestMessage::RequestMessage(MessageType type) : Message(type){};
 
 const std::string& RequestMessage::get_target_path() const {
   return DynamicStringHeader::read_value(target_path);
@@ -85,13 +87,14 @@ void RequestMessage::set_alias_count(uint8_t value) {
 
 ResponseMessage::ResponseMessage(const SharedBuffer& buffer)
     : Message(buffer){};
-
+ResponseMessage::ResponseMessage(MessageType type) : Message(type){};
 const std::string& ResponseMessage::get_source_path() const {
   return DynamicStringHeader::read_value(source_path);
 }
 
 void ResponseMessage::set_source_path(const std::string& value) {
-  if (DynamicStringHeader::write_value(source_path, DynamicHeader::SourcePath, value)) {
+  if (DynamicStringHeader::write_value(source_path, DynamicHeader::SourcePath,
+                                       value)) {
     static_headers.message_size = 0;
   }
 }

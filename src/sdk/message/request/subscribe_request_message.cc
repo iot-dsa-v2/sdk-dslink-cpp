@@ -1,11 +1,14 @@
 #include "subscribe_request_message.h"
 
 namespace dsa {
+
 SubscribeRequestMessage::SubscribeRequestMessage(const SharedBuffer& buffer)
     : RequestMessage(buffer) {
   parse_dynamic_headers(buffer.data + StaticHeaders::TotalSize,
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
+
+SubscribeRequestMessage::SubscribeRequestMessage() : RequestMessage(MessageType::SubscribeRequest){};
 
 SubscribeOption::Qos SubscribeRequestMessage::get_qos() const {
   return static_cast<SubscribeOption::Qos>(DynamicByteHeader::read_value(qos));
@@ -41,16 +44,5 @@ SubscribeOption SubscribeRequestMessage::get_subscribe_option() const {
 }
 void SubscribeRequestMessage::set_subscribe_option(
     const SubscribeOption& option) {}
-
-/*
-
-uint8_t ResponseMessage::get_status() const {
-  return DynamicByteHeader::read_value(status);
-}
-void ResponseMessage::set_status(uint8_t value) {
-  if (DynamicByteHeader::write_value(status, DynamicHeader::Status, value)) {
-    static_headers.message_size = 0;
-  }
-}*/
 
 }  // namespace dsa

@@ -9,7 +9,9 @@ namespace dsa {
 class InvokeResponseMessage : public ResponseMessage {
  public:
   std::unique_ptr<DynamicBoolHeader> skippable;
+
   InvokeResponseMessage(const SharedBuffer& buffer);
+  InvokeResponseMessage();
 
  public:
   // measure the size and header size

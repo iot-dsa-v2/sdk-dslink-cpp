@@ -9,6 +9,7 @@ namespace dsa {
 class InvokeRequestMessage : public RequestMessage {
  public:
   InvokeRequestMessage(const SharedBuffer& buffer);
+  InvokeRequestMessage();
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicByteHeader> max_permission;

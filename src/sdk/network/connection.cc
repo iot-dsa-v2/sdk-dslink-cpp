@@ -218,7 +218,7 @@ size_t Connection::load_f0(Buffer &buf) {
   buf.resize(MinF0Length + _app->security_context().dsid().size());
 
   // leave message size blank for now
-  StaticHeaders header(0, StaticHeaders::TotalSize, 0xf0, 0, 0);
+  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake0, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = StaticHeaders::TotalSize;
@@ -244,7 +244,7 @@ size_t Connection::load_f1(Buffer &buf) {
   buf.resize(MinF1Length + dsid_length);
 
   // leave message size blank for now
-  StaticHeaders header(0, StaticHeaders::TotalSize, 0xf1, 0, 0);
+  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake1, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = StaticHeaders::TotalSize;
@@ -268,7 +268,7 @@ size_t Connection::load_f2(Buffer &buf) {
   buf.resize(MinF2Length + token_length);
 
   // leave message size blank for now
-  StaticHeaders header(0, StaticHeaders::TotalSize, 0xf2, 0, 0);
+  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake2, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = StaticHeaders::TotalSize;
@@ -299,7 +299,7 @@ size_t Connection::load_f3(Buffer &buf) {
   buf.resize(MinF2Length + session_id_length);
 
   // leave message size blank for now
-  StaticHeaders header(0, StaticHeaders::TotalSize, 0xf3, 0, 0);
+  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake3, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
   uint32_t cur = StaticHeaders::TotalSize;

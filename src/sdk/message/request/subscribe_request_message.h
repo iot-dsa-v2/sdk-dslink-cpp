@@ -10,6 +10,7 @@ namespace dsa {
 class SubscribeRequestMessage : public RequestMessage {
  public:
   SubscribeRequestMessage(const SharedBuffer& buffer);
+  SubscribeRequestMessage();
 
  public:
   // measure the size and header size

@@ -9,6 +9,7 @@ namespace dsa {
 class SetRequestMessage : public RequestMessage {
  public:
   SetRequestMessage(const SharedBuffer& buffer);
+  SetRequestMessage();
 
  public:
   // measure the size and header size

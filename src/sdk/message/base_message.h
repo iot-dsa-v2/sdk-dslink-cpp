@@ -11,19 +11,10 @@ namespace dsa {
 
 class Message {
  public:
-  enum {  // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Header-Structure.md
-    SUBSCRIBE_REQUEST_TYPE = 0x01,
-    LIST_REQUEST_TYPE = 0x02,
-    INVOKE_REQUEST_TYPE = 0x03,
-    SET_REQUEST_TYPE = 0x04,
-    SUBSCRIBE_RESPONSE_TYPE = 0x81,
-    LIST_RESPONSE_TYPE = 0x82,
-    INVOKE_RESPONSE_TYPE = 0x83,
-    SET_RESPONSE_TYPE = 0x84
-  };
 
  public:
   explicit Message(const SharedBuffer& buffer);
+  Message(MessageType type);
 
   uint32_t size() const { return static_headers.message_size; }
 
@@ -59,6 +50,7 @@ class Message {
 class RequestMessage : public Message {
  public:
   explicit RequestMessage(const SharedBuffer& buffer);
+  RequestMessage(MessageType type);
 
  protected:
   std::unique_ptr<DynamicStringHeader> target_path;
@@ -83,14 +75,15 @@ class RequestMessage : public Message {
 class ResponseMessage : public Message {
  public:
   explicit ResponseMessage(const SharedBuffer& buffer);
+  ResponseMessage(MessageType type);
 
  protected:
   std::unique_ptr<DynamicStringHeader> source_path;
   std::unique_ptr<DynamicByteHeader> status;
 
  public:
-  const std::string &get_source_path() const;
-  void set_source_path(const std::string &value);
+  const std::string& get_source_path() const;
+  void set_source_path(const std::string& value);
 
   uint8_t get_status() const;
   void set_status(uint8_t value);

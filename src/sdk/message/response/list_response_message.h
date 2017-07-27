@@ -11,6 +11,7 @@ class ListResponseMessage : public ResponseMessage {
   std::unique_ptr<DynamicStringHeader> base_path;
 
   ListResponseMessage(const SharedBuffer& buffer);
+  ListResponseMessage();
 
  public:
   // measure the size and header size

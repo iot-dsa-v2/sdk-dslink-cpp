@@ -20,21 +20,21 @@ const std::runtime_error&) {
   uint8_t type = buffer.data[StaticHeaders::TypeOffset];
 
   switch (type) {
-    case Message::SUBSCRIBE_REQUEST_TYPE:
+    case MessageType::SubscribeRequest:
       return new SubscribeRequestMessage(buffer);
-    case Message::LIST_REQUEST_TYPE:
+    case MessageType::ListRequest:
       return new ListRequestMessage(buffer);
-    case Message::INVOKE_REQUEST_TYPE:
+    case MessageType::InvokeRequest:
       return new InvokeRequestMessage(buffer);
-    case Message::SET_REQUEST_TYPE:
+    case MessageType::SetRequest:
       return new SetRequestMessage(buffer);
-    case Message::SUBSCRIBE_RESPONSE_TYPE:
+    case MessageType::SubscribeResponse:
       return new SubscribeResponseMessage(buffer);
-    case Message::LIST_RESPONSE_TYPE:
+    case MessageType::ListResponse:
       return new ListResponseMessage(buffer);
-    case Message::INVOKE_RESPONSE_TYPE:
+    case MessageType::InvokeResponse:
       return new InvokeResponseMessage(buffer);
-    case Message::SET_RESPONSE_TYPE:
+    case MessageType::SetResponse:
       return new SetResponseMessage(buffer);
     default:
       throw std::runtime_error("invalid message type");
