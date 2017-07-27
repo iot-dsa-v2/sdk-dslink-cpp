@@ -24,7 +24,7 @@ class Session: public std::enable_shared_from_this<Session> {
   std::atomic_long _stream_count;
   BufferPtr _session_id;
   ConnectionPtr _connection;
-  std::map<unsigned int, std::shared_ptr<OutgoingMessageStream>> _outgoing_streams;
+  std::map<uint32_t, std::shared_ptr<OutgoingMessageStream>> _outgoing_streams;
   std::queue<unsigned int> _ready_streams;
 
   friend class OutgoingMessageStream;

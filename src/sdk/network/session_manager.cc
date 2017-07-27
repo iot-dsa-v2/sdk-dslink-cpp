@@ -4,14 +4,14 @@
 
 namespace dsa {
 
-SessionPtr SessionManager::get_session(const std::string &session_id) {
+SessionPtr SessionManager::get_session(const std::string &dsid, const std::string &session_id) {
   boost::upgrade_lock <boost::shared_mutex> lock(_sessions_key);
   if (_sessions.count(session_id) != 0)
     return _sessions.at(session_id);
   return nullptr;
 }
 
-SessionPtr SessionManager::create_session() {
+SessionPtr SessionManager::create_session(const std::string &dsid) {
   std::string session_id = get_new_session_id();
   auto session = std::make_shared<Session>(session_id);
 

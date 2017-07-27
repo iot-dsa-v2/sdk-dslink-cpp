@@ -23,7 +23,7 @@ App::App(std::string name, std::shared_ptr<boost::asio::io_service> io_service)
     : _name(name), _io_service(std::move(io_service)), _security_context(new SecurityContext(name + "-")),
       _threads(new boost::thread_group) {}
 
-void worker_thread(const std::shared_ptr<boost::asio::io_service> &io_service) {
+void run_worker_thread(const std::shared_ptr<boost::asio::io_service> &io_service) {
   while (true) {
     try {
       boost::system::error_code err;
@@ -65,7 +65,7 @@ void App::async_start(unsigned int thread_count) {
   _work.reset(new io_service_work(*_io_service));
 
   for (size_t i = 0; i < thread_count; ++i)
-    _threads->create_thread(boost::bind(worker_thread, _io_service));
+    _threads->create_thread(boost::bind(run_worker_thread, _io_service));
 }
 
 void App::wait() {

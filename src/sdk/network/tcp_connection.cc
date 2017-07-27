@@ -157,8 +157,9 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error, si
   if (!error /* && !destroyed() */ && parse_f2(bytes_transferred)) {
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
-      _session = server->session_manager()->get_session(_session_id->to_string());
-      if (_session == nullptr) _session = server->session_manager()->create_session();
+      std::string session_id = _session_id->to_string();
+      _session = server->session_manager()->get_session(_app->security_context().dsid(), session_id);
+      if (_session == nullptr) _session = server->session_manager()->create_session(_app->security_context().dsid());
     } else {
       // if server no longer exists, connection needs to shutdown
       return;
