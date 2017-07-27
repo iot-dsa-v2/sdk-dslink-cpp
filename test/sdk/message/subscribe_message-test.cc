@@ -14,8 +14,7 @@ TEST(MessageTest, subscribe_request_message) {
   SubscribeOption option = subscribe_request.get_subscribe_option();
   EXPECT_EQ(SubscribeOption::Qos2, option.qos);
 
-  std::shared_ptr<Buffer> b = std::make_shared<Buffer>();
-  b->resize(256);
+  std::shared_ptr<Buffer> b = std::make_shared<Buffer>(256);
 
   subscribe_request.update_static_header();
   EXPECT_EQ(17, subscribe_request.size());
