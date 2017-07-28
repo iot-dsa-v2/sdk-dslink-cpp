@@ -141,9 +141,9 @@ const messages = {
     "Subscribe":{
       "Body":true,
       "Priority":true,
-      "Status":false,
-      "SequenceId":false,
-      "PageId":false,
+      "Status":true,
+      "SequenceId":true,
+      "PageId":true,
       "AliasCount":false,
       "TargetPath":false,
       "PermissionToken":false,
@@ -153,7 +153,7 @@ const messages = {
       "QueueSize":false,
       "QueueTime":false,
       "BasePath":false,
-      "SourcePath":false,
+      "SourcePath":true,
       "Skippable":false,
       
     }
