@@ -10,7 +10,7 @@ void InvokeRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t siz
     size -= header->size();
     uint8_t key = header->key();;
     if (key == DynamicHeader::Priority) {
-      priority.reset(static_cast<DynamicByteHeader*>(header));
+      priority.reset(static_cast<DynamicBoolHeader*>(header));
     } else if (key == DynamicHeader::SequenceId) {
       sequence_id.reset(static_cast<DynamicIntHeader*>(header));
     } else if (key == DynamicHeader::PageId) {

@@ -31,13 +31,13 @@ class Message {
 
   std::unique_ptr<SharedBuffer> body;
 
-  std::unique_ptr<DynamicByteHeader> priority;
+  std::unique_ptr<DynamicBoolHeader> priority;
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
 
  public:
-  uint8_t get_priority() const;
-  void set_priority(uint8_t value);
+  bool get_priority() const;
+  void set_priority(bool value);
 
   int32_t get_sequence_id() const;
   void set_sequence_id(int32_t value);

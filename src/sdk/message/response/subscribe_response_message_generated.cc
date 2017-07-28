@@ -10,7 +10,7 @@ void SubscribeResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t
     size -= header->size();
     uint8_t key = header->key();;
     if (key == DynamicHeader::Priority) {
-      priority.reset(static_cast<DynamicByteHeader*>(header));
+      priority.reset(static_cast<DynamicBoolHeader*>(header));
     }
   }
 }

@@ -15,11 +15,11 @@ void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
   write_dynamic_data(data + StaticHeaders::TotalSize);
 }
 
-uint8_t Message::get_priority() const {
-  return DynamicByteHeader::read_value(priority);
+bool Message::get_priority() const {
+  return DynamicBoolHeader::read_value(priority);
 }
-void Message::set_priority(uint8_t value) {
-  if (DynamicByteHeader::write_value(priority, DynamicHeader::Priority,
+void Message::set_priority(bool value) {
+  if (DynamicBoolHeader::write_value(priority, DynamicHeader::Priority,
                                      value)) {
     static_headers.message_size = 0;
   }
