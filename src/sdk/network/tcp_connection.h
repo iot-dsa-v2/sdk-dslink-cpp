@@ -24,7 +24,7 @@ class TcpConnection : virtual public Connection {
 
  public:
   explicit TcpConnection(std::shared_ptr<App> app, const Config &config);
-  ~TcpConnection() override { _socket.close(); }
+  ~TcpConnection() override {}
 
   void write_handler(WriteHandler callback, const boost::system::error_code &error);
 

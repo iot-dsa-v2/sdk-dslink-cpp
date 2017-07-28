@@ -13,7 +13,7 @@ TcpConnection::TcpConnection(std::shared_ptr<App> app, const Config &config)
 }
 
 void TcpConnection::close() {
-  _socket.cancel();
+  _socket.close();
   _deadline->cancel();
 }
 
