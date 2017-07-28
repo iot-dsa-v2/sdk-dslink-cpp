@@ -12,4 +12,11 @@ SubscribeResponseMessage::SubscribeResponseMessage(const SharedBuffer& buffer)
 SubscribeResponseMessage::SubscribeResponseMessage()
     : ResponseMessage(MessageType::SubscribeResponse) {}
 
+const ParsedMessageValue* SubscribeResponseMessage::get_value() {
+  if (body != nullptr) {
+    _parsed_value.reset(new ParsedMessageValue(*body));
+  }
+  return _parsed_value.get();
+}
+
 }  // namespace dsa

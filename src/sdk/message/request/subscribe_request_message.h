@@ -1,5 +1,5 @@
-#ifndef DSA_SUBSCRIBE_INVOKE_REQUEST_MESSAGE_H_
-#define DSA_SUBSCRIBE_INVOKE_REQUEST_MESSAGE_H_
+#ifndef DSA_SUBSCRIBE_REQUEST_MESSAGE_H_
+#define DSA_SUBSCRIBE_REQUEST_MESSAGE_H_
 
 #include "../../util/buffer.h"
 #include "../base_message.h"
@@ -44,4 +44,4 @@ public:
 
 }  // namespace dsa
 
-#endif  // DSA_SUBSCRIBE_INVOKE_REQUEST_MESSAGE_H_
+#endif  // DSA_SUBSCRIBE_REQUEST_MESSAGE_H_

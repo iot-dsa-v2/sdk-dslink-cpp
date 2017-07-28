@@ -6,6 +6,7 @@ add_library(dsa_message OBJECT
         static_header.cc
         dynamic_header.cc
 		subscribe_option.cc
+		parsed_message_value.cc
         request/invoke_request_message.cc
         request/subscribe_request_message.cc
         request/list_request_message.cc

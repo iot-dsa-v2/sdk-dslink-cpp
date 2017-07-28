@@ -3,10 +3,14 @@
 
 #include "../../util/buffer.h"
 #include "../base_message.h"
+#include "../parsed_message_value.h"
 
 namespace dsa {
 
 class SubscribeResponseMessage : public ResponseMessage {
+ private:
+  std::unique_ptr<ParsedMessageValue> _parsed_value;
+
  public:
   SubscribeResponseMessage(const SharedBuffer& buffer);
   SubscribeResponseMessage();
@@ -14,6 +18,8 @@ class SubscribeResponseMessage : public ResponseMessage {
  public:
   // measure the size and header size
   void update_static_header();
+
+  const ParsedMessageValue* get_value();
 
  protected:
   // write dynamic header and body
