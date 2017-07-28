@@ -12,6 +12,7 @@ class InvokeResponseMessage : public ResponseMessage {
 
   InvokeResponseMessage(const SharedBuffer& buffer);
   InvokeResponseMessage();
+  InvokeResponseMessage(const InvokeResponseMessage&);
 
  public:
   // measure the size and header size

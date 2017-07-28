@@ -160,16 +160,86 @@ const messages = {
   }
 };
 
-function gen_source(path, typename, header, configs) {
+function gen_source(path, typename, baseTypeName, header, configs) {
 
 let data = `#include "dsa_common.h"
 
 #include "${header}"`;
 data+=`
 
-namespace dsa {`;
+namespace dsa {
+`;
 
-data+=`
+    data+=`
+${typename}::${typename}(const ${typename}& from)
+    : ${baseTypeName}(from.static_headers) {`;    
+    if (configs.Priority) data+=` 
+  if (from.priority != nullptr) {
+     priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+  }`;    
+    if (configs.Status) data+=` 
+  if (from.status != nullptr) {
+    status.reset(new DynamicByteHeader(DynamicHeader::Status, from.status->value()));
+  }`;    
+    if (configs.SequenceId) data+=` 
+  if (from.sequence_id != nullptr) {
+    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SequenceId, from.sequence_id->value()));
+  }`;    
+    if (configs.PageId) data+=` 
+  if (from.page_id != nullptr) {
+    page_id.reset(new DynamicIntHeader(DynamicHeader::PageId, from.page_id->value()));
+  }`;    
+    if (configs.AliasCount) data+=` 
+  if (from.alias_count != nullptr) {
+    alias_count.reset(new DynamicByteHeader(DynamicHeader::AliasCount, from.alias_count->value()));
+  }`;    
+    if (configs.PermissionToken) data+=` 
+  if (from.permission_token != nullptr) {
+    permission_token.reset(new DynamicStringHeader(DynamicHeader::PermissionToken, from.permission_token->value()));
+  }`;    
+    if (configs.MaxPermission) data+=` 
+  if (from.max_permission != nullptr) {
+    max_permission.reset(new DynamicByteHeader(DynamicHeader::MaxPermission, from.max_permission->value()));
+  }`;
+      if (configs.TargetPath) data+=` 
+  if (from.target_path != nullptr) {
+    target_path.reset(new DynamicStringHeader(DynamicHeader::TargetPath, from.target_path->value()));
+  }`;   
+    if (configs.NoStream) data+=` 
+  if (from.no_stream != nullptr) {
+    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NoStream));
+  }`;    
+    if (configs.Qos) data+=` 
+  if (from.qos != nullptr) {
+    qos.reset(new DynamicByteHeader(DynamicHeader::Qos, from.qos->value()));
+  }`;    
+    if (configs.QueueSize) data+=` 
+  if (from.queue_size != nullptr) {
+    queue_size.reset(new DynamicIntHeader(DynamicHeader::QueueSize, from.queue_size->value()));
+  }`;    
+    if (configs.QueueTime) data+=` 
+  if (from.queue_time != nullptr) {
+    queue_time.reset(new DynamicIntHeader(DynamicHeader::QueueTime, from.queue_time->value()));
+  }`;     
+    if (configs.BasePath) data+=` 
+  if (from.base_path != nullptr) {
+    base_path.reset(new DynamicStringHeader(DynamicHeader::BasePath, from.base_path->value()));
+  }`;    
+    if (configs.SourcePath) data+=` 
+  if (from.source_path != nullptr) {
+    source_path.reset(new DynamicStringHeader(DynamicHeader::SourcePath, from.source_path->value()));
+  }`;    
+    if (configs.Skippable) data+=` 
+  if (from.skippable != nullptr) {
+    skippable.reset(new DynamicBoolHeader(DynamicHeader::Skippable));
+  }`;
+    if (configs.Body) data+=` 
+  if (from.body != nullptr) {
+    body.reset(new SharedBuffer(*from.body));
+  }`;
+    data+=`
+}
+
 void ${typename}::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
@@ -308,6 +378,7 @@ void ${typename}::write_dynamic_data(uint8_t* data) const {`;
   }`;
     data+=`
 }
+
 void ${typename}::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize;`;
     if (configs.Priority) data+=` 
@@ -396,6 +467,7 @@ for (type in messages){
     gen_source(
       `${type_l}/${method_l}_${type_l}_message_generated.cc`, 
       `${method}${type}Message`,
+      `${type}Message`,
       `${method_l}_${type_l}_message.h`,
       configs
     );

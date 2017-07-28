@@ -12,6 +12,7 @@ class ListResponseMessage : public ResponseMessage {
 
   ListResponseMessage(const SharedBuffer& buffer);
   ListResponseMessage();
+  ListResponseMessage(const ListResponseMessage&);
 
  public:
   // measure the size and header size

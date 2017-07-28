@@ -3,6 +3,29 @@
 #include "list_response_message.h"
 
 namespace dsa {
+
+ListResponseMessage::ListResponseMessage(const ListResponseMessage& from)
+    : ResponseMessage(from.static_headers) { 
+  if (from.priority != nullptr) {
+     priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+  } 
+  if (from.status != nullptr) {
+    status.reset(new DynamicByteHeader(DynamicHeader::Status, from.status->value()));
+  } 
+  if (from.sequence_id != nullptr) {
+    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SequenceId, from.sequence_id->value()));
+  } 
+  if (from.base_path != nullptr) {
+    base_path.reset(new DynamicStringHeader(DynamicHeader::BasePath, from.base_path->value()));
+  } 
+  if (from.source_path != nullptr) {
+    source_path.reset(new DynamicStringHeader(DynamicHeader::SourcePath, from.source_path->value()));
+  } 
+  if (from.body != nullptr) {
+    body.reset(new SharedBuffer(*from.body));
+  }
+}
+
 void ListResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
@@ -48,6 +71,7 @@ void ListResponseMessage::write_dynamic_data(uint8_t* data) const {
     memcpy(data, body->data, body->size);
   }
 }
+
 void ListResponseMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize; 
   if (priority != nullptr) {

@@ -3,6 +3,17 @@
 #include "set_response_message.h"
 
 namespace dsa {
+
+SetResponseMessage::SetResponseMessage(const SetResponseMessage& from)
+    : ResponseMessage(from.static_headers) { 
+  if (from.priority != nullptr) {
+     priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+  } 
+  if (from.status != nullptr) {
+    status.reset(new DynamicByteHeader(DynamicHeader::Status, from.status->value()));
+  }
+}
+
 void SetResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
@@ -27,6 +38,7 @@ void SetResponseMessage::write_dynamic_data(uint8_t* data) const {
     data += status->size();
   }
 }
+
 void SetResponseMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize; 
   if (priority != nullptr) {

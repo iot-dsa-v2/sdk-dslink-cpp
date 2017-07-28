@@ -10,6 +10,7 @@ class SetRequestMessage : public RequestMessage {
  public:
   SetRequestMessage(const SharedBuffer& buffer);
   SetRequestMessage();
+  SetRequestMessage(const SetRequestMessage&);
 
  public:
   // measure the size and header size

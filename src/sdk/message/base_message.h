@@ -1,7 +1,6 @@
 #ifndef DSA_SDK_BASE_MESSAGE_H_
 #define DSA_SDK_BASE_MESSAGE_H_
 
-
 #include "../util/buffer.h"
 #include "dynamic_header.h"
 #include "static_header.h"
@@ -10,10 +9,10 @@ namespace dsa {
 
 class Message {
  public:
-
  public:
   explicit Message(const SharedBuffer& buffer);
   Message(MessageType type);
+  Message(const StaticHeaders& headers);
 
   uint32_t size() const { return static_headers.message_size; }
 
@@ -50,6 +49,7 @@ class RequestMessage : public Message {
  public:
   explicit RequestMessage(const SharedBuffer& buffer);
   RequestMessage(MessageType type);
+  RequestMessage(const StaticHeaders& headers);
 
  protected:
   std::unique_ptr<DynamicStringHeader> target_path;
@@ -75,6 +75,7 @@ class ResponseMessage : public Message {
  public:
   explicit ResponseMessage(const SharedBuffer& buffer);
   ResponseMessage(MessageType type);
+  ResponseMessage(const StaticHeaders& headers);
 
  protected:
   std::unique_ptr<DynamicStringHeader> source_path;

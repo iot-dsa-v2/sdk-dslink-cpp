@@ -10,6 +10,7 @@ class SetResponseMessage : public ResponseMessage {
  public:
   SetResponseMessage(const SharedBuffer& buffer);
   SetResponseMessage();
+  SetResponseMessage(const SetResponseMessage&);
 
  public:
   // measure the size and header size

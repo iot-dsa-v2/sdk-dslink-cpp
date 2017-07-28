@@ -10,6 +10,7 @@ class ListRequestMessage : public RequestMessage {
  public:
   ListRequestMessage(const SharedBuffer& buffer);
   ListRequestMessage();
+  ListRequestMessage(const ListRequestMessage&);
 
  public:
   // measure the size and header size

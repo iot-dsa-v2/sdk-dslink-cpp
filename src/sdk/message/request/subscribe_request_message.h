@@ -11,6 +11,7 @@ class SubscribeRequestMessage : public RequestMessage {
  public:
   SubscribeRequestMessage(const SharedBuffer& buffer);
   SubscribeRequestMessage();
+  SubscribeRequestMessage(const SubscribeRequestMessage&);
 
  public:
   // measure the size and header size
@@ -21,14 +22,13 @@ class SubscribeRequestMessage : public RequestMessage {
   void write_dynamic_data(uint8_t* data) const;
   void parse_dynamic_headers(const uint8_t* data, size_t size);
 
-protected:
+ protected:
   std::unique_ptr<DynamicByteHeader> qos;
-  //std::unique_ptr<DynamicByteHeader> update_frequency;
+  // std::unique_ptr<DynamicByteHeader> update_frequency;
   std::unique_ptr<DynamicIntHeader> queue_size;
   std::unique_ptr<DynamicIntHeader> queue_time;
 
-public:
-
+ public:
   SubscribeOption::Qos get_qos() const;
   void set_qos(SubscribeOption::Qos value);
 
@@ -39,7 +39,7 @@ public:
   void set_queue_time(int32_t value);
 
   SubscribeOption get_subscribe_option() const;
-  void set_subscribe_option(const SubscribeOption & option);
+  void set_subscribe_option(const SubscribeOption& option);
 };
 
 }  // namespace dsa

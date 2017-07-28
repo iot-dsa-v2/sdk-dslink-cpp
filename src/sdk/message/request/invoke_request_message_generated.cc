@@ -3,6 +3,38 @@
 #include "invoke_request_message.h"
 
 namespace dsa {
+
+InvokeRequestMessage::InvokeRequestMessage(const InvokeRequestMessage& from)
+    : RequestMessage(from.static_headers) { 
+  if (from.priority != nullptr) {
+     priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+  } 
+  if (from.sequence_id != nullptr) {
+    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SequenceId, from.sequence_id->value()));
+  } 
+  if (from.page_id != nullptr) {
+    page_id.reset(new DynamicIntHeader(DynamicHeader::PageId, from.page_id->value()));
+  } 
+  if (from.alias_count != nullptr) {
+    alias_count.reset(new DynamicByteHeader(DynamicHeader::AliasCount, from.alias_count->value()));
+  } 
+  if (from.permission_token != nullptr) {
+    permission_token.reset(new DynamicStringHeader(DynamicHeader::PermissionToken, from.permission_token->value()));
+  } 
+  if (from.max_permission != nullptr) {
+    max_permission.reset(new DynamicByteHeader(DynamicHeader::MaxPermission, from.max_permission->value()));
+  } 
+  if (from.target_path != nullptr) {
+    target_path.reset(new DynamicStringHeader(DynamicHeader::TargetPath, from.target_path->value()));
+  } 
+  if (from.no_stream != nullptr) {
+    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NoStream));
+  } 
+  if (from.body != nullptr) {
+    body.reset(new SharedBuffer(*from.body));
+  }
+}
+
 void InvokeRequestMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
@@ -66,6 +98,7 @@ void InvokeRequestMessage::write_dynamic_data(uint8_t* data) const {
     memcpy(data, body->data, body->size);
   }
 }
+
 void InvokeRequestMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize; 
   if (priority != nullptr) {

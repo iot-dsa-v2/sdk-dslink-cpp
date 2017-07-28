@@ -3,6 +3,17 @@
 #include "subscribe_response_message.h"
 
 namespace dsa {
+
+SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessage& from)
+    : ResponseMessage(from.static_headers) { 
+  if (from.priority != nullptr) {
+     priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+  } 
+  if (from.body != nullptr) {
+    body.reset(new SharedBuffer(*from.body));
+  }
+}
+
 void SubscribeResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
@@ -24,6 +35,7 @@ void SubscribeResponseMessage::write_dynamic_data(uint8_t* data) const {
     memcpy(data, body->data, body->size);
   }
 }
+
 void SubscribeResponseMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize; 
   if (priority != nullptr) {

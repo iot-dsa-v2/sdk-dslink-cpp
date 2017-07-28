@@ -3,6 +3,29 @@
 #include "invoke_response_message.h"
 
 namespace dsa {
+
+InvokeResponseMessage::InvokeResponseMessage(const InvokeResponseMessage& from)
+    : ResponseMessage(from.static_headers) { 
+  if (from.priority != nullptr) {
+     priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+  } 
+  if (from.status != nullptr) {
+    status.reset(new DynamicByteHeader(DynamicHeader::Status, from.status->value()));
+  } 
+  if (from.sequence_id != nullptr) {
+    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SequenceId, from.sequence_id->value()));
+  } 
+  if (from.page_id != nullptr) {
+    page_id.reset(new DynamicIntHeader(DynamicHeader::PageId, from.page_id->value()));
+  } 
+  if (from.skippable != nullptr) {
+    skippable.reset(new DynamicBoolHeader(DynamicHeader::Skippable));
+  } 
+  if (from.body != nullptr) {
+    body.reset(new SharedBuffer(*from.body));
+  }
+}
+
 void InvokeResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
   while (size > 0) {
     DynamicHeader* header = DynamicHeader::parse(data, size);
@@ -48,6 +71,7 @@ void InvokeResponseMessage::write_dynamic_data(uint8_t* data) const {
     memcpy(data, body->data, body->size);
   }
 }
+
 void InvokeResponseMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize; 
   if (priority != nullptr) {

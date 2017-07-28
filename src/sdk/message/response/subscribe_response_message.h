@@ -14,6 +14,7 @@ class SubscribeResponseMessage : public ResponseMessage {
  public:
   SubscribeResponseMessage(const SharedBuffer& buffer);
   SubscribeResponseMessage();
+  SubscribeResponseMessage(const SubscribeResponseMessage&);
 
  public:
   // measure the size and header size
