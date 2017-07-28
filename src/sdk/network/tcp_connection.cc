@@ -14,7 +14,8 @@ TcpConnection::TcpConnection(std::shared_ptr<App> app, const Config &config)
 
 void TcpConnection::close() {
   _socket.close();
-  _deadline->cancel();
+//  _deadline->cancel();
+//  _deadline.reset();
 }
 
 void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) {
@@ -116,10 +117,10 @@ void TcpServerConnection::connect() {
 
 void TcpServerConnection::start_handshake() {
   // start timeout timer with handshake timeout specified in config
-  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
-  _deadline->async_wait(boost::bind(&TcpServerConnection::timeout,
-                                    share_this<TcpServerConnection>(),
-                                    boost::asio::placeholders::error));
+//  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+//  _deadline->async_wait(boost::bind(&TcpServerConnection::timeout,
+//                                    share_this<TcpServerConnection>(),
+//                                    boost::asio::placeholders::error));
 
   // start listening for f0
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
@@ -136,9 +137,9 @@ void TcpServerConnection::start_handshake() {
 
 void TcpServerConnection::f0_received(const boost::system::error_code &error, size_t bytes_transferred) {
   // reset timeout
-  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
-  _deadline->async_wait(boost::bind(&TcpServerConnection::timeout, share_this<TcpServerConnection>(),
-                                    boost::asio::placeholders::error));
+//  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+//  _deadline->async_wait(boost::bind(&TcpServerConnection::timeout, share_this<TcpServerConnection>(),
+//                                    boost::asio::placeholders::error));
 
   if (!error /* && !destroyed() */ && parse_f0(bytes_transferred)) {
     // start shared_secret computation
@@ -154,7 +155,7 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error, si
 
 void TcpServerConnection::f2_received(const boost::system::error_code &error, size_t bytes_transferred) {
   // stop timeout timer
-  _deadline->cancel();
+//  _deadline->cancel();
 
   if (!error /* && !destroyed() */ && parse_f2(bytes_transferred)) {
     // setup session now that client session id has been parsed
@@ -208,9 +209,9 @@ void TcpClientConnection::connect() {
 void TcpClientConnection::start_handshake(const boost::system::error_code &error) {
   if (error != nullptr) throw std::runtime_error("Couldn't connect to specified host");
   // start timeout timer
-  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
-  _deadline->async_wait(boost::bind(&TcpClientConnection::timeout, share_this<TcpClientConnection>(),
-                                    boost::asio::placeholders::error));
+//  _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+//  _deadline->async_wait(boost::bind(&TcpClientConnection::timeout, share_this<TcpClientConnection>(),
+//                                    boost::asio::placeholders::error));
 
   _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                           boost::bind(&TcpClientConnection::f1_received,
@@ -227,7 +228,7 @@ void TcpClientConnection::start_handshake(const boost::system::error_code &error
 void TcpClientConnection::f1_received(const boost::system::error_code &error, size_t bytes_transferred) {
   if (!error /* && !destroyed() */ && parse_f1(bytes_transferred)) {
     // cancel timer before timeout
-    _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
+//    _deadline->expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
 
     // server should be parsing f0 and waiting for f2 at this point
     // so we can compute the shared secret synchronously
@@ -239,8 +240,8 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
                                          boost::asio::placeholders::error));
 
     // restart timeout timer
-    _deadline->async_wait(boost::bind(&TcpClientConnection::timeout, share_this<TcpClientConnection>(),
-                                      boost::asio::placeholders::error));
+//    _deadline->async_wait(boost::bind(&TcpClientConnection::timeout, share_this<TcpClientConnection>(),
+//                                      boost::asio::placeholders::error));
 
     _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
                             boost::bind(&TcpClientConnection::f3_received,
@@ -252,7 +253,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
 
 void TcpClientConnection::f3_received(const boost::system::error_code &error, size_t bytes_transferred) {
   // stop timeout timer
-  _deadline->cancel();
+//  _deadline->cancel();
 
   if (!error /* && !destroyed() */ && parse_f3(bytes_transferred)) {
     uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
@@ -264,7 +265,7 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error, si
                                         boost::asio::placeholders::bytes_transferred));
 
     // start standard dsa 1 minute timeout
-    reset_standard_deadline_timer();
+//    reset_standard_deadline_timer();
   }
 }
 

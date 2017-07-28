@@ -134,7 +134,7 @@ class Connection : public InheritableEnableShared<Connection> {
   bool _is_responder;
   bool _security_preference;
   std::atomic_uint _pending_messages{0};
-  std::unique_ptr<boost::asio::deadline_timer> _deadline;
+//  std::unique_ptr<boost::asio::deadline_timer> _deadline;
   MessageHandler _message_handler;
 
   // parse handshake messages

@@ -17,16 +17,14 @@ TEST(TcpServerTest, OneClient) {
   ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
   tcp_server->start();
 
-  app->sleep(1000);
+  app->sleep(500);
 
   ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
   tcp_client->connect();
 
-  app->sleep(2000);
+  app->sleep(500);
 
   app->graceful_stop();
-
-//  tcp_server->stop();
 
   app->wait();
 }
@@ -45,7 +43,10 @@ TEST(TcpServerTest, MultipleClients) {
 
   for (unsigned int i = 0; i < 10; ++i) {
     (app->new_client(Client::TCP, client_config))->connect();
+//    app->sleep(100);
   }
+
+  app->sleep(500);
 
   app->graceful_stop();
   app->wait();

@@ -14,7 +14,7 @@ Connection::Connection(std::shared_ptr<const App> app, const Config &config)
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),
       _config(config),
-      _deadline(new boost::asio::deadline_timer(app->io_service())),
+//      _deadline(new boost::asio::deadline_timer(app->io_service())),
       _message_handler(config.message_handler()) {}
 
 void Connection::handle_message(Buffer::SharedBuffer buf) {
@@ -55,8 +55,8 @@ void Connection::timeout(const boost::system::error_code &error) {
 }
 
 void Connection::reset_standard_deadline_timer() {
-  _deadline->expires_from_now(boost::posix_time::minutes(1));
-  _deadline->async_wait(boost::bind(&Connection::timeout, share_this<Connection>(), boost::asio::placeholders::error));
+//  _deadline->expires_from_now(boost::posix_time::minutes(1));
+//  _deadline->async_wait(boost::bind(&Connection::timeout, share_this<Connection>(), boost::asio::placeholders::error));
 }
 
 // Handshake parse functions
