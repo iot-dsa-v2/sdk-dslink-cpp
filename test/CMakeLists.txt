@@ -52,7 +52,7 @@ include_directories("../include")
 add_subdirectory("./sdk")
 
 # TESTS
-set(TEST_LIBS ${TEST_LIBS} gtest_main dsa_sdk)
+set(TEST_LIBS gtest_main dsa_sdk ${TEST_LIBS})
 set(TARGET_NAME "dsa-test") 
 
 add_executable(${TARGET_NAME} ${SOURCES})
