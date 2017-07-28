@@ -12,7 +12,7 @@ DynamicHeader::DynamicHeader(uint8_t key, size_t size) : _key(key) {
   _size = uint16_t(size);
 }
 
-DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
+DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     const MessageParsingError &) {
   switch (*data) {
     case Status:
@@ -62,14 +62,15 @@ DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size,
                                          std::string str)
     : DynamicHeader(*data, size), _value(std::move(str)) {}
 
-DynamicStringHeader::DynamicStringHeader(const uint8_t key, const std::string& str)
+DynamicStringHeader::DynamicStringHeader(const uint8_t key,
+                                         const std::string &str)
     : DynamicHeader(key, str.length() + 3), _value(std::move(str)) {}
 
 const std::string &DynamicStringHeader::value() const { return _value; }
 
 void DynamicStringHeader::write(uint8_t *data) const {
   data[Key] = _key;
-  uint16_t str_size = _value.length();
+  uint16_t str_size = static_cast<uint16_t>(_value.length());
   memcpy(data + StringLength, &str_size, sizeof(str_size));
   memcpy(data + StringValue, _value.c_str(), str_size);
 }

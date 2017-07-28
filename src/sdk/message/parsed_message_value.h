@@ -6,7 +6,8 @@
 namespace dsa {
 
 class ParsedMessageValue {
-  ParsedMessageValue(const SharedBuffer & buffer)
+ public:
+  ParsedMessageValue(const SharedBuffer& buffer);
 };
 
 }  // namespace dsa

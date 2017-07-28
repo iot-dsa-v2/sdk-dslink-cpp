@@ -35,7 +35,7 @@ class DynamicHeader {
   };
 
   static DynamicHeader *parse(const uint8_t *data,
-                              uint16_t size) throw(const MessageParsingError&);
+                              size_t size) throw(const MessageParsingError &);
 
   uint8_t key() const { return _key; }
 
@@ -62,9 +62,9 @@ class DynamicStringHeader : public DynamicHeader {
   const std::string &value() const;
   void write(uint8_t *data) const override;
 
-  static const std::string &read_value(const std::unique_ptr<DynamicStringHeader> &header) throw() {
-    if (header == nullptr)
-      return BLANK_STRING;
+  static const std::string &read_value(
+      const std::unique_ptr<DynamicStringHeader> &header) throw() {
+    if (header == nullptr) return BLANK_STRING;
     return header->value();
   }
   // return true when the length of content is changed
