@@ -1,9 +1,12 @@
 #ifndef DSA_DSA_COMMON_H_
 #define DSA_DSA_COMMON_H_
 
-// disable VC warning on throw error
-#pragma warning( disable : 4290 )  
+#if _MSC_VER
 
+// disable VC warning on throw error
+#pragma warning( disable : 4290 ) 
+
+#endif // _MSC_VER
 
 #include <cstdint>
 #include <memory>
