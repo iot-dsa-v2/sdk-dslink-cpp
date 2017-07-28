@@ -17,7 +17,6 @@ class DynamicHeader {
     Priority = 0x10,
     NoStream = 0x11,
     Qos = 0x12,
-    UpdateFrequency = 0x13,
     QueueSize = 0x14,
     QueueTime = 0x15,
     BasePath = 0x21,

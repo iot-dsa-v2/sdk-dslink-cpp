@@ -17,7 +17,6 @@ const messages = {
       "Qos":false,
       "QueueSize":false,
       "QueueTime":false,
-      "UpdateFrequency":false,
       "BasePath":false,
       "SourcePath":false,
       "Skippable":false,
@@ -37,7 +36,6 @@ const messages = {
       "Qos":false,
       "QueueSize":false,
       "QueueTime":false,
-      "UpdateFrequency":false,
       "BasePath":false,
       "SourcePath":false,
       "Skippable":false,
@@ -57,7 +55,6 @@ const messages = {
       "Qos":false,
       "QueueSize":false,
       "QueueTime":false,
-      "UpdateFrequency":false,
       "BasePath":false,
       "SourcePath":false,
       "Skippable":false,
@@ -77,7 +74,6 @@ const messages = {
       "Qos":true,
       "QueueSize":true,
       "QueueTime":true,
-      "UpdateFrequency":true,
       "BasePath":false,
       "SourcePath":false,
       "Skippable":false,
@@ -99,7 +95,6 @@ const messages = {
       "Qos":false,
       "QueueSize":false,
       "QueueTime":false,
-      "UpdateFrequency":false,
       "BasePath":false,
       "SourcePath":false,
       "Skippable":true,
@@ -119,7 +114,6 @@ const messages = {
       "Qos":false,
       "QueueSize":false,
       "QueueTime":false,
-      "UpdateFrequency":false,
       "BasePath":true,
       "SourcePath":true,
       "Skippable":false,
@@ -139,7 +133,6 @@ const messages = {
       "Qos":false,
       "QueueSize":false,
       "QueueTime":false,
-      "UpdateFrequency":false,
       "BasePath":false,
       "SourcePath":false,
       "Skippable":false,
@@ -159,7 +152,6 @@ const messages = {
       "Qos":false,
       "QueueSize":false,
       "QueueTime":false,
-      "UpdateFrequency":false,
       "BasePath":false,
       "SourcePath":false,
       "Skippable":false,
@@ -220,10 +212,7 @@ void ${typename}::parse_dynamic_headers(const uint8_t* data, size_t size) {
     }`;
     if (configs.QueueTime) data+=` else if (key == DynamicHeader::QueueTime) {
       queue_time.reset(static_cast<DynamicIntHeader*>(header));
-    }`;
-    // if (configs.UpdateFrequency) data+=` else if (key == DynamicHeader::UpdateFrequency) {
-    //   update_frequency.reset(static_cast<DynamicByteHeader*>(header));
-    // }`;    
+    }`;   
     if (configs.BasePath) data+=` else if (key == DynamicHeader::BasePath) {
       base_path.reset(static_cast<DynamicStringHeader*>(header));
     }`;    
@@ -297,12 +286,7 @@ void ${typename}::write_dynamic_data(uint8_t* data) const {`;
   if (queue_time != nullptr) {
     queue_time->write(data);
     data += queue_time->size();
-  }`;    
-  //   if (configs.UpdateFrequency) data+=` 
-  // if (update_frequency != nullptr) {
-  //   update_frequency->write(data);
-  //   data += update_frequency->size();
-  // }`;    
+  }`;     
     if (configs.BasePath) data+=` 
   if (base_path != nullptr) {
     base_path->write(data);
@@ -374,10 +358,6 @@ void ${typename}::update_static_header() {
   if (queue_time != nullptr) {
     header_size += queue_time->size();
   }`;
-  //   if (configs.UpdateFrequency) data+=` 
-  // if (update_frequency != nullptr) {
-  //   header_size += update_frequency->size();
-  // }`;
     if (configs.BasePath) data+=` 
   if (base_path != nullptr) {
     header_size += base_path->size();

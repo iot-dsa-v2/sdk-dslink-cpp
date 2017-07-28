@@ -21,7 +21,6 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, uint16_t size) throw(
     case AliasCount:
     case Priority:
     case Qos:
-    case UpdateFrequency:
     case QueueSize:
     case QueueTime:
     case MaxPermission: {
