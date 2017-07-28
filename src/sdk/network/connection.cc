@@ -14,7 +14,7 @@ Connection::Connection(std::shared_ptr<const App> app, const Config &config)
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),
       _config(config),
-//      _deadline(new boost::asio::deadline_timer(app->io_service())),
+      _deadline(app->io_service()),
       _message_handler(config.message_handler()) {}
 
 void Connection::handle_message(Buffer::SharedBuffer buf) {
@@ -51,7 +51,9 @@ bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_s
 }
 
 void Connection::timeout(const boost::system::error_code &error) {
-  if (!error) close();
+  if (error != boost::asio::error::operation_aborted) {
+    close();
+  }
 }
 
 void Connection::reset_standard_deadline_timer() {

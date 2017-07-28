@@ -11,8 +11,8 @@ TEST(TcpServerTest, OneClient) {
 
   app->async_start(2);
 
-  Server::Config server_config("/test/path", 8080);
-  Client::Config client_config("127.0.0.1", 8080);
+  Server::Config server_config("/test/path", 8000);
+  Client::Config client_config("127.0.0.1", 8000);
 
   ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
   tcp_server->start();
@@ -22,7 +22,7 @@ TEST(TcpServerTest, OneClient) {
   ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
   tcp_client->connect();
 
-  app->sleep(500);
+  app->sleep(1000);
 
   app->graceful_stop();
 
@@ -41,12 +41,15 @@ TEST(TcpServerTest, MultipleClients) {
   ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
   tcp_server->start();
 
-  for (unsigned int i = 0; i < 10; ++i) {
-    (app->new_client(Client::TCP, client_config))->connect();
-//    app->sleep(100);
-  }
+  app->sleep(1000);
 
-  app->sleep(500);
+//  for (unsigned int i = 0; i < 10; ++i) {
+    ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
+    tcp_client->connect();
+//    app->sleep(100);
+//  }
+
+  app->sleep(1000);
 
   app->graceful_stop();
   app->wait();

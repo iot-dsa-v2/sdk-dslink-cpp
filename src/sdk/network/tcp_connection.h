@@ -1,6 +1,7 @@
 #ifndef DSA_SDK_TCP_CONNECTION_H_
 #define DSA_SDK_TCP_CONNECTION_H_
 
+#include <atomic>
 
 #include <boost/asio.hpp>
 
@@ -16,15 +17,16 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Base TCP connection. Used for DSA connections over TCP.
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
-class TcpConnection : virtual public Connection {
+class TcpConnection : public Connection {
  protected:
   void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) override;
   tcp_socket _socket;
   boost::asio::io_service::strand _strand;
+  std::atomic_bool _socket_open{true};
 
  public:
-  explicit TcpConnection(std::shared_ptr<App> app, const Config &config);
-  ~TcpConnection() override {}
+  TcpConnection(std::shared_ptr<App> app, const Config &config);
+  ~TcpConnection() override = default;
 
   void write_handler(WriteHandler callback, const boost::system::error_code &error);
 
@@ -32,9 +34,10 @@ class TcpConnection : virtual public Connection {
 
   tcp_socket &socket();
 
+  virtual void name() = 0;
   void close() override;
   void connect() override = 0;
-  void start() throw(const std::runtime_error&) override;
+  void start() throw() override;
 };
 
 // TCP server side connection.
@@ -55,8 +58,11 @@ class TcpServerConnection : public TcpConnection {
 
  public:
   explicit TcpServerConnection(std::shared_ptr<App> app, const Server::Config &config);
+  ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
 
   void connect() override;
+
+  void name() override { std::cout << "TcpServerConnection\n"; }
 
   inline void set_server(std::shared_ptr<TcpServer> server) { _server = std::move(server); };
 };
@@ -74,6 +80,9 @@ class TcpClientConnection : public TcpConnection {
  public:
   explicit TcpClientConnection(std::shared_ptr<App> app);
   TcpClientConnection(std::shared_ptr<App> app, const Config &config);
+  ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
+
+  void name() override { std::cout << "TcpClientConnection\n"; }
 
   void connect() override;
 

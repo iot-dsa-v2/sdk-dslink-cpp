@@ -43,7 +43,7 @@ void run_worker_thread(const std::shared_ptr<boost::asio::io_service> &io_servic
   }
 }
 
-ServerPtr App::new_server(Server::Protocol type, const Server::Config &config) {
+ServerPtr App::new_server(Server::Protocol type, const Server::Config &config) throw() {
   switch (type) {
     case Server::TCP:
       return std::shared_ptr<Server>(new TcpServer(shared_from_this(), config));
@@ -52,7 +52,7 @@ ServerPtr App::new_server(Server::Protocol type, const Server::Config &config) {
   }
 }
 
-ClientPtr App::new_client(Client::Protocol type, const Client::Config &config) {
+ClientPtr App::new_client(Client::Protocol type, const Client::Config &config) throw() {
   switch (type) {
     case Client::TCP:
       return std::shared_ptr<Connection>(new TcpClientConnection(shared_from_this(), config));

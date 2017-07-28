@@ -105,7 +105,7 @@ class Connection : public InheritableEnableShared<Connection> {
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
   virtual void close() = 0;
   virtual void connect() = 0;
-  virtual void start() = 0;
+  virtual void start() throw() = 0;
 
  protected:
   explicit Connection(std::shared_ptr<const App> app, const Config &config);
@@ -134,7 +134,7 @@ class Connection : public InheritableEnableShared<Connection> {
   bool _is_responder;
   bool _security_preference;
   std::atomic_uint _pending_messages{0};
-//  std::unique_ptr<boost::asio::deadline_timer> _deadline;
+  boost::asio::deadline_timer _deadline;
   MessageHandler _message_handler;
 
   // parse handshake messages
