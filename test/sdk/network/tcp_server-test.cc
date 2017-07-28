@@ -43,11 +43,11 @@ TEST(TcpServerTest, MultipleClients) {
 
   app->sleep(1000);
 
-//  for (unsigned int i = 0; i < 10; ++i) {
+  for (unsigned int i = 0; i < 10; ++i) {
     ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
     tcp_client->connect();
-//    app->sleep(100);
-//  }
+    app->sleep(100);
+  }
 
   app->sleep(1000);
 

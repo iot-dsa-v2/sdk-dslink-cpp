@@ -23,7 +23,7 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
   // reset deadline timer for each new message
   reset_standard_deadline_timer();
 
-  if (!error /* && !destroyed() */) {
+  if (!error) {
     std::cout << std::endl << "in read loop" << std::endl;
 
     BufferPtr buf = std::move(_read_buffer);
@@ -75,11 +75,18 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
                             boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred));
+  } else {
+    _session->stop();
   }
 }
 
 void TcpConnection::write_handler(WriteHandler callback, const boost::system::error_code &error) {
-  if (!error /* && !destroyed() */) callback();
+  if (!error)
+    callback();
+  else {
+    if (_session != nullptr) _session->stop();
+    else close();
+  }
 }
 
 void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
@@ -95,8 +102,10 @@ void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
 }
 
 void TcpConnection::start() throw() {
-  if (_session == nullptr)
+  if (_session == nullptr) {
+    close();
     throw std::runtime_error("Error: connection started with no session");
+  }
 
   name();
 
@@ -145,7 +154,7 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error, si
   _deadline.async_wait(boost::bind(&TcpServerConnection::timeout, share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));
 
-  if (!error /* && !destroyed() */ && parse_f0(bytes_transferred)) {
+  if (!error && parse_f0(bytes_transferred)) {
     // start shared_secret computation
     _strand.post(boost::bind(&TcpServerConnection::compute_secret, this));
 
@@ -154,6 +163,8 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error, si
                             boost::bind(&TcpServerConnection::f2_received, share_this<TcpServerConnection>(),
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred));
+  } else {
+    close();
   }
 }
 
@@ -161,7 +172,7 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error, si
   // start dsa standard 1 minute timeout
   reset_standard_deadline_timer();
 
-  if (!error /* && !destroyed() */ && parse_f2(bytes_transferred)) {
+  if (!error && parse_f2(bytes_transferred)) {
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
       std::string session_id = _session_id->to_string();
@@ -180,6 +191,8 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error, si
     // start session
     _session->set_connection(shared_from_this());
     _session->start();
+  } else {
+    close();
   }
 }
 
@@ -211,7 +224,11 @@ void TcpClientConnection::connect() {
 }
 
 void TcpClientConnection::start_handshake(const boost::system::error_code &error) {
-  if (error != nullptr) throw std::runtime_error("Couldn't connect to specified host");
+  if (error != nullptr) {
+    close();
+    throw std::runtime_error("Couldn't connect to specified host");
+  }
+
   // start timeout timer
   _deadline.expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
   _deadline.async_wait(boost::bind(&TcpClientConnection::timeout, share_this<TcpClientConnection>(),
@@ -230,7 +247,7 @@ void TcpClientConnection::start_handshake(const boost::system::error_code &error
 }
 
 void TcpClientConnection::f1_received(const boost::system::error_code &error, size_t bytes_transferred) {
-  if (!error /* && !destroyed() */ && parse_f1(bytes_transferred)) {
+  if (!error && parse_f1(bytes_transferred)) {
     // cancel timer before timeout
     _deadline.expires_from_now(boost::posix_time::milliseconds(_config.handshake_timout()));
 
@@ -252,6 +269,8 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
                                         share_this<TcpClientConnection>(),
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred));
+  } else {
+    close();
   }
 }
 
@@ -259,7 +278,7 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error, si
   // start standard dsa 1 minute timeout
   reset_standard_deadline_timer();
 
-  if (!error /* && !destroyed() */ && parse_f3(bytes_transferred)) {
+  if (!error && parse_f3(bytes_transferred)) {
     uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
     for (size_t i = 0; i < AuthLength; ++i)
       if (auth[i] != other_auth[i]) return;
@@ -268,6 +287,8 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error, si
     _session->start();
 
     _session->stop();
+  } else {
+    close();
   }
 }
 
