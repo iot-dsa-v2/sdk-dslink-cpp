@@ -83,7 +83,7 @@ const messages = {
   "Response":{
     "Invoke":{
       "Body":true,
-      "Priority":true,
+      "Priority":false,
       "Status":true,
       "SequenceId":true,
       "PageId":true,
@@ -102,7 +102,7 @@ const messages = {
     },
     "List":{
       "Body":true,
-      "Priority":true,
+      "Priority":false,
       "Status":true,
       "SequenceId":true,
       "PageId":false,
@@ -121,7 +121,7 @@ const messages = {
     },
     "Set":{
       "Body":false,
-      "Priority":true,
+      "Priority":false,
       "Status":true,
       "SequenceId":false,
       "PageId":false,
@@ -140,7 +140,7 @@ const messages = {
     },
     "Subscribe":{
       "Body":true,
-      "Priority":true,
+      "Priority":false,
       "Status":true,
       "SequenceId":true,
       "PageId":true,
@@ -250,7 +250,8 @@ void ${typename}::parse_dynamic_headers(const uint8_t* data, size_t size) {
     if (key == DynamicHeader::Priority) {
       priority.reset(static_cast<DynamicBoolHeader*>(header));
     }`;
-    if (configs.Status) data+=` else if (key == DynamicHeader::Status) {
+    if (configs.Status) data+=`
+    if (key == DynamicHeader::Status) {
       status.reset(static_cast<DynamicByteHeader*>(header));
     }`; 
     if (configs.SequenceId) data+=` else if (key == DynamicHeader::SequenceId) {

@@ -17,12 +17,11 @@ class SubscribeResponseMessage : public ResponseMessage {
   SubscribeResponseMessage(const SubscribeResponseMessage&);
 
  public:
-  // measure the size and header size
-  void update_static_header();
-
   const ParsedMessageValue* get_value();
 
  protected:
+  // measure the size and header size
+  void update_static_header();
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const;
   void parse_dynamic_headers(const uint8_t* data, size_t size);

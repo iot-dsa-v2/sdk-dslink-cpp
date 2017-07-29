@@ -12,11 +12,9 @@ class SetRequestMessage : public RequestMessage {
   SetRequestMessage();
   SetRequestMessage(const SetRequestMessage&);
 
- public:
+ protected:
   // measure the size and header size
   void update_static_header();
-
- protected:
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const;
   void parse_dynamic_headers(const uint8_t* data, size_t size);

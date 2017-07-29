@@ -5,8 +5,14 @@
 namespace dsa {
 Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data){};
 Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
-Message::Message(const StaticHeaders& headers) : static_headers(headers) {};
+Message::Message(const StaticHeaders& headers) : static_headers(headers){};
 
+uint32_t Message ::size() const {
+  if (!static_headers.message_size) {
+    const_cast<Message*>(this)->update_static_header();
+  }
+  return static_headers.message_size;
+}
 void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
   if (!static_headers.message_size) {
     // message_size shouldn't be 0
@@ -14,16 +20,6 @@ void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
   }
   static_headers.write(data);
   write_dynamic_data(data + StaticHeaders::TotalSize);
-}
-
-bool Message::get_priority() const {
-  return DynamicBoolHeader::read_value(priority);
-}
-void Message::set_priority(bool value) {
-  if (DynamicBoolHeader::write_value(priority, DynamicHeader::Priority,
-                                     value)) {
-    static_headers.message_size = 0;
-  }
 }
 
 int32_t Message::get_sequence_id() const {
@@ -47,7 +43,18 @@ void Message::set_page_id(int32_t value) {
 
 RequestMessage::RequestMessage(const SharedBuffer& buffer) : Message(buffer){};
 RequestMessage::RequestMessage(MessageType type) : Message(type){};
-RequestMessage::RequestMessage(const StaticHeaders& headers) : Message(headers) {};
+RequestMessage::RequestMessage(const StaticHeaders& headers)
+    : Message(headers){};
+
+bool RequestMessage::get_priority() const {
+  return DynamicBoolHeader::read_value(priority);
+}
+void RequestMessage::set_priority(bool value) {
+  if (DynamicBoolHeader::write_value(priority, DynamicHeader::Priority,
+                                     value)) {
+    static_headers.message_size = 0;
+  }
+}
 
 const std::string& RequestMessage::get_target_path() const {
   return DynamicStringHeader::read_value(target_path);
@@ -92,7 +99,8 @@ void RequestMessage::set_alias_count(uint8_t value) {
 ResponseMessage::ResponseMessage(const SharedBuffer& buffer)
     : Message(buffer){};
 ResponseMessage::ResponseMessage(MessageType type) : Message(type){};
-ResponseMessage::ResponseMessage(const StaticHeaders& headers) : Message(headers) {};
+ResponseMessage::ResponseMessage(const StaticHeaders& headers)
+    : Message(headers){};
 
 const std::string& ResponseMessage::get_source_path() const {
   return DynamicStringHeader::read_value(source_path);

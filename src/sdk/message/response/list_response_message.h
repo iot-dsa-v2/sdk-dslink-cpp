@@ -14,11 +14,9 @@ class ListResponseMessage : public ResponseMessage {
   ListResponseMessage();
   ListResponseMessage(const ListResponseMessage&);
 
- public:
-  // measure the size and header size
-  void update_static_header();
-
  protected:
+   // measure the size and header size
+   void update_static_header();
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const;
   void parse_dynamic_headers(const uint8_t* data, size_t size);

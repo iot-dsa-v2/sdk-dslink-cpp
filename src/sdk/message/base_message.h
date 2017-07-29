@@ -14,14 +14,14 @@ class Message {
   Message(MessageType type);
   Message(const StaticHeaders& headers);
 
-  uint32_t size() const { return static_headers.message_size; }
+  uint32_t size() const;
 
   // update_static_header must be called before write
   void write(uint8_t* data) const throw(const MessageParsingError&);
-  // measure the size and header size
-  virtual void update_static_header() = 0;
 
  protected:
+  // measure the size and header size
+  virtual void update_static_header() = 0;
   // write dynamic header and body
   virtual void write_dynamic_data(uint8_t* data) const = 0;
 
@@ -30,14 +30,10 @@ class Message {
 
   std::unique_ptr<SharedBuffer> body;
 
-  std::unique_ptr<DynamicBoolHeader> priority;
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
 
  public:
-  bool get_priority() const;
-  void set_priority(bool value);
-
   int32_t get_sequence_id() const;
   void set_sequence_id(int32_t value);
 
@@ -52,12 +48,16 @@ class RequestMessage : public Message {
   RequestMessage(const StaticHeaders& headers);
 
  protected:
+  std::unique_ptr<DynamicBoolHeader> priority;
   std::unique_ptr<DynamicStringHeader> target_path;
   std::unique_ptr<DynamicStringHeader> permission_token;
   std::unique_ptr<DynamicBoolHeader> no_stream;
   std::unique_ptr<DynamicByteHeader> alias_count;
 
  public:
+  bool get_priority() const;
+  void set_priority(bool value);
+
   const std::string& get_target_path() const;
   void set_target_path(const std::string& value);
 
