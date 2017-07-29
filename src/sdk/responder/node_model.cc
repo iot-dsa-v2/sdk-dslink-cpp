@@ -8,7 +8,7 @@ namespace dsa {
 
 void NodeModel::update_value(Buffer::SharedBuffer buf) {
   if (_state != nullptr)
-    _state->new_value(buf);
+    _state->new_message(buf);
 }
 
 }  // namespace dsa

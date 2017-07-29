@@ -151,7 +151,7 @@ class Connection : public InheritableEnableShared<Connection> {
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
-  void handle_message(Buffer::SharedBuffer buf);
+  void handle_message(SharedBuffer buf);
 
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();

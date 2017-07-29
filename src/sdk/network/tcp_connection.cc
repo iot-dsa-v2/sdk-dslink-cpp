@@ -256,8 +256,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
     compute_secret();
     size_t f2_size = load_f2(*_write_buffer);
     boost::asio::async_write(_socket, boost::asio::buffer(_write_buffer->data(), f2_size),
-                             boost::bind(&TcpClientConnection::success_or_close,
-                                         share_this<TcpClientConnection>(),
+                             boost::bind(&TcpClientConnection::success_or_close, share_this<TcpClientConnection>(),
                                          boost::asio::placeholders::error));
 
     // restart timeout timer
@@ -265,8 +264,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error, si
                                      boost::asio::placeholders::error));
 
     _socket.async_read_some(boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
-                            boost::bind(&TcpClientConnection::f3_received,
-                                        share_this<TcpClientConnection>(),
+                            boost::bind(&TcpClientConnection::f3_received, share_this<TcpClientConnection>(),
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred));
   } else {

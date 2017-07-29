@@ -3,6 +3,7 @@ include_directories("../../../include")
 
 add_library(dsa_network OBJECT
         app.cc
+        message_stream.cc
         gracefully_closable.cc
         connection.cc
         session.cc

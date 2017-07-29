@@ -7,7 +7,7 @@
 namespace dsa {
 
 SessionPtr SessionManager::get_session(const std::string &dsid, const std::string &session_id) {
-  boost::upgrade_lock <boost::shared_mutex> lock(_sessions_key);
+  boost::shared_lock<boost::shared_mutex> lock(_sessions_key);
   if (_sessions.count(session_id) != 0)
     return _sessions.at(session_id);
   return nullptr;

@@ -1,8 +1,10 @@
-#include "dsa_common.h"
-
 #include "session.h"
 
-#include <functional>
+#include <boost/bind.hpp>
+
+#include "dsa_common.h"
+#include "connection.h"
+#include "responder/outgoing_message_stream.h"
 
 namespace dsa {
 
@@ -26,9 +28,69 @@ void Session::stop() {
   }
 }
 
-void Session::add_ready_stream(unsigned int stream_id) {
-  _strand->post([=]() {
-    _ready_streams.push(stream_id);
+void Session::add_ready_outgoing_stream(uint32_t rid, size_t unique_id) {
+  _strand->post(make_shared_this_lambda([=]() {
+    _ready_streams.push(StreamInfo{rid, unique_id, &_outgoing_streams});
+    if (!_is_writing) {
+      _strand->post(boost::bind(&Session::_write_loop, shared_from_this()));
+    }
+  }));
+}
+
+bool Session::add_outgoing_subscription(const std::shared_ptr<OutgoingMessageStream> &stream) {
+  boost::upgrade_lock<boost::shared_mutex> lock(_outgoing_key);
+  if (_outgoing_streams.count(stream->_request_id) > 0)
+    return false;
+
+  {
+    boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lock(lock);
+    _outgoing_streams[stream->_request_id] = stream;
+  }
+  return true;
+}
+
+MessageStream *Session::_get_next_ready_stream() {
+  while (!_ready_streams.empty()) {
+    StreamInfo stream_info = _ready_streams.back();
+    _ready_streams.pop();
+
+    // make sure stream is still active
+    if (!stream_info.container->count(stream_info.rid)) {
+      continue;
+    }
+
+    // make sure stream info is accurate
+    auto &stream = stream_info.container->at(stream_info.rid);
+    if (stream->_unique_id == stream_info.unique_id) {
+      return stream.get();
+    }
+  }
+  return nullptr;
+}
+
+void Session::_write_loop() {
+  if (_ready_streams.empty()) {
+    _strand->post(boost::bind(&Session::_write_loop, shared_from_this()));
+    return;
+  }
+
+  auto buf = std::make_shared<Buffer>();
+  MessageStream *stream = _get_next_ready_stream();
+
+  if (stream == nullptr)
+    return;
+
+  // make sure buffer is big enough for at least the first message
+  buf->resize(stream->get_next_message_size());
+
+  do {
+    buf->append(stream->get_next_message());
+    stream = _get_next_ready_stream();
+  } while (stream != nullptr && stream->get_next_message_size() + buf->size() < buf->capacity());
+
+  auto shared_this = shared_from_this();
+  _connection->write(buf, buf->size(), [shared_this]() {
+    shared_this->_write_loop();
   });
 }
 

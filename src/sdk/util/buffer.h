@@ -9,6 +9,8 @@
 #include <vector>
 
 namespace dsa {
+class Message;
+
 class Buffer : public std::enable_shared_from_this<Buffer> {
  private:
   enum { default_capacity = 256 };
@@ -60,6 +62,9 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
 
   // number of elements in buffer
   size_t size() const;
+
+  // append message contents to buffer data
+  void append(const Message &message);
 
   // add element to the end of the list of elements, no check on capacity
   void append(uint8_t data);

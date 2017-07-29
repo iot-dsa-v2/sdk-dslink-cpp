@@ -2,25 +2,36 @@
 
 #include "outgoing_message_stream.h"
 
-#include "network/session.h"
-
 namespace dsa {
 
-OutgoingMessageStream::OutgoingMessageStream(const std::shared_ptr<Session> &session, uint8_t qos, unsigned int id)
-    : _qos(qos), _id(id), _strand(*session->_strand) {
+SubscribeMessageStream::SubscribeMessageStream(const std::shared_ptr<Session> &session,
+                                               uint8_t qos,
+                                               size_t id,
+                                               uint32_t rid)
+    : OutgoingMessageStream(session, qos, id, rid) {
   _set_ready = [=]() {
-    session->add_ready_stream(_id);
+    session->add_ready_outgoing_stream(_request_id, _unique_id);
   };
 }
 
-void OutgoingMessageStream::new_value(ValueUpdate &new_value) {
-  std::lock_guard<std::mutex> lock(_key);
-  _message_queue.push_front(new_value);
+void SubscribeMessageStream::new_message(const SubscribeResponseMessage &new_message) {
+  {
+    boost::unique_lock<boost::shared_mutex> lock(_key);
+    _message_queue.push_front(new_message);
+  }
+  _set_ready();
 }
 
-//template <class _MsgType>
-//void OutgoingMessageStream::_handle_new_message(ValueUpdate new_value) {
-//
-//}
+size_t SubscribeMessageStream::get_next_message_size() {
+  boost::shared_lock<boost::shared_mutex> lock(_key);
+  return _message_queue.back().size();
+}
+
+Message SubscribeMessageStream::get_next_message() {
+  boost::unique_lock<boost::shared_mutex> lock(_key);
+  auto message = _message_queue.back();
+  _message_queue.pop_back();
+  return std::move(message);
+}
 
 }  // namespace dsa

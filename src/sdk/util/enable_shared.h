@@ -30,6 +30,18 @@ class MultipleInheritableEnableSharedFromThis : public virtual std::enable_share
   virtual ~MultipleInheritableEnableSharedFromThis() {}
 };
 
+template<typename T, typename F>
+class shared_this_lambda {
+  std::shared_ptr<T> t;  // just for lifetime
+  F f;
+ public:
+  shared_this_lambda(std::shared_ptr<T> t, F f) : t(t), f(f) {}
+  template<class... Args>
+  auto operator()(Args &&...args) -> decltype(this->f(std::forward<Args>(args)...)) {
+    return f(std::forward<Args>(args)...);
+  }
+};
+
 template <class T>
 class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFromThis {
  public:
@@ -40,6 +52,18 @@ class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFr
   template <class Down>
   std::shared_ptr<Down> share_this() {
     return std::dynamic_pointer_cast<Down>(MultipleInheritableEnableSharedFromThis::shared_from_this());
+  }
+
+  template<typename F>
+  auto make_shared_this_lambda(F f) -> shared_this_lambda<T, F> {
+    return shared_this_lambda<T, F>(
+        static_cast<T *>(this)->shared_from_this(), f);
+  }
+
+  template<typename F>
+  auto make_shared_this_lambda(F f) const -> shared_this_lambda<const T, F> {
+    return shared_this_lambda<const T, F>(
+        static_cast<const T *>(this)->shared_from_this(), f);
   }
 };
 

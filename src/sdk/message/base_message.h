@@ -4,13 +4,13 @@
 #include "../util/buffer.h"
 #include "dynamic_header.h"
 #include "static_header.h"
+#include "util/buffer.h"
 
 namespace dsa {
 
 class Message {
  public:
- public:
-  explicit Message(const SharedBuffer& buffer);
+  explicit Message(const Buffer::SharedBuffer& buffer);
   Message(MessageType type);
   Message(const StaticHeaders& headers);
 

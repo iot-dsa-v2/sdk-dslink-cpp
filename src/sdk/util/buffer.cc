@@ -1,6 +1,7 @@
 #include "dsa_common.h"
 
 #include "buffer.h"
+#include "message/base_message.h"
 
 namespace dsa {
 
@@ -63,6 +64,11 @@ bool Buffer::resize(size_t capacity) {
 }
 
 void Buffer::append(uint8_t data) { _data[_size++] = data; }
+
+void Buffer::append(const Message &message) {
+  message.write(_data + _size);
+  _size += message.size();
+}
 
 void Buffer::safe_append(uint8_t data) {
   if (_size >= _capacity)
