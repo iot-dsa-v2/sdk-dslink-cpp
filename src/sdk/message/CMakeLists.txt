@@ -1,0 +1,29 @@
+include_directories(${LIB_MESSAGE})
+
+list(APPEND MessageSourceFiles
+        base_message.cc
+        message_factory.cc
+        static_header.cc
+        dynamic_header.cc
+		subscribe_option.cc
+		parsed_message_value.cc
+        request/invoke_request_message.cc
+        request/subscribe_request_message.cc
+        request/list_request_message.cc
+        request/set_request_message.cc
+        response/invoke_response_message.cc
+        response/subscribe_response_message.cc
+        response/list_response_message.cc
+        response/set_response_message.cc
+        request/invoke_request_message_generated.cc
+        request/subscribe_request_message_generated.cc
+        request/list_request_message_generated.cc
+        request/set_request_message_generated.cc
+        response/invoke_response_message_generated.cc
+        response/subscribe_response_message_generated.cc
+        response/list_response_message_generated.cc
+        response/set_response_message_generated.cc)
+
+foreach(file ${MessageSourceFiles})
+    list(APPEND ProjectSourceFiles ${LIB_MESSAGE}/${file})
+endforeach()
