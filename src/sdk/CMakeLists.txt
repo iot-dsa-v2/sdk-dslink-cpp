@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.7)
 
 set(CMAKE_CXX_STANDARD 11)
 
+include_directories(".")
+include_directories("../../include")
+
 find_package(Threads)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 if (UNIX)
@@ -12,79 +15,25 @@ endif ()
 find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
 include_directories(${Boost_INCLUDE_DIRS})
 
-# LIBRARIES:
-set(LIB_CRYPTO "./crypto")
-set(LIB_MESSAGE "./message")
-set(LIB_NETWORK "./network")
-set(LIB_REQUESTER "./requester")
-set(LIB_RESPONDER "./responder")
-set(LIB_UTIL "./util")
 
-# LIBRARY OPTIONS:
-option(USE_CRYPTO "Include dsa crypto library" ON)
-option(USE_MESSAGE "Include dsa message library" ON)
-option(USE_NETWORK "Include dsa network library" ON)
-option(USE_REQUESTER "Include dsa requester library" ON)
-option(USE_RESPONDER "Include dsa responder library" ON)
+if(UNIX)
+  set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
+endif()
+
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 
 set(SOURCES "")
 set(EXTRA_LIBS "" CACHE INTERNAL "")
 
-# CRYPTO LIBRARY:
-if(USE_CRYPTO)
-  message(">> adding crypto library...")
-  add_subdirectory(${LIB_CRYPTO})
-endif()
+include("./util/CMakeListsInclude.txt")
+include("./crypto/CMakeListsInclude.txt")
+include("./message/CMakeListsInclude.txt")
+include("./network/CMakeListsInclude.txt")
+include("./requester/CMakeListsInclude.txt")
+include("./responder/CMakeListsInclude.txt")
 
-# MESSAGE LIBRARY:
-if(USE_MESSAGE)
-  message(">> adding message library...")
-  add_subdirectory(${LIB_MESSAGE})
-endif()
-
-# NETWORK LIBRARY:
-if(USE_NETWORK)
-  message(">> adding network library...")
-  if($<NOT:USE_CRYPTO>)
-    message(">> adding crypto library as network library dependency...")
-    add_subdirectory(${LIB_CRYPTO})
-  endif()
-  add_subdirectory(${LIB_NETWORK})
-endif()
-
-# REQUESTER LIBRARY:
-if(USE_REQUESTER)
-  message(">> adding requester library...")
-  if($<NOT:USE_NETWORK>)
-    message(">> adding network library as requester library dependency...")
-    add_subdirectory(${LIB_NETWORK})
-  endif()
-  if($<NOT:USE_MESSAGE>)
-    message(">> adding message library as requester library dependency...")
-    add_subdirectory(${LIB_MESSAGE})
-  endif()
-  add_subdirectory(${LIB_REQUESTER})
-endif()
-
-# RESPONDER LIBRARY:
-if(USE_RESPONDER)
-  message(">> adding responder library...")
-  if($<NOT:USE_REQUESTER>)
-    if($<NOT:USE_NETWORK>)
-      message(">> adding network library as responder library dependency...")
-      add_subdirectory(${LIB_NETWORK})
-    endif()
-    if($<NOT:USE_MESSAGE>)
-      message(">> adding network library as responder library dependency...")
-      add_subdirectory(${LIB_MESSAGE})
-    endif()
-  endif()
-  add_subdirectory(${LIB_RESPONDER})
-endif()
-
-# UTIL LIBRARY
-message(">> adding util library...")
-add_subdirectory(${LIB_UTIL})
 
 add_library(dsa_sdk STATIC ${SOURCES})
 target_link_libraries(dsa_sdk ${EXTRA_LIBS})

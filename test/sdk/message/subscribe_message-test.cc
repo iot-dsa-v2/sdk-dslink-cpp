@@ -16,7 +16,6 @@ TEST(MessageTest, subscribe_request_message) {
 
   std::shared_ptr<Buffer> b = std::make_shared<Buffer>(256);
 
-  subscribe_request.update_static_header();
   EXPECT_EQ(17, subscribe_request.size());
 
   std::string path = "/a";
@@ -25,7 +24,6 @@ TEST(MessageTest, subscribe_request_message) {
   // size become 0 after changing
   EXPECT_EQ(0, subscribe_request.size());
 
-  subscribe_request.update_static_header();
   EXPECT_EQ(22, subscribe_request.size());
 
   subscribe_request.write(b->data());

@@ -1,0 +1,5 @@
+set(SOURCES ${SOURCES}   
+        requester/incoming_message_stream.cc
+ )
+
+

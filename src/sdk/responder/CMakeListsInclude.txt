@@ -1,0 +1,11 @@
+
+
+set(SOURCES ${SOURCES}   
+#        responder/responder.cc
+        responder/node_model_manager.cc
+        responder/node_model.cc
+        responder/node_state_manager.cc
+        responder/node_state.cc
+        responder/outgoing_message_stream.cc)
+
+

@@ -1,6 +1,8 @@
 #include "session.h"
 
 #include <boost/bind.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/lock_types.hpp> 
 
 #include "dsa_common.h"
 #include "connection.h"

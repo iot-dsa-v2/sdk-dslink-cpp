@@ -1,15 +1,15 @@
 #ifndef DSA_SDK_SUBSCRIPTION_QUEUE_H_
 #define DSA_SDK_SUBSCRIPTION_QUEUE_H_
 
-#include <functional>
 #include <deque>
+#include <functional>
 
 #include <boost/asio/strand.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
 #include "dsa/util.h"
-#include "network/message_stream.h"
 #include "message/response/subscribe_response_message.h"
+#include "network/message_stream.h"
 
 namespace dsa {
 class Session;
@@ -25,7 +25,8 @@ class OutgoingMessageStream : public MessageStream {
   uint8_t _qos;
 
  public:
-  OutgoingMessageStream(const std::shared_ptr<Session> &session, uint8_t qos, size_t id, uint32_t rid)
+  OutgoingMessageStream(const std::shared_ptr<Session> &session, uint8_t qos,
+                        size_t id, uint32_t rid)
       : MessageStream(session, rid, id), _qos(qos) {}
 };
 
@@ -34,12 +35,13 @@ class SubscribeMessageStream : public OutgoingMessageStream {
   std::deque<SubscribeResponseMessage> _message_queue;
 
  public:
-  SubscribeMessageStream(const std::shared_ptr<Session> &session, uint8_t qos, size_t id, uint32_t rid);
+  SubscribeMessageStream(const std::shared_ptr<Session> &session, uint8_t qos,
+                         size_t id, uint32_t rid);
 
   void new_message(const SubscribeResponseMessage &new_message);
 
   size_t get_next_message_size() override;
-  Message get_next_message() override;
+  const Message &get_next_message() override;
 };
 
 }  // namespace dsa

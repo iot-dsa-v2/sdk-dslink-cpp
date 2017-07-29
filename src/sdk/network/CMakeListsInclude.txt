@@ -1,0 +1,12 @@
+
+set(SOURCES ${SOURCES}         
+        network/app.cc
+        network/message_stream.cc
+        network/gracefully_closable.cc
+        network/connection.cc
+        network/session.cc
+        network/server.cc
+        network/security_context.cc
+        network/session_manager.cc
+        network/tcp_connection.cc
+        network/tcp_server.cc)

@@ -1,5 +1,8 @@
 #include "dsa_common.h"
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/lock_types.hpp> 
+
 #include "outgoing_message_stream.h"
 
 namespace dsa {
@@ -27,7 +30,7 @@ size_t SubscribeMessageStream::get_next_message_size() {
   return _message_queue.back().size();
 }
 
-Message SubscribeMessageStream::get_next_message() {
+const Message& SubscribeMessageStream::get_next_message() {
   boost::unique_lock<boost::shared_mutex> lock(_key);
   auto message = _message_queue.back();
   _message_queue.pop_back();

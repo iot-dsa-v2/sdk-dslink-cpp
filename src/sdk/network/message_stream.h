@@ -20,7 +20,7 @@ class MessageStream : public InheritableEnableShared<MessageStream> {
       : _strand(*session->_strand), _request_id(request_id), _unique_id(unique_id) {}
 
   virtual size_t get_next_message_size() = 0;
-  virtual Message get_next_message() = 0;
+  virtual const Message& get_next_message() = 0;
 };
 }  // namespace dsa
 
