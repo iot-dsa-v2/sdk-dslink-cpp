@@ -24,8 +24,10 @@ find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 ## MsgPack
-find_package(Msgpack REQUIRED )
-include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
+if(UNIX)
+  find_package(Msgpack REQUIRED )
+  include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
+endif ()
 
 # Standard DSA v2 headers
 include_directories(".")

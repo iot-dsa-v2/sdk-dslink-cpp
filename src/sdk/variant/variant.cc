@@ -1,6 +1,6 @@
-#include "variant.h"
+#include "dsa_common.h"
 
-#include <msgpack.hpp>
+#include "variant.h"
 
 namespace dsa {
 Variant::Variant(int64_t v) : BaseVariant(v) {}

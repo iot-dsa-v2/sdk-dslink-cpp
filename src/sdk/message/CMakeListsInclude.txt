@@ -1,4 +1,3 @@
-include_directories(${LIB_MESSAGE})
 
 list(APPEND MessageSourceFiles
         base_message.cc
