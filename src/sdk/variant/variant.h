@@ -6,14 +6,13 @@
 #include <string>
 #include <vector>
 
-#include "../util/buffer.h"
-
 namespace dsa {
 class Variant;
 typedef boost::variant<boost::blank, double, int64_t, bool,
                        std::shared_ptr<std::string>,
                        std::shared_ptr<std::map<std::string, Variant>>,
-                       std::shared_ptr<std::vector<Variant>>, ConstBufferPtr>
+                       std::shared_ptr<std::vector<Variant>>,
+                       std::shared_ptr<const std::vector<uint8_t>>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -23,12 +22,19 @@ class Variant : public BaseVariant {
   Variant(int64_t v);
   Variant(int32_t v);
   Variant(int16_t v);
+
   Variant(double v);
+
   Variant(bool v);
+
   Variant(const std::string& v);
   Variant(const char* v);
   Variant(const char* v, size_t size);
-  Variant(const ConstBufferPtr& v);
+
+  Variant(const std::vector<uint8_t>& v);
+  Variant(const uint8_t* data, size_t size);
+
+
   Variant();
 
  protected:
@@ -61,8 +67,8 @@ class Variant : public BaseVariant {
   std::vector<Variant>& get_array() const {
     return *boost::get<std::shared_ptr<std::vector<Variant>>>(*this);
   }
-  const Buffer& get_binary() const {
-    return *boost::get<ConstBufferPtr>(*this);
+  const std::vector<uint8_t>& get_binary() const {
+    return *boost::get<std::shared_ptr<const std::vector<uint8_t>>>(*this);
   }
 
  public:

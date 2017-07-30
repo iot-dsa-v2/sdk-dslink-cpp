@@ -27,7 +27,6 @@ TEST(VariantTest, BaseTest) {
     EXPECT_TRUE(v.is_bool());
     EXPECT_EQ(v.get_bool(), true);
   }
-
 }
 
 TEST(VariantTest, MapTest) {
@@ -40,8 +39,16 @@ TEST(VariantTest, ArrayTest) {
   EXPECT_TRUE(v.is_array());
 }
 
-
 TEST(VariantTest, BinaryTest) {
-  Variant v(std::make_shared<Buffer>());
+  Variant v;
+  {
+    std::vector<uint8_t> vec = {0, 1, 2};
+    Variant v0(vec);
+    EXPECT_TRUE(v0.is_binary());
+    v = v0;
+  }
   EXPECT_TRUE(v.is_binary());
+
+  const std::vector<uint8_t>& vec = v.get_binary();
+  EXPECT_EQ(vec[1], 1);
 }
