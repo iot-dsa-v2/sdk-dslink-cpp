@@ -100,6 +100,7 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
 };
 
 typedef std::shared_ptr<Buffer> BufferPtr;
+typedef std::shared_ptr<const Buffer> ConstBufferPtr;
 typedef std::shared_ptr<Buffer::SharedBuffer> MessageBufferPtr;
 typedef Buffer::SharedBuffer SharedBuffer;
 typedef Buffer::SharedBuffer ValueUpdate;

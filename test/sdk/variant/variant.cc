@@ -1,0 +1,47 @@
+#include "dsa/variant.h"
+#include "gtest/gtest.h"
+
+using namespace dsa;
+
+TEST(VariantTest, BaseTest) {
+  {
+    Variant v;
+    EXPECT_TRUE(v.is_null());
+  }
+  {
+    Variant v("hello");
+    EXPECT_TRUE(v.is_string());
+  }
+  {
+    Variant v(123);
+    EXPECT_TRUE(v.is_int());
+    EXPECT_EQ(v.get_int(), 123);
+  }
+  {
+    Variant v(1.23);
+    EXPECT_TRUE(v.is_double());
+    EXPECT_EQ(v.get_double(), 1.23);
+  }
+  {
+    Variant v(true);
+    EXPECT_TRUE(v.is_bool());
+    EXPECT_EQ(v.get_bool(), true);
+  }
+
+}
+
+TEST(VariantTest, MapTest) {
+  Variant v = Variant::new_map();
+  EXPECT_TRUE(v.is_map());
+}
+
+TEST(VariantTest, ArrayTest) {
+  Variant v = Variant::new_array();
+  EXPECT_TRUE(v.is_array());
+}
+
+
+TEST(VariantTest, BinaryTest) {
+  Variant v(std::make_shared<Buffer>());
+  EXPECT_TRUE(v.is_binary());
+}
