@@ -1,8 +1,11 @@
+include_directories(${LIB_CRYPTO})
 
-set(SOURCES ${SOURCES}   
-  crypto/ecdh.cc
-  crypto/hash.cc
-  crypto/hmac.cc 
-  crypto/misc.cc)
+list(APPEND CryptoSourceFiles
+        ecdh.cc
+        hash.cc
+        hmac.cc
+        misc.cc)
 
-
+foreach(file ${CryptoSourceFiles})
+  list(APPEND ProjectSourceFiles ${LIB_CRYPTO}/${file})
+endforeach()

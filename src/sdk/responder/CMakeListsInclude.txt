@@ -1,11 +1,13 @@
+include_directories(${LIB_RESPONDER})
 
+list(APPEND ResponderSourceFiles
+#        responder.cc
+        node_model_manager.cc
+        node_model.cc
+        node_state_manager.cc
+        node_state.cc
+        outgoing_message_stream.cc)
 
-set(SOURCES ${SOURCES}   
-#        responder/responder.cc
-        responder/node_model_manager.cc
-        responder/node_model.cc
-        responder/node_state_manager.cc
-        responder/node_state.cc
-        responder/outgoing_message_stream.cc)
-
-
+foreach(file ${ResponderSourceFiles})
+    list(APPEND ProjectSourceFiles ${LIB_RESPONDER}/${file})
+endforeach()

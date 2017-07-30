@@ -1,5 +1,10 @@
 
-set(SOURCES ${SOURCES}   
-		variant/variant.cc
-        )
+include_directories(${LIB_VARIANT})
 
+list(APPEND VariantSourceFiles
+       variant.cc
+)
+
+foreach(file ${VariantSourceFiles})
+  list(APPEND ProjectSourceFiles ${LIB_VARIANT}/${file})
+endforeach()

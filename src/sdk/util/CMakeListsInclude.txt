@@ -1,5 +1,8 @@
+include_directories(${LIB_UTIL})
 
-set(SOURCES ${SOURCES}   
-        util/buffer.cc
-        )
+list(APPEND UtilSourceFiles
+        buffer.cc)
 
+foreach(file ${UtilSourceFiles})
+    list(APPEND ProjectSourceFiles ${LIB_UTIL}/${file})
+endforeach()

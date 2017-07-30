@@ -1,8 +1,0 @@
-include_directories(${LIB_REQUESTER})
-
-list(APPEND RequesterSourceFiles
-        incoming_message_stream.cc)
-
-foreach(file ${RequesterSourceFiles})
-    list(APPEND RequesterSourceFiles ${LIB_REQUESTER}/${file})
-endforeach()
