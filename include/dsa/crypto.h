@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CRYPTO_H_
-#define DSA_SDK_CRYPTO_H_
+#ifndef DSA_CRYPTO_H_
+#define DSA_CRYPTO_H_
 
 #include "dsa_common.h"
 #include "crypto/ecdh.h"
@@ -7,4 +7,4 @@
 #include "crypto/hmac.h"
 #include "crypto/misc.h"
 
-#endif  // DSA_SDK_CRYPTO_H_
+#endif  // DSA_CRYPTO_H_
