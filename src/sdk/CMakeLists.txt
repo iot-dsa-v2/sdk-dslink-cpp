@@ -20,7 +20,6 @@ endif ()
 find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
 include_directories(${Boost_INCLUDE_DIRS})
 
-
 # Standard DSA v2 headers
 include_directories(".")
 include_directories("../../include")
@@ -34,12 +33,11 @@ set(LIB_NETWORK "./network")
 set(LIB_REQUESTER "./requester")
 set(LIB_RESPONDER "./responder")
 
-
 # SOURCE FILES
-set(ProjectSourceFiles "")
+set(ProjectSourceFiles)
 
 # EXTERNAL LIBRARIES
-set(EXTRA_LIBS)
+set(ExtraLibs)
 
 include(${LIB_UTIL}/CMakeListsInclude.txt)
 include(${LIB_VARIANT}/CMakeListsInclude.txt)
