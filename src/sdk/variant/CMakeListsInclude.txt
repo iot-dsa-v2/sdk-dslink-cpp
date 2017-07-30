@@ -1,9 +1,7 @@
-
 include_directories(${LIB_VARIANT})
 
 list(APPEND VariantSourceFiles
-       variant.cc
-)
+       variant.cc)
 
 foreach(file ${VariantSourceFiles})
   list(APPEND ProjectSourceFiles ${LIB_VARIANT}/${file})

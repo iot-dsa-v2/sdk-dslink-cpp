@@ -2,13 +2,16 @@ cmake_minimum_required(VERSION 3.7)
 
 set(CMAKE_CXX_STANDARD 11)
 
+# Add external cmake modules
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../cmake")
+
 # DEPENDENCIES
 ## OpenSSL v1.0.2l
 if(UNIX)
   set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
 endif()
 find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 
 ## Boost Library v1.64
 find_package(Threads)
@@ -18,11 +21,15 @@ if (UNIX)
     set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
 endif ()
 find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+
+## MsgPack
+find_package(Msgpack REQUIRED )
+include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
 
 # Standard DSA v2 headers
 include_directories(".")
-include_directories("../../include")
+include_directories(${PROJECT_INCLUDE_DIR} PARENT_SCOPE)
 
 # LIBRARIES:
 set(LIB_UTIL "./util")
