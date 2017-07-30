@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-class InvokeRequestMessage : public RequestMessage {
+class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
  public:
   InvokeRequestMessage(const SharedBuffer& buffer);
   InvokeRequestMessage();

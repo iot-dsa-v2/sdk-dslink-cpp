@@ -41,6 +41,8 @@ void Message::set_page_id(int32_t value) {
   }
 }
 
+PagedMessageMixin::PagedMessageMixin() :current_page(SIZE_MAX) {}
+
 RequestMessage::RequestMessage(const SharedBuffer& buffer) : Message(buffer){};
 RequestMessage::RequestMessage(MessageType type) : Message(type){};
 RequestMessage::RequestMessage(const StaticHeaders& headers)

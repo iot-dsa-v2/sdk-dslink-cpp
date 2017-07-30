@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-class InvokeResponseMessage : public ResponseMessage {
+class InvokeResponseMessage : public ResponseMessage, PagedMessageMixin {
  public:
   std::unique_ptr<DynamicBoolHeader> skippable;
 

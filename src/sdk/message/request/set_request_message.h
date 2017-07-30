@@ -6,13 +6,14 @@
 
 namespace dsa {
 
-class SetRequestMessage : public RequestMessage {
+class SetRequestMessage : public RequestMessage, PagedMessageMixin {
  public:
   SetRequestMessage(const SharedBuffer& buffer);
   SetRequestMessage();
   SetRequestMessage(const SetRequestMessage&);
 
  protected:
+
   // measure the size and header size
   void update_static_header();
   // write dynamic header and body

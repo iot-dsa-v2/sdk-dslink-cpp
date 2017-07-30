@@ -1,6 +1,8 @@
 #ifndef DSA_SDK_BASE_MESSAGE_H_
 #define DSA_SDK_BASE_MESSAGE_H_
 
+#include <vector>
+
 #include "../util/buffer.h"
 #include "dynamic_header.h"
 #include "static_header.h"
@@ -39,6 +41,15 @@ class Message {
 
   int32_t get_page_id() const;
   void set_page_id(int32_t value);
+};
+
+class PagedMessageMixin {
+ public:
+  PagedMessageMixin();
+
+ protected:
+  std::vector<std::shared_ptr<Message>> other_pages;
+  size_t current_page;
 };
 
 class RequestMessage : public Message {

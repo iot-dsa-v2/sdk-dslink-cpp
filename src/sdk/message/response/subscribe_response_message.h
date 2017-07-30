@@ -7,7 +7,7 @@
 
 namespace dsa {
 
-class SubscribeResponseMessage : public ResponseMessage {
+class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
  private:
   std::unique_ptr<ParsedMessageValue> _parsed_value;
 
