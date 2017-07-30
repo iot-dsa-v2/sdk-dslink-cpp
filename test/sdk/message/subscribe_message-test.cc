@@ -21,8 +21,6 @@ TEST(MessageTest, subscribe_request_message) {
   std::string path = "/a";
 
   subscribe_request.set_target_path(path);
-  // size become 0 after changing
-  EXPECT_EQ(0, subscribe_request.size());
 
   EXPECT_EQ(22, subscribe_request.size());
 
