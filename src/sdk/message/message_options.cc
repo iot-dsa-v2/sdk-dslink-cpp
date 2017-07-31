@@ -1,10 +1,10 @@
 #include "dsa_common.h"
 
-#include "subscribe_option.h"
+#include "message_options.h"
 
 namespace dsa {
 
-SubscribeOption::SubscribeOption(Qos qos, int32_t queue_size,
+SubscribeOptions::SubscribeOptions(StreamQos qos, int32_t queue_size,
                                  int32_t queue_time)
     : qos(qos), queue_size(queue_size), queue_time(queue_time) {}
 

@@ -2,36 +2,48 @@
 
 #include <functional>
 
-#include "network/client.h"
 #include "message/message_factory.h"
-#include "message/request/subscribe_request_message.h"
 #include "message/request/invoke_request_message.h"
-#include "message/request/set_request_message.h"
 #include "message/request/list_request_message.h"
+#include "message/request/set_request_message.h"
+#include "message/request/subscribe_request_message.h"
+#include "network/client.h"
 
 namespace dsa {
 
 Responder::Responder(const std::shared_ptr<App> &app, Config config)
-    : GracefullyClosable(app),
-      _state_manager(*app),
-      _connection(app->new_client(
-          config.protocol,
-          Connection::Config(config.broker_hostname, config.broker_port))) {}
+    : GracefullyClosable(app), _state_manager(*app), _config(config) {}
 
 void Responder::start() {
   // register with app instance
   register_this();
 
-  // set new message handler
-  _connection->set_message_handler(
-      std::bind(&Responder::_message_handler, share_this<Responder>(), 
-                std::placeholders::_1, std::placeholders::_2));
+  // initialize new connection
+  ClientPtr connection = _initialize_connection();
 
   // connect to broker
-  _connection->connect();
+  connection->connect();
 }
 
-void Responder::_message_handler(const std::shared_ptr<Session> &session, SharedBuffer buf) {
+ClientPtr Responder::_initialize_connection() {
+  auto on_connect = [this](const std::shared_ptr<Session> session) {
+    _session = session;
+    _session->start();
+  };
+
+  Connection::Config connection_config(_config.broker_hostname,
+                                       _config.broker_port, on_connect);
+
+  ClientPtr connection(_app->new_client(_config.protocol, connection_config));
+  connection->set_message_handler(
+      std::bind(&Responder::_message_handler, share_this<Responder>(),
+                std::placeholders::_1, std::placeholders::_2));
+
+  return std::move(connection);
+}
+
+void Responder::_message_handler(const std::shared_ptr<Session> &session,
+                                 SharedBuffer buf) {
   std::unique_ptr<Message> message(parse_message(buf));
   switch (message->type()) {
     case SubscribeRequest:
@@ -49,6 +61,16 @@ void Responder::_message_handler(const std::shared_ptr<Session> &session, Shared
     default:
       return;
   }
+}
+
+void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
+  SubscribeOptions config(message.get_qos(), message.get_queue_size(), message.get_queue_time());
+  auto stream = std::make_shared<SubscribeMessageStream>(_session, config, _stream_count++, message.request_id());
+  _session->add_outgoing_subscription(stream);
+}
+
+void Responder::on_invoke_request(InvokeRequestMessage &message) {
+
 }
 
 }

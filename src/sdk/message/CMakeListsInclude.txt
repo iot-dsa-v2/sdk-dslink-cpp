@@ -2,9 +2,9 @@
 list(APPEND MessageSourceFiles
         base_message.cc
         message_factory.cc
-        static_header.cc
+        static_headers.cc
         dynamic_header.cc
-		subscribe_option.cc
+		message_options.cc
 		parsed_message_value.cc
         request/invoke_request_message.cc
         request/subscribe_request_message.cc

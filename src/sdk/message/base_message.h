@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "dynamic_header.h"
-#include "static_header.h"
+#include "static_headers.h"
 #include "enums.h"
 #include "util/buffer.h"
 
@@ -28,6 +28,9 @@ class Message {
   void set_page_id(int32_t value);
 
   MessageType type() { return static_headers.type; }
+
+  uint32_t request_id() { return static_headers.request_id; }
+
 
  protected:
   // measure the size and header size

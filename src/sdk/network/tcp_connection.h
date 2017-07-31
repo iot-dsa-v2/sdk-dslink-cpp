@@ -84,7 +84,9 @@ class TcpClientConnection : public TcpConnection, public GracefullyClosable {
 
   void connect() override;
 
-  void stop() override { close(); }
+  void stop() override;
+
+  std::shared_ptr<Session> session() { return _session; }
 
 };
 

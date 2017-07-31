@@ -1,6 +1,7 @@
 #ifndef DSA_SDK_RESPONDER_RESPONDER_H
 #define DSA_SDK_RESPONDER_RESPONDER_H
 
+#include <atomic>
 #include <string>
 
 #include "dsa/network.h"
@@ -37,15 +38,20 @@ class Responder : public GracefullyClosable {
   virtual void on_invoke_request(InvokeRequestMessage &request) = 0;
   virtual void on_list_request(ListRequestMessage &request) = 0;
   virtual void on_set_request(SetRequestMessage &request) = 0;
-  virtual void on_subscribe_request(SubscribeRequestMessage &request) = 0;
+  virtual void on_subscribe_request(SubscribeRequestMessage &request);
 
  private:
   ////////////////////////////////////////////
   // Private Members
   ////////////////////////////////////////////
-  std::unique_ptr<Client> _connection;
+  std::atomic_size_t _stream_count{0};
+  std::shared_ptr<Session> _session;
   NodeStateManager _state_manager;
   NodeModelManager _model_manager;
+
+  const Config _config;
+
+  ClientPtr _initialize_connection();
 
   void _message_handler(const std::shared_ptr<Session> &session, Buffer::SharedBuffer buf);
 };

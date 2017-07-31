@@ -8,7 +8,7 @@
 #include <boost/asio/deadline_timer.hpp>
 
 #include "util/util.h"
-#include "message/static_header.h"
+#include "message/static_headers.h"
 #include "security_context.h"
 
 namespace boost {
@@ -23,6 +23,7 @@ class Session;
 
 typedef std::function<void()> WriteHandler;
 typedef std::function<void(const std::shared_ptr<Session> &, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void(const std::shared_ptr<Session> &)> OnConnectHandler; 
 
 class Connection : public InheritableEnableShared<Connection> {
  public:
@@ -35,10 +36,13 @@ class Connection : public InheritableEnableShared<Connection> {
     // handshake timeout is in milliseconds
     unsigned int _handshake_timeout{1000};
     unsigned int _max_pending_messages{20};
-    MessageHandler _message_handler{[](std::shared_ptr<Session> s, Buffer::SharedBuffer b){}};
+    MessageHandler _message_handler{[](const std::shared_ptr<Session> &s, Buffer::SharedBuffer b){}};
+    OnConnectHandler _on_connect{[](const std::shared_ptr<Session> &s){}};
 
    public:
     Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
+    Config(std::string host, unsigned short port, OnConnectHandler on_connect) 
+        : _host(std::move(host)), _port(port), _on_connect(on_connect) {}
     Config(MessageHandler message_handler) : _message_handler(std::move(message_handler)) {}
     Config() = default;
     Config(const Config &) = default;
@@ -55,6 +59,7 @@ class Connection : public InheritableEnableShared<Connection> {
     void set_handshake_timeout(unsigned int timeout) { _handshake_timeout = timeout; }
     void set_max_pending_messages(unsigned int max_pending) { _max_pending_messages = max_pending; }
     void set_message_handler(MessageHandler message_handler) { _message_handler = std::move(message_handler); }
+    void set_on_connect(OnConnectHandler on_connect) { _on_connect = std::move(on_connect); }
 
     const std::string &host() const { return _host; }
     unsigned short port() const { return _port; }
@@ -62,7 +67,8 @@ class Connection : public InheritableEnableShared<Connection> {
     const BufferPtr &session_id() const { return _session_id; }
     unsigned int handshake_timout() const { return _handshake_timeout; }
     unsigned int max_pending_messages() const { return _max_pending_messages; }
-    MessageHandler message_handler() const { return _message_handler; }
+    const MessageHandler &message_handler() const { return _message_handler; }
+    const OnConnectHandler &on_connect() const { return _on_connect; }
   };
 
   enum Protocol {

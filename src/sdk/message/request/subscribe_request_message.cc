@@ -12,10 +12,10 @@ SubscribeRequestMessage::SubscribeRequestMessage(const SharedBuffer& buffer)
 
 SubscribeRequestMessage::SubscribeRequestMessage() : RequestMessage(MessageType::SubscribeRequest){};
 
-SubscribeOption::Qos SubscribeRequestMessage::get_qos() const {
-  return static_cast<SubscribeOption::Qos>(DynamicByteHeader::read_value(qos));
+StreamQos SubscribeRequestMessage::get_qos() const {
+  return static_cast<StreamQos>(DynamicByteHeader::read_value(qos));
 }
-void SubscribeRequestMessage::set_qos(SubscribeOption::Qos value) {
+void SubscribeRequestMessage::set_qos(StreamQos value) {
   if (DynamicByteHeader::write_value(qos, DynamicHeader::Qos, value)) {
     static_headers.message_size = 0;
   }
@@ -41,10 +41,10 @@ void SubscribeRequestMessage::set_queue_time(int32_t value) {
   }
 }
 
-SubscribeOption SubscribeRequestMessage::get_subscribe_option() const {
-  return SubscribeOption(get_qos(), get_queue_size(), get_queue_time());
+SubscribeOptions SubscribeRequestMessage::get_subscribe_option() const {
+  return SubscribeOptions(get_qos(), get_queue_size(), get_queue_time());
 }
 void SubscribeRequestMessage::set_subscribe_option(
-    const SubscribeOption& option) {}
+    const SubscribeOptions& option) {}
 
 }  // namespace dsa

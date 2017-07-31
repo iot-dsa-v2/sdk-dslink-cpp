@@ -17,6 +17,7 @@ class Connection;
 class Session;
 
 typedef std::function<void (const std::shared_ptr<Session> &, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void (const std::shared_ptr<Session> &)> OnConnectHandler;
 
 class Server : public GracefullyClosable {
  private:
@@ -34,6 +35,7 @@ class Server : public GracefullyClosable {
     std::string _path{"/"};
     unsigned short _port{8080};
     MessageHandler _message_handler{[](std::shared_ptr<Session> s, Buffer::SharedBuffer b){}};
+    OnConnectHandler _on_connect{[](const std::shared_ptr<Session> &s){}};
 
    public:
     Config(std::string path, unsigned short port) : _path(std::move(path)), _port(port) {}
@@ -47,10 +49,12 @@ class Server : public GracefullyClosable {
     void set_port(unsigned short port) { _port = port; }
     void set_path(const char *path) { _path = path; }
     void set_message_handler(MessageHandler message_handler) { _message_handler = std::move(message_handler); }
+    void set_on_connect(OnConnectHandler on_connect) { _on_connect = std::move(on_connect); }
 
     unsigned short port() const { return _port; }
     const std::string &path() const { return _path; }
     MessageHandler message_handler() const { return _message_handler; }
+    const OnConnectHandler &on_connect() const { return _on_connect; }
   };
 
   explicit Server(std::shared_ptr<App> app);

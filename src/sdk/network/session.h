@@ -45,7 +45,6 @@ class Session: public InheritableEnableShared<Session> {
 
  private:
   static std::atomic_size_t _session_count;
-  std::atomic_size_t _stream_count;
   BufferPtr _session_id;
   ConnectionPtr _connection;
   std::map<uint32_t, std::shared_ptr<MessageStream>> _outgoing_streams;

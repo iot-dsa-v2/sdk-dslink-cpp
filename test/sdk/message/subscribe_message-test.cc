@@ -8,11 +8,11 @@ TEST(MessageTest, subscribe_request_message) {
 
   EXPECT_EQ(0, subscribe_request.get_qos());
 
-  subscribe_request.set_qos(SubscribeOption::Qos2);
-  EXPECT_EQ(SubscribeOption::Qos2, subscribe_request.get_qos());
+  subscribe_request.set_qos(StreamQos::_2);
+  EXPECT_EQ(StreamQos::_2, subscribe_request.get_qos());
 
-  SubscribeOption option = subscribe_request.get_subscribe_option();
-  EXPECT_EQ(SubscribeOption::Qos2, option.qos);
+  SubscribeOptions option = subscribe_request.get_subscribe_option();
+  EXPECT_EQ(StreamQos::_2, option.qos);
 
   std::shared_ptr<Buffer> b = std::make_shared<Buffer>(256);
 
@@ -31,8 +31,8 @@ TEST(MessageTest, subscribe_request_message) {
   // parse a subscription message from the buffer
   SubscribeRequestMessage subscribe_request2(sb);
 
-  SubscribeOption option2 = subscribe_request2.get_subscribe_option();
-  EXPECT_EQ(SubscribeOption::Qos2, option2.qos);
+  SubscribeOptions option2 = subscribe_request2.get_subscribe_option();
+  EXPECT_EQ(StreamQos::_2, option2.qos);
 
   EXPECT_EQ(22, subscribe_request2.size());
 

@@ -1,17 +1,16 @@
 #include "dsa_common.h"
 
 #include <boost/thread/locks.hpp>
-#include <boost/thread/lock_types.hpp> 
 
 #include "outgoing_message_stream.h"
 
 namespace dsa {
 
 SubscribeMessageStream::SubscribeMessageStream(const std::shared_ptr<Session> &session,
-                                               uint8_t qos,
+                                               SubscribeOptions config,
                                                size_t id,
                                                uint32_t rid)
-    : OutgoingMessageStream(session, qos, id, rid) {
+    : OutgoingMessageStream(session, config.qos, id, rid), _config(config) {
   _set_ready = [=]() {
     session->add_ready_outgoing_stream(_request_id, _unique_id);
   };
@@ -30,7 +29,7 @@ size_t SubscribeMessageStream::get_next_message_size() {
   return _message_queue.back().size();
 }
 
-const Message& SubscribeMessageStream::get_next_message() {
+const Message &SubscribeMessageStream::get_next_message() {
   boost::unique_lock<boost::shared_mutex> lock(_key);
   auto message = _message_queue.back();
   _message_queue.pop_back();

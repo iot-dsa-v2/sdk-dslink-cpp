@@ -188,10 +188,10 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error, si
 
     _session_id = _session->session_id();
 
-    // send f3 then start session
+    // send f3 then call on connect handler
     send_f3();
     _session->set_connection(shared_from_this());
-    _session->start();
+    _config.on_connect()(_session);
   } else {
     close();
   }
@@ -226,6 +226,13 @@ void TcpClientConnection::connect() {
   _socket.async_connect(*resolver.resolve(query),
                         boost::bind(&TcpClientConnection::start_handshake, Connection::share_this<TcpClientConnection>(),
                                     boost::asio::placeholders::error));
+}
+
+void TcpClientConnection::stop() {
+  close();
+  if (_session != nullptr) {
+    _session->stop();
+  }
 }
 
 void TcpClientConnection::start_handshake(const boost::system::error_code &error) {
@@ -290,11 +297,9 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error, si
     for (size_t i = 0; i < AuthLength; ++i)
       if (auth[i] != other_auth[i]) return;
 
-    // create new session object and start
+    // create new session object and pass to the on connect handler
     _session = std::make_shared<Session>(_session_id, Connection::shared_from_this());
-    _session->start();
-
-    _session->stop();
+    _config.on_connect()(_session);
   } else {
     close();
   }
