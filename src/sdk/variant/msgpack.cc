@@ -66,8 +66,20 @@ Variant *Variant::from_msgpack(const uint8_t *data, size_t size) {
   return obj_to_variant(obj);
 }
 
-std::vector<const std::vector<uint8_t> *> Variant::to_msgpack() {
-  return std::vector<const std::vector<uint8_t> *>();
+std::vector<uint8_t> * Variant::to_msgpack() {
+  std::vector<uint8_t> * v = new std::vector<uint8_t>(10);
+
+  msgpack_sbuffer sbuf;
+  msgpack_packer pk;
+
+  msgpack_sbuffer_init(&sbuf);
+  msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+  // X()(&pk, xxx);
+
+  msgpack_sbuffer_destroy(&sbuf);
+
+  return v;
 }
 
 }  // namespace dsa
