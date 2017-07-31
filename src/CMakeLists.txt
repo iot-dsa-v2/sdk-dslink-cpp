@@ -3,9 +3,6 @@ project(sdk-dslink-cpp)
 
 set(CMAKE_CXX_STANDARD 11)
 
-message("PROJECT_INCLUDE_DIR")
-message(${PROJECT_INCLUDE_DIR})
-
 include_directories(${PROJECT_INCLUDE_DIR})
 
 # BUILD OPTIONS
