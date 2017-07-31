@@ -17,10 +17,8 @@ class Responder : virtual public GracefullyClosable {
   // Config
   ////////////////////////////////////////////
   struct Config {
-    unsigned short listen_port{8080};
     unsigned short broker_port{8081};
     std::string broker_hostname{"127.0.0.1"};
-    Server::Protocol protocol{Server::TCP};
   };
 
   ////////////////////////////////////////////

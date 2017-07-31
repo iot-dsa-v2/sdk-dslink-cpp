@@ -2,10 +2,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/locks.hpp>
-#include <boost/thread/lock_types.hpp> 
 
-#include "dsa_common.h"
-#include "connection.h"
 #include "responder/outgoing_message_stream.h"
 
 namespace dsa {
@@ -57,7 +54,7 @@ MessageStream *Session::_get_next_ready_stream() {
     _ready_streams.pop();
 
     // make sure stream is still active
-    if (!stream_info.container->count(stream_info.rid)) {
+    if (stream_info.container->count(stream_info.rid) == 0) {
       continue;
     }
 
@@ -72,7 +69,7 @@ MessageStream *Session::_get_next_ready_stream() {
 
 void Session::_write_loop() {
   if (_ready_streams.empty()) {
-    _strand->post(boost::bind(&Session::_write_loop, shared_from_this()));
+    _is_writing = false;
     return;
   }
 
@@ -90,10 +87,8 @@ void Session::_write_loop() {
     stream = _get_next_ready_stream();
   } while (stream != nullptr && stream->get_next_message_size() + buf->size() < buf->capacity());
 
-  auto shared_this = shared_from_this();
-  _connection->write(buf, buf->size(), [shared_this]() {
-    shared_this->_write_loop();
-  });
+  _is_writing = true;
+  _connection->write(buf, buf->size(), boost::bind(&Session::_write_loop, shared_from_this()));
 }
 
 }  // namespace dsa
