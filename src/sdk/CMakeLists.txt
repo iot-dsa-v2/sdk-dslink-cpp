@@ -25,7 +25,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 ## MsgPack
 if(UNIX)
-  find_package(Msgpack REQUIRED )
+  find_package(Msgpack REQUIRED)
   include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
 endif ()
 set(EXTRA_LIBS ${EXTRA_LIBS} ${MSGPACK_LIBRARY})
