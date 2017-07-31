@@ -32,13 +32,16 @@ class Variant : public BaseVariant {
 
   Variant();
 
- protected:
   explicit Variant(const std::shared_ptr<std::map<std::string, Variant>> &v);
-  Variant(const std::shared_ptr<std::vector<Variant>> &v);
+  explicit Variant(const std::shared_ptr<std::vector<Variant>> &v);
 
  public:
   static Variant new_map();
   static Variant new_array();
+
+ public:
+  static Variant from_msgpack(const uint8_t *data, size_t size);
+  std::vector<const std::vector<uint8_t> *> to_msgpack();
 
   bool is_double() const { return which() == Double; }
   bool is_int() const { return which() == Int; }

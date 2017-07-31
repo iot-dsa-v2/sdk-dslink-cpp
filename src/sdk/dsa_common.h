@@ -11,6 +11,4 @@
 #include <cstdint>
 #include <memory>
 
-#define MSGPACK_USE_BOOST 
-
 #endif  // DSA_DSA_COMMON_H_

@@ -1,5 +1,5 @@
 {
-    // See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
+    // See https://go.microsoft.com/fwlink/?linkid=834763 for more information about this file.
   "configurations": [
     //   {
     //     "name": "x86-Debug",
@@ -45,6 +45,10 @@
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
           "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+        },
+        {
+          "name": "MSGPACK_LIBRARY",
+          "value": "C:\\vcpkg\\packages\\msgpack_x64-windows-static\\debug\\lib\\msgpackc.lib"
         }
       ]
 
@@ -61,6 +65,10 @@
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
           "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+        },
+        {
+          "name": "MSGPACK_LIBRARY",
+          "value": "C:\\vcpkg\\packages\\msgpack_x64-windows-static\\lib\\msgpackc.lib"
         }
       ]
 
