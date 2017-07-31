@@ -22,7 +22,7 @@ class App;
 class Session;
 
 typedef std::function<void()> WriteHandler;
-typedef std::function<void(std::shared_ptr<Session>, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void(const std::shared_ptr<Session> &, Buffer::SharedBuffer)> MessageHandler;
 
 class Connection : public InheritableEnableShared<Connection> {
  public:

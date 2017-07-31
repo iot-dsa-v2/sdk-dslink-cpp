@@ -16,7 +16,7 @@ class SessionManager;
 class Connection;
 class Session;
 
-typedef std::function<void (std::shared_ptr<Session>, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void (const std::shared_ptr<Session> &, Buffer::SharedBuffer)> MessageHandler;
 
 class Server : public GracefullyClosable {
  private:

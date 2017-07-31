@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include "../util/buffer.h"
 #include "dynamic_header.h"
 #include "static_header.h"
+#include "enums.h"
 #include "util/buffer.h"
 
 namespace dsa {
@@ -21,26 +21,26 @@ class Message {
   // update_static_header must be called before write
   void write(uint8_t* data) const throw(const MessageParsingError&);
 
+  int32_t get_sequence_id() const;
+  void set_sequence_id(int32_t value);
+
+  int32_t get_page_id() const;
+  void set_page_id(int32_t value);
+
+  MessageType type() { return static_headers.type; }
+
  protected:
   // measure the size and header size
   virtual void update_static_header() = 0;
   // write dynamic header and body
   virtual void write_dynamic_data(uint8_t* data) const = 0;
 
- protected:
   StaticHeaders static_headers;
 
   std::unique_ptr<SharedBuffer> body;
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
-
- public:
-  int32_t get_sequence_id() const;
-  void set_sequence_id(int32_t value);
-
-  int32_t get_page_id() const;
-  void set_page_id(int32_t value);
 };
 
 class PagedMessageMixin {
@@ -53,11 +53,6 @@ class PagedMessageMixin {
 };
 
 class RequestMessage : public Message {
- public:
-  explicit RequestMessage(const SharedBuffer& buffer);
-  RequestMessage(MessageType type);
-  RequestMessage(const StaticHeaders& headers);
-
  protected:
   std::unique_ptr<DynamicBoolHeader> priority;
   std::unique_ptr<DynamicStringHeader> target_path;
@@ -66,6 +61,10 @@ class RequestMessage : public Message {
   std::unique_ptr<DynamicByteHeader> alias_count;
 
  public:
+  explicit RequestMessage(const SharedBuffer& buffer);
+  RequestMessage(MessageType type);
+  RequestMessage(const StaticHeaders& headers);
+
   bool get_priority() const;
   void set_priority(bool value);
 
@@ -83,16 +82,15 @@ class RequestMessage : public Message {
 };
 
 class ResponseMessage : public Message {
- public:
-  explicit ResponseMessage(const SharedBuffer& buffer);
-  ResponseMessage(MessageType type);
-  ResponseMessage(const StaticHeaders& headers);
-
  protected:
   std::unique_ptr<DynamicStringHeader> source_path;
   std::unique_ptr<DynamicByteHeader> status;
 
  public:
+  explicit ResponseMessage(const SharedBuffer& buffer);
+  ResponseMessage(MessageType type);
+  ResponseMessage(const StaticHeaders& headers);
+
   const std::string& get_source_path() const;
   void set_source_path(const std::string& value);
 

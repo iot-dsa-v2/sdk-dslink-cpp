@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-static struct MsgpackMemPool {
+struct MsgpackMemPool {
   msgpack_zone zone;
 
   MsgpackMemPool() { msgpack_zone_init(&zone, 2048); }

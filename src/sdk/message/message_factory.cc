@@ -14,8 +14,8 @@
 
 namespace dsa {
 
-Message* parseMessage(const SharedBuffer& buffer) throw(
-const MessageParsingError&) {
+Message* parse_message(const SharedBuffer& buffer) throw(
+    const MessageParsingError&) {
   if (buffer.size < StaticHeaders::TotalSize) {
     return nullptr;
   }

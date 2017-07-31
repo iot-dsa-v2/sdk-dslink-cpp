@@ -7,6 +7,7 @@
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <boost/asio/io_service.hpp>
 
 #include "network/app.h"
 #include "node_state.h"
@@ -17,12 +18,12 @@ namespace dsa {
  */
 class NodeStateManager {
  private:
-  std::shared_ptr<App> _app;
+  boost::asio::io_service &_io_service;
   boost::shared_mutex _key;
   std::map<std::string, std::shared_ptr<NodeState>> _node_states;
 
  public:
-  explicit NodeStateManager(std::shared_ptr<App> app) : _app(std::move(app)) {}
+  explicit NodeStateManager(const App &app) : _io_service(app.io_service()) {}
 
   std::shared_ptr<NodeState> get_or_create(std::string path);
 };

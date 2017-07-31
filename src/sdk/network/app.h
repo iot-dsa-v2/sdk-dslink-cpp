@@ -76,10 +76,10 @@ class App : public std::enable_shared_from_this<App> {
   void sleep(unsigned int milliseconds);
 
   // get new server
-  std::shared_ptr<Server> new_server(Server::Protocol type, const Server::Config &config) throw();
+  Server *new_server(Server::Protocol type, const Server::Config &config) throw();
 
   // get new client
-  ClientPtr new_client(Client::Protocol type, const Client::Config &config) throw() ;
+  Client *new_client(Client::Protocol type, const Client::Config &config) throw() ;
 };
 }  // namespace dsa
 

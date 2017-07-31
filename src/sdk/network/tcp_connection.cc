@@ -208,10 +208,10 @@ void TcpServerConnection::send_f3() {
 //////////////////////////////////
 // TcpClientConnection
 //////////////////////////////////
-TcpClientConnection::TcpClientConnection(std::shared_ptr<App> app)
+TcpClientConnection::TcpClientConnection(const std::shared_ptr<App> &app)
     : TcpConnection(*app, Config()), GracefullyClosable(app) { std::cout << "TcpClientConnection()\n"; }
 
-TcpClientConnection::TcpClientConnection(std::shared_ptr<App> app, const Config &config)
+TcpClientConnection::TcpClientConnection(const std::shared_ptr<App> &app, const Config &config)
     : TcpConnection(*app, config), GracefullyClosable(app) { std::cout << "TcpClientConnection()\n"; }
 
 void TcpClientConnection::connect() {

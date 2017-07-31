@@ -14,12 +14,12 @@ TEST(TcpServerTest, OneClient) {
   Server::Config server_config("/test/path", 8000);
   Client::Config client_config("127.0.0.1", 8000);
 
-  ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
+  ServerPtr tcp_server(app->new_server(Server::TCP, server_config));
   tcp_server->start();
 
   app->sleep(500);
 
-  ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
+  ClientPtr tcp_client(app->new_client(Client::TCP, client_config));
   tcp_client->connect();
 
   app->sleep(1000);
@@ -38,13 +38,13 @@ TEST(TcpServerTest, MultipleClients) {
   Server::Config server_config("/test/path", 8081);
   Client::Config client_config("127.0.0.1", 8081);
 
-  ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
+  ServerPtr tcp_server(app->new_server(Server::TCP, server_config));
   tcp_server->start();
 
 //  app->sleep(1000);
 
   for (unsigned int i = 0; i < 2; ++i) {
-    ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
+    ClientPtr tcp_client(app->new_client(Client::TCP, client_config));
     tcp_client->connect();
   }
 

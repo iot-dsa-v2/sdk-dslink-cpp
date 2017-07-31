@@ -76,8 +76,8 @@ class TcpClientConnection : public TcpConnection, public GracefullyClosable {
   void start_handshake(const boost::system::error_code &error);
 
  public:
-  explicit TcpClientConnection(std::shared_ptr<App> app);
-  TcpClientConnection(std::shared_ptr<App> app, const Config &config);
+  explicit TcpClientConnection(const std::shared_ptr<App> &app);
+  TcpClientConnection(const std::shared_ptr<App> &app, const Config &config);
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
   void name() override { std::cout << "TcpClientConnection\n"; }

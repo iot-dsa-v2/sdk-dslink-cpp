@@ -16,7 +16,7 @@ class GracefullyClosable : public InheritableEnableShared<GracefullyClosable> {
   virtual void stop() = 0;
 
   // this ensures that the component is registered with the app
-  explicit GracefullyClosable(std::shared_ptr<App> app);
+  explicit GracefullyClosable(const std::shared_ptr<App> &app);
 
   // ensures that components remove themselves from register once dead
   ~GracefullyClosable() override;
