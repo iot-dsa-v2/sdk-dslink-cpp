@@ -9,25 +9,20 @@
 
 namespace dsa {
 
-Connection::Connection(std::shared_ptr<const App> app, const Config &config)
-    : _app(app),
+Connection::Connection(const App &app, const Config &config)
+    : _security_context(app.security_context()),
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),
       _config(config),
-      _deadline(app->io_service()),
+      _deadline(app.io_service()),
       _message_handler(config.message_handler()) {}
-
-void Connection::handle_message(Buffer::SharedBuffer buf) {
-  if (_session != nullptr)
-    _message_handler(_session, std::move(buf));
-}
 
 void Connection::success_or_close(const boost::system::error_code &error) {
   if (error != nullptr) close();
 }
 
 void Connection::compute_secret() {
-  _shared_secret = _app->security_context().ecdh().compute_secret(*_other_public_key);
+  _shared_secret = _security_context.ecdh().compute_secret(*_other_public_key);
 
   /* compute user auth */
   dsa::HMAC hmac("sha256", *_shared_secret);
@@ -36,7 +31,7 @@ void Connection::compute_secret() {
 
   /* compute other auth */
   dsa::HMAC other_hmac("sha256", *_shared_secret);
-  other_hmac.update(_app->security_context().salt());
+  other_hmac.update(_security_context.salt());
   _other_auth = other_hmac.digest();
 }
 
@@ -57,8 +52,8 @@ void Connection::timeout(const boost::system::error_code &error) {
 }
 
 void Connection::reset_standard_deadline_timer() {
-//  _deadline->expires_from_now(boost::posix_time::minutes(1));
-//  _deadline->async_wait(boost::bind(&Connection::timeout, share_this<Connection>(), boost::asio::placeholders::error));
+  _deadline.expires_from_now(boost::posix_time::minutes(1));
+  _deadline.async_wait(boost::bind(&Connection::timeout, share_this<Connection>(), boost::asio::placeholders::error));
 }
 
 // Handshake parse functions
@@ -216,10 +211,10 @@ bool Connection::parse_f3(size_t size) {
 
 // Handshake load functions
 size_t Connection::load_f0(Buffer &buf) {
-  uint8_t dsid_length = (uint8_t) _app->security_context().dsid().size();
+  uint8_t dsid_length = (uint8_t) _security_context.dsid().size();
 
   // ensure buf is large enough
-  buf.resize(MinF0Length + _app->security_context().dsid().size());
+  buf.resize(MinF0Length + _security_context.dsid().size());
 
   // leave message size blank for now
   StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake0, 0, 0);
@@ -229,12 +224,12 @@ size_t Connection::load_f0(Buffer &buf) {
   data[cur] = (uint8_t) 2; // version major
   data[++cur] = (uint8_t) 0; // version minor
   data[++cur] = dsid_length;
-  std::memcpy(&data[++cur], _app->security_context().dsid().c_str(), dsid_length);
+  std::memcpy(&data[++cur], _security_context.dsid().c_str(), dsid_length);
   cur += dsid_length;
-  std::memcpy(&data[cur], _app->security_context().public_key().data(), PublicKeyLength);
+  std::memcpy(&data[cur], _security_context.public_key().data(), PublicKeyLength);
   cur += PublicKeyLength;
   data[cur++] = 0; // no encryption for now
-  std::memcpy(&data[cur], _app->security_context().salt().data(), SaltLength);
+  std::memcpy(&data[cur], _security_context.salt().data(), SaltLength);
   cur += SaltLength;
   std::memcpy(data, &cur, sizeof(cur)); // write total size
 
@@ -242,7 +237,7 @@ size_t Connection::load_f0(Buffer &buf) {
 }
 
 size_t Connection::load_f1(Buffer &buf) {
-  auto dsid_length = (uint8_t) _app->security_context().dsid().size();
+  auto dsid_length = (uint8_t) _security_context.dsid().size();
 
   // ensure buf is large enough
   buf.resize(MinF1Length + dsid_length);
@@ -253,11 +248,11 @@ size_t Connection::load_f1(Buffer &buf) {
   header.write(data);
   uint32_t cur = StaticHeaders::TotalSize;
   data[cur++] = dsid_length;
-  std::memcpy(&data[cur], _app->security_context().dsid().c_str(), dsid_length);
+  std::memcpy(&data[cur], _security_context.dsid().c_str(), dsid_length);
   cur += dsid_length;
-  std::memcpy(&data[cur], _app->security_context().public_key().data(), PublicKeyLength);
+  std::memcpy(&data[cur], _security_context.public_key().data(), PublicKeyLength);
   cur += PublicKeyLength;
-  std::memcpy(&data[cur], _app->security_context().salt().data(), SaltLength);
+  std::memcpy(&data[cur], _security_context.salt().data(), SaltLength);
   cur += SaltLength;
   std::memcpy(data, &cur, sizeof(cur));
 

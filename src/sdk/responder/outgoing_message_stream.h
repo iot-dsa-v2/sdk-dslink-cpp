@@ -35,8 +35,7 @@ class SubscribeMessageStream : public OutgoingMessageStream {
   std::deque<SubscribeResponseMessage> _message_queue;
 
  public:
-  SubscribeMessageStream(const std::shared_ptr<Session> &session, uint8_t qos,
-                         size_t id, uint32_t rid);
+  SubscribeMessageStream(const std::shared_ptr<Session> &session, uint8_t qos, size_t id, uint32_t rid);
 
   void new_message(const SubscribeResponseMessage &new_message);
 

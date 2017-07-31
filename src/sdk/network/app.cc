@@ -92,6 +92,12 @@ void App::graceful_stop() {
       component->stop();
 }
 
+void App::graceful_stop(unsigned int milliseconds) {
+  graceful_stop();
+  sleep(milliseconds);
+  stop();
+}
+
 void App::stop() {
   _io_service->stop();
 }

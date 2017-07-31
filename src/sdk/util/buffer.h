@@ -30,6 +30,8 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
         : _parent_buf(std::move(parent)), data(data), size(size) {}
 
     SharedBuffer(const SharedBuffer &buf) : _parent_buf(buf._parent_buf), size(buf.size), data(buf.data) {}
+
+    SharedBuffer(SharedBuffer &&buf) : _parent_buf(std::move(buf._parent_buf)), size(buf.size), data(buf.data) {}
   };
 
   // default constructor

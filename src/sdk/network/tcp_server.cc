@@ -18,7 +18,7 @@ void TcpServer::start() {
   register_this();
 
   // start taking connections
-  _new_connection = std::make_shared<TcpServerConnection>(_app, _config);
+  _new_connection = std::make_shared<TcpServerConnection>(*_app, _config);
 
   _acceptor->async_accept(_new_connection->socket(),
                           boost::bind(&TcpServer::accept_loop,
@@ -27,7 +27,7 @@ void TcpServer::start() {
 }
 
 void TcpServer::stop() {
-  _acceptor.reset();
+  _acceptor->close();
   Server::stop();
 }
 
@@ -35,11 +35,13 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
   if (!error) {
     _new_connection->set_server(share_this<TcpServer>());
     _new_connection->connect();
-    _new_connection.reset(new TcpServerConnection(_app, _config));
+    _new_connection.reset(new TcpServerConnection(*_app, _config));
     _acceptor->async_accept(_new_connection->socket(),
                             boost::bind(&TcpServer::accept_loop,
                                         share_this<TcpServer>(),
                                         boost::asio::placeholders::error));
+  } else {
+    stop();
   }
 }
 

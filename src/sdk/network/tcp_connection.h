@@ -21,12 +21,10 @@ class TcpConnection : public Connection {
  protected:
   void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) override;
   tcp_socket _socket;
-  boost::asio::io_service::strand _strand;
   std::atomic_bool _socket_open{true};
 
  public:
-  TcpConnection(std::shared_ptr<App> app, const Config &config);
-  ~TcpConnection() override = default;
+  TcpConnection(const App &app, const Config &config);
 
   void write_handler(WriteHandler callback, const boost::system::error_code &error);
 
@@ -57,7 +55,7 @@ class TcpServerConnection : public TcpConnection {
   void start_handshake();
 
  public:
-  explicit TcpServerConnection(std::shared_ptr<App> app, const Server::Config &config);
+  TcpServerConnection(const App &app, const Server::Config &config);
   ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
 
   void connect() override;
@@ -69,7 +67,7 @@ class TcpServerConnection : public TcpConnection {
 
 // TCP client side connection.
 // Handles client side of DSA handshake and starts read loop.
-class TcpClientConnection : public TcpConnection {
+class TcpClientConnection : public TcpConnection, public GracefullyClosable {
  private:
   void f1_received(const boost::system::error_code &error, size_t bytes_transferred);
   void f3_received(const boost::system::error_code &error, size_t bytes_transferred);
@@ -85,6 +83,8 @@ class TcpClientConnection : public TcpConnection {
   void name() override { std::cout << "TcpClientConnection\n"; }
 
   void connect() override;
+
+  void stop() override { close(); }
 
 };
 

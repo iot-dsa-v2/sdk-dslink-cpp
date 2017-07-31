@@ -2,14 +2,14 @@
 #define DSA_SDK_SUBSCRIBE_OPTION_H
 
 #include <cstddef>
-namespace dsa {
 
+namespace dsa {
 struct SubscribeOption {
   enum Qos : uint8_t {
-    Qos0 = 0,
-    Qos1 = 1,
-    Qos2 = 2,
-    Qos3 = 3,
+    Qos0 = 0, // only last value
+    Qos1 = 1, // send all values but drop based on TTL
+    Qos2 = 2, // send all values and maintain values if connection is dropped
+    Qos3 = 3, // send all and maintain values even if session is lost and resubscribe is needed
   };
 
   Qos qos;

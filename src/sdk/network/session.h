@@ -41,6 +41,8 @@ class Session: public InheritableEnableShared<Session> {
 
   bool add_outgoing_subscription(const std::shared_ptr<OutgoingMessageStream> &stream);
 
+  boost::asio::io_service::strand &strand() { return *_strand; };
+
  private:
   static std::atomic_size_t _session_count;
   std::atomic_size_t _stream_count;
@@ -56,7 +58,6 @@ class Session: public InheritableEnableShared<Session> {
   MessageStream *_get_next_ready_stream();
   void _write_loop();
 
-  friend class MessageStream;
   std::unique_ptr<boost::asio::io_service::strand> _strand;
 };
 

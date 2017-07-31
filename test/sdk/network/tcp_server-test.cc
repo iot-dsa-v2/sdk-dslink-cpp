@@ -41,9 +41,9 @@ TEST(TcpServerTest, MultipleClients) {
   ServerPtr tcp_server = app->new_server(Server::TCP, server_config);
   tcp_server->start();
 
-  app->sleep(1000);
+//  app->sleep(1000);
 
-  for (unsigned int i = 0; i < 3; ++i) {
+  for (unsigned int i = 0; i < 2; ++i) {
     ClientPtr tcp_client = app->new_client(Client::TCP, client_config);
     tcp_client->connect();
   }

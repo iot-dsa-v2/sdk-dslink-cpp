@@ -9,6 +9,7 @@
 
 #include "util/util.h"
 #include "message/static_header.h"
+#include "security_context.h"
 
 namespace boost {
 namespace system {
@@ -108,9 +109,8 @@ class Connection : public InheritableEnableShared<Connection> {
   virtual void start() throw() = 0;
 
  protected:
-  explicit Connection(std::shared_ptr<const App> app, const Config &config);
-  ~Connection() override = default;
-  std::shared_ptr<const App> _app;
+  explicit Connection(const App &app, const Config &config);
+  SecurityContext &_security_context;
   Config _config;
 
   // this should rarely be touched
@@ -150,8 +150,6 @@ class Connection : public InheritableEnableShared<Connection> {
   size_t load_f3(Buffer &buf);
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
-
-  void handle_message(SharedBuffer buf);
 
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();

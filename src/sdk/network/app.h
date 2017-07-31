@@ -63,6 +63,9 @@ class App : public std::enable_shared_from_this<App> {
   // allows jobs to finish then stops io_service, may not stop if servers or clients are listening
   void graceful_stop();
 
+  // allows jobs to finish then stops io_service, hard stops after timeout
+  void graceful_stop(unsigned int milliseconds);
+
   // halts jobs and stops io_service
   void stop();
 
