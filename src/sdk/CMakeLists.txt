@@ -32,7 +32,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${MSGPACK_LIBRARY})
 
 # Standard DSA v2 headers
 include_directories(".")
-include_directories(${PROJECT_INCLUDE_DIR} PARENT_SCOPE)
+include_directories(${PROJECT_INCLUDE_DIR})
 
 # LIBRARIES:
 set(LIB_UTIL "./util")
