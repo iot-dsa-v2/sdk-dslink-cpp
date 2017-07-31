@@ -30,13 +30,13 @@ TEST(VariantTest, BaseTest) {
 }
 
 TEST(VariantTest, MapTest) {
-  Variant v = Variant::new_map();
-  EXPECT_TRUE(v.is_map());
+  std::unique_ptr<Variant> v = std::unique_ptr<Variant>(Variant::new_map());
+  EXPECT_TRUE(v->is_map());
 }
 
 TEST(VariantTest, ArrayTest) {
-  Variant v = Variant::new_array();
-  EXPECT_TRUE(v.is_array());
+  std::unique_ptr<Variant> v = std::unique_ptr<Variant>(Variant::new_array());
+  EXPECT_TRUE(v->is_array());
 }
 
 TEST(VariantTest, BinaryTest) {

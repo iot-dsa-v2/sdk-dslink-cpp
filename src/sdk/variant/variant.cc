@@ -25,27 +25,36 @@ Variant::Variant(const uint8_t* data, size_t size)
           std::make_shared<const std::vector<uint8_t>>(data, data + size)) {}
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
-Variant::Variant(const std::shared_ptr<std::map<std::string, Variant>>& v)
-    : BaseVariant(v) {}
-Variant::Variant(const std::shared_ptr<std::vector<Variant>>& v)
-    : BaseVariant(v) {}
+Variant::Variant(VariantMap* p) : BaseVariant(std::shared_ptr<VariantMap>(p)) {}
+Variant::Variant(VariantArray* p)
+    : BaseVariant(std::shared_ptr<VariantArray>(p)) {}
 
-Variant Variant::new_map() {
-  return Variant(std::make_shared<std::map<std::string, Variant>>());
-}
-Variant Variant::new_array() {
-  return Variant(std::make_shared<std::vector<Variant>>());
-}
+Variant* Variant::new_map() { return new Variant(new VariantMap()); }
+Variant* Variant::new_array() { return new Variant(new VariantArray()); }
 
-Variant Variant::copy() const {
+Variant* Variant::copy() const {
   switch (which()) {
-    case Map:
-      return Variant(
-          std::make_shared<std::map<std::string, Variant>>(get_map()));
-    case Array:
-      return Variant(std::make_shared<std::vector<Variant>>(get_array()));
+    case Map: {
+      VariantMap* new_map = new VariantMap();
+      VariantMap& map = get_map();
+
+      for (VariantMap::iterator it = map.begin(); it != map.end(); ++it) {
+        (*new_map)[it->first] = std::unique_ptr<Variant>(it->second->copy());
+      }
+      return new Variant(new_map);
+    }
+    case Array: {
+      VariantArray* new_array = new VariantArray();
+      VariantArray& array = get_array();
+      new_array->reserve(array.size());
+
+      for (VariantArray::iterator it = array.begin(); it != array.end(); ++it) {
+        new_array->push_back(std::unique_ptr<Variant>(it->get()->copy()));
+      }
+      return new Variant(new_array);
+    }
     default:
-      return Variant(*this);
+      return new Variant(*this);
   }
 }
 

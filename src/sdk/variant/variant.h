@@ -8,11 +8,16 @@
 
 namespace dsa {
 class Variant;
-typedef boost::variant<boost::blank, double, int64_t, bool,
-                       std::shared_ptr<std::string>,
-                       std::shared_ptr<std::map<std::string, Variant>>,
-                       std::shared_ptr<std::vector<Variant>>,
-                       std::shared_ptr<const std::vector<uint8_t>>>
+
+typedef  std::map<std::string, std::unique_ptr<Variant> > VariantMap;
+
+typedef  std::vector<std::unique_ptr<Variant> > VariantArray;
+
+typedef boost::variant<
+    boost::blank, double, int64_t, bool, std::shared_ptr<std::string>,
+    std::shared_ptr<VariantMap>,
+    std::shared_ptr<VariantArray>,
+    std::shared_ptr<const std::vector<uint8_t>>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -32,15 +37,15 @@ class Variant : public BaseVariant {
 
   Variant();
 
-  explicit Variant(const std::shared_ptr<std::map<std::string, Variant>> &v);
-  explicit Variant(const std::shared_ptr<std::vector<Variant>> &v);
+  explicit Variant(VariantMap *p);
+  explicit Variant(VariantArray *p);
 
  public:
-  static Variant new_map();
-  static Variant new_array();
+  static Variant *new_map();
+  static Variant *new_array();
 
  public:
-  static Variant from_msgpack(const uint8_t *data, size_t size);
+  static Variant *from_msgpack(const uint8_t *data, size_t size);
   std::vector<const std::vector<uint8_t> *> to_msgpack();
 
   bool is_double() const { return which() == Double; }
@@ -58,11 +63,11 @@ class Variant : public BaseVariant {
   const std::string &get_string() const {
     return *boost::get<std::shared_ptr<std::string>>(*this);
   }
-  std::map<std::string, Variant> &get_map() const {
-    return *boost::get<std::shared_ptr<std::map<std::string, Variant>>>(*this);
+  VariantMap &get_map() const {
+    return *boost::get<std::shared_ptr<VariantMap>>(*this);
   }
-  std::vector<Variant> &get_array() const {
-    return *boost::get<std::shared_ptr<std::vector<Variant>>>(*this);
+  VariantArray &get_array() const {
+    return *boost::get<std::shared_ptr<VariantArray>>(*this);
   }
   const std::vector<uint8_t> &get_binary() const {
     return *boost::get<std::shared_ptr<const std::vector<uint8_t>>>(*this);
@@ -71,7 +76,7 @@ class Variant : public BaseVariant {
  public:
   // shallow copy on array and map
   // other types are const and can use copy constructor directly
-  Variant copy() const;
+  Variant *copy() const;
 };
 
 }  // namespace dsa
