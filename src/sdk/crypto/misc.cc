@@ -137,7 +137,7 @@ std::string base64url(std::string str) {
 }
 
 BufferPtr hex2bin(const char* src) {
-  auto out = std::make_shared<Buffer>();
+  auto out = make_shared_<Buffer>();
 
   int i = 0;
   while (src[i] && src[i + 1]) {
@@ -152,6 +152,6 @@ BufferPtr gen_salt(int len) {
   uint8_t* out = new uint8_t[len];
   if (!RAND_bytes(out, len))
     throw std::runtime_error("Unable to generate salt");
-  return std::move(std::make_shared<Buffer>(out, len, len));
+  return std::move(make_shared_<Buffer>(out, len, len));
 }
 }  // namespace dsa

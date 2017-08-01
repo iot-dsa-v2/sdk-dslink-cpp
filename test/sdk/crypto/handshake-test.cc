@@ -78,7 +78,7 @@ BufferPtr CryptoTest::compute_public_key(BIGNUM *priv) {
   EC_POINT_point2oct(_group, pub_key, form, out, size, nullptr);
   EC_POINT_free(pub_key);
 
-  return std::move(std::make_shared<Buffer>(out, size, size));
+  return std::move(make_shared_<Buffer>(out, size, size));
 }
 
 

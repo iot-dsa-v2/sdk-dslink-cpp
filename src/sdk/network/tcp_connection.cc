@@ -13,13 +13,9 @@ TcpConnection::TcpConnection(const App &app, const Config &config)
 
 void TcpConnection::close() {
   if (_socket_open.exchange(false)) {
-    // call n times to make sure socket operations are all cancelled
-    for (unsigned int i = 0; i < 5; ++i)
-      _socket.close();
+    _socket.close();
   }
-  // call n times to make sure timer operations are all cancelled
-  for (unsigned int i = 0; i < 5; ++i)
-    _deadline.cancel();
+  _deadline.cancel();
 }
 
 void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) {
@@ -125,7 +121,7 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 TcpServerConnection::TcpServerConnection(const App &app, const Server::Config &config)
     : TcpConnection(app, Config(config.message_handler())) {
   std::cout << "TcpServerConnection()" << std::endl;
-  _path = std::make_shared<Buffer>(config.path());
+  _path = make_shared_<Buffer>(config.path());
 }
 
 void TcpServerConnection::connect() {
@@ -208,10 +204,10 @@ void TcpServerConnection::send_f3() {
 //////////////////////////////////
 // TcpClientConnection
 //////////////////////////////////
-TcpClientConnection::TcpClientConnection(const std::shared_ptr<App> &app)
+TcpClientConnection::TcpClientConnection(const shared_ptr_<App> &app)
     : TcpConnection(*app, Config()), GracefullyClosable(app) { std::cout << "TcpClientConnection()\n"; }
 
-TcpClientConnection::TcpClientConnection(const std::shared_ptr<App> &app, const Config &config)
+TcpClientConnection::TcpClientConnection(const shared_ptr_<App> &app, const Config &config)
     : TcpConnection(*app, config), GracefullyClosable(app) { std::cout << "TcpClientConnection()\n"; }
 
 void TcpClientConnection::connect() {
@@ -298,7 +294,7 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error, si
       if (auth[i] != other_auth[i]) return;
 
     // create new session object and pass to the on connect handler
-    _session = std::make_shared<Session>(_session_id, Connection::shared_from_this());
+    _session = make_shared_<Session>(_session_id, Connection::shared_from_this());
     _config.on_connect()(_session);
   } else {
     close();

@@ -5,7 +5,7 @@
 
 namespace dsa {
 
-std::shared_ptr<NodeModel> NodeModelManager::get_model(const std::string &path) {
+shared_ptr_<NodeModel> NodeModelManager::get_model(const std::string &path) {
   boost::shared_lock<boost::shared_mutex> lock(_models_key);
   if (_models.count(path) > 0)
     return _models.at(path);

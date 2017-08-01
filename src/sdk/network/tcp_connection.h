@@ -62,7 +62,7 @@ class TcpServerConnection : public TcpConnection {
 
   void name() override { std::cout << "TcpServerConnection\n"; }
 
-  inline void set_server(std::shared_ptr<TcpServer> server) { _server = std::move(server); };
+  inline void set_server(shared_ptr_<TcpServer> server) { _server = std::move(server); };
 };
 
 // TCP client side connection.
@@ -76,8 +76,8 @@ class TcpClientConnection : public TcpConnection, public GracefullyClosable {
   void start_handshake(const boost::system::error_code &error);
 
  public:
-  explicit TcpClientConnection(const std::shared_ptr<App> &app);
-  TcpClientConnection(const std::shared_ptr<App> &app, const Config &config);
+  explicit TcpClientConnection(const shared_ptr_<App> &app);
+  TcpClientConnection(const shared_ptr_<App> &app, const Config &config);
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
   void name() override { std::cout << "TcpClientConnection\n"; }
@@ -86,11 +86,11 @@ class TcpClientConnection : public TcpConnection, public GracefullyClosable {
 
   void stop() override;
 
-  std::shared_ptr<Session> session() { return _session; }
+  shared_ptr_<Session> session() { return _session; }
 
 };
 
-typedef std::shared_ptr<TcpServerConnection> TcpServerConnectionPtr;
+typedef shared_ptr_<TcpServerConnection> TcpServerConnectionPtr;
 
 }  // namespace dsa
 

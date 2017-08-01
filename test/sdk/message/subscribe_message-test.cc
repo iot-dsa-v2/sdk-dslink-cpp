@@ -1,4 +1,6 @@
+#include <dsa/util.h>
 #include "dsa/message.h"
+#include "dsa/util.h"
 #include "gtest/gtest.h"
 
 using namespace dsa;
@@ -14,7 +16,7 @@ TEST(MessageTest, subscribe_request_message) {
   SubscribeOptions option = subscribe_request.get_subscribe_options();
   EXPECT_EQ(StreamQos::_2, option.qos);
 
-  std::shared_ptr<Buffer> b = std::make_shared<Buffer>(256);
+  shared_ptr_<Buffer> b = make_shared_<Buffer>(256);
 
   EXPECT_EQ(17, subscribe_request.size());
 

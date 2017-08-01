@@ -13,7 +13,7 @@
 
 namespace dsa {
 
-Responder::Responder(const std::shared_ptr<App> &app, Config config)
+Responder::Responder(const shared_ptr_<App> &app, Config config)
     : GracefullyClosable(app), _state_manager(*app), _config(config) {}
 
 void Responder::start() {
@@ -28,7 +28,7 @@ void Responder::start() {
 }
 
 ClientPtr Responder::_initialize_connection() {
-  auto on_connect = [this](const std::shared_ptr<Session> session) {
+  auto on_connect = [this](const shared_ptr_<Session> session) {
     _session = session;
     _session->start();
   };
@@ -44,7 +44,7 @@ ClientPtr Responder::_initialize_connection() {
   return std::move(connection);
 }
 
-void Responder::_message_handler(const std::shared_ptr<Session> &session,
+void Responder::_message_handler(const shared_ptr_<Session> &session,
                                  SharedBuffer buf) {
   std::unique_ptr<Message> message(parse_message(buf));
   switch (message->type()) {
@@ -61,7 +61,7 @@ void Responder::_message_handler(const std::shared_ptr<Session> &session,
 }
 
 void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
-  auto stream = std::make_shared<SubscribeMessageStream>(_session,
+  auto stream = make_shared_<SubscribeMessageStream>(_session,
                                                          message.get_subscribe_options(),
                                                          _stream_count++,
                                                          message.request_id());

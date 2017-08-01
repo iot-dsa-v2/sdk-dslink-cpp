@@ -20,12 +20,12 @@ class NodeStateManager {
  private:
   boost::asio::io_service &_io_service;
   boost::shared_mutex _key;
-  std::map<std::string, std::shared_ptr<NodeState>> _node_states;
+  std::map<std::string, shared_ptr_<NodeState>> _node_states;
 
  public:
   explicit NodeStateManager(const App &app) : _io_service(app.io_service()) {}
 
-  const std::shared_ptr<NodeState> &get_or_create(std::string path);
+  const shared_ptr_<NodeState> &get_or_create(std::string path);
 };
 }  // namespace dsa
 

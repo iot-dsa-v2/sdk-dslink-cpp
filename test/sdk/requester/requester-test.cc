@@ -5,7 +5,7 @@ using namespace dsa;
 
 TEST(RequesterTest, basic_flow) {
 
-  std::shared_ptr<App> appPtr;
+  shared_ptr_<App> appPtr;
   ASSERT_NO_FATAL_FAILURE(appPtr.reset(new App("RequesterTest")));
 
   appPtr->async_start(2);

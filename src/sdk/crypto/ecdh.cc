@@ -35,7 +35,7 @@ BufferPtr ECDH::get_private_key() const {
     throw std::runtime_error("private key couldn't be retrieved");
   }
 
-  return std::move(std::make_shared<Buffer>(out, size, size));
+  return std::move(make_shared_<Buffer>(out, size, size));
 }
 
 BufferPtr ECDH::get_public_key() const {
@@ -56,7 +56,7 @@ BufferPtr ECDH::get_public_key() const {
     throw std::runtime_error("Couldn't get public key");
   }
 
-  return std::move(std::make_shared<Buffer>(out, size, size));
+  return std::move(make_shared_<Buffer>(out, size, size));
 }
 
 bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) {
@@ -127,7 +127,7 @@ BufferPtr ECDH::compute_secret(Buffer &public_key) const {
     throw std::runtime_error("secret couldn't be computed with given key");
   }
 
-  return std::move(std::make_shared<Buffer>(out, size, size));
+  return std::move(make_shared_<Buffer>(out, size, size));
 }
 
 }  // namespace dsa

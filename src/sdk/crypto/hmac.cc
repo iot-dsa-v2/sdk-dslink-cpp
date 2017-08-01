@@ -44,6 +44,6 @@ BufferPtr HMAC::digest() {
   HMAC_CTX_cleanup(ctx);
 
   return std::move(
-      std::make_shared<Buffer>(out, size, EVP_MAX_MD_SIZE));
+      make_shared_<Buffer>(out, size, EVP_MAX_MD_SIZE));
 }
 }  // namespace dsa

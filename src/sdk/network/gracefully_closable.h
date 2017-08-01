@@ -9,14 +9,14 @@ class App;
 class GracefullyClosable : public InheritableEnableShared<GracefullyClosable> {
   // interface that classes must adhere to in order to perform a graceful stop
  public:
-  std::shared_ptr<App> _app;
+  shared_ptr_<App> _app;
 
   // this should gracefully stop any running process
   // that the inheriting object has running
   virtual void stop() = 0;
 
   // this ensures that the component is registered with the app
-  explicit GracefullyClosable(const std::shared_ptr<App> &app);
+  explicit GracefullyClosable(const shared_ptr_<App> &app);
 
   // ensures that components remove themselves from register once dead
   ~GracefullyClosable() override;

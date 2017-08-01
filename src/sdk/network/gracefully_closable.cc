@@ -7,7 +7,7 @@
 #include "app.h"
 
 namespace dsa {
-GracefullyClosable::GracefullyClosable(const std::shared_ptr<App> &app) : _app(app) {}
+GracefullyClosable::GracefullyClosable(const shared_ptr_<App> &app) : _app(app) {}
 
 GracefullyClosable::~GracefullyClosable() {
   _app->unregister_component(this);

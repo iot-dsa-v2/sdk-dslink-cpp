@@ -6,7 +6,7 @@
 namespace dsa {
 
 using Client = Connection;
-typedef std::shared_ptr<Client> ClientPtr;
+typedef shared_ptr_<Client> ClientPtr;
 
 }  // namespace dsa
 

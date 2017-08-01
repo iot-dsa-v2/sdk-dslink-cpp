@@ -16,15 +16,15 @@ class SessionManager;
 class Connection;
 class Session;
 
-typedef std::function<void (const std::shared_ptr<Session> &, Buffer::SharedBuffer)> MessageHandler;
-typedef std::function<void (const std::shared_ptr<Session> &)> OnConnectHandler;
+typedef std::function<void (const shared_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void (const shared_ptr_<Session> &)> OnConnectHandler;
 
 class Server : public GracefullyClosable {
  private:
-  std::shared_ptr<SessionManager> _session_manager;
+  shared_ptr_<SessionManager> _session_manager;
 
  public:
-  std::shared_ptr<SessionManager> session_manager() { return _session_manager; }
+  shared_ptr_<SessionManager> session_manager() { return _session_manager; }
 
   enum Protocol {
     TCP
@@ -34,8 +34,8 @@ class Server : public GracefullyClosable {
    private:
     std::string _path{"/"};
     unsigned short _port{8080};
-    MessageHandler _message_handler{[](std::shared_ptr<Session> s, Buffer::SharedBuffer b){}};
-    OnConnectHandler _on_connect{[](const std::shared_ptr<Session> &s){}};
+    MessageHandler _message_handler{[](shared_ptr_<Session> s, Buffer::SharedBuffer b){}};
+    OnConnectHandler _on_connect{[](const shared_ptr_<Session> &s){}};
 
    public:
     Config(std::string path, unsigned short port) : _path(std::move(path)), _port(port) {}
@@ -57,14 +57,14 @@ class Server : public GracefullyClosable {
     const OnConnectHandler &on_connect() const { return _on_connect; }
   };
 
-  explicit Server(std::shared_ptr<App> app);
+  explicit Server(shared_ptr_<App> app);
 
   virtual void start() = 0;
   void stop() override;
   virtual std::string type() = 0;
 };
 
-typedef std::shared_ptr<Server> ServerPtr;
+typedef shared_ptr_<Server> ServerPtr;
 
 }  // namespace dsa
 

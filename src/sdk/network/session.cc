@@ -11,7 +11,7 @@ Session::Session(BufferPtr session_id, const ConnectionPtr &connection)
     : _connection(connection), _session_id(std::move(session_id)) {}
 
 Session::Session(const std::string &session_id, ConnectionPtr connection)
-    : _connection(std::move(connection)), _session_id(std::make_shared<Buffer>(session_id)) {}
+    : _connection(std::move(connection)), _session_id(make_shared_<Buffer>(session_id)) {}
 
 void Session::start() const {
   if (_connection == nullptr)
@@ -36,7 +36,7 @@ void Session::add_ready_outgoing_stream(uint32_t rid, size_t unique_id) {
   }));
 }
 
-bool Session::add_outgoing_subscription(const std::shared_ptr<OutgoingMessageStream> &stream) {
+bool Session::add_outgoing_subscription(const shared_ptr_<OutgoingMessageStream> &stream) {
   boost::upgrade_lock<boost::shared_mutex> lock(_outgoing_key);
   if (_outgoing_streams.count(stream->_request_id) > 0)
     return false;
@@ -78,7 +78,7 @@ void Session::_write_loop() {
     return;
   }
 
-  auto buf = std::make_shared<Buffer>();
+  auto buf = make_shared_<Buffer>();
   MessageStream *stream = _get_next_ready_stream();
 
   if (stream == nullptr)

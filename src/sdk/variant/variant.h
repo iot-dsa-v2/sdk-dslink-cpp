@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "util/enable_shared.h"
+
 struct msgpack_object;
 
 namespace dsa {
@@ -17,10 +19,10 @@ typedef std::map<std::string, std::unique_ptr<Variant>> VariantMap;
 typedef std::vector<std::unique_ptr<Variant>> VariantArray;
 
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
-                       std::shared_ptr<const std::string>,
-                       std::shared_ptr<VariantMap>,
-                       std::shared_ptr<VariantArray>, std::vector<uint8_t>,
-                       std::shared_ptr<const std::vector<uint8_t>>>
+                       shared_ptr_<const std::string>,
+                       shared_ptr_<VariantMap>,
+                       shared_ptr_<VariantArray>, std::vector<uint8_t>,
+                       shared_ptr_<const std::vector<uint8_t>>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -122,21 +124,21 @@ class Variant : public BaseVariant {
   bool get_bool() const { return boost::get<bool>(*this); }
   const std::string &get_string() const {
     if (which() == SharedString) {
-      return *boost::get<std::shared_ptr<const std::string>>(*this);
+      return *boost::get<shared_ptr_<const std::string>>(*this);
     }
     return boost::get<const std::string>(*this);
   }
   const std::vector<uint8_t> &get_binary() const {
     if (which() == SharedBinary) {
-      return *boost::get<std::shared_ptr<const std::vector<uint8_t>>>(*this);
+      return *boost::get<shared_ptr_<const std::vector<uint8_t>>>(*this);
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }
   VariantMap &get_map() const {
-    return *boost::get<std::shared_ptr<VariantMap>>(*this);
+    return *boost::get<shared_ptr_<VariantMap>>(*this);
   }
   VariantArray &get_array() const {
-    return *boost::get<std::shared_ptr<VariantArray>>(*this);
+    return *boost::get<shared_ptr_<VariantArray>>(*this);
   }
 
  public:

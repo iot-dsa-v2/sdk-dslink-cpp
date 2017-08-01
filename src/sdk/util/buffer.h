@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include "enable_shared.h"
+
 namespace dsa {
 class Message;
 
@@ -21,12 +23,13 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
  public:
   class SharedBuffer {
    private:
-    std::shared_ptr<Buffer> _parent_buf;
+    shared_ptr_<Buffer> _parent_buf;
+
    public:
     const size_t size;
     const uint8_t * data;
 
-    SharedBuffer(std::shared_ptr<Buffer> parent, const uint8_t * data, size_t size)
+    SharedBuffer(shared_ptr_<Buffer> parent, const uint8_t * data, size_t size)
         : _parent_buf(std::move(parent)), data(data), size(size) {}
 
     SharedBuffer(const SharedBuffer &buf) : _parent_buf(buf._parent_buf), size(buf.size), data(buf.data) {}
@@ -101,9 +104,9 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   iterator end() { return &_data[_size]; }
 };
 
-typedef std::shared_ptr<Buffer> BufferPtr;
-typedef std::shared_ptr<const Buffer> ConstBufferPtr;
-typedef std::shared_ptr<Buffer::SharedBuffer> MessageBufferPtr;
+typedef shared_ptr_<Buffer> BufferPtr;
+typedef shared_ptr_<const Buffer> ConstBufferPtr;
+typedef shared_ptr_<Buffer::SharedBuffer> MessageBufferPtr;
 typedef Buffer::SharedBuffer SharedBuffer;
 typedef Buffer::SharedBuffer ValueUpdate;
 

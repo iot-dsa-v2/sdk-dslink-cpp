@@ -13,18 +13,18 @@ Variant::Variant(const char* v, size_t size)
     : BaseVariant(std::string(v, size)) {}
 Variant::Variant(const std::string& v) : BaseVariant(v) {}
 Variant::Variant(const std::string* p)
-    : BaseVariant(std::shared_ptr<const std::string>(p)) {}
+    : BaseVariant(shared_ptr_<const std::string>(p)) {}
 
 Variant::Variant(const uint8_t* v, size_t size)
     : BaseVariant(std::vector<uint8_t>(v, v + size)) {}
 Variant::Variant(const std::vector<uint8_t>& v) : BaseVariant(v) {}
 Variant::Variant(const std::vector<uint8_t>* p)
-    : BaseVariant(std::shared_ptr<const std::vector<uint8_t>>(p)) {}
+    : BaseVariant(shared_ptr_<const std::vector<uint8_t>>(p)) {}
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
-Variant::Variant(VariantMap* p) : BaseVariant(std::shared_ptr<VariantMap>(p)) {}
+Variant::Variant(VariantMap* p) : BaseVariant(shared_ptr_<VariantMap>(p)) {}
 Variant::Variant(VariantArray* p)
-    : BaseVariant(std::shared_ptr<VariantArray>(p)) {}
+    : BaseVariant(shared_ptr_<VariantArray>(p)) {}
 
 Variant* Variant::new_map() { return new Variant(new VariantMap()); }
 Variant* Variant::new_array() { return new Variant(new VariantArray()); }

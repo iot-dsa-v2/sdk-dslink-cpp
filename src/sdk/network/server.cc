@@ -7,7 +7,7 @@
 
 namespace dsa {
 
-Server::Server(std::shared_ptr<App> app) : GracefullyClosable(app), _session_manager(new SessionManager) {}
+Server::Server(shared_ptr_<App> app) : GracefullyClosable(app), _session_manager(new SessionManager) {}
 
 void Server::stop() {
   if (_session_manager != nullptr) {

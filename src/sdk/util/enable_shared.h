@@ -5,15 +5,23 @@
 
 namespace dsa {
 
+template <typename T>
+using shared_ptr_ = std::shared_ptr<T>;
+
+template <class T, typename... Args>
+inline shared_ptr_<T> make_shared_(Args&&... args) {
+  return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
 template <class T>
 class EnableShared {
  private:
-  std::shared_ptr<T> _ptr;
+  shared_ptr_<T> _ptr;
 
  public:
   EnableShared() : _ptr(static_cast<T*>(this)) {}
 
-  std::shared_ptr<T> shared_from_this() {
+  shared_ptr_<T> shared_from_this() {
     if (_ptr != nullptr) {
       return _ptr;
     }
@@ -32,10 +40,10 @@ class MultipleInheritableEnableSharedFromThis : public virtual std::enable_share
 
 template<typename T, typename F>
 class shared_this_lambda {
-  std::shared_ptr<T> t;  // just for lifetime
+  shared_ptr_<T> t;  // just for lifetime
   F f;
  public:
-  shared_this_lambda(std::shared_ptr<T> t, F f) : t(t), f(f) {}
+  shared_this_lambda(shared_ptr_<T> t, F f) : t(t), f(f) {}
   template<class... Args>
   auto operator()(Args &&...args) -> decltype(this->f(std::forward<Args>(args)...)) {
     return f(std::forward<Args>(args)...);
@@ -45,12 +53,12 @@ class shared_this_lambda {
 template <class T>
 class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFromThis {
  public:
-  std::shared_ptr<T> shared_from_this() {
+  shared_ptr_<T> shared_from_this() {
     return std::dynamic_pointer_cast<T>(MultipleInheritableEnableSharedFromThis::shared_from_this());
   }
 
   template <class Down>
-  std::shared_ptr<Down> share_this() {
+  shared_ptr_<Down> share_this() {
     return std::dynamic_pointer_cast<Down>(MultipleInheritableEnableSharedFromThis::shared_from_this());
   }
 
@@ -68,10 +76,10 @@ class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFr
 };
 
 template <class _Ty, class... _Types>
-inline std::shared_ptr<_Ty> make_shared(_Types&&... _Args) {
+inline shared_ptr_<_Ty> make_shared(_Types&&... _Args) {
   // FIXME: this doesn't compile
 //    return (new _Ty(_STD, std::forward<_Types>(_Args)...))->shared_from_this();
-  return (new _Ty(_Args...))->shared_from_this();
+  return (new _Ty(std::forward<_Types>(_Args)...))->shared_from_this();
 }
 
 }  // namespace dsa

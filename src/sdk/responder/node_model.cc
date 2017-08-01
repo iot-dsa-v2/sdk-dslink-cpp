@@ -15,7 +15,7 @@ void NodeModel::update_value(T new_value) {
     _state->new_message(message);
 }
 
-void NodeModel::add_invoke_stream(const std::shared_ptr<InvokeMessageStream> &stream) {
+void NodeModel::add_invoke_stream(const shared_ptr_<InvokeMessageStream> &stream) {
   std::lock_guard<std::mutex> lock(_invoke_key);
   _invoke_streams[stream->_request_id] = stream;
 }
@@ -25,7 +25,7 @@ void NodeModel::remove_invoke_stream(uint32_t request_id) {
   _invoke_streams.erase(request_id);
 }
 
-void NodeModel::add_set_stream(const std::shared_ptr<SetMessageStream> &stream) {
+void NodeModel::add_set_stream(const shared_ptr_<SetMessageStream> &stream) {
   std::lock_guard<std::mutex> lock(_set_key);
   _set_streams[stream->_request_id] = stream;
 }

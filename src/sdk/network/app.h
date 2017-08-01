@@ -27,10 +27,10 @@ class GracefullyClosable;
 
 class App : public std::enable_shared_from_this<App> {
  private:
-  std::shared_ptr<boost::asio::io_service> _io_service;
-  std::shared_ptr<io_service_work> _work;
-  std::shared_ptr<SecurityContext> _security_context;
-  std::shared_ptr<boost::thread_group> _threads;
+  shared_ptr_<boost::asio::io_service> _io_service;
+  shared_ptr_<io_service_work> _work;
+  shared_ptr_<SecurityContext> _security_context;
+  shared_ptr_<boost::thread_group> _threads;
   std::string _name;
   std::mutex _register_key;
 
@@ -43,13 +43,13 @@ class App : public std::enable_shared_from_this<App> {
   friend class GracefullyClosable;
 
   // register new component
-  void register_component(std::shared_ptr<GracefullyClosable> component);
+  void register_component(shared_ptr_<GracefullyClosable> component);
   // un-register dead component
   void unregister_component(void *component);
 
  public:
   explicit App(std::string name);
-  App(std::string name, std::shared_ptr<boost::asio::io_service> io_service);
+  App(std::string name, shared_ptr_<boost::asio::io_service> io_service);
   boost::asio::io_service &io_service() const { return *_io_service; };
   SecurityContext &security_context() const { return *_security_context; };
   const std::string &name() const { return _name; };

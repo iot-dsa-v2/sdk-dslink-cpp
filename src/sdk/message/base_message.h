@@ -51,7 +51,7 @@ class PagedMessageMixin {
   PagedMessageMixin();
 
  protected:
-  std::vector<std::shared_ptr<Message>> other_pages;
+  std::vector<shared_ptr_<Message>> other_pages;
   size_t current_page;
 };
 

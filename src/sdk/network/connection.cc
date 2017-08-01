@@ -80,15 +80,15 @@ bool Connection::parse_f0(size_t size) {
 
   if (cur + dsid_length + PublicKeyLength + 1 + SaltLength > size) return false;
 
-  _other_dsid = std::make_shared<Buffer>(dsid_length);
+  _other_dsid = make_shared_<Buffer>(dsid_length);
   _other_dsid->assign(&data[cur], dsid_length);
 
   cur += dsid_length;
-  _other_public_key = std::make_shared<Buffer>(PublicKeyLength);
+  _other_public_key = make_shared_<Buffer>(PublicKeyLength);
   _other_public_key->assign(&data[cur], PublicKeyLength);
   cur += PublicKeyLength;
   _security_preference = data[cur++];
-  _other_salt = std::make_shared<Buffer>(SaltLength);
+  _other_salt = make_shared_<Buffer>(SaltLength);
   _other_salt->assign(&data[cur], SaltLength);
   cur += SaltLength;
 
@@ -114,13 +114,13 @@ bool Connection::parse_f1(size_t size) {
   if (cur + dsid_length + PublicKeyLength + SaltLength > size)
     return false;
 
-  _other_dsid = std::make_shared<Buffer>(dsid_length);
+  _other_dsid = make_shared_<Buffer>(dsid_length);
   _other_dsid->assign(&data[cur], dsid_length);
   cur += dsid_length;
-  _other_public_key = std::make_shared<Buffer>(PublicKeyLength);
+  _other_public_key = make_shared_<Buffer>(PublicKeyLength);
   _other_public_key->assign(&data[cur], PublicKeyLength);
   cur += PublicKeyLength;
-  _other_salt = std::make_shared<Buffer>(SaltLength);
+  _other_salt = make_shared_<Buffer>(SaltLength);
   _other_salt->assign(&data[cur], SaltLength);
   cur += SaltLength;
 
@@ -148,7 +148,7 @@ bool Connection::parse_f2(size_t size) {
   if (cur + token_length + 2 + sizeof(session_id_length) > size)
     return false;
 
-  _other_token = std::make_shared<Buffer>(token_length);
+  _other_token = make_shared_<Buffer>(token_length);
   _other_token->assign(&data[cur], token_length);
   cur += token_length;
 
@@ -161,10 +161,10 @@ bool Connection::parse_f2(size_t size) {
   if (cur + session_id_length + AuthLength != size)
     return false;
 
-  _session_id = std::make_shared<Buffer>(session_id_length);
+  _session_id = make_shared_<Buffer>(session_id_length);
   _session_id->assign(&data[cur], session_id_length);
   cur += session_id_length;
-  _other_auth = std::make_shared<Buffer>(AuthLength);
+  _other_auth = make_shared_<Buffer>(AuthLength);
   _other_auth->assign(&data[cur], AuthLength);
   cur += AuthLength;
 
@@ -190,7 +190,7 @@ bool Connection::parse_f3(size_t size) {
   if (cur + session_id_length + sizeof(path_length) > size)
     return false;
 
-  _session_id = std::make_shared<Buffer>(session_id_length);
+  _session_id = make_shared_<Buffer>(session_id_length);
   _session_id->assign(&data[cur], session_id_length);
   cur += session_id_length;
   std::memcpy(&path_length, &data[cur], sizeof(path_length));
@@ -199,10 +199,10 @@ bool Connection::parse_f3(size_t size) {
   if (cur + path_length + AuthLength > size)
     return false;
 
-  _path = std::make_shared<Buffer>(path_length);
+  _path = make_shared_<Buffer>(path_length);
   _path->assign(&data[cur], path_length);
   cur += path_length;
-  _other_auth = std::make_shared<Buffer>(AuthLength);
+  _other_auth = make_shared_<Buffer>(AuthLength);
   _other_auth->assign(&data[cur], AuthLength);
   cur += AuthLength;
 

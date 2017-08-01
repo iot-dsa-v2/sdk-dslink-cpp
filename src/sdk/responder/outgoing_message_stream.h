@@ -28,7 +28,7 @@ class OutgoingMessageStream : public MessageStream {
   boost::shared_mutex _key;
 
  public:
-  OutgoingMessageStream(const std::shared_ptr<Session> &session, size_t id, uint32_t rid)
+  OutgoingMessageStream(const shared_ptr_<Session> &session, size_t id, uint32_t rid)
       : MessageStream(session, rid, id) {}
 };
 
@@ -38,7 +38,7 @@ class SubscribeMessageStream : public OutgoingMessageStream {
   SubscribeOptions _config;
 
  public:
-  SubscribeMessageStream(const std::shared_ptr<Session> &session, SubscribeOptions config, size_t id, uint32_t rid);
+  SubscribeMessageStream(const shared_ptr_<Session> &session, SubscribeOptions config, size_t id, uint32_t rid);
 
   void new_message(const SubscribeResponseMessage &new_message);
 
@@ -52,7 +52,7 @@ class InvokeMessageStream : public OutgoingMessageStream {
   InvokeOptions _config;
 
  public:
-  InvokeMessageStream(const std::shared_ptr<Session> &session, InvokeOptions config, size_t id, uint32_t rid);
+  InvokeMessageStream(const shared_ptr_<Session> &session, InvokeOptions config, size_t id, uint32_t rid);
 
   void new_message(const InvokeResponseMessage &new_message);
 
@@ -66,7 +66,7 @@ class ListMessageStream : public OutgoingMessageStream {
   ListOptions _config;
 
  public:
-  ListMessageStream(const std::shared_ptr<Session> &session, ListOptions config, size_t id, uint32_t rid);
+  ListMessageStream(const shared_ptr_<Session> &session, ListOptions config, size_t id, uint32_t rid);
 
   void new_message(const ListResponseMessage &new_message);
 
@@ -80,7 +80,7 @@ class SetMessageStream : public OutgoingMessageStream {
   SetOptions _config;
 
  public:
-  SetMessageStream(const std::shared_ptr<Session> &session, SetOptions config, size_t id, uint32_t rid);
+  SetMessageStream(const shared_ptr_<Session> &session, SetOptions config, size_t id, uint32_t rid);
 
   void new_message(const SetResponseMessage &new_message);
 

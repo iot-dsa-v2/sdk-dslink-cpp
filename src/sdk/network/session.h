@@ -24,7 +24,7 @@ class Session: public InheritableEnableShared<Session> {
   struct StreamInfo {
     uint32_t rid;
     size_t unique_id;
-    std::map<uint32_t, std::shared_ptr<MessageStream>> *container;
+    std::map<uint32_t, shared_ptr_<MessageStream>> *container;
   };
   void add_ready_outgoing_stream(uint32_t rid, size_t unique_id);
 
@@ -39,7 +39,7 @@ class Session: public InheritableEnableShared<Session> {
 
   void set_connection(const ConnectionPtr &connection) { _connection = connection; };
 
-  bool add_outgoing_subscription(const std::shared_ptr<OutgoingMessageStream> &stream);
+  bool add_outgoing_subscription(const shared_ptr_<OutgoingMessageStream> &stream);
 
   void remove_outgoing_subscription(uint32_t request_id);
 
@@ -49,8 +49,8 @@ class Session: public InheritableEnableShared<Session> {
   static std::atomic_size_t _session_count;
   BufferPtr _session_id;
   ConnectionPtr _connection;
-  std::map<uint32_t, std::shared_ptr<MessageStream>> _outgoing_streams;
-  std::map<uint32_t, std::shared_ptr<MessageStream>> _incoming_streams;
+  std::map<uint32_t, shared_ptr_<MessageStream>> _outgoing_streams;
+  std::map<uint32_t, shared_ptr_<MessageStream>> _incoming_streams;
   boost::shared_mutex _outgoing_key;
   boost::shared_mutex _incoming_key;
   std::queue<StreamInfo> _ready_streams;
@@ -62,7 +62,7 @@ class Session: public InheritableEnableShared<Session> {
   std::unique_ptr<boost::asio::io_service::strand> _strand;
 };
 
-typedef std::shared_ptr<Session> SessionPtr;
+typedef shared_ptr_<Session> SessionPtr;
 
 }  // namespace dsa
 

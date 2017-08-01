@@ -21,11 +21,11 @@ App::App(std::string name)
     : _name(name), _io_service(new boost::asio::io_service), _security_context(new SecurityContext(name + "-")),
       _threads(new boost::thread_group) {}
 
-App::App(std::string name, std::shared_ptr<boost::asio::io_service> io_service)
+App::App(std::string name, shared_ptr_<boost::asio::io_service> io_service)
     : _name(name), _io_service(std::move(io_service)), _security_context(new SecurityContext(name + "-")),
       _threads(new boost::thread_group) {}
 
-void run_worker_thread(const std::shared_ptr<boost::asio::io_service> &io_service) {
+void run_worker_thread(const shared_ptr_<boost::asio::io_service> &io_service) {
   while (true) {
     try {
       boost::system::error_code err;
@@ -98,7 +98,7 @@ void App::stop() {
   _io_service->stop();
 }
 
-void App::register_component(std::shared_ptr<GracefullyClosable> component) {
+void App::register_component(shared_ptr_<GracefullyClosable> component) {
   std::lock_guard<std::mutex> lock(_register_key);
   _registry[component.get()] = std::move(component);
 }

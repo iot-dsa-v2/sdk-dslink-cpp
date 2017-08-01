@@ -15,7 +15,7 @@ SessionPtr SessionManager::get_session(const std::string &dsid, const std::strin
 
 SessionPtr SessionManager::create_session(const std::string &dsid) {
   std::string session_id = get_new_session_id();
-  auto session = std::make_shared<Session>(session_id);
+  auto session = make_shared_<Session>(session_id);
 
   {
     boost::unique_lock <boost::shared_mutex> lock(_sessions_key);

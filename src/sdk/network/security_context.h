@@ -23,7 +23,7 @@ class SecurityContext {
   std::string dsid() const { return _dsid; };
 };
 
-typedef std::shared_ptr<SecurityContext> SecurityContextPtr;
+typedef shared_ptr_<SecurityContext> SecurityContextPtr;
 
 }  // namespace dsa
 

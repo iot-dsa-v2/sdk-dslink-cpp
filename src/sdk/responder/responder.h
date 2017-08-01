@@ -26,7 +26,7 @@ class Responder : public GracefullyClosable {
   ////////////////////////////////////////////
   // Constructors & Destructors
   ////////////////////////////////////////////
-  Responder(const std::shared_ptr<App> &app, Config config);
+  Responder(const shared_ptr_<App> &app, Config config);
   Responder(Config config);
   ~Responder() override;
 
@@ -45,7 +45,7 @@ class Responder : public GracefullyClosable {
   // Private Members
   ////////////////////////////////////////////
   std::atomic_size_t _stream_count{0};
-  std::shared_ptr<Session> _session;
+  shared_ptr_<Session> _session;
   NodeStateManager _state_manager;
   NodeModelManager _model_manager;
 
@@ -53,7 +53,7 @@ class Responder : public GracefullyClosable {
 
   ClientPtr _initialize_connection();
 
-  void _message_handler(const std::shared_ptr<Session> &session, Buffer::SharedBuffer buf);
+  void _message_handler(const shared_ptr_<Session> &session, Buffer::SharedBuffer buf);
 };
 
 }  // namespace dsa

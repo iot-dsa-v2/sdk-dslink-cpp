@@ -22,8 +22,8 @@ class App;
 class Session;
 
 typedef std::function<void()> WriteHandler;
-typedef std::function<void(const std::shared_ptr<Session> &, Buffer::SharedBuffer)> MessageHandler;
-typedef std::function<void(const std::shared_ptr<Session> &)> OnConnectHandler; 
+typedef std::function<void(const shared_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void(const shared_ptr_<Session> &)> OnConnectHandler;
 
 class Connection : public InheritableEnableShared<Connection> {
  public:
@@ -36,8 +36,8 @@ class Connection : public InheritableEnableShared<Connection> {
     // handshake timeout is in milliseconds
     unsigned int _handshake_timeout{1000};
     unsigned int _max_pending_messages{20};
-    MessageHandler _message_handler{[](const std::shared_ptr<Session> &s, Buffer::SharedBuffer b){}};
-    OnConnectHandler _on_connect{[](const std::shared_ptr<Session> &s){}};
+    MessageHandler _message_handler{[](const shared_ptr_<Session> &s, Buffer::SharedBuffer b){}};
+    OnConnectHandler _on_connect{[](const shared_ptr_<Session> &s){}};
 
    public:
     Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
@@ -120,7 +120,7 @@ class Connection : public InheritableEnableShared<Connection> {
   Config _config;
 
   // this should rarely be touched
-  std::shared_ptr<Session> _session;
+  shared_ptr_<Session> _session;
 
   BufferPtr _read_buffer;
   BufferPtr _write_buffer;
@@ -169,7 +169,7 @@ class Connection : public InheritableEnableShared<Connection> {
   void reset_standard_deadline_timer();
 };
 
-typedef std::shared_ptr<Connection> ConnectionPtr;
+typedef shared_ptr_<Connection> ConnectionPtr;
 
 }  // namespace dsa
 

@@ -6,7 +6,7 @@
 using namespace dsa;
 
 TEST(TcpServerTest, OneClient) {
-  std::shared_ptr<App> app;
+  shared_ptr_<App> app;
   ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
 
   app->async_start(2);
@@ -30,7 +30,7 @@ TEST(TcpServerTest, OneClient) {
 }
 
 TEST(TcpServerTest, MultipleClients) {
-  std::shared_ptr<App> app;
+  shared_ptr_<App> app;
   ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
 
   app->async_start(10);
