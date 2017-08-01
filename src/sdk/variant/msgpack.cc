@@ -73,17 +73,26 @@ std::vector<uint8_t> *Variant::to_msgpack() {
   } else if (is_int()) {
     msgpack_pack_int(&pk, get_int());
   } else if (is_bool()) {
+    get_bool() ? msgpack_pack_true(&pk) : msgpack_pack_false(&pk);
   } else if (is_string()) {
+    const std::string& str = get_string();
+    size_t str_length = str.length();
+    msgpack_pack_str(&pk, str_length);
+    msgpack_pack_str_body(&pk, str.c_str(),str_length);
   } else if (is_map()) {
   } else if (is_array()) {
   } else if (is_binary()) {
+    const std::vector<uint8_t> &bin = get_binary();
+    size_t bin_size = bin.size();
+    uint8_t buf[1024];
+    std::copy(bin.begin(), bin.end(), buf);
+    msgpack_pack_bin(&pk, bin_size);
+    msgpack_pack_bin_body(&pk, buf, bin_size);
   } else if (is_null()) {
+    msgpack_pack_nil(&pk);
   } else {
     // TODO
   }
-
-  //std::ostringstream oss;
-  //oss.write(sbuf.data, sbuf.size);
 
   std::vector<uint8_t> *v = new std::vector<uint8_t>(sbuf.size);
   v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
