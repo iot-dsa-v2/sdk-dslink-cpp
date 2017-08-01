@@ -1,7 +1,6 @@
 list(APPEND VariantSourceFiles
-#       variant.cc
-#	   msgpack.cc)
-        )
+       variant.cc
+	   msgpack.cc)
 
 foreach(file ${VariantSourceFiles})
   list(APPEND ProjectSourceFiles ${LIB_VARIANT}/${file})

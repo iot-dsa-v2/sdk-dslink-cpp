@@ -24,7 +24,7 @@ TEST(TcpServerTest, OneClient) {
 
   app->sleep(1000);
 
-  app->graceful_stop();
+  app->graceful_stop(1000);
 
   app->wait();
 }
@@ -50,6 +50,6 @@ TEST(TcpServerTest, MultipleClients) {
 
   app->sleep(1000);
 
-  app->graceful_stop();
+  app->graceful_stop(1000);
   app->wait();
 }
