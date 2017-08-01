@@ -2,40 +2,41 @@
 #include "gtest/gtest.h"
 
 using namespace dsa;
+typedef std::unique_ptr<Variant> VariantPtr;
 
 TEST(VariantTest, BaseTest) {
-  {
+{
     Variant v;
     EXPECT_TRUE(v.is_null());
   }
   {
-    Variant v("hello");
-    EXPECT_TRUE(v.is_string());
+    VariantPtr v = VariantPtr(Variant::create("hello"));
+    EXPECT_TRUE(v->is_string());
   }
   {
-    Variant v(123);
-    EXPECT_TRUE(v.is_int());
-    EXPECT_EQ(v.get_int(), 123);
+    VariantPtr v = VariantPtr(Variant::create(123));
+    EXPECT_TRUE(v->is_int());
+    EXPECT_EQ(v->get_int(), 123);
   }
   {
-    Variant v(1.23);
-    EXPECT_TRUE(v.is_double());
-    EXPECT_EQ(v.get_double(), 1.23);
+    VariantPtr v = VariantPtr(Variant::create(1.23));
+    EXPECT_TRUE(v->is_double());
+    EXPECT_EQ(v->get_double(), 1.23);
   }
   {
-    Variant v(true);
-    EXPECT_TRUE(v.is_bool());
-    EXPECT_EQ(v.get_bool(), true);
+    VariantPtr v = VariantPtr(Variant::create(true));
+    EXPECT_TRUE(v->is_bool());
+    EXPECT_EQ(v->get_bool(), true);
   }
 }
 
 TEST(VariantTest, MapTest) {
-  std::unique_ptr<Variant> v = std::unique_ptr<Variant>(Variant::new_map());
+  VariantPtr v = VariantPtr(Variant::new_map());
   EXPECT_TRUE(v->is_map());
 }
 
 TEST(VariantTest, ArrayTest) {
-  std::unique_ptr<Variant> v = std::unique_ptr<Variant>(Variant::new_array());
+  VariantPtr v = VariantPtr(Variant::new_array());
   EXPECT_TRUE(v->is_array());
 }
 
@@ -43,9 +44,9 @@ TEST(VariantTest, BinaryTest) {
   Variant v;
   {
     std::vector<uint8_t> vec = {0, 1, 2};
-    Variant v0(vec);
-    EXPECT_TRUE(v0.is_binary());
-    v = v0;
+    VariantPtr v0 = VariantPtr(Variant::create(vec));
+    EXPECT_TRUE(v0->is_binary());
+    v = *v0;
   }
   EXPECT_TRUE(v.is_binary());
 
