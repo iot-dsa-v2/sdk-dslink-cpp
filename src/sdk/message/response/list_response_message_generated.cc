@@ -1,6 +1,6 @@
-#include "list_response_message.h"
-
 #include "dsa_common.h"
+
+#include "list_response_message.h"
 
 namespace dsa {
 

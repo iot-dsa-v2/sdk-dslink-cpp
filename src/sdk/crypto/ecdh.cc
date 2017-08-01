@@ -1,6 +1,6 @@
-#include "ecdh.h"
-
 #include "dsa_common.h"
+
+#include "ecdh.h"
 
 #include <openssl/ecdh.h>
 #include <openssl/objects.h>

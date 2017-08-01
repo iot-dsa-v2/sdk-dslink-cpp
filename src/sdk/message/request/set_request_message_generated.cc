@@ -1,6 +1,6 @@
-#include "set_request_message.h"
-
 #include "dsa_common.h"
+
+#include "set_request_message.h"
 
 namespace dsa {
 

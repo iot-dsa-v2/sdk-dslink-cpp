@@ -1,6 +1,6 @@
-#include "subscribe_request_message.h"
-
 #include "dsa_common.h"
+
+#include "subscribe_request_message.h"
 
 namespace dsa {
 

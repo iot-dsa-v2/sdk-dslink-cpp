@@ -1,6 +1,6 @@
-#include "invoke_response_message.h"
-
 #include "dsa_common.h"
+
+#include "invoke_response_message.h"
 
 namespace dsa {
 

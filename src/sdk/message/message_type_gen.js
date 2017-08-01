@@ -182,9 +182,9 @@ const messages = {
 
 function gen_source(path, typename, baseTypeName, header, configs) {
 
-    let data = `#include "${header}"
+    let data = `#include "dsa_common.h"
 
-#include "dsa_common.h"`;
+#include "${header}"`;
     data += `
 
 namespace dsa {
