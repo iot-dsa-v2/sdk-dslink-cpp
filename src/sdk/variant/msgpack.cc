@@ -81,6 +81,15 @@ std::vector<uint8_t> *Variant::to_msgpack() {
     msgpack_pack_str_body(&pk, str.c_str(),str_length);
   } else if (is_map()) {
   } else if (is_array()) {
+    std::vector<uint8_t>*v = new std::vector<uint8_t>();
+    VariantArray& vec = get_array();
+    for(uint i=0; i<vec.size(); ++i) {
+      std::vector<uint8_t> *packed_variant = vec[i]->to_msgpack();
+      v->insert(v->end(), packed_variant->begin(), packed_variant->end());
+      delete packed_variant;
+    }
+    msgpack_sbuffer_destroy(&sbuf);
+    return v;
   } else if (is_binary()) {
     const std::vector<uint8_t> &bin = get_binary();
     size_t bin_size = bin.size();
