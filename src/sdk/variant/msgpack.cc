@@ -62,15 +62,31 @@ Variant *Variant::from_msgpack(const uint8_t *data, size_t size) {
 }
 
 std::vector<uint8_t> *Variant::to_msgpack() {
-  std::vector<uint8_t> *v = new std::vector<uint8_t>(10);
-
   msgpack_sbuffer sbuf;
   msgpack_packer pk;
 
   msgpack_sbuffer_init(&sbuf);
   msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-  // X()(&pk, xxx);
+  if (is_double()) {
+    msgpack_pack_double(&pk, get_double());
+  } else if (is_int()) {
+    msgpack_pack_int(&pk, get_int());
+  } else if (is_bool()) {
+  } else if (is_string()) {
+  } else if (is_map()) {
+  } else if (is_array()) {
+  } else if (is_binary()) {
+  } else if (is_null()) {
+  } else {
+    // TODO
+  }
+
+  //std::ostringstream oss;
+  //oss.write(sbuf.data, sbuf.size);
+
+  std::vector<uint8_t> *v = new std::vector<uint8_t>(sbuf.size);
+  v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
 
   msgpack_sbuffer_destroy(&sbuf);
 
