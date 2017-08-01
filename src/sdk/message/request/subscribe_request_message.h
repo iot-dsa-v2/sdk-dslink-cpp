@@ -10,9 +10,9 @@ namespace dsa {
 class SubscribeRequestMessage : public RequestMessage {
  protected:
   // measure the size and header size
-  void update_static_header();
+  void update_static_header() override;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const;
+  void write_dynamic_data(uint8_t* data) const override;
   void parse_dynamic_headers(const uint8_t* data, size_t size) throw(const MessageParsingError &);
 
   std::unique_ptr<DynamicByteHeader> qos;
@@ -21,7 +21,7 @@ class SubscribeRequestMessage : public RequestMessage {
   std::unique_ptr<DynamicIntHeader> queue_time;
 
  public:
-  SubscribeRequestMessage(const SharedBuffer& buffer);
+  explicit SubscribeRequestMessage(const SharedBuffer& buffer);
   SubscribeRequestMessage();
   SubscribeRequestMessage(const SubscribeRequestMessage&);
 

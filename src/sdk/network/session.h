@@ -41,6 +41,8 @@ class Session: public InheritableEnableShared<Session> {
 
   bool add_outgoing_subscription(const std::shared_ptr<OutgoingMessageStream> &stream);
 
+  void remove_outgoing_subscription(uint32_t request_id);
+
   boost::asio::io_service::strand &strand() { return *_strand; };
 
  private:

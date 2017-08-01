@@ -65,8 +65,8 @@ class RequestMessage : public Message {
 
  public:
   explicit RequestMessage(const SharedBuffer& buffer);
-  RequestMessage(MessageType type);
-  RequestMessage(const StaticHeaders& headers);
+  explicit RequestMessage(MessageType type);
+  explicit RequestMessage(const StaticHeaders& headers);
 
   bool get_priority() const;
   void set_priority(bool value);
@@ -91,8 +91,8 @@ class ResponseMessage : public Message {
 
  public:
   explicit ResponseMessage(const SharedBuffer& buffer);
-  ResponseMessage(MessageType type);
-  ResponseMessage(const StaticHeaders& headers);
+  explicit ResponseMessage(MessageType type);
+  explicit ResponseMessage(const StaticHeaders& headers);
 
   const std::string& get_source_path() const;
   void set_source_path(const std::string& value);

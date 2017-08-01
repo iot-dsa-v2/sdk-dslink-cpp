@@ -23,18 +23,18 @@ enum MessageType : uint8_t {
 enum MessageStatus : uint8_t {
   // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Status-Table.md
 
-  StatusOk = 0x00,
-  StatusInitializing = 0x01,
-  StatusRefreshed = 0x08,
-  StatusNotAvailable = 0x0E,
-  StatusClosed = 0x10,
-  StatusDisconnected = 0x1E,
-  StatusPermissionDenied = 0x20,
-  StatusInvalidMessage = 0x21,
-  StatusInvalidParameter = 0x22,
-  StatusBusy = 0x28,
-  StatusAliasLoop = 0x41,
-  StatusConnectionError = 0xF9,
+  Ok = 0x00,
+  Initializing = 0x01,
+  Refreshed = 0x08,
+  NotAvailable = 0x0E,
+  Closed = 0x10,
+  Disconnected = 0x1E,
+  PermissionDenied = 0x20,
+  InvalidMessage = 0x21,
+  InvalidParameter = 0x22,
+  Busy = 0x28,
+  AliasLoop = 0x41,
+  ConnectionError = 0xF9,
 };
 
 }  // namespace dsa

@@ -4,7 +4,7 @@
 
 namespace dsa {
 
-SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessage& from)
+SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessage &from)
     : ResponseMessage(from.static_headers) {
   if (from.body != nullptr)
     body.reset(new SharedBuffer(*from.body));
@@ -18,7 +18,8 @@ SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessag
     source_path.reset(new DynamicStringHeader(DynamicHeader::SourcePath, from.source_path->value()));
 }
 
-void SubscribeResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
+void SubscribeResponseMessage::parse_dynamic_headers(const uint8_t *data,
+                                                     size_t size) throw(const MessageParsingError &) {
   while (size > 0) {
     DynamicHeader *header = DynamicHeader::parse(data, size);
     data += header->size();
@@ -74,12 +75,12 @@ void SubscribeResponseMessage::update_static_header() {
     header_size += source_path->size();
   }
 
-  uint32_t message_size = header_size; 
+  uint32_t message_size = header_size;
   if (body != nullptr) {
     message_size += body->size;
   }
   static_headers.message_size = message_size;
-  static_headers.header_size = header_size;
+  static_headers.header_size = (uint16_t)header_size;
 }
 
 }  // namespace dsa

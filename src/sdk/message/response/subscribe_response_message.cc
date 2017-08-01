@@ -21,6 +21,5 @@ const ParsedMessageValue& SubscribeResponseMessage::get_value() {
 void SubscribeResponseMessage::set_value(const Variant & value, const Variant & meta) {
   // TODO: create encode both meta and value, and create a Buffer Object to store the value
   // Buffer format  2bytes(meta size) + meta msgpack + value msgpack
-
 }
 }  // namespace dsa

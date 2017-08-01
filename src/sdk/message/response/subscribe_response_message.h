@@ -12,9 +12,9 @@ class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
   std::unique_ptr<ParsedMessageValue> _parsed_value;
 
  public:
-  SubscribeResponseMessage(const SharedBuffer& buffer);
-  SubscribeResponseMessage();
+  explicit SubscribeResponseMessage(const SharedBuffer& buffer);
   SubscribeResponseMessage(const SubscribeResponseMessage&);
+  SubscribeResponseMessage();
 
  public:
   const ParsedMessageValue& get_value();
@@ -22,9 +22,9 @@ class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
 
  protected:
   // measure the size and header size
-  void update_static_header();
+  void update_static_header() override;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const;
+  void write_dynamic_data(uint8_t* data) const override;
   void parse_dynamic_headers(const uint8_t* data, size_t size) throw(const MessageParsingError &);
 };
 

@@ -1,4 +1,3 @@
-
 list(APPEND ResponderSourceFiles
         responder.cc
         node_model_manager.cc

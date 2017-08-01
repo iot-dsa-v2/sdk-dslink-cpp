@@ -1,9 +1,12 @@
 #ifndef DSA_SDK_NODE_MODEL_H_
 #define DSA_SDK_NODE_MODEL_H_
 
-#include <vector>
+#include <queue>
+#include <map>
+#include <mutex>
 
 #include "dsa/util.h"
+#include "outgoing_message_stream.h"
 
 namespace dsa {
 class NodeState;
@@ -12,9 +15,24 @@ class NodeState;
 class NodeModel {
  private:
   std::shared_ptr<NodeState> _state;
+  std::map<uint32_t, std::shared_ptr<InvokeMessageStream>> _invoke_streams;
+  std::map<uint32_t, std::shared_ptr<SetMessageStream>> _set_streams;
+
+  std::mutex _invoke_key;
+  std::mutex _set_key;
+
+  std::queue<SubscribeResponseMessage> _to_send;
 
  public:
-  void update_value(Buffer::SharedBuffer buf);
+  template <typename T>
+  void update_value(T new_value);
+
+  void add_invoke_stream(const std::shared_ptr<InvokeMessageStream> &stream);
+  void remove_invoke_stream(uint32_t request_id);
+
+  void add_set_stream(const std::shared_ptr<SetMessageStream> &stream);
+  void remove_set_stream(uint32_t request_id);
+
 };
 }  // namespace dsa
 

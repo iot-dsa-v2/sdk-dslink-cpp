@@ -1,4 +1,3 @@
-
 list(APPEND CryptoSourceFiles
         ecdh.cc
         hash.cc

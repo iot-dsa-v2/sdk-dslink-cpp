@@ -65,12 +65,19 @@ void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
                                                          message.get_subscribe_options(),
                                                          _stream_count++,
                                                          message.request_id());
-//  auto node_state = _state_manager.get_or_create();
-//  _session->add_outgoing_subscription(stream);
+  auto node_state = _state_manager.get_or_create(message.get_target_path());
+  node_state->add_subscription_stream(stream);
+  _session->add_outgoing_subscription(stream);
+
+  // let model manager find and attach the node model
+  _model_manager.find_model(node_state);
 }
 
 void Responder::on_invoke_request(InvokeRequestMessage &message) {
-  // TODO: implement this
+  auto model = _model_manager.get_model(message.get_target_path());
+  if (model == nullptr)
+    return; // TODO: this should respond to the requester with an error
+  
 }
 
 void Responder::on_set_request(SetRequestMessage &message) {

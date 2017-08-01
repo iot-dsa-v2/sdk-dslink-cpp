@@ -1,4 +1,3 @@
-
 list(APPEND MessageSourceFiles
         base_message.cc
         message_factory.cc
@@ -21,7 +20,8 @@ list(APPEND MessageSourceFiles
         response/invoke_response_message_generated.cc
         response/subscribe_response_message_generated.cc
         response/list_response_message_generated.cc
-        response/set_response_message_generated.cc)
+        response/set_response_message_generated.cc
+		enums.h)
 
 foreach(file ${MessageSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_MESSAGE}/${file})

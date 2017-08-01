@@ -14,16 +14,14 @@
 namespace dsa {
 
 // maintain streams of a node
-class NodeState : public std::enable_shared_from_this<NodeState> {
+class NodeState : public InheritableEnableShared<NodeState> {
  private:
   boost::asio::io_service::strand _strand;
   std::string _path;
   std::shared_ptr<NodeModel> _model;
-  std::vector<std::shared_ptr<SubscribeMessageStream>> _subscription_streams;
-//  std::vector<std::shared_ptr<OutgoingMessageStream>> _list_streams;
+  std::map<uint32_t, std::shared_ptr<SubscribeMessageStream>> _subscription_streams;
+  std::map<uint32_t, std::shared_ptr<ListMessageStream>> _list_streams;
   std::unique_ptr<SubscribeResponseMessage> _last_value;
-
-  void _handle_new_message(SubscribeResponseMessage message);
 
  public:
   explicit NodeState(boost::asio::io_service &io_service, std::string path);
@@ -36,11 +34,14 @@ class NodeState : public std::enable_shared_from_this<NodeState> {
   //////////////////////////
   // Setters
   //////////////////////////
-  void add_subscription_stream(std::shared_ptr<SubscribeMessageStream> stream);
-//  void add_list_streams(std::shared_ptr<OutgoingMessageStream> stream);
-//  void add_invoke_stream(std::shared_ptr<OutgoingMessageStream> stream);
-//  void add_set_stream(std::shared_ptr<OutgoingMessageStream> stream);
-  void new_message(SubscribeResponseMessage message);
+  void add_subscription_stream(const std::shared_ptr<SubscribeMessageStream> &stream);
+  void remove_subscription_stream(uint32_t request_id);
+
+  void add_list_stream(std::shared_ptr<ListMessageStream> stream);
+  void remove_list_stream(uint32_t request_id);
+
+  void new_message(const SubscribeResponseMessage &message);
+  void set_model(const std::shared_ptr<NodeModel> &model) { _model = model; }
 };
 }  // namespace dsa
 

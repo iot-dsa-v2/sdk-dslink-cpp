@@ -48,6 +48,11 @@ bool Session::add_outgoing_subscription(const std::shared_ptr<OutgoingMessageStr
   return true;
 }
 
+void Session::remove_outgoing_subscription(uint32_t request_id) {
+  boost::unique_lock<boost::shared_mutex> lock(_outgoing_key);
+  _outgoing_streams.erase(request_id);
+}
+
 MessageStream *Session::_get_next_ready_stream() {
   while (!_ready_streams.empty()) {
     StreamInfo stream_info = _ready_streams.back();

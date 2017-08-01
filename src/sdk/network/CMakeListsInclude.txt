@@ -1,4 +1,3 @@
-
 list(APPEND NetworkSourceFiles
         app.cc
         message_stream.cc
