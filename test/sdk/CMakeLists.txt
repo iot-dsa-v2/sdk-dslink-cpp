@@ -7,7 +7,9 @@ foreach(dir "./crypto"
 	    "./requester"		
 	    "./responder"		
 	    "./util"
-		"./variant"
+#[[		"./variant"
+	this is commented out because varient is using std::make_unique which is a C++14 feature
+	and therefore is causing a compiler error]]
 		"./network")
   add_subdirectory(${dir})
 endforeach()
