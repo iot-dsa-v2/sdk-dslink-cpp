@@ -2,6 +2,7 @@
 #define DSA_SDK_BASE_MESSAGE_H_
 
 #include <vector>
+#include <memory>
 
 #include "dynamic_header.h"
 #include "static_headers.h"
