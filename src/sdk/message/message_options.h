@@ -13,13 +13,21 @@ enum StreamQos : uint8_t {
 };
 
 struct SubscribeOptions {
-  StreamQos qos;
+  
   // queue size in bytes;
   int32_t queue_size;
   // queue time in seconds
   int32_t queue_time;
 
-  SubscribeOptions(StreamQos qos, int32_t queue_size, int32_t queue_time);
+  StreamQos qos;
+
+  bool priority;
+
+  SubscribeOptions(StreamQos qos = StreamQos::_0, int32_t queue_size = 0, int32_t queue_time = 0, bool priority = false);
+
+  // merge from an other option and update self values
+  // return true if value is updated;
+  bool mergeFrom(const SubscribeOptions & options);
 };
 
 struct InvokeOptions {
