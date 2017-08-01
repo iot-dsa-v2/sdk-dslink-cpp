@@ -39,7 +39,7 @@ Variant* Variant::copy() const {
       VariantMap& map = get_map();
 
       for (VariantMap::iterator it = map.begin(); it != map.end(); ++it) {
-        (*new_map)[it->first] = std::unique_ptr<Variant>(it->second->copy());
+        (*new_map)[it->first] = std::make_unique<Variant>(new Variant(*(it->second)));
       }
       return new Variant(new_map);
     }
@@ -49,7 +49,35 @@ Variant* Variant::copy() const {
       new_array->reserve(array.size());
 
       for (VariantArray::iterator it = array.begin(); it != array.end(); ++it) {
-        new_array->push_back(std::unique_ptr<Variant>(it->get()->copy()));
+        new_array->push_back(std::make_unique<Variant>(new Variant(it->get())));
+      }
+      return new Variant(new_array);
+    }
+    default:
+      return new Variant(*this);
+  }
+}
+
+Variant *Variant::deep_copy() const {
+  switch (which()) {
+    case Map:
+    {
+      VariantMap* new_map = new VariantMap();
+      VariantMap& map = get_map();
+
+      for (VariantMap::iterator it = map.begin(); it != map.end(); ++it) {
+        (*new_map)[it->first] = std::make_unique<Variant>(it->second->deep_copy());
+      }
+      return new Variant(new_map);
+    }
+    case Array:
+    {
+      VariantArray* new_array = new VariantArray();
+      VariantArray& array = get_array();
+      new_array->reserve(array.size());
+
+      for (VariantArray::iterator it = array.begin(); it != array.end(); ++it) {
+        new_array->push_back(std::make_unique<Variant>(it->get()->deep_copy()));
       }
       return new Variant(new_array);
     }

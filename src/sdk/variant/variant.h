@@ -9,15 +9,15 @@
 namespace dsa {
 class Variant;
 
-typedef  std::map<std::string, std::unique_ptr<Variant> > VariantMap;
+typedef std::map<std::string, std::unique_ptr<Variant>> VariantMap;
 
-typedef  std::vector<std::unique_ptr<Variant> > VariantArray;
+typedef std::vector<std::unique_ptr<Variant>> VariantArray;
 
-typedef boost::variant<
-    boost::blank, double, int64_t, bool, std::shared_ptr<std::string>, //TODO const string
-    std::shared_ptr<VariantMap>,
-    std::shared_ptr<VariantArray>,
-    std::shared_ptr<const std::vector<uint8_t>>>
+typedef boost::variant<boost::blank, double, int64_t, bool,
+                       std::shared_ptr<std::string>,  // TODO const string
+                       std::shared_ptr<VariantMap>,
+                       std::shared_ptr<VariantArray>,
+                       std::shared_ptr<const std::vector<uint8_t>>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -46,7 +46,7 @@ class Variant : public BaseVariant {
 
  public:
   static Variant *from_msgpack(const uint8_t *data, size_t size);
-  std::vector<uint8_t> * to_msgpack();
+  std::vector<uint8_t> *to_msgpack();
 
   bool is_double() const { return which() == Double; }
   bool is_int() const { return which() == Int; }
@@ -74,9 +74,11 @@ class Variant : public BaseVariant {
   }
 
  public:
+  Variant *deep_copy() const;
+
   // shallow copy on array and map
   // other types are const and can use copy constructor directly
-  Variant *copy() const; // TODO add shallow copy
+  Variant *copy() const;
 };
 
 }  // namespace dsa
