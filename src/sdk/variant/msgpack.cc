@@ -16,7 +16,7 @@ struct MsgpackMemPool {
 static Variant *obj_to_variant(const msgpack_object &obj) {
   switch (obj.type) {
     case MSGPACK_OBJECT_MAP: {
-      VariantMap* map = new VariantMap();
+      auto map = new VariantMap();
 
       struct msgpack_object_kv *p = obj.via.map.ptr;
       for (size_t i = 0; i < obj.via.map.size; ++i, ++p) {
@@ -29,7 +29,7 @@ static Variant *obj_to_variant(const msgpack_object &obj) {
       return new Variant(map);
     }
     case MSGPACK_OBJECT_ARRAY: {
-      VariantArray* array = new VariantArray();
+      VariantArray *array = new VariantArray();
       array->reserve(obj.via.array.size);
 
       struct msgpack_object *p = obj.via.array.ptr;
@@ -38,19 +38,14 @@ static Variant *obj_to_variant(const msgpack_object &obj) {
       }
       return new Variant(array);
     }
-    case MSGPACK_OBJECT_STR:
-      return new Variant(obj.via.str.ptr, obj.via.str.size);
-    case MSGPACK_OBJECT_POSITIVE_INTEGER:
-      return new Variant(static_cast<int64_t>(obj.via.u64));
-    case MSGPACK_OBJECT_NEGATIVE_INTEGER:
-      return new Variant(obj.via.i64);
-    case MSGPACK_OBJECT_FLOAT64:
-      return new Variant(obj.via.f64);
-    case MSGPACK_OBJECT_BOOLEAN:
-      return new Variant(obj.via.boolean);
+    case MSGPACK_OBJECT_STR:return new Variant(obj.via.str.ptr, obj.via.str.size);
+    case MSGPACK_OBJECT_POSITIVE_INTEGER:return new Variant(static_cast<int64_t>(obj.via.u64));
+    case MSGPACK_OBJECT_NEGATIVE_INTEGER:return new Variant(obj.via.i64);
+    case MSGPACK_OBJECT_FLOAT64:return new Variant(obj.via.f64);
+    case MSGPACK_OBJECT_BOOLEAN:return new Variant(obj.via.boolean);
     case MSGPACK_OBJECT_BIN:
       return new Variant(reinterpret_cast<const uint8_t *>(obj.via.bin.ptr),
-                     obj.via.bin.size);
+                         obj.via.bin.size);
     default:
       // return null
       // ignore extension
@@ -66,8 +61,8 @@ Variant *Variant::from_msgpack(const uint8_t *data, size_t size) {
   return obj_to_variant(obj);
 }
 
-std::vector<uint8_t> * Variant::to_msgpack() {
-  std::vector<uint8_t> * v = new std::vector<uint8_t>(10);
+std::vector<uint8_t> *Variant::to_msgpack() {
+  std::vector<uint8_t> *v = new std::vector<uint8_t>(10);
 
   msgpack_sbuffer sbuf;
   msgpack_packer pk;

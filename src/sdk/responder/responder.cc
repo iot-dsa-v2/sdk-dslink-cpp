@@ -70,7 +70,7 @@ void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
 }
 
 void Responder::on_invoke_request(InvokeRequestMessage &message) {
-
+  InvokeOptions config;
 }
 
 }

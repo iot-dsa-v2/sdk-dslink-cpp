@@ -26,11 +26,10 @@ class OutgoingMessageStream : public MessageStream {
 
   std::function<void()> _set_ready;
   boost::shared_mutex _key;
-  uint8_t _qos;
 
  public:
-  OutgoingMessageStream(const std::shared_ptr<Session> &session, uint8_t qos, size_t id, uint32_t rid)
-      : MessageStream(session, rid, id), _qos(qos) {}
+  OutgoingMessageStream(const std::shared_ptr<Session> &session, size_t id, uint32_t rid)
+      : MessageStream(session, rid, id) {}
 };
 
 class SubscribeMessageStream : public OutgoingMessageStream {
@@ -50,7 +49,43 @@ class SubscribeMessageStream : public OutgoingMessageStream {
 class InvokeMessageStream : public OutgoingMessageStream {
  private:
   std::deque<InvokeResponseMessage> _message_queue;
+  InvokeOptions _config;
 
+ public:
+  InvokeMessageStream(const std::shared_ptr<Session> &session, InvokeOptions config, size_t id, uint32_t rid);
+
+  void new_message(const InvokeResponseMessage &new_message);
+
+  size_t get_next_message_size() override;
+  const Message &get_next_message() override;
+};
+
+class ListMessageStream : public OutgoingMessageStream {
+ private:
+  std::deque<ListResponseMessage> _message_queue;
+  ListOptions _config;
+
+ public:
+  ListMessageStream(const std::shared_ptr<Session> &session, ListOptions config, size_t id, uint32_t rid);
+
+  void new_message(const ListResponseMessage &new_message);
+
+  size_t get_next_message_size() override;
+  const Message &get_next_message() override;
+};
+
+class SetMessageStream : public OutgoingMessageStream {
+ private:
+  std::deque<SetResponseMessage> _message_queue;
+  SetOptions _config;
+
+ public:
+  SetMessageStream(const std::shared_ptr<Session> &session, SetOptions config, size_t id, uint32_t rid);
+
+  void new_message(const SetResponseMessage &new_message);
+
+  size_t get_next_message_size() override;
+  const Message &get_next_message() override;
 };
 
 }  // namespace dsa
