@@ -25,7 +25,7 @@ class NodeStateManager {
  public:
   explicit NodeStateManager(const App &app) : _io_service(app.io_service()) {}
 
-  std::shared_ptr<NodeState> get_or_create(std::string path);
+  const std::shared_ptr<NodeState> &get_or_create(std::string path);
 };
 }  // namespace dsa
 

@@ -4,7 +4,7 @@
 
 namespace dsa {
 
-std::shared_ptr<NodeState> NodeStateManager::get_or_create(std::string path) {
+const std::shared_ptr<NodeState> &NodeStateManager::get_or_create(std::string path) {
   boost::upgrade_lock<boost::shared_mutex> lock(_key);
   if (_node_states.count(path) == 0) {
     boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lock(lock);

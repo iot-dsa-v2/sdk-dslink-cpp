@@ -46,31 +46,37 @@ void Responder::_message_handler(const std::shared_ptr<Session> &session,
                                  SharedBuffer buf) {
   std::unique_ptr<Message> message(parse_message(buf));
   switch (message->type()) {
-    case SubscribeRequest:
-      on_subscribe_request(dynamic_cast<SubscribeRequestMessage &>(*message));
+    case SubscribeRequest:on_subscribe_request(dynamic_cast<SubscribeRequestMessage &>(*message));
       break;
-    case InvokeRequest:
-      on_invoke_request(dynamic_cast<InvokeRequestMessage &>(*message));
+    case InvokeRequest:on_invoke_request(dynamic_cast<InvokeRequestMessage &>(*message));
       break;
-    case SetRequest:
-      on_set_request(dynamic_cast<SetRequestMessage &>(*message));
+    case SetRequest:on_set_request(dynamic_cast<SetRequestMessage &>(*message));
       break;
-    case ListRequest:
-      on_list_request(dynamic_cast<ListRequestMessage &>(*message));
+    case ListRequest:on_list_request(dynamic_cast<ListRequestMessage &>(*message));
       break;
-    default:
-      return;
+    default:return;
   }
 }
 
 void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
-  SubscribeOptions config(message.get_qos(), message.get_queue_size(), message.get_queue_time());
-  auto stream = std::make_shared<SubscribeMessageStream>(_session, config, _stream_count++, message.request_id());
-  _session->add_outgoing_subscription(stream);
+  auto stream = std::make_shared<SubscribeMessageStream>(_session,
+                                                         message.get_subscribe_options(),
+                                                         _stream_count++,
+                                                         message.request_id());
+//  auto node_state = _state_manager.get_or_create();
+//  _session->add_outgoing_subscription(stream);
 }
 
 void Responder::on_invoke_request(InvokeRequestMessage &message) {
-  InvokeOptions config;
+  // TODO: implement this
+}
+
+void Responder::on_set_request(SetRequestMessage &message) {
+  // TODO: implement this
+}
+
+void Responder::on_list_request(ListRequestMessage &message) {
+  // TODO: implement this
 }
 
 }

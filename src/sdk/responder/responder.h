@@ -35,9 +35,9 @@ class Responder : public GracefullyClosable {
   ////////////////////////////////////////////
   void start();
   void stop() override;
-  virtual void on_invoke_request(InvokeRequestMessage &request) = 0;
-  virtual void on_list_request(ListRequestMessage &request) = 0;
-  virtual void on_set_request(SetRequestMessage &request) = 0;
+  virtual void on_invoke_request(InvokeRequestMessage &request);
+  virtual void on_list_request(ListRequestMessage &request);
+  virtual void on_set_request(SetRequestMessage &request);
   virtual void on_subscribe_request(SubscribeRequestMessage &request);
 
  private:

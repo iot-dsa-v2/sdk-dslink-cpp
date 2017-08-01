@@ -1,29 +1,29 @@
-#include "dsa_common.h"
-
 #include "set_response_message.h"
+
+#include "dsa_common.h"
 
 namespace dsa {
 
 SetResponseMessage::SetResponseMessage(const SetResponseMessage& from)
-    : ResponseMessage(from.static_headers) { 
-  if (from.status != nullptr) {
+    : ResponseMessage(from.static_headers) {
+  if (from.status != nullptr)
     status.reset(new DynamicByteHeader(DynamicHeader::Status, from.status->value()));
-  }
 }
 
-void SetResponseMessage::parse_dynamic_headers(const uint8_t* data, size_t size) {
+void SetResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
   while (size > 0) {
-    DynamicHeader* header = DynamicHeader::parse(data, size);
+    DynamicHeader *header = DynamicHeader::parse(data, size);
     data += header->size();
     size -= header->size();
-    uint8_t key = header->key();
-    if (key == DynamicHeader::Status) {
-      status.reset(static_cast<DynamicByteHeader*>(header));
+    switch (header->key()) {
+      case DynamicHeader::Status:status.reset(dynamic_cast<DynamicByteHeader *>(header));
+        break;
+      default:throw MessageParsingError("Invalid dynamic header");
     }
   }
 }
 
-void SetResponseMessage::write_dynamic_data(uint8_t* data) const { 
+void SetResponseMessage::write_dynamic_data(uint8_t *data) const {
   if (status != nullptr) {
     status->write(data);
     data += status->size();
@@ -31,7 +31,7 @@ void SetResponseMessage::write_dynamic_data(uint8_t* data) const {
 }
 
 void SetResponseMessage::update_static_header() {
-  uint32_t header_size = StaticHeaders::TotalSize; 
+  uint32_t header_size = StaticHeaders::TotalSize;
   if (status != nullptr) {
     header_size += status->size();
   }
@@ -41,4 +41,4 @@ void SetResponseMessage::update_static_header() {
   static_headers.header_size = header_size;
 }
 
-} // namespace dsa
+}  // namespace dsa
