@@ -13,7 +13,7 @@ class SubscribeRequestMessage : public RequestMessage {
   void update_static_header();
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const;
-  void parse_dynamic_headers(const uint8_t* data, size_t size);
+  void parse_dynamic_headers(const uint8_t* data, size_t size) throw(const MessageParsingError &);
 
   std::unique_ptr<DynamicByteHeader> qos;
   // std::unique_ptr<DynamicByteHeader> update_frequency;
@@ -34,7 +34,7 @@ class SubscribeRequestMessage : public RequestMessage {
   int32_t get_queue_time() const;
   void set_queue_time(int32_t value);
 
-  SubscribeOptions get_subscribe_option() const;
+  SubscribeOptions get_subscribe_options() const;
   void set_subscribe_option(const SubscribeOptions& option);
 };
 

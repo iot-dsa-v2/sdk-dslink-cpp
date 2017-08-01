@@ -41,7 +41,7 @@ void SubscribeRequestMessage::set_queue_time(int32_t value) {
   }
 }
 
-SubscribeOptions SubscribeRequestMessage::get_subscribe_option() const {
+SubscribeOptions SubscribeRequestMessage::get_subscribe_options() const {
   return SubscribeOptions(get_qos(), get_queue_size(), get_queue_time());
 }
 void SubscribeRequestMessage::set_subscribe_option(
