@@ -32,22 +32,21 @@ Variant* Variant::new_array() { return new Variant(new VariantArray()); }
 Variant* Variant::copy() const {
   switch (which()) {
     case Map: {
-      VariantMap* new_map = new VariantMap();
+      auto new_map = new VariantMap();
       VariantMap& map = get_map();
 
-      for (VariantMap::iterator it = map.begin(); it != map.end(); ++it) {
-        (*new_map)[it->first] =
-            std::unique_ptr<Variant>(new Variant(*(it->second)));
+      for (auto &it : map) {
+        (*new_map)[it.first] = std::unique_ptr<Variant>(new Variant(*(it.second)));
       }
       return new Variant(new_map);
     }
     case Array: {
-      VariantArray* new_array = new VariantArray();
+      auto new_array = new VariantArray();
       VariantArray& array = get_array();
       new_array->reserve(array.size());
 
-      for (VariantArray::iterator it = array.begin(); it != array.end(); ++it) {
-        new_array->push_back(std::unique_ptr<Variant>(new Variant(*(it->get()))));
+      for (auto &it : array) {
+        new_array->push_back(std::unique_ptr<Variant>(new Variant(*it)));
       }
       return new Variant(new_array);
     }
@@ -59,22 +58,21 @@ Variant* Variant::copy() const {
 Variant* Variant::deep_copy() const {
   switch (which()) {
     case Map: {
-      VariantMap* new_map = new VariantMap();
+      auto new_map = new VariantMap();
       VariantMap& map = get_map();
 
-      for (VariantMap::iterator it = map.begin(); it != map.end(); ++it) {
-        (*new_map)[it->first] =
-            std::unique_ptr<Variant>(it->second->deep_copy());
+      for (auto &it : map) {
+        (*new_map)[it.first] = std::unique_ptr<Variant>(it.second->deep_copy());
       }
       return new Variant(new_map);
     }
     case Array: {
-      VariantArray* new_array = new VariantArray();
+      auto new_array = new VariantArray();
       VariantArray& array = get_array();
       new_array->reserve(array.size());
 
-      for (VariantArray::iterator it = array.begin(); it != array.end(); ++it) {
-        new_array->push_back(std::unique_ptr<Variant>(it->get()->deep_copy()));
+      for (auto &it : array) {
+        new_array->push_back(std::unique_ptr<Variant>(it->deep_copy()));
       }
       return new Variant(new_array);
     }
