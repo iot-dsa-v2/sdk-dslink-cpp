@@ -1,5 +1,7 @@
 #include "dsa_common.h"
 
+#include <boost/thread/locks.hpp>
+
 #include "node_model_manager.h"
 #include "node_model.h"
 

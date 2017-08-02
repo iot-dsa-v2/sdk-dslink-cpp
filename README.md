@@ -12,7 +12,6 @@
 .\vcpkg install openssl:x64-windows
 .\vcpkg install openssl:x64-windows-static
 
-.\vcpkg install msgpack:x64-windows
 .\vcpkg install msgpack:x64-windows-static
 
 .\vcpkg install gtest:x64-windows
