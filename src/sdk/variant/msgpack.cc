@@ -13,6 +13,11 @@ struct MsgpackMemPool {
   ~MsgpackMemPool() { msgpack_zone_destroy(&zone); }
 };
 
+struct MsgpackSbuffer : public msgpack_sbuffer {
+  MsgpackSbuffer() { msgpack_sbuffer_init(this); }
+  ~MsgpackSbuffer() { msgpack_sbuffer_destroy(this); }
+};
+
 Variant *Variant::to_variant(const msgpack_object &obj) {
   switch (obj.type) {
     case MSGPACK_OBJECT_MAP: {
@@ -108,18 +113,15 @@ void msgpack_pack(msgpack_packer *pk, Variant& v) {
 }
 
 std::vector<uint8_t> *Variant::to_msgpack() {
-  msgpack_sbuffer sbuf;
+  MsgpackSbuffer sbuf;
   msgpack_packer pk;
 
-  msgpack_sbuffer_init(&sbuf);
   msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
   msgpack_pack(&pk, *this);
 
   std::vector<uint8_t> *v = new std::vector<uint8_t>(sbuf.size);
   v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
-
-  msgpack_sbuffer_destroy(&sbuf);
 
   return v;
 }
