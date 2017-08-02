@@ -1,28 +1,44 @@
 #include "dsa/network.h"
+#include "dsa/message.h"
 #include "gtest/gtest.h"
 
 using namespace dsa;
 
 TEST(RequesterTest, basic_flow) {
 
-  shared_ptr_<App> appPtr;
-  ASSERT_NO_FATAL_FAILURE(appPtr.reset(new App("RequesterTest")));
+  shared_ptr_<App> app;
+  ASSERT_NO_FATAL_FAILURE(app.reset(new App("RequesterTest")));
 
-  appPtr->async_start(2);
+  app->async_start(2);
 
   Server::Config server_config("/test/path", 8080);
   Client::Config client_config("127.0.0.1", 8080);
 
 
-  ServerPtr tcp_server = appPtr->new_server(Server::TCP, server_config);
+  ServerPtr tcp_server(app->new_server(Server::TCP, server_config));
   tcp_server->start();
 
-  appPtr->sleep(1000);
+  app->sleep(500);
 
-  ClientPtr tcp_client = appPtr->new_client(Client::TCP, client_config);
+  ClientPtr tcp_client(app->new_client(Client::TCP, client_config));
   tcp_client->connect();
 
-  appPtr->sleep(2000);
+  // requester = client->session()->requester();
 
-  appPtr->wait();
+  // stream = requester.subscribe("/abc", func);
+  // stream.close();
+
+  // Construct a subscribe message request
+  SubscribeRequestMessage subscribe_request;
+  subscribe_request.set_qos(StreamQos::_2);
+
+  subscribe_request.set_target_path("/path/name");
+  //?subscribe_request.update_static_header();
+
+
+  app->sleep(2000);
+
+  app->graceful_stop(1000);
+
+  app->wait();
 }
