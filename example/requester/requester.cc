@@ -1,6 +1,7 @@
 #include <dsa/requester.h>
 
 int main() {
+#if 0
   App app;
 
   client;
@@ -10,7 +11,8 @@ int main() {
 
   stream = requester.subscribe("/abc", func);
   stream.close();
+#endif
 }
 
 
-void callback(ValueUpdate, ResponseStatus)
+// void callback(ValueUpdate, ResponseStatus);
