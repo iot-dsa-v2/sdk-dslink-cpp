@@ -83,7 +83,7 @@ void msgpack_pack(msgpack_packer *pk, Variant& v) {
     msgpack_pack_bin(pk, bin_size);
     msgpack_pack_bin_body(pk, buf, bin_size);
 
-    delete buf;
+    delete [] buf;
   } else if (v.is_null()) {
     msgpack_pack_nil(pk);
   } else if (v.is_array()) {
