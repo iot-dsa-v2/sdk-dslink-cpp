@@ -1,7 +1,8 @@
 include_directories(${LIB_UTIL})
 
 list(APPEND UtilSourceFiles
-        buffer.cc)
+        buffer.cc
+        enable_shared.h)
 
 foreach(file ${UtilSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_UTIL}/${file})

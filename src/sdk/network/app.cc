@@ -19,7 +19,7 @@ class io_service_work : public boost::asio::io_service::work {
 //////////////
 App::App(std::string name)
     : _name(name), _io_service(new boost::asio::io_service), _security_context(new SecurityContext(name + "-")),
-      _threads(new boost::thread_group) {}
+      _threads(new boost::thread_group), _strand(new boost::asio::io_service::strand(*_io_service)) {}
 
 App::App(std::string name, shared_ptr_<boost::asio::io_service> io_service)
     : _name(name), _io_service(std::move(io_service)), _security_context(new SecurityContext(name + "-")),

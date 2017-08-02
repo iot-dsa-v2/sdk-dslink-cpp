@@ -1,6 +1,7 @@
 #include "dsa/util.h"
 #include "gtest/gtest.h"
 
+namespace {
 class RefCheck : public dsa::EnableShared<RefCheck> {
  public:
   static int count;
@@ -8,6 +9,7 @@ class RefCheck : public dsa::EnableShared<RefCheck> {
   ~RefCheck() { --count; }
 };
 int RefCheck::count = 0;
+}
 
 TEST(EnableSharedTest, RefCheck) {
   auto ptr = dsa::make_shared<RefCheck>(1);

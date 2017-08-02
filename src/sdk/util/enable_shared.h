@@ -3,6 +3,9 @@
 
 #include <stdexcept>
 
+#include <boost/intrusive_ptr.hpp>
+#include <valarray>
+
 namespace dsa {
 
 template <typename T>
@@ -77,9 +80,45 @@ class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFr
 
 template <class _Ty, class... _Types>
 inline shared_ptr_<_Ty> make_shared(_Types&&... _Args) {
-  // FIXME: this doesn't compile
-//    return (new _Ty(_STD, std::forward<_Types>(_Args)...))->shared_from_this();
   return (new _Ty(std::forward<_Types>(_Args)...))->shared_from_this();
+}
+
+template <typename T>
+using intrusive_ptr_ = boost::intrusive_ptr<T>;
+
+template <class T>
+class EnableIntrusive {
+ protected:
+  intrusive_ptr_<T> intrusive_this() { return intrusive_ptr_<T>(static_cast<T*>(this)); }
+
+  template <typename _Ty>
+  friend void intrusive_ptr_add_ref(_Ty* t);
+  template <typename _Ty>
+  friend void intrusive_ptr_release(_Ty* t);
+
+  unsigned int _refs{0};
+
+ public:
+  unsigned int ref_count() { return _refs; }
+};
+
+template <typename _Ty>
+void intrusive_ptr_add_ref(_Ty* t){
+  ++t->_refs;
+}
+
+template <typename _Ty>
+void intrusive_ptr_release(_Ty* t){
+  if(--t->_refs == 0)
+    delete t;
+}
+
+template <class _Ty, class... _Types>
+inline typename std::enable_if <
+    std::is_base_of<EnableIntrusive<_Ty>, _Ty>::value,
+    intrusive_ptr_<_Ty>
+>::type make_intrusive_(_Types&&... _Args) {
+  return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
 }
 
 }  // namespace dsa

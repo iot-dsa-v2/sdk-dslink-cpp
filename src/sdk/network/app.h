@@ -31,6 +31,7 @@ class App : public std::enable_shared_from_this<App> {
   shared_ptr_<io_service_work> _work;
   shared_ptr_<SecurityContext> _security_context;
   shared_ptr_<boost::thread_group> _threads;
+  std::unique_ptr<boost::asio::io_service::strand> _strand;
   std::string _name;
   std::mutex _register_key;
 
@@ -79,7 +80,10 @@ class App : public std::enable_shared_from_this<App> {
   Server *new_server(Server::Protocol type, const Server::Config &config) throw();
 
   // get new client
-  Client *new_client(Client::Protocol type, const Client::Config &config) throw() ;
+  Client *new_client(Client::Protocol type, const Client::Config &config) throw();
+
+  // get strand
+  boost::asio::io_service::strand &strand() { return *_strand; }
 };
 }  // namespace dsa
 
