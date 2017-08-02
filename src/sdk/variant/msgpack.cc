@@ -122,12 +122,10 @@ std::vector<uint8_t> *Variant::to_msgpack() {
 
   msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-  std::vector<uint8_t> *v;
+  std::vector<uint8_t> *v = new std::vector<uint8_t>();
   if (msgpack_pack(&pk, *this)) {
     v = new std::vector<uint8_t>(sbuf.size);
     v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
-  } else {
-    v = new std::vector<uint8_t>();
   }
 
   return v;
