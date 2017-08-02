@@ -61,6 +61,52 @@ Variant *Variant::from_msgpack(const uint8_t *data, size_t size) {
   return to_variant(obj);
 }
 
+void msgpack_pack(msgpack_packer *pk, Variant& v) {
+  if (v.is_double()) {
+    msgpack_pack_double(pk, v.get_double());
+  } else if (v.is_int()) {
+    msgpack_pack_int(pk, v.get_int());
+  } else if (v.is_bool()) {
+    v.get_bool() ? msgpack_pack_true(pk) : msgpack_pack_false(pk);
+  } else if (v.is_string()) {
+    const std::string& str = v.get_string();
+    size_t str_length = str.length();
+    msgpack_pack_str(pk, str_length);
+    msgpack_pack_str_body(pk, str.c_str(), str_length);
+  } else if (v.is_binary()) {
+    const std::vector<uint8_t> &bin = v.get_binary();
+    size_t bin_size = bin.size();
+
+    uint8_t* buf = new uint8_t[bin_size];
+    std::copy(bin.begin(), bin.end(), buf);
+
+    msgpack_pack_bin(pk, bin_size);
+    msgpack_pack_bin_body(pk, buf, bin_size);
+
+    delete buf;
+  } else if (v.is_null()) {
+    msgpack_pack_nil(pk);
+  } else if (v.is_array()) {
+    VariantArray& array = v.get_array();
+    msgpack_pack_array(pk, array.size());
+    for (auto &it : array) {
+      msgpack_pack(pk, *it);
+    }
+  } else if (v.is_map()) {
+    VariantMap& map = v.get_map();
+    msgpack_pack_map(pk, map.size());
+    for (auto &it : map) {
+      std::string key = it.first;
+      size_t key_size = key.size();
+      msgpack_pack_str(pk, key_size);
+      msgpack_pack_str_body(pk, key.c_str(), key_size);
+      msgpack_pack(pk, *it.second);
+    }
+  } else {
+    // TODO
+  }
+}
+
 std::vector<uint8_t> *Variant::to_msgpack() {
   msgpack_sbuffer sbuf;
   msgpack_packer pk;
@@ -68,59 +114,7 @@ std::vector<uint8_t> *Variant::to_msgpack() {
   msgpack_sbuffer_init(&sbuf);
   msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-  if (is_double()) {
-    msgpack_pack_double(&pk, get_double());
-  } else if (is_int()) {
-    msgpack_pack_int(&pk, get_int());
-  } else if (is_bool()) {
-    get_bool() ? msgpack_pack_true(&pk) : msgpack_pack_false(&pk);
-  } else if (is_string()) {
-    const std::string& str = get_string();
-    size_t str_length = str.length();
-    msgpack_pack_str(&pk, str_length);
-    msgpack_pack_str_body(&pk, str.c_str(),str_length);
-  } else if (is_map()) {
-    std::vector<uint8_t>*v = new std::vector<uint8_t>();
-
-    // VariantArray& map = get_map();
-    // foreach entry in map {
-    //      std::vector<uint8_t> *packed_variant = entry->to_msgpack();
-    //      v->insert(v->end(), packed_variant->begin(), packed_variant->end());
-    //      delete packed_variant;
-    //    }
-
-    msgpack_sbuffer_destroy(&sbuf);
-
-    return v;
-  } else if (is_array()) {
-    std::vector<uint8_t>*v = new std::vector<uint8_t>();
-
-    //VariantArray& vec = get_array();
-    //for(uint i=0; i<vec.size(); ++i) {
-    //  std::vector<uint8_t> *packed_variant = vec[i]->to_msgpack();
-    //  v->insert(v->end(), packed_variant->begin(), packed_variant->end());
-    //  delete packed_variant;
-    //}
-
-    //msgpack_sbuffer_destroy(&sbuf);
-
-    return v;
-  } else if (is_binary()) {
-    const std::vector<uint8_t> &bin = get_binary();
-    size_t bin_size = bin.size();
-
-    uint8_t* buf = new uint8_t[bin_size];
-    std::copy(bin.begin(), bin.end(), buf);
-
-    msgpack_pack_bin(&pk, bin_size);
-    msgpack_pack_bin_body(&pk, buf, bin_size);
-
-    delete buf;
-  } else if (is_null()) {
-    msgpack_pack_nil(&pk);
-  } else {
-    // TODO
-  }
+  msgpack_pack(&pk, *this);
 
   std::vector<uint8_t> *v = new std::vector<uint8_t>(sbuf.size);
   v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);

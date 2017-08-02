@@ -153,7 +153,6 @@ TEST(VariantTest, MsgpackEncodingArray) {
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
-#if 0
   EXPECT_TRUE(v_dash->is_array());
 
   VariantArray& vec = v_dash->get_array();
@@ -168,7 +167,6 @@ TEST(VariantTest, MsgpackEncodingArray) {
 
   EXPECT_TRUE(vec[2]->is_string());
   EXPECT_EQ(vec[2]->get_string(), "example");
-#endif
 
   msgpack_zone_destroy(&mempool);
   msgpack_sbuffer_destroy(&sbuf);
@@ -196,7 +194,6 @@ TEST(VariantTest, MsgpackEncodingMap) {
 
   Variant * v = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(sbuf.data), sbuf.size);
 
-#if 0
   std::vector<uint8_t> *encoded_msg = v->to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
@@ -215,7 +212,6 @@ TEST(VariantTest, MsgpackEncodingMap) {
 
   EXPECT_TRUE(map["path"]->is_string());
   EXPECT_EQ(map["path"]->get_string(), "/path/name");
-#endif
 
   msgpack_sbuffer_destroy(&sbuf);
 }
