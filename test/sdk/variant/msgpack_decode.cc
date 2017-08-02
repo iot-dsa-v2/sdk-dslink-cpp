@@ -69,13 +69,13 @@ TEST(VariantTest, MsgpackDecodingMap) {
 
   VariantMap& map = v->get_map();
 
-  EXPECT_EQ(map.size(), 2);
+  EXPECT_EQ(2, map.size());
 
   EXPECT_TRUE(map["dsId"]->is_int());
-  EXPECT_EQ(map["dsId"]->get_int(), 1);
+  EXPECT_EQ(1, map["dsId"]->get_int());
 
   EXPECT_TRUE(map["path"]->is_string());
-  EXPECT_EQ(map["path"]->get_string(), "/path/name");
+  EXPECT_EQ("/path/name", map["path"]->get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
 }
