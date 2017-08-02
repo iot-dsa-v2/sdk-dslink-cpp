@@ -66,7 +66,9 @@ Variant *Variant::from_msgpack(const uint8_t *data, size_t size) {
   return to_variant(obj);
 }
 
-void msgpack_pack(msgpack_packer *pk, Variant& v) {
+bool msgpack_pack(msgpack_packer *pk, Variant& v) {
+  bool rc = true;
+
   if (v.is_double()) {
     msgpack_pack_double(pk, v.get_double());
   } else if (v.is_int()) {
@@ -108,8 +110,10 @@ void msgpack_pack(msgpack_packer *pk, Variant& v) {
       msgpack_pack(pk, *it.second);
     }
   } else {
-    // TODO
+    rc = false;
   }
+
+  return rc;
 }
 
 std::vector<uint8_t> *Variant::to_msgpack() {
@@ -118,10 +122,13 @@ std::vector<uint8_t> *Variant::to_msgpack() {
 
   msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-  msgpack_pack(&pk, *this);
-
-  std::vector<uint8_t> *v = new std::vector<uint8_t>(sbuf.size);
-  v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
+  std::vector<uint8_t> *v;
+  if (msgpack_pack(&pk, *this)) {
+    v = new std::vector<uint8_t>(sbuf.size);
+    v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
+  } else {
+    v = new std::vector<uint8_t>();
+  }
 
   return v;
 }
