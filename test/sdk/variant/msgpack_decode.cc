@@ -5,7 +5,7 @@
 
 using namespace dsa;
 
-TEST(VariantTest, MsgpackDecoding) {
+TEST(VariantTest, MsgpackDecodingArray) {
   msgpack_sbuffer sbuf;
   msgpack_sbuffer_init(&sbuf);
 
@@ -43,3 +43,39 @@ TEST(VariantTest, MsgpackDecoding) {
   msgpack_sbuffer_destroy(&sbuf);
 }
 
+TEST(VariantTest, MsgpackDecodingMap) {
+  msgpack_sbuffer sbuf;
+  msgpack_sbuffer_init(&sbuf);
+
+  {
+    msgpack_packer pk;
+
+    /* serialize values into the buffer using msgpack_sbuffer_write callback function. */
+    msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+    msgpack_pack_map(&pk, 2);
+    msgpack_pack_str(&pk, 4);
+    msgpack_pack_str_body(&pk, "dsId", 4);
+    msgpack_pack_int(&pk, 1);
+    msgpack_pack_str(&pk, 4);
+    msgpack_pack_str_body(&pk, "path", 4);
+    msgpack_pack_str(&pk, 10);
+    msgpack_pack_str_body(&pk, "/path/name", 10);
+  }
+
+  Variant * v = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(sbuf.data), sbuf.size);
+
+  EXPECT_TRUE(v->is_map());
+
+  VariantMap& map = v->get_map();
+
+  EXPECT_EQ(map.size(), 2);
+
+  EXPECT_TRUE(map["dsId"]->is_int());
+  EXPECT_EQ(map["dsId"]->get_int(), 1);
+
+  EXPECT_TRUE(map["path"]->is_string());
+  EXPECT_EQ(map["path"]->get_string(), "/path/name");
+
+  msgpack_sbuffer_destroy(&sbuf);
+}

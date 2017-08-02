@@ -80,23 +80,42 @@ std::vector<uint8_t> *Variant::to_msgpack() {
     msgpack_pack_str(&pk, str_length);
     msgpack_pack_str_body(&pk, str.c_str(),str_length);
   } else if (is_map()) {
+    std::vector<uint8_t>*v = new std::vector<uint8_t>();
+
+    // VariantArray& map = get_map();
+    // foreach entry in map {
+    //      std::vector<uint8_t> *packed_variant = entry->to_msgpack();
+    //      v->insert(v->end(), packed_variant->begin(), packed_variant->end());
+    //      delete packed_variant;
+    //    }
+
+    msgpack_sbuffer_destroy(&sbuf);
+
+    return v;
   } else if (is_array()) {
     std::vector<uint8_t>*v = new std::vector<uint8_t>();
-    VariantArray& vec = get_array();
-    for(uint i=0; i<vec.size(); ++i) {
-      std::vector<uint8_t> *packed_variant = vec[i]->to_msgpack();
-      v->insert(v->end(), packed_variant->begin(), packed_variant->end());
-      delete packed_variant;
-    }
-    msgpack_sbuffer_destroy(&sbuf);
+
+    //VariantArray& vec = get_array();
+    //for(uint i=0; i<vec.size(); ++i) {
+    //  std::vector<uint8_t> *packed_variant = vec[i]->to_msgpack();
+    //  v->insert(v->end(), packed_variant->begin(), packed_variant->end());
+    //  delete packed_variant;
+    //}
+
+    //msgpack_sbuffer_destroy(&sbuf);
+
     return v;
   } else if (is_binary()) {
     const std::vector<uint8_t> &bin = get_binary();
     size_t bin_size = bin.size();
-    uint8_t buf[1024];
+
+    uint8_t* buf = new uint8_t[bin_size];
     std::copy(bin.begin(), bin.end(), buf);
+
     msgpack_pack_bin(&pk, bin_size);
     msgpack_pack_bin_body(&pk, buf, bin_size);
+
+    delete buf;
   } else if (is_null()) {
     msgpack_pack_nil(&pk);
   } else {
