@@ -16,26 +16,6 @@ inline shared_ptr_<T> make_shared_(Args&&... args) {
   return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
-template <class T>
-class EnableShared {
- private:
-  shared_ptr_<T> _ptr;
-
- public:
-  EnableShared() : _ptr(static_cast<T*>(this)) {}
-
-  shared_ptr_<T> shared_from_this() {
-    if (_ptr != nullptr) {
-      return _ptr;
-    }
-    throw std::runtime_error("shared object used after destroy");
-  }
-
-  virtual void destroy() { _ptr.reset(); }
-
-  bool destroyed() const { return !_ptr.get(); }
-};
-
 class MultipleInheritableEnableSharedFromThis : public virtual std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis> {
  public:
   virtual ~MultipleInheritableEnableSharedFromThis() {}
