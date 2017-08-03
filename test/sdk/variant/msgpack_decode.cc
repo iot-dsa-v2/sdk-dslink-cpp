@@ -30,14 +30,14 @@ TEST(VariantTest, MsgpackDecodingArray) {
 
   EXPECT_EQ(vec.size(), 3);
 
-  EXPECT_TRUE(vec[0]->is_int());
-  EXPECT_EQ(vec[0]->get_int(), 1);
+  EXPECT_TRUE(vec[0].is_int());
+  EXPECT_EQ(vec[0].get_int(), 1);
 
-  EXPECT_TRUE(vec[1]->is_bool());
-  EXPECT_EQ(vec[1]->get_bool(), true);
+  EXPECT_TRUE(vec[1].is_bool());
+  EXPECT_EQ(vec[1].get_bool(), true);
 
-  EXPECT_TRUE(vec[2]->is_string());
-  EXPECT_EQ(vec[2]->get_string(), "example");
+  EXPECT_TRUE(vec[2].is_string());
+  EXPECT_EQ(vec[2].get_string(), "example");
 
 
   msgpack_sbuffer_destroy(&sbuf);
@@ -71,11 +71,11 @@ TEST(VariantTest, MsgpackDecodingMap) {
 
   EXPECT_EQ(2, map.size());
 
-  EXPECT_TRUE(map["dsId"]->is_int());
-  EXPECT_EQ(1, map["dsId"]->get_int());
+  EXPECT_TRUE(map["dsId"].is_int());
+  EXPECT_EQ(1, map["dsId"].get_int());
 
-  EXPECT_TRUE(map["path"]->is_string());
-  EXPECT_EQ("/path/name", map["path"]->get_string());
+  EXPECT_TRUE(map["path"].is_string());
+  EXPECT_EQ("/path/name", map["path"].get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
 }

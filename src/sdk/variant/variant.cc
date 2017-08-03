@@ -13,18 +13,18 @@ Variant::Variant(const char* v, size_t size)
     : BaseVariant(std::string(v, size)) {}
 Variant::Variant(const std::string& v) : BaseVariant(v) {}
 Variant::Variant(const std::string* p)
-    : BaseVariant(shared_ptr_<const std::string>(p)) {}
+  : BaseVariant(intrusive_ptr_<VariantString>(new VariantString(*p))) {}
 
 Variant::Variant(const uint8_t* v, size_t size)
     : BaseVariant(std::vector<uint8_t>(v, v + size)) {}
 Variant::Variant(const std::vector<uint8_t>& v) : BaseVariant(v) {}
 Variant::Variant(const std::vector<uint8_t>* p)
-    : BaseVariant(shared_ptr_<const std::vector<uint8_t>>(p)) {}
+  : BaseVariant(intrusive_ptr_<VariantBinary>(new VariantBinary(*p))) {}
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
-Variant::Variant(VariantMap* p) : BaseVariant(shared_ptr_<VariantMap>(p)) {}
+Variant::Variant(VariantMap* p) : BaseVariant(intrusive_ptr_<VariantMap>(p)) {}
 Variant::Variant(VariantArray* p)
-    : BaseVariant(shared_ptr_<VariantArray>(p)) {}
+  : BaseVariant(intrusive_ptr_<VariantArray>(new VariantArray(*p))) {}
 
 Variant* Variant::new_map() { return new Variant(new VariantMap()); }
 Variant* Variant::new_array() { return new Variant(new VariantArray()); }
@@ -36,7 +36,7 @@ Variant* Variant::copy() const {
       VariantMap& map = get_map();
 
       for (auto &it : map) {
-        (*new_map)[it.first] = std::unique_ptr<Variant>(new Variant(*(it.second)));
+        (*new_map)[it.first] = Variant(it.second);
       }
       return new Variant(new_map);
     }
@@ -46,7 +46,7 @@ Variant* Variant::copy() const {
       new_array->reserve(array.size());
 
       for (auto &it : array) {
-        new_array->push_back(std::unique_ptr<Variant>(new Variant(*it)));
+        new_array->push_back(Variant(it));
       }
       return new Variant(new_array);
     }
@@ -62,7 +62,7 @@ Variant* Variant::deep_copy() const {
       VariantMap& map = get_map();
 
       for (auto &it : map) {
-        (*new_map)[it.first] = std::unique_ptr<Variant>(it.second->deep_copy());
+        (*new_map)[it.first] = *(it.second.deep_copy());
       }
       return new Variant(new_map);
     }
@@ -72,7 +72,7 @@ Variant* Variant::deep_copy() const {
       new_array->reserve(array.size());
 
       for (auto &it : array) {
-        new_array->push_back(std::unique_ptr<Variant>(it->deep_copy()));
+        new_array->push_back(*(it.deep_copy()));
       }
       return new Variant(new_array);
     }

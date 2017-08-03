@@ -14,15 +14,42 @@ namespace dsa {
 
 class Variant;
 
-typedef std::map<std::string, std::unique_ptr<Variant>> VariantMap;
+class VariantMap : public std::map<std::string, Variant>,
+                   public EnableIntrusive<VariantMap> {
+ public:
+  template <typename... Args>
+  inline VariantMap(Args &&... args)
+      : std::map<std::string, Variant>(std::forward<Args>(args)...){};
+};
 
-typedef std::vector<std::unique_ptr<Variant>> VariantArray;
+class VariantArray : public std::vector<Variant>,
+                     public EnableIntrusive<VariantArray> {
+ public:
+  template <typename... Args>
+  inline VariantArray(Args &&... args)
+      : std::vector<Variant>(std::forward<Args>(args)...){};
+};
+
+class VariantString : public std::string, 
+                      public EnableIntrusive<VariantString> {
+ public:
+  template <typename... Args>
+  inline VariantString(Args &&... args)
+      : std::string(std::forward<Args>(args)...){};
+};
+
+class VariantBinary : public std::vector<uint8_t>,
+                      public EnableIntrusive<VariantBinary> {
+ public:
+  template <typename... Args>
+  inline VariantBinary(Args &&... args)
+      : std::vector<uint8_t>(std::forward<Args>(args)...){};
+};
 
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
-                       shared_ptr_<const std::string>,
-                       shared_ptr_<VariantMap>,
-                       shared_ptr_<VariantArray>, std::vector<uint8_t>,
-                       shared_ptr_<const std::vector<uint8_t>>>
+                       intrusive_ptr_<VariantString>,
+                       intrusive_ptr_<VariantMap>, intrusive_ptr_<VariantArray>,
+                       std::vector<uint8_t>, intrusive_ptr_<VariantBinary>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -124,21 +151,21 @@ class Variant : public BaseVariant {
   bool get_bool() const { return boost::get<bool>(*this); }
   const std::string &get_string() const {
     if (which() == SharedString) {
-      return *boost::get<shared_ptr_<const std::string>>(*this);
+      return *boost::get<intrusive_ptr_<VariantString>>(*this);
     }
     return boost::get<const std::string>(*this);
   }
   const std::vector<uint8_t> &get_binary() const {
     if (which() == SharedBinary) {
-      return *boost::get<shared_ptr_<const std::vector<uint8_t>>>(*this);
+      return *boost::get<intrusive_ptr_<VariantBinary>>(*this);
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }
   VariantMap &get_map() const {
-    return *boost::get<shared_ptr_<VariantMap>>(*this);
+    return *boost::get<intrusive_ptr_<VariantMap>>(*this);
   }
   VariantArray &get_array() const {
-    return *boost::get<shared_ptr_<VariantArray>>(*this);
+    return *boost::get<intrusive_ptr_<VariantArray>>(*this);
   }
 
  public:

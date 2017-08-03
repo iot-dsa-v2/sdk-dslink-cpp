@@ -31,10 +31,10 @@ TEST(RequesterTest, basic_flow) {
   // Construct a subscribe message request
   SubscribeRequestMessage subscribe_request;
   subscribe_request.set_qos(StreamQos::_2);
-
   subscribe_request.set_target_path("/path/name");
-  //?subscribe_request.update_static_header();
 
+  shared_ptr_<Buffer> b = make_shared_<Buffer>(256);
+  subscribe_request.write(b->data());
 
   app->sleep(2000);
 

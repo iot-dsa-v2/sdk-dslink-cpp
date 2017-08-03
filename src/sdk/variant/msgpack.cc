@@ -28,7 +28,7 @@ Variant *Variant::to_variant(const msgpack_object &obj) {
         // ignore the key if not string
         if (p->key.type == MSGPACK_OBJECT_STR) {
           (*map)[std::string(p->key.via.str.ptr, p->key.via.str.size)] =
-              std::unique_ptr<Variant>(to_variant(p->val));
+              *(to_variant(p->val));
         }
       }
       return new Variant(map);
@@ -39,7 +39,7 @@ Variant *Variant::to_variant(const msgpack_object &obj) {
 
       struct msgpack_object *p = obj.via.array.ptr;
       for (size_t i = 0; i < obj.via.array.size; ++i, ++p) {
-        array->push_back(std::unique_ptr<Variant>(to_variant(*p)));
+        array->push_back(*(to_variant(*p)));
       }
       return new Variant(array);
     }
@@ -97,7 +97,7 @@ bool msgpack_pack(msgpack_packer *pk, Variant& v) {
     VariantArray& array = v.get_array();
     msgpack_pack_array(pk, array.size());
     for (auto &it : array) {
-      msgpack_pack(pk, *it);
+      msgpack_pack(pk, it);
     }
   } else if (v.is_map()) {
     VariantMap& map = v.get_map();
@@ -107,7 +107,7 @@ bool msgpack_pack(msgpack_packer *pk, Variant& v) {
       size_t key_size = key.size();
       msgpack_pack_str(pk, key_size);
       msgpack_pack_str_body(pk, key.c_str(), key_size);
-      msgpack_pack(pk, *it.second);
+      msgpack_pack(pk, it.second);
     }
   } else {
     rc = false;

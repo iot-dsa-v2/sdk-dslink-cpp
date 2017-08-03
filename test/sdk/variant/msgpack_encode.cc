@@ -159,14 +159,14 @@ TEST(VariantTest, MsgpackEncodingArray) {
 
   EXPECT_EQ(3, vec.size());
 
-  EXPECT_TRUE(vec[0]->is_int());
-  EXPECT_EQ(1, vec[0]->get_int());
+  EXPECT_TRUE(vec[0].is_int());
+  EXPECT_EQ(1, vec[0].get_int());
 
-  EXPECT_TRUE(vec[1]->is_bool());
-  EXPECT_EQ(true, vec[1]->get_bool());
+  EXPECT_TRUE(vec[1].is_bool());
+  EXPECT_EQ(true, vec[1].get_bool());
 
-  EXPECT_TRUE(vec[2]->is_string());
-  EXPECT_EQ("example", vec[2]->get_string());
+  EXPECT_TRUE(vec[2].is_string());
+  EXPECT_EQ("example", vec[2].get_string());
 
   msgpack_zone_destroy(&mempool);
   msgpack_sbuffer_destroy(&sbuf);
@@ -225,23 +225,23 @@ TEST(VariantTest, MsgpackEncodingNestedArray) {
 
   EXPECT_EQ(4, vec.size());
 
-  EXPECT_TRUE(vec[0]->is_int());
-  EXPECT_EQ(1, vec[0]->get_int());
+  EXPECT_TRUE(vec[0].is_int());
+  EXPECT_EQ(1, vec[0].get_int());
 
-  EXPECT_TRUE(vec[1]->is_bool());
-  EXPECT_EQ(true, vec[1]->get_bool());
+  EXPECT_TRUE(vec[1].is_bool());
+  EXPECT_EQ(true, vec[1].get_bool());
 
-  EXPECT_TRUE(vec[2]->is_string());
-  EXPECT_EQ("example", vec[2]->get_string());
+  EXPECT_TRUE(vec[2].is_string());
+  EXPECT_EQ("example", vec[2].get_string());
 
-  EXPECT_TRUE(vec[3]->is_map());
-  VariantMap& map = vec[3]->get_map();
+  EXPECT_TRUE(vec[3].is_map());
+  VariantMap& map = vec[3].get_map();
 
-  EXPECT_TRUE(map["dsId"]->is_int());
-  EXPECT_EQ(1, map["dsId"]->get_int());
+  EXPECT_TRUE(map["dsId"].is_int());
+  EXPECT_EQ(1, map["dsId"].get_int());
 
-  EXPECT_TRUE(map["path"]->is_string());
-  EXPECT_EQ("/path/name", map["path"]->get_string());
+  EXPECT_TRUE(map["path"].is_string());
+  EXPECT_EQ("/path/name", map["path"].get_string());
 
   msgpack_zone_destroy(&mempool);
   msgpack_sbuffer_destroy(&sbuf);
@@ -282,11 +282,11 @@ TEST(VariantTest, MsgpackEncodingMap) {
 
   EXPECT_EQ(2, map.size());
 
-  EXPECT_TRUE(map["dsId"]->is_int());
-  EXPECT_EQ(1, map["dsId"]->get_int());
+  EXPECT_TRUE(map["dsId"].is_int());
+  EXPECT_EQ(1, map["dsId"].get_int());
 
-  EXPECT_TRUE(map["path"]->is_string());
-  EXPECT_EQ("/path/name", map["path"]->get_string());
+  EXPECT_TRUE(map["path"].is_string());
+  EXPECT_EQ("/path/name", map["path"].get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
 }
@@ -333,23 +333,23 @@ TEST(VariantTest, MsgpackEncodingNestedMap) {
 
   EXPECT_EQ(3, map.size());
 
-  EXPECT_TRUE(map["dsId"]->is_int());
-  EXPECT_EQ(1, map["dsId"]->get_int());
+  EXPECT_TRUE(map["dsId"].is_int());
+  EXPECT_EQ(1, map["dsId"].get_int());
 
-  EXPECT_TRUE(map["path"]->is_string());
-  EXPECT_EQ("/path/name", map["path"]->get_string());
+  EXPECT_TRUE(map["path"].is_string());
+  EXPECT_EQ("/path/name", map["path"].get_string());
 
-  EXPECT_TRUE(map["value"]->is_array());
-  VariantArray& vec = map["value"]->get_array();
+  EXPECT_TRUE(map["value"].is_array());
+  VariantArray& vec = map["value"].get_array();
   
-  EXPECT_TRUE(vec[0]->is_int());
-  EXPECT_EQ(1, vec[0]->get_int());
+  EXPECT_TRUE(vec[0].is_int());
+  EXPECT_EQ(1, vec[0].get_int());
 
-  EXPECT_TRUE(vec[1]->is_bool());
-  EXPECT_EQ(true, vec[1]->get_bool());
+  EXPECT_TRUE(vec[1].is_bool());
+  EXPECT_EQ(true, vec[1].get_bool());
 
-  EXPECT_TRUE(vec[2]->is_string());
-  EXPECT_EQ("example", vec[2]->get_string());
+  EXPECT_TRUE(vec[2].is_string());
+  EXPECT_EQ("example", vec[2].get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
 }
