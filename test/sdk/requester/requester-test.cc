@@ -34,7 +34,7 @@ TEST(RequesterTest, basic_flow) {
   subscribe_request.set_target_path("/path/name");
 
   shared_ptr_<Buffer> b = make_shared_<Buffer>(256);
-  subscribe_request.write(b->data());
+  // subscribe_request.write(b->data());
 
   app->sleep(2000);
 
