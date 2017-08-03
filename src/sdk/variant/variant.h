@@ -90,45 +90,45 @@ class Variant : public BaseVariant {
   static Variant *new_array();
 
   template <typename T>
-  static Variant *create(const T &v) {
-    return new Variant(v);
+  static Variant create(const T &v) {
+    return Variant(v);
   };
-  static Variant *create(const int32_t &v) {
-    return new Variant(static_cast<int64_t>(v));
+  static Variant create(const int32_t &v) {
+    return Variant(static_cast<int64_t>(v));
   }
-  static Variant *create(const uint64_t &v) {
-    return new Variant(static_cast<int64_t>(v));
+  static Variant create(const uint64_t &v) {
+    return Variant(static_cast<int64_t>(v));
   }
-  static Variant *create(const std::string &v) {
+  static Variant create(const std::string &v) {
     if (v.length() < 64) {
-      return new Variant(v);
+      return Variant(v);
     } else {
-      return new Variant(new std::string(v));
+      return Variant(new std::string(v));
     }
   }
-  static Variant *create(const char *v) {
+  static Variant create(const char *v) {
     size_t size = strlen(v);
     return create(v, size);
   }
-  static Variant *create(const char *v, size_t size) {
+  static Variant create(const char *v, size_t size) {
     if (size < 64) {
-      return new Variant(v, size);
+      return Variant(v, size);
     } else {
-      return new Variant(new std::string(v, size));
+      return Variant(new std::string(v, size));
     }
   }
-  static Variant *create(const std::vector<uint8_t> &v) {
+  static Variant create(const std::vector<uint8_t> &v) {
     if (v.size() < 64) {
-      return new Variant(v);
+      return Variant(v);
     } else {
-      return new Variant(new std::vector<uint8_t>(v));
+      return Variant(new std::vector<uint8_t>(v));
     }
   }
-  static Variant *create(const uint8_t *data, size_t size) {
+  static Variant create(const uint8_t *data, size_t size) {
     if (size < 64) {
-      return new Variant(data, size);
+      return Variant(data, size);
     } else {
-      return new Variant(new std::vector<uint8_t>(data, data + size));
+      return Variant(new std::vector<uint8_t>(data, data + size));
     }
   }
 

@@ -4,12 +4,11 @@
 #include <msgpack.h>
 
 using namespace dsa;
-typedef std::unique_ptr<Variant> VariantPtr;
 
 TEST(VariantTest, MsgpackEncodingDouble) {
-  VariantPtr v = VariantPtr(Variant::create(1.23));
+  Variant v = Variant::create(1.23);
 
-  std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+  std::vector<uint8_t> *encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
@@ -21,9 +20,9 @@ TEST(VariantTest, MsgpackEncodingDouble) {
 }
 
 TEST(VariantTest, MsgpackEncodingInt) {
-  VariantPtr v = VariantPtr(Variant::create(123));
+  Variant v = Variant::create(123);
 
-  std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+  std::vector<uint8_t> *encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
@@ -36,9 +35,9 @@ TEST(VariantTest, MsgpackEncodingInt) {
 
 TEST(VariantTest, MsgpackEncodingBool) {
   {
-    VariantPtr v = VariantPtr(Variant::create(true));
+    Variant v = Variant::create(true);
 
-    std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+    std::vector<uint8_t> *encoded_msg = v.to_msgpack();
     uint8_t encoded_buf[1024];
     std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
     size_t encoded_buf_size = encoded_msg->size();
@@ -50,9 +49,9 @@ TEST(VariantTest, MsgpackEncodingBool) {
   }
 
   {
-    VariantPtr v = VariantPtr(Variant::create(false));
+    Variant v = Variant::create(false);
 
-    std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+    std::vector<uint8_t> *encoded_msg = v.to_msgpack();
     uint8_t encoded_buf[1024];
     std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
     size_t encoded_buf_size = encoded_msg->size();
@@ -65,9 +64,9 @@ TEST(VariantTest, MsgpackEncodingBool) {
 }
 
 TEST(VariantTest, MsgpackEncodingString) {
-  VariantPtr v = VariantPtr(Variant::create("hello"));
+  Variant v = Variant::create("hello");
 
-  std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+  std::vector<uint8_t> *encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
@@ -79,9 +78,9 @@ TEST(VariantTest, MsgpackEncodingString) {
 }
 
 TEST(VariantTest, MsgpackEncodingNull) {
-  VariantPtr v = VariantPtr(new Variant);
+  Variant v;
 
-  std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+  std::vector<uint8_t> *encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
@@ -92,14 +91,14 @@ TEST(VariantTest, MsgpackEncodingNull) {
 }
 
 TEST(VariantTest, MsgpackEncodingBinary) {
-  VariantPtr v = VariantPtr(new Variant);
+  Variant v;
   {
     std::vector<uint8_t> vec = {0, 1, 2};
-    VariantPtr v0 = VariantPtr(Variant::create(vec));
-    *v = *v0;
+    Variant v0 = Variant::create(vec);
+    v = v0;
   }
 
-  std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+  std::vector<uint8_t> *encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
