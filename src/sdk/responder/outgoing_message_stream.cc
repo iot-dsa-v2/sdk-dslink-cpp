@@ -9,7 +9,7 @@ namespace dsa {
 /////////////////////////////
 // SubscribeMessageStream
 /////////////////////////////
-SubscribeMessageStream::SubscribeMessageStream(const shared_ptr_<Session> &session,
+SubscribeMessageStream::SubscribeMessageStream(const intrusive_ptr_<Session> &session,
                                                SubscribeOptions config,
                                                size_t id,
                                                uint32_t rid)
@@ -42,7 +42,7 @@ const Message &SubscribeMessageStream::get_next_message() {
 ///////////////////////////////
 // InvokeMessageStream
 ///////////////////////////////
-InvokeMessageStream::InvokeMessageStream(const shared_ptr_<Session> &session,
+InvokeMessageStream::InvokeMessageStream(const intrusive_ptr_<Session> &session,
                                          InvokeOptions config,
                                          size_t id,
                                          uint32_t rid)
@@ -75,7 +75,7 @@ const Message &InvokeMessageStream::get_next_message() {
 //////////////////////////
 // ListMessageStream
 //////////////////////////
-ListMessageStream::ListMessageStream(const shared_ptr_<Session> &session,
+ListMessageStream::ListMessageStream(const intrusive_ptr_<Session> &session,
                                      ListOptions config,
                                      size_t id,
                                      uint32_t rid)
@@ -108,7 +108,7 @@ const Message &ListMessageStream::get_next_message() {
 //////////////////////////
 // SetMessageStream
 //////////////////////////
-SetMessageStream::SetMessageStream(const shared_ptr_<Session> &session,
+SetMessageStream::SetMessageStream(const intrusive_ptr_<Session> &session,
                                    SetOptions config,
                                    size_t id,
                                    uint32_t rid)

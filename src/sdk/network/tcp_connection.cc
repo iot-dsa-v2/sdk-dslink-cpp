@@ -37,11 +37,12 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
       if (total_bytes - cur < StaticHeaders::TotalSize) {
         size_t partial_size = total_bytes - cur;
         _read_buffer->assign(&data[cur], partial_size);
-        _socket.async_read_some(boost::asio::buffer(_read_buffer->data() + partial_size,
-                                                    _read_buffer->capacity() - partial_size),
-                                boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), partial_size,
-                                            boost::asio::placeholders::error,
-                                            boost::asio::placeholders::bytes_transferred));
+        _socket.async_read_some(
+            boost::asio::buffer(_read_buffer->data() + partial_size,
+                                _read_buffer->capacity() - partial_size),
+            boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(),
+                        partial_size, boost::asio::placeholders::error,
+                        boost::asio::placeholders::bytes_transferred));
         return;
       }
 
@@ -54,18 +55,18 @@ void TcpConnection::read_loop(size_t from_prev, const boost::system::error_code 
         _read_buffer->assign(&data[cur], partial_size);
 
         // read the rest of the message
-        boost::asio::async_read(_socket,
-                                boost::asio::buffer(_read_buffer->data() + partial_size,
-                                                    _read_buffer->capacity() - partial_size),
-                                boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), partial_size,
-                                            boost::asio::placeholders::error,
-                                            boost::asio::placeholders::bytes_transferred));
+        boost::asio::async_read(
+            _socket,
+            boost::asio::buffer(_read_buffer->data() + partial_size,
+                                _read_buffer->capacity() - partial_size),
+            boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(),
+                        partial_size, boost::asio::placeholders::error,
+                        boost::asio::placeholders::bytes_transferred));
         return;
       }
 
       // post job with message buffer
-      _session->strand().get_io_service().post(boost::bind<void>(_message_handler, _session,
-                                                           buf->get_shared_buffer(cur, header.message_size)));
+      _global_strand.post(boost::bind<void>(_message_handler, _session, buf->get_shared_buffer(cur, header.message_size)));
 
       cur += header.message_size;
     }
@@ -121,7 +122,7 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 TcpServerConnection::TcpServerConnection(const App &app, const Server::Config &config)
     : TcpConnection(app, Config(config.message_handler())) {
   std::cout << "TcpServerConnection()" << std::endl;
-  _path = make_shared_<Buffer>(config.path());
+  _path = make_intrusive_<Buffer>(config.path());
 }
 
 void TcpServerConnection::connect() {
@@ -294,7 +295,7 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error, si
       if (auth[i] != other_auth[i]) return;
 
     // create new session object and pass to the on connect handler
-    _session = make_shared_<Session>(_session_id, Connection::shared_from_this());
+    _session = make_intrusive_<Session>(_global_strand, _session_id, Connection::shared_from_this());
     _config.on_connect()(_session);
   } else {
     close();

@@ -22,8 +22,8 @@ class App;
 class Session;
 
 typedef std::function<void()> WriteHandler;
-typedef std::function<void(const shared_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
-typedef std::function<void(const shared_ptr_<Session> &)> OnConnectHandler;
+typedef std::function<void(const intrusive_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
 class Connection : public InheritableEnableShared<Connection> {
  public:
@@ -31,13 +31,13 @@ class Connection : public InheritableEnableShared<Connection> {
    private:
     std::string _host{"127.0.0.1"};
     unsigned short _port{8080};
-    BufferPtr _token{std::make_shared<Buffer>("")};
-    BufferPtr _session_id{std::make_shared<Buffer>("")};
+    BufferPtr _token{make_intrusive_<Buffer>("")};
+    BufferPtr _session_id{make_intrusive_<Buffer>("")};
     // handshake timeout is in milliseconds
     unsigned int _handshake_timeout{1000};
     unsigned int _max_pending_messages{20};
-    MessageHandler _message_handler{[](const shared_ptr_<Session> &s, Buffer::SharedBuffer b){}};
-    OnConnectHandler _on_connect{[](const shared_ptr_<Session> &s){}};
+    MessageHandler _message_handler{[](const intrusive_ptr_<Session> &s, Buffer::SharedBuffer b){}};
+    OnConnectHandler _on_connect{[](const intrusive_ptr_<Session> &s){}};
 
    public:
     Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
@@ -53,8 +53,8 @@ class Connection : public InheritableEnableShared<Connection> {
 
     void set_host(std::string host) { _host = std::move(host); }
     void set_port(unsigned short port) { _port = port; }
-    void set_token(const std::string &token) { _token = std::make_shared<Buffer>(token); }
-    void set_session_id(const std::string &session_id) { _session_id = std::make_shared<Buffer>(session_id); }
+    void set_token(const std::string &token) { _token = make_intrusive_<Buffer>(token); }
+    void set_session_id(const std::string &session_id) { _session_id = make_intrusive_<Buffer>(session_id); }
     // handshake timeout is in milliseconds
     void set_handshake_timeout(unsigned int timeout) { _handshake_timeout = timeout; }
     void set_max_pending_messages(unsigned int max_pending) { _max_pending_messages = max_pending; }
@@ -116,11 +116,14 @@ class Connection : public InheritableEnableShared<Connection> {
 
  protected:
   explicit Connection(const App &app, const Config &config);
+
   SecurityContext &_security_context;
   Config _config;
 
+  boost::asio::io_service::strand &_global_strand;
+
   // this should rarely be touched
-  shared_ptr_<Session> _session;
+  intrusive_ptr_<Session> _session;
 
   BufferPtr _read_buffer;
   BufferPtr _write_buffer;

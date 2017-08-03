@@ -83,9 +83,10 @@ void App::graceful_stop() {
   _work.reset();
 
   // tell all registered components to shutdown
-  for (auto &kv : _registry)
+  for (auto &kv : _registry) {
     if (auto component = kv.second.lock())
       component->stop();
+  }
 }
 
 void App::graceful_stop(unsigned int milliseconds) {
@@ -98,14 +99,18 @@ void App::stop() {
   _io_service->stop();
 }
 
-void App::register_component(shared_ptr_<GracefullyClosable> component) {
-  std::lock_guard<std::mutex> lock(_register_key);
-  _registry[component.get()] = std::move(component);
+size_t App::register_component(shared_ptr_<GracefullyClosable> component) {
+  size_t key = ++_registry_count;
+  {
+    std::lock_guard<std::mutex> lock(_register_key);
+    _registry[key] = std::move(component);
+  }
+  return key;
 }
 
-void App::unregister_component(void *component) {
+void App::unregister_component(size_t id) {
   std::lock_guard<std::mutex> lock(_register_key);
-  _registry.erase(component);
+  _registry.erase(id);
 }
 
 }  // namespace dsa

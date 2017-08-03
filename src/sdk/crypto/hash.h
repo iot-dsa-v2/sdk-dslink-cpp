@@ -21,11 +21,11 @@ class Hash {
   Init init;
 
  public:
-  explicit Hash(const char *hash_type);
+  explicit Hash(const char *hash_type) throw(const std::runtime_error &);
   ~Hash();
 
   void update(const Buffer& data);
-  std::string digest_base64();
+  std::string digest_base64() throw(const std::runtime_error &);
 };
 }  // namespace dsa
 

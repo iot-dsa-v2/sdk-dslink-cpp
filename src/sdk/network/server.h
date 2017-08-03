@@ -8,23 +8,24 @@
 #include <utility>
 #include <map>
 
-#include "gracefully_closable.h"
 #include "util/buffer.h"
+#include "session_manager.h"
+#include "session.h"
+#include "gracefully_closable.h"
 
 namespace dsa {
-class SessionManager;
 class Connection;
-class Session;
+class SessionManager;
 
-typedef std::function<void (const shared_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
-typedef std::function<void (const shared_ptr_<Session> &)> OnConnectHandler;
+typedef std::function<void (const intrusive_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
+typedef std::function<void (const intrusive_ptr_<Session> &)> OnConnectHandler;
 
 class Server : public GracefullyClosable {
  private:
-  shared_ptr_<SessionManager> _session_manager;
+  intrusive_ptr_<SessionManager> _session_manager;
 
  public:
-  shared_ptr_<SessionManager> session_manager() { return _session_manager; }
+  intrusive_ptr_<SessionManager> session_manager() { return _session_manager; }
 
   enum Protocol {
     TCP
@@ -34,8 +35,8 @@ class Server : public GracefullyClosable {
    private:
     std::string _path{"/"};
     unsigned short _port{8080};
-    MessageHandler _message_handler{[](shared_ptr_<Session> s, Buffer::SharedBuffer b){}};
-    OnConnectHandler _on_connect{[](const shared_ptr_<Session> &s){}};
+    MessageHandler _message_handler{[](intrusive_ptr_<Session> s, Buffer::SharedBuffer b){}};
+    OnConnectHandler _on_connect{[](const intrusive_ptr_<Session> &s){}};
 
    public:
     Config(std::string path, unsigned short port) : _path(std::move(path)), _port(port) {}

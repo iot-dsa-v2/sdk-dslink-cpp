@@ -15,15 +15,15 @@ TcpServer::TcpServer(shared_ptr_<App> app, const Config &config)
       _acceptor(new tcp::acceptor(app->io_service(), tcp::endpoint(tcp::v4(), config.port()))) {}
 
 void TcpServer::start() {
-  register_this();
+//  register_this();
 
   // start taking connections
-  _new_connection = make_shared_<TcpServerConnection>(*_app, _config);
-
-  _acceptor->async_accept(_new_connection->socket(),
-                          boost::bind(&TcpServer::accept_loop,
-                                      share_this<TcpServer>(),
-                                      boost::asio::placeholders::error));
+//  _new_connection = make_intrusive_<TcpServerConnection>(*_app, _config);
+//
+//  _acceptor->async_accept(_new_connection->socket(),
+//                          boost::bind(&TcpServer::accept_loop,
+//                                      share_this<TcpServer>(),
+//                                      boost::asio::placeholders::error));
 }
 
 void TcpServer::stop() {

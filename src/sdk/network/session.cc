@@ -7,11 +7,11 @@
 
 namespace dsa {
 
-Session::Session(BufferPtr session_id, const ConnectionPtr &connection)
-    : _connection(connection), _session_id(std::move(session_id)) {}
+Session::Session(boost::asio::io_service::strand &global_strand, BufferPtr session_id, const ConnectionPtr &connection)
+    : _connection(connection), _session_id(std::move(session_id)), _strand(global_strand) {}
 
-Session::Session(const std::string &session_id, ConnectionPtr connection)
-    : _connection(std::move(connection)), _session_id(make_shared_<Buffer>(session_id)) {}
+Session::Session(boost::asio::io_service::strand &global_strand, const std::string &session_id, ConnectionPtr connection)
+    : _connection(std::move(connection)), _session_id(make_intrusive_<Buffer>(session_id)), _strand(global_strand) {}
 
 void Session::start() const {
   if (_connection == nullptr)
@@ -28,10 +28,10 @@ void Session::stop() {
 }
 
 void Session::add_ready_outgoing_stream(uint32_t rid, size_t unique_id) {
-  _strand->post(make_shared_this_lambda([=]() {
+  _strand.post(make_intrusive_this_lambda([=]() {
     _ready_streams.push(StreamInfo{rid, unique_id, &_outgoing_streams});
     if (!_is_writing) {
-      _strand->post(boost::bind(&Session::_write_loop, shared_from_this()));
+      _strand.post(boost::bind(&Session::_write_loop, intrusive_this()));
     }
   }));
 }
@@ -78,7 +78,7 @@ void Session::_write_loop() {
     return;
   }
 
-  auto buf = make_shared_<Buffer>();
+  auto buf = make_intrusive_<Buffer>();
   MessageStream *stream = _get_next_ready_stream();
 
   if (stream == nullptr)
@@ -93,7 +93,7 @@ void Session::_write_loop() {
   } while (stream != nullptr && stream->get_next_message_size() + buf->size() < buf->capacity());
 
   _is_writing = true;
-  _connection->write(buf, buf->size(), boost::bind(&Session::_write_loop, shared_from_this()));
+  _connection->write(buf, buf->size(), boost::bind(&Session::_write_loop, intrusive_this()));
 }
 
 }  // namespace dsa

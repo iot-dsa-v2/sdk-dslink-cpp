@@ -33,9 +33,9 @@ Buffer::Buffer(std::string data) : _size(data.size()), _capacity(data.size()) {
   std::memcpy(_data, data.c_str(), data.size());
 }
 
-Buffer &Buffer::operator=(const Buffer &other) {
-  if (shared_from_this().use_count() > 2) {
-    throw std::runtime_error("Buffer =, can't not resize a buffer that's already shared");
+Buffer &Buffer::operator=(const Buffer &other) throw(const std::runtime_error &) {
+  if (_refs > 2) {
+    throw std::runtime_error("Can't not resize a buffer that's already shared");
   }
   delete[] _data;
   _data = new uint8_t[other.capacity()];
@@ -49,9 +49,9 @@ size_t Buffer::capacity() const { return _capacity; }
 
 size_t Buffer::size() const { return _size; }
 
-bool Buffer::resize(size_t capacity) {
-  if (shared_from_this().use_count() > 2) {
-    throw std::runtime_error("Buffer resize, can't not resize a buffer that's already shared");
+bool Buffer::resize(size_t capacity) throw(const std::runtime_error &) {
+  if (_refs > 2) {
+    throw std::runtime_error("Buffer resize, can't resize a buffer that's already shared");
   }
   if (capacity <= _capacity)
     return false;
@@ -80,7 +80,7 @@ const uint8_t *Buffer::data() const { return _data; }
 
 uint8_t *Buffer::data() { return _data; }
 
-void Buffer::assign(const uint8_t *data, size_t size) {
+void Buffer::assign(const uint8_t *data, size_t size) throw(const std::runtime_error &) {
   if (_capacity < size) {
     throw std::runtime_error("Buffer assign, not enough capacity");
   }
@@ -88,7 +88,7 @@ void Buffer::assign(const uint8_t *data, size_t size) {
   std::memcpy(_data, data, _size);
 }
 
-uint8_t &Buffer::operator[](size_t index) {
+uint8_t &Buffer::operator[](size_t index) throw(const std::runtime_error &) {
   if (index >= _size) {
     if (index >= _capacity) {
       throw std::runtime_error("Buffer access, index out of bounds");
@@ -98,7 +98,7 @@ uint8_t &Buffer::operator[](size_t index) {
   return _data[index];
 }
 
-const uint8_t &Buffer::operator[](size_t index) const {
+const uint8_t &Buffer::operator[](size_t index) const throw(const std::runtime_error &) {
   if (index >= _size) {
     throw std::runtime_error("Buffer access, index out of bounds");
   }
@@ -106,7 +106,7 @@ const uint8_t &Buffer::operator[](size_t index) const {
 }
 
 Buffer::SharedBuffer Buffer::get_shared_buffer(size_t offset, size_t message_size) {
-  return Buffer::SharedBuffer(shared_from_this(), &_data[offset], message_size);
+  return Buffer::SharedBuffer(intrusive_this(), &_data[offset], message_size);
 }
 
 } // namespace dsa

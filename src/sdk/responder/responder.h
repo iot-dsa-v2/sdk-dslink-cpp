@@ -45,7 +45,7 @@ class Responder : public GracefullyClosable {
   // Private Members
   ////////////////////////////////////////////
   std::atomic_size_t _stream_count{0};
-  shared_ptr_<Session> _session;
+  intrusive_ptr_<Session> _session;
   NodeStateManager _state_manager;
   NodeModelManager _model_manager;
 
@@ -53,7 +53,7 @@ class Responder : public GracefullyClosable {
 
   ClientPtr _initialize_connection();
 
-  void _message_handler(const shared_ptr_<Session> &session, Buffer::SharedBuffer buf);
+  void _message_handler(const intrusive_ptr_<Session> &session, Buffer::SharedBuffer buf);
 };
 
 }  // namespace dsa

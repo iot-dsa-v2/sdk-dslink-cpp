@@ -14,12 +14,12 @@ class HMAC {
   bool initialized;
 
  public:
-  HMAC(const char *alg, Buffer& to_hash);
+  HMAC(const char *alg, Buffer& to_hash) throw(const std::runtime_error &);
   ~HMAC();
 
-  void init(const char *alg, Buffer& to_hash);
-  void update(const Buffer& data);
-  BufferPtr digest();
+  void init(const char *alg, Buffer& to_hash) throw(const std::runtime_error &);
+  void update(const Buffer& data) throw(const std::runtime_error &);
+  BufferPtr digest() throw(const std::runtime_error &);
 };
 }  // namespace dsa
 

@@ -8,8 +8,8 @@
 #include <boost/asio.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
-#include "app.h"
 #include "util/enable_shared.h"
+#include "connection.h"
 
 namespace dsa {
 class MessageStream;
@@ -19,7 +19,7 @@ class OutgoingMessageStream;
 //////////////////////////////////////////
 // maintain request and response streams
 //////////////////////////////////////////
-class Session: public InheritableEnableShared<Session> {
+class Session : public EnableIntrusive<Session> {
  public:
   struct StreamInfo {
     uint32_t rid;
@@ -28,8 +28,12 @@ class Session: public InheritableEnableShared<Session> {
   };
   void add_ready_outgoing_stream(uint32_t rid, size_t unique_id);
 
-  explicit Session(BufferPtr session_id, const ConnectionPtr &connection = nullptr);
-  explicit Session(const std::string &session_id, ConnectionPtr connection = nullptr);
+  explicit Session(boost::asio::io_service::strand &global_strand,
+                   BufferPtr session_id,
+                   const ConnectionPtr &connection = nullptr);
+  explicit Session(boost::asio::io_service::strand &global_strand,
+                   const std::string &session_id,
+                   ConnectionPtr connection = nullptr);
 
   const BufferPtr &session_id() const { return _session_id; }
 
@@ -43,7 +47,8 @@ class Session: public InheritableEnableShared<Session> {
 
   void remove_outgoing_subscription(uint32_t request_id);
 
-  boost::asio::io_service::strand &strand() { return *_strand; };
+  boost::asio::io_service::strand &strand() { return _strand; };
+  const boost::asio::io_service::strand &strand() const { return _strand; }
 
  private:
   static std::atomic_size_t _session_count;
@@ -59,7 +64,7 @@ class Session: public InheritableEnableShared<Session> {
   MessageStream *_get_next_ready_stream();
   void _write_loop();
 
-  std::unique_ptr<boost::asio::io_service::strand> _strand;
+  boost::asio::io_service::strand &_strand;
 };
 
 typedef shared_ptr_<Session> SessionPtr;

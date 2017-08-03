@@ -7,7 +7,7 @@
 #include "misc.h"
 
 namespace dsa {
-Hash::Hash(const char *hash_type) : finalized(false) {
+Hash::Hash(const char *hash_type) throw(const std::runtime_error &) : finalized(false) {
   mdctx = new EVP_MD_CTX;
   const EVP_MD *md = EVP_get_digestbyname(hash_type);
   if (md == nullptr) throw std::runtime_error("invalid hash type");
@@ -24,7 +24,7 @@ void Hash::update(const Buffer& content) {
   EVP_DigestUpdate(mdctx, content.data(), content.size());
 }
 
-std::string Hash::digest_base64() {
+std::string Hash::digest_base64() throw(const std::runtime_error &) {
   if (finalized) throw std::runtime_error("digest already called");
 
   uint8_t md_value[EVP_MAX_MD_SIZE];

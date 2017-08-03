@@ -6,8 +6,11 @@
 namespace dsa {
 class App;
 
+// interface that classes must adhere to in order to perform a graceful stop
 class GracefullyClosable : public InheritableEnableShared<GracefullyClosable> {
-  // interface that classes must adhere to in order to perform a graceful stop
+ private:
+  size_t _id;
+  
  public:
   shared_ptr_<App> _app;
 

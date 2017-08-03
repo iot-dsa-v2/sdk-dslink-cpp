@@ -28,7 +28,7 @@ void Responder::start() {
 }
 
 ClientPtr Responder::_initialize_connection() {
-  auto on_connect = [this](const shared_ptr_<Session> session) {
+  auto on_connect = [this](const intrusive_ptr_<Session> session) {
     _session = session;
     _session->start();
   };
@@ -44,7 +44,7 @@ ClientPtr Responder::_initialize_connection() {
   return std::move(connection);
 }
 
-void Responder::_message_handler(const shared_ptr_<Session> &session,
+void Responder::_message_handler(const intrusive_ptr_<Session> &session,
                                  SharedBuffer buf) {
   std::unique_ptr<Message> message(parse_message(buf));
   switch (message->type()) {

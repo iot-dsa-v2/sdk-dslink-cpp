@@ -6,13 +6,13 @@
 #include <openssl/objects.h>
 
 template<typename T, typename U>
-inline void CHECK_NE(T a, U b) {
+inline void CHECK_NE(T a, U b) throw(const std::runtime_error &) {
   if (a == b) throw std::runtime_error("Something went wrong, can't be equal.");
 }
 
 namespace dsa {
 
-ECDH::ECDH(const char *curve) {
+ECDH::ECDH(const char *curve) throw(const std::runtime_error &) {
   int nid = OBJ_sn2nid(curve);
   if (nid == NID_undef) throw std::runtime_error("invalid curve name");
   key = EC_KEY_new_by_curve_name(nid);
@@ -23,7 +23,7 @@ ECDH::ECDH(const char *curve) {
 
 ECDH::~ECDH() { EC_KEY_free(key); }
 
-BufferPtr ECDH::get_private_key() const {
+BufferPtr ECDH::get_private_key() const throw(const std::runtime_error &) {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
   if (priv == nullptr) throw std::runtime_error("private key not set");
   int size = BN_num_bytes(priv);
@@ -35,10 +35,10 @@ BufferPtr ECDH::get_private_key() const {
     throw std::runtime_error("private key couldn't be retrieved");
   }
 
-  return std::move(make_shared_<Buffer>(out, size, size));
+  return std::move(make_intrusive_<Buffer>(out, size, size));
 }
 
-BufferPtr ECDH::get_public_key() const {
+BufferPtr ECDH::get_public_key() const throw(const std::runtime_error &) {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
 
@@ -56,10 +56,10 @@ BufferPtr ECDH::get_public_key() const {
     throw std::runtime_error("Couldn't get public key");
   }
 
-  return std::move(make_shared_<Buffer>(out, size, size));
+  return std::move(make_intrusive_<Buffer>(out, size, size));
 }
 
-bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) {
+bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(const std::runtime_error &) {
   if (group == nullptr) throw std::runtime_error("group cannot be null");
   if (private_key == nullptr)
     throw std::runtime_error("private key cannot be null");
@@ -74,7 +74,7 @@ bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) {
   return result;
 }
 
-void ECDH::set_private_key_hex(const char *data) {
+void ECDH::set_private_key_hex(const char *data) throw(const std::runtime_error &) {
   BIGNUM *priv = BN_new();
   BN_hex2bn(&priv, data);
   if (!is_key_valid_for_curve(priv))
@@ -108,7 +108,7 @@ void ECDH::set_private_key_hex(const char *data) {
   EC_POINT_free(pub);
 }
 
-BufferPtr ECDH::compute_secret(Buffer &public_key) const {
+BufferPtr ECDH::compute_secret(Buffer &public_key) const throw(const std::runtime_error &) {
   EC_POINT *pub = EC_POINT_new(group);
   int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
                              nullptr);
@@ -127,7 +127,7 @@ BufferPtr ECDH::compute_secret(Buffer &public_key) const {
     throw std::runtime_error("secret couldn't be computed with given key");
   }
 
-  return std::move(make_shared_<Buffer>(out, size, size));
+  return std::move(make_intrusive_<Buffer>(out, size, size));
 }
 
 }  // namespace dsa

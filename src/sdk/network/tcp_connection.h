@@ -86,7 +86,7 @@ class TcpClientConnection : public TcpConnection, public GracefullyClosable {
 
   void stop() override;
 
-  shared_ptr_<Session> session() { return _session; }
+  intrusive_ptr_<Session> session() { return _session; }
 
 };
 

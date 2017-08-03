@@ -13,7 +13,7 @@
 namespace dsa {
 class Message;
 
-class Buffer : public std::enable_shared_from_this<Buffer> {
+class Buffer : public EnableIntrusive<Buffer> {
  private:
   enum { default_capacity = 256 };
   uint8_t *_data;
@@ -23,13 +23,13 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
  public:
   class SharedBuffer {
    private:
-    shared_ptr_<Buffer> _parent_buf;
+    intrusive_ptr_<Buffer> _parent_buf;
 
    public:
     const size_t size;
     const uint8_t * data;
 
-    SharedBuffer(shared_ptr_<Buffer> parent, const uint8_t * data, size_t size)
+    SharedBuffer(intrusive_ptr_<Buffer> parent, const uint8_t * data, size_t size)
         : _parent_buf(std::move(parent)), data(data), size(size) {}
 
     SharedBuffer(const SharedBuffer &buf) : _parent_buf(buf._parent_buf), size(buf.size), data(buf.data) {}
@@ -57,13 +57,13 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   Buffer(uint8_t *data, size_t size, size_t capacity);
 
   // assignment operator
-  Buffer &operator=(const Buffer &other);
+  Buffer &operator=(const Buffer &other) throw(const std::runtime_error &);
 
   // get current capacity of underlying array
   size_t capacity() const;
 
   // manually resize capacity of buffer, true if successful
-  bool resize(size_t capacity);
+  bool resize(size_t capacity) throw(const std::runtime_error &);
 
   // number of elements in buffer
   size_t size() const;
@@ -78,7 +78,7 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   void safe_append(uint8_t data);
 
   // copy from pointer `size` number of items
-  void assign(const uint8_t *data, size_t size);
+  void assign(const uint8_t *data, size_t size) throw(const std::runtime_error &);
 
   // access underlying array
   uint8_t *data();
@@ -87,10 +87,10 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   const uint8_t *data() const;
 
   // access operator
-  uint8_t &operator[](size_t index);
+  uint8_t &operator[](size_t index) throw(const std::runtime_error &);
 
   // const access operator
-  const uint8_t &operator[](size_t index) const;
+  const uint8_t &operator[](size_t index) const throw(const std::runtime_error &);
 
   // get buffer
   SharedBuffer get_shared_buffer(size_t offset, size_t size);
@@ -104,9 +104,9 @@ class Buffer : public std::enable_shared_from_this<Buffer> {
   iterator end() { return &_data[_size]; }
 };
 
-typedef shared_ptr_<Buffer> BufferPtr;
-typedef shared_ptr_<const Buffer> ConstBufferPtr;
-typedef shared_ptr_<Buffer::SharedBuffer> MessageBufferPtr;
+typedef intrusive_ptr_<Buffer> BufferPtr;
+typedef intrusive_ptr_<const Buffer> ConstBufferPtr;
+typedef intrusive_ptr_<Buffer::SharedBuffer> MessageBufferPtr;
 typedef Buffer::SharedBuffer SharedBuffer;
 typedef Buffer::SharedBuffer ValueUpdate;
 

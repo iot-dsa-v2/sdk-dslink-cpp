@@ -6,16 +6,16 @@
 
 namespace dsa {
 
-SessionPtr SessionManager::get_session(const std::string &dsid, const std::string &session_id) {
+intrusive_ptr_<Session> SessionManager::get_session(const std::string &dsid, const std::string &session_id) {
   boost::shared_lock<boost::shared_mutex> lock(_sessions_key);
   if (_sessions.count(session_id) != 0)
     return _sessions.at(session_id);
   return nullptr;
 }
 
-SessionPtr SessionManager::create_session(const std::string &dsid) {
+intrusive_ptr_<Session> SessionManager::create_session(const std::string &dsid) {
   std::string session_id = get_new_session_id();
-  auto session = make_shared_<Session>(session_id);
+  auto session = make_intrusive_<Session>(_strand, session_id);
 
   {
     boost::unique_lock <boost::shared_mutex> lock(_sessions_key);

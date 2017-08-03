@@ -5,14 +5,15 @@
 #ifndef DSA_SDK_NETWORK_APP_H_
 #define DSA_SDK_NETWORK_APP_H_
 
+#include <atomic>
 #include <string>
 #include <mutex>
 #include <unordered_map>
 
+#include "util/enable_shared.h"
 #include "server.h"
 #include "client.h"
 #include "security_context.h"
-#include "util/enable_shared.h"
 
 namespace boost {
 class thread_group;
@@ -34,19 +35,20 @@ class App : public std::enable_shared_from_this<App> {
   std::unique_ptr<boost::asio::io_service::strand> _strand;
   std::string _name;
   std::mutex _register_key;
+  std::atomic_size_t _registry_count;
+  std::unordered_map<size_t, std::weak_ptr<GracefullyClosable>> _registry;
 
  protected:
   //////////////////////////////////////////////////
   // GracefullyClosable components only get access to the
   // register and un-register functions
   //////////////////////////////////////////////////
-  std::unordered_map<void *, std::weak_ptr<GracefullyClosable>> _registry;
   friend class GracefullyClosable;
 
-  // register new component
-  void register_component(shared_ptr_<GracefullyClosable> component);
+  // register new component, return component id
+  size_t register_component(shared_ptr_<GracefullyClosable> component);
   // un-register dead component
-  void unregister_component(void *component);
+  void unregister_component(size_t id);
 
  public:
   explicit App(std::string name);
@@ -83,7 +85,7 @@ class App : public std::enable_shared_from_this<App> {
   Client *new_client(Client::Protocol type, const Client::Config &config) throw();
 
   // get strand
-  boost::asio::io_service::strand &strand() { return *_strand; }
+  boost::asio::io_service::strand &strand() const { return *_strand; }
 };
 }  // namespace dsa
 

@@ -16,7 +16,7 @@ TEST(MessageTest, subscribe_request_message) {
   SubscribeOptions option = subscribe_request.get_subscribe_options();
   EXPECT_EQ(StreamQos::_2, option.qos);
 
-  shared_ptr_<Buffer> b = make_shared_<Buffer>(256);
+  auto b = make_intrusive_<Buffer>(256);
 
   EXPECT_EQ(17, subscribe_request.size());
 
