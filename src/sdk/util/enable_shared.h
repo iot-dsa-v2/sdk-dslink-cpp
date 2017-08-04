@@ -16,10 +16,10 @@ inline shared_ptr_<T> make_shared_(Args&&... args) {
   return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
-class MultipleInheritableEnableSharedFromThis : public virtual std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis> {
- public:
-  virtual ~MultipleInheritableEnableSharedFromThis() {}
-};
+//class MultipleInheritableEnableSharedFromThis : public virtual std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis> {
+// public:
+//  virtual ~MultipleInheritableEnableSharedFromThis() {}
+//};
 
 template<typename T, typename F>
 class shared_this_lambda {
@@ -34,15 +34,16 @@ class shared_this_lambda {
 };
 
 template <class T>
-class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFromThis {
+class InheritableEnableShared : public std::enable_shared_from_this<InheritableEnableShared<T>> {
+//class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFromThis {
  public:
   shared_ptr_<T> shared_from_this() {
-    return std::dynamic_pointer_cast<T>(MultipleInheritableEnableSharedFromThis::shared_from_this());
+    return std::dynamic_pointer_cast<T>(shared_from_this());
   }
 
   template <class Down>
   shared_ptr_<Down> share_this() {
-    return std::dynamic_pointer_cast<Down>(MultipleInheritableEnableSharedFromThis::shared_from_this());
+    return std::dynamic_pointer_cast<Down>(shared_from_this());
   }
 
   template<typename F>
@@ -100,19 +101,19 @@ class EnableIntrusive {
   unsigned int ref_count() const { return _refs; }
 };
 
-class MultipleInheritableEnableIntrusive : public EnableIntrusive<MultipleInheritableEnableIntrusive> {
-public:
-  virtual ~MultipleInheritableEnableIntrusive() = default;
-};
-
-template <typename T>
-class InheritableEnableIntrusive : virtual public MultipleInheritableEnableIntrusive {
-protected:
-  intrusive_ptr_<T> intrusive_this() { return intrusive_ptr_<T>(static_cast<T*>(this)); }
-
-  template <typename _Down>
-  intrusive_ptr_<_Down> intrusive_this() { return intrusive_ptr_<_Down>(static_cast<_Down*>(this)); }
-};
+//class MultipleInheritableEnableIntrusive : public EnableIntrusive<MultipleInheritableEnableIntrusive> {
+//public:
+//  virtual ~MultipleInheritableEnableIntrusive() = default;
+//};
+//
+//template <typename T>
+//class InheritableEnableIntrusive : virtual public MultipleInheritableEnableIntrusive {
+//protected:
+//  intrusive_ptr_<T> intrusive_this() { return intrusive_ptr_<T>(static_cast<T*>(this)); }
+//
+//  template <typename _Down>
+//  intrusive_ptr_<_Down> intrusive_this() { return intrusive_ptr_<_Down>(static_cast<_Down*>(this)); }
+//};
 
 template <typename _Ty>
 inline void intrusive_ptr_add_ref(_Ty* t){
@@ -132,6 +133,7 @@ inline void intrusive_ptr_release(_Ty* t){
 //>::type make_intrusive_(_Types&&... _Args) {
 //  return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
 //}
+
 template <class _Ty, class... _Types>
 inline intrusive_ptr_<_Ty> make_intrusive_(_Types&&... _Args) {
   return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));

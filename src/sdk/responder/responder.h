@@ -28,7 +28,7 @@ class Responder : public GracefullyClosable {
   ////////////////////////////////////////////
   Responder(const shared_ptr_<App> &app, Config config);
   Responder(Config config);
-  ~Responder() override;
+  ~Responder();
 
   ////////////////////////////////////////////
   // Member Functions
