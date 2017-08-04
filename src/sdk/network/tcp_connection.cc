@@ -233,14 +233,14 @@ void TcpServerConnection::send_f3() {
 //////////////////////////////////
 // TcpClientConnection
 //////////////////////////////////
-TcpClientConnection::TcpClientConnection(const shared_ptr_<App> &app)
-    : TcpConnection(*app, Config()) {
+TcpClientConnection::TcpClientConnection(const App &app)
+    : TcpConnection(app, Config()) {
   std::cout << "TcpClientConnection()\n";
 }
 
-TcpClientConnection::TcpClientConnection(const shared_ptr_<App> &app,
+TcpClientConnection::TcpClientConnection(const App &app,
                                          const Config &config)
-    : TcpConnection(*app, config) {
+    : TcpConnection(app, config) {
   std::cout << "TcpClientConnection()\n";
 }
 

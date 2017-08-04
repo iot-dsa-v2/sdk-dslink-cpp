@@ -22,7 +22,7 @@ class TcpServer : public Server {
   Config _config;
 
  public:
-  TcpServer(shared_ptr_<App> app, const Config &config);
+  TcpServer(const App &app, const Config &config);
   void start() override;
   void close() override;
   std::string type() override { return "TCP"; }

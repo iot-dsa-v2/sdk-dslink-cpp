@@ -14,8 +14,8 @@
 
 namespace dsa {
 
-Responder::Responder(const shared_ptr_<App> &app, Config config)
-    :  _state_manager(*app), _config(config) {}
+Responder::Responder(const App &app, Config config)
+    :  _state_manager(app), _config(config) {}
 
 void Responder::start() {
 

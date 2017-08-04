@@ -18,12 +18,12 @@ TEST(RequesterTest, basic_flow) {
   Client::Config client_config("127.0.0.1", 8080);
 
 
-  std::shared_ptr<Server> tcp_server(new TcpServer(app->shared_from_this(), server_config));
+  std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
 
   app->sleep(500);
 
-  shared_ptr_<TcpClientConnection> tcp_client(new TcpClientConnection(app->shared_from_this(), client_config));
+  shared_ptr_<TcpClientConnection> tcp_client(new TcpClientConnection(*app, client_config));
   tcp_client->connect();
 
   // requester = client->session()->requester();

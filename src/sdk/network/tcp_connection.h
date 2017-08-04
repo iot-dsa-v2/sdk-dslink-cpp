@@ -86,8 +86,8 @@ class TcpClientConnection : public TcpConnection {
   void start_handshake(const boost::system::error_code &error);
 
  public:
-  explicit TcpClientConnection(const shared_ptr_<App> &app);
-  TcpClientConnection(const shared_ptr_<App> &app, const Config &config);
+  explicit TcpClientConnection(const App &app);
+  TcpClientConnection(const App &app, const Config &config);
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
   void name() override { std::cout << "TcpClientConnection\n"; }

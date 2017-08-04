@@ -19,7 +19,7 @@ TEST(TcpServerTest, OneClient) {
   Server::Config server_config("/test/path", 8000);
   Client::Config client_config("127.0.0.1", 8000);
 
-  std::shared_ptr<Server> tcp_server(new TcpServer(app->shared_from_this(), server_config));
+  std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
 
   app->sleep(500);
@@ -45,14 +45,14 @@ TEST(TcpServerTest, MultipleClients) {
   Server::Config server_config("/test/path", 8081);
   Client::Config client_config("127.0.0.1", 8081);
 
-  ServerPtr tcp_server(new TcpServer(app->shared_from_this(), server_config));
+  ServerPtr tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
 
   app->sleep(1000);
 
   std::vector<shared_ptr_<TcpClientConnection>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
-    shared_ptr_<TcpClientConnection> tcp_client(new TcpClientConnection(app->shared_from_this(), client_config));
+    shared_ptr_<TcpClientConnection> tcp_client(new TcpClientConnection(*app, client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }

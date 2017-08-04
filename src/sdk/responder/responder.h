@@ -26,7 +26,7 @@ class Responder : public GracefullyClosable<Responder> {
   ////////////////////////////////////////////
   // Constructors & Destructors
   ////////////////////////////////////////////
-  Responder(const shared_ptr_<App> &app, Config config);
+  Responder(const App &app, Config config);
   Responder(Config config);
   ~Responder();
 

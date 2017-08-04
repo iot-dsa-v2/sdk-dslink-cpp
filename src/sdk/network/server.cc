@@ -7,8 +7,8 @@
 
 namespace dsa {
 
-Server::Server(shared_ptr_<App> app)
-    : _app(app.get()),_session_manager(new SessionManager(app->strand())) {}
+Server::Server(const App &app)
+    : _app(&app),_session_manager(new SessionManager(app.strand())) {}
 
 void Server::close() {
   if (_session_manager != nullptr) {

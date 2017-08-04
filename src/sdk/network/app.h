@@ -6,26 +6,26 @@
 #define DSA_SDK_NETWORK_APP_H_
 
 #include <atomic>
-#include <string>
 #include <mutex>
+#include <string>
 #include <unordered_map>
 
-#include "util/enable_shared.h"
-#include "server.h"
 #include "client.h"
 #include "security_context.h"
+#include "server.h"
+#include "util/enable_shared.h"
 
 namespace boost {
 class thread_group;
 namespace asio {
 class io_service;
 }
-}
+}  // namespace boost
 
 namespace dsa {
 class io_service_work;
 
-class App : public std::enable_shared_from_this<App> {
+class App {
  private:
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<io_service_work> _work;
@@ -47,7 +47,8 @@ class App : public std::enable_shared_from_this<App> {
   // start io_service asynchronously and continue
   void async_start(unsigned int thread_count = 5);
 
-  // allows jobs to finish then stops io_service, may not stop if servers or clients are listening
+  // allows jobs to finish then stops io_service, may not stop if servers or
+  // clients are listening
   void close();
 
   // halts jobs and stops io_service
@@ -64,4 +65,4 @@ class App : public std::enable_shared_from_this<App> {
 };
 }  // namespace dsa
 
-#endif //DSA_SDK_NETWORK_APP_H_
+#endif  // DSA_SDK_NETWORK_APP_H_

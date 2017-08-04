@@ -10,9 +10,9 @@ namespace dsa {
 
 using tcp = boost::asio::ip::tcp;
 
-TcpServer::TcpServer(shared_ptr_<App> app, const Config &config)
+TcpServer::TcpServer(const App &app, const Config &config)
     : Server(app), _config(config),
-      _acceptor(new tcp::acceptor(app->io_service(), tcp::endpoint(tcp::v4(), config.port()))) {}
+      _acceptor(new tcp::acceptor(app.io_service(), tcp::endpoint(tcp::v4(), config.port()))) {}
 
 void TcpServer::start() {
 //  register_this();

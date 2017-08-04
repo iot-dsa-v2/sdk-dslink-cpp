@@ -67,7 +67,7 @@ class Server : public GracefullyClosable<Server> {
     const OnConnectHandler &on_connect() const { return _on_connect; }
   };
 
-  explicit Server(shared_ptr_<App> app);
+  explicit Server(const App &app);
 
   virtual void start() = 0;
   void close() override;
