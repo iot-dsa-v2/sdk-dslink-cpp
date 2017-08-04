@@ -44,6 +44,8 @@ class SubscribeMessageStream : public OutgoingMessageStream {
 
   size_t get_next_message_size() override;
   const Message &get_next_message() override;
+
+  void close() override {}
 };
 
 class InvokeMessageStream : public OutgoingMessageStream {

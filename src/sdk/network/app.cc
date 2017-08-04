@@ -66,7 +66,7 @@ void App::sleep(unsigned int milliseconds) {
   boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
 }
 
-void App::stop() {
+void App::close() {
   _work.reset();
 }
 

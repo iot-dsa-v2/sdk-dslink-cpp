@@ -24,7 +24,6 @@ class io_service;
 
 namespace dsa {
 class io_service_work;
-class GracefullyClosable;
 
 class App : public std::enable_shared_from_this<App> {
  private:
@@ -49,7 +48,7 @@ class App : public std::enable_shared_from_this<App> {
   void async_start(unsigned int thread_count = 5);
 
   // allows jobs to finish then stops io_service, may not stop if servers or clients are listening
-  void stop();
+  void close();
 
   // halts jobs and stops io_service
   void force_stop();

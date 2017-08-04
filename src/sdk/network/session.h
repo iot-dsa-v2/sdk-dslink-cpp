@@ -39,7 +39,7 @@ class Session : public EnableIntrusive<Session> {
 
   void start() const;
 
-  void stop();
+  void close();
 
   void set_connection(const ConnectionPtr &connection) { _connection = connection; };
 

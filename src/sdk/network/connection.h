@@ -25,7 +25,7 @@ typedef std::function<void()> WriteHandler;
 typedef std::function<void(const intrusive_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
 typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
-class Connection : public InheritableEnableShared<Connection> {
+class Connection : public GracefullyClosable<Connection> {
  public:
   class Config {
    private:

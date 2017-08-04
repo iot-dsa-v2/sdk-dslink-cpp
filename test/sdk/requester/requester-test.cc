@@ -41,8 +41,8 @@ TEST(RequesterTest, basic_flow) {
 
   app->sleep(2000);
 
-  tcp_server->stop();
-  tcp_client->stop();
-  app->stop();
+  tcp_server->close();
+  tcp_client->close();
+  app->close();
   app->wait();
 }

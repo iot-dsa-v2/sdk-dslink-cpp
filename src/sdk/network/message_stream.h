@@ -8,7 +8,7 @@
 #include "session.h"
 
 namespace dsa {
-class MessageStream : public InheritableEnableShared<MessageStream> {
+class MessageStream : public GracefullyClosable<MessageStream> {
  protected:
   boost::asio::io_service::strand &_strand;
 

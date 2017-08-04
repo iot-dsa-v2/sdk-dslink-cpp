@@ -12,7 +12,7 @@
 namespace dsa {
 
 // Abstract class for a responder DSLink
-class Responder : public GracefullyClosable {
+class Responder : public GracefullyClosable<Responder> {
  public:
   ////////////////////////////////////////////
   // Config
@@ -34,7 +34,7 @@ class Responder : public GracefullyClosable {
   // Member Functions
   ////////////////////////////////////////////
   void start();
-  void stop() override;
+  void close() override;
   virtual void on_invoke_request(InvokeRequestMessage &request);
   virtual void on_list_request(ListRequestMessage &request);
   virtual void on_set_request(SetRequestMessage &request);

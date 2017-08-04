@@ -1,7 +1,6 @@
 list(APPEND NetworkSourceFiles
         app.cc
         message_stream.cc
-        gracefully_closable.cc
         connection.cc
         session.cc
         server.cc

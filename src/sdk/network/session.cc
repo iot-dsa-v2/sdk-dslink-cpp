@@ -20,7 +20,7 @@ void Session::start() const {
   _connection->start();
 }
 
-void Session::stop() {
+void Session::close() {
   if (_connection != nullptr) {
     _connection->close();
     _connection.reset();

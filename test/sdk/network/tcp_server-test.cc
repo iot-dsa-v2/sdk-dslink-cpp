@@ -29,9 +29,9 @@ TEST(TcpServerTest, OneClient) {
 
   app->sleep(1000);
 
-  tcp_server->stop();
+  tcp_server->close();
 
-  app->stop();
+  app->close();
 
   app->wait();
 }
@@ -59,12 +59,12 @@ TEST(TcpServerTest, MultipleClients) {
 
   app->sleep(1000);
 
-  tcp_server->stop();
+  tcp_server->close();
   for (unsigned int i = 0; i < 2; ++i) {
-    clients[i]->stop();
+    clients[i]->close();
   }
 
-  app->stop();
+  app->close();
 
   app->wait();
 }

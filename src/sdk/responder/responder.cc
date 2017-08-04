@@ -15,7 +15,7 @@
 namespace dsa {
 
 Responder::Responder(const shared_ptr_<App> &app, Config config)
-    : GracefullyClosable(app), _state_manager(*app), _config(config) {}
+    :  _state_manager(*app), _config(config) {}
 
 void Responder::start() {
 
@@ -32,14 +32,14 @@ ClientPtr Responder::_initialize_connection() {
     _session->start();
   };
 
-  Connection::Config connection_config(_config.broker_hostname,
-                                       _config.broker_port, on_connect);
-  ClientPtr connection(new TcpClientConnection(_app->shared_from_this(), connection_config));
-  connection->set_message_handler(
-      std::bind(&Responder::_message_handler, share_this<Responder>(),
-                std::placeholders::_1, std::placeholders::_2));
+  //Connection::Config connection_config(_config.broker_hostname,
+  //                                     _config.broker_port, on_connect);
+  //ClientPtr connection(new TcpClientConnection(_app->shared_from_this(), connection_config));
+  //connection->set_message_handler(
+  //    std::bind(&Responder::_message_handler, share_this<Responder>(),
+  //              std::placeholders::_1, std::placeholders::_2));
 
-  return std::move(connection);
+  return ClientPtr();
 }
 
 void Responder::_message_handler(const intrusive_ptr_<Session> &session,

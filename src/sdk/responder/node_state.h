@@ -7,14 +7,14 @@
 #include <boost/asio/strand.hpp>
 
 #include "dsa/util.h"
-#include "outgoing_message_stream.h"
-#include "node_model.h"
 #include "message/response/subscribe_response_message.h"
+#include "node_model.h"
+#include "outgoing_message_stream.h"
 
 namespace dsa {
 
 // maintain streams of a node
-class NodeState : public InheritableEnableShared<NodeState> {
+class NodeState : public GracefullyClosable<NodeState> {
  private:
   boost::asio::io_service::strand _strand;
   std::string _path;
@@ -34,7 +34,8 @@ class NodeState : public InheritableEnableShared<NodeState> {
   //////////////////////////
   // Setters
   //////////////////////////
-  void add_subscription_stream(const shared_ptr_<SubscribeMessageStream> &stream);
+  void add_subscription_stream(
+      const shared_ptr_<SubscribeMessageStream> &stream);
   void remove_subscription_stream(uint32_t request_id);
 
   void add_list_stream(shared_ptr_<ListMessageStream> stream);
@@ -42,6 +43,8 @@ class NodeState : public InheritableEnableShared<NodeState> {
 
   void new_message(const SubscribeResponseMessage &message);
   void set_model(const shared_ptr_<NodeModel> &model) { _model = model; }
+
+  void close() override {}
 };
 }  // namespace dsa
 

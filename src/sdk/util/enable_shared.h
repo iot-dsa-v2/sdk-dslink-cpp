@@ -34,11 +34,11 @@ class shared_this_lambda {
 };
 
 template <class T>
-class InheritableEnableShared : public std::enable_shared_from_this<InheritableEnableShared<T>> {
-//class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFromThis {
+class GracefullyClosable : public std::enable_shared_from_this<GracefullyClosable<T>> {
+//class GracefullyClosable : virtual public MultipleInheritableEnableSharedFromThis {
  public:
   shared_ptr_<T> shared_from_this() {
-    return std::dynamic_pointer_cast<T>(shared_from_this());
+    return std::dynamic_pointer_cast<T>(std::enable_shared_from_this<GracefullyClosable<T>>::shared_from_this());
   }
 
   template <class Down>
@@ -57,6 +57,8 @@ class InheritableEnableShared : public std::enable_shared_from_this<InheritableE
     return shared_this_lambda<const T, F>(
         static_cast<const T *>(this)->shared_from_this(), f);
   }
+
+  virtual void close() = 0;
 };
 
 template <typename T>

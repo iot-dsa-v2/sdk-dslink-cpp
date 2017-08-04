@@ -26,9 +26,9 @@ void TcpServer::start() {
 //                                      boost::asio::placeholders::error));
 }
 
-void TcpServer::stop() {
+void TcpServer::close() {
   _acceptor->close();
-  Server::stop();
+  Server::close();
 }
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {
@@ -41,7 +41,7 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
                                         share_this<TcpServer>(),
                                         boost::asio::placeholders::error));
   } else {
-    stop();
+    close();
   }
 }
 
