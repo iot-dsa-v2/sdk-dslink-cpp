@@ -43,6 +43,6 @@ TEST(RequesterTest, basic_flow) {
 
   tcp_server->stop();
   tcp_client->stop();
-
+  app->stop();
   app->wait();
 }

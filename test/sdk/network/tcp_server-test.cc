@@ -31,6 +31,8 @@ TEST(TcpServerTest, OneClient) {
 
   tcp_server->stop();
 
+  app->stop();
+
   app->wait();
 }
 
@@ -61,6 +63,8 @@ TEST(TcpServerTest, MultipleClients) {
   for (unsigned int i = 0; i < 2; ++i) {
     clients[i]->stop();
   }
+
+  app->stop();
 
   app->wait();
 }

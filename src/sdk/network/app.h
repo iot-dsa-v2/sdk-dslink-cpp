@@ -29,7 +29,7 @@ class GracefullyClosable;
 class App : public std::enable_shared_from_this<App> {
  private:
   shared_ptr_<boost::asio::io_service> _io_service;
-  //shared_ptr_<io_service_work> _work;
+  shared_ptr_<io_service_work> _work;
   shared_ptr_<SecurityContext> _security_context;
   shared_ptr_<boost::thread_group> _threads;
   std::unique_ptr<boost::asio::io_service::strand> _strand;
@@ -49,13 +49,10 @@ class App : public std::enable_shared_from_this<App> {
   void async_start(unsigned int thread_count = 5);
 
   // allows jobs to finish then stops io_service, may not stop if servers or clients are listening
-  void graceful_stop();
-
-  // allows jobs to finish then stops io_service, hard stops after timeout
-  void graceful_stop(unsigned int milliseconds);
+  void stop();
 
   // halts jobs and stops io_service
-  void stop();
+  void force_stop();
 
   // wait forever or until all worker threads fail
   void wait();

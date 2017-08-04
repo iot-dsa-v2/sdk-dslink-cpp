@@ -49,7 +49,7 @@ void run_worker_thread(const shared_ptr_<boost::asio::io_service> &io_service) {
 void App::async_start(unsigned int thread_count) {
   if (thread_count == 0u) return;
 
-  //_work.reset(new io_service_work(*_io_service));
+  _work.reset(new io_service_work(*_io_service));
 
   for (size_t i = 0; i < thread_count; ++i)
     _threads->create_thread(boost::bind(run_worker_thread, _io_service));
@@ -66,6 +66,10 @@ void App::sleep(unsigned int milliseconds) {
   boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
 }
 
-void App::stop() { _io_service->stop(); }
+void App::stop() {
+  _work.reset();
+}
+
+void App::force_stop() { _work.reset(); }
 
 }  // namespace dsa
