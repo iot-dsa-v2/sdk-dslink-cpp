@@ -1,0 +1,11 @@
+list(APPEND CoreSourceFiles
+        app.cc
+        message_stream.cc
+        session.cc
+        server.cc
+        session_manager.cc
+        )
+
+foreach(file ${CoreSourceFiles})
+    list(APPEND ProjectSourceFiles ${LIB_CORE}/${file})
+endforeach()

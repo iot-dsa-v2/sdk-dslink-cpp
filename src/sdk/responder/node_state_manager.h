@@ -9,7 +9,7 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/asio/io_service.hpp>
 
-#include "network/app.h"
+#include "core/app.h"
 #include "node_state.h"
 
 namespace dsa {

@@ -13,7 +13,7 @@
 #include "message/response/set_response_message.h"
 #include "message/response/list_response_message.h"
 #include "message/message_options.h"
-#include "network/message_stream.h"
+#include "core/message_stream.h"
 
 namespace dsa {
 class Session;

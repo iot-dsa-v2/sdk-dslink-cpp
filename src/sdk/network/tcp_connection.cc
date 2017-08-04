@@ -4,7 +4,7 @@
 
 #include <boost/bind.hpp>
 
-#include "session_manager.h"
+#include "core/session_manager.h"
 
 namespace dsa {
 

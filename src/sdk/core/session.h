@@ -9,7 +9,7 @@
 #include <boost/thread/shared_mutex.hpp>
 
 #include "util/enable_shared.h"
-#include "connection.h"
+#include "network/connection.h"
 
 namespace dsa {
 class MessageStream;

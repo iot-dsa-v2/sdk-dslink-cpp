@@ -1,7 +1,7 @@
 #ifndef DSA_SDK_NETWORK_CLIENT_H_
 #define DSA_SDK_NETWORK_CLIENT_H_
 
-#include "connection.h"
+#include "network/connection.h"
 
 namespace dsa {
 

@@ -42,6 +42,7 @@ set(LIB_MESSAGE "./message")
 set(LIB_NETWORK "./network")
 set(LIB_REQUESTER "./requester")
 set(LIB_RESPONDER "./responder")
+set(LIB_CORE "./core")
 
 # SOURCE FILES
 set(ProjectSourceFiles)
@@ -56,6 +57,7 @@ include(${LIB_MESSAGE}/CMakeListsInclude.txt)
 include(${LIB_NETWORK}/CMakeListsInclude.txt)
 include(${LIB_REQUESTER}/CMakeListsInclude.txt)
 include(${LIB_RESPONDER}/CMakeListsInclude.txt)
+include(${LIB_CORE}/CMakeListsInclude.txt)
 
 add_library(dsa_sdk STATIC ${ProjectSourceFiles})
 target_link_libraries(dsa_sdk ${EXTRA_LIBS})

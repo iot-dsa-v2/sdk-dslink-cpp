@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 #include "client.h"
-#include "security_context.h"
+#include "network/security_context.h"
 #include "server.h"
 #include "util/enable_shared.h"
 

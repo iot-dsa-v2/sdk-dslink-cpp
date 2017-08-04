@@ -4,9 +4,9 @@
 
 #include <boost/asio.hpp>
 
-#include "session.h"
-#include "server.h"
-#include "app.h"
+#include "core/session.h"
+#include "core/server.h"
+#include "core/app.h"
 #include "util/enable_shared.h"
 
 namespace dsa {

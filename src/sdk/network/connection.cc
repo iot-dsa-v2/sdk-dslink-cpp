@@ -1,12 +1,12 @@
 #include "dsa_common.h"
 
 #include "connection.h"
-#include "session.h"
+#include "core/session.h"
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
-#include "app.h"
+#include "core/app.h"
 
 namespace dsa {
 
