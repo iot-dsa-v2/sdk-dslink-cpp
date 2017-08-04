@@ -10,6 +10,7 @@
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
 #include "network/client.h"
+#include "network/tcp_connection.h"
 
 namespace dsa {
 
@@ -17,8 +18,6 @@ Responder::Responder(const shared_ptr_<App> &app, Config config)
     : GracefullyClosable(app), _state_manager(*app), _config(config) {}
 
 void Responder::start() {
-  // register with app instance
-  register_this();
 
   // initialize new connection
   ClientPtr connection = _initialize_connection();
@@ -35,8 +34,7 @@ ClientPtr Responder::_initialize_connection() {
 
   Connection::Config connection_config(_config.broker_hostname,
                                        _config.broker_port, on_connect);
-
-  ClientPtr connection(_app->new_client(_config.protocol, connection_config));
+  ClientPtr connection(new TcpClientConnection(_app->shared_from_this(), connection_config));
   connection->set_message_handler(
       std::bind(&Responder::_message_handler, share_this<Responder>(),
                 std::placeholders::_1, std::placeholders::_2));

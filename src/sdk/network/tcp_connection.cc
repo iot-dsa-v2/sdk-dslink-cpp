@@ -212,8 +212,6 @@ TcpClientConnection::TcpClientConnection(const shared_ptr_<App> &app, const Conf
     : TcpConnection(*app, config), GracefullyClosable(app) { std::cout << "TcpClientConnection()\n"; }
 
 void TcpClientConnection::connect() {
-  // register this client with app for graceful closing
-  register_this();
 
   // connect to server
   using tcp = boost::asio::ip::tcp;

@@ -2,6 +2,9 @@
 #include "dsa/message.h"
 #include "gtest/gtest.h"
 
+#include "network/tcp_server.h"
+#include "network/tcp_connection.h"
+
 using namespace dsa;
 
 TEST(RequesterTest, basic_flow) {
@@ -15,12 +18,12 @@ TEST(RequesterTest, basic_flow) {
   Client::Config client_config("127.0.0.1", 8080);
 
 
-  ServerPtr tcp_server(app->new_server(Server::TCP, server_config));
+  std::shared_ptr<Server> tcp_server(new TcpServer(app->shared_from_this(), server_config));
   tcp_server->start();
 
   app->sleep(500);
 
-  ClientPtr tcp_client(app->new_client(Client::TCP, client_config));
+  shared_ptr_<TcpClientConnection> tcp_client(new TcpClientConnection(app->shared_from_this(), client_config));
   tcp_client->connect();
 
   // requester = client->session()->requester();
@@ -38,7 +41,8 @@ TEST(RequesterTest, basic_flow) {
 
   app->sleep(2000);
 
-  app->graceful_stop(1000);
+  tcp_server->stop();
+  tcp_client->stop();
 
   app->wait();
 }

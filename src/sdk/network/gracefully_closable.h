@@ -8,8 +8,6 @@ class App;
 
 // interface that classes must adhere to in order to perform a graceful stop
 class GracefullyClosable : public InheritableEnableShared<GracefullyClosable> {
- private:
-  size_t _id;
   
  public:
   shared_ptr_<App> _app;
@@ -21,11 +19,6 @@ class GracefullyClosable : public InheritableEnableShared<GracefullyClosable> {
   // this ensures that the component is registered with the app
   explicit GracefullyClosable(const shared_ptr_<App> &app);
 
-  // ensures that components remove themselves from register once dead
-  ~GracefullyClosable() override;
-
-  // must be called at some point after constructor
-  void register_this();
 };
 }  // namespace dsa
 

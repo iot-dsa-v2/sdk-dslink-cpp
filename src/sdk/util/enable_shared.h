@@ -58,11 +58,6 @@ class InheritableEnableShared : virtual public MultipleInheritableEnableSharedFr
   }
 };
 
-template <class _Ty, class... _Types>
-inline shared_ptr_<_Ty> make_shared(_Types&&... _Args) {
-  return (new _Ty(std::forward<_Types>(_Args)...))->shared_from_this();
-}
-
 template <typename T>
 using intrusive_ptr_ = boost::intrusive_ptr<T>;
 
@@ -102,7 +97,7 @@ class EnableIntrusive {
   unsigned int _refs{0};
 
  public:
-  unsigned int ref_count() { return _refs; }
+  unsigned int ref_count() const { return _refs; }
 };
 
 class MultipleInheritableEnableIntrusive : public EnableIntrusive<MultipleInheritableEnableIntrusive> {
