@@ -23,8 +23,7 @@ Variant::Variant(const std::vector<uint8_t>* p)
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
 Variant::Variant(VariantMap* p) : BaseVariant(intrusive_ptr_<VariantMap>(p)) {}
-Variant::Variant(VariantArray* p)
-  : BaseVariant(intrusive_ptr_<VariantArray>(p)) {}
+Variant::Variant(VariantArray* p) : BaseVariant(intrusive_ptr_<VariantArray>(p)) {}
 
 Variant* Variant::new_map() { return new Variant(new VariantMap()); }
 Variant* Variant::new_array() { return new Variant(new VariantArray()); }

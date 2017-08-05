@@ -18,7 +18,7 @@ struct MsgpackSbuffer : public msgpack_sbuffer {
   ~MsgpackSbuffer() { msgpack_sbuffer_destroy(this); }
 };
 
-Variant *Variant::to_variant(const msgpack_object &obj) {
+Variant Variant::to_variant(const msgpack_object &obj) {
   switch (obj.type) {
     case MSGPACK_OBJECT_MAP: {
       auto map = new VariantMap();
@@ -28,33 +28,33 @@ Variant *Variant::to_variant(const msgpack_object &obj) {
         // ignore the key if not string
         if (p->key.type == MSGPACK_OBJECT_STR) {
           (*map)[std::string(p->key.via.str.ptr, p->key.via.str.size)] =
-              *(to_variant(p->val));
+	    to_variant(p->val);
         }
       }
-      return new Variant(map);
+      return Variant(map);
     }
     case MSGPACK_OBJECT_ARRAY: {
-      VariantArray *array = new VariantArray();
+      auto array = new VariantArray();
       array->reserve(obj.via.array.size);
 
       struct msgpack_object *p = obj.via.array.ptr;
       for (size_t i = 0; i < obj.via.array.size; ++i, ++p) {
-        array->push_back(*(to_variant(*p)));
+        array->push_back(to_variant(*p));
       }
-      return new Variant(array);
+      return Variant(array);
     }
-    case MSGPACK_OBJECT_STR:return new Variant(obj.via.str.ptr, obj.via.str.size);
-    case MSGPACK_OBJECT_POSITIVE_INTEGER:return new Variant(static_cast<int64_t>(obj.via.u64));
-    case MSGPACK_OBJECT_NEGATIVE_INTEGER:return new Variant(obj.via.i64);
-    case MSGPACK_OBJECT_FLOAT64:return new Variant(obj.via.f64);
-    case MSGPACK_OBJECT_BOOLEAN:return new Variant(obj.via.boolean);
+    case MSGPACK_OBJECT_STR:return Variant(obj.via.str.ptr, obj.via.str.size);
+    case MSGPACK_OBJECT_POSITIVE_INTEGER:return Variant(static_cast<int64_t>(obj.via.u64));
+    case MSGPACK_OBJECT_NEGATIVE_INTEGER:return Variant(obj.via.i64);
+    case MSGPACK_OBJECT_FLOAT64:return Variant(obj.via.f64);
+    case MSGPACK_OBJECT_BOOLEAN:return Variant(obj.via.boolean);
     case MSGPACK_OBJECT_BIN:
-      return new Variant(reinterpret_cast<const uint8_t *>(obj.via.bin.ptr),
+      return Variant(reinterpret_cast<const uint8_t *>(obj.via.bin.ptr),
                          obj.via.bin.size);
     default:
       // return null
       // ignore extension
-      return new Variant();
+      return Variant();
   }
 }
 
@@ -63,7 +63,7 @@ Variant *Variant::from_msgpack(const uint8_t *data, size_t size) {
   msgpack_object obj;
   msgpack_unpack(reinterpret_cast<const char *>(data), size, NULL,
                  &mempool.zone, &obj);
-  return to_variant(obj);
+  return new Variant(to_variant(obj));
 }
 
 bool msgpack_pack(msgpack_packer *pk, Variant& v) {
@@ -124,7 +124,7 @@ std::vector<uint8_t> *Variant::to_msgpack() {
 
   std::vector<uint8_t> *v = new std::vector<uint8_t>();
   if (msgpack_pack(&pk, *this)) {
-    v = new std::vector<uint8_t>(sbuf.size);
+    v->resize(sbuf.size);
     v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
   }
 

@@ -181,7 +181,7 @@ class Variant : public BaseVariant {
   std::vector<uint8_t> *to_msgpack();
 
  protected:
-  static Variant *to_variant(const msgpack_object &obj);
+  static Variant to_variant(const msgpack_object &obj);
 };
 
 }  // namespace dsa

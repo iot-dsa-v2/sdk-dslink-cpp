@@ -41,6 +41,8 @@ TEST(VariantTest, MsgpackDecodingArray) {
 
 
   msgpack_sbuffer_destroy(&sbuf);
+
+  delete v;
 }
 
 TEST(VariantTest, MsgpackDecodingMap) {
@@ -78,4 +80,6 @@ TEST(VariantTest, MsgpackDecodingMap) {
   EXPECT_EQ("/path/name", map["path"].get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
+
+  delete v;
 }

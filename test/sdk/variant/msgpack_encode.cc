@@ -12,11 +12,14 @@ TEST(VariantTest, MsgpackEncodingDouble) {
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
   EXPECT_TRUE(v_dash->is_double());
   EXPECT_EQ(1.23, v_dash->get_double());
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingInt) {
@@ -26,11 +29,14 @@ TEST(VariantTest, MsgpackEncodingInt) {
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
   EXPECT_TRUE(v_dash->is_int());
   EXPECT_EQ(123, v_dash->get_int());
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingBool) {
@@ -41,11 +47,14 @@ TEST(VariantTest, MsgpackEncodingBool) {
     uint8_t encoded_buf[1024];
     std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
     size_t encoded_buf_size = encoded_msg->size();
+    delete encoded_msg;
 
     Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
     EXPECT_TRUE(v_dash->is_bool());
     EXPECT_EQ(true, v_dash->get_bool());
+
+    delete v_dash;
   }
 
   {
@@ -55,11 +64,14 @@ TEST(VariantTest, MsgpackEncodingBool) {
     uint8_t encoded_buf[1024];
     std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
     size_t encoded_buf_size = encoded_msg->size();
+    delete encoded_msg;
 
     Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
     EXPECT_TRUE(v_dash->is_bool());
     EXPECT_EQ(false, v_dash->get_bool());
+
+    delete v_dash;
   }
 }
 
@@ -70,11 +82,14 @@ TEST(VariantTest, MsgpackEncodingString) {
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
   EXPECT_TRUE(v_dash->is_string());
   EXPECT_EQ("hello", v_dash->get_string());
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingNull) {
@@ -84,10 +99,13 @@ TEST(VariantTest, MsgpackEncodingNull) {
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
   EXPECT_TRUE(v_dash->is_null());
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingBinary) {
@@ -102,6 +120,7 @@ TEST(VariantTest, MsgpackEncodingBinary) {
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
@@ -111,6 +130,8 @@ TEST(VariantTest, MsgpackEncodingBinary) {
   EXPECT_EQ(0, vec[0]);
   EXPECT_EQ(1, vec[1]);
   EXPECT_EQ(2, vec[2]);
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingArray) {
@@ -138,17 +159,18 @@ TEST(VariantTest, MsgpackEncodingArray) {
 
   class VariantExt : public Variant {
   public:
-    static Variant *to_variant_ext(const msgpack_object &obj) {
+    static Variant to_variant_ext(const msgpack_object &obj) {
       return to_variant(obj);
     }
   };
 
-  Variant *v = VariantExt::to_variant_ext(obj);
+  Variant v = VariantExt::to_variant_ext(obj);
 
-  std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+  std::vector<uint8_t> *encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
@@ -169,6 +191,8 @@ TEST(VariantTest, MsgpackEncodingArray) {
 
   msgpack_zone_destroy(&mempool);
   msgpack_sbuffer_destroy(&sbuf);
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingNestedArray) {
@@ -204,17 +228,18 @@ TEST(VariantTest, MsgpackEncodingNestedArray) {
 
   class VariantExt : public Variant {
   public:
-    static Variant *to_variant_ext(const msgpack_object &obj) {
+    static Variant to_variant_ext(const msgpack_object &obj) {
       return to_variant(obj);
     }
   };
 
-  Variant *v = VariantExt::to_variant_ext(obj);
+  Variant v = VariantExt::to_variant_ext(obj);
 
-  std::vector<uint8_t> *encoded_msg = v->to_msgpack();
+  std::vector<uint8_t> *encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
@@ -244,6 +269,8 @@ TEST(VariantTest, MsgpackEncodingNestedArray) {
 
   msgpack_zone_destroy(&mempool);
   msgpack_sbuffer_destroy(&sbuf);
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingMap) {
@@ -272,6 +299,10 @@ TEST(VariantTest, MsgpackEncodingMap) {
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
+
+
+  delete v;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
@@ -288,6 +319,8 @@ TEST(VariantTest, MsgpackEncodingMap) {
   EXPECT_EQ("/path/name", map["path"].get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
+
+  delete v_dash;
 }
 
 TEST(VariantTest, MsgpackEncodingNestedMap) {
@@ -323,6 +356,7 @@ TEST(VariantTest, MsgpackEncodingNestedMap) {
   uint8_t encoded_buf[1024];
   std::copy(encoded_msg->begin(), encoded_msg->end(), encoded_buf);
   size_t encoded_buf_size = encoded_msg->size();
+  delete encoded_msg;
 
   Variant *v_dash = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
@@ -351,5 +385,8 @@ TEST(VariantTest, MsgpackEncodingNestedMap) {
   EXPECT_EQ("example", vec[2].get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
+
+  delete v;
+  delete v_dash;
 }
 
