@@ -7,6 +7,7 @@
 #include <boost/bind.hpp>
 
 #include "core/app.h"
+#include "crypto/hmac.h"
 
 namespace dsa {
 

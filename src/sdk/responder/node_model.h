@@ -5,7 +5,7 @@
 #include <map>
 #include <mutex>
 
-#include "dsa/util.h"
+
 #include "outgoing_message_stream.h"
 
 namespace dsa {

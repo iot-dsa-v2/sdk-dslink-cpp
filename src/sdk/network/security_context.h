@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "dsa/util.h"
-#include "dsa/crypto.h"
+#include "crypto/ecdh.h"
+
 
 namespace dsa {
 

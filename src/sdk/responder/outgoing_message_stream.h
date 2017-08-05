@@ -7,7 +7,7 @@
 #include <boost/asio/strand.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
-#include "dsa/util.h"
+
 #include "message/response/subscribe_response_message.h"
 #include "message/response/invoke_response_message.h"
 #include "message/response/set_response_message.h"

@@ -4,8 +4,15 @@
 #include <atomic>
 #include <string>
 
-#include "dsa/network.h"
-#include "dsa/message.h"
+#include "util/enable_shared.h"
+
+#include "message/request/invoke_request_message.h"
+#include "message/request/list_request_message.h"
+#include "message/request/set_request_message.h"
+#include "message/request/subscribe_request_message.h"
+
+#include "node_state.h"
+#include "node_model.h"
 #include "node_state_manager.h"
 #include "node_model_manager.h"
 

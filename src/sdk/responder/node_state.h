@@ -6,7 +6,7 @@
 
 #include <boost/asio/strand.hpp>
 
-#include "dsa/util.h"
+
 #include "message/response/subscribe_response_message.h"
 #include "node_model.h"
 #include "outgoing_message_stream.h"

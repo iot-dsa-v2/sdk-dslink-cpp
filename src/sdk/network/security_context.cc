@@ -4,6 +4,9 @@
 
 #include "connection.h"
 
+#include "crypto/hash.h"
+#include "crypto/misc.h"
+
 namespace dsa {
 
 SecurityContext::SecurityContext(std::string dsid_prefix) : _ecdh("prime256v1") {

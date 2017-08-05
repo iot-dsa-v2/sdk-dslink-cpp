@@ -4,6 +4,9 @@
 
 #include "session.h"
 
+#include "crypto/misc.h"
+#include "crypto/hash.h"
+
 namespace dsa {
 
 intrusive_ptr_<Session> SessionManager::get_session(const std::string &dsid, const std::string &session_id) {
