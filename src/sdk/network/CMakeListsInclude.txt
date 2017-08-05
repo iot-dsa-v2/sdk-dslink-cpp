@@ -1,6 +1,5 @@
 list(APPEND NetworkSourceFiles
         connection.cc
-        security_context.cc
         tcp_connection.cc
         tcp_server.cc)
 

@@ -3,12 +3,12 @@
 
 #include <string>
 
-#include "crypto/ecdh.h"
+#include "ecdh.h"
 
 
 namespace dsa {
 
-class SecurityContext {
+class HandshakeContext {
  private:
   BufferPtr _public_key;
   BufferPtr _salt;
@@ -16,14 +16,14 @@ class SecurityContext {
   std::string _dsid;
 
  public:
-  explicit SecurityContext(std::string dsid_prefix);
+  explicit HandshakeContext(std::string dsid_prefix);
   const Buffer &public_key() const { return *_public_key; };
   const Buffer &salt() const { return *_salt; };
   const ECDH &ecdh() const { return _ecdh; };
   std::string dsid() const { return _dsid; };
 };
 
-typedef shared_ptr_<SecurityContext> SecurityContextPtr;
+typedef shared_ptr_<HandshakeContext> SecurityContextPtr;
 
 }  // namespace dsa
 

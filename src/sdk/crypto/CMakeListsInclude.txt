@@ -2,7 +2,8 @@ list(APPEND CryptoSourceFiles
         ecdh.cc
         hash.cc
         hmac.cc
-        misc.cc)
+        misc.cc
+		handshake_context.cc)
 
 foreach(file ${CryptoSourceFiles})
   list(APPEND ProjectSourceFiles ${LIB_CRYPTO}/${file})

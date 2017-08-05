@@ -6,7 +6,7 @@
 #include <boost/asio.hpp>
 
 #include "connection.h"
-#include "security_context.h"
+#include "crypto/handshake_context.h"
 #include "tcp_server.h"
 #include "util/enable_shared.h"
 

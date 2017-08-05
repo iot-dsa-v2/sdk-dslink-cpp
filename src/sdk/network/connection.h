@@ -9,7 +9,7 @@
 
 #include "util/util.h"
 #include "message/static_headers.h"
-#include "security_context.h"
+#include "crypto/handshake_context.h"
 
 namespace boost {
 namespace system {
@@ -117,7 +117,7 @@ class Connection : public GracefullyClosable<Connection> {
  protected:
   explicit Connection(const App &app, const Config &config);
 
-  SecurityContext &_security_context;
+  HandshakeContext &_security_context;
   Config _config;
 
   boost::asio::io_service::strand &_global_strand;

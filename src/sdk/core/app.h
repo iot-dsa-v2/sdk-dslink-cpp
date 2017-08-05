@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 #include "client.h"
-#include "network/security_context.h"
+#include "crypto/handshake_context.h"
 #include "server.h"
 #include "util/enable_shared.h"
 
@@ -29,7 +29,7 @@ class App {
  private:
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<io_service_work> _work;
-  shared_ptr_<SecurityContext> _security_context;
+  shared_ptr_<HandshakeContext> _security_context;
   shared_ptr_<boost::thread_group> _threads;
   std::unique_ptr<boost::asio::io_service::strand> _strand;
   std::string _name;
@@ -38,7 +38,7 @@ class App {
   explicit App(std::string name);
   App(std::string name, shared_ptr_<boost::asio::io_service> io_service);
   boost::asio::io_service &io_service() const { return *_io_service; };
-  SecurityContext &security_context() const { return *_security_context; };
+  HandshakeContext &security_context() const { return *_security_context; };
   const std::string &name() const { return _name; };
 
   // start io_service and wait forever
