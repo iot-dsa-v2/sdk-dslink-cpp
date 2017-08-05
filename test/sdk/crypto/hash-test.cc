@@ -15,7 +15,7 @@ TEST(HashTest, HashTypeInvalid) {
 }
 
 TEST(HashTest, update__digest_base64CallTwice) {
-  ECDH ecdh("prime256v1");
+  ECDH ecdh;
   BufferPtr public_key = ecdh.get_public_key();
 
   Hash hash("sha256");

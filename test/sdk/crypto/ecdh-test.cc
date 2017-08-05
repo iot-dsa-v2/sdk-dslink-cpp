@@ -3,24 +3,9 @@
 
 using namespace dsa;
 
-TEST(ECDHTest, CurveUndef) {
-  EXPECT_THROW(ECDH("secp256k1-undef"), std::runtime_error);
-}
-
-TEST(ECDHTest, CurveUndefExMsg) {
-  EXPECT_THROW({
-      try {
-	ECDH("secp256k1-undef");
-      } catch (std::runtime_error &e) {
-	EXPECT_STREQ("invalid curve name", e.what());
-        throw;
-      }
-    }, std::runtime_error);
-}
-
 TEST(ECDHTest, get_private_key) {
-  ECDH ecdh1("secp256k1");
-  ECDH ecdh2("secp256k1");
+  ECDH ecdh1;
+  ECDH ecdh2;
 
   BufferPtr pkey1 = ecdh1.get_private_key();
   BufferPtr pkey2 = ecdh2.get_private_key();
@@ -34,14 +19,14 @@ TEST(ECDHTest, get_private_key) {
 }
 
 //TEST(ECDHTest, get_private_key_MemoryLeak) {
-//  ECDH ecdh("secp256k1");
+//  ECDH ecdh();
 //  BufferPtr key(ecdh.get_private_key());
 //  EXPECT_EQ(0, 0);
 //}
 
 TEST(ECDHTest, get_public_key) {
-  ECDH ecdh1("secp256k1");
-  ECDH ecdh2("secp256k1");
+  ECDH ecdh1;
+  ECDH ecdh2;
 
   BufferPtr pkey1 = ecdh1.get_public_key();
   BufferPtr pkey2 = ecdh2.get_public_key();
@@ -55,20 +40,20 @@ TEST(ECDHTest, get_public_key) {
 }
 
 //TEST(ECDHTest, get_public_key_MemoryLeak) {
-//  ECDH ecdh("secp256k1");
+//  ECDH ecdh();
 //  BufferPtr key(ecdh.get_public_key());
 //  EXPECT_EQ(0, 0);
 //}
 
 TEST(ECDHTest, set_private_key_hex_MemoryLeak) {
-  ECDH ecdh("secp256k1");
+  ECDH ecdh;
 
   const char data[128] = "0123456789abcdefABCDEF";
   ecdh.set_private_key_hex(data);
 }
 
 TEST(ECDHTest, set_private_key_hex_Exception) {
-  ECDH ecdh("secp256k1");
+  ECDH ecdh;
 
   EXPECT_THROW({
       try {
@@ -83,8 +68,8 @@ TEST(ECDHTest, set_private_key_hex_Exception) {
 }
 
 TEST(ECDHTest, compute_secret) {
-  ECDH A_ecdh("secp256k1");
-  ECDH B_ecdh("secp256k1");
+  ECDH A_ecdh;
+  ECDH B_ecdh;
 
   BufferPtr A_public_key = A_ecdh.get_public_key();
   BufferPtr B_public_key = B_ecdh.get_public_key();

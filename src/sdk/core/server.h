@@ -16,6 +16,7 @@
 namespace dsa {
 class Connection;
 class SessionManager;
+class EC_KEY;
 
 typedef std::function<void(const intrusive_ptr_<Session> &,
                            Buffer::SharedBuffer)>
@@ -28,7 +29,7 @@ class Server : public GracefullyClosable<Server> {
 
  protected:
   const App *_app;
-
+  EC_KEY *key;
  public:
   intrusive_ptr_<SessionManager> session_manager() { return _session_manager; }
 

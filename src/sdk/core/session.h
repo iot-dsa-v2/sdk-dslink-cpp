@@ -11,6 +11,10 @@
 #include "util/enable_shared.h"
 #include "network/connection.h"
 
+#include "requester/requester.h"
+#include "responder/responder.h"
+
+
 namespace dsa {
 class MessageStream;
 class IncomingMessageStream;
@@ -26,6 +30,10 @@ class Session : public EnableIntrusive<Session> {
     size_t unique_id;
     std::map<uint32_t, shared_ptr_<MessageStream>> *container;
   };
+
+  Requester requester;
+  Responder responder;
+
   void add_ready_outgoing_stream(uint32_t rid, size_t unique_id);
 
   explicit Session(boost::asio::io_service::strand &global_strand,

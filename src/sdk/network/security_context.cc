@@ -9,7 +9,7 @@
 
 namespace dsa {
 
-SecurityContext::SecurityContext(std::string dsid_prefix) : _ecdh("prime256v1") {
+SecurityContext::SecurityContext(std::string dsid_prefix) : _ecdh() {
   _public_key = _ecdh.get_public_key();
   Hash hash("sha256");
   hash.update(*_public_key);

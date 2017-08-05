@@ -6,11 +6,15 @@
 
 #include "util/enable_shared.h"
 
-#include "node_state_manager.h"
-#include "node_model_manager.h"
 
 namespace dsa {
 
+class Responder {
+ public:
+  Responder(){};
+};
+
+/*
 class InvokeRequestMessage;
 class ListRequestMessage;
 class SetRequestMessage;
@@ -58,8 +62,10 @@ class Responder : public GracefullyClosable<Responder> {
 
   ClientPtr _initialize_connection();
 
-  void _message_handler(const intrusive_ptr_<Session> &session, Buffer::SharedBuffer buf);
+  void _message_handler(const intrusive_ptr_<Session> &session,
+Buffer::SharedBuffer buf);
 };
+*/
 
 }  // namespace dsa
 

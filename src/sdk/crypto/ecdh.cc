@@ -12,8 +12,10 @@ inline void CHECK_NE(T a, U b) throw(const std::runtime_error &) {
 
 namespace dsa {
 
-ECDH::ECDH(const char *curve) throw(const std::runtime_error &) {
-  int nid = OBJ_sn2nid(curve);
+const char* ECDH::curve_name = "prime256v1";
+
+ECDH::ECDH() throw(const std::runtime_error &) {
+  int nid = OBJ_sn2nid(curve_name);
   if (nid == NID_undef) throw std::runtime_error("invalid curve name");
   key = EC_KEY_new_by_curve_name(nid);
   if (EC_KEY_generate_key(key) == 0)

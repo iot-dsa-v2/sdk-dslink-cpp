@@ -10,8 +10,8 @@ using boost::format;
 //---------------------------------------------
 class CryptoTest {
 public:
-  CryptoTest(const char *curve_name) {
-    int nid = OBJ_sn2nid(curve_name);
+  CryptoTest() {
+    int nid = OBJ_sn2nid(ECDH::curve_name);
     _key = EC_KEY_new_by_curve_name(nid);
     _group = EC_KEY_get0_group(_key);
   }
@@ -118,10 +118,9 @@ class BufferExt : public Buffer {
 
 //---------------------------------------------
 TEST(HandshakeTest, ClientInfo) {
-  char curve_name[] = "prime256v1";
   char client_private_key[] = "55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59";
 
-  CryptoTest ct(curve_name);
+  CryptoTest ct;
 
   // Keys
   BufferPtr public_key = ct.compute_public_key(client_private_key);
@@ -132,7 +131,7 @@ TEST(HandshakeTest, ClientInfo) {
   EXPECT_EQ(expected_public_key, public_key_ext.hexstr());
 
   // DsId
-  ECDH ecdh(curve_name);
+  ECDH ecdh;
   ecdh.set_private_key_hex(client_private_key);
 
   Hash hash("sha256");
@@ -143,7 +142,7 @@ TEST(HandshakeTest, ClientInfo) {
   // Shared secret
   char server_private_key[] = "82848ef9d9204097a98a8c393e06aac9cb9a1ba3cdabf772f4ca7e6899b9f277";
 
-  ECDH other_ecdh(curve_name);
+  ECDH other_ecdh;
   other_ecdh.set_private_key_hex(server_private_key);
   BufferPtr shared_secret = ecdh.compute_secret(*other_ecdh.get_public_key());
 
@@ -172,7 +171,7 @@ TEST(HandshakeTest, ServerInfo) {
   char curve_name[] = "prime256v1";
   char server_private_key[] = "82848ef9d9204097a98a8c393e06aac9cb9a1ba3cdabf772f4ca7e6899b9f277";
 
-  CryptoTest ct(curve_name);
+  CryptoTest ct;
 
   // Keys
   BufferPtr public_key = ct.compute_public_key(server_private_key);
@@ -183,7 +182,7 @@ TEST(HandshakeTest, ServerInfo) {
   EXPECT_EQ(expected_public_key, public_key_ext.hexstr());
 
   // DsId
-  ECDH ecdh(curve_name);
+  ECDH ecdh;
   ecdh.set_private_key_hex(server_private_key);
 
   Hash hash("sha256");
@@ -193,7 +192,7 @@ TEST(HandshakeTest, ServerInfo) {
 
   // Shared secret
   char client_private_key[] = "55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59";
-  ECDH other_ecdh(curve_name);
+  ECDH other_ecdh;
   other_ecdh.set_private_key_hex(client_private_key);
   BufferPtr shared_secret = ecdh.compute_secret(*other_ecdh.get_public_key());
 

@@ -5,14 +5,15 @@
 #include <string>
 #include <utility>
 
+#include <boost/asio/io_service.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
-#include <boost/asio/io_service.hpp>
 
 #include "core/app.h"
 #include "node_state.h"
 
 namespace dsa {
+class App;
 /**
  * maintain the node state objects
  */
@@ -23,7 +24,7 @@ class NodeStateManager {
   std::map<std::string, shared_ptr_<NodeState>> _node_states;
 
  public:
-  explicit NodeStateManager(const App &app) : _io_service(app.io_service()) {}
+  explicit NodeStateManager(const App &app);
 
   const shared_ptr_<NodeState> &get_or_create(std::string path);
 };

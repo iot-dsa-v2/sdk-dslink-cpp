@@ -1,4 +1,5 @@
 list(APPEND RequesterSourceFiles
+        requester.cc
         incoming_message_stream.cc)
 
 foreach(file ${RequesterSourceFiles})

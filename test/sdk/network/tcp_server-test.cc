@@ -17,7 +17,7 @@ TEST(TcpServerTest, OneClient) {
   app->async_start(2);
 
   Server::Config server_config("/test/path", 8000);
-  Client::Config client_config("127.0.0.1", 8000);
+//  Client::Config client_config("127.0.0.1", 8000);
 
   std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
@@ -43,7 +43,7 @@ TEST(TcpServerTest, MultipleClients) {
   app->async_start(10);
 
   Server::Config server_config("/test/path", 8081);
-  Client::Config client_config("127.0.0.1", 8081);
+  Connection::Config client_config("127.0.0.1", 8081);
 
   ServerPtr tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();

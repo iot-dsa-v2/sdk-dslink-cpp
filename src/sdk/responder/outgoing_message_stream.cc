@@ -3,6 +3,7 @@
 #include <boost/thread/locks.hpp>
 
 #include "outgoing_message_stream.h"
+#include "core/session.h"
 
 namespace dsa {
 

@@ -5,8 +5,9 @@
 
 namespace dsa {
 
-using Client = Connection;
-typedef shared_ptr_<Client> ClientPtr;
+class Client {
+
+};
 
 }  // namespace dsa
 
