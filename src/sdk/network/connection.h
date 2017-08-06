@@ -117,7 +117,7 @@ class Connection : public GracefullyClosable<Connection> {
  protected:
   explicit Connection(const App &app, const Config &config);
 
-  HandshakeContext &_security_context;
+  HandshakeContext &_handshake_context;
   Config _config;
 
   boost::asio::io_service::strand &_global_strand;

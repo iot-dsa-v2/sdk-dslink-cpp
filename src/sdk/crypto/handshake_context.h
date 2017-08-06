@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_SECURITY_CONTEXT_H
-#define DSA_SDK_SECURITY_CONTEXT_H
+#ifndef DSA_SDK_HANDSHAKR_CONTEXT_H
+#define DSA_SDK_HANDSHAKR_CONTEXT_H
 
 #include <string>
 
@@ -27,4 +27,4 @@ typedef shared_ptr_<HandshakeContext> SecurityContextPtr;
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_SECURITY_CONTEXT_H
+#endif  // DSA_SDK_HANDSHAKR_CONTEXT_H

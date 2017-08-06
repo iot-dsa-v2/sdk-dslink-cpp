@@ -201,10 +201,10 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error,
     if (auto server = _server.lock()) {
       std::string session_id = _session_id->to_string();
       _session = server->session_manager()->get_session(
-          _security_context.dsid(), session_id);
+          _handshake_context.dsid(), session_id);
       if (_session == nullptr)
         _session =
-            server->session_manager()->create_session(_security_context.dsid());
+            server->session_manager()->create_session(_handshake_context.dsid());
     } else {
       // if server no longer exists, connection needs to shutdown
       return;
