@@ -5,7 +5,6 @@
 
 #include "ecdh.h"
 
-
 namespace dsa {
 
 class HandshakeContext {
@@ -16,7 +15,8 @@ class HandshakeContext {
   std::string _dsid;
 
  public:
-  explicit HandshakeContext(std::string dsid_prefix);
+  explicit HandshakeContext(std::string dsid_prefix,
+                            const ECDH *ecdh = nullptr);
   const Buffer &public_key() const { return *_public_key; };
   const Buffer &salt() const { return *_salt; };
   const ECDH &ecdh() const { return _ecdh; };

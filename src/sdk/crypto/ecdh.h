@@ -18,8 +18,11 @@ class ECDH {
   bool is_key_valid_for_curve(BIGNUM *private_key) throw(
       const std::runtime_error &);
 
+  void generate_key() throw(const std::runtime_error &);
+
  public:
   ECDH() throw(const std::runtime_error &);
+  ECDH(const ECDH *ecdh) throw(const std::runtime_error &);
   ~ECDH();
 
   BufferPtr get_private_key() const throw(const std::runtime_error &);

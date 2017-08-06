@@ -5,16 +5,27 @@
 #include <openssl/ecdh.h>
 #include <openssl/objects.h>
 
-template<typename T, typename U>
+template <typename T, typename U>
 inline void CHECK_NE(T a, U b) throw(const std::runtime_error &) {
   if (a == b) throw std::runtime_error("Something went wrong, can't be equal.");
 }
 
 namespace dsa {
 
-const char* ECDH::curve_name = "prime256v1";
+const char *ECDH::curve_name = "prime256v1";
 
-ECDH::ECDH() throw(const std::runtime_error &) {
+ECDH::ECDH() throw(const std::runtime_error &) { generate_key(); }
+ECDH::ECDH(const ECDH *ecdh) throw(const std::runtime_error &) {
+  if (ecdh) {
+    key = ecdh->key;
+    group = ecdh->group;
+  } else {
+    generate_key();
+  }
+}
+ECDH::~ECDH() { EC_KEY_free(key); }
+
+void ECDH::generate_key() throw(const std::runtime_error &) {
   int nid = OBJ_sn2nid(curve_name);
   if (nid == NID_undef) throw std::runtime_error("invalid curve name");
   key = EC_KEY_new_by_curve_name(nid);
@@ -22,8 +33,6 @@ ECDH::ECDH() throw(const std::runtime_error &) {
     throw std::runtime_error("failed to generate ecdh key");
   group = EC_KEY_get0_group(key);
 }
-
-ECDH::~ECDH() { EC_KEY_free(key); }
 
 BufferPtr ECDH::get_private_key() const throw(const std::runtime_error &) {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
@@ -61,7 +70,8 @@ BufferPtr ECDH::get_public_key() const throw(const std::runtime_error &) {
   return std::move(make_intrusive_<Buffer>(out, size, size));
 }
 
-bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(const std::runtime_error &) {
+bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(
+    const std::runtime_error &) {
   if (group == nullptr) throw std::runtime_error("group cannot be null");
   if (private_key == nullptr)
     throw std::runtime_error("private key cannot be null");
@@ -71,12 +81,13 @@ bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(const std::runtime_
   if (order == nullptr)
     throw std::runtime_error("something went wrong, order can't be null");
   bool result = EC_GROUP_get_order(group, order, nullptr) &&
-      (BN_cmp(private_key, order) < 0);
+                (BN_cmp(private_key, order) < 0);
   BN_free(order);
   return result;
 }
 
-void ECDH::set_private_key_hex(const char *data) throw(const std::runtime_error &) {
+void ECDH::set_private_key_hex(const char *data) throw(
+    const std::runtime_error &) {
   BIGNUM *priv = BN_new();
   BN_hex2bn(&priv, data);
   if (!is_key_valid_for_curve(priv)) {
@@ -87,7 +98,8 @@ void ECDH::set_private_key_hex(const char *data) throw(const std::runtime_error 
   int result = EC_KEY_set_private_key(key, priv);
   BN_free(priv);
 
-  if (result == 0) throw std::runtime_error("failed to convert BN to private key");
+  if (result == 0)
+    throw std::runtime_error("failed to convert BN to private key");
 
   // To avoid inconsistency, clear the current public key in-case computing
   // the new one fails for some reason.
@@ -112,7 +124,8 @@ void ECDH::set_private_key_hex(const char *data) throw(const std::runtime_error 
   EC_POINT_free(pub);
 }
 
-BufferPtr ECDH::compute_secret(Buffer &public_key) const throw(const std::runtime_error &) {
+BufferPtr ECDH::compute_secret(Buffer &public_key) const
+    throw(const std::runtime_error &) {
   EC_POINT *pub = EC_POINT_new(group);
   int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
                              nullptr);
@@ -121,7 +134,7 @@ BufferPtr ECDH::compute_secret(Buffer &public_key) const throw(const std::runtim
 
   // NOTE: field_size is in bits
   int field_size = EC_GROUP_get_degree(group);
-  size_t size = ((size_t) field_size + 7) / 8;
+  size_t size = ((size_t)field_size + 7) / 8;
   auto *out = new uint8_t[size];
 
   r = ECDH_compute_key(out, size, pub, key, nullptr);
