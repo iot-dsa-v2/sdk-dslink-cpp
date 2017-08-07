@@ -14,8 +14,11 @@ TEST(RequesterTest, basic_flow) {
 
   app->async_start(2);
 
-  Server::Config server_config("/test/path", 8080);
-  Connection::Config client_config("127.0.0.1", 8080);
+  Config server_config;
+  server_config.tcp_host = "127.0.0.1";
+  server_config.tcp_port = 8090;
+
+  Config client_config = server_config;
 
 
   std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));

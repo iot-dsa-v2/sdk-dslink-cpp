@@ -32,7 +32,7 @@ namespace dsa {
 //    _session->start();
 //  };
 //
-//  //Connection::Config connection_config(_config.broker_hostname,
+//  //Config connection_config(_config.broker_hostname,
 //  //                                     _config.broker_port, on_connect);
 //  //ClientPtr connection(new TcpClientConnection(_app->shared_from_this(), connection_config));
 //  //connection->set_message_handler(

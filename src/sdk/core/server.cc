@@ -7,8 +7,10 @@
 
 namespace dsa {
 
-Server::Server(const App &app)
-    : _app(&app),_session_manager(new SessionManager(app.strand())) {}
+Server::Server(const App &app, const Config &config)
+    : _app(&app),
+      config(config),
+      _session_manager(new SessionManager(app.strand())) {}
 
 void Server::close() {
   if (_session_manager != nullptr) {

@@ -7,6 +7,8 @@
 
 #include <boost/asio/deadline_timer.hpp>
 
+
+#include "core/config.h"
 #include "util/util.h"
 #include "message/static_headers.h"
 #include "crypto/handshake_context.h"
@@ -27,50 +29,7 @@ typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
 class Connection : public GracefullyClosable<Connection> {
  public:
-  class Config {
-   private:
-    std::string _host{"127.0.0.1"};
-    unsigned short _port{8080};
-    BufferPtr _token{make_intrusive_<Buffer>("")};
-    BufferPtr _session_id{make_intrusive_<Buffer>("")};
-    // handshake timeout is in milliseconds
-    unsigned int _handshake_timeout{1000};
-    unsigned int _max_pending_messages{20};
-    MessageHandler _message_handler{[](const intrusive_ptr_<Session> &s, Buffer::SharedBuffer b){}};
-    OnConnectHandler _on_connect{[](const intrusive_ptr_<Session> &s){}};
-
-   public:
-    Config(std::string host, unsigned short port) : _host(std::move(host)), _port(port) {}
-    Config(std::string host, unsigned short port, OnConnectHandler on_connect) 
-        : _host(std::move(host)), _port(port), _on_connect(on_connect) {}
-    Config(MessageHandler message_handler) : _message_handler(std::move(message_handler)) {}
-    Config() = default;
-    Config(const Config &) = default;
-    Config &operator=(const Config &) = default;
-    Config(Config &&) = default;
-    Config &operator=(Config &&) = default;
-    ~Config() = default;
-
-    void set_host(std::string host) { _host = std::move(host); }
-    void set_port(unsigned short port) { _port = port; }
-    void set_token(const std::string &token) { _token = make_intrusive_<Buffer>(token); }
-    void set_session_id(const std::string &session_id) { _session_id = make_intrusive_<Buffer>(session_id); }
-    // handshake timeout is in milliseconds
-    void set_handshake_timeout(unsigned int timeout) { _handshake_timeout = timeout; }
-    void set_max_pending_messages(unsigned int max_pending) { _max_pending_messages = max_pending; }
-    void set_message_handler(MessageHandler message_handler) { _message_handler = std::move(message_handler); }
-    void set_on_connect(OnConnectHandler on_connect) { _on_connect = std::move(on_connect); }
-
-    const std::string &host() const { return _host; }
-    unsigned short port() const { return _port; }
-    const BufferPtr &token() const { return _token; }
-    const BufferPtr &session_id() const { return _session_id; }
-    unsigned int handshake_timout() const { return _handshake_timeout; }
-    unsigned int max_pending_messages() const { return _max_pending_messages; }
-    const MessageHandler &message_handler() const { return _message_handler; }
-    const OnConnectHandler &on_connect() const { return _on_connect; }
-  };
-
+ 
   enum Protocol {
     TCP
   };
@@ -115,9 +74,9 @@ class Connection : public GracefullyClosable<Connection> {
   virtual void start() throw() = 0;
 
  protected:
-  explicit Connection(const App &app, const Config &config);
+  explicit Connection(const App &app, const Config &config, OnConnectHandler& handler);
 
-  HandshakeContext &_handshake_context;
+  HandshakeContext _handshake_context;
   Config _config;
 
   boost::asio::io_service::strand &_global_strand;
@@ -142,8 +101,9 @@ class Connection : public GracefullyClosable<Connection> {
   bool _is_requester;
   bool _is_responder;
   bool _security_preference;
-  std::atomic_uint _pending_messages{0};
+  uint32_t _pending_messages{0};
   boost::asio::deadline_timer _deadline;
+  OnConnectHandler _on_connect;
   MessageHandler _message_handler;
 
   // parse handshake messages

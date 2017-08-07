@@ -18,6 +18,9 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
 class TcpConnection : public Connection {
+
+  static const uint32_t MAX_PENDING_MESSAGE = 2;
+
  protected:
   const App *_app;
   void read_loop(size_t from_prev, const boost::system::error_code &error,
@@ -26,7 +29,7 @@ class TcpConnection : public Connection {
   std::atomic_bool _socket_open{true};
 
  public:
-  TcpConnection(const App &app, const Config &config);
+  TcpConnection(const App &app, const Config &config, OnConnectHandler& handler);
 
   void write_handler(WriteHandler callback,
                      const boost::system::error_code &error);
@@ -61,7 +64,7 @@ class TcpServerConnection : public TcpConnection {
   void start_handshake();
 
  public:
-  TcpServerConnection(const App &app, const Server::Config &config);
+  TcpServerConnection(const App &app, const Config &config, OnConnectHandler& handler);
   ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
 
   void connect() override;
@@ -86,8 +89,7 @@ class TcpClientConnection : public TcpConnection {
   void start_handshake(const boost::system::error_code &error);
 
  public:
-  explicit TcpClientConnection(const App &app);
-  TcpClientConnection(const App &app, const Config &config);
+  TcpClientConnection(const App &app, const Config &config, OnConnectHandler& handler);
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
   void name() override { std::cout << "TcpClientConnection\n"; }

@@ -1,8 +1,7 @@
 #include "dsa/network.h"
 
-#include "network/tcp_server.h"
 #include "network/tcp_connection.h"
-
+#include "network/tcp_server.h"
 
 #include "gtest/gtest.h"
 
@@ -16,16 +15,18 @@ TEST(TcpServerTest, OneClient) {
 
   app->async_start(2);
 
-  Server::Config server_config("/test/path", 8000);
-//  Client::Config client_config("127.0.0.1", 8000);
+  Config server_config;
+  server_config.tcp_host = "127.0.0.1";
+  server_config.tcp_port = 8091;
+  //  Client::Config client_config("127.0.0.1", 8000);
 
   std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
 
   app->sleep(500);
 
-//  std::shared_ptr<Client> tcp_client(app->new_client(Client::TCP, client_config));
-//  tcp_client->connect();
+  //  std::shared_ptr<Client> tcp_client(app->new_client(Client::TCP,
+  //  client_config)); tcp_client->connect();
 
   app->sleep(1000);
 
@@ -42,8 +43,11 @@ TEST(TcpServerTest, MultipleClients) {
 
   app->async_start(10);
 
-  Server::Config server_config("/test/path", 8081);
-  Connection::Config client_config("127.0.0.1", 8081);
+  Config server_config;
+  server_config.tcp_host = "127.0.0.1";
+  server_config.tcp_port = 8092;
+
+  Config client_config = server_config;
 
   ServerPtr tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
@@ -52,7 +56,8 @@ TEST(TcpServerTest, MultipleClients) {
 
   std::vector<shared_ptr_<TcpClientConnection>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
-    shared_ptr_<TcpClientConnection> tcp_client(new TcpClientConnection(*app, client_config));
+    shared_ptr_<TcpClientConnection> tcp_client(
+        new TcpClientConnection(*app, client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }

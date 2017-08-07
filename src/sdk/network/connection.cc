@@ -11,14 +11,14 @@
 
 namespace dsa {
 
-Connection::Connection(const App &app, const Config &config)
-    : _handshake_context(app.handshake_context()),
+Connection::Connection(const App &app, const Config &config, OnConnectHandler& handler)
+    : _handshake_context(config.dsid_prefix, config.ecdh),
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),
       _config(config),
       _deadline(app.io_service()),
       _global_strand(app.strand()),
-      _message_handler(config.message_handler()) {}
+      _on_connect(handler) {}
 
 void Connection::success_or_close(const boost::system::error_code &error) {
   if (error != nullptr) close();
@@ -263,7 +263,7 @@ size_t Connection::load_f1(Buffer &buf) {
 }
 
 size_t Connection::load_f2(Buffer &buf) {
-  auto token_length = (uint16_t) _config.token()->size();
+  auto token_length = (uint16_t) _config.client_token.size();
   auto session_id_length = (uint16_t) _config.session_id()->size();
 
   // ensure buf is large enough
@@ -276,7 +276,7 @@ size_t Connection::load_f2(Buffer &buf) {
   uint32_t cur = StaticHeaders::TotalSize;
   std::memcpy(&data[cur], &token_length, sizeof(token_length));
   cur += sizeof(token_length);
-  std::memcpy(&data[cur], _config.token()->data(), token_length);
+  std::memcpy(&data[cur], &_config.client_token[0], token_length);
   cur += token_length;
   data[cur++] = (uint8_t) (_is_requester ? 1 : 0);
   data[cur++] = (uint8_t) (_is_responder ? 1 : 0);
