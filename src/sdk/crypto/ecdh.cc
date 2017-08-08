@@ -79,8 +79,10 @@ bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(const std::runtime_
 void ECDH::set_private_key_hex(const char *data) throw(const std::runtime_error &) {
   BIGNUM *priv = BN_new();
   BN_hex2bn(&priv, data);
-  if (!is_key_valid_for_curve(priv))
+  if (!is_key_valid_for_curve(priv)) {
+    BN_free(priv);
     throw std::runtime_error("invalid key for curve");
+  }
 
   int result = EC_KEY_set_private_key(key, priv);
   BN_free(priv);

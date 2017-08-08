@@ -10,10 +10,15 @@ namespace dsa {
 Hash::Hash(const char *hash_type) throw(const std::runtime_error &) : finalized(false) {
   mdctx = new EVP_MD_CTX;
   const EVP_MD *md = EVP_get_digestbyname(hash_type);
-  if (md == nullptr) throw std::runtime_error("invalid hash type");
+  if (md == nullptr) {
+    delete mdctx;
+    throw std::runtime_error("invalid hash type");
+  }
   EVP_MD_CTX_init(mdctx);
-  if (EVP_DigestInit_ex(mdctx, md, nullptr) <= 0)
+  if (EVP_DigestInit_ex(mdctx, md, nullptr) <= 0) {
+    delete mdctx;
     throw std::runtime_error("something went wrong initializing digest");
+  }
 }
 
 Hash::~Hash() {
