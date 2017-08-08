@@ -12,7 +12,7 @@ struct Config {
   // shared by both server and client
   std::string dsid_prefix;
   NodeModelManager* model_manager = nullptr;
-  ECDH* ecdh = nullptr;
+  const ECDH* ecdh = nullptr;
 
   std::string tcp_host;
   uint16_t tcp_port = 0;
@@ -22,7 +22,7 @@ struct Config {
   // cliend configs
   std::vector<uint8_t> client_token;
 
-  Config();
+  Config(const ECDH* ecdh);
 };
 
 }  // namespace dsa

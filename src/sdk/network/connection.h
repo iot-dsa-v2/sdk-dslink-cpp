@@ -96,6 +96,8 @@ class Connection : public GracefullyClosable<Connection> {
   BufferPtr _path;
   BufferPtr _token;
   BufferPtr _auth;
+  std::vector<uint8_t> previous_session;
+
   uint8_t _dsa_version_major;
   uint8_t _dsa_version_minor;
   bool _is_requester;

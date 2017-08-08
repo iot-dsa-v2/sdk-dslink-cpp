@@ -22,7 +22,8 @@ class ECDH {
 
  public:
   ECDH() throw(const std::runtime_error &);
-  ECDH(const ECDH *ecdh) throw(const std::runtime_error &);
+  ECDH(const ECDH &ecdh);
+  ECDH & operator=(const ECDH &ecdh);
   ~ECDH();
 
   BufferPtr get_private_key() const throw(const std::runtime_error &);

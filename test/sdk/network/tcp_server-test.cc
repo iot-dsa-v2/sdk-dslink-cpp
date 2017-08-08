@@ -11,11 +11,14 @@ using namespace dsa;
 
 TEST(TcpServerTest, OneClient) {
   shared_ptr_<App> app;
+  ECDH ecdh;
+
   ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
 
   app->async_start(2);
 
-  Config server_config;
+ 
+  Config server_config(&ecdh);
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8091;
   //  Client::Config client_config("127.0.0.1", 8000);
@@ -39,11 +42,13 @@ TEST(TcpServerTest, OneClient) {
 
 TEST(TcpServerTest, MultipleClients) {
   shared_ptr_<App> app;
+  ECDH ecdh;
+
   ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
 
   app->async_start(10);
 
-  Config server_config;
+  Config server_config(&ecdh);
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8092;
 

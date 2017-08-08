@@ -30,8 +30,9 @@ class Server : public GracefullyClosable<Server> {
 
  protected:
   const App *_app;
-  EC_KEY *key;
-  Config config;
+  const Config config;
+
+  void on_session_connected(const shared_ptr_<Session> &session);
 
  public:
   intrusive_ptr_<SessionManager> session_manager() { return _session_manager; }

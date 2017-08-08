@@ -3,6 +3,7 @@ list(APPEND CoreSourceFiles
         message_stream.cc
         session.cc
         server.cc
+		client.cc
         session_manager.cc
 		config.cc
         )

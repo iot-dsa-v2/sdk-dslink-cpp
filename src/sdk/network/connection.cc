@@ -264,7 +264,7 @@ size_t Connection::load_f1(Buffer &buf) {
 
 size_t Connection::load_f2(Buffer &buf) {
   auto token_length = (uint16_t) _config.client_token.size();
-  auto session_id_length = (uint16_t) _config.session_id()->size();
+  auto session_id_length = (uint16_t)previous_session.size();
 
   // ensure buf is large enough
   buf.resize(MinF2Length + token_length);
@@ -283,7 +283,7 @@ size_t Connection::load_f2(Buffer &buf) {
   std::memcpy(&data[cur], &session_id_length, sizeof(session_id_length));
   cur += sizeof(session_id_length);
   if (session_id_length > 0) {
-    std::memcpy(&data[cur], _config.session_id()->data(), session_id_length);
+    std::memcpy(&data[cur], &previous_session[0], session_id_length);
     cur += session_id_length;
   }
   std::memcpy(&data[cur], _auth->data(), AuthLength);

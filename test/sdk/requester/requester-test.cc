@@ -1,32 +1,33 @@
-#include "dsa/network.h"
 #include "dsa/message.h"
+#include "dsa/network.h"
 #include "gtest/gtest.h"
 
-#include "network/tcp_server.h"
 #include "network/tcp_connection.h"
+#include "network/tcp_server.h"
 
 using namespace dsa;
 
 TEST(RequesterTest, basic_flow) {
-
   shared_ptr_<App> app;
+  ECDH ecdh;
+
   ASSERT_NO_FATAL_FAILURE(app.reset(new App("RequesterTest")));
 
   app->async_start(2);
 
-  Config server_config;
+  Config server_config(&ecdh);
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8090;
 
   Config client_config = server_config;
-
 
   std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
 
   app->sleep(500);
 
-  shared_ptr_<TcpClientConnection> tcp_client(new TcpClientConnection(*app, client_config));
+  shared_ptr_<TcpClientConnection> tcp_client(
+      new TcpClientConnection(*app, client_config));
   tcp_client->connect();
 
   // requester = client->session()->requester();

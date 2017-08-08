@@ -12,6 +12,8 @@ Server::Server(const App &app, const Config &config)
       config(config),
       _session_manager(new SessionManager(app.strand())) {}
 
+void Server::on_session_connected(const shared_ptr_<Session> &session) {}
+
 void Server::close() {
   if (_session_manager != nullptr) {
     _session_manager->end_all_sessions();

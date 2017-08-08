@@ -3,5 +3,5 @@
 #include "config.h"
 
 namespace dsa {
-Config::Config() {}
+Config::Config(const ECDH* ecdh) : ecdh(ecdh) {}
 }  // namespace dsa

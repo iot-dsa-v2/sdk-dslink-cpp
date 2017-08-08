@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "session.h"
 
 #include <boost/bind.hpp>

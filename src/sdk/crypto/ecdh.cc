@@ -15,16 +15,23 @@ namespace dsa {
 const char *ECDH::curve_name = "prime256v1";
 
 ECDH::ECDH() throw(const std::runtime_error &) { generate_key(); }
-ECDH::ECDH(const ECDH *ecdh) throw(const std::runtime_error &) {
-  if (ecdh) {
-    key = ecdh->key;
-    group = ecdh->group;
-  } else {
-    generate_key();
-  }
+ECDH::ECDH(const ECDH &ecdh) {
+  int nid = OBJ_sn2nid(curve_name);
+  key = EC_KEY_new_by_curve_name(nid);
+  EC_KEY_copy(key, ecdh.key);
+  group = EC_KEY_get0_group(key);
 }
 ECDH::~ECDH() { EC_KEY_free(key); }
 
+ECDH &ECDH::operator=(const ECDH &ecdh) {
+  EC_KEY_free(key);
+
+  int nid = OBJ_sn2nid(curve_name);
+  key = EC_KEY_new_by_curve_name(nid);
+  EC_KEY_copy(key, ecdh.key);
+  group = EC_KEY_get0_group(key);
+  return *this;
+}
 void ECDH::generate_key() throw(const std::runtime_error &) {
   int nid = OBJ_sn2nid(curve_name);
   if (nid == NID_undef) throw std::runtime_error("invalid curve name");
