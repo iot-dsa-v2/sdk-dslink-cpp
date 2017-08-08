@@ -23,7 +23,7 @@ class OutgoingMessageStream;
 //////////////////////////////////////////
 // maintain request and response streams
 //////////////////////////////////////////
-class Session : public EnableIntrusive<Session> {
+class Session : public IntrusiveClosable<Session> {
  public:
   struct StreamInfo {
     uint32_t rid;
@@ -36,10 +36,10 @@ class Session : public EnableIntrusive<Session> {
 
   void add_ready_outgoing_stream(uint32_t rid, size_t unique_id);
 
-  explicit Session(boost::asio::io_service::strand &global_strand,
+  explicit Session(boost::asio::io_service::strand &strand,
                    BufferPtr session_id,
                    const ConnectionPtr &connection = nullptr);
-  explicit Session(boost::asio::io_service::strand &global_strand,
+  explicit Session(boost::asio::io_service::strand &strand,
                    const std::string &session_id,
                    ConnectionPtr connection = nullptr);
 
@@ -68,11 +68,10 @@ class Session : public EnableIntrusive<Session> {
   boost::shared_mutex _incoming_key;
   std::queue<StreamInfo> _ready_streams;
   std::atomic_bool _is_writing{false};
+  boost::asio::io_service::strand &_strand;
 
   MessageStream *_get_next_ready_stream();
   void _write_loop();
-
-  boost::asio::io_service::strand &_strand;
 };
 
 typedef shared_ptr_<Session> SessionPtr;

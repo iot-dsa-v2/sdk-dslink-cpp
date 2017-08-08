@@ -17,20 +17,19 @@
 namespace dsa {
 class Connection;
 class SessionManager;
-class EC_KEY;
 
 typedef std::function<void(const intrusive_ptr_<Session> &,
                            Buffer::SharedBuffer)>
     MessageHandler;
 typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
-class Server : public GracefullyClosable<Server> {
+class Server : public SharedClosable<Server> {
  private:
   intrusive_ptr_<SessionManager> _session_manager;
 
  protected:
-  const App *_app;
-  const Config config;
+  boost::asio::io_service::strand &_strand;
+  const Config _config;
 
   void on_session_connected(const shared_ptr_<Session> &session);
 
@@ -39,7 +38,7 @@ class Server : public GracefullyClosable<Server> {
 
   enum Protocol { TCP };
 
-  explicit Server(const App &app, const Config &config);
+  explicit Server(boost::asio::io_service::strand &strand, const Config &config);
 
   virtual void start() = 0;
   void close() override;

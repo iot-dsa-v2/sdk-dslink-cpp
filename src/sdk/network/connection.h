@@ -27,7 +27,7 @@ typedef std::function<void()> WriteHandler;
 typedef std::function<void(const intrusive_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
 typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
-class Connection : public GracefullyClosable<Connection> {
+class Connection : public SharedClosable<Connection> {
  public:
  
   enum Protocol {
@@ -74,12 +74,11 @@ class Connection : public GracefullyClosable<Connection> {
   virtual void start() throw() = 0;
 
  protected:
-  explicit Connection(const App &app, const Config &config, const OnConnectHandler& handler);
+  explicit Connection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
 
   HandshakeContext _handshake_context;
   Config _config;
-
-  boost::asio::io_service::strand &_global_strand;
+  boost::asio::io_service::strand &_strand;
 
   // this should rarely be touched
   intrusive_ptr_<Session> _session;

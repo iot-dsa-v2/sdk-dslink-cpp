@@ -14,7 +14,7 @@
 namespace dsa {
 
 // maintain streams of a node
-class NodeState : public GracefullyClosable<NodeState> {
+class NodeState : public SharedClosable<NodeState> {
  private:
   boost::asio::io_service::strand _strand;
   std::string _path;

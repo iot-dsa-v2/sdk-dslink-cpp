@@ -29,7 +29,7 @@ class TcpConnection : public Connection {
   std::atomic_bool _socket_open{true};
 
  public:
-  TcpConnection(const App &app, const Config &config, const OnConnectHandler& handler);
+  TcpConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
 
   void write_handler(WriteHandler callback,
                      const boost::system::error_code &error);
@@ -64,7 +64,7 @@ class TcpServerConnection : public TcpConnection {
   void start_handshake();
 
  public:
-  TcpServerConnection(const App &app, const Config &config, const OnConnectHandler& handler);
+  TcpServerConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
   ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
 
   void connect() override;
@@ -89,7 +89,7 @@ class TcpClientConnection : public TcpConnection {
   void start_handshake(const boost::system::error_code &error);
 
  public:
-  TcpClientConnection(const App &app, const Config &config, const OnConnectHandler& handler);
+  TcpClientConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
   void name() override { std::cout << "TcpClientConnection\n"; }

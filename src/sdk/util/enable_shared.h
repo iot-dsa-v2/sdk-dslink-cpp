@@ -29,20 +29,15 @@ class shared_this_lambda {
 };
 
 template <class T>
-class GracefullyClosable
-    : public std::enable_shared_from_this<GracefullyClosable<T>> {
-  // class GracefullyClosable : virtual public
-  // MultipleInheritableEnableSharedFromThis {
+class EnableShared : public std::enable_shared_from_this<T> {
  public:
   shared_ptr_<T> shared_from_this() {
-    return std::dynamic_pointer_cast<T>(
-        std::enable_shared_from_this<
-            GracefullyClosable<T>>::shared_from_this());
+    return std::dynamic_pointer_cast<T>(std::move(std::enable_shared_from_this<T>::shared_from_this()));
   }
 
   template <class Down>
   shared_ptr_<Down> share_this() {
-    return std::dynamic_pointer_cast<Down>(shared_from_this());
+    return std::dynamic_pointer_cast<Down>(std::move(shared_from_this()));
   }
 
   template <typename F>
@@ -56,7 +51,6 @@ class GracefullyClosable
     return shared_this_lambda<const T, F>(
         static_cast<const T*>(this)->shared_from_this(), f);
   }
-  virtual void close() = 0;
 };
 
 template <typename T>
@@ -107,8 +101,19 @@ class EnableIntrusive {
   unsigned int ref_count() const { return _refs; }
 };
 
+class Closable {
+ public:
+  virtual void close() = 0;
+};
+
+template <typename T>
+class SharedClosable : public Closable, public EnableShared<T> {};
+
+template <typename T>
+class IntrusiveClosable : public Closable, public EnableIntrusive<T> {};
+
 // class MultipleInheritableEnableIntrusive : public
-// EnableIntrusive<MultipleInheritableEnableIntrusive> {  public:
+// IntrusiveClosable<MultipleInheritableEnableIntrusive> {  public:
 //  virtual ~MultipleInheritableEnableIntrusive() = default;
 //};
 //
@@ -135,7 +140,7 @@ inline void intrusive_ptr_release(_Ty* t) {
 
 // template <class _Ty, class... _Types>
 // inline typename std::enable_if <
-//    std::is_base_of<EnableIntrusive<_Ty>, _Ty>::value,
+//    std::is_base_of<IntrusiveClosable<_Ty>, _Ty>::value,
 //    intrusive_ptr_<_Ty>
 //>::type make_intrusive_(_Types&&... _Args) {
 //  return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));

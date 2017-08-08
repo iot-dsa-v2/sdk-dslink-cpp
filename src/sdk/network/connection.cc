@@ -11,14 +11,14 @@
 
 namespace dsa {
 
-Connection::Connection(const App &app, const Config &config, const OnConnectHandler& handler)
+Connection::Connection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler)
     : _handshake_context(config.dsid_prefix, config.ecdh),
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),
       _config(config),
-      _deadline(app.io_service()),
-      _global_strand(app.strand()),
-      _on_connect(handler) {}
+      _deadline(strand.get_io_service()),
+      _on_connect(handler),
+      _strand(strand) {}
 
 void Connection::success_or_close(const boost::system::error_code &error) {
   if (error != nullptr) close();

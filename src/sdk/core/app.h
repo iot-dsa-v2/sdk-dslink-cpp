@@ -30,7 +30,7 @@ class App {
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<io_service_work> _work;
   shared_ptr_<boost::thread_group> _threads;
-  std::unique_ptr<boost::asio::io_service::strand> _strand;
+  std::mutex _strands_key;
   std::string _name;
 
  public:
@@ -58,8 +58,9 @@ class App {
   // sleep current thread in milliseconds
   void sleep(unsigned int milliseconds);
 
-  // get strand
-  boost::asio::io_service::strand &strand() const { return *_strand; }
+  std::vector<std::unique_ptr<boost::asio::io_service::strand>> _strands;
+
+  boost::asio::io_service::strand &new_strand();
 };
 }  // namespace dsa
 

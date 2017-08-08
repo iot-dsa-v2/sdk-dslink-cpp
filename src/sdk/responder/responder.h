@@ -21,7 +21,7 @@ class SetRequestMessage;
 class SubscribeRequestMessage;
 
 // Abstract class for a responder DSLink
-class Responder : public GracefullyClosable<Responder> {
+class Responder : public SharedClosable<Responder> {
  public:
   ////////////////////////////////////////////
   // Config

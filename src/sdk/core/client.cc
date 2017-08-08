@@ -3,7 +3,9 @@
 #include "client.h"
 
 namespace dsa {
-Client::Client(const App &app, const Config &config)
-    : _app(&app), config(config) {}
-void Client::close() {}
+Client::Client(boost::asio::io_service::strand &strand, const Config &config)
+    : _strand(strand), config(config) {}
+void Client::close() {
+  _connection->close();
+}
 }  // namespace dsa

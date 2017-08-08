@@ -18,8 +18,7 @@ class io_service_work : public boost::asio::io_service::work {
 App::App(std::string name)
     : _name(name),
       _io_service(new boost::asio::io_service),
-      _threads(new boost::thread_group),
-      _strand(new boost::asio::io_service::strand(*_io_service)) {}
+      _threads(new boost::thread_group) {}
 
 App::App(std::string name, shared_ptr_<boost::asio::io_service> io_service)
     : _name(name),
@@ -66,6 +65,15 @@ void App::sleep(unsigned int milliseconds) {
 
 void App::close() {
   _work.reset();
+}
+
+boost::asio::io_service::strand &App::new_strand() {
+  auto new_strand = std::unique_ptr<boost::asio::io_service::strand>(
+    new boost::asio::io_service::strand(*_io_service));
+
+  std::lock_guard<std::mutex> lock(_strands_key);
+  _strands.push_back(std::move(new_strand));
+  return *_strands.back();
 }
 
 void App::force_stop() { _work.reset(); }

@@ -7,10 +7,10 @@
 
 namespace dsa {
 
-Server::Server(const App &app, const Config &config)
-    : _app(&app),
-      config(config),
-      _session_manager(new SessionManager(app.strand())) {}
+Server::Server(boost::asio::io_service::strand &strand, const Config &config)
+    : _strand(strand),
+      _config(config),
+      _session_manager(new SessionManager(strand)) {}
 
 void Server::on_session_connected(const shared_ptr_<Session> &session) {}
 

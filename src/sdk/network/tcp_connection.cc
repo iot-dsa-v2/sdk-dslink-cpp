@@ -8,9 +8,9 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(const App &app, const Config &config, const OnConnectHandler& handler)
-    : Connection(app, config, handler),
-  _app(&app), _socket(app.io_service()) {}
+TcpConnection::TcpConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler)
+    : Connection(strand, config, handler),
+  _socket(strand.get_io_service()) {}
 
 void TcpConnection::close() {
   if (_socket_open.exchange(false)) {
@@ -70,7 +70,7 @@ void TcpConnection::read_loop(size_t from_prev,
       }
 
       // post job with message buffer
-      _global_strand.post(
+      _strand.post(
           boost::bind<void>(_message_handler, _session,
                             buf->get_shared_buffer(cur, header.message_size)));
 
@@ -131,9 +131,9 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 //////////////////////////////////////
 // TcpServerConnection
 //////////////////////////////////////
-TcpServerConnection::TcpServerConnection(const App &app,
+TcpServerConnection::TcpServerConnection(boost::asio::io_service::strand &strand,
                                          const Config &config, const OnConnectHandler& handler)
-    : TcpConnection(app, config, handler) {
+    : TcpConnection(strand, config, handler) {
   std::cout << "TcpServerConnection()" << std::endl;
   _path = make_intrusive_<Buffer>("/"); // TODO: get real path for the client
 }
@@ -234,16 +234,16 @@ void TcpServerConnection::send_f3() {
 // TcpClientConnection
 //////////////////////////////////
 
-TcpClientConnection::TcpClientConnection(const App &app,
+TcpClientConnection::TcpClientConnection(boost::asio::io_service::strand &strand,
                                          const Config &config, const OnConnectHandler& handler)
-    : TcpConnection(app, config, handler) {
+    : TcpConnection(strand, config, handler) {
   std::cout << "TcpClientConnection()\n";
 }
 
 void TcpClientConnection::connect() {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(_app->io_service());
+  tcp::resolver resolver(_strand.get_io_service());
   tcp::resolver::query query(_config.tcp_host, std::to_string(_config.tcp_port));
   tcp::endpoint endpoint = *resolver.resolve(query);
   _socket.async_connect(
@@ -335,7 +335,7 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error,
       if (auth[i] != other_auth[i]) return;
 
     // create new session object and pass to the on connect handler
-    _session = make_intrusive_<Session>(_global_strand, _session_id,
+    _session = make_intrusive_<Session>(_strand, _session_id,
                                         Connection::shared_from_this());
     _on_connect(_session);
   } else {

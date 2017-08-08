@@ -1,26 +1,26 @@
 #ifndef DSA_SDK_CORE_CLIENT_H_
 #define DSA_SDK_CORE_CLIENT_H_
 
-#include "config.h"
+#include <boost/asio.hpp>
 
+#include "config.h"
+#include "session.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
 
-class App;
-class Session;
 class Connection;
 
-class Client : public GracefullyClosable<Client> {
+class Client : public SharedClosable<Client> {
  protected:
-  shared_ptr_<Session> _session;
+  intrusive_ptr_<Session> _session;
   shared_ptr_<Connection> _connection;
 
-  const App *_app;
   const Config config;
+  boost::asio::io_service::strand &_strand;
 
  public:
-  Client(const App &app, const Config &config);
+  Client(boost::asio::io_service::strand &strand, const Config &config);
 
   virtual void connect() = 0;
 

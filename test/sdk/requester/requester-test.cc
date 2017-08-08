@@ -7,7 +7,7 @@
 
 using namespace dsa;
 
-TEST(RequesterTest, basic_flow) {
+TEST(RequesterTest, BasicFlow) {
   shared_ptr_<App> app;
   ECDH ecdh;
 
@@ -21,13 +21,13 @@ TEST(RequesterTest, basic_flow) {
 
   Config client_config = server_config;
 
-  std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));
+  std::shared_ptr<Server> tcp_server(new TcpServer(app->new_strand(), server_config));
   tcp_server->start();
 
   app->sleep(500);
 
   shared_ptr_<TcpClient> tcp_client(
-      new TcpClient(*app, client_config));
+      new TcpClient(app->new_strand(), client_config));
   tcp_client->connect();
 
   // requester = client->session()->requester();
