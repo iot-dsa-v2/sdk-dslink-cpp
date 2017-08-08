@@ -26,11 +26,6 @@ TEST(TcpServerTest, OneClient) {
   std::shared_ptr<Server> tcp_server(new TcpServer(*app, server_config));
   tcp_server->start();
 
-  app->sleep(500);
-
-  //  std::shared_ptr<Client> tcp_client(app->new_client(Client::TCP,
-  //  client_config)); tcp_client->connect();
-
   app->sleep(1000);
 
   tcp_server->close();

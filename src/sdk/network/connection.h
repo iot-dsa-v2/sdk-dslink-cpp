@@ -109,16 +109,16 @@ class Connection : public GracefullyClosable<Connection> {
   MessageHandler _message_handler;
 
   // parse handshake messages
-  bool parse_f0(size_t size);
-  bool parse_f1(size_t size);
-  bool parse_f2(size_t size);
-  bool parse_f3(size_t size);
+  bool server_parse_f0(size_t size);
+  bool client_parse_f1(size_t size);
+  bool server_parse_f2(size_t size);
+  bool client_parse_f3(size_t size);
 
   // load handshake messages
-  size_t load_f0(Buffer &buf);
-  size_t load_f1(Buffer &buf);
-  size_t load_f2(Buffer &buf);
-  size_t load_f3(Buffer &buf);
+  size_t server_load_f0(Buffer &buf);
+  size_t client_load_f1(Buffer &buf);
+  size_t server_load_f2(Buffer &buf);
+  size_t client_load_f3(Buffer &buf);
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 

@@ -158,7 +158,7 @@ void TcpServerConnection::start_handshake() {
 
   // prepare and send f1 then make sure it was successful
   // [success_or_close(...)]
-  size_t f1_size = load_f1(*_write_buffer);
+  size_t f1_size = client_load_f1(*_write_buffer);
   boost::asio::async_write(_socket,
                            boost::asio::buffer(_write_buffer->data(), f1_size),
                            boost::bind(&TcpServerConnection::success_or_close,
@@ -175,7 +175,7 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error,
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));
 
-  if (!error && parse_f0(bytes_transferred)) {
+  if (!error && server_parse_f0(bytes_transferred)) {
     // compute shared secret
     compute_secret();
 
@@ -196,7 +196,7 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error,
   // start dsa standard 1 minute timeout
   reset_standard_deadline_timer();
 
-  if (!error && parse_f2(bytes_transferred)) {
+  if (!error && server_parse_f2(bytes_transferred)) {
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
       std::string session_id = _session_id->to_string();
@@ -223,7 +223,7 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error,
 
 void TcpServerConnection::send_f3() {
   // send f3
-  size_t f3_size = load_f3(*_read_buffer);
+  size_t f3_size = client_load_f3(*_read_buffer);
   boost::asio::async_write(
       _socket, boost::asio::buffer(_read_buffer->data(), f3_size),
       boost::bind(&TcpServerConnection::success_or_close, shared_from_this(),
@@ -282,7 +282,7 @@ void TcpClientConnection::start_handshake(
                   boost::asio::placeholders::error,
                   boost::asio::placeholders::bytes_transferred));
 
-  size_t f0_size = load_f0(*_write_buffer);
+  size_t f0_size = server_load_f0(*_write_buffer);
   boost::asio::async_write(
       _socket, boost::asio::buffer(_write_buffer->data(), f0_size),
       boost::bind(&TcpClientConnection::success_or_close,
@@ -292,7 +292,7 @@ void TcpClientConnection::start_handshake(
 
 void TcpClientConnection::f1_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
-  if (!error && parse_f1(bytes_transferred)) {
+  if (!error && client_parse_f1(bytes_transferred)) {
     // cancel timer before timeout
     _deadline.expires_from_now(
         boost::posix_time::milliseconds(_config.handshake_timout_ms));
@@ -300,7 +300,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
     // server should be parsing f0 and waiting for f2 at this point
     // so we can compute the shared secret synchronously
     compute_secret();
-    size_t f2_size = load_f2(*_write_buffer);
+    size_t f2_size = server_load_f2(*_write_buffer);
     boost::asio::async_write(
         _socket, boost::asio::buffer(_write_buffer->data(), f2_size),
         boost::bind(&TcpClientConnection::success_or_close,
@@ -329,7 +329,7 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error,
   // start standard dsa 1 minute timeout
   reset_standard_deadline_timer();
 
-  if (!error && parse_f3(bytes_transferred)) {
+  if (!error && client_parse_f3(bytes_transferred)) {
     uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
     for (size_t i = 0; i < AuthLength; ++i)
       if (auth[i] != other_auth[i]) return;

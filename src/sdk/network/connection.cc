@@ -60,7 +60,7 @@ void Connection::reset_standard_deadline_timer() {
 }
 
 // Handshake parse functions
-bool Connection::parse_f0(size_t size) {
+bool Connection::server_parse_f0(size_t size) {
   if (size < MinF0Length)
     return false;
 
@@ -98,7 +98,7 @@ bool Connection::parse_f0(size_t size) {
   return cur == size;
 }
 
-bool Connection::parse_f1(size_t size) {
+bool Connection::client_parse_f1(size_t size) {
   if (size < MinF1Length)
     return false;
 
@@ -130,7 +130,7 @@ bool Connection::parse_f1(size_t size) {
   return cur == size;
 }
 
-bool Connection::parse_f2(size_t size) {
+bool Connection::server_parse_f2(size_t size) {
   if (size < MinF2Length)
     return false;
 
@@ -174,7 +174,7 @@ bool Connection::parse_f2(size_t size) {
   return cur == size;
 }
 
-bool Connection::parse_f3(size_t size) {
+bool Connection::client_parse_f3(size_t size) {
   if (size < MinF3Length)
     return false;
 
@@ -213,7 +213,7 @@ bool Connection::parse_f3(size_t size) {
 }
 
 // Handshake load functions
-size_t Connection::load_f0(Buffer &buf) {
+size_t Connection::server_load_f0(Buffer &buf) {
   uint8_t dsid_length = (uint8_t) _handshake_context.dsid().size();
 
   // ensure buf is large enough
@@ -239,7 +239,7 @@ size_t Connection::load_f0(Buffer &buf) {
   return cur;
 }
 
-size_t Connection::load_f1(Buffer &buf) {
+size_t Connection::client_load_f1(Buffer &buf) {
   auto dsid_length = (uint8_t) _handshake_context.dsid().size();
 
   // ensure buf is large enough
@@ -262,7 +262,7 @@ size_t Connection::load_f1(Buffer &buf) {
   return cur;
 }
 
-size_t Connection::load_f2(Buffer &buf) {
+size_t Connection::server_load_f2(Buffer &buf) {
   auto token_length = (uint16_t) _config.client_token.size();
   auto session_id_length = (uint16_t)previous_session.size();
 
@@ -293,7 +293,7 @@ size_t Connection::load_f2(Buffer &buf) {
   return cur;
 }
 
-size_t Connection::load_f3(Buffer &buf) {
+size_t Connection::client_load_f3(Buffer &buf) {
   auto session_id_length = (uint16_t) _session_id->size();
   auto path_length = (uint16_t) _path->size();
 
