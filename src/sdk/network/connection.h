@@ -74,7 +74,7 @@ class Connection : public GracefullyClosable<Connection> {
   virtual void start() throw() = 0;
 
  protected:
-  explicit Connection(const App &app, const Config &config, OnConnectHandler& handler);
+  explicit Connection(const App &app, const Config &config, const OnConnectHandler& handler);
 
   HandshakeContext _handshake_context;
   Config _config;

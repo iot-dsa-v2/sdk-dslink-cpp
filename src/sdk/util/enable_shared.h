@@ -56,17 +56,8 @@ class GracefullyClosable
     return shared_this_lambda<const T, F>(
         static_cast<const T*>(this)->shared_from_this(), f);
   }
-
-  virtual void initialize(shared_ptr_<T>& p){};
   virtual void close() = 0;
 };
-
-template <class T, typename... Args>
-inline shared_ptr_<T> init_shared_(Args&&... args) {
-  shared_ptr_<T> ptr = std::make_shared<T>(std::forward<Args>(args)...);
-  ptr->initialize(ptr);
-  return std::move(ptr);
-}
 
 template <typename T>
 using intrusive_ptr_ = boost::intrusive_ptr<T>;

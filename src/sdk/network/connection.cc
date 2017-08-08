@@ -11,7 +11,7 @@
 
 namespace dsa {
 
-Connection::Connection(const App &app, const Config &config, OnConnectHandler& handler)
+Connection::Connection(const App &app, const Config &config, const OnConnectHandler& handler)
     : _handshake_context(config.dsid_prefix, config.ecdh),
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),

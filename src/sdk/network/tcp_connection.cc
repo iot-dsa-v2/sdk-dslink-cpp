@@ -8,7 +8,7 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(const App &app, const Config &config, OnConnectHandler& handler)
+TcpConnection::TcpConnection(const App &app, const Config &config, const OnConnectHandler& handler)
     : Connection(app, config, handler),
   _app(&app), _socket(app.io_service()) {}
 
@@ -132,7 +132,7 @@ tcp_socket &TcpConnection::socket() { return _socket; }
 // TcpServerConnection
 //////////////////////////////////////
 TcpServerConnection::TcpServerConnection(const App &app,
-                                         const Config &config, OnConnectHandler& handler)
+                                         const Config &config, const OnConnectHandler& handler)
     : TcpConnection(app, config, handler) {
   std::cout << "TcpServerConnection()" << std::endl;
   _path = make_intrusive_<Buffer>("/"); // TODO: get real path for the client
@@ -235,7 +235,7 @@ void TcpServerConnection::send_f3() {
 //////////////////////////////////
 
 TcpClientConnection::TcpClientConnection(const App &app,
-                                         const Config &config, OnConnectHandler& handler)
+                                         const Config &config, const OnConnectHandler& handler)
     : TcpConnection(app, config, handler) {
   std::cout << "TcpClientConnection()\n";
 }

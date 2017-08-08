@@ -2,7 +2,7 @@
 #include "dsa/network.h"
 #include "gtest/gtest.h"
 
-#include "network/tcp_connection.h"
+#include "network/tcp_client.h"
 #include "network/tcp_server.h"
 
 using namespace dsa;
@@ -26,8 +26,8 @@ TEST(RequesterTest, basic_flow) {
 
   app->sleep(500);
 
-  shared_ptr_<TcpClientConnection> tcp_client(
-      new TcpClientConnection(*app, client_config));
+  shared_ptr_<TcpClient> tcp_client(
+      new TcpClient(*app, client_config));
   tcp_client->connect();
 
   // requester = client->session()->requester();

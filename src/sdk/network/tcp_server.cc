@@ -36,7 +36,8 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
   if (!error) {
     _new_connection->set_server(share_this<TcpServer>());
     _new_connection->connect();
-    _new_connection.reset(new TcpServerConnection(*_app, config, std::bind( &Server::on_session_connected, this->shared_from_this(), _1)));
+    _new_connection.reset(new TcpServerConnection(*_app, config, [](const intrusive_ptr_<Session> &) {
+    }));
     _acceptor->async_accept(
         _new_connection->socket(),
         boost::bind(&TcpServer::accept_loop, share_this<TcpServer>(),

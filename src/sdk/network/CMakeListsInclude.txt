@@ -1,7 +1,8 @@
 list(APPEND NetworkSourceFiles
         connection.cc
         tcp_connection.cc
-        tcp_server.cc)
+        tcp_server.cc
+		tcp_client.cc)
 
 foreach(file ${NetworkSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_NETWORK}/${file})

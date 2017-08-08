@@ -1,6 +1,6 @@
 #include "dsa/network.h"
 
-#include "network/tcp_connection.h"
+#include "network/tcp_client.h"
 #include "network/tcp_server.h"
 
 #include "gtest/gtest.h"
@@ -59,10 +59,10 @@ TEST(TcpServerTest, MultipleClients) {
 
   app->sleep(1000);
 
-  std::vector<shared_ptr_<TcpClientConnection>> clients;
+  std::vector<shared_ptr_<TcpClient>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
-    shared_ptr_<TcpClientConnection> tcp_client(
-        new TcpClientConnection(*app, client_config));
+    shared_ptr_<TcpClient> tcp_client(
+        new TcpClient(*app, client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
