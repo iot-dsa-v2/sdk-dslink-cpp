@@ -16,11 +16,11 @@ ParsedMessageValue::ParsedMessageValue(const uint8_t* data, size_t size) {
     return;
   }
 
-  meta.reset(Variant::from_msgpack(data, meta_size));
+  meta = std::move(Variant::from_msgpack(data, meta_size));
   data += meta_size;
   size -= meta_size;
   if (size) {
-    value.reset(Variant::from_msgpack(data, size));
+    value = std::move(Variant::from_msgpack(data, size));
   }
 }
 

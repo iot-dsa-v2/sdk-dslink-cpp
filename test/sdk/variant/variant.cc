@@ -30,12 +30,12 @@ TEST(VariantTest, BaseTest) {
 }
 
 TEST(VariantTest, MapTest) {
-  Variant v = *Variant::new_map();
+  Variant v = Variant::new_map();
   EXPECT_TRUE(v.is_map());
 }
 
 TEST(VariantTest, ArrayTest) {
-  Variant v = *Variant::new_array();
+  Variant v = Variant::new_array();
   EXPECT_TRUE(v.is_array());
 }
 

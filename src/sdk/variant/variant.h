@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "util/enable_shared.h"
+#include "util/exception.h"
 
 struct msgpack_object;
 
@@ -30,7 +31,7 @@ class VariantArray : public std::vector<Variant>,
       : std::vector<Variant>(std::forward<Args>(args)...){};
 };
 
-class VariantString : public std::string, 
+class VariantString : public std::string,
                       public EnableIntrusive<VariantString> {
  public:
   template <typename... Args>
@@ -86,8 +87,8 @@ class Variant : public BaseVariant {
   explicit Variant(const std::vector<uint8_t> *p);
 
  public:
-  static Variant *new_map();
-  static Variant *new_array();
+  static Variant new_map();
+  static Variant new_array();
 
   template <typename T>
   static Variant create(const T &v) {
@@ -169,16 +170,16 @@ class Variant : public BaseVariant {
   }
 
  public:
-  Variant *deep_copy() const;
+  Variant deep_copy() const;
 
   // shallow copy on array and map
   // other types are const and can use copy constructor directly
-  Variant *copy() const;
+  Variant copy() const;
 
   // msgpack encoding and decoding
  public:
-  static Variant *from_msgpack(const uint8_t *data, size_t size);
-  std::vector<uint8_t> *to_msgpack();
+  static Variant from_msgpack(const uint8_t *data, size_t size);
+  std::vector<uint8_t> to_msgpack() throw (const EncodingError&);
 
  protected:
   static Variant to_variant(const msgpack_object &obj);
