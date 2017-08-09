@@ -37,8 +37,7 @@ class TcpConnection : public Connection {
   void write(BufferPtr buf, size_t size, WriteHandler callback) override;
 
   tcp_socket &socket();
-
-  virtual void name() = 0;
+  
   void close() override;
   void connect() override = 0;
   void start() throw() override;
@@ -69,9 +68,9 @@ class TcpServerConnection : public TcpConnection {
 
   void connect() override;
 
-  void name() override { std::cout << "TcpServerConnection\n"; }
+  std::string name() override { return "TcpServerConnection"; }
 
-  inline void set_server(shared_ptr_<TcpServer> server) {
+  void set_server(shared_ptr_<TcpServer> server) noexcept {
     _server = std::move(server);
   };
 };
@@ -92,11 +91,9 @@ class TcpClientConnection : public TcpConnection {
   TcpClientConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
-  void name() override { std::cout << "TcpClientConnection\n"; }
+  std::string name() override { return "TcpClientConnection"; }
 
   void connect() override;
-
-  void close() override;
 
   intrusive_ptr_<Session> session() { return _session; }
 };

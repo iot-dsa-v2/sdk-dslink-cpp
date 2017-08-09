@@ -16,7 +16,7 @@ void TcpConnection::close() {
   if (_socket_open.exchange(false)) {
     _socket.close();
   }
-  _deadline.cancel();
+  Connection::close();
 }
 
 void TcpConnection::read_loop(size_t from_prev,
@@ -83,7 +83,7 @@ void TcpConnection::read_loop(size_t from_prev,
                     boost::asio::placeholders::error,
                     boost::asio::placeholders::bytes_transferred));
   } else {
-    _session->close();
+    close();
   }
 }
 
@@ -253,13 +253,6 @@ void TcpClientConnection::connect() {
                   boost::asio::placeholders::error));
 }
 
-void TcpClientConnection::close() {
-  TcpConnection::close();
-  if (_session != nullptr) {
-    _session->close();
-  }
-}
-
 void TcpClientConnection::start_handshake(
     const boost::system::error_code &error) {
   if (error != nullptr) {
@@ -331,11 +324,6 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error,
   reset_standard_deadline_timer();
 
   if (!error && client_parse_f3(bytes_transferred)) {
-    uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
-    for (size_t i = 0; i < AuthLength; ++i) {
-      if (auth[i] != other_auth[i]) return;
-    }
-
     // create new session object and pass to the on connect handler
     _session = make_intrusive_<Session>(_strand, _session_id,
                                         Connection::shared_from_this());

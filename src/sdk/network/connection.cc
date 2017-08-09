@@ -9,6 +9,8 @@
 #include "core/app.h"
 #include "crypto/hmac.h"
 
+#define DEBUG 0
+
 namespace dsa {
 
 Connection::Connection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler)
@@ -24,6 +26,14 @@ void Connection::success_or_close(const boost::system::error_code &error) {
   if (error != nullptr) close();
 }
 
+void Connection::close() {
+  if (_session != nullptr) {
+    _session->connection_closed();
+    _session.reset();
+  }
+  _deadline.cancel();
+}
+
 void Connection::compute_secret() {
   _shared_secret = _handshake_context.ecdh().compute_secret(*_other_public_key);
 
@@ -36,6 +46,14 @@ void Connection::compute_secret() {
   dsa::HMAC other_hmac("sha256", *_shared_secret);
   other_hmac.update(_handshake_context.salt());
   _other_auth = other_hmac.digest();
+
+#if DEBUG
+  std::stringstream ss;
+  ss << name() << "::compute_secret()" << std::endl;
+  ss << "auth:       " << *_auth << std::endl;
+  ss << "other auth: " << *_other_auth << std::endl;
+  std::cout << ss.str();
+#endif
 }
 
 bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type) {
@@ -205,8 +223,21 @@ bool Connection::client_parse_f3(size_t size) {
   _path = make_intrusive_<Buffer>(path_length);
   _path->assign(&data[cur], path_length);
   cur += path_length;
-  _other_auth = make_intrusive_<Buffer>(AuthLength);
-  _other_auth->assign(&data[cur], AuthLength);
+  auto auth_check = make_intrusive_<Buffer>(AuthLength);
+  auth_check->assign(&data[cur], AuthLength);
+
+#if DEBUG
+  std::stringstream ss;
+  ss << name() << "::client_parse_f3()" << std::endl;
+  ss << "auth check: " << *auth_check << std::endl;
+  ss << "other auth: " << *_other_auth << std::endl;
+  std::cout << ss.str();
+#endif
+
+  // make sure other auth is correct
+  if (*auth_check != *_other_auth)
+    return false;
+
   cur += AuthLength;
 
   return cur == size;

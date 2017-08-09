@@ -69,7 +69,7 @@ class Connection : public SharedClosable<Connection> {
   void set_message_handler(MessageHandler handler) { _message_handler = std::move(handler); }
 //  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
-  virtual void close() = 0;
+  virtual void close();
   virtual void connect() = 0;
   virtual void start() throw() = 0;
 
@@ -131,6 +131,9 @@ class Connection : public SharedClosable<Connection> {
   void timeout(const boost::system::error_code &error);
 
   void reset_standard_deadline_timer();
+
+  // for debugging 
+  virtual std::string name() = 0;
 };
 
 typedef shared_ptr_<Connection> ConnectionPtr;

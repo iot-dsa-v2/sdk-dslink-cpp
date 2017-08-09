@@ -72,6 +72,9 @@ class Session : public IntrusiveClosable<Session> {
 
   MessageStream *_get_next_ready_stream();
   void _write_loop();
+
+  friend class Connection;
+  void connection_closed();
 };
 
 typedef shared_ptr_<Session> SessionPtr;

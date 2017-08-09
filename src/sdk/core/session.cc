@@ -27,8 +27,11 @@ void Session::start() const {
 void Session::close() {
   if (_connection != nullptr) {
     _connection->close();
-    _connection.reset();
   }
+}
+
+void Session::connection_closed() {
+  _connection.reset();
 }
 
 void Session::add_ready_outgoing_stream(uint32_t rid, size_t unique_id) {

@@ -105,6 +105,15 @@ const uint8_t &Buffer::operator[](size_t index) const throw(const std::runtime_e
   return _data[index];
 }
 
+bool Buffer::operator==(const Buffer &other) const {
+  if (_size != other.size())
+    return false;
+  for (size_t i = 0; i < _size; ++i)
+    if (_data[i] != other[i])
+      return false;
+  return true;
+}
+
 Buffer::SharedBuffer Buffer::get_shared_buffer(size_t offset, size_t message_size) {
   return Buffer::SharedBuffer(intrusive_this(), &_data[offset], message_size);
 }

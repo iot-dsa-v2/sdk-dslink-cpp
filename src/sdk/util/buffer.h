@@ -86,18 +86,29 @@ class Buffer : public EnableIntrusive<Buffer> {
   // access underlying constant data
   const uint8_t *data() const;
 
+  // get buffer
+  SharedBuffer get_shared_buffer(size_t offset, size_t size);
+
+  std::string to_string() { return std::move(std::string(reinterpret_cast<char *>(_data), _size)); }
+
+  //////////////////////////
+  // Operators
+  //////////////////////////
   // access operator
   uint8_t &operator[](size_t index) throw(const std::runtime_error &);
 
   // const access operator
   const uint8_t &operator[](size_t index) const throw(const std::runtime_error &);
 
-  // get buffer
-  SharedBuffer get_shared_buffer(size_t offset, size_t size);
+  // equals operator
+  bool operator==(const Buffer &other) const;
 
-  std::string to_string() { return std::move(std::string(reinterpret_cast<char *>(_data), _size)); }
+  // not equals operator
+  bool operator!=(const Buffer &other) const { return !(*this == other); }
 
-  // iterator
+  //////////////////////////
+  // Iterator
+  //////////////////////////
   typedef uint8_t *iterator;
   typedef const uint8_t *const_iterator;
   iterator begin() { return &_data[0]; }
