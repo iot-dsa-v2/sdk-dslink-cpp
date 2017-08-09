@@ -19,6 +19,8 @@ void Session::start() const {
   if (_connection == nullptr)
     throw std::runtime_error("Session started without connection");
 
+  std::cout << "Session::start()" << std::endl;
+
   _connection->start();
 }
 

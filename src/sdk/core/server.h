@@ -25,7 +25,7 @@ typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
 class Server : public SharedClosable<Server> {
  private:
-  intrusive_ptr_<SessionManager> _session_manager;
+  SessionManager _session_manager;
 
  protected:
   boost::asio::io_service::strand &_strand;
@@ -34,7 +34,7 @@ class Server : public SharedClosable<Server> {
   void on_session_connected(const shared_ptr_<Session> &session);
 
  public:
-  intrusive_ptr_<SessionManager> session_manager() { return _session_manager; }
+  SessionManager &session_manager() { return _session_manager; }
 
   enum Protocol { TCP };
 

@@ -200,11 +200,11 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error,
     // setup session now that client session id has been parsed
     if (auto server = _server.lock()) {
       std::string session_id = _session_id->to_string();
-      _session = server->session_manager()->get_session(
+      _session = server->session_manager().get_session(
           _handshake_context.dsid(), session_id);
       if (_session == nullptr)
         _session =
-            server->session_manager()->create_session(_handshake_context.dsid());
+            server->session_manager().create_session(_handshake_context.dsid());
     } else {
       // if server no longer exists, connection needs to shutdown
       return;
@@ -326,13 +326,15 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
 
 void TcpClientConnection::f3_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
+
   // start standard dsa 1 minute timeout
   reset_standard_deadline_timer();
 
   if (!error && client_parse_f3(bytes_transferred)) {
     uint8_t *auth = _auth->data(), *other_auth = _other_auth->data();
-    for (size_t i = 0; i < AuthLength; ++i)
+    for (size_t i = 0; i < AuthLength; ++i) {
       if (auth[i] != other_auth[i]) return;
+    }
 
     // create new session object and pass to the on connect handler
     _session = make_intrusive_<Session>(_strand, _session_id,

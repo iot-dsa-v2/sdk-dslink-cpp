@@ -17,7 +17,7 @@
 
 namespace dsa {
 
-class SessionManager : public EnableIntrusive<SessionManager> {
+class SessionManager {
  private:
   std::map<std::string, intrusive_ptr_<Session>> _sessions;
   std::atomic_long _session_count{0};
@@ -25,7 +25,7 @@ class SessionManager : public EnableIntrusive<SessionManager> {
   boost::asio::io_service::strand &_strand;
 
  public:
-  SessionManager(boost::asio::io_service::strand &global_strand) : _strand(global_strand) {}
+  SessionManager(boost::asio::io_service::strand &strand) : _strand(strand) {}
   intrusive_ptr_<Session> get_session(const std::string &dsid,
                                        const std::string &session_id);
   intrusive_ptr_<Session> create_session(const std::string &dsid);

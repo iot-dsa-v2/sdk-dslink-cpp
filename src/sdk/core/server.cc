@@ -10,14 +10,12 @@ namespace dsa {
 Server::Server(boost::asio::io_service::strand &strand, const Config &config)
     : _strand(strand),
       _config(config),
-      _session_manager(new SessionManager(strand)) {}
+      _session_manager(strand) {}
 
 void Server::on_session_connected(const shared_ptr_<Session> &session) {}
 
 void Server::close() {
-  if (_session_manager != nullptr) {
-    _session_manager->end_all_sessions();
-  }
+  _session_manager.end_all_sessions();	
 }
 
 }  // namespace dsa
