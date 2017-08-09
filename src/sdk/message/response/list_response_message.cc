@@ -43,7 +43,7 @@ const VariantMap& ListResponseMessage::get_map() {
         data += sizeof(uint16_t);
         size -= sizeof(uint16_t);
         if (size < value_size) return *map;
-        (*map)[key] = *Variant::from_msgpack(data, size);
+        (*map)[key] = std::move(Variant::from_msgpack(data, size));
         data += value_size;
         size -= value_size;
       }

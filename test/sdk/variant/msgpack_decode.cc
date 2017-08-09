@@ -12,7 +12,8 @@ TEST(VariantTest, MsgpackDecodingArray) {
   {
     msgpack_packer pk;
 
-    /* serialize values into the buffer using msgpack_sbuffer_write callback function. */
+    /* serialize values into the buffer using msgpack_sbuffer_write callback
+     * function. */
     msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
     msgpack_pack_array(&pk, 3);
@@ -22,11 +23,12 @@ TEST(VariantTest, MsgpackDecodingArray) {
     msgpack_pack_str_body(&pk, "example", 7);
   }
 
-  Variant * v = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(sbuf.data), sbuf.size);
+  Variant v = Variant::from_msgpack(reinterpret_cast<const uint8_t*>(sbuf.data),
+                                    sbuf.size);
 
-  EXPECT_TRUE(v->is_array());
+  EXPECT_TRUE(v.is_array());
 
-  VariantArray& vec = v->get_array();
+  VariantArray& vec = v.get_array();
 
   EXPECT_EQ(vec.size(), 3);
 
@@ -39,10 +41,7 @@ TEST(VariantTest, MsgpackDecodingArray) {
   EXPECT_TRUE(vec[2].is_string());
   EXPECT_EQ(vec[2].get_string(), "example");
 
-
   msgpack_sbuffer_destroy(&sbuf);
-
-  delete v;
 }
 
 TEST(VariantTest, MsgpackDecodingMap) {
@@ -52,7 +51,8 @@ TEST(VariantTest, MsgpackDecodingMap) {
   {
     msgpack_packer pk;
 
-    /* serialize values into the buffer using msgpack_sbuffer_write callback function. */
+    /* serialize values into the buffer using msgpack_sbuffer_write callback
+     * function. */
     msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
     msgpack_pack_map(&pk, 2);
@@ -65,11 +65,12 @@ TEST(VariantTest, MsgpackDecodingMap) {
     msgpack_pack_str_body(&pk, "/path/name", 10);
   }
 
-  Variant * v = Variant::from_msgpack(reinterpret_cast<const uint8_t *>(sbuf.data), sbuf.size);
+  Variant v = Variant::from_msgpack(reinterpret_cast<const uint8_t*>(sbuf.data),
+                                    sbuf.size);
 
-  EXPECT_TRUE(v->is_map());
+  EXPECT_TRUE(v.is_map());
 
-  VariantMap& map = v->get_map();
+  VariantMap& map = v.get_map();
 
   EXPECT_EQ(2, map.size());
 
@@ -80,6 +81,4 @@ TEST(VariantTest, MsgpackDecodingMap) {
   EXPECT_EQ("/path/name", map["path"].get_string());
 
   msgpack_sbuffer_destroy(&sbuf);
-
-  delete v;
 }

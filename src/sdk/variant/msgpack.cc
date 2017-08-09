@@ -28,7 +28,7 @@ Variant Variant::to_variant(const msgpack_object &obj) {
         // ignore the key if not string
         if (p->key.type == MSGPACK_OBJECT_STR) {
           (*map)[std::string(p->key.via.str.ptr, p->key.via.str.size)] =
-	    to_variant(p->val);
+              to_variant(p->val);
         }
       }
       return Variant(map);
@@ -43,14 +43,19 @@ Variant Variant::to_variant(const msgpack_object &obj) {
       }
       return Variant(array);
     }
-    case MSGPACK_OBJECT_STR:return Variant(obj.via.str.ptr, obj.via.str.size);
-    case MSGPACK_OBJECT_POSITIVE_INTEGER:return Variant(static_cast<int64_t>(obj.via.u64));
-    case MSGPACK_OBJECT_NEGATIVE_INTEGER:return Variant(obj.via.i64);
-    case MSGPACK_OBJECT_FLOAT64:return Variant(obj.via.f64);
-    case MSGPACK_OBJECT_BOOLEAN:return Variant(obj.via.boolean);
+    case MSGPACK_OBJECT_STR:
+      return Variant(obj.via.str.ptr, obj.via.str.size);
+    case MSGPACK_OBJECT_POSITIVE_INTEGER:
+      return Variant(static_cast<int64_t>(obj.via.u64));
+    case MSGPACK_OBJECT_NEGATIVE_INTEGER:
+      return Variant(obj.via.i64);
+    case MSGPACK_OBJECT_FLOAT64:
+      return Variant(obj.via.f64);
+    case MSGPACK_OBJECT_BOOLEAN:
+      return Variant(obj.via.boolean);
     case MSGPACK_OBJECT_BIN:
       return Variant(reinterpret_cast<const uint8_t *>(obj.via.bin.ptr),
-                         obj.via.bin.size);
+                     obj.via.bin.size);
     default:
       // return null
       // ignore extension
@@ -58,15 +63,15 @@ Variant Variant::to_variant(const msgpack_object &obj) {
   }
 }
 
-Variant *Variant::from_msgpack(const uint8_t *data, size_t size) {
+Variant Variant::from_msgpack(const uint8_t *data, size_t size) {
   MsgpackMemPool mempool;
   msgpack_object obj;
   msgpack_unpack(reinterpret_cast<const char *>(data), size, NULL,
                  &mempool.zone, &obj);
-  return new Variant(to_variant(obj));
+  return Variant(to_variant(obj));
 }
 
-bool msgpack_pack(msgpack_packer *pk, Variant& v) {
+bool msgpack_pack(msgpack_packer *pk, Variant &v) {
   bool rc = true;
 
   if (v.is_double()) {
@@ -76,7 +81,7 @@ bool msgpack_pack(msgpack_packer *pk, Variant& v) {
   } else if (v.is_bool()) {
     v.get_bool() ? msgpack_pack_true(pk) : msgpack_pack_false(pk);
   } else if (v.is_string()) {
-    const std::string& str = v.get_string();
+    const std::string &str = v.get_string();
     size_t str_length = str.length();
     msgpack_pack_str(pk, str_length);
     msgpack_pack_str_body(pk, str.c_str(), str_length);
@@ -84,23 +89,23 @@ bool msgpack_pack(msgpack_packer *pk, Variant& v) {
     const std::vector<uint8_t> &bin = v.get_binary();
     size_t bin_size = bin.size();
 
-    uint8_t* buf = new uint8_t[bin_size];
+    uint8_t *buf = new uint8_t[bin_size];
     std::copy(bin.begin(), bin.end(), buf);
 
     msgpack_pack_bin(pk, bin_size);
     msgpack_pack_bin_body(pk, buf, bin_size);
 
-    delete [] buf;
+    delete[] buf;
   } else if (v.is_null()) {
     msgpack_pack_nil(pk);
   } else if (v.is_array()) {
-    VariantArray& array = v.get_array();
+    VariantArray &array = v.get_array();
     msgpack_pack_array(pk, array.size());
     for (auto &it : array) {
       msgpack_pack(pk, it);
     }
   } else if (v.is_map()) {
-    VariantMap& map = v.get_map();
+    VariantMap &map = v.get_map();
     msgpack_pack_map(pk, map.size());
     for (auto &it : map) {
       std::string key = it.first;
@@ -116,19 +121,17 @@ bool msgpack_pack(msgpack_packer *pk, Variant& v) {
   return rc;
 }
 
-std::vector<uint8_t> *Variant::to_msgpack() {
+std::vector<uint8_t> Variant::to_msgpack() throw(const EncodingError &) {
   MsgpackSbuffer sbuf;
   msgpack_packer pk;
 
   msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-  std::vector<uint8_t> *v = new std::vector<uint8_t>();
   if (msgpack_pack(&pk, *this)) {
-    v->resize(sbuf.size);
-    v->insert(v->begin(), &sbuf.data[0], &sbuf.data[sbuf.size]);
+    return std::vector<uint8_t>(&sbuf.data[0], &sbuf.data[sbuf.size]);
   }
 
-  return v;
+  throw EncodingError("Failed to pack Variant to msgpack");
 }
 
 }  // namespace dsa

@@ -6,11 +6,21 @@
 namespace dsa {
 
 class MessageParsingError : public std::runtime_error {
-public:
+ public:
   explicit MessageParsingError(const std::string& _Message)
       : std::runtime_error(_Message.c_str()) {  // construct from message string
   }
   explicit MessageParsingError(const char* _Message)
+      : std::runtime_error(_Message) {  // construct from message string
+  }
+};
+
+class EncodingError : public std::runtime_error {
+ public:
+  explicit EncodingError(const std::string& _Message)
+      : std::runtime_error(_Message.c_str()) {  // construct from message string
+  }
+  explicit EncodingError(const char* _Message)
       : std::runtime_error(_Message) {  // construct from message string
   }
 };

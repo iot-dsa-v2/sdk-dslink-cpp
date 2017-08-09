@@ -7,8 +7,8 @@ namespace dsa {
 
 class ParsedMessageValue {
  public:
-  std::unique_ptr<Variant> meta;
-  std::unique_ptr<Variant> value;
+  Variant meta;
+  Variant value;
 
   ParsedMessageValue(const uint8_t* data, size_t size);
 };

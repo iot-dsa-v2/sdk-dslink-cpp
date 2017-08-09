@@ -25,10 +25,10 @@ Variant::Variant() : BaseVariant(boost::blank()) {}
 Variant::Variant(VariantMap* p) : BaseVariant(intrusive_ptr_<VariantMap>(p)) {}
 Variant::Variant(VariantArray* p) : BaseVariant(intrusive_ptr_<VariantArray>(p)) {}
 
-Variant* Variant::new_map() { return new Variant(new VariantMap()); }
-Variant* Variant::new_array() { return new Variant(new VariantArray()); }
+Variant Variant::new_map() { return Variant(new VariantMap()); }
+Variant Variant::new_array() { return Variant(new VariantArray()); }
 
-Variant* Variant::copy() const {
+Variant Variant::copy() const {
   switch (which()) {
     case Map: {
       auto new_map = new VariantMap();
@@ -37,7 +37,7 @@ Variant* Variant::copy() const {
       for (auto &it : map) {
         (*new_map)[it.first] = Variant(it.second);
       }
-      return new Variant(new_map);
+      return Variant(new_map);
     }
     case Array: {
       auto new_array = new VariantArray();
@@ -47,23 +47,23 @@ Variant* Variant::copy() const {
       for (auto &it : array) {
         new_array->push_back(Variant(it));
       }
-      return new Variant(new_array);
+      return Variant(new_array);
     }
     default:
-      return new Variant(*this);
+      return Variant(*this);
   }
 }
 
-Variant* Variant::deep_copy() const {
+Variant Variant::deep_copy() const {
   switch (which()) {
     case Map: {
       auto new_map = new VariantMap();
       VariantMap& map = get_map();
 
       for (auto &it : map) {
-        (*new_map)[it.first] = *(it.second.deep_copy());
+        (*new_map)[it.first] = std::move(it.second.deep_copy());
       }
-      return new Variant(new_map);
+      return Variant(new_map);
     }
     case Array: {
       auto new_array = new VariantArray();
@@ -71,12 +71,12 @@ Variant* Variant::deep_copy() const {
       new_array->reserve(array.size());
 
       for (auto &it : array) {
-        new_array->push_back(*(it.deep_copy()));
+        new_array->push_back(std::move(it.deep_copy()));
       }
-      return new Variant(new_array);
+      return Variant(new_array);
     }
     default:
-      return new Variant(*this);
+      return Variant(*this);
   }
 }
 
