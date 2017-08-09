@@ -5,9 +5,9 @@
 
 #include <boost/asio.hpp>
 
-#include "connection.h"
+#include "core/connection.h"
 #include "crypto/handshake_context.h"
-#include "tcp_server.h"
+#include "network/server/tcp_server.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -85,10 +85,10 @@ class TcpClientConnection : public TcpConnection {
                    size_t bytes_transferred);
 
  protected:
-  void start_handshake(const boost::system::error_code &error);
+  void start_handshake(const boost::system::error_code &error) throw(const std::runtime_error &);
 
  public:
-  TcpClientConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
+  TcpClientConnection(boost::asio::io_service::strand &strand, const Config &config, intrusive_ptr_<Session> session);
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
   std::string name() override { return "TcpClientConnection"; }

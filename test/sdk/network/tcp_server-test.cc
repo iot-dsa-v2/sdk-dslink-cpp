@@ -1,7 +1,7 @@
 #include "dsa/network.h"
 
-#include "network/tcp_client.h"
-#include "network/tcp_server.h"
+#include "network/client/tcp_client.h"
+#include "network/server/tcp_server.h"
 
 #include "gtest/gtest.h"
 

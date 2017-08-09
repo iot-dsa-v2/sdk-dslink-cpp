@@ -6,6 +6,7 @@ list(APPEND CoreSourceFiles
 		client.cc
         session_manager.cc
 		config.cc
+		connection.cc
         )
 
 foreach(file ${CoreSourceFiles})

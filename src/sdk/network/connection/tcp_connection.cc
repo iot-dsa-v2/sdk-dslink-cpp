@@ -6,6 +6,8 @@
 
 #include "core/session_manager.h"
 
+#define DEBUG 0
+
 namespace dsa {
 
 TcpConnection::TcpConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler)
@@ -235,9 +237,12 @@ void TcpServerConnection::send_f3() {
 //////////////////////////////////
 
 TcpClientConnection::TcpClientConnection(boost::asio::io_service::strand &strand,
-                                         const Config &config, const OnConnectHandler& handler)
-    : TcpConnection(strand, config, handler) {
+                                         const Config &config, intrusive_ptr_<Session> session)
+    : TcpConnection(strand, config, [](const intrusive_ptr_<Session> &s){}) {
+  _session = std::move(session);
+#if DEBUG
   std::cout << "TcpClientConnection()\n";
+#endif
 }
 
 void TcpClientConnection::connect() {
@@ -254,7 +259,7 @@ void TcpClientConnection::connect() {
 }
 
 void TcpClientConnection::start_handshake(
-    const boost::system::error_code &error) {
+    const boost::system::error_code &error) throw(const std::runtime_error &) {
   if (error != nullptr) {
     close();
     throw std::runtime_error("Couldn't connect to specified host");
@@ -324,7 +329,7 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error,
   reset_standard_deadline_timer();
 
   if (!error && client_parse_f3(bytes_transferred)) {
-    // create new session object and pass to the on connect handler
+    // create new session object if none and pass to the on connect handler
     _session = make_intrusive_<Session>(_strand, _session_id,
                                         Connection::shared_from_this());
     _on_connect(_session);

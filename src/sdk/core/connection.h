@@ -121,6 +121,8 @@ class Connection : public SharedClosable<Connection> {
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
+//  virtual void on_connect() = 0;
+
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();
 

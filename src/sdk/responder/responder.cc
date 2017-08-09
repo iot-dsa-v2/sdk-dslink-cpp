@@ -10,7 +10,7 @@
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
 #include "core/client.h"
-#include "network/tcp_connection.h"
+#include "network/connection/tcp_connection.h"
 
 namespace dsa {
 //

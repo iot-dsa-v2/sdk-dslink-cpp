@@ -9,7 +9,7 @@
 #include <boost/thread/shared_mutex.hpp>
 
 #include "util/enable_shared.h"
-#include "network/connection.h"
+#include "connection.h"
 
 #include "requester/requester.h"
 #include "responder/responder.h"
