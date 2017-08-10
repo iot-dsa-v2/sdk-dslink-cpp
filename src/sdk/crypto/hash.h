@@ -24,7 +24,7 @@ class Hash {
   explicit Hash(const char *hash_type) throw(const std::runtime_error &);
   ~Hash();
 
-  void update(const Buffer& data);
+  void update(const std::string &data);
   std::string digest_base64() throw(const std::runtime_error &);
 };
 }  // namespace dsa

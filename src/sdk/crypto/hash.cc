@@ -25,8 +25,8 @@ Hash::~Hash() {
   delete mdctx;
 }
 
-void Hash::update(const Buffer& content) {
-  EVP_DigestUpdate(mdctx, content.data(), content.size());
+void Hash::update(const std::string &content) {
+  EVP_DigestUpdate(mdctx, (uint8_t*)&content[0], content.size());
 }
 
 std::string Hash::digest_base64() throw(const std::runtime_error &) {

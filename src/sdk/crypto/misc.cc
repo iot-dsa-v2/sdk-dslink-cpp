@@ -136,22 +136,23 @@ std::string base64url(std::string str) {
   return std::regex_replace(str, equals, "");
 }
 
-BufferPtr hex2bin(const char* src) {
-  auto out = make_intrusive_<Buffer>();
+std::string hex2bin(const char* src) {
+  std::stringstream out;
 
   int i = 0;
   while (src[i] && src[i + 1]) {
-    out->safe_append(char2int(src[i]) * 16 + char2int(src[i + 1]));
+    out << (uint8_t)(char2int(src[i]) * 16 + char2int(src[i + 1]));
     i += 2;
   }
 
-  return std::move(out);
+  return out.str();
 }
 
-BufferPtr gen_salt(int len) {
-  uint8_t* out = new uint8_t[len];
-  if (!RAND_bytes(out, len))
+std::string gen_salt(int len) {
+  std::string out;
+  out.reserve(len);
+  if (!RAND_bytes(reinterpret_cast<uint8_t*>(&out[0]), len))
     throw std::runtime_error("Unable to generate salt");
-  return std::move(make_intrusive_<Buffer>(out, len, len));
+  return std::move(out);
 }
 }  // namespace dsa

@@ -15,7 +15,7 @@ TcpServerConnection::TcpServerConnection(boost::asio::io_service::strand &strand
   ss << "TcpServerConnection()" << std::endl;
   std::cout << ss.str();
 #endif
-  _path = make_intrusive_<Buffer>("/"); // TODO: get real path for the client
+  _path = "/"; // TODO: get real path for the client
 }
 
 void TcpServerConnection::connect() { start_handshake(); }

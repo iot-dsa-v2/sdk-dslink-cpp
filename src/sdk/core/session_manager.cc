@@ -19,9 +19,9 @@ void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
                                  const std::string &session_id,
                                  const GetSessionCallback &callback) {
-  _security_manager.get_client(dsid, auth_token, [=](const ClientInfo *client) {
-    if (client == nullptr) {
-      callback(intrusive_ptr_<Session>());
+  _security_manager.get_client(dsid, auth_token, [=](const ClientInfo client, bool error) {
+    if (error) {
+      callback(nullptr);
       return;
     }
     if (_sessions.count(session_id) != 0) {
@@ -29,7 +29,7 @@ void SessionManager::get_session(const std::string &dsid,
       return;
     }
     std::string session_id = get_new_session_id();
-    intrusive_ptr_<Session> session = make_intrusive_<Session>(_strand, session_id);
+    auto session = make_intrusive_<Session>(_strand, session_id);
 
     _sessions[session_id] = session; 
 
@@ -40,7 +40,7 @@ void SessionManager::get_session(const std::string &dsid,
 
 std::string SessionManager::get_new_session_id() {
   Hash hash("sha256");
-  hash.update(*gen_salt(32));
+  hash.update(gen_salt(32));
   return std::move(std::to_string(_session_count++) + hash.digest_base64());
 }
 

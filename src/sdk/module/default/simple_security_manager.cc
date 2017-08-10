@@ -6,7 +6,7 @@ namespace dsa {
 void SimpleSecurityManager::get_client(const std::string& dsid,
                                        const std::string& auth_token,
                                        const GetClientCallback& callback) {
-  callback(&ClientInfo(dsid, auth_token));
+  callback(ClientInfo(dsid, auth_token), false);
 }
 
 void SimpleSecurityManager::check_permission(
@@ -23,7 +23,7 @@ AsyncSimpleSecurityManager::AsyncSimpleSecurityManager(
 void AsyncSimpleSecurityManager::get_client(const std::string& dsid,
                                             const std::string& auth_token,
                                             const GetClientCallback& callback) {
-  _strand.post([=]() { callback(&ClientInfo(dsid, auth_token)); });
+  _strand.post([=]() { callback(ClientInfo(dsid, auth_token), false); });
   ;
 }
 

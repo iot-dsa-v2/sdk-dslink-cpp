@@ -22,7 +22,7 @@ struct ClientInfo {
 
 class SecurityManager {
  public:
-  typedef std::function<void(const ClientInfo* client)> GetClientCallback;
+  typedef std::function<void(const ClientInfo client, bool error)> GetClientCallback;
   typedef std::function<void(PermissionLevel permission)> CheckPermissionCallback;
 
   virtual void get_client(const std::string& dsid,

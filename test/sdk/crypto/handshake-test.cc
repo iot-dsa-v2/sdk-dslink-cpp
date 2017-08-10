@@ -20,9 +20,9 @@ public:
   }
 
   //
-  BufferPtr compute_public_key(const char *priv_key);
-  BufferPtr compute_public_key(uint8_t *priv_key, size_t size);
-  BufferPtr compute_public_key(BIGNUM *priv);
+  std::string compute_public_key(const char *priv_key);
+  std::string compute_public_key(uint8_t *priv_key, size_t size);
+  std::string compute_public_key(BIGNUM *priv);
 
 private:
   EC_KEY *_key;
@@ -30,7 +30,7 @@ private:
 };
 
 
-BufferPtr CryptoTest::compute_public_key(const char *priv_key) {
+std::string CryptoTest::compute_public_key(const char *priv_key) {
   BIGNUM bn;
   BIGNUM *priv;
 
@@ -38,14 +38,14 @@ BufferPtr CryptoTest::compute_public_key(const char *priv_key) {
   priv = &bn;
   BN_hex2bn(&priv, priv_key);
 
-  BufferPtr out = compute_public_key(priv);
+  std::string out = compute_public_key(priv);
   BN_free(priv);
 
-  return out;
+  return std::move(out);
 }
 
 
-BufferPtr CryptoTest::compute_public_key(uint8_t *priv_key, size_t size) {
+std::string CryptoTest::compute_public_key(uint8_t *priv_key, size_t size) {
   BIGNUM bn;
   BIGNUM *priv;
 
@@ -53,18 +53,17 @@ BufferPtr CryptoTest::compute_public_key(uint8_t *priv_key, size_t size) {
   priv = &bn;
   BN_bin2bn(priv_key, size, priv);
 
-  BufferPtr out = compute_public_key(priv);
+  std::string out = compute_public_key(priv);
 
   BN_free(priv);
 
-  return out;
+  return std::move(out);
 }
 
 
-BufferPtr CryptoTest::compute_public_key(BIGNUM *priv) {
+std::string CryptoTest::compute_public_key(BIGNUM *priv) {
   EC_POINT *pub_key = nullptr;
   pub_key = EC_POINT_new(_group);
-
 
   if (!EC_POINT_mul(_group, pub_key, priv, nullptr, nullptr, nullptr))
     std::cerr << "EC_POINT_mul error!" << std::endl;
@@ -74,11 +73,13 @@ BufferPtr CryptoTest::compute_public_key(BIGNUM *priv) {
 
   size_t size = EC_POINT_point2oct(_group, pub_key, form, nullptr, 0, nullptr);
 
-  uint8_t *out = new uint8_t[size];
-  EC_POINT_point2oct(_group, pub_key, form, out, size, nullptr);
+  std::string out;
+  out.resize(size);
+
+  EC_POINT_point2oct(_group, pub_key, form, reinterpret_cast<uint8_t *>(&out[0]), size, nullptr);
   EC_POINT_free(pub_key);
 
-  return std::move(make_intrusive_<Buffer>(out, size, size));
+  return std::move(out);
 }
 
 
@@ -90,13 +91,15 @@ class BufferExt : public Buffer {
     _data = new uint8_t[_size];
     memcpy(_data, other.data(), _size);
   }
+
+  BufferExt(const std::string &str) : Buffer(str) {}
   
   std::string hexstr() {
-    uint8_t *ptr = _data;
+    uint8_t *ptr = data();
     boost::format formater("%02x");
     std::string out;
-    for(uint32_t i=0; i<_size; ++i) {
-      formater % (int)_data[i];
+    for(uint32_t i=0; i<size(); ++i) {
+      formater % (int)data()[i];
       out += formater.str();
     }
     return out;
@@ -107,13 +110,24 @@ class BufferExt : public Buffer {
   }
 
   ~BufferExt() {
-    delete[] _data;
+//    delete[] _data;
   }
 
  private:
   size_t _size;
   uint8_t* _data;
 };
+
+std::string hex_string(const std::string &buf) {
+  auto ptr = reinterpret_cast<const uint8_t *>(buf.data());
+  boost::format formater("%02x");
+  std::string out;
+  for(uint32_t i=0; i < buf.size(); ++i) {
+    formater % (int)ptr[i];
+    out += formater.str();
+  }
+  return out;
+}
 
 
 //---------------------------------------------
@@ -123,19 +137,18 @@ TEST(HandshakeTest, ClientInfo) {
   CryptoTest ct;
 
   // Keys
-  BufferPtr public_key = ct.compute_public_key(client_private_key);
-  BufferExt public_key_ext(*public_key);
+  std::string public_key = ct.compute_public_key(client_private_key);
 
   //Buffer other(other_public_key);
   std::string expected_public_key("0415caf59c92efecb9253ea43912b419941fdb59a23d5d1289027128bf3d6ee4cb86fbe251b675a8d9bd991a65caa1bb23f8a8e0dd4eb0974f6b1eaa3436cec0e9");
-  EXPECT_EQ(expected_public_key, public_key_ext.hexstr());
+  EXPECT_EQ(expected_public_key, hex_string(public_key));
 
   // DsId
   ECDH ecdh;
   ecdh.set_private_key_hex(client_private_key);
 
   Hash hash("sha256");
-  hash.update(*ecdh.get_public_key());
+  hash.update(ecdh.get_public_key());
 
   EXPECT_EQ("TTDXtL-U_NQ2sgFRU5w0HrZVib2D-O4CxXQrKk4hUsI", base64url(hash.digest_base64()));
 
@@ -144,10 +157,10 @@ TEST(HandshakeTest, ClientInfo) {
 
   ECDH other_ecdh;
   other_ecdh.set_private_key_hex(server_private_key);
-  BufferPtr shared_secret = ecdh.compute_secret(*other_ecdh.get_public_key());
+  std::string shared_secret = ecdh.compute_secret(other_ecdh.get_public_key());
 
   EXPECT_EQ("5f67b2cb3a0906afdcf5175ed9316762a8e18ce26053e8c51b760c489343d0d1",
-	    BufferExt(*shared_secret).hexstr());
+	    hex_string(shared_secret));
  
   // Auth
   // const char server_salt[] = "eccbc87e4b5ce2fe28308fd9f2a7baf3a87ff679a2f3e71d9181a67b7542122c";
@@ -156,14 +169,13 @@ TEST(HandshakeTest, ClientInfo) {
                               0xa8, 0x7f, 0xf6, 0x79, 0xa2, 0xf3, 0xe7, 0x1d,
 			      0x91, 0x81, 0xa6, 0x7b, 0x75, 0x42, 0x12, 0x2c};
 
-  Buffer server_salt_buffer;
-  server_salt_buffer.assign((uint8_t*) server_salt, sizeof(server_salt));
+  std::string server_salt_buffer(reinterpret_cast<const char *>(server_salt), sizeof(server_salt));
 
-  dsa::HMAC hmac("sha256", *shared_secret);
+  dsa::HMAC hmac("sha256", shared_secret);
   hmac.update(server_salt_buffer);
 
   EXPECT_EQ("f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fac8b2ba",
-	    BufferExt(*hmac.digest()).hexstr());
+	    hex_string(hmac.digest()));
 }
 
 
@@ -174,19 +186,18 @@ TEST(HandshakeTest, ServerInfo) {
   CryptoTest ct;
 
   // Keys
-  BufferPtr public_key = ct.compute_public_key(server_private_key);
-  BufferExt public_key_ext(*public_key);
+  std::string public_key = ct.compute_public_key(server_private_key);
 
   //Buffer other(other_public_key);
   std::string expected_public_key("04f9e64edcec5ea0a645bd034e46ff209dd9fb21d8aba74a5531dc6dcbea28d696c6c9386d924ebc2f48092a1d6c8b2ca907005cca7e8d2a58783b8a765d8eb29d");
-  EXPECT_EQ(expected_public_key, public_key_ext.hexstr());
+  EXPECT_EQ(expected_public_key, hex_string(public_key));
 
   // DsId
   ECDH ecdh;
   ecdh.set_private_key_hex(server_private_key);
 
   Hash hash("sha256");
-  hash.update(*ecdh.get_public_key());
+  hash.update(ecdh.get_public_key());
 
   EXPECT_EQ("g675gaSQogzMxjJFvL7HsCbyS8B0Ly2_Abhkw_-g4iI", base64url(hash.digest_base64()));
 
@@ -194,10 +205,10 @@ TEST(HandshakeTest, ServerInfo) {
   char client_private_key[] = "55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59";
   ECDH other_ecdh;
   other_ecdh.set_private_key_hex(client_private_key);
-  BufferPtr shared_secret = ecdh.compute_secret(*other_ecdh.get_public_key());
+  std::string shared_secret = ecdh.compute_secret(other_ecdh.get_public_key());
 
   EXPECT_EQ("5f67b2cb3a0906afdcf5175ed9316762a8e18ce26053e8c51b760c489343d0d1",
-  	    BufferExt(*shared_secret).hexstr());
+  	    hex_string(shared_secret));
 
   // Server Auth
   // const char client_salt[] = "c4ca4238a0b923820dcc509a6f75849bc81e728d9d4c2f636f067f89cc14862c";
@@ -205,33 +216,27 @@ TEST(HandshakeTest, ServerInfo) {
 				       0x0d, 0xcc, 0x50, 0x9a, 0x6f, 0x75, 0x84, 0x9b,
 				       0xc8, 0x1e, 0x72, 0x8d, 0x9d, 0x4c, 0x2f, 0x63,
 				       0x6f, 0x06, 0x7f, 0x89, 0xcc, 0x14, 0x86, 0x2c};
-  dsa::Buffer client_salt_buffer;
-  client_salt_buffer.assign((uint8_t*) client_salt, sizeof(client_salt));
+  std::string client_salt_buffer(reinterpret_cast<const char *>(client_salt), sizeof(client_salt));
 
-  dsa::HMAC hmac("sha256", *shared_secret);
+  dsa::HMAC hmac("sha256", shared_secret);
   hmac.update(client_salt_buffer);
 
   EXPECT_EQ("e709059f1ebb84cfb8c34d53fdba7fbf20b1fe3dff8c343050d2b5c7c62be85a",
-	    BufferExt(*hmac.digest()).hexstr());
+	    hex_string(hmac.digest()));
 }
 
 
 TEST(HandShakeTest, HMAC) {
-  const char key[] = "key";
-  dsa::Buffer key_buffer;
-  key_buffer.assign((uint8_t*)key, 3);
-
-  const char message[] = "The quick brown fox jumps over the lazy dog";
-  dsa::Buffer message_buffer;
-  message_buffer.assign((const uint8_t*)message, 43);
+  std::string key_buffer = "key";
+  std::string message_buffer = "The quick brown fox jumps over the lazy dog";
 
   dsa::HMAC hmac("sha256", key_buffer);
   hmac.update(message_buffer);
 
-  BufferPtr auth_message = hmac.digest();
+  std::string auth_message = hmac.digest();
 
   EXPECT_EQ("f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8",
-	    BufferExt(*auth_message).hexstr());
+	    hex_string(auth_message));
 
 }
 

@@ -24,8 +24,8 @@ struct Config {
 
   uint32_t handshake_timout_ms = 5000;
 
-  // cliend configs
-  std::vector<uint8_t> client_token;
+  // client configs
+  std::string client_token;
 
   Config(const ECDH* ecdh);
 };

@@ -19,7 +19,7 @@ class SecurityManager;
 
 class SessionManager {
  public:
-  typedef std::function<void(intrusive_ptr_<Session> &session)>
+  typedef std::function<void(const intrusive_ptr_<Session> &session)>
       GetSessionCallback;
 
  private:

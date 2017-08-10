@@ -16,10 +16,10 @@ TEST(HashTest, HashTypeInvalid) {
 
 TEST(HashTest, update__digest_base64CallTwice) {
   ECDH ecdh;
-  BufferPtr public_key = ecdh.get_public_key();
+  std::string public_key = ecdh.get_public_key();
 
   Hash hash("sha256");
-  hash.update(*public_key);
+  hash.update(public_key);
   hash.digest_base64();
 
   EXPECT_THROW({

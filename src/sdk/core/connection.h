@@ -79,17 +79,18 @@ class Connection : public SharedClosable<Connection> {
 
   BufferPtr _read_buffer;
   BufferPtr _write_buffer;
-  BufferPtr _shared_secret;
-  BufferPtr _other_public_key;
-  BufferPtr _other_salt;
-  BufferPtr _other_dsid;
-  BufferPtr _other_auth;
-  BufferPtr _other_token;
-  BufferPtr _session_id;
-  BufferPtr _path;
-  BufferPtr _token;
-  BufferPtr _auth;
-  std::vector<uint8_t> previous_session;
+  std::string _shared_secret;
+  std::string _other_public_key;
+  std::string _other_salt;
+  std::string _auth;
+  std::string _auth_check;
+  std::string _other_auth;
+  std::string _session_id;
+  std::string _other_dsid;
+  std::string _path;
+  std::string _token;
+  std::string _other_token;
+  std::string _previous_session_id;
 
   uint8_t _dsa_version_major;
   uint8_t _dsa_version_minor;
@@ -107,7 +108,7 @@ class Connection : public SharedClosable<Connection> {
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();
 
-  static bool valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type);
+  static bool valid_handshake_header(StaticHeaders &header, size_t expected_size, MessageType expected_type);
 
   void success_or_close(const boost::system::error_code &error);
 
