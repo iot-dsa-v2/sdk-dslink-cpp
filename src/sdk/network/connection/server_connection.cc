@@ -12,7 +12,7 @@ void ServerConnection::on_connect() throw(const std::runtime_error &) {
   // setup session now that client session id has been parsed
   std::string session_id = _session_id->to_string();
   _server->session_manager().get_session(
-    _other_dsid, _other_token, session_id, [=](intrusive_ptr_<Session> &session) {
+    _other_dsid->to_string(), _other_token->to_string(), session_id, [=](intrusive_ptr_<Session> &session) {
     if (session != nullptr) {
       _session = session;
       _session_id = _session->session_id();

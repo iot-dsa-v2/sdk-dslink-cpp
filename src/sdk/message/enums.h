@@ -37,6 +37,16 @@ enum class MessageStatus : uint8_t {
   ConnectionError = 0xF9,
 };
 
+enum class PermissionLevel : uint8_t {
+  NONE = 0x00,
+  LIST = 0x10,
+  READ = 0x20,
+  WRITE = 0x30,
+  CONFIG = 0x40,
+  NEVER = 0x7f,
+  UNKNOWN = 0xff
+};
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_MESSAGE_ENUMS_H

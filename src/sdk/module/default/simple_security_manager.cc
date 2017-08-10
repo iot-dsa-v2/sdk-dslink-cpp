@@ -3,9 +3,9 @@
 #include "simple_security_manager.h"
 
 namespace dsa {
-void SimpleSecurityManager::get_client(
-    const std::string& dsid, const std::string& auth_token,
-    const GetClientCallback& callback) {
+void SimpleSecurityManager::get_client(const std::string& dsid,
+                                       const std::string& auth_token,
+                                       const GetClientCallback& callback) {
   callback(&ClientInfo(dsid, auth_token));
 }
 
@@ -13,6 +13,25 @@ void SimpleSecurityManager::check_permission(
     const std::string& dsid, const std::string& permission_token,
     MessageType method, const std::string& path,
     const CheckPermissionCallback& callback) {
-  callback(255);
+  callback(PermissionLevel::CONFIG);
 }
+
+AsyncSimpleSecurityManager::AsyncSimpleSecurityManager(
+    boost::asio::io_service::strand& strand)
+    : _strand(strand){};
+
+void AsyncSimpleSecurityManager::get_client(const std::string& dsid,
+                                            const std::string& auth_token,
+                                            const GetClientCallback& callback) {
+  _strand.post([=]() { callback(&ClientInfo(dsid, auth_token)); });
+  ;
+}
+
+void AsyncSimpleSecurityManager::check_permission(
+    const std::string& dsid, const std::string& permission_token,
+    MessageType method, const std::string& path,
+    const CheckPermissionCallback& callback) {
+  _strand.post([=]() { callback(PermissionLevel::CONFIG); });
+}
+
 }  // namespace dsa
