@@ -6,12 +6,14 @@
 namespace dsa {
 
 class NodeModelManager;
+class SecurityManager;
 class ECDH;
 
 struct Config {
   // shared by both server and client
   std::string dsid_prefix;
   NodeModelManager* model_manager = nullptr;
+  SecurityManager* security_manager = nullptr;
   const ECDH* ecdh = nullptr;
 
   std::string tcp_host;

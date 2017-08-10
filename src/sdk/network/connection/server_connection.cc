@@ -1,6 +1,4 @@
-//
-// Created by Ben Richards on 8/9/17.
-//
+#include "dsa_common.h"
 
 #include "server_connection.h"
 #include "core/server.h"
@@ -12,21 +10,19 @@ ServerConnection::ServerConnection(boost::asio::io_service::strand &strand, cons
 
 void ServerConnection::on_connect() throw(const std::runtime_error &) {
   // setup session now that client session id has been parsed
-  if (auto server = _server.lock()) {
-    std::string session_id = _session_id->to_string();
-    _session = server->session_manager().get_session(
-        _handshake_context.dsid(), session_id);
-    if (_session == nullptr)
-      _session =
-          server->session_manager().create_session(_handshake_context.dsid());
-  } else {
-    throw std::runtime_error("no server attached to server connection");
-  }
+  std::string session_id = _session_id->to_string();
+  _server->session_manager().get_session(
+    _other_dsid, _other_token, session_id, [=](intrusive_ptr_<Session> &session) {
+    if (session != nullptr) {
+      _session = session;
+      _session_id = _session->session_id();
+      _session->set_connection(shared_from_this());
+      _session->start();
+    } else {
+      // TODO, send error
+    }
+  });
 
-  _session_id = _session->session_id();
-
-  _session->set_connection(shared_from_this());
-  _session->start();
 }
 
 ///////////////////////

@@ -29,7 +29,7 @@ class ServerConnection : virtual public Connection {
   // once TcpServer::stop is called. std::weak_ptr::lock implementation just
   // copies a shared pointer so performance cost should be minimal. this pointer
   // should rarely be touched by connection.
-  std::weak_ptr<Server> _server;
+  shared_ptr_<Server> _server;
 };
 }  // namespace dsa
 
