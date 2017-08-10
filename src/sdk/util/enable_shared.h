@@ -16,6 +16,7 @@ namespace dsa {
 
 template <typename T, typename F>
 class shared_this_lambda {
+ public:
   shared_ptr_<T> t;  // just for lifetime
   F f;
 
@@ -58,7 +59,8 @@ using intrusive_ptr_ = boost::intrusive_ptr<T>;
 
 template <typename T, typename F>
 class intrusive_this_lambda {
- private:
+ //private:
+ public:
   intrusive_ptr_<T> _this;
   F _func;
 

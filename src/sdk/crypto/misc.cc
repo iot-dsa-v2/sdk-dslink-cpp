@@ -2,7 +2,7 @@
 
 #include "misc.h"
 
-#include <regex>
+#include <boost/regex.hpp>
 
 #include <openssl/rand.h>
 
@@ -128,12 +128,12 @@ std::string base64_decode(std::string const& encoded_string) {
 }
 
 std::string base64url(std::string str) {
-  const static std::regex plus("\\+");
-  const static std::regex slash("/");
-  const static std::regex equals("[=]+");
-  str = std::regex_replace(str, plus, "-");
-  str = std::regex_replace(str, slash, "_");
-  return std::regex_replace(str, equals, "");
+  const static boost::regex plus("\\+");
+  const static boost::regex slash("/");
+  const static boost::regex equals("[=]+");
+  str = boost::regex_replace(str, plus, "-");
+  str = boost::regex_replace(str, slash, "_");
+  return boost::regex_replace(str, equals, "");
 }
 
 BufferPtr hex2bin(const char* src) {

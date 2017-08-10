@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 2.7)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -8,23 +8,28 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../cmake")
 # DEPENDENCIES
 ## OpenSSL v1.0.2l
 if (UNIX)
-    set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
+#    set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
+    set(OPENSSL_ROOT_DIR "/usr/local/ssl")
 endif ()
 find_package(OpenSSL REQUIRED)
+set(OPENSSL_INCLUDE_DIR "/usr/local/ssl/include")
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 
 ## Boost Library v1.64
 find_package(Threads)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 if (UNIX)
-    set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
-    set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
+#    set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
+#    set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
+    set(BOOST_INCLUDEDIR "/usr/local/include")
+    set(BOOST_LIBRARYDIR "/usr/local/lib")
 endif ()
-find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time regex)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 ## MsgPack
 if (UNIX)
+    set(MSGPACK_INCLUDE_DIR "/usr/local/include")
     find_package(Msgpack REQUIRED)
     include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
 endif ()
@@ -61,7 +66,7 @@ include(${LIB_CORE}/CMakeListsInclude.txt)
 
 add_library(dsa_sdk STATIC ${ProjectSourceFiles})
 target_link_libraries(dsa_sdk ${EXTRA_LIBS})
-target_compile_features(dsa_sdk PRIVATE cxx_range_for)
+#TODO target_compile_features(dsa_sdk PRIVATE cxx_range_for)
 install(TARGETS dsa_sdk
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)

@@ -37,19 +37,21 @@ if (WIN32)
     set(TEST_LIBS ${GTEST_LIBRARIES})
 endif (WIN32)
 
-find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time regex)
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
 
 find_package(OpenSSL REQUIRED)
+set(OPENSSL_INCLUDE_DIR "/usr/local/ssl/include")
 include_directories(${OPENSSL_INCLUDE_DIR})
 set(TEST_LIBS ${TEST_LIBS} ${OPENSSL_LIBRARIES})
 
 if (UNIX)
+    set(MSGPACK_INCLUDE_DIRS "/usr/local/include")
     find_package(Msgpack REQUIRED)
     include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
 endif ()
-set(TEST_LIBS ${TEST_LIBS} ${MSGPACK_LIBRARY})
+set(TEST_LIBS ${TEST_LIBS} ${MSGPACK_LIBRARY} rt)
 
 include_directories("../src/sdk")
 include_directories("../include")

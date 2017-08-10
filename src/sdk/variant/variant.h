@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <cstring>
+
 #include "util/enable_shared.h"
 
 struct msgpack_object;
