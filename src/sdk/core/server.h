@@ -21,7 +21,6 @@ class SessionManager;
 typedef std::function<void(const intrusive_ptr_<Session> &,
                            Buffer::SharedBuffer)>
     MessageHandler;
-typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
 class Server : public SharedClosable<Server> {
  private:

@@ -16,7 +16,7 @@ class Client : public SharedClosable<Client> {
   intrusive_ptr_<Session> _session;
   shared_ptr_<Connection> _connection;
 
-  const Config config;
+  const Config _config;
   boost::asio::io_service::strand &_strand;
 
  public:

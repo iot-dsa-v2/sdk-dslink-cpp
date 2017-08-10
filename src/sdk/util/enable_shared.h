@@ -8,11 +8,13 @@
 
 namespace dsa {
 
-// class MultipleInheritableEnableSharedFromThis : public virtual
-// std::enable_shared_from_this<MultipleInheritableEnableSharedFromThis> {
-// public:
-//  virtual ~MultipleInheritableEnableSharedFromThis() {}
-//};
+template <typename T>
+using shared_ptr_ = std::shared_ptr<T>;
+
+template <class T, typename... Args>
+inline shared_ptr_<T> make_shared_(Args&&... args) {
+  return std::make_shared<T>(std::forward<Args>(args)...);
+}
 
 template <typename T, typename F>
 class shared_this_lambda {
