@@ -11,7 +11,13 @@ namespace dsa {
 struct ClientInfo {
   const std::string dsid;
   const std::string permission_token;
-  const bool multi_session = false;
+  const bool multi_session;
+
+  ClientInfo(const std::string dsid, const std::string permission_token,
+             const bool multi_session = false)
+      : dsid(dsid),
+        permission_token(permission_token),
+        multi_session(multi_session) {}
 };
 
 class SecurityManager {

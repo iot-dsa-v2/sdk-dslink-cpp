@@ -1,0 +1,18 @@
+#include "dsa_common.h"
+
+#include "simple_security_manager.h"
+
+namespace dsa {
+void SimpleSecurityManager::get_client(
+    const std::string& dsid, const std::string& auth_token,
+    const GetClientCallback& callback) {
+  callback(&ClientInfo(dsid, auth_token));
+}
+
+void SimpleSecurityManager::check_permission(
+    const std::string& dsid, const std::string& permission_token,
+    MessageType method, const std::string& path,
+    const CheckPermissionCallback& callback) {
+  callback(255);
+}
+}  // namespace dsa
