@@ -31,18 +31,12 @@ void SessionManager::get_session(const std::string &dsid,
     std::string session_id = get_new_session_id();
     intrusive_ptr_<Session> session = make_intrusive_<Session>(_strand, session_id);
 
-    { _sessions[session_id] = session; }
+    _sessions[session_id] = session; 
 
     callback(std::move(session));
   });
 }
 
-/*
-intrusive_ptr_<Session> SessionManager::create_session(
-    const std::string &dsid) {
-
-}
-*/
 
 std::string SessionManager::get_new_session_id() {
   Hash hash("sha256");
