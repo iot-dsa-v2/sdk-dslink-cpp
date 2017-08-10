@@ -17,7 +17,7 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Base TCP connection. Used for DSA connections over TCP.
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
-class TcpConnection : public Connection {
+class TcpConnection : virtual public Connection {
 
   static const uint32_t MAX_PENDING_MESSAGE = 2;
 
@@ -29,7 +29,7 @@ class TcpConnection : public Connection {
   std::atomic_bool _socket_open{true};
 
  public:
-  TcpConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
+  TcpConnection(boost::asio::io_service::strand &strand, const Config &config);
 
   void write_handler(WriteHandler callback,
                      const boost::system::error_code &error);
@@ -42,63 +42,6 @@ class TcpConnection : public Connection {
   void connect() override = 0;
   void start() throw() override;
 };
-
-// TCP server side connection.
-// Handles server side of DSA handshake and starts read loop.
-class TcpServerConnection : public TcpConnection {
- private:
-  void f0_received(const boost::system::error_code &error,
-                   size_t bytes_transferred);
-  void f2_received(const boost::system::error_code &error,
-                   size_t bytes_transferred);
-  void send_f3();
-
-  // weak pointer needed here in order for the server to be able to be freed
-  // once TcpServer::stop is called. std::weak_ptr::lock implementation just
-  // copies a shared pointer so performance cost should be minimal. this pointer
-  // should rarely be touched by connection.
-  std::weak_ptr<TcpServer> _server;
-
- protected:
-  void start_handshake();
-
- public:
-  TcpServerConnection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
-  ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
-
-  void connect() override;
-
-  std::string name() override { return "TcpServerConnection"; }
-
-  void set_server(shared_ptr_<TcpServer> server) noexcept {
-    _server = std::move(server);
-  };
-};
-
-// TCP client side connection.
-// Handles client side of DSA handshake and starts read loop.
-class TcpClientConnection : public TcpConnection {
- private:
-  void f1_received(const boost::system::error_code &error,
-                   size_t bytes_transferred);
-  void f3_received(const boost::system::error_code &error,
-                   size_t bytes_transferred);
-
- protected:
-  void start_handshake(const boost::system::error_code &error) throw(const std::runtime_error &);
-
- public:
-  TcpClientConnection(boost::asio::io_service::strand &strand, const Config &config, intrusive_ptr_<Session> session);
-  ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
-
-  std::string name() override { return "TcpClientConnection"; }
-
-  void connect() override;
-
-  intrusive_ptr_<Session> session() { return _session; }
-};
-
-typedef shared_ptr_<TcpServerConnection> TcpServerConnectionPtr;
 
 }  // namespace dsa
 

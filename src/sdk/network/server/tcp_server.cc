@@ -4,7 +4,7 @@
 #include <boost/thread.hpp>
 #include "tcp_server.h"
 
-#include "network/connection/tcp_connection.h"
+#include "network/connection/tcp_server_connection.h"
 
 namespace dsa {
 
@@ -17,8 +17,7 @@ TcpServer::TcpServer(boost::asio::io_service::strand &strand, const Config &conf
 
 void TcpServer::start() {
   // start taking connections
-  _new_connection = make_shared_<TcpServerConnection>(_strand, _config, [](const intrusive_ptr_<Session> &) {
-  });
+  _new_connection = make_shared_<TcpServerConnection>(_strand, _config);
 
   _acceptor->async_accept(
       _new_connection->socket(),
@@ -35,8 +34,7 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
   if (!error) {
     _new_connection->set_server(share_this<TcpServer>());
     _new_connection->connect();
-    _new_connection = make_shared_<TcpServerConnection>(_strand, _config, [](const intrusive_ptr_<Session> &) {
-    });
+    _new_connection = make_shared_<TcpServerConnection>(_strand, _config);
     _acceptor->async_accept(
         _new_connection->socket(),
         boost::bind(&TcpServer::accept_loop, share_this<TcpServer>(),

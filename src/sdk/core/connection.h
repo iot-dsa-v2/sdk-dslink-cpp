@@ -5,19 +5,13 @@
 #include <atomic>
 #include <utility>
 
-#include <boost/asio/deadline_timer.hpp>
-
+#include <boost/asio.hpp>
 
 #include "core/config.h"
 #include "util/util.h"
 #include "message/static_headers.h"
 #include "crypto/handshake_context.h"
-
-namespace boost {
-namespace system {
-class error_code;
-}
-}
+#include "session.h"
 
 namespace dsa {
 class App;
@@ -25,11 +19,9 @@ class Session;
 
 typedef std::function<void()> WriteHandler;
 typedef std::function<void(const intrusive_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
-typedef std::function<void(const intrusive_ptr_<Session> &)> OnConnectHandler;
 
 class Connection : public SharedClosable<Connection> {
  public:
- 
   enum Protocol {
     TCP
   };
@@ -74,7 +66,7 @@ class Connection : public SharedClosable<Connection> {
   virtual void start() throw() = 0;
 
  protected:
-  explicit Connection(boost::asio::io_service::strand &strand, const Config &config, const OnConnectHandler& handler);
+  Connection(boost::asio::io_service::strand &strand, const Config &config);
 
   HandshakeContext _handshake_context;
   Config _config;
@@ -104,24 +96,11 @@ class Connection : public SharedClosable<Connection> {
   bool _security_preference;
   uint32_t _pending_messages{0};
   boost::asio::deadline_timer _deadline;
-  OnConnectHandler _on_connect;
   MessageHandler _message_handler;
-
-  // parse handshake messages
-  bool server_parse_f0(size_t size);
-  bool client_parse_f1(size_t size);
-  bool server_parse_f2(size_t size);
-  bool client_parse_f3(size_t size);
-
-  // load handshake messages
-  size_t server_load_f0(Buffer &buf);
-  size_t client_load_f1(Buffer &buf);
-  size_t server_load_f2(Buffer &buf);
-  size_t client_load_f3(Buffer &buf);
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
-//  virtual void on_connect() = 0;
+  virtual void on_connect() throw(const std::runtime_error &) = 0;
 
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();
@@ -137,8 +116,6 @@ class Connection : public SharedClosable<Connection> {
   // for debugging 
   virtual std::string name() = 0;
 };
-
-typedef shared_ptr_<Connection> ConnectionPtr;
 
 }  // namespace dsa
 

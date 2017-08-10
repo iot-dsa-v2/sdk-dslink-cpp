@@ -1,5 +1,9 @@
 list(APPEND NetworkSourceFiles
+        connection/client_connection.cc
+        connection/server_connection.cc
         connection/tcp_connection.cc
+        connection/tcp_server_connection.cc
+        connection/tcp_client_connection.cc
         server/tcp_server.cc
         client/tcp_client.cc)
 
