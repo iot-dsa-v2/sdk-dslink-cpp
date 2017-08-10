@@ -5,31 +5,9 @@
 #include <regex>
 
 #include <openssl/rand.h>
-
-static const std::string base64_chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    "0123456789+/";
-
-static const uint8_t base64_decode_table[] = {
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62,  255,
-    62,  255, 63,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  255, 255,
-    255, 255, 255, 255, 255, 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
-    10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
-    25,  255, 255, 255, 255, 63,  255, 26,  27,  28,  29,  30,  31,  32,  33,
-    34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,
-    49,  50,  51,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255};
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/buffer.h>
 
 static inline bool is_base64(uint8_t c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
@@ -44,85 +22,45 @@ static int char2int(char input) {
 
 namespace dsa {
 std::string base64_encode(uint8_t const* bytes_to_encode, unsigned int in_len) {
-  std::string ret;
-  int i = 0;
-  int j = 0;
-  uint8_t char_array_3[3];
-  uint8_t char_array_4[4];
+  BIO *bio, *b64;
+  BUF_MEM *bufferPtr;
 
-  while (in_len--) {
-    char_array_3[i++] = *(bytes_to_encode++);
-    if (i == 3) {
-      char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-      char_array_4[1] =
-          ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-      char_array_4[2] =
-          ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-      char_array_4[3] = char_array_3[2] & 0x3f;
+  b64 = BIO_new(BIO_f_base64());
+  bio = BIO_new(BIO_s_mem());
+  BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+  BIO_push(b64, bio);
 
-      for (i = 0; (i < 4); i++) ret += base64_chars[char_array_4[i]];
-      i = 0;
-    }
-  }
+  BIO_write(b64, bytes_to_encode, in_len);
+  BIO_flush(b64);
+  BIO_get_mem_ptr(b64, &bufferPtr);
+  BIO_set_close(b64, BIO_NOCLOSE);
 
-  if (i) {
-    for (j = i; j < 3; j++) char_array_3[j] = '\0';
+  std::string ret(bufferPtr->data, bufferPtr->length);
 
-    char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-    char_array_4[1] =
-        ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-    char_array_4[2] =
-        ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-    char_array_4[3] = char_array_3[2] & 0x3f;
-
-    for (j = 0; (j < i + 1); j++) ret += base64_chars[char_array_4[j]];
-
-    while ((i++ < 3)) ret += '=';
-  }
+  BIO_free_all(b64);
 
   return ret;
 }
 
 std::string base64_decode(std::string const& encoded_string) {
-  int in_len = encoded_string.size();
-  int i = 0;
-  int j = 0;
-  int in_ = 0;
-  uint8_t char_array_4[4], char_array_3[3];
-  std::string ret;
+  size_t in_len = encoded_string.size();
+  BIO *bio, *b64;
 
-  while (in_len-- && (encoded_string[in_] != '=') &&
-         is_base64(encoded_string[in_])) {
-    char_array_4[i++] = encoded_string[in_];
-    in_++;
-    if (i == 4) {
-      for (i = 0; i < 4; i++)
-        char_array_4[i] = base64_decode_table[char_array_4[i]];
+  auto *buffer = new uint8_t[in_len];
 
-      char_array_3[0] =
-          (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-      char_array_3[1] =
-          ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-      char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+  b64 = BIO_new(BIO_f_base64());
+  bio = BIO_new_mem_buf(encoded_string.c_str(), in_len);
+  BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+  BIO_push(b64, bio);
 
-      for (i = 0; (i < 3); i++) ret += char_array_3[i];
-      i = 0;
-    }
-  }
+  BIO_read(b64, buffer, in_len);
+  BIO_flush(b64);
 
-  if (i) {
-    for (j = i; j < 4; j++) char_array_4[j] = 0;
+  std::string ret = std::string((const char*)buffer, in_len);
 
-    for (j = 0; j < 4; j++)
-      char_array_4[j] = base64_decode_table[char_array_4[j]];
+  delete [] buffer;
 
-    char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-    char_array_3[1] =
-        ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-    char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-
-    for (j = 0; (j < i - 1); j++) ret += char_array_3[j];
-  }
+  BIO_free_all(b64);
 
   return ret;
 }
