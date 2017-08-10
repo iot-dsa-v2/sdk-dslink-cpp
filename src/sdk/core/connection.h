@@ -22,6 +22,8 @@ typedef std::function<void(const intrusive_ptr_<Session> &, Buffer::SharedBuffer
 
 class Connection : public SharedClosable<Connection> {
  public:
+  virtual std::string name() = 0;
+
   enum Protocol {
     TCP
   };
@@ -112,9 +114,6 @@ class Connection : public SharedClosable<Connection> {
   void timeout(const boost::system::error_code &error);
 
   void reset_standard_deadline_timer();
-
-  // for debugging 
-  virtual std::string name() = 0;
 };
 
 }  // namespace dsa

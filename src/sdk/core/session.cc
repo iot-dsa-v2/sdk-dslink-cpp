@@ -7,6 +7,8 @@
 
 #include "responder/outgoing_message_stream.h"
 
+#define DEBUG true
+
 namespace dsa {
 
 Session::Session(boost::asio::io_service::strand &strand, BufferPtr session_id, const shared_ptr_<Connection> &connection)
@@ -19,7 +21,11 @@ void Session::start() const {
   if (_connection == nullptr)
     throw std::runtime_error("Session started without connection");
 
-  std::cout << "Session::start()" << std::endl;
+#if DEBUG
+  std::stringstream ss;
+  ss << _connection->name() << " -> Session::start()" << std::endl;
+  std::cout << ss.str();
+#endif
 
   _connection->start();
 }
