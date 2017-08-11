@@ -3,7 +3,6 @@
 #include "session.h"
 
 #include <boost/bind.hpp>
-#include <boost/thread/locks.hpp>
 
 #include "responder/outgoing_message_stream.h"
 

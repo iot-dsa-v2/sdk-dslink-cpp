@@ -5,8 +5,6 @@
 #include <functional>
 
 #include <boost/asio/strand.hpp>
-#include <boost/thread/shared_mutex.hpp>
-
 
 #include "message/response/subscribe_response_message.h"
 #include "message/response/invoke_response_message.h"
@@ -25,7 +23,6 @@ class OutgoingMessageStream : public MessageStream {
   using io_service = boost::asio::io_service;
 
   std::function<void()> _set_ready;
-  boost::shared_mutex _key;
 
  public:
   OutgoingMessageStream(const intrusive_ptr_<Session> &session, size_t id, uint32_t rid)

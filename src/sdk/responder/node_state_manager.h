@@ -6,8 +6,6 @@
 #include <utility>
 
 #include <boost/asio/io_service.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 
 #include "core/app.h"
 #include "node_state.h"
@@ -20,7 +18,6 @@ class App;
 class NodeStateManager {
  private:
   boost::asio::io_service &_io_service;
-  boost::shared_mutex _key;
   std::map<std::string, shared_ptr_<NodeState>> _node_states;
 
  public:
