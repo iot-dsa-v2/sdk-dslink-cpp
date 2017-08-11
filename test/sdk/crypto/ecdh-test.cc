@@ -1,21 +1,58 @@
 #include "dsa/crypto.h"
 #include "gtest/gtest.h"
 
+#include <boost/format.hpp>
+
+using boost::format;
+
 using namespace dsa;
+
+class BufferExt : public Buffer {
+ public:
+  BufferExt(const Buffer &other) {
+    _size = other.size();
+    _data = new uint8_t[_size];
+    memcpy(_data, other.data(), _size);
+  }
+
+  BufferExt(const std::string &str) : Buffer(str) {}
+
+  std::string hexstr() {
+    uint8_t *ptr = _data;
+    boost::format formater("%02x");
+    std::string out;
+    for(uint32_t i=0; i<size(); ++i) {
+      formater % (int)data()[i];
+      out += formater.str();
+    }
+    return out;
+  }
+
+  bool operator==(const BufferExt &other) {
+    return (memcmp(_data, other.data(), _size) == 0);
+  }
+
+  ~BufferExt() {
+//    delete[] _data;
+  }
+
+ private:
+  size_t _size;
+  uint8_t* _data;
+};
 
 TEST(ECDHTest, get_private_key) {
   ECDH ecdh1;
   ECDH ecdh2;
 
-  BufferPtr pkey1 = ecdh1.get_private_key();
-  BufferPtr pkey2 = ecdh2.get_private_key();
+  std::string pkey1 = ecdh1.get_private_key();
+  std::string pkey2 = ecdh2.get_private_key();
 
-  size_t pkey1_size = pkey1->size();
+  size_t pkey1_size = pkey1.size();
   EXPECT_EQ(32, pkey1_size);
-  EXPECT_EQ(32, pkey2->size());
+  EXPECT_EQ(32, pkey2.size());
 
-  EXPECT_NE(0, memcmp((const char *)pkey1->data(), 
-		       (const char *)pkey2->data(), pkey1_size));
+  EXPECT_NE(0, memcmp(pkey1.data(), pkey2.data(), pkey1_size));
 }
 
 //TEST(ECDHTest, get_private_key_MemoryLeak) {
@@ -28,15 +65,15 @@ TEST(ECDHTest, get_public_key) {
   ECDH ecdh1;
   ECDH ecdh2;
 
-  BufferPtr pkey1 = ecdh1.get_public_key();
-  BufferPtr pkey2 = ecdh2.get_public_key();
+  std::string pkey1 = ecdh1.get_public_key();
+  std::string pkey2 = ecdh2.get_public_key();
 
-  size_t pkey1_size = pkey1->size();
+  size_t pkey1_size = pkey1.size();
   EXPECT_EQ(65, pkey1_size);
-  EXPECT_EQ(65, pkey2->size());
+  EXPECT_EQ(65, pkey2.size());
 
-  EXPECT_NE(0, memcmp((const char *)pkey1->data(), 
-		       (const char *)pkey2->data(), pkey1_size));
+  EXPECT_NE(0, memcmp((const char *)pkey1.data(),
+		       (const char *)pkey2.data(), pkey1_size));
 }
 
 //TEST(ECDHTest, get_public_key_MemoryLeak) {
@@ -71,18 +108,18 @@ TEST(ECDHTest, compute_secret) {
   ECDH A_ecdh;
   ECDH B_ecdh;
 
-  BufferPtr A_public_key = A_ecdh.get_public_key();
-  BufferPtr B_public_key = B_ecdh.get_public_key();
+  std::string A_public_key = A_ecdh.get_public_key();
+  std::string B_public_key = B_ecdh.get_public_key();
 
-  BufferPtr A_shared_secret = A_ecdh.compute_secret(*B_public_key);
-  BufferPtr B_shared_secret = B_ecdh.compute_secret(*A_public_key);
+  std::string A_shared_secret = A_ecdh.compute_secret(B_public_key);
+  std::string B_shared_secret = B_ecdh.compute_secret(A_public_key);
 
-  size_t A_ss_size = A_shared_secret->size();
-  size_t B_ss_size = B_shared_secret->size();
+  size_t A_ss_size = A_shared_secret.size();
+  size_t B_ss_size = B_shared_secret.size();
 
   EXPECT_EQ(B_ss_size, A_ss_size);
-  EXPECT_EQ(0, memcmp((const char *)A_shared_secret->data(),
-		    (const char *)B_shared_secret->data(), A_ss_size));
+  EXPECT_EQ(0, memcmp((const char *)A_shared_secret.data(),
+		    (const char *)B_shared_secret.data(), A_ss_size));
 }
 
 

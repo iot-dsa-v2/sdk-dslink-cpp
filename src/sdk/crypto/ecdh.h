@@ -26,9 +26,9 @@ class ECDH {
   ECDH & operator=(const ECDH &ecdh);
   ~ECDH();
 
-  BufferPtr get_private_key() const throw(const std::runtime_error &);
-  BufferPtr get_public_key() const throw(const std::runtime_error &);
-  BufferPtr compute_secret(Buffer &public_key) const
+  std::string get_private_key() const throw(const std::runtime_error &);
+  std::string get_public_key() const throw(const std::runtime_error &);
+  std::string compute_secret(const std::string &public_key) const
       throw(const std::runtime_error &);
   void set_private_key_hex(const char *data) throw(const std::runtime_error &);
 };

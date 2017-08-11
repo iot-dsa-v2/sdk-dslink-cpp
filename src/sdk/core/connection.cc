@@ -34,15 +34,15 @@ void Connection::close() {
 }
 
 void Connection::compute_secret() {
-  _shared_secret = _handshake_context.ecdh().compute_secret(*_other_public_key);
+  _shared_secret = _handshake_context.ecdh().compute_secret(_other_public_key);
 
   /* compute user auth */
-  dsa::HMAC hmac("sha256", *_shared_secret);
-  hmac.update(*_other_salt);
+  dsa::HMAC hmac("sha256", _shared_secret);
+  hmac.update(_other_salt);
   _auth = hmac.digest();
 
   /* compute other auth */
-  dsa::HMAC other_hmac("sha256", *_shared_secret);
+  dsa::HMAC other_hmac("sha256", _shared_secret);
   other_hmac.update(_handshake_context.salt());
   _other_auth = other_hmac.digest();
 
@@ -55,7 +55,7 @@ void Connection::compute_secret() {
 #endif
 }
 
-bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_size, uint8_t expected_type) {
+bool Connection::valid_handshake_header(StaticHeaders &header, size_t expected_size, MessageType expected_type) {
   return (
       header.message_size == expected_size &&
           header.header_size == StaticHeaders::TotalSize &&

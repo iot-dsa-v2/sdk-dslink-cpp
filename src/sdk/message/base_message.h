@@ -97,8 +97,8 @@ class ResponseMessage : public Message {
   const std::string& get_source_path() const;
   void set_source_path(const std::string& value);
 
-  uint8_t get_status() const;
-  void set_status(uint8_t value);
+  MessageStatus get_status() const;
+  void set_status(MessageStatus value);
 };
 
 }  // namespace dsa

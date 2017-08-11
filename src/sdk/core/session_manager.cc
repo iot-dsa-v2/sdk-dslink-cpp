@@ -4,38 +4,49 @@
 
 #include "session.h"
 
-#include "crypto/misc.h"
 #include "crypto/hash.h"
+#include "crypto/misc.h"
+
+#include "module/security_manager.h"
 
 namespace dsa {
 
-intrusive_ptr_<Session> SessionManager::get_session(const std::string &dsid, const std::string &session_id) {
-  boost::shared_lock<boost::shared_mutex> lock(_sessions_key);
-  if (_sessions.count(session_id) != 0)
-    return _sessions.at(session_id);
-  return nullptr;
-}
+SessionManager::SessionManager(boost::asio::io_service::strand &strand,
+                               SecurityManager &security_manager)
+    : _strand(strand), _security_manager(security_manager) {}
 
-intrusive_ptr_<Session> SessionManager::create_session(const std::string &dsid) {
-  std::string session_id = get_new_session_id();
-  auto session = make_intrusive_<Session>(_strand, session_id);
+void SessionManager::get_session(const std::string &dsid,
+                                 const std::string &auth_token,
+                                 const std::string &session_id,
+                                 const GetSessionCallback &&callback) {
+  _security_manager.get_client(dsid, auth_token, [
+    =, callback = std::move(callback)
+  ](const ClientInfo client, bool error) {
+    if (error) {
+      callback(nullptr);
+      return;
+    }
+    if (_sessions.count(session_id) != 0) {
+      callback(_sessions.at(session_id));
+      return;
+    }
+    std::string session_id = get_new_session_id();
+    auto session = make_intrusive_<Session>(_strand, session_id);
 
-  {
-    boost::unique_lock <boost::shared_mutex> lock(_sessions_key);
     _sessions[session_id] = session;
-  }
 
-  return std::move(session);
+    callback(std::move(session));
+  });
 }
 
 std::string SessionManager::get_new_session_id() {
   Hash hash("sha256");
-  hash.update(*gen_salt(32));
+  hash.update(gen_salt(32));
   return std::move(std::to_string(_session_count++) + hash.digest_base64());
 }
 
 void SessionManager::end_all_sessions() {
-  for (auto& kv : _sessions) {
+  for (auto &kv : _sessions) {
     if (kv.second != nullptr) {
       kv.second->close();
       kv.second.reset();

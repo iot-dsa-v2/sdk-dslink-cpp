@@ -6,12 +6,17 @@
 namespace dsa {
 
 class NodeModelManager;
+class SecurityManager;
 class ECDH;
 
 struct Config {
+  //modules
+
+  NodeModelManager* model_manager = nullptr;
+  SecurityManager* security_manager = nullptr;
+
   // shared by both server and client
   std::string dsid_prefix;
-  NodeModelManager* model_manager = nullptr;
   const ECDH* ecdh = nullptr;
 
   std::string tcp_host;
@@ -19,8 +24,8 @@ struct Config {
 
   uint32_t handshake_timout_ms = 5000;
 
-  // cliend configs
-  std::vector<uint8_t> client_token;
+  // client configs
+  std::string client_token;
 
   Config(const ECDH* ecdh);
 };

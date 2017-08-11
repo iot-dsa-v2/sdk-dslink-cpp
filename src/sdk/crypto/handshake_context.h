@@ -9,18 +9,18 @@ namespace dsa {
 
 class HandshakeContext {
  private:
-  BufferPtr _public_key;
-  BufferPtr _salt;
+  std::string _public_key;
+  std::string _salt;
   ECDH _ecdh;
   std::string _dsid;
 
  public:
   explicit HandshakeContext(std::string dsid_prefix,
                             const ECDH *ecdh = nullptr);
-  const Buffer &public_key() const { return *_public_key; };
-  const Buffer &salt() const { return *_salt; };
+  const std::string &public_key() const { return _public_key; };
+  const std::string &salt() const { return _salt; };
   const ECDH &ecdh() const { return _ecdh; };
-  std::string dsid() const { return _dsid; };
+  const std::string &dsid() const { return _dsid; };
 };
 
 typedef shared_ptr_<HandshakeContext> SecurityContextPtr;

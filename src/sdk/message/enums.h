@@ -3,7 +3,7 @@
 
 namespace dsa {
 
-enum MessageType : uint8_t {
+enum class MessageType : uint8_t {
   // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Header-Structure.md
 
   SubscribeRequest = 0x01,
@@ -20,7 +20,7 @@ enum MessageType : uint8_t {
   Handshake3 = 0xF3
 };
 
-enum MessageStatus : uint8_t {
+enum class MessageStatus : uint8_t {
   // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Status-Table.md
 
   Ok = 0x00,
@@ -35,6 +35,16 @@ enum MessageStatus : uint8_t {
   Busy = 0x28,
   AliasLoop = 0x41,
   ConnectionError = 0xF9,
+};
+
+enum class PermissionLevel : uint8_t {
+  NONE = 0x00,
+  LIST = 0x10,
+  READ = 0x20,
+  WRITE = 0x30,
+  CONFIG = 0x40,
+  NEVER = 0x7f,
+  UNKNOWN = 0xff
 };
 
 }  // namespace dsa

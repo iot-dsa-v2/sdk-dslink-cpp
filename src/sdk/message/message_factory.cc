@@ -19,7 +19,8 @@ Message* parse_message(const SharedBuffer& buffer) throw(
   if (buffer.size < StaticHeaders::TotalSize) {
     return nullptr;
   }
-  uint8_t type = buffer.data[StaticHeaders::TypeOffset];
+
+  auto type = MessageType(buffer.data[StaticHeaders::TypeOffset]);
 
   switch (type) {
     case MessageType::SubscribeRequest:

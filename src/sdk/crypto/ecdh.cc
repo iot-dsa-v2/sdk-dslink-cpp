@@ -41,22 +41,22 @@ void ECDH::generate_key() throw(const std::runtime_error &) {
   group = EC_KEY_get0_group(key);
 }
 
-BufferPtr ECDH::get_private_key() const throw(const std::runtime_error &) {
+std::string ECDH::get_private_key() const throw(const std::runtime_error &) {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
   if (priv == nullptr) throw std::runtime_error("private key not set");
   int size = BN_num_bytes(priv);
 
-  auto *out = new uint8_t[size];
+  std::string out;
+  out.resize(size);
 
-  if (size != BN_bn2bin(priv, out)) {
-    delete[] out;
+  if (size != BN_bn2bin(priv, reinterpret_cast<uint8_t*>(&out[0]))) {
     throw std::runtime_error("private key couldn't be retrieved");
   }
 
-  return std::move(make_intrusive_<Buffer>(out, size, size));
+  return std::move(out);
 }
 
-BufferPtr ECDH::get_public_key() const throw(const std::runtime_error &) {
+std::string ECDH::get_public_key() const throw(const std::runtime_error &) {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
 
@@ -66,15 +66,15 @@ BufferPtr ECDH::get_public_key() const throw(const std::runtime_error &) {
   size = EC_POINT_point2oct(group, pub, form, nullptr, 0, nullptr);
   if (size == 0) throw std::runtime_error("Couldn't get public key");
 
-  auto *out = new uint8_t[size];
+  std::string out;
+  out.resize(size);
 
-  size_t r = EC_POINT_point2oct(group, pub, form, out, size, nullptr);
+  size_t r = EC_POINT_point2oct(group, pub, form, reinterpret_cast<uint8_t*>(&out[0]), size, nullptr);
   if (r != size) {
-    delete[] out;
     throw std::runtime_error("Couldn't get public key");
   }
 
-  return std::move(make_intrusive_<Buffer>(out, size, size));
+  return std::move(out);
 }
 
 bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(
@@ -131,10 +131,10 @@ void ECDH::set_private_key_hex(const char *data) throw(
   EC_POINT_free(pub);
 }
 
-BufferPtr ECDH::compute_secret(Buffer &public_key) const
+std::string ECDH::compute_secret(const std::string &public_key) const
     throw(const std::runtime_error &) {
   EC_POINT *pub = EC_POINT_new(group);
-  int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
+  int r = EC_POINT_oct2point(group, pub, reinterpret_cast<const uint8_t *>(public_key.data()), public_key.size(),
                              nullptr);
   if ((r == 0) || pub == nullptr)
     throw std::runtime_error("secret couldn't be computed with given key");
@@ -142,16 +142,16 @@ BufferPtr ECDH::compute_secret(Buffer &public_key) const
   // NOTE: field_size is in bits
   int field_size = EC_GROUP_get_degree(group);
   size_t size = ((size_t)field_size + 7) / 8;
-  auto *out = new uint8_t[size];
+  std::string out;
+  out.resize(size);
 
-  r = ECDH_compute_key(out, size, pub, key, nullptr);
+  r = ECDH_compute_key(reinterpret_cast<uint8_t*>(&out[0]), size, pub, key, nullptr);
   EC_POINT_free(pub);
   if (r == 0) {
-    delete[] out;
     throw std::runtime_error("secret couldn't be computed with given key");
   }
 
-  return std::move(make_intrusive_<Buffer>(out, size, size));
+  return std::move(out);
 }
 
 }  // namespace dsa

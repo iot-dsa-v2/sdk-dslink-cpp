@@ -11,11 +11,8 @@
 
 namespace dsa {
 
-Session::Session(boost::asio::io_service::strand &strand, BufferPtr session_id, const shared_ptr_<Connection> &connection)
+Session::Session(boost::asio::io_service::strand &strand, const std::string &session_id, const shared_ptr_<Connection> &connection)
     : _connection(connection), _session_id(std::move(session_id)), _strand(strand) {}
-
-Session::Session(boost::asio::io_service::strand &strand, const std::string &session_id, shared_ptr_<Connection> connection)
-    : _connection(std::move(connection)), _session_id(make_intrusive_<Buffer>(session_id)), _strand(strand) {}
 
 void Session::start() const {
   if (_connection == nullptr)

@@ -7,7 +7,7 @@ Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data){};
 Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
 Message::Message(const StaticHeaders& headers) : static_headers(headers){};
 
-uint32_t Message ::size() const {
+uint32_t Message::size() const {
   if (!static_headers.message_size) {
     const_cast<Message*>(this)->update_static_header();
   }
@@ -115,11 +115,11 @@ void ResponseMessage::set_source_path(const std::string& value) {
   }
 }
 
-uint8_t ResponseMessage::get_status() const {
-  return DynamicByteHeader::read_value(status);
+MessageStatus ResponseMessage::get_status() const {
+  return MessageStatus(DynamicByteHeader::read_value(status));
 }
-void ResponseMessage::set_status(uint8_t value) {
-  if (DynamicByteHeader::write_value(status, DynamicHeader::Status, value)) {
+void ResponseMessage::set_status(MessageStatus value) {
+  if (DynamicByteHeader::write_value(status, DynamicHeader::Status, uint8_t(value))) {
     static_headers.message_size = 0;
   }
 }

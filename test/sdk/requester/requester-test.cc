@@ -5,17 +5,20 @@
 #include "network/client/tcp_client.h"
 #include "network/server/tcp_server.h"
 
+#include "module/default_modules.h"
+
 using namespace dsa;
 
 TEST(RequesterTest, BasicFlow) {
   shared_ptr_<App> app;
-  ECDH ecdh;
 
   ASSERT_NO_FATAL_FAILURE(app.reset(new App("RequesterTest")));
 
   app->async_start(2);
 
-  Config server_config(&ecdh);
+  DefaultModules default_modules;
+  Config server_config = default_modules.get_config();
+
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8090;
 

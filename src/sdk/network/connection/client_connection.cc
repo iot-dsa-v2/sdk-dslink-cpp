@@ -27,29 +27,23 @@ bool ClientConnection::parse_f1(size_t size) {
   const uint8_t *data = _read_buffer->data();
 
   StaticHeaders header(data);
-  if (!valid_handshake_header(header, size, 0xf1))
+  if (!valid_handshake_header(header, size, MessageType::Handshake1))
     return false;
 
-  uint32_t cur = StaticHeaders::TotalSize;
+  data += StaticHeaders::TotalSize;
   uint8_t dsid_length;
 
-  std::memcpy(&dsid_length, &data[cur], sizeof(dsid_length));
-  cur += sizeof(dsid_length);
+  std::copy(data, data + sizeof(dsid_length), &dsid_length);
+  data += sizeof(dsid_length);
 
-  if (cur + dsid_length + PublicKeyLength + SaltLength > size)
+  if ((data - _read_buffer->data()) + dsid_length + PublicKeyLength + SaltLength > size)
     return false;
 
-  _other_dsid = make_intrusive_<Buffer>(dsid_length);
-  _other_dsid->assign(&data[cur], dsid_length);
-  cur += dsid_length;
-  _other_public_key = make_intrusive_<Buffer>(PublicKeyLength);
-  _other_public_key->assign(&data[cur], PublicKeyLength);
-  cur += PublicKeyLength;
-  _other_salt = make_intrusive_<Buffer>(SaltLength);
-  _other_salt->assign(&data[cur], SaltLength);
-  cur += SaltLength;
+  data += _other_dsid.assign(reinterpret_cast<const char *>(data), dsid_length).size();
+  data += _other_public_key.assign(reinterpret_cast<const char *>(data), PublicKeyLength).size();
+  data += _other_salt.assign(reinterpret_cast<const char *>(data), SaltLength).size();
 
-  return cur == size;
+  return data == _read_buffer->data() + size;
 }
 
 bool ClientConnection::parse_f3(size_t size) {
@@ -59,32 +53,25 @@ bool ClientConnection::parse_f3(size_t size) {
   const uint8_t *data = _read_buffer->data();
 
   StaticHeaders header(data);
-  if (!valid_handshake_header(header, size, 0xf3))
+  if (!valid_handshake_header(header, size, MessageType::Handshake3))
     return false;
 
   uint32_t cur = StaticHeaders::TotalSize;
   uint16_t session_id_length, path_length;
 
-  std::memcpy(&session_id_length, &data[cur], sizeof(session_id_length));
-  cur += sizeof(session_id_length);
-
+  std::copy(data, data + sizeof(session_id_length), &session_id_length);
+  data += sizeof(session_id_length);
   if (cur + session_id_length + sizeof(path_length) > size)
     return false;
+  data += _session_id.assign(reinterpret_cast<const char *>(data), session_id_length).size();
 
-  _session_id = make_intrusive_<Buffer>(session_id_length);
-  _session_id->assign(&data[cur], session_id_length);
-  cur += session_id_length;
-  std::memcpy(&path_length, &data[cur], sizeof(path_length));
-  cur += sizeof(path_length);
-
+  std::copy(data, data + sizeof(path_length), &path_length);
+  data += sizeof(path_length);
   if (cur + path_length + AuthLength > size)
     return false;
+  data += _path.assign(reinterpret_cast<const char *>(data), path_length).size();
 
-  _path = make_intrusive_<Buffer>(path_length);
-  _path->assign(&data[cur], path_length);
-  cur += path_length;
-  auto auth_check = make_intrusive_<Buffer>(AuthLength);
-  auth_check->assign(&data[cur], AuthLength);
+  data += _auth_check.assign(reinterpret_cast<const char *>(data), AuthLength).size();
 
 #if DEBUG
   std::stringstream ss;
@@ -95,12 +82,10 @@ bool ClientConnection::parse_f3(size_t size) {
 #endif
 
   // make sure other auth is correct
-  if (*auth_check != *_other_auth)
+  if (_auth_check != _other_auth)
     return false;
 
-  cur += AuthLength;
-
-  return cur == size;
+  return data == _read_buffer->data() + size;
 }
 
 // Handshake load functions
@@ -114,25 +99,24 @@ size_t ClientConnection::load_f0(Buffer &buf) {
   StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake0, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
-  uint32_t cur = StaticHeaders::TotalSize;
-  data[cur] = (uint8_t) 2; // version major
-  data[++cur] = (uint8_t) 0; // version minor
-  data[++cur] = dsid_length;
-  std::memcpy(&data[++cur], _handshake_context.dsid().c_str(), dsid_length);
-  cur += dsid_length;
-  std::memcpy(&data[cur], _handshake_context.public_key().data(), PublicKeyLength);
-  cur += PublicKeyLength;
-  data[cur++] = 0; // no encryption for now
-  std::memcpy(&data[cur], _handshake_context.salt().data(), SaltLength);
-  cur += SaltLength;
-  std::memcpy(data, &cur, sizeof(cur)); // write total size
+  data += StaticHeaders::TotalSize;
+  (*data++) = (uint8_t) 2; // version major
+  (*data++) = (uint8_t) 0; // version major
+  (*data++) = dsid_length;
+  data += _handshake_context.dsid().copy(reinterpret_cast<char*>(data), dsid_length);
+  data += _handshake_context.public_key().copy(reinterpret_cast<char*>(data), PublicKeyLength);
+  (*data++) = (uint8_t) 0; // no encryption for now
+  data += _handshake_context.salt().copy(reinterpret_cast<char*>(data), SaltLength);
 
-  return cur;
+  uint32_t size = data - buf.data();
+  std::copy(&size, &size + sizeof(size), buf.data());
+
+  return size;
 }
 
 size_t ClientConnection::load_f2(Buffer &buf) {
   auto token_length = (uint16_t) _config.client_token.size();
-  auto session_id_length = (uint16_t)previous_session.size();
+  auto sid_length = (uint16_t)_previous_session_id.size();
 
   // ensure buf is large enough
   buf.resize(MinF2Length + token_length);
@@ -141,24 +125,21 @@ size_t ClientConnection::load_f2(Buffer &buf) {
   StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake2, 0, 0);
   uint8_t *data = buf.data();
   header.write(data);
-  uint32_t cur = StaticHeaders::TotalSize;
-  std::memcpy(&data[cur], &token_length, sizeof(token_length));
-  cur += sizeof(token_length);
-  std::memcpy(&data[cur], &_config.client_token[0], token_length);
-  cur += token_length;
-  data[cur++] = (uint8_t) (_is_requester ? 1 : 0);
-  data[cur++] = (uint8_t) (_is_responder ? 1 : 0);
-  std::memcpy(&data[cur], &session_id_length, sizeof(session_id_length));
-  cur += sizeof(session_id_length);
-  if (session_id_length > 0) {
-    std::memcpy(&data[cur], &previous_session[0], session_id_length);
-    cur += session_id_length;
+  data += StaticHeaders::TotalSize;
+  data = std::copy(&token_length, &token_length + sizeof(token_length), data);
+  data += _config.client_token.copy(reinterpret_cast<char*>(data), token_length);
+  (*data++) = (uint8_t) (_is_requester ? 1 : 0);
+  (*data++) = (uint8_t) (_is_responder ? 1 : 0);
+  data = std::copy(&sid_length, &sid_length + sizeof(sid_length), data);
+  if (sid_length > 0) {
+    data += _previous_session_id.copy(reinterpret_cast<char*>(data), sid_length);
   }
-  std::memcpy(&data[cur], _auth->data(), AuthLength);
-  cur += AuthLength;
-  std::memcpy(data, &cur, sizeof(cur));
+  data += _auth.copy(reinterpret_cast<char*>(data), AuthLength);
 
-  return cur;
+  uint32_t size = data - buf.data();
+  std::copy(&size, &size + sizeof(size), buf.data());
+
+  return size;
 }
 
 

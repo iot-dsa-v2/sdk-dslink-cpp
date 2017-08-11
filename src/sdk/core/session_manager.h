@@ -8,27 +8,33 @@
 #include <atomic>
 #include <map>
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 #include <boost/asio/strand.hpp>
 
-#include "util/enable_shared.h"
 #include "session.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
 
+class SecurityManager;
+
 class SessionManager {
+ public:
+  typedef std::function<void(const intrusive_ptr_<Session> &session)>
+      GetSessionCallback;
+
  private:
   std::map<std::string, intrusive_ptr_<Session>> _sessions;
   std::atomic_long _session_count{0};
-  boost::shared_mutex _sessions_key;
+
   boost::asio::io_service::strand &_strand;
+  SecurityManager &_security_manager;
 
  public:
-  SessionManager(boost::asio::io_service::strand &strand) : _strand(strand) {}
-  intrusive_ptr_<Session> get_session(const std::string &dsid,
-                                       const std::string &session_id);
-  intrusive_ptr_<Session> create_session(const std::string &dsid);
+  SessionManager(boost::asio::io_service::strand &strand,
+                 SecurityManager &security_manager);
+  void get_session(const std::string &dsid, const std::string &auth_token, const std::string &session_id,
+                   const GetSessionCallback &&callback);
+
   std::string get_new_session_id();
   void end_all_sessions();
 };
