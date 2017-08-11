@@ -18,8 +18,10 @@ SessionManager::SessionManager(boost::asio::io_service::strand &strand,
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
                                  const std::string &session_id,
-                                 const GetSessionCallback &callback) {
-  _security_manager.get_client(dsid, auth_token, [=](const ClientInfo client, bool error) {
+                                 const GetSessionCallback &&callback) {
+  _security_manager.get_client(dsid, auth_token, [
+    =, callback = std::move(callback)
+  ](const ClientInfo client, bool error) {
     if (error) {
       callback(nullptr);
       return;
@@ -31,12 +33,11 @@ void SessionManager::get_session(const std::string &dsid,
     std::string session_id = get_new_session_id();
     auto session = make_intrusive_<Session>(_strand, session_id);
 
-    _sessions[session_id] = session; 
+    _sessions[session_id] = session;
 
     callback(std::move(session));
   });
 }
-
 
 std::string SessionManager::get_new_session_id() {
   Hash hash("sha256");

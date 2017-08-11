@@ -27,12 +27,12 @@ class SecurityManager {
 
   virtual void get_client(const std::string& dsid,
                           const std::string& auth_token,
-                          const GetClientCallback& callback) = 0;
+                          const GetClientCallback&& callback) = 0;
 
   virtual void check_permission(const std::string& dsid,
                                 const std::string& permission_token,
                                 MessageType method, const std::string& path,
-                                const CheckPermissionCallback& callback) = 0;
+                                const CheckPermissionCallback&& callback) = 0;
   virtual ~SecurityManager() {};
 };
 

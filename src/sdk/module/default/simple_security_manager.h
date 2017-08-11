@@ -10,12 +10,12 @@ namespace dsa {
 class SimpleSecurityManager : public SecurityManager {
  public:
   void get_client(const std::string& dsid, const std::string& auth_token,
-                  const GetClientCallback& callback) override;
+                  const GetClientCallback&& callback) override;
 
   void check_permission(const std::string& dsid,
                         const std::string& permission_token, MessageType method,
                         const std::string& path,
-                        const CheckPermissionCallback& callback) override;
+                        const CheckPermissionCallback&& callback) override;
 };
 
 class AsyncSimpleSecurityManager : public SecurityManager {
@@ -26,12 +26,12 @@ class AsyncSimpleSecurityManager : public SecurityManager {
   AsyncSimpleSecurityManager(boost::asio::io_service::strand& strand);
 
   void get_client(const std::string& dsid, const std::string& auth_token,
-                  const GetClientCallback& callback) override;
+                  const GetClientCallback&& callback) override;
 
   void check_permission(const std::string& dsid,
                         const std::string& permission_token, MessageType method,
                         const std::string& path,
-                        const CheckPermissionCallback& callback) override;
+                        const CheckPermissionCallback&& callback) override;
 };
 
 }  // namespace dsa
