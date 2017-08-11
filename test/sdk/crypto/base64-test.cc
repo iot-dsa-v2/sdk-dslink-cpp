@@ -67,3 +67,26 @@ TEST(Base64Test, Base64_EncodingDecoding) {
     EXPECT_EQ(0, strncmp((const char*)data, base64_decode(encoded).c_str(), data_size));
   }
 }
+
+TEST(Base64Test, Base64URL) {
+  {
+    std::string s("=123");
+
+    EXPECT_EQ("", base64url(s));
+  }
+  {
+    std::string s("123==");
+
+    EXPECT_EQ("123", base64url(s));
+  }
+  {
+    std::string s("1+2+3==");
+
+    EXPECT_EQ("1-2-3", base64url(s));
+  }
+  {
+    std::string s("1////23==");
+
+    EXPECT_EQ("1____23", base64url(s));
+  }
+}
