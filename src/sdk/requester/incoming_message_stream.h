@@ -6,7 +6,8 @@
 namespace dsa {
 
 class IncomingMessageStream : public MessageStream {
-
+ public:
+  virtual ~IncomingMessageStream() = default;
 };
 
 }  // namespace dsa

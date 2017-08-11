@@ -27,6 +27,8 @@ class OutgoingMessageStream : public MessageStream {
  public:
   OutgoingMessageStream(const intrusive_ptr_<Session> &session, size_t id, uint32_t rid)
       : MessageStream(session, rid, id) {}
+
+  virtual ~OutgoingMessageStream() = default;
 };
 
 class SubscribeMessageStream : public OutgoingMessageStream {

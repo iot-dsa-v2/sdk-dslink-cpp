@@ -16,6 +16,7 @@ class Message : public EnableIntrusive<Message> {
   explicit Message(const Buffer::SharedBuffer& buffer);
   Message(MessageType type);
   Message(const StaticHeaders& headers);
+  virtual ~Message() = default;
 
   uint32_t size() const;
 
