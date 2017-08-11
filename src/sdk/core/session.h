@@ -34,7 +34,7 @@ class Session : public IntrusiveClosable<Session> {
   Requester requester;
   Responder responder;
 
-  void add_ready_outgoing_stream(uint32_t rid, size_t unique_id);
+
 
   explicit Session(boost::asio::io_service::strand &strand,
                    const std::string &session_id,
@@ -48,10 +48,6 @@ class Session : public IntrusiveClosable<Session> {
 
   void set_connection(const shared_ptr_<Connection> &connection) { _connection = connection; };
 
-  bool add_outgoing_subscription(const shared_ptr_<OutgoingMessageStream> &stream);
-
-  void remove_outgoing_subscription(uint32_t request_id);
-
   boost::asio::io_service::strand &strand() { return _strand; };
   const boost::asio::io_service::strand &strand() const { return _strand; }
 
@@ -59,7 +55,7 @@ class Session : public IntrusiveClosable<Session> {
   static std::atomic_size_t _session_count;
   std::string _session_id;
   shared_ptr_<Connection> _connection;
-  std::map<uint32_t, shared_ptr_<MessageStream>> _outgoing_streams;
+  
   std::map<uint32_t, shared_ptr_<MessageStream>> _incoming_streams;
   boost::shared_mutex _outgoing_key;
   boost::shared_mutex _incoming_key;

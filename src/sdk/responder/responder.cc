@@ -13,6 +13,31 @@
 #include "network/connection/tcp_connection.h"
 
 namespace dsa {
+
+void Responder::add_ready_outgoing_stream(uint32_t rid, size_t unique_id) {
+  //_strand.post(make_intrusive_this_lambda([=]() {
+  //  _ready_streams.push(StreamInfo{ rid, unique_id, &_outgoing_streams });
+  //  if (!_is_writing) {
+  //    _strand.post(boost::bind(&Session::_write_loop, intrusive_this()));
+  //  }
+  //}));
+}
+
+bool Responder::add_outgoing_subscription(const intrusive_ptr_<OutgoingMessageStream> &stream) {
+  if (_outgoing_streams.count(stream->_request_id) > 0)
+    return false;
+
+  {
+    _outgoing_streams[stream->_request_id] = stream;
+  }
+  return true;
+}
+
+void Responder::remove_outgoing_subscription(uint32_t request_id) {
+  _outgoing_streams.erase(request_id);
+}
+
+
 //
 //Responder::Responder(const App &app, Config config)
 //    :  _state_manager(app), _config(config) {}

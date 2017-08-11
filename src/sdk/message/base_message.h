@@ -4,13 +4,14 @@
 #include <vector>
 
 #include "dynamic_header.h"
-#include "static_headers.h"
 #include "enums.h"
+#include "static_headers.h"
 #include "util/buffer.h"
+#include "util/enable_intrusive.h"
 
 namespace dsa {
 
-class Message {
+class Message : public EnableIntrusive<Message> {
  public:
   explicit Message(const Buffer::SharedBuffer& buffer);
   Message(MessageType type);
@@ -31,7 +32,6 @@ class Message {
 
   uint32_t request_id() { return static_headers.request_id; }
 
-
  protected:
   // measure the size and header size
   virtual void update_static_header() = 0;
@@ -51,7 +51,7 @@ class PagedMessageMixin {
   PagedMessageMixin();
 
  protected:
-  std::vector<shared_ptr_<Message>> other_pages;
+  std::vector<intrusive_ptr_<Message>> other_pages;
   size_t current_page;
 };
 

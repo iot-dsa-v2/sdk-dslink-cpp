@@ -8,12 +8,19 @@
 
 #endif  // _MSC_VER
 
+#include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <algorithm>
+#include <boost/intrusive_ptr.hpp>
 
 namespace dsa {
+
+template <typename T>
+using shared_ptr_ = std::shared_ptr<T>;
+
+template <typename T>
+using intrusive_ptr_ = boost::intrusive_ptr<T>;
 
 }  // namespace dsa
 

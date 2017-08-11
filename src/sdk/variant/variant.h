@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "util/enable_shared.h"
+#include "util/enable_intrusive.h"
 #include "util/exception.h"
 
 struct msgpack_object;

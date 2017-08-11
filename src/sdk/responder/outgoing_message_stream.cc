@@ -16,7 +16,7 @@ SubscribeMessageStream::SubscribeMessageStream(const intrusive_ptr_<Session> &se
                                                uint32_t rid)
     : OutgoingMessageStream(session, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
   };
 }
 
@@ -49,7 +49,7 @@ InvokeMessageStream::InvokeMessageStream(const intrusive_ptr_<Session> &session,
                                          uint32_t rid)
     : OutgoingMessageStream(session, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
   };
 }
 
@@ -82,7 +82,7 @@ ListMessageStream::ListMessageStream(const intrusive_ptr_<Session> &session,
                                      uint32_t rid)
     : OutgoingMessageStream(session, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
   };
 }
 
@@ -115,7 +115,7 @@ SetMessageStream::SetMessageStream(const intrusive_ptr_<Session> &session,
                                    uint32_t rid)
     : OutgoingMessageStream(session, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
   };
 }
 

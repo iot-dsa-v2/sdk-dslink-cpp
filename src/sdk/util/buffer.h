@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "enable_shared.h"
+#include "enable_intrusive.h"
 
 namespace dsa {
 class Message;

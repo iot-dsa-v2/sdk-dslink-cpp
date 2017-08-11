@@ -3,13 +3,13 @@
 
 #include <stdexcept>
 
-#include <boost/intrusive_ptr.hpp>
 #include <valarray>
+
+#include "enable_closable.h"
 
 namespace dsa {
 
-template <typename T>
-using shared_ptr_ = std::shared_ptr<T>;
+
 
 template <class T, typename... Args>
 inline shared_ptr_<T> make_shared_(Args&&... args) {
@@ -34,7 +34,8 @@ template <class T>
 class EnableShared : public std::enable_shared_from_this<T> {
  public:
   shared_ptr_<T> shared_from_this() {
-    return std::dynamic_pointer_cast<T>(std::move(std::enable_shared_from_this<T>::shared_from_this()));
+    return std::dynamic_pointer_cast<T>(
+        std::move(std::enable_shared_from_this<T>::shared_from_this()));
   }
 
   template <class Down>
@@ -56,102 +57,7 @@ class EnableShared : public std::enable_shared_from_this<T> {
 };
 
 template <typename T>
-using intrusive_ptr_ = boost::intrusive_ptr<T>;
-
-template <typename T, typename F>
-class intrusive_this_lambda {
- private:
-  intrusive_ptr_<T> _this;
-  F _func;
-
- public:
-  intrusive_this_lambda(intrusive_ptr_<T> t, F f) : _this(t), _func(f) {}
-  template <typename... _Args>
-  auto operator()(_Args&&... args)
-      -> decltype(this->_func(std::forward<_Args>(args)...)) {
-    return _func(std::forward<_Args>(args)...);
-  }
-};
-
-template <class T>
-class EnableIntrusive {
- protected:
-  intrusive_ptr_<T> intrusive_this() {
-    return intrusive_ptr_<T>(static_cast<T*>(this));
-  }
-
-  template <typename F>
-  intrusive_this_lambda<T, F> make_intrusive_this_lambda(F&& func) {
-    return intrusive_this_lambda<T, F>(static_cast<T*>(this)->intrusive_this(),
-                                       std::forward<F>(func));
-  }
-
-  template <typename F>
-  intrusive_this_lambda<const T, F> make_intrusive_this_lambda(F&& func) const {
-    return intrusive_this_lambda<const T, F>(
-        static_cast<T*>(this)->intrusive_this(), std::forward<F>(func));
-  }
-
-  template <typename _Ty>
-  friend void intrusive_ptr_add_ref(_Ty* t);
-  template <typename _Ty>
-  friend void intrusive_ptr_release(_Ty* t);
-
-  unsigned int _refs{0};
-
- public:
-  unsigned int ref_count() const { return _refs; }
-};
-
-class Closable {
- public:
-  virtual void close() = 0;
-};
-
-template <typename T>
 class SharedClosable : public Closable, public EnableShared<T> {};
-
-template <typename T>
-class IntrusiveClosable : public Closable, public EnableIntrusive<T> {};
-
-// class MultipleInheritableEnableIntrusive : public
-// IntrusiveClosable<MultipleInheritableEnableIntrusive> {  public:
-//  virtual ~MultipleInheritableEnableIntrusive() = default;
-//};
-//
-// template <typename T>
-// class InheritableEnableIntrusive : virtual public
-// MultipleInheritableEnableIntrusive {  protected:
-//  intrusive_ptr_<T> intrusive_this() { return
-//  intrusive_ptr_<T>(static_cast<T*>(this)); }
-//
-//  template <typename _Down>
-//  intrusive_ptr_<_Down> intrusive_this() { return
-//  intrusive_ptr_<_Down>(static_cast<_Down*>(this)); }
-//};
-
-template <typename _Ty>
-inline void intrusive_ptr_add_ref(_Ty* t) {
-  ++t->_refs;
-}
-
-template <typename _Ty>
-inline void intrusive_ptr_release(_Ty* t) {
-  if (--t->_refs == 0) delete t;
-}
-
-// template <class _Ty, class... _Types>
-// inline typename std::enable_if <
-//    std::is_base_of<IntrusiveClosable<_Ty>, _Ty>::value,
-//    intrusive_ptr_<_Ty>
-//>::type make_intrusive_(_Types&&... _Args) {
-//  return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
-//}
-
-template <class _Ty, class... _Types>
-inline intrusive_ptr_<_Ty> make_intrusive_(_Types&&... _Args) {
-  return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
-};
 
 }  // namespace dsa
 

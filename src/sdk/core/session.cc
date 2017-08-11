@@ -12,7 +12,7 @@
 namespace dsa {
 
 Session::Session(boost::asio::io_service::strand &strand, const std::string &session_id, const shared_ptr_<Connection> &connection)
-    : _connection(connection), _session_id(std::move(session_id)), _strand(strand) {}
+    : _connection(connection), _session_id(std::move(session_id)), _strand(strand), requester(*this), responder(*this) {}
 
 void Session::start() const {
   if (_connection == nullptr)
@@ -37,31 +37,6 @@ void Session::connection_closed() {
   _connection.reset();
 }
 
-void Session::add_ready_outgoing_stream(uint32_t rid, size_t unique_id) {
-  _strand.post(make_intrusive_this_lambda([=]() {
-    _ready_streams.push(StreamInfo{rid, unique_id, &_outgoing_streams});
-    if (!_is_writing) {
-      _strand.post(boost::bind(&Session::_write_loop, intrusive_this()));
-    }
-  }));
-}
-
-bool Session::add_outgoing_subscription(const shared_ptr_<OutgoingMessageStream> &stream) {
-  boost::upgrade_lock<boost::shared_mutex> lock(_outgoing_key);
-  if (_outgoing_streams.count(stream->_request_id) > 0)
-    return false;
-
-  {
-    boost::upgrade_to_unique_lock<boost::shared_mutex> unique_lock(lock);
-    _outgoing_streams[stream->_request_id] = stream;
-  }
-  return true;
-}
-
-void Session::remove_outgoing_subscription(uint32_t request_id) {
-  boost::unique_lock<boost::shared_mutex> lock(_outgoing_key);
-  _outgoing_streams.erase(request_id);
-}
 
 MessageStream *Session::_get_next_ready_stream() {
   while (!_ready_streams.empty()) {

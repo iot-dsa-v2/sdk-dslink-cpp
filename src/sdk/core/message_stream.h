@@ -3,14 +3,14 @@
 
 #include <boost/asio/strand.hpp>
 
-
-#include "message/base_message.h"
+#include "util/enable_intrusive.h"
 
 namespace dsa {
 
 class Session;
+class Message;
 
-class MessageStream {
+class MessageStream : public EnableIntrusive<MessageStream> {
  protected:
   boost::asio::io_service::strand &_strand;
 

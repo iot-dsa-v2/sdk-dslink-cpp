@@ -1,17 +1,30 @@
 #ifndef DSA_SDK_RESPONDER_RESPONDER_H
 #define DSA_SDK_RESPONDER_RESPONDER_H
 
-#include <atomic>
+#include <map>
 #include <string>
 
-#include "util/enable_shared.h"
-
+#include "outgoing_message_stream.h"
 
 namespace dsa {
+class Session;
 
 class Responder {
+  friend class Session;
+
+ protected:
+  Session &_session;
+  std::map<uint32_t, intrusive_ptr_<OutgoingMessageStream>> _outgoing_streams;
+
  public:
-  Responder(){};
+  Responder(Session &session) : _session(session){};
+
+  void add_ready_outgoing_stream(uint32_t rid, size_t unique_id);
+
+  bool add_outgoing_subscription(
+      const intrusive_ptr_<OutgoingMessageStream> &stream);
+
+  void remove_outgoing_subscription(uint32_t request_id);
 };
 
 /*
