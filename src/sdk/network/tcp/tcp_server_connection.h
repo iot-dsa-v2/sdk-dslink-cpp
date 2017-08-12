@@ -7,7 +7,7 @@
 
 #include "core/connection.h"
 #include "tcp_connection.h"
-#include "server_connection.h"
+#include "../server_connection.h"
 #include "util/enable_shared.h"
 
 namespace dsa {

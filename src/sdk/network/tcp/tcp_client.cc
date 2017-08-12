@@ -1,7 +1,7 @@
 #include "dsa_common.h"
 
 #include "tcp_client.h"
-#include "network/connection/tcp_client_connection.h"
+#include "tcp_client_connection.h"
 
 namespace dsa {
 TcpClient::TcpClient(boost::asio::io_service::strand &strand, const Config &config)

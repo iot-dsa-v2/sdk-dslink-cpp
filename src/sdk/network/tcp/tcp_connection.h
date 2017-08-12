@@ -7,7 +7,7 @@
 
 #include "core/connection.h"
 #include "crypto/handshake_context.h"
-#include "network/server/tcp_server.h"
+#include "network/tcp/tcp_server.h"
 #include "util/enable_shared.h"
 
 namespace dsa {

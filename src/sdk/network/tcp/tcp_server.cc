@@ -4,7 +4,7 @@
 #include <boost/thread.hpp>
 #include "tcp_server.h"
 
-#include "network/connection/tcp_server_connection.h"
+#include "tcp_server_connection.h"
 
 namespace dsa {
 
