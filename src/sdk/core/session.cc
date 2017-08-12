@@ -37,7 +37,7 @@ void Session::connection_closed() {
 }
 
 
-MessageStream *Session::_get_next_ready_stream() {
+MessageStream *Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {
     StreamInfo stream_info = _ready_streams.back();
     _ready_streams.pop();
@@ -56,14 +56,14 @@ MessageStream *Session::_get_next_ready_stream() {
   return nullptr;
 }
 
-void Session::_write_loop() {
+void Session::write_loop() {
   if (_ready_streams.empty()) {
     _is_writing = false;
     return;
   }
 
   auto buf = make_intrusive_<Buffer>();
-  MessageStream *stream = _get_next_ready_stream();
+  MessageStream *stream = get_next_ready_stream();
 
   if (stream == nullptr)
     return;
@@ -73,11 +73,11 @@ void Session::_write_loop() {
 
   do {
     buf->append(stream->get_next_message());
-    stream = _get_next_ready_stream();
+    stream = get_next_ready_stream();
   } while (stream != nullptr && stream->get_next_message_size() + buf->size() < buf->capacity());
 
   _is_writing = true;
-  _connection->write(buf, buf->size(), boost::bind(&Session::_write_loop, intrusive_this()));
+  _connection->write(buf, buf->size(), boost::bind(&Session::write_loop, intrusive_this()));
 }
 
 }  // namespace dsa

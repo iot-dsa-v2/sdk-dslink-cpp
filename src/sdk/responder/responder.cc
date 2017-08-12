@@ -18,7 +18,7 @@ void Responder::add_ready_outgoing_stream(uint32_t rid, size_t unique_id) {
   //_strand.post(make_intrusive_this_lambda([=]() {
   //  _ready_streams.push(StreamInfo{ rid, unique_id, &_outgoing_streams });
   //  if (!_is_writing) {
-  //    _strand.post(boost::bind(&Session::_write_loop, intrusive_this()));
+  //    _strand.post(boost::bind(&Session::write_loop, intrusive_this()));
   //  }
   //}));
 }

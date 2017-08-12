@@ -52,25 +52,21 @@ class Session : public IntrusiveClosable<Session> {
   const boost::asio::io_service::strand &strand() const { return _strand; }
 
  private:
-  static std::atomic_size_t _session_count;
   std::string _session_id;
   shared_ptr_<Connection> _connection;
   
-  std::map<uint32_t, shared_ptr_<MessageStream>> _incoming_streams;
-  boost::shared_mutex _outgoing_key;
-  boost::shared_mutex _incoming_key;
+
   std::queue<StreamInfo> _ready_streams;
-  std::atomic_bool _is_writing{false};
+  bool _is_writing{false};
   boost::asio::io_service::strand &_strand;
 
-  MessageStream *_get_next_ready_stream();
-  void _write_loop();
+  MessageStream *get_next_ready_stream();
+  void write_loop();
 
   friend class Connection;
   void connection_closed();
 };
 
-typedef shared_ptr_<Session> SessionPtr;
 
 }  // namespace dsa
 
