@@ -1,11 +1,11 @@
 list(APPEND NetworkSourceFiles
-        connection/client_connection.cc
-        connection/server_connection.cc
-        connection/tcp_connection.cc
-        connection/tcp_server_connection.cc
-        connection/tcp_client_connection.cc
-        server/tcp_server.cc
-        client/tcp_client.cc)
+        client_connection.cc
+        server_connection.cc
+        tcp/tcp_connection.cc
+        tcp/tcp_server_connection.cc
+        tcp/tcp_client_connection.cc
+        tcp/tcp_server.cc
+        tcp/tcp_client.cc)
 
 foreach(file ${NetworkSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_NETWORK}/${file})

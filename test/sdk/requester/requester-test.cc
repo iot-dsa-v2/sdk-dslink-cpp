@@ -2,8 +2,8 @@
 #include "dsa/network.h"
 #include "gtest/gtest.h"
 
-#include "network/client/tcp_client.h"
-#include "network/server/tcp_server.h"
+#include "network/tcp/tcp_client.h"
+#include "network/tcp/tcp_server.h"
 
 #include "module/default_modules.h"
 
