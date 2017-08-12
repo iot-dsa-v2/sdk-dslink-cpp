@@ -9,10 +9,10 @@ namespace dsa {
 NodeStateManager::NodeStateManager(const App &app)
     : _io_service(app.io_service()) {}
 
-const shared_ptr_<NodeState> &NodeStateManager::get_or_create(
+const intrusive_ptr_<NodeState> &NodeStateManager::get_or_create(
     std::string path) {
   if (_node_states.count(path) == 0) {
-    _node_states[path] = make_shared_<NodeState>(_io_service, path);
+    _node_states[path] = make_intrusive_<NodeState>(_io_service, path);
   }
   return _node_states.at(path);
 }

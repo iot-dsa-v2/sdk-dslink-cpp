@@ -18,12 +18,12 @@ class App;
 class NodeStateManager {
  private:
   boost::asio::io_service &_io_service;
-  std::map<std::string, shared_ptr_<NodeState>> _node_states;
+  std::map<std::string, intrusive_ptr_<NodeState>> _node_states;
 
  public:
   explicit NodeStateManager(const App &app);
 
-  const shared_ptr_<NodeState> &get_or_create(std::string path);
+  const intrusive_ptr_<NodeState> &get_or_create(std::string path);
 };
 }  // namespace dsa
 
