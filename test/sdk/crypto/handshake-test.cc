@@ -229,11 +229,11 @@ TEST(HandshakeTest, ServerInfo) {
 
 
 TEST(HandShakeTest, HMAC) {
-  const char * key_str = "key";
-  std::vector<uint8_t> key_buffer(key_str, key_str+sizeof(key_str));
+  const char *key_str = "key";
+  std::vector<uint8_t> key_buffer(key_str, key_str + strlen(key_str));
   const char * message_str = "The quick brown fox jumps over the lazy dog";
   std::vector<uint8_t> message_buffer(message_str,
-                                      message_str + sizeof(message_str));
+                                      message_str + strlen(message_str));
 
   dsa::HMAC hmac("sha256", key_buffer);
   hmac.update(message_buffer);
