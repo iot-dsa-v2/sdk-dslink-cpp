@@ -16,7 +16,7 @@ TEST(HashTest, HashTypeInvalid) {
 
 TEST(HashTest, update__digest_base64CallTwice) {
   ECDH ecdh;
-  std::string public_key = ecdh.get_public_key();
+  std::vector<uint8_t> public_key = ecdh.get_public_key();
 
   Hash hash("sha256");
   hash.update(public_key);

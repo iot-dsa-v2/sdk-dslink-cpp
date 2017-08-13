@@ -99,10 +99,10 @@ std::string hex2bin(const char* src) {
   return out.str();
 }
 
-std::string gen_salt(int len) {
-  std::string out;
+std::vector<uint8_t> gen_salt(int len) {
+  std::vector<uint8_t> out;
   out.reserve(len);
-  if (!RAND_bytes(reinterpret_cast<uint8_t*>(&out[0]), len))
+  if (!RAND_bytes(out.data(), len))
     throw std::runtime_error("Unable to generate salt");
   return std::move(out);
 }

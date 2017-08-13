@@ -44,7 +44,7 @@ class Session : public IntrusiveClosable<Session> {
 
   void start() const;
 
-  void close();
+  void close() override;
 
   void set_connection(const shared_ptr_<Connection> &connection) { _connection = connection; };
 
@@ -65,6 +65,7 @@ class Session : public IntrusiveClosable<Session> {
 
   friend class Connection;
   void connection_closed();
+  void receive_message(Message * message);
 };
 
 

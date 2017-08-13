@@ -50,9 +50,14 @@ bool ServerConnection::parse_f0(size_t size) {
     return false;
 
   data += _other_dsid.assign(reinterpret_cast<const char *>(data), dsid_length).size();
-  data += _other_public_key.assign(reinterpret_cast<const char *>(data), PublicKeyLength).size();
-  _security_preference = *data++;
-  data += _other_salt.assign(reinterpret_cast<const char *>(data), SaltLength).size();
+  _other_public_key.assign(data, data + PublicKeyLength);
+  data += _other_public_key.size();
+
+  _security_preference = static_cast<bool>(*data++);
+
+  _other_salt.assign(data, data+SaltLength);
+
+  data += _other_salt.size();
 
   return data == _read_buffer->data() + size;
 }
@@ -89,7 +94,8 @@ bool ServerConnection::parse_f2(size_t size) {
     return false;
 
   data += _session_id.assign(reinterpret_cast<const char *>(data), session_id_length).size();
-  data += _other_auth.assign(reinterpret_cast<const char *>(data), AuthLength).size();
+  _other_auth.assign(data, data+AuthLength);
+  data += _other_auth.size();
 
   return data == _read_buffer->data() + size;
 }
@@ -107,8 +113,8 @@ size_t ServerConnection::load_f1(Buffer &buf) {
   data += StaticHeaders::TotalSize;
   (*data++) = dsid_length;
   data += _handshake_context.dsid().copy(reinterpret_cast<char *>(data), dsid_length);
-  data += _handshake_context.public_key().copy(reinterpret_cast<char *>(data), PublicKeyLength);
-  data += _handshake_context.salt().copy(reinterpret_cast<char *>(data), SaltLength);
+  data = std::copy(_handshake_context.public_key().begin(), _handshake_context.public_key().end(), data);
+  data = std::copy(_handshake_context.salt().begin(), _handshake_context.salt().end(), data);
 
   uint32_t size = data - buf.data();
   std::copy(&size, &size + sizeof(size), buf.data());
@@ -132,7 +138,7 @@ size_t ServerConnection::load_f3(Buffer &buf) {
   data += _session_id.copy(reinterpret_cast<char *>(data), sid_length);
   data = std::copy(&path_length, &path_length + sizeof(path_length), data);
   data += _path.copy(reinterpret_cast<char *>(data), path_length);
-  data += _auth.copy(reinterpret_cast<char *>(data), AuthLength);
+  data = std::copy(_auth.begin(), _auth.end(), data);
 
   uint32_t size = data - buf.data();
   std::copy(&size, &size + sizeof(size), buf.data());

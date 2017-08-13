@@ -26,9 +26,9 @@ class ECDH {
   ECDH & operator=(const ECDH &ecdh);
   ~ECDH();
 
-  std::string get_private_key() const throw(const std::runtime_error &);
-  std::string get_public_key() const throw(const std::runtime_error &);
-  std::string compute_secret(const std::string &public_key) const
+  std::vector<uint8_t> get_private_key() const throw(const std::runtime_error &);
+  std::vector<uint8_t> get_public_key() const throw(const std::runtime_error &);
+  std::vector<uint8_t> compute_secret(const std::vector<uint8_t> &public_key) const
       throw(const std::runtime_error &);
   void set_private_key_hex(const char *data) throw(const std::runtime_error &);
 };

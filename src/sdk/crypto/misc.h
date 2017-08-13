@@ -11,7 +11,7 @@ std::string base64url(std::string str);
 std::string base64_decode(std::string const &encoded_string);
 std::string base64_encode(unsigned char const *bytes_to_encode,
                           unsigned int in_len);
-std::string gen_salt(int len);
+std::vector<uint8_t> gen_salt(int len);
 std::string hex2bin(const char *src);
 }  // namespace dsa
 

@@ -3,7 +3,7 @@
 #include "hmac.h"
 
 namespace dsa {
-void HMAC::init(const char* alg, const std::string &content) throw(const std::runtime_error &) {
+void HMAC::init(const char* alg, const std::vector<uint8_t> &content) throw(const std::runtime_error &) {
   ctx = new HMAC_CTX;
   const EVP_MD* md = EVP_get_digestbyname(alg);
   if (md == nullptr) throw std::runtime_error("Failed to initialize HMAC");
@@ -14,7 +14,7 @@ void HMAC::init(const char* alg, const std::string &content) throw(const std::ru
     throw std::runtime_error("Failed to initialize HMAC");
 }
 
-HMAC::HMAC(const char* alg, const std::string &data) throw(const std::runtime_error &) {
+HMAC::HMAC(const char* alg, const std::vector<uint8_t> &data) throw(const std::runtime_error &) {
   init(alg, data);
   initialized = true;
 }
@@ -23,16 +23,16 @@ HMAC::~HMAC() {
   delete ctx;
 }
 
-void HMAC::update(const std::string &content) throw(const std::runtime_error &) {
+void HMAC::update(const std::vector<uint8_t> &content) throw(const std::runtime_error &) {
   if (!initialized) throw std::runtime_error("HMAC needs to be initialized");
   int r = HMAC_Update(ctx, reinterpret_cast<const uint8_t *>(content.data()), content.size());
   if (r == 0) throw std::runtime_error("Failed to update HMAC");
 }
 
-std::string HMAC::digest() throw(const std::runtime_error &) {
+std::vector<uint8_t> HMAC::digest() throw(const std::runtime_error &) {
   if (!initialized) throw std::runtime_error("HMAC needs to be initialized");
 
-  std::string out;
+  std::vector<uint8_t> out;
   out.resize(EVP_MAX_MD_SIZE);
   unsigned int size = 0;
 

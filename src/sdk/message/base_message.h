@@ -30,6 +30,7 @@ class Message : public EnableIntrusive<Message> {
   void set_page_id(int32_t value);
 
   MessageType type() { return static_headers.type; }
+  bool is_request() { return static_cast<uint8_t>(static_headers.type) < 0x80; }
 
   uint32_t request_id() { return static_headers.request_id; }
 

@@ -36,6 +36,9 @@ void Session::connection_closed() {
   _connection.reset();
 }
 
+void Session::receive_message(Message * message) {
+
+}
 
 MessageStream *Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {

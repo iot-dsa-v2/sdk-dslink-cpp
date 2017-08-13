@@ -79,12 +79,12 @@ class Connection : public SharedClosable<Connection> {
 
   BufferPtr _read_buffer;
   BufferPtr _write_buffer;
-  std::string _shared_secret;
-  std::string _other_public_key;
-  std::string _other_salt;
-  std::string _auth;
-  std::string _auth_check;
-  std::string _other_auth;
+  std::vector<uint8_t> _shared_secret;
+  std::vector<uint8_t> _other_public_key;
+  std::vector<uint8_t> _other_salt;
+  std::vector<uint8_t> _auth;
+  std::vector<uint8_t> _auth_check;
+  std::vector<uint8_t> _other_auth;
   std::string _session_id;
   std::string _other_dsid;
   std::string _path;

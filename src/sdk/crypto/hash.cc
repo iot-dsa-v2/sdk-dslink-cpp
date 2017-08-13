@@ -25,7 +25,7 @@ Hash::~Hash() {
   delete mdctx;
 }
 
-void Hash::update(const std::string &content) {
+void Hash::update(const std::vector<uint8_t> &content) {
   EVP_DigestUpdate(mdctx, (uint8_t*)&content[0], content.size());
 }
 

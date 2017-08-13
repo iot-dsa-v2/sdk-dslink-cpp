@@ -40,8 +40,12 @@ bool ClientConnection::parse_f1(size_t size) {
     return false;
 
   data += _other_dsid.assign(reinterpret_cast<const char *>(data), dsid_length).size();
-  data += _other_public_key.assign(reinterpret_cast<const char *>(data), PublicKeyLength).size();
-  data += _other_salt.assign(reinterpret_cast<const char *>(data), SaltLength).size();
+
+  _other_public_key.assign(data, data + PublicKeyLength);
+  data += _other_public_key.size();
+
+  _other_salt.assign(data, data + SaltLength);
+  data += _other_salt.size();
 
   return data == _read_buffer->data() + size;
 }
@@ -71,7 +75,8 @@ bool ClientConnection::parse_f3(size_t size) {
     return false;
   data += _path.assign(reinterpret_cast<const char *>(data), path_length).size();
 
-  data += _auth_check.assign(reinterpret_cast<const char *>(data), AuthLength).size();
+  _auth_check.assign(data, data + AuthLength);
+  data += _auth_check.size();
 
 #if DEBUG
   std::stringstream ss;
@@ -104,9 +109,10 @@ size_t ClientConnection::load_f0(Buffer &buf) {
   (*data++) = (uint8_t) 0; // version major
   (*data++) = dsid_length;
   data += _handshake_context.dsid().copy(reinterpret_cast<char*>(data), dsid_length);
-  data += _handshake_context.public_key().copy(reinterpret_cast<char*>(data), PublicKeyLength);
+  data = std::copy(_handshake_context.public_key().begin(), _handshake_context.public_key().end(), data);
   (*data++) = (uint8_t) 0; // no encryption for now
-  data += _handshake_context.salt().copy(reinterpret_cast<char*>(data), SaltLength);
+  // TODO: implement encryption
+  data = std::copy(_handshake_context.salt().begin(), _handshake_context.salt().end(), data);
 
   uint32_t size = data - buf.data();
   std::copy(&size, &size + sizeof(size), buf.data());
@@ -134,7 +140,7 @@ size_t ClientConnection::load_f2(Buffer &buf) {
   if (sid_length > 0) {
     data += _previous_session_id.copy(reinterpret_cast<char*>(data), sid_length);
   }
-  data += _auth.copy(reinterpret_cast<char*>(data), AuthLength);
+  data = std::copy(_auth.begin(), _auth.end(), data);
 
   uint32_t size = data - buf.data();
   std::copy(&size, &size + sizeof(size), buf.data());
