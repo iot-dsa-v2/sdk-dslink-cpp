@@ -95,7 +95,8 @@ bool ClientConnection::parse_f3(size_t size) {
 
 // Handshake load functions
 size_t ClientConnection::load_f0(Buffer &buf) {
-  uint8_t dsid_length = (uint8_t) _handshake_context.dsid().size();
+  uint16_t dsid_length =
+      static_cast<uint16_t>(_handshake_context.dsid().size());
 
   // ensure buf is large enough
   buf.resize(MinF0Length + _handshake_context.dsid().size());
@@ -107,7 +108,7 @@ size_t ClientConnection::load_f0(Buffer &buf) {
   data += StaticHeaders::TotalSize;
   (*data++) = (uint8_t) 2; // version major
   (*data++) = (uint8_t) 0; // version major
-  (*data++) = dsid_length;
+  data = std::copy(&dsid_length, &dsid_length + sizeof(dsid_length), data);
   data += _handshake_context.dsid().copy(reinterpret_cast<char*>(data), dsid_length);
   data = std::copy(_handshake_context.public_key().begin(), _handshake_context.public_key().end(), data);
   (*data++) = (uint8_t) 0; // no encryption for now

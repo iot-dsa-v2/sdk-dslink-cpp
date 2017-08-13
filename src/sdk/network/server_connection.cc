@@ -101,7 +101,8 @@ bool ServerConnection::parse_f2(size_t size) {
 }
 
 size_t ServerConnection::load_f1(Buffer &buf) {
-  auto dsid_length = (uint8_t) _handshake_context.dsid().size();
+  uint16_t dsid_length =
+      static_cast<uint16_t>(_handshake_context.dsid().size());
 
   // ensure buf is large enough
   buf.resize(MinF1Length + dsid_length);
@@ -111,7 +112,7 @@ size_t ServerConnection::load_f1(Buffer &buf) {
   uint8_t *data = buf.data();
   header.write(data);
   data += StaticHeaders::TotalSize;
-  (*data++) = dsid_length;
+  data = std::copy(&dsid_length, &dsid_length + sizeof(dsid_length), data);
   data += _handshake_context.dsid().copy(reinterpret_cast<char *>(data), dsid_length);
   data = std::copy(_handshake_context.public_key().begin(), _handshake_context.public_key().end(), data);
   data = std::copy(_handshake_context.salt().begin(), _handshake_context.salt().end(), data);
