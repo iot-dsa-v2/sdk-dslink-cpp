@@ -36,6 +36,7 @@ std::string base64_encode(uint8_t const* bytes_to_encode, unsigned int in_len) {
   std::string ret(bufferPtr->data, bufferPtr->length);
 
   BIO_free_all(b64);
+  BUF_MEM_free(bufferPtr);
 
   return ret;
 }
