@@ -10,7 +10,7 @@ namespace dsa {
 
 using tcp = boost::asio::ip::tcp;
 
-TcpServer::TcpServer(boost::asio::io_service::strand &strand, const Config &config)
+TcpServer::TcpServer(boost::asio::io_service::strand &strand, Config &config)
     : Server(strand, config),
       _acceptor(new tcp::acceptor(strand.get_io_service(),
                                   tcp::endpoint(tcp::v4(), config.tcp_port))) {}

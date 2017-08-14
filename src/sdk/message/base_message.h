@@ -13,13 +13,12 @@ namespace dsa {
 
 class Message : public EnableIntrusive<Message> {
  public:
-  static Message* parse_message(const SharedBuffer& buffer) throw(
-      const MessageParsingError&);
+  static Message* parse_message(const SharedBuffer& buffer) throw(const MessageParsingError&);
 
  public:
-  explicit Message(const Buffer::SharedBuffer& buffer);
-  Message(MessageType type);
-  Message(const StaticHeaders& headers);
+  explicit Message(const Buffer::SharedBuffer &buffer);
+  explicit Message(MessageType type);
+  explicit Message(const StaticHeaders& headers);
   virtual ~Message() = default;
 
   uint32_t size() const;

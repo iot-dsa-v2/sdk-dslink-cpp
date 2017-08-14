@@ -36,7 +36,7 @@ void TcpClientConnection::start_handshake(
 
   // start timeout timer
   _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_config.handshake_timout_ms));
+      boost::posix_time::milliseconds(_config.handshake_timeout_ms));
   _deadline.async_wait(
       boost::bind(&TcpClientConnection::timeout,
                   Connection::share_this<TcpClientConnection>(),
@@ -62,7 +62,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
   if (!error && parse_f1(bytes_transferred)) {
     // cancel timer before timeout
     _deadline.expires_from_now(
-        boost::posix_time::milliseconds(_config.handshake_timout_ms));
+        boost::posix_time::milliseconds(_config.handshake_timeout_ms));
 
     // server should be parsing f0 and waiting for f2 at this point
     // so we can compute the shared secret synchronously
@@ -99,7 +99,9 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error,
 
   if (!error && parse_f3(bytes_transferred)) {
     // create new session object if none and pass to the on connect handler
-    _session = make_intrusive_<Session>(_strand, _session_id,
+    _session = make_intrusive_<Session>(_strand,
+                                        _session_id,
+                                        _config,
                                         Connection::shared_from_this());
 
     try {

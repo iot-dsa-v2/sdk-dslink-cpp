@@ -1,6 +1,7 @@
 #ifndef DSA_SDK_LIST_REQUEST_MESSAGE_H_
 #define DSA_SDK_LIST_REQUEST_MESSAGE_H_
 
+#include <message/message_options.h>
 #include "../../util/buffer.h"
 #include "../base_message.h"
 
@@ -11,6 +12,8 @@ class ListRequestMessage : public RequestMessage {
   ListRequestMessage(const SharedBuffer& buffer);
   ListRequestMessage();
   ListRequestMessage(const ListRequestMessage&);
+
+  ListOptions get_list_options() const;
 
  protected:
   // measure the size and header size

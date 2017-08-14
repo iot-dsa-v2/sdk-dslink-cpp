@@ -10,4 +10,8 @@ ListRequestMessage::ListRequestMessage(const SharedBuffer& buffer)
 }
 ListRequestMessage::ListRequestMessage()
     : RequestMessage(MessageType::ListRequest) {}
+
+ListOptions ListRequestMessage::get_list_options() const {
+  return {};
+}
 }  // namespace dsa

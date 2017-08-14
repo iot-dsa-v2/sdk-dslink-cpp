@@ -87,7 +87,7 @@ bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(
   BIGNUM *order = BN_new();
   if (order == nullptr)
     throw std::runtime_error("something went wrong, order can't be null");
-  bool result = EC_GROUP_get_order(group, order, nullptr) &&
+  bool result = (EC_GROUP_get_order(group, order, nullptr) != 0) &&
                 (BN_cmp(private_key, order) < 0);
   BN_free(order);
   return result;
@@ -134,7 +134,7 @@ void ECDH::set_private_key_hex(const char *data) throw(
 std::vector<uint8_t> ECDH::compute_secret(const std::vector<uint8_t> &public_key) const
     throw(const std::runtime_error &) {
   EC_POINT *pub = EC_POINT_new(group);
-  int r = EC_POINT_oct2point(group, pub, reinterpret_cast<const uint8_t *>(public_key.data()), public_key.size(),
+  int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),
                              nullptr);
   if ((r == 0) || pub == nullptr)
     throw std::runtime_error("secret couldn't be computed with given key");

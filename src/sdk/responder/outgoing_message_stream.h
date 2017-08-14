@@ -7,14 +7,19 @@
 #include <boost/asio/strand.hpp>
 
 #include "message/response/subscribe_response_message.h"
-#include "message/response/invoke_response_message.h"
 #include "message/response/set_response_message.h"
+#include "message/response/invoke_response_message.h"
 #include "message/response/list_response_message.h"
+
 #include "message/message_options.h"
 #include "core/message_stream.h"
 
 namespace dsa {
 class Session;
+class SubscribeResponseMessage;
+class InvokeResponseMessage;
+class SetResponseMessage;
+class ListResponseMessage;
 
 // maintain a smart queue of subscription updates
 // this queue works for a single subscription from a single client
@@ -25,8 +30,7 @@ class OutgoingMessageStream : public MessageStream {
   std::function<void()> _set_ready;
 
  public:
-  OutgoingMessageStream(const intrusive_ptr_<Session> &session, size_t id, uint32_t rid)
-      : MessageStream(session, rid, id) {}
+  OutgoingMessageStream(intrusive_ptr_<Session> session, _stream_container container, size_t id, uint32_t rid);
 
   virtual ~OutgoingMessageStream() = default;
 };
@@ -37,7 +41,11 @@ class SubscribeMessageStream : public OutgoingMessageStream {
   SubscribeOptions _config;
 
  public:
-  SubscribeMessageStream(const intrusive_ptr_<Session> &session, SubscribeOptions config, size_t id, uint32_t rid);
+  SubscribeMessageStream(intrusive_ptr_<Session> session,
+                         _stream_container container,
+                         SubscribeOptions config,
+                         size_t id,
+                         uint32_t rid);
 
   void new_message(const SubscribeResponseMessage &new_message);
 
@@ -52,7 +60,11 @@ class InvokeMessageStream : public OutgoingMessageStream {
   InvokeOptions _config;
 
  public:
-  InvokeMessageStream(const intrusive_ptr_<Session> &session, InvokeOptions config, size_t id, uint32_t rid);
+  InvokeMessageStream(intrusive_ptr_<Session> session,
+                      _stream_container container,
+                      InvokeOptions config,
+                      size_t id,
+                      uint32_t rid);
 
   void new_message(const InvokeResponseMessage &new_message);
 
@@ -66,7 +78,11 @@ class ListMessageStream : public OutgoingMessageStream {
   ListOptions _config;
 
  public:
-  ListMessageStream(const intrusive_ptr_<Session> &session, ListOptions config, size_t id, uint32_t rid);
+  ListMessageStream(intrusive_ptr_<Session> session,
+                    _stream_container container,
+                    ListOptions config,
+                    size_t id,
+                    uint32_t rid);
 
   void new_message(const ListResponseMessage &new_message);
 
@@ -80,7 +96,11 @@ class SetMessageStream : public OutgoingMessageStream {
   SetOptions _config;
 
  public:
-  SetMessageStream(const intrusive_ptr_<Session> &session, SetOptions config, size_t id, uint32_t rid);
+  SetMessageStream(intrusive_ptr_<Session> session,
+                   _stream_container container,
+                   SetOptions config,
+                   size_t id,
+                   uint32_t rid);
 
   void new_message(const SetResponseMessage &new_message);
 

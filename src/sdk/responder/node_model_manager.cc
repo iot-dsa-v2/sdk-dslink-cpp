@@ -11,4 +11,8 @@ shared_ptr_<NodeModel> NodeModelManager::get_model(const std::string &path) {
   return nullptr;
 }
 
+void NodeModelManager::find_model(intrusive_ptr_<NodeState> node_state) {
+  // TODO: implement default version for this
+}
+
 }  // namespace dsa

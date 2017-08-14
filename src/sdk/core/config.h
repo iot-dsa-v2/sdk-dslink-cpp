@@ -10,8 +10,7 @@ class SecurityManager;
 class ECDH;
 
 struct Config {
-  //modules
-
+  // modules
   NodeModelManager* model_manager = nullptr;
   SecurityManager* security_manager = nullptr;
 
@@ -22,7 +21,7 @@ struct Config {
   std::string tcp_host;
   uint16_t tcp_port = 0;
 
-  uint32_t handshake_timout_ms = 5000;
+  uint32_t handshake_timeout_ms = 5000;
 
   // client configs
   std::string client_token;

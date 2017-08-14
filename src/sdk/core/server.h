@@ -37,7 +37,7 @@ class Server : public SharedClosable<Server> {
 
   enum Protocol { TCP };
 
-  explicit Server(boost::asio::io_service::strand &strand, const Config &config);
+  explicit Server(boost::asio::io_service::strand &strand, Config &config);
 
   virtual void start() = 0;
   void close() override;

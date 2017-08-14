@@ -5,23 +5,19 @@
 #include <string>
 #include <utility>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 
-#include "core/app.h"
 #include "node_state.h"
 
 namespace dsa {
-class App;
-/**
- * maintain the node state objects
- */
+
 class NodeStateManager {
  private:
-  boost::asio::io_service &_io_service;
-  std::map<std::string, intrusive_ptr_<NodeState>> _node_states;
+  boost::asio::strand &_strand;
+  std::map< std::string, intrusive_ptr_<NodeState> > _node_states;
 
  public:
-  explicit NodeStateManager(const App &app);
+  explicit NodeStateManager(boost::asio::io_service::strand &strand);
 
   const intrusive_ptr_<NodeState> &get_or_create(std::string path);
 };

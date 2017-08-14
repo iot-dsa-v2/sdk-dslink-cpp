@@ -5,15 +5,23 @@
 
 namespace dsa {
 
+OutgoingMessageStream::OutgoingMessageStream(intrusive_ptr_<Session> session,
+                                             _stream_container container,
+                                             size_t id,
+                                             uint32_t rid)
+    : MessageStream(session, container, rid, id) {}
+
 /////////////////////////////
 // SubscribeMessageStream
 /////////////////////////////
-SubscribeMessageStream::SubscribeMessageStream(
-    const intrusive_ptr_<Session> &session, SubscribeOptions config, size_t id,
-    uint32_t rid)
-    : OutgoingMessageStream(session, id, rid), _config(config) {
+SubscribeMessageStream::SubscribeMessageStream(intrusive_ptr_<Session> session,
+                                               _stream_container container,
+                                               SubscribeOptions config,
+                                               size_t id,
+                                               uint32_t rid)
+    : OutgoingMessageStream(session, container, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.set_ready_stream(get_info());
   };
 }
 
@@ -36,18 +44,20 @@ const Message &SubscribeMessageStream::get_next_message() {
 ///////////////////////////////
 // InvokeMessageStream
 ///////////////////////////////
-InvokeMessageStream::InvokeMessageStream(const intrusive_ptr_<Session> &session,
-                                         InvokeOptions config, size_t id,
+InvokeMessageStream::InvokeMessageStream(intrusive_ptr_<Session> session,
+                                         _stream_container container,
+                                         InvokeOptions config,
+                                         size_t id,
                                          uint32_t rid)
-    : OutgoingMessageStream(session, id, rid), _config(config) {
+    : OutgoingMessageStream(session, container, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.set_ready_stream(get_info());
   };
 }
 
 void InvokeMessageStream::new_message(
     const InvokeResponseMessage &new_message) {
-  { _message_queue.push_front(new_message); }
+  _message_queue.push_front(new_message);
   _set_ready();
 }
 
@@ -64,12 +74,14 @@ const Message &InvokeMessageStream::get_next_message() {
 //////////////////////////
 // ListMessageStream
 //////////////////////////
-ListMessageStream::ListMessageStream(const intrusive_ptr_<Session> &session,
-                                     ListOptions config, size_t id,
+ListMessageStream::ListMessageStream(intrusive_ptr_<Session> session,
+                                     _stream_container container,
+                                     ListOptions config,
+                                     size_t id,
                                      uint32_t rid)
-    : OutgoingMessageStream(session, id, rid), _config(config) {
+    : OutgoingMessageStream(session, container, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.set_ready_stream(get_info());
   };
 }
 
@@ -91,11 +103,14 @@ const Message &ListMessageStream::get_next_message() {
 //////////////////////////
 // SetMessageStream
 //////////////////////////
-SetMessageStream::SetMessageStream(const intrusive_ptr_<Session> &session,
-                                   SetOptions config, size_t id, uint32_t rid)
-    : OutgoingMessageStream(session, id, rid), _config(config) {
+SetMessageStream::SetMessageStream(intrusive_ptr_<Session> session,
+                                   _stream_container container,
+                                   SetOptions config,
+                                   size_t id,
+                                   uint32_t rid)
+    : OutgoingMessageStream(session, container, id, rid), _config(config) {
   _set_ready = [=]() {
-    session->responder.add_ready_outgoing_stream(_request_id, _unique_id);
+    session->responder.set_ready_stream(get_info());
   };
 }
 

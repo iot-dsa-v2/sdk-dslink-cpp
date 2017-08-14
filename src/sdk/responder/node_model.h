@@ -15,8 +15,8 @@ class NodeState;
 class NodeModel : public EnableIntrusive<NodeModel> {
  private:
   intrusive_ptr_<NodeState> _state;
-  std::map<uint32_t, intrusive_ptr_<InvokeMessageStream>> _invoke_streams;
-  std::map<uint32_t, intrusive_ptr_<SetMessageStream>> _set_streams;
+  std::map< uint32_t, intrusive_ptr_<MessageStream> > _invoke_streams;
+  std::map< uint32_t, intrusive_ptr_<MessageStream> > _set_streams;
 
   std::mutex _invoke_key;
   std::mutex _set_key;
@@ -24,13 +24,19 @@ class NodeModel : public EnableIntrusive<NodeModel> {
   std::queue<SubscribeResponseMessage> _to_send;
 
  public:
-  template <typename T>
+  template<typename T>
   void update_value(T new_value);
 
-  void add_invoke_stream(const intrusive_ptr_<InvokeMessageStream> &stream);
+  void new_invoke_stream(const intrusive_ptr_<Session> &session,
+                         InvokeOptions &&config,
+                         size_t unique_id,
+                         uint32_t request_id);
   void remove_invoke_stream(uint32_t request_id);
 
-  void add_set_stream(const intrusive_ptr_<SetMessageStream> &stream);
+  void new_set_stream(const intrusive_ptr_<Session> &session,
+                      SetOptions &&config,
+                      size_t unique_id,
+                      uint32_t request_id);
   void remove_set_stream(uint32_t request_id);
 };
 }  // namespace dsa

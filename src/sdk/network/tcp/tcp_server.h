@@ -20,7 +20,7 @@ class TcpServer : public Server {
   void accept_loop(const boost::system::error_code &error);
 
  public:
-  TcpServer(boost::asio::io_service::strand &strand, const Config &config);
+  TcpServer(boost::asio::io_service::strand &strand, Config &config);
   void start() override;
   void close() override;
   std::string type() override { return "TCP"; }

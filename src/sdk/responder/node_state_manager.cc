@@ -2,17 +2,14 @@
 
 #include "node_state_manager.h"
 
-#include "core/app.h"
-
 namespace dsa {
 
-NodeStateManager::NodeStateManager(const App &app)
-    : _io_service(app.io_service()) {}
+NodeStateManager::NodeStateManager(boost::asio::io_service::strand &strand)
+    : _strand(strand) {}
 
-const intrusive_ptr_<NodeState> &NodeStateManager::get_or_create(
-    std::string path) {
+const intrusive_ptr_<NodeState> &NodeStateManager::get_or_create(std::string path) {
   if (_node_states.count(path) == 0) {
-    _node_states[path] = make_intrusive_<NodeState>(_io_service, path);
+    _node_states[path] = make_intrusive_<NodeState>(_strand, path);
   }
   return _node_states.at(path);
 }

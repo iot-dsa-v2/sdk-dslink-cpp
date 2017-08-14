@@ -3,7 +3,7 @@
 #include "base_message.h"
 
 namespace dsa {
-Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data){};
+Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data) {};
 Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
 Message::Message(const StaticHeaders& headers) : static_headers(headers){};
 

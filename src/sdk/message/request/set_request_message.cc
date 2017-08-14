@@ -12,4 +12,7 @@ SetRequestMessage::SetRequestMessage(const SharedBuffer& buffer)
 SetRequestMessage::SetRequestMessage()
     : RequestMessage(MessageType::SetRequest) {}
 
+SetOptions SetRequestMessage::get_set_options() const {
+  return {};
+}
 }  // namespace dsa

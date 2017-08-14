@@ -16,11 +16,12 @@
 namespace dsa {
 
 class SecurityManager;
+class Config;
 
 class SessionManager {
  public:
-  typedef std::function<void(const intrusive_ptr_<Session> &session)>
-      GetSessionCallback;
+  typedef std::function<void( const intrusive_ptr_<Session> &session )>
+  GetSessionCallback;
 
  private:
   std::map<std::string, intrusive_ptr_<Session>> _sessions;
@@ -28,10 +29,10 @@ class SessionManager {
 
   boost::asio::io_service::strand &_strand;
   SecurityManager &_security_manager;
+  Config &_config;
 
  public:
-  SessionManager(boost::asio::io_service::strand &strand,
-                 SecurityManager &security_manager);
+  SessionManager(boost::asio::io_service::strand &strand, Config &config);
   void get_session(const std::string &dsid, const std::string &auth_token, const std::string &session_id,
                    const GetSessionCallback &&callback);
 

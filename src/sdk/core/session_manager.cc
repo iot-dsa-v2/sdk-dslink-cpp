@@ -11,9 +11,8 @@
 
 namespace dsa {
 
-SessionManager::SessionManager(boost::asio::io_service::strand &strand,
-                               SecurityManager &security_manager)
-    : _strand(strand), _security_manager(security_manager) {}
+SessionManager::SessionManager(boost::asio::io_service::strand &strand, Config &config)
+    : _strand(strand), _security_manager(*config.security_manager), _config(config) {}
 
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
@@ -21,7 +20,7 @@ void SessionManager::get_session(const std::string &dsid,
                                  const GetSessionCallback &&callback) {
   _security_manager.get_client(dsid, auth_token, [
     =, callback = std::move(callback)
-  ](const ClientInfo client, bool error) {
+  ](const ClientInfo client, bool error) mutable {
     if (error) {
       callback(nullptr);
       return;
@@ -30,12 +29,12 @@ void SessionManager::get_session(const std::string &dsid,
       callback(_sessions.at(session_id));
       return;
     }
-    std::string session_id = get_new_session_id();
-    auto session = make_intrusive_<Session>(_strand, session_id);
+    std::string sid = get_new_session_id();
+    auto session = make_intrusive_<Session>(_strand, sid, _config);
 
-    _sessions[session_id] = session;
+    _sessions[sid] = session;
 
-    callback(std::move(session));
+    callback(session);
   });
 }
 

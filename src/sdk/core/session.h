@@ -10,6 +10,7 @@
 
 #include "util/enable_shared.h"
 #include "connection.h"
+#include "message_stream.h"
 
 #include "requester/requester.h"
 #include "responder/responder.h"
@@ -24,20 +25,15 @@ class Connection;
 // maintain request and response streams
 //////////////////////////////////////////
 class Session : public IntrusiveClosable<Session> {
- public:
-  struct StreamInfo {
-    uint32_t rid;
-    size_t unique_id;
-    std::map<uint32_t, shared_ptr_<MessageStream>> *container;
-  };
+  friend class Responder;
 
+ public:
   Requester requester;
   Responder responder;
 
-
-
   explicit Session(boost::asio::io_service::strand &strand,
                    const std::string &session_id,
+                   const Config &config,
                    const shared_ptr_<Connection> &connection = nullptr);
 
   const std::string &session_id() const { return _session_id; }
@@ -50,24 +46,29 @@ class Session : public IntrusiveClosable<Session> {
 
   boost::asio::io_service::strand &strand() { return _strand; };
   const boost::asio::io_service::strand &strand() const { return _strand; }
+  const std::string &dsid();
+
+  intrusive_ptr_<Session> get_intrusive() { return intrusive_this(); }
 
  private:
+  static const std::string BlankDsid;
+
   std::string _session_id;
   shared_ptr_<Connection> _connection;
-  
+  Config _config;
 
-  std::queue<StreamInfo> _ready_streams;
+  std::queue<MessageStream::StreamInfo> _ready_streams;
   bool _is_writing{false};
   boost::asio::io_service::strand &_strand;
 
   MessageStream *get_next_ready_stream();
-  void write_loop();
+  static void write_loop(intrusive_ptr_<Session> sthis);
+  void add_ready_stream(MessageStream::StreamInfo &&stream_info);
 
   friend class Connection;
   void connection_closed();
-  void receive_message(Message * message);
+  void receive_message(Message *message);
 };
-
 
 }  // namespace dsa
 

@@ -10,8 +10,18 @@
 
 namespace dsa {
 
-Session::Session(boost::asio::io_service::strand &strand, const std::string &session_id, const shared_ptr_<Connection> &connection)
-    : _connection(connection), _session_id(session_id), _strand(strand), requester(*this), responder(*this) {}
+const std::string Session::BlankDsid = "";
+
+Session::Session(boost::asio::io_service::strand &strand,
+                 const std::string &session_id,
+                 const Config &config,
+                 const shared_ptr_<Connection> &connection)
+    : _connection(connection),
+      _config(config),
+      _session_id(session_id),
+      _strand(strand),
+      requester(*this),
+      responder(*this, config) {}
 
 void Session::start() const {
   if (_connection == nullptr)
@@ -36,18 +46,19 @@ void Session::connection_closed() {
   _connection.reset();
 }
 
-void Session::receive_message(Message * message) {
-  auto new_message = intrusive_ptr_<Message>(message);
+void Session::receive_message(Message *message) {
   if (message->is_request()) {
+    auto new_message = intrusive_ptr_<RequestMessage>(dynamic_cast<RequestMessage*>(message));
     responder.receive_message(std::move(new_message));
   } else {
+    auto new_message = intrusive_ptr_<ResponseMessage>(dynamic_cast<ResponseMessage*>(message));
     requester.receive_message(std::move(new_message));
   }
 }
 
 MessageStream *Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {
-    StreamInfo stream_info = _ready_streams.back();
+    MessageStream::StreamInfo stream_info = _ready_streams.back();
     _ready_streams.pop();
 
     // make sure stream is still active
@@ -64,14 +75,14 @@ MessageStream *Session::get_next_ready_stream() {
   return nullptr;
 }
 
-void Session::write_loop() {
-  if (_ready_streams.empty()) {
-    _is_writing = false;
+void Session::write_loop(intrusive_ptr_<Session> sthis) {
+  if (sthis->_ready_streams.empty()) {
+    sthis->_is_writing = false;
     return;
   }
 
   auto buf = make_intrusive_<Buffer>();
-  MessageStream *stream = get_next_ready_stream();
+  MessageStream *stream = sthis->get_next_ready_stream();
 
   if (stream == nullptr)
     return;
@@ -81,11 +92,26 @@ void Session::write_loop() {
 
   do {
     buf->append(stream->get_next_message());
-    stream = get_next_ready_stream();
+    stream = sthis->get_next_ready_stream();
   } while (stream != nullptr && stream->get_next_message_size() + buf->size() < buf->capacity());
 
-  _is_writing = true;
-  _connection->write(buf, buf->size(), boost::bind(&Session::write_loop, intrusive_this()));
+  sthis->_is_writing = true;
+  sthis->_connection->write(buf, buf->size(), [strand = sthis->strand(), callback = [sthis = std::move(sthis)]() {
+    write_loop(sthis);
+  }]() mutable {
+    strand.dispatch(callback);
+  });
+}
+
+void Session::add_ready_stream(MessageStream::StreamInfo &&stream_info) {
+  _ready_streams.push(stream_info);
+  if (!_is_writing) {
+    write_loop(intrusive_this());
+  }
+}
+
+const std::string &Session::dsid() {
+  return (_connection == nullptr) ? BlankDsid : _connection->dsid();
 }
 
 }  // namespace dsa

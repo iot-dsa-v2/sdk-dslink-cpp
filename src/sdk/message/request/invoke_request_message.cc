@@ -13,4 +13,8 @@ InvokeRequestMessage::InvokeRequestMessage(const SharedBuffer& buffer)
 InvokeRequestMessage::InvokeRequestMessage()
     : RequestMessage(MessageType::InvokeRequest) {}
 
+InvokeOptions InvokeRequestMessage::get_invoke_options() const {
+  return {};
+}
+
 }  // namespace dsa

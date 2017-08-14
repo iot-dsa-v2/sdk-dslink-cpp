@@ -11,7 +11,6 @@
 #include "util/util.h"
 #include "message/static_headers.h"
 #include "crypto/handshake_context.h"
-#include "session.h"
 
 namespace dsa {
 class App;
@@ -64,7 +63,8 @@ class Connection : public SharedClosable<Connection> {
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
   virtual void close();
   virtual void connect() = 0;
-  virtual void start() throw() = 0;
+  virtual void start() noexcept = 0;
+  const std::string &dsid() { return _handshake_context.dsid(); }
 
  protected:
   Connection(boost::asio::io_service::strand &strand, const Config &config);

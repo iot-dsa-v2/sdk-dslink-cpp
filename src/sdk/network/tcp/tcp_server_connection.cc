@@ -23,7 +23,7 @@ void TcpServerConnection::connect() { start_handshake(); }
 void TcpServerConnection::start_handshake() {
   // start timeout timer with handshake timeout specified in config
   _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_config.handshake_timout_ms));
+      boost::posix_time::milliseconds(_config.handshake_timeout_ms));
   _deadline.async_wait(boost::bind(&TcpServerConnection::timeout,
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));
@@ -50,7 +50,7 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
   // reset timeout
   _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_config.handshake_timout_ms));
+      boost::posix_time::milliseconds(_config.handshake_timeout_ms));
   _deadline.async_wait(boost::bind(&TcpServerConnection::timeout,
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));

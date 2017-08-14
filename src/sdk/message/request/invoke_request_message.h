@@ -1,6 +1,7 @@
 #ifndef DSA_SDK_INVOKE_REQUEST_MESSAGE_H_
 #define DSA_SDK_INVOKE_REQUEST_MESSAGE_H_
 
+#include <message/message_options.h>
 #include "../../util/buffer.h"
 #include "../base_message.h"
 
@@ -14,6 +15,7 @@ class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicByteHeader> max_permission;
+  InvokeOptions get_invoke_options() const;
 
  protected:
   // measure the size and header size
