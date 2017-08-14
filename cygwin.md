@@ -14,7 +14,7 @@ install these packages for cygwin
 
 ```
 git clone https://github.com/msgpack/msgpack-c.git
-cmake -DMSGPACK_ENABLE_SHARED=OFF -DMSGPACK_ENABLE_CXX=OFF -DMSGPACK_BUILD_TESTS=OFF -DMSGPACK_BUILD_EXAMPLES=OFF .
+cmake -DMSGPACK_ENABLE_CXX=OFF -DMSGPACK_BUILD_TESTS=OFF -DMSGPACK_BUILD_EXAMPLES=OFF .
 make
 make install
 ```
