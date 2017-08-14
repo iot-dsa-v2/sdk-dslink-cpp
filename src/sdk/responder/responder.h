@@ -28,7 +28,7 @@ class Responder {
 
   void remove_outgoing_subscription(uint32_t request_id);
 
-  void receive_message(Message * message);
+  void receive_message(intrusive_ptr_<Message> message);
 };
 
 /*

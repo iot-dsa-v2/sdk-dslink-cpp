@@ -30,7 +30,7 @@ void Responder::remove_outgoing_subscription(uint32_t request_id) {
   _outgoing_streams.erase(request_id);
 }
 
-void Responder::receive_message(Message *message) {
+void Responder::receive_message(intrusive_ptr_<Message> message) {
 
 
 }

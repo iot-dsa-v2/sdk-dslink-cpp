@@ -18,7 +18,7 @@ class Requester {
  public:
   Requester(Session &session) : _session(session){};
 
-  void receive_message(Message * message);
+  void receive_message(intrusive_ptr_<Message> message);
 };
 
 }  // namespace dsa

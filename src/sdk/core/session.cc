@@ -37,10 +37,11 @@ void Session::connection_closed() {
 }
 
 void Session::receive_message(Message * message) {
+  auto new_message = intrusive_ptr_<Message>(message);
   if (message->is_request()) {
-    responder.receive_message(message);
+    responder.receive_message(std::move(new_message));
   } else {
-    requester.receive_message(message);
+    requester.receive_message(std::move(new_message));
   }
 }
 
