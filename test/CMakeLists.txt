@@ -45,7 +45,7 @@ find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 set(TEST_LIBS ${TEST_LIBS} ${OPENSSL_LIBRARIES})
 
-if (UNIX)
+if (UNIX AND NOT CYGWIN)
     find_package(Msgpack REQUIRED)
     include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
 endif ()
