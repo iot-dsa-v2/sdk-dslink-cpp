@@ -21,4 +21,4 @@ make install
 
 ## debug with clion
 
-everything should be ready for clion, except you need to add cygwin/bin path to Path in system enviroument 
+everything should be ready for clion, except you need to add `{cygwin_path}/bin` and `{cygwin_path}/usr/local/bin`  to system enviroument Path
