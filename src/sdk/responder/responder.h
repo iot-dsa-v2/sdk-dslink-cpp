@@ -16,6 +16,8 @@ class Responder {
   Session &_session;
   std::map<uint32_t, intrusive_ptr_<OutgoingMessageStream>> _outgoing_streams;
 
+
+
  public:
   Responder(Session &session) : _session(session){};
 
@@ -25,6 +27,8 @@ class Responder {
       const intrusive_ptr_<OutgoingMessageStream> &stream);
 
   void remove_outgoing_subscription(uint32_t request_id);
+
+  void receive_message(Message * message);
 };
 
 /*

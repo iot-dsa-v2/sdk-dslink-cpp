@@ -3,5 +3,7 @@
 #include "requester.h"
 
 namespace dsa {
+void Requester::receive_message(Message * message){
 
+}
 }

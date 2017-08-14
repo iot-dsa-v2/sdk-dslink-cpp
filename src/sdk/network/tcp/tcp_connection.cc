@@ -1,7 +1,6 @@
 #include "dsa_common.h"
 
 #include "tcp_connection.h"
-
 #include <boost/bind.hpp>
 
 #include "core/session_manager.h"
@@ -71,9 +70,15 @@ void TcpConnection::read_loop(size_t from_prev,
       }
 
       // post job with message buffer
+      Message * message = Message::parse_message(buf->get_shared_buffer(cur, header.message_size));
+
       _strand.post(
-          boost::bind<void>(_message_handler, _session,
-                            buf->get_shared_buffer(cur, header.message_size)));
+          //boost::bind<void>(_message_handler, _session,
+          //                  buf->get_shared_buffer(cur, header.message_size))
+          [sthis = share_this<TcpConnection>(), message](){
+            sthis->post_message(message);
+          }
+      );
 
       cur += header.message_size;
     }

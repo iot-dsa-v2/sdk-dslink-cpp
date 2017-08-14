@@ -3,5 +3,5 @@ list(APPEND RequesterSourceFiles
         incoming_message_stream.cc)
 
 foreach(file ${RequesterSourceFiles})
-    list(APPEND RequesterSourceFiles ${LIB_REQUESTER}/${file})
+    list(APPEND ProjectSourceFiles ${LIB_REQUESTER}/${file})
 endforeach()

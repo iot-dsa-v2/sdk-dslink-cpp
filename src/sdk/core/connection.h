@@ -18,7 +18,6 @@ class App;
 class Session;
 
 typedef std::function<void()> WriteHandler;
-typedef std::function<void(const intrusive_ptr_<Session> &, Buffer::SharedBuffer)> MessageHandler;
 
 class Connection : public SharedClosable<Connection> {
  public:
@@ -60,7 +59,7 @@ class Connection : public SharedClosable<Connection> {
         AuthLength,         // broker auth
   };
 
-  void set_message_handler(MessageHandler handler) { _message_handler = std::move(handler); }
+
 //  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
   virtual void close();
@@ -99,7 +98,6 @@ class Connection : public SharedClosable<Connection> {
   bool _security_preference;
   uint32_t _pending_messages{0};
   boost::asio::deadline_timer _deadline;
-  MessageHandler _message_handler;
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
@@ -115,6 +113,8 @@ class Connection : public SharedClosable<Connection> {
   void timeout(const boost::system::error_code &error);
 
   void reset_standard_deadline_timer();
+
+  void post_message(Message *message);
 };
 
 }  // namespace dsa

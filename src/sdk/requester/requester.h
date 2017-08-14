@@ -17,6 +17,8 @@ class Requester {
 
  public:
   Requester(Session &session) : _session(session){};
+
+  void receive_message(Message * message);
 };
 
 }  // namespace dsa

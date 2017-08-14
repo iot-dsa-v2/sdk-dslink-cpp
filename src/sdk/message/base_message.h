@@ -13,6 +13,10 @@ namespace dsa {
 
 class Message : public EnableIntrusive<Message> {
  public:
+  static Message* parse_message(const SharedBuffer& buffer) throw(
+      const MessageParsingError&);
+
+ public:
   explicit Message(const Buffer::SharedBuffer& buffer);
   Message(MessageType type);
   Message(const StaticHeaders& headers);
@@ -29,10 +33,10 @@ class Message : public EnableIntrusive<Message> {
   int32_t get_page_id() const;
   void set_page_id(int32_t value);
 
-  MessageType type() { return static_headers.type; }
-  bool is_request() { return static_cast<uint8_t>(static_headers.type) < 0x80; }
+  MessageType type() const { return static_headers.type; }
+  bool is_request() const { return static_cast<uint8_t>(static_headers.type) < 0x80; }
 
-  uint32_t request_id() { return static_headers.request_id; }
+  uint32_t request_id() const { return static_headers.request_id; }
 
  protected:
   // measure the size and header size

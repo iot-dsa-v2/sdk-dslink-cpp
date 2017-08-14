@@ -76,4 +76,12 @@ void Connection::reset_standard_deadline_timer() {
   _deadline.async_wait(boost::bind(&Connection::timeout, shared_from_this(), boost::asio::placeholders::error));
 }
 
+void Connection::post_message(Message *message) {
+  if (_session != nullptr) {
+    _session->receive_message(message);
+  } else {
+    delete message;
+  }
+
+}
 }  // namespace dsa

@@ -11,7 +11,7 @@
 namespace dsa {
 
 Session::Session(boost::asio::io_service::strand &strand, const std::string &session_id, const shared_ptr_<Connection> &connection)
-    : _connection(connection), _session_id(std::move(session_id)), _strand(strand), requester(*this), responder(*this) {}
+    : _connection(connection), _session_id(session_id), _strand(strand), requester(*this), responder(*this) {}
 
 void Session::start() const {
   if (_connection == nullptr)
@@ -37,7 +37,11 @@ void Session::connection_closed() {
 }
 
 void Session::receive_message(Message * message) {
-
+  if (message->is_request()) {
+    responder.receive_message(message);
+  } else {
+    requester.receive_message(message);
+  }
 }
 
 MessageStream *Session::get_next_ready_stream() {

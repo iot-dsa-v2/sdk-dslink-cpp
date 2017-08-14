@@ -1,7 +1,5 @@
 #include "dsa_common.h"
 
-#include "message_factory.h"
-
 #include "request/invoke_request_message.h"
 #include "request/list_request_message.h"
 #include "request/set_request_message.h"
@@ -14,7 +12,7 @@
 
 namespace dsa {
 
-Message* parse_message(const SharedBuffer& buffer) throw(
+Message* Message::parse_message(const SharedBuffer& buffer) throw(
     const MessageParsingError&) {
   if (buffer.size < StaticHeaders::TotalSize) {
     return nullptr;
