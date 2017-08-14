@@ -64,23 +64,22 @@ std::string base64_decode(std::string const& encoded_string) {
 }
 
 std::string base64url(std::string str) {
-  std::string out;
+  std::string out(str);
   size_t length = str.size();
 
-  out.resize(length);
-  for(size_t src_idx=0, dest_idx=0; src_idx<length; ++src_idx, ++dest_idx) {
-    switch(str[src_idx]) {
+  for(size_t idx=0; idx<length; ++idx) {
+    switch(str[idx]) {
     case '+':
-      out[dest_idx] = '-';
+      out[idx] = '-';
       break;
     case '/':
-      out[dest_idx] = '_';
+      out[idx] = '_';
       break;
     case '=':
-      out.resize(dest_idx);
+      out.resize(idx);
       return out;
     default:
-      out[dest_idx] = str[src_idx];
+      ;
     }
   }
 
