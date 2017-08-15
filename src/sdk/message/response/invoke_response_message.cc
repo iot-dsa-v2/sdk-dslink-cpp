@@ -3,9 +3,9 @@
 #include "invoke_response_message.h"
 
 namespace dsa {
-InvokeResponseMessage::InvokeResponseMessage(const SharedBuffer& buffer)
-    : ResponseMessage(buffer) {
-  parse_dynamic_headers(buffer.data + StaticHeaders::TotalSize,
+InvokeResponseMessage::InvokeResponseMessage(const uint8_t* begin, const uint8_t* end)
+    : ResponseMessage(begin, end) {
+  parse_dynamic_headers(begin + StaticHeaders::TotalSize,
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 

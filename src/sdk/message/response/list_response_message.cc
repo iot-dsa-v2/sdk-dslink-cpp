@@ -3,9 +3,9 @@
 #include "list_response_message.h"
 
 namespace dsa {
-ListResponseMessage::ListResponseMessage(const SharedBuffer& buffer)
-    : ResponseMessage(buffer) {
-  parse_dynamic_headers(buffer.data + StaticHeaders::TotalSize,
+ListResponseMessage::ListResponseMessage(const uint8_t* begin, const uint8_t* end)
+    : ResponseMessage(begin, end) {
+  parse_dynamic_headers(begin + StaticHeaders::TotalSize,
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 

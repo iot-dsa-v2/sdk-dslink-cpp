@@ -8,7 +8,7 @@ namespace dsa {
 
 class SetRequestMessage : public RequestMessage, PagedMessageMixin {
  public:
-  SetRequestMessage(const SharedBuffer& buffer);
+  SetRequestMessage(const uint8_t* begin, const uint8_t* end);
   SetRequestMessage();
   SetRequestMessage(const SetRequestMessage&);
 

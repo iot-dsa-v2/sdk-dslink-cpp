@@ -21,7 +21,7 @@ class SubscribeRequestMessage : public RequestMessage {
   std::unique_ptr<DynamicIntHeader> queue_time;
 
  public:
-  explicit SubscribeRequestMessage(const SharedBuffer& buffer);
+  explicit SubscribeRequestMessage(const uint8_t* begin, const uint8_t* end);
   SubscribeRequestMessage();
   SubscribeRequestMessage(const SubscribeRequestMessage&);
 

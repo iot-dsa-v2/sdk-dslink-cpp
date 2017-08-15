@@ -28,10 +28,8 @@ TEST(MessageTest, subscribe_request_message) {
 
   subscribe_request.write(b->data());
 
-  SharedBuffer sb = b->get_shared_buffer(0, subscribe_request.size());
-
   // parse a subscription message from the buffer
-  SubscribeRequestMessage subscribe_request2(sb);
+  SubscribeRequestMessage subscribe_request2(b->begin(), b->end());
 
   SubscribeOptions option2 = subscribe_request2.get_subscribe_options();
   EXPECT_EQ(StreamQos::_2, option2.qos);

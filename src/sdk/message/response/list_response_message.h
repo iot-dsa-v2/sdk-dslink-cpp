@@ -9,7 +9,7 @@ namespace dsa {
 
 class ListResponseMessage : public ResponseMessage {
  public:
-  ListResponseMessage(const SharedBuffer& buffer);
+  ListResponseMessage(const uint8_t* begin, const uint8_t* end);
   ListResponseMessage();
   ListResponseMessage(const ListResponseMessage&);
 
