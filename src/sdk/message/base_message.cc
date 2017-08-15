@@ -14,7 +14,7 @@ uint32_t Message::size() const {
   return static_headers.message_size;
 }
 void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
-  if (!static_headers.message_size) {
+  if (static_headers.message_size == 0) {
     // message_size shouldn't be 0
     throw MessageParsingError("invalid message size");
   }

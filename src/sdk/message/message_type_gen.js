@@ -165,7 +165,6 @@ const messages = {
             new IntHeader('SequenceId'),
             new StringHeader('BasePath'),
             new StringHeader('SourcePath'),
-
         ],
         Set: [
             new ByteHeader('Status'),

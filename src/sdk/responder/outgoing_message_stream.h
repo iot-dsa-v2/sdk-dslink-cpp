@@ -31,8 +31,6 @@ class OutgoingMessageStream : public MessageStream {
 
  public:
   OutgoingMessageStream(intrusive_ptr_<Session> session, _stream_container container, size_t id, uint32_t rid);
-
-  virtual ~OutgoingMessageStream() = default;
 };
 
 class SubscribeMessageStream : public OutgoingMessageStream {
