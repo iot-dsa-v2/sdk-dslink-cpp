@@ -10,25 +10,20 @@
 #include <string>
 #include <unordered_map>
 
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+
 #include "client.h"
 
 #include "server.h"
 #include "util/enable_shared.h"
 
-namespace boost {
-class thread_group;
-namespace asio {
-class io_service;
-}
-}  // namespace boost
-
 namespace dsa {
-class io_service_work;
 
 class App {
  private:
   shared_ptr_<boost::asio::io_service> _io_service;
-  shared_ptr_<io_service_work> _work;
+  shared_ptr_<boost::asio::io_service::work> _work;
   shared_ptr_<boost::thread_group> _threads;
   std::mutex _strands_key;
   std::string _name;

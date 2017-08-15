@@ -3,9 +3,9 @@
 #include "subscribe_response_message.h"
 
 namespace dsa {
-SubscribeResponseMessage::SubscribeResponseMessage(const SharedBuffer& buffer)
-    : ResponseMessage(buffer) {
-  parse_dynamic_headers(buffer.data + StaticHeaders::TotalSize,
+SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data, size_t size)
+    : ResponseMessage(data, size) {
+  parse_dynamic_headers(data + StaticHeaders::TotalSize,
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 
@@ -14,7 +14,7 @@ SubscribeResponseMessage::SubscribeResponseMessage()
 
 const ParsedMessageValue& SubscribeResponseMessage::get_value() {
   if (_parsed_value == nullptr && body != nullptr) {
-    _parsed_value.reset(new ParsedMessageValue(body->data, body->size));
+    _parsed_value.reset(new ParsedMessageValue(body->data(), body->size()));
   }
   return *_parsed_value;
 }

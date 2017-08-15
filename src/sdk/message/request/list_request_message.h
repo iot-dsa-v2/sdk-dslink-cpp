@@ -9,7 +9,7 @@ namespace dsa {
 
 class ListRequestMessage : public RequestMessage {
  public:
-  ListRequestMessage(const SharedBuffer& buffer);
+  ListRequestMessage(const uint8_t* data, size_t size);
   ListRequestMessage();
   ListRequestMessage(const ListRequestMessage&);
 

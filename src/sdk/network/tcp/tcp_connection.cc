@@ -38,7 +38,7 @@ void TcpConnection::read_loop(size_t from_prev,
     while (cur < total_bytes) {
       // always want full static header instead of just message size to make
       // sure it's a valid message
-      if (total_bytes - cur < StaticHeaders::TotalSize) {
+      if (total_bytes - cur < sizeof(uint32_t)) {
         size_t partial_size = total_bytes - cur;
         _read_buffer->assign(&data[cur], partial_size);
         _socket.async_read_some(
@@ -49,13 +49,12 @@ void TcpConnection::read_loop(size_t from_prev,
                         boost::asio::placeholders::bytes_transferred));
         return;
       }
-
-      StaticHeaders header(&data[cur]);
-      if (header.message_size < total_bytes - cur) {
+      uint32_t message_size = *((uint32_t*)cur);
+      if (message_size < total_bytes - cur) {
         size_t partial_size = total_bytes - cur;
 
         // make sure buffer capacity is enough to read full message
-        _read_buffer->resize(header.message_size);
+        _read_buffer->resize(message_size);
         _read_buffer->assign(&data[cur], partial_size);
 
         // read the rest of the message
@@ -70,7 +69,7 @@ void TcpConnection::read_loop(size_t from_prev,
       }
 
       // post job with message buffer
-      Message * message = Message::parse_message(buf->get_shared_buffer(cur, header.message_size));
+      Message * message = Message::parse_message(&buf->data()[cur], message_size);
 
       _strand.post(
           //boost::bind<void>(_message_handler, _session,
@@ -80,7 +79,7 @@ void TcpConnection::read_loop(size_t from_prev,
           }
       );
 
-      cur += header.message_size;
+      cur += message_size;
     }
 
     _socket.async_read_some(

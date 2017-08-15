@@ -31,26 +31,28 @@ class VariantArray : public std::vector<Variant>,
       : std::vector<Variant>(std::forward<Args>(args)...){};
 };
 
-class VariantString : public std::string,
-                      public EnableIntrusive<VariantString> {
+class IntrusiveString : public std::string,
+                      public EnableIntrusive<IntrusiveString> {
  public:
   template <typename... Args>
-  inline VariantString(Args &&... args)
+  inline IntrusiveString(Args &&... args)
       : std::string(std::forward<Args>(args)...){};
 };
 
-class VariantBinary : public std::vector<uint8_t>,
-                      public EnableIntrusive<VariantBinary> {
+class IntrusiveBinary : public std::vector<uint8_t>,
+                      public EnableIntrusive<IntrusiveBinary> {
  public:
   template <typename... Args>
-  inline VariantBinary(Args &&... args)
+  inline IntrusiveBinary(Args &&... args)
       : std::vector<uint8_t>(std::forward<Args>(args)...){};
 };
 
+typedef intrusive_ptr_ <IntrusiveBinary> BinaryPtr;
+
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
-                       intrusive_ptr_<VariantString>,
+                       intrusive_ptr_<IntrusiveString>,
                        intrusive_ptr_<VariantMap>, intrusive_ptr_<VariantArray>,
-                       std::vector<uint8_t>, intrusive_ptr_<VariantBinary>>
+                       std::vector<uint8_t>, intrusive_ptr_<IntrusiveBinary>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -152,13 +154,13 @@ class Variant : public BaseVariant {
   bool get_bool() const { return boost::get<bool>(*this); }
   const std::string &get_string() const {
     if (which() == SharedString) {
-      return *boost::get<intrusive_ptr_<VariantString>>(*this);
+      return *boost::get<intrusive_ptr_<IntrusiveString>>(*this);
     }
     return boost::get<const std::string>(*this);
   }
   const std::vector<uint8_t> &get_binary() const {
     if (which() == SharedBinary) {
-      return *boost::get<intrusive_ptr_<VariantBinary>>(*this);
+      return *boost::get<intrusive_ptr_<IntrusiveBinary>>(*this);
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }

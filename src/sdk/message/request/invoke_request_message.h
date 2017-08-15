@@ -9,7 +9,7 @@ namespace dsa {
 
 class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
  public:
-  InvokeRequestMessage(const SharedBuffer& buffer);
+  InvokeRequestMessage(const uint8_t* data, size_t size);
   InvokeRequestMessage();
   InvokeRequestMessage(const InvokeRequestMessage&);
 

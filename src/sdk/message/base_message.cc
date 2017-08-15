@@ -3,7 +3,7 @@
 #include "base_message.h"
 
 namespace dsa {
-Message::Message(const SharedBuffer& buffer) : static_headers(buffer.data) {};
+Message::Message(const uint8_t* data, size_t size) : static_headers(data){};
 Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
 Message::Message(const StaticHeaders& headers) : static_headers(headers){};
 
@@ -43,7 +43,7 @@ void Message::set_page_id(int32_t value) {
 
 PagedMessageMixin::PagedMessageMixin() : current_page(SIZE_MAX) {}
 
-RequestMessage::RequestMessage(const SharedBuffer& buffer) : Message(buffer){};
+RequestMessage::RequestMessage(const uint8_t* data, size_t size) : Message(data, size){};
 RequestMessage::RequestMessage(MessageType type) : Message(type){};
 RequestMessage::RequestMessage(const StaticHeaders& headers)
     : Message(headers){};
@@ -98,8 +98,8 @@ void RequestMessage::set_alias_count(uint8_t value) {
   }
 }
 
-ResponseMessage::ResponseMessage(const SharedBuffer& buffer)
-    : Message(buffer){};
+ResponseMessage::ResponseMessage(const uint8_t* data, size_t size)
+    : Message(data, size){};
 ResponseMessage::ResponseMessage(MessageType type) : Message(type){};
 ResponseMessage::ResponseMessage(const StaticHeaders& headers)
     : Message(headers){};

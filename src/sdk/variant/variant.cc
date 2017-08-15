@@ -13,13 +13,13 @@ Variant::Variant(const char* v, size_t size)
     : BaseVariant(std::string(v, size)) {}
 Variant::Variant(const std::string& v) : BaseVariant(v) {}
 Variant::Variant(const std::string* p)
-  : BaseVariant(intrusive_ptr_<VariantString>(new VariantString(*p))) {}
+  : BaseVariant(intrusive_ptr_<IntrusiveString>(new IntrusiveString(*p))) {}
 
 Variant::Variant(const uint8_t* v, size_t size)
     : BaseVariant(std::vector<uint8_t>(v, v + size)) {}
 Variant::Variant(const std::vector<uint8_t>& v) : BaseVariant(v) {}
 Variant::Variant(const std::vector<uint8_t>* p)
-  : BaseVariant(intrusive_ptr_<VariantBinary>(new VariantBinary(*p))) {}
+  : BaseVariant(intrusive_ptr_<IntrusiveBinary>(new IntrusiveBinary(*p))) {}
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
 Variant::Variant(VariantMap* p) : BaseVariant(intrusive_ptr_<VariantMap>(p)) {}

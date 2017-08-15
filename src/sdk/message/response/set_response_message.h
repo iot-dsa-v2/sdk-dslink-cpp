@@ -8,7 +8,7 @@ namespace dsa {
 
 class SetResponseMessage : public ResponseMessage {
  public:
-  SetResponseMessage(const SharedBuffer& buffer);
+  SetResponseMessage(const uint8_t* data, size_t size);
   SetResponseMessage();
   SetResponseMessage(const SetResponseMessage&);
 

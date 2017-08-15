@@ -8,17 +8,20 @@
 #include "static_headers.h"
 #include "util/buffer.h"
 #include "util/enable_intrusive.h"
+#include "variant/variant.h"
 
 namespace dsa {
 
+
 class Message : public EnableIntrusive<Message> {
  public:
-  static Message* parse_message(const SharedBuffer& buffer) throw(const MessageParsingError&);
+  static Message* parse_message(const uint8_t* data, size_t size) throw(
+      const MessageParsingError&);
 
  public:
-  explicit Message(const Buffer::SharedBuffer &buffer);
-  explicit Message(MessageType type);
-  explicit Message(const StaticHeaders& headers);
+  explicit Message(const uint8_t* data, size_t size);
+  Message(MessageType type);
+  Message(const StaticHeaders& headers);
   virtual ~Message() = default;
 
   uint32_t size() const;
@@ -45,7 +48,7 @@ class Message : public EnableIntrusive<Message> {
 
   StaticHeaders static_headers;
 
-  std::unique_ptr<SharedBuffer> body;
+  BinaryPtr body;
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
@@ -69,7 +72,7 @@ class RequestMessage : public Message {
   std::unique_ptr<DynamicByteHeader> alias_count;
 
  public:
-  explicit RequestMessage(const SharedBuffer& buffer);
+  explicit RequestMessage(const uint8_t* data, size_t size);
   explicit RequestMessage(MessageType type);
   explicit RequestMessage(const StaticHeaders& headers);
 
@@ -95,7 +98,7 @@ class ResponseMessage : public Message {
   std::unique_ptr<DynamicByteHeader> status;
 
  public:
-  explicit ResponseMessage(const SharedBuffer& buffer);
+  explicit ResponseMessage(const uint8_t* data, size_t size);
   explicit ResponseMessage(MessageType type);
   explicit ResponseMessage(const StaticHeaders& headers);
 

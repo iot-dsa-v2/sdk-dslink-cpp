@@ -94,20 +94,20 @@ class ByteHeader extends Header {
 
 class BodyHeader extends Header {
     copyConstructorStatement() {
-        return `new SharedBuffer(*from.${this.underName})`
+        return `from.${this.underName}.get()`
     }
 
     writeDynamicDataStatement() {
         return `
   if (body != nullptr) {
-    memcpy(data, ${this.underName}->data, ${this.underName}->size);
+    std::copy(body->begin(), body->end(), data);
   }`
     }
 
     updateStaticHeadersStatement() {
         return `
   if (body != nullptr) {
-    message_size += ${this.underName}->size;
+    message_size += body->size();
   }`
     }
 }
@@ -243,7 +243,7 @@ void ${typename}::update_static_header() {
   uint32_t message_size = header_size;`;
     if (hasBody) data += ` 
   if (body != nullptr) {
-    message_size += body->size;
+    message_size += body->size();
   }`;
     data += `
   static_headers.message_size = message_size;

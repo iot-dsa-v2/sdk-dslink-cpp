@@ -3,9 +3,9 @@
 #include "list_response_message.h"
 
 namespace dsa {
-ListResponseMessage::ListResponseMessage(const SharedBuffer& buffer)
-    : ResponseMessage(buffer) {
-  parse_dynamic_headers(buffer.data + StaticHeaders::TotalSize,
+ListResponseMessage::ListResponseMessage(const uint8_t* data, size_t size)
+    : ResponseMessage(data, size) {
+  parse_dynamic_headers(data + StaticHeaders::TotalSize,
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 
@@ -27,8 +27,8 @@ const VariantMap& ListResponseMessage::get_map() {
     VariantMap* map = new VariantMap();
     _parsed_map.reset(map);
     if (body != nullptr) {
-      const uint8_t* data = body->data;
-      size_t size = body->size;
+      const uint8_t* data = body->data();
+      size_t size = body->size();
       while (size > 4) {
         uint16_t key_size;
         uint16_t value_size;

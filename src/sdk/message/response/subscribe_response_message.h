@@ -12,7 +12,7 @@ class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
   std::unique_ptr<ParsedMessageValue> _parsed_value;
 
  public:
-  explicit SubscribeResponseMessage(const SharedBuffer& buffer);
+  explicit SubscribeResponseMessage(const uint8_t* data, size_t size);
   SubscribeResponseMessage(const SubscribeResponseMessage&);
   SubscribeResponseMessage();
 
