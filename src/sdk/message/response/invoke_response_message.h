@@ -10,7 +10,7 @@ class InvokeResponseMessage : public ResponseMessage, PagedMessageMixin {
  public:
   std::unique_ptr<DynamicBoolHeader> skippable;
 
-  InvokeResponseMessage(const uint8_t* begin, const uint8_t* end);
+  InvokeResponseMessage(const uint8_t* data, size_t size);
   InvokeResponseMessage();
   InvokeResponseMessage(const InvokeResponseMessage&);
 

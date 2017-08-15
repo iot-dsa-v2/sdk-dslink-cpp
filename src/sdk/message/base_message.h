@@ -15,11 +15,11 @@ namespace dsa {
 
 class Message : public EnableIntrusive<Message> {
  public:
-  static Message* parse_message(const uint8_t* begin, const uint8_t* end) throw(
+  static Message* parse_message(const uint8_t* data, size_t size) throw(
       const MessageParsingError&);
 
  public:
-  explicit Message(const uint8_t* begin, const uint8_t* end);
+  explicit Message(const uint8_t* data, size_t size);
   Message(MessageType type);
   Message(const StaticHeaders& headers);
   virtual ~Message() = default;
@@ -72,7 +72,7 @@ class RequestMessage : public Message {
   std::unique_ptr<DynamicByteHeader> alias_count;
 
  public:
-  explicit RequestMessage(const uint8_t* begin, const uint8_t* end);
+  explicit RequestMessage(const uint8_t* data, size_t size);
   explicit RequestMessage(MessageType type);
   explicit RequestMessage(const StaticHeaders& headers);
 
@@ -98,7 +98,7 @@ class ResponseMessage : public Message {
   std::unique_ptr<DynamicByteHeader> status;
 
  public:
-  explicit ResponseMessage(const uint8_t* begin, const uint8_t* end);
+  explicit ResponseMessage(const uint8_t* data, size_t size);
   explicit ResponseMessage(MessageType type);
   explicit ResponseMessage(const StaticHeaders& headers);
 

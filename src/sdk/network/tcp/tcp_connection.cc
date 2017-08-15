@@ -69,7 +69,7 @@ void TcpConnection::read_loop(size_t from_prev,
       }
 
       // post job with message buffer
-      Message * message = Message::parse_message(&buf->data()[cur], &buf->data()[cur + message_size]);
+      Message * message = Message::parse_message(&buf->data()[cur], message_size);
 
       _strand.post(
           //boost::bind<void>(_message_handler, _session,

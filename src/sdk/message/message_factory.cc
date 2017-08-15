@@ -12,31 +12,31 @@
 
 namespace dsa {
 
-Message* Message::parse_message(const uint8_t* begin, const uint8_t* end) throw(
+Message* Message::parse_message(const uint8_t* data, size_t size) throw(
     const MessageParsingError&) {
-  if (end - begin < StaticHeaders::TotalSize) {
+  if (size < StaticHeaders::TotalSize) {
     return nullptr;
   }
 
-  auto type = MessageType(begin[StaticHeaders::TypeOffset]);
+  auto type = MessageType(data[StaticHeaders::TypeOffset]);
 
   switch (type) {
     case MessageType::SubscribeRequest:
-      return new SubscribeRequestMessage(begin, end);
+      return new SubscribeRequestMessage(data, size);
     case MessageType::ListRequest:
-      return new ListRequestMessage(begin, end);
+      return new ListRequestMessage(data, size);
     case MessageType::InvokeRequest:
-      return new InvokeRequestMessage(begin, end);
+      return new InvokeRequestMessage(data, size);
     case MessageType::SetRequest:
-      return new SetRequestMessage(begin, end);
+      return new SetRequestMessage(data, size);
     case MessageType::SubscribeResponse:
-      return new SubscribeResponseMessage(begin, end);
+      return new SubscribeResponseMessage(data, size);
     case MessageType::ListResponse:
-      return new ListResponseMessage(begin, end);
+      return new ListResponseMessage(data, size);
     case MessageType::InvokeResponse:
-      return new InvokeResponseMessage(begin, end);
+      return new InvokeResponseMessage(data, size);
     case MessageType::SetResponse:
-      return new SetResponseMessage(begin, end);
+      return new SetResponseMessage(data, size);
     default:
       throw MessageParsingError("invalid message type");
   }

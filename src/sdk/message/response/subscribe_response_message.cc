@@ -3,9 +3,9 @@
 #include "subscribe_response_message.h"
 
 namespace dsa {
-SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* begin, const uint8_t* end)
-    : ResponseMessage(begin, end) {
-  parse_dynamic_headers(begin + StaticHeaders::TotalSize,
+SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data, size_t size)
+    : ResponseMessage(data, size) {
+  parse_dynamic_headers(data + StaticHeaders::TotalSize,
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 
