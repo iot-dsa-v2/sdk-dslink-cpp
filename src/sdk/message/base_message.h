@@ -8,8 +8,10 @@
 #include "static_headers.h"
 #include "util/buffer.h"
 #include "util/enable_intrusive.h"
+#include "variant/variant.h"
 
 namespace dsa {
+
 
 class Message : public EnableIntrusive<Message> {
  public:
@@ -46,7 +48,7 @@ class Message : public EnableIntrusive<Message> {
 
   StaticHeaders static_headers;
 
-  std::unique_ptr<SharedBuffer> body;
+  BinaryPtr body;
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;

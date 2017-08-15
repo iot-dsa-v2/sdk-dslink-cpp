@@ -115,7 +115,7 @@ void SubscribeRequestMessage::update_static_header() {
 
   uint32_t message_size = header_size;
   static_headers.message_size = message_size;
-  static_headers.header_size = header_size;
+  static_headers.header_size = (uint16_t)header_size;
 }
 
 }  // namespace dsa

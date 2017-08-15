@@ -7,7 +7,7 @@ namespace dsa {
 InvokeRequestMessage::InvokeRequestMessage(const InvokeRequestMessage& from)
     : RequestMessage(from.static_headers) {
   if (from.body != nullptr)
-    body.reset(new SharedBuffer(*from.body));
+    body.reset(from.body.get());
   if (from.priority != nullptr)
     priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
   if (from.sequence_id != nullptr)
@@ -87,7 +87,7 @@ void InvokeRequestMessage::write_dynamic_data(uint8_t *data) const {
     data += no_stream->size();
   }
   if (body != nullptr) {
-    memcpy(data, body->data, body->size);
+    std::copy(body->begin(), body->end(), data);
   }
 }
 
@@ -120,10 +120,10 @@ void InvokeRequestMessage::update_static_header() {
 
   uint32_t message_size = header_size; 
   if (body != nullptr) {
-    message_size += body->size;
+    message_size += body->size();
   }
   static_headers.message_size = message_size;
-  static_headers.header_size = header_size;
+  static_headers.header_size = (uint16_t)header_size;
 }
 
 }  // namespace dsa

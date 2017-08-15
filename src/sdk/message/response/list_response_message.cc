@@ -27,8 +27,8 @@ const VariantMap& ListResponseMessage::get_map() {
     VariantMap* map = new VariantMap();
     _parsed_map.reset(map);
     if (body != nullptr) {
-      const uint8_t* data = body->data;
-      size_t size = body->size;
+      const uint8_t* data = body->data();
+      size_t size = body->size();
       while (size > 4) {
         uint16_t key_size;
         uint16_t value_size;

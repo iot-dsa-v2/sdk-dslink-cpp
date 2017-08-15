@@ -14,7 +14,7 @@ SubscribeResponseMessage::SubscribeResponseMessage()
 
 const ParsedMessageValue& SubscribeResponseMessage::get_value() {
   if (_parsed_value == nullptr && body != nullptr) {
-    _parsed_value.reset(new ParsedMessageValue(body->data, body->size));
+    _parsed_value.reset(new ParsedMessageValue(body->data(), body->size()));
   }
   return *_parsed_value;
 }
