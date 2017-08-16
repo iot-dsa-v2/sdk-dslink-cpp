@@ -12,7 +12,6 @@
 
 namespace dsa {
 
-
 class Message : public EnableIntrusive<Message> {
  public:
   static Message* parse_message(const uint8_t* data, size_t size) throw(

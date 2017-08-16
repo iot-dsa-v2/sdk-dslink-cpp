@@ -28,7 +28,7 @@ MessageValue::MessageValue(Variant &value) :value(value){
 
 }
 MessageValue::MessageValue(Variant &value, const std::string &ts)
-    : value(value), meta(new VariantMap{{std::string("ts"), Variant(ts)}}) {
+    : value(value), meta({{"ts", Variant(ts)}}) {
 }
 
 }  // namespace dsa

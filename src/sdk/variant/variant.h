@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "util/enable_intrusive.h"
 #include "util/exception.h"
@@ -22,7 +23,7 @@ class VariantMap : public std::map<std::string, Variant>,
   inline VariantMap(Args &&... args)
       : std::map<std::string, Variant>(std::forward<Args>(args)...){};
 
-  VariantMap(std::initializer_list<std::map<std::string, Variant>::value_type> init);
+  VariantMap(std::initializer_list<VariantMap::value_type> init);
 
 };
 
@@ -32,6 +33,8 @@ class VariantArray : public std::vector<Variant>,
   template <typename... Args>
   inline VariantArray(Args &&... args)
       : std::vector<Variant>(std::forward<Args>(args)...){};
+
+  VariantArray(std::initializer_list<Variant> init);
 };
 
 class IntrusiveString : public std::string,
@@ -76,66 +79,47 @@ class Variant : public BaseVariant {
   Variant();
 
   explicit Variant(int64_t v);
+  explicit Variant(int32_t v);
+  explicit Variant(uint64_t v);
+
   explicit Variant(double v);
   explicit Variant(bool v);
 
   explicit Variant(VariantMap *p);
   explicit Variant(VariantArray *p);
 
+  explicit Variant(const char *v);
   explicit Variant(const char *v, size_t size);
   explicit Variant(const std::string &v);
-  explicit Variant(const std::string *p);
+
 
   explicit Variant(const uint8_t *data, size_t size);
   explicit Variant(const std::vector<uint8_t> &v);
-  explicit Variant(const std::vector<uint8_t> *p);
+
 
  public:
+  explicit Variant(std::initializer_list<VariantMap::value_type> init);
+  explicit Variant(std::initializer_list<Variant> init);
   static Variant new_map();
   static Variant new_array();
 
-  template <typename T>
-  static Variant create(const T &v) {
-    return Variant(v);
-  };
-  static Variant create(const int32_t &v) {
-    return Variant(static_cast<int64_t>(v));
+template <class T>
+  inline Variant & operator= (T && other){
+    BaseVariant::operator=(std::forward<T>(other));
+    return *this;
   }
-  static Variant create(const uint64_t &v) {
-    return Variant(static_cast<int64_t>(v));
-  }
-  static Variant create(const std::string &v) {
-    if (v.length() < 64) {
-      return Variant(v);
-    } else {
-      return Variant(new std::string(v));
-    }
-  }
-  static Variant create(const char *v) {
-    size_t size = strlen(v);
-    return create(v, size);
-  }
-  static Variant create(const char *v, size_t size) {
-    if (size < 64) {
-      return Variant(v, size);
-    } else {
-      return Variant(new std::string(v, size));
-    }
-  }
-  static Variant create(const std::vector<uint8_t> &v) {
-    if (v.size() < 64) {
-      return Variant(v);
-    } else {
-      return Variant(new std::vector<uint8_t>(v));
-    }
-  }
-  static Variant create(const uint8_t *data, size_t size) {
-    if (size < 64) {
-      return Variant(data, size);
-    } else {
-      return Variant(new std::vector<uint8_t>(data, data + size));
-    }
-  }
+
+  Variant(const Variant & other) = default;
+  Variant(Variant && other) noexcept = default;
+
+  Variant & operator= (const Variant & other) = default;
+  Variant & operator= (Variant && other) noexcept = default;
+
+
+
+ protected:
+  explicit Variant(IntrusiveString *p);
+  explicit Variant(IntrusiveBinary *p);
 
  public:
   bool is_double() const { return which() == Double; }
