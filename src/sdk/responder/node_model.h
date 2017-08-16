@@ -5,18 +5,21 @@
 #include <mutex>
 #include <queue>
 
-#include "outgoing_message_stream.h"
+#include "core/message_stream.h"
 #include "util/enable_intrusive.h"
+#include "outgoing_message_stream.h"
 
 namespace dsa {
 class NodeState;
 
 // interface of the real model logic
-class NodeModel : public EnableIntrusive<NodeModel> {
+class NodeModel : public StreamHolder {
  private:
+  typedef intrusive_ptr_<MessageStream> stream_ptr_;
+
   intrusive_ptr_<NodeState> _state;
-  std::map< uint32_t, intrusive_ptr_<MessageStream> > _invoke_streams;
-  std::map< uint32_t, intrusive_ptr_<MessageStream> > _set_streams;
+  std::map< size_t, intrusive_ptr_<MessageStream> > _invoke_streams;
+  std::map< size_t, intrusive_ptr_<MessageStream> > _set_streams;
 
   std::mutex _invoke_key;
   std::mutex _set_key;
@@ -27,17 +30,8 @@ class NodeModel : public EnableIntrusive<NodeModel> {
   template<typename T>
   void update_value(T new_value);
 
-  void new_invoke_stream(const intrusive_ptr_<Session> &session,
-                         InvokeOptions &&config,
-                         size_t unique_id,
-                         uint32_t request_id);
-  void remove_invoke_stream(uint32_t request_id);
-
-  void new_set_stream(const intrusive_ptr_<Session> &session,
-                      SetOptions &&config,
-                      size_t unique_id,
-                      uint32_t request_id);
-  void remove_set_stream(uint32_t request_id);
+  void add_stream(const stream_ptr_ &stream) override;
+  void remove_stream(const MessageStream *stream) override;
 };
 }  // namespace dsa
 

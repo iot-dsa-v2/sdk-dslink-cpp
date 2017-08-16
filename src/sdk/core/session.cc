@@ -56,21 +56,12 @@ void Session::receive_message(Message *message) {
   }
 }
 
-MessageStream *Session::get_next_ready_stream() {
+intrusive_ptr_<MessageStream> Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {
-    MessageStream::StreamInfo stream_info = _ready_streams.back();
+    auto stream = _ready_streams.back();
     _ready_streams.pop();
-
-    // make sure stream is still active
-    if (stream_info.container->count(stream_info.rid) == 0) {
-      continue;
-    }
-
-    // make sure stream info is accurate
-    auto &stream = stream_info.container->at(stream_info.rid);
-    if (stream->_unique_id == stream_info.unique_id) {
-      return stream.get();
-    }
+    if (!stream->is_closed())
+      return std::move(stream);
   }
   return nullptr;
 }
@@ -82,7 +73,7 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
   }
 
   auto buf = make_intrusive_<Buffer>();
-  MessageStream *stream = sthis->get_next_ready_stream();
+  auto stream = sthis->get_next_ready_stream();
 
   if (stream == nullptr)
     return;
@@ -103,10 +94,10 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
   });
 }
 
-void Session::add_ready_stream(MessageStream::StreamInfo &&stream_info) {
-  _ready_streams.push(stream_info);
+void Session::add_ready_stream(intrusive_ptr_<MessageStream> stream) {
+  _ready_streams.push(std::move(stream));
   if (!_is_writing) {
-    write_loop(intrusive_this());
+    write_loop(intrusive_this<Session>());
   }
 }
 

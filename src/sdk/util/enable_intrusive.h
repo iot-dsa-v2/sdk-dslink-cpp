@@ -31,6 +31,11 @@ class EnableIntrusive {
     return intrusive_ptr_<T>(static_cast<T*>(this));
   }
 
+  template <typename _Downcast>
+  intrusive_ptr_<_Downcast> intrusive_this() {
+    return intrusive_ptr_<_Downcast>(static_cast<_Downcast*>(this));
+  }
+
   template <typename F>
   intrusive_this_lambda<T, F> make_intrusive_this_lambda(F&& func) {
     return intrusive_this_lambda<T, F>(static_cast<T*>(this)->intrusive_this(),

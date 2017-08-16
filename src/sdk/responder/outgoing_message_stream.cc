@@ -5,29 +5,22 @@
 
 namespace dsa {
 
-OutgoingMessageStream::OutgoingMessageStream(intrusive_ptr_<Session> session,
-                                             _stream_container container,
-                                             size_t id,
-                                             uint32_t rid)
-    : MessageStream(session, container, rid, id) {}
+OutgoingMessageStream::OutgoingMessageStream(intrusive_ptr_<Session> &&session,
+                                             uint32_t request_id,
+                                             size_t unique_id)
+    : MessageStream(std::move(session), request_id, unique_id) {}
 
 /////////////////////////////
 // SubscribeMessageStream
 /////////////////////////////
-SubscribeMessageStream::SubscribeMessageStream(intrusive_ptr_<Session> session,
-                                               _stream_container container,
-                                               SubscribeOptions config,
-                                               size_t id,
-                                               uint32_t rid)
-    : OutgoingMessageStream(session, container, id, rid), _config(config) {
-  _set_ready = [=]() {
-    session->responder.set_ready_stream(get_info());
-  };
-}
+SubscribeMessageStream::SubscribeMessageStream(intrusive_ptr_<Session> &&session,
+                                               SubscribeOptions &&config,
+                                               uint32_t request_id,
+                                               size_t unique_id)
+    : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
-void SubscribeMessageStream::new_message(
-    const SubscribeResponseMessage &new_message) {
-  { _message_queue.push_front(new_message); }
+void SubscribeMessageStream::new_message(const SubscribeResponseMessage &new_message) {
+  _message_queue.push_front(new_message);
   _set_ready();
 }
 
@@ -44,19 +37,13 @@ const Message &SubscribeMessageStream::get_next_message() {
 ///////////////////////////////
 // InvokeMessageStream
 ///////////////////////////////
-InvokeMessageStream::InvokeMessageStream(intrusive_ptr_<Session> session,
-                                         _stream_container container,
-                                         InvokeOptions config,
-                                         size_t id,
-                                         uint32_t rid)
-    : OutgoingMessageStream(session, container, id, rid), _config(config) {
-  _set_ready = [=]() {
-    session->responder.set_ready_stream(get_info());
-  };
-}
+InvokeMessageStream::InvokeMessageStream(intrusive_ptr_<Session> &&session,
+                                         InvokeOptions &&config,
+                                         uint32_t request_id,
+                                         size_t unique_id)
+    : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
-void InvokeMessageStream::new_message(
-    const InvokeResponseMessage &new_message) {
+void InvokeMessageStream::new_message(const InvokeResponseMessage &new_message) {
   _message_queue.push_front(new_message);
   _set_ready();
 }
@@ -74,16 +61,11 @@ const Message &InvokeMessageStream::get_next_message() {
 //////////////////////////
 // ListMessageStream
 //////////////////////////
-ListMessageStream::ListMessageStream(intrusive_ptr_<Session> session,
-                                     _stream_container container,
-                                     ListOptions config,
-                                     size_t id,
-                                     uint32_t rid)
-    : OutgoingMessageStream(session, container, id, rid), _config(config) {
-  _set_ready = [=]() {
-    session->responder.set_ready_stream(get_info());
-  };
-}
+ListMessageStream::ListMessageStream(intrusive_ptr_<Session> &&session,
+                                     ListOptions &&config,
+                                     uint32_t request_id,
+                                     size_t unique_id)
+    : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
 void ListMessageStream::new_message(const ListResponseMessage &new_message) {
   { _message_queue.push_front(new_message); }
@@ -103,19 +85,14 @@ const Message &ListMessageStream::get_next_message() {
 //////////////////////////
 // SetMessageStream
 //////////////////////////
-SetMessageStream::SetMessageStream(intrusive_ptr_<Session> session,
-                                   _stream_container container,
-                                   SetOptions config,
-                                   size_t id,
-                                   uint32_t rid)
-    : OutgoingMessageStream(session, container, id, rid), _config(config) {
-  _set_ready = [=]() {
-    session->responder.set_ready_stream(get_info());
-  };
-}
+SetMessageStream::SetMessageStream(intrusive_ptr_<Session> &&session,
+                                   SetOptions &&config,
+                                   uint32_t request_id,
+                                   size_t unique_id)
+    : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
 void SetMessageStream::new_message(const SetResponseMessage &new_message) {
-  { _message_queue.push_front(new_message); }
+  _message_queue.push_front(new_message);
   _set_ready();
 }
 
@@ -127,6 +104,22 @@ const Message &SetMessageStream::get_next_message() {
   auto message = _message_queue.back();
   _message_queue.pop_back();
   return std::move(message);
+}
+
+ErrorMessageStream::ErrorMessageStream(intrusive_ptr_<Session> &&session,
+                                       MessageType type,
+                                       MessageStatus status,
+                                       uint32_t request_id)
+  : OutgoingMessageStream(std::move(session), request_id, 0),
+    _error_message(new ErrorMessage(type, status, request_id)) {}
+
+size_t ErrorMessageStream::get_next_message_size() {
+  return _error_message->size();
+}
+
+const Message &ErrorMessageStream::get_next_message() {
+  _closed = true;
+  return *_error_message;
 }
 
 }  // namespace dsa

@@ -5,6 +5,7 @@
 #include <functional>
 
 #include <boost/asio/strand.hpp>
+#include <message/error_message.h>
 
 #include "message/response/subscribe_response_message.h"
 #include "message/response/set_response_message.h"
@@ -27,10 +28,13 @@ class OutgoingMessageStream : public MessageStream {
  protected:
   using io_service = boost::asio::io_service;
 
-  std::function<void()> _set_ready;
-
  public:
-  OutgoingMessageStream(intrusive_ptr_<Session> session, _stream_container container, size_t id, uint32_t rid);
+  OutgoingMessageStream(intrusive_ptr_<Session> &&session,
+                        uint32_t request_id,
+                        size_t unique_id);
+
+  bool is_outgoing() const override { return true; }
+  bool is_incoming() const override { return false; }
 };
 
 class SubscribeMessageStream : public OutgoingMessageStream {
@@ -39,17 +43,16 @@ class SubscribeMessageStream : public OutgoingMessageStream {
   SubscribeOptions _config;
 
  public:
-  SubscribeMessageStream(intrusive_ptr_<Session> session,
-                         _stream_container container,
-                         SubscribeOptions config,
-                         size_t id,
-                         uint32_t rid);
+  SubscribeMessageStream(intrusive_ptr_<Session> &&session,
+                         SubscribeOptions &&config,
+                         uint32_t request_id,
+                         size_t unique_id);
 
   void new_message(const SubscribeResponseMessage &new_message);
 
   size_t get_next_message_size() override;
   const Message &get_next_message() override;
-
+  StreamType get_type() const override { return StreamType::Subscribe; }
 };
 
 class InvokeMessageStream : public OutgoingMessageStream {
@@ -58,16 +61,16 @@ class InvokeMessageStream : public OutgoingMessageStream {
   InvokeOptions _config;
 
  public:
-  InvokeMessageStream(intrusive_ptr_<Session> session,
-                      _stream_container container,
-                      InvokeOptions config,
-                      size_t id,
-                      uint32_t rid);
+  InvokeMessageStream(intrusive_ptr_<Session> &&session,
+                      InvokeOptions &&config,
+                      uint32_t request_id,
+                      size_t unique_id);
 
   void new_message(const InvokeResponseMessage &new_message);
 
   size_t get_next_message_size() override;
   const Message &get_next_message() override;
+  StreamType get_type() const override { return StreamType::Invoke; }
 };
 
 class ListMessageStream : public OutgoingMessageStream {
@@ -76,16 +79,16 @@ class ListMessageStream : public OutgoingMessageStream {
   ListOptions _config;
 
  public:
-  ListMessageStream(intrusive_ptr_<Session> session,
-                    _stream_container container,
-                    ListOptions config,
-                    size_t id,
-                    uint32_t rid);
+  ListMessageStream(intrusive_ptr_<Session> &&session,
+                    ListOptions &&config,
+                    uint32_t request_id,
+                    size_t unique_id);
 
   void new_message(const ListResponseMessage &new_message);
 
   size_t get_next_message_size() override;
   const Message &get_next_message() override;
+  StreamType get_type() const override { return StreamType::List; }
 };
 
 class SetMessageStream : public OutgoingMessageStream {
@@ -94,18 +97,33 @@ class SetMessageStream : public OutgoingMessageStream {
   SetOptions _config;
 
  public:
-  SetMessageStream(intrusive_ptr_<Session> session,
-                   _stream_container container,
-                   SetOptions config,
-                   size_t id,
-                   uint32_t rid);
+  SetMessageStream(intrusive_ptr_<Session> &&session,
+                   SetOptions &&config,
+                   uint32_t request_id,
+                   size_t unique_id);
 
   void new_message(const SetResponseMessage &new_message);
 
   size_t get_next_message_size() override;
   const Message &get_next_message() override;
+  StreamType get_type() const override { return StreamType::Set; }
 };
 
-}  // namespace dsa
+class ErrorMessageStream : public OutgoingMessageStream {
+ private:
+  std::unique_ptr<Message> _error_message;
+
+ public:
+  ErrorMessageStream(intrusive_ptr_<Session> &&session,
+                     MessageType type,
+                     MessageStatus status,
+                     uint32_t request_id = 0);
+
+  size_t get_next_message_size() override;
+  const Message &get_next_message() override;
+  StreamType get_type() const override { return StreamType::Status; }
+};
+
+};  // namespace dsa
 
 #endif  // DSA_SDK_SUBSCRIPTION_QUEUE_H_

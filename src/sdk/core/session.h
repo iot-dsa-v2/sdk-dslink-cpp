@@ -48,7 +48,8 @@ class Session : public IntrusiveClosable<Session> {
   const boost::asio::io_service::strand &strand() const { return _strand; }
   const std::string &dsid();
 
-  intrusive_ptr_<Session> get_intrusive() { return intrusive_this(); }
+  intrusive_ptr_<Session> get_intrusive() { return intrusive_this<Session>(); }
+  void add_ready_stream(intrusive_ptr_<MessageStream> stream);
 
  private:
   static const std::string BlankDsid;
@@ -57,13 +58,12 @@ class Session : public IntrusiveClosable<Session> {
   shared_ptr_<Connection> _connection;
   Config _config;
 
-  std::queue<MessageStream::StreamInfo> _ready_streams;
+  std::queue<intrusive_ptr_<MessageStream>> _ready_streams;
   bool _is_writing{false};
   boost::asio::io_service::strand &_strand;
 
-  MessageStream *get_next_ready_stream();
+  intrusive_ptr_<MessageStream> get_next_ready_stream();
   static void write_loop(intrusive_ptr_<Session> sthis);
-  void add_ready_stream(MessageStream::StreamInfo &&stream_info);
 
   friend class Connection;
   void connection_closed();
