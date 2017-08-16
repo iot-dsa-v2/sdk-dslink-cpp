@@ -3,7 +3,7 @@
 #include "parsed_message_value.h"
 
 namespace dsa {
-ParsedMessageValue::ParsedMessageValue(const uint8_t* data, size_t size) {
+MessageValue::MessageValue(const uint8_t* data, size_t size) {
   if (size < 2) {
     return;
   }

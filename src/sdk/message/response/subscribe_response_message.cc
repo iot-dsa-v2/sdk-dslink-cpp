@@ -12,9 +12,9 @@ SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data, size_t s
 SubscribeResponseMessage::SubscribeResponseMessage()
     : ResponseMessage(MessageType::SubscribeResponse) {}
 
-const ParsedMessageValue& SubscribeResponseMessage::get_value() {
+const MessageValue& SubscribeResponseMessage::get_value() {
   if (_parsed_value == nullptr && body != nullptr) {
-    _parsed_value.reset(new ParsedMessageValue(body->data(), body->size()));
+    _parsed_value.reset(new MessageValue(body->data(), body->size()));
   }
   return *_parsed_value;
 }

@@ -4,7 +4,8 @@
 #include <map>
 #include <string>
 
-#include "node_state_manager.h"
+#include <boost/asio/strand.hpp>
+#include "core/message_stream.h"
 
 namespace dsa {
 class Session;
@@ -24,9 +25,10 @@ class Responder {
   Session &_session;
   SecurityManager *_security_manager;
   NodeModelManager *_model_manager;
-  NodeStateManager _state_manager;
-  std::atomic_size_t _stream_count{0};
+  NodeStateManager *_state_manager;
   boost::asio::strand &_strand;
+
+  uint32_t _stream_count{ 0 };
 
   virtual void on_invoke_request(InvokeRequestMessage &request);
   virtual void on_list_request(ListRequestMessage &request);

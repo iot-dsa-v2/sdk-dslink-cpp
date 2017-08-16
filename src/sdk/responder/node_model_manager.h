@@ -5,8 +5,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/thread/shared_mutex.hpp>
-
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -16,7 +14,6 @@ class NodeState;
 class NodeModelManager {
  private:
   std::map<std::string, shared_ptr_<NodeModel>> _models;
-  boost::shared_mutex _models_key;
 
  public:
   // should find and attach the node state to the model when it becomes available

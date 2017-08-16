@@ -5,12 +5,12 @@
 
 namespace dsa {
 
-class ParsedMessageValue {
+class MessageValue {
  public:
   Variant meta;
   Variant value;
 
-  ParsedMessageValue(const uint8_t* data, size_t size);
+  MessageValue(const uint8_t* data, size_t size);
 };
 
 }  // namespace dsa

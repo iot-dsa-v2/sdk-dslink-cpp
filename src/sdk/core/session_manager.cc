@@ -41,7 +41,7 @@ void SessionManager::get_session(const std::string &dsid,
 std::string SessionManager::get_new_session_id() {
   Hash hash("sha256");
   hash.update(gen_salt(32));
-  return std::move(std::to_string(_session_count++) + hash.digest_base64());
+  return std::move(hash.digest_base64());
 }
 
 void SessionManager::end_all_sessions() {

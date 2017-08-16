@@ -9,7 +9,8 @@ class NodeModelManager;
 class SecurityManager;
 class ECDH;
 
-struct Config {
+class Config {
+public:
   // modules
   NodeModelManager* model_manager = nullptr;
   SecurityManager* security_manager = nullptr;

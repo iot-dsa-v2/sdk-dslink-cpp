@@ -20,12 +20,11 @@ class Config;
 
 class SessionManager {
  public:
-  typedef std::function<void( const intrusive_ptr_<Session> &session )>
-  GetSessionCallback;
+  typedef std::function<void(const intrusive_ptr_<Session> &session)>
+      GetSessionCallback;
 
  private:
   std::map<std::string, intrusive_ptr_<Session>> _sessions;
-  std::atomic_long _session_count{0};
 
   boost::asio::io_service::strand &_strand;
   SecurityManager &_security_manager;
@@ -33,7 +32,8 @@ class SessionManager {
 
  public:
   SessionManager(boost::asio::io_service::strand &strand, Config &config);
-  void get_session(const std::string &dsid, const std::string &auth_token, const std::string &session_id,
+  void get_session(const std::string &dsid, const std::string &auth_token,
+                   const std::string &session_id,
                    const GetSessionCallback &&callback);
 
   std::string get_new_session_id();
