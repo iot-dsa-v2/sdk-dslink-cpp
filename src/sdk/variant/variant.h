@@ -21,6 +21,9 @@ class VariantMap : public std::map<std::string, Variant>,
   template <typename... Args>
   inline VariantMap(Args &&... args)
       : std::map<std::string, Variant>(std::forward<Args>(args)...){};
+
+  VariantMap(std::initializer_list<std::map<std::string, Variant>::value_type> init);
+
 };
 
 class VariantArray : public std::vector<Variant>,
@@ -72,7 +75,6 @@ class Variant : public BaseVariant {
  public:
   Variant();
 
- protected:
   explicit Variant(int64_t v);
   explicit Variant(double v);
   explicit Variant(bool v);

@@ -3,6 +3,10 @@
 #include "variant.h"
 
 namespace dsa {
+VariantMap::VariantMap(
+    std::initializer_list<std::map<std::string, Variant>::value_type> init)
+    : std::map<std::string, Variant>(init) {}
+
 Variant::Variant(int64_t v) : BaseVariant(v) {}
 
 Variant::Variant(double v) : BaseVariant(v) {}

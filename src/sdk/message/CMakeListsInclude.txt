@@ -4,7 +4,7 @@ list(APPEND MessageSourceFiles
         static_headers.cc
         dynamic_header.cc
 		message_options.cc
-		parsed_message_value.cc
+		message_value.cc
         request/invoke_request_message.cc
         request/subscribe_request_message.cc
         request/list_request_message.cc

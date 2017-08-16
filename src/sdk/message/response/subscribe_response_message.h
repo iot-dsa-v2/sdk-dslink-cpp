@@ -3,7 +3,7 @@
 
 #include "../../util/buffer.h"
 #include "../base_message.h"
-#include "../parsed_message_value.h"
+#include "message/message_value.h"
 
 namespace dsa {
 
