@@ -61,7 +61,11 @@ include(${LIB_RESPONDER}/CMakeListsInclude.txt)
 include(${LIB_CORE}/CMakeListsInclude.txt)
 include(${LIB_MODULE}/CMakeListsInclude.txt)
 
-add_library(dsa_sdk STATIC ${ProjectSourceFiles} dsa_common.h)
+add_library(dsa_sdk STATIC ${ProjectSourceFiles} dsa_common.cc dsa_common.h)
+if (UNIX)
+    include(${PROJECT_SOURCE_DIR}/../cmake/PrecompiledHeader.cmake)
+    add_precompiled_header(dsa_sdk dsa_common.h FORCEINCLUDE)
+endif ()
 target_link_libraries(dsa_sdk ${EXTRA_LIBS})
 target_compile_features(dsa_sdk PRIVATE cxx_range_for)
 install(TARGETS dsa_sdk
