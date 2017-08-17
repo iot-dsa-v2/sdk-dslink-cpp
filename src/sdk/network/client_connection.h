@@ -5,7 +5,7 @@
 
 #include "core/connection.h"
 
-#include "enable_intrusive.h"
+#include "util/enable_intrusive.h"
 
 namespace dsa {
 class ClientConnection : virtual public Connection {
