@@ -38,9 +38,16 @@ Variant::Variant(const char* v, size_t size) {
 }
 Variant::Variant(const std::string& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
-    *this = std::string(v);
+    *this = v;
   } else {
     *this = intrusive_ptr_<IntrusiveString>(new IntrusiveString(v));
+  }
+}
+Variant::Variant(const std::string&& v) {
+  if (v.size() < MAX_SIZE_UNSHARED) {
+    *this = std::move(v);
+  } else {
+    *this = intrusive_ptr_<IntrusiveString>(new IntrusiveString(std::move(v)));
   }
 }
 
@@ -53,9 +60,16 @@ Variant::Variant(const uint8_t* v, size_t size) {
 }
 Variant::Variant(const std::vector<uint8_t>& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
-    *this = std::vector<uint8_t>(v);
+    *this = v;
   } else {
     *this = intrusive_ptr_<IntrusiveBinary>(new IntrusiveBinary(v));
+  }
+}
+Variant::Variant(const std::vector<uint8_t>&& v) {
+  if (v.size() < MAX_SIZE_UNSHARED) {
+    *this = std::move(v);
+  } else {
+    *this = intrusive_ptr_<IntrusiveBinary>(new IntrusiveBinary(std::move(v)));
   }
 }
 

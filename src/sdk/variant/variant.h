@@ -4,8 +4,8 @@
 #include <boost/variant.hpp>
 #include <map>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "util/enable_intrusive.h"
 #include "util/exception.h"
@@ -24,7 +24,6 @@ class VariantMap : public std::map<std::string, Variant>,
       : std::map<std::string, Variant>(std::forward<Args>(args)...){};
 
   VariantMap(std::initializer_list<VariantMap::value_type> init);
-
 };
 
 class VariantArray : public std::vector<Variant>,
@@ -38,7 +37,7 @@ class VariantArray : public std::vector<Variant>,
 };
 
 class IntrusiveString : public std::string,
-                      public EnableIntrusive<IntrusiveString> {
+                        public EnableIntrusive<IntrusiveString> {
  public:
   template <typename... Args>
   inline IntrusiveString(Args &&... args)
@@ -46,14 +45,14 @@ class IntrusiveString : public std::string,
 };
 
 class IntrusiveBinary : public std::vector<uint8_t>,
-                      public EnableIntrusive<IntrusiveBinary> {
+                        public EnableIntrusive<IntrusiveBinary> {
  public:
   template <typename... Args>
   inline IntrusiveBinary(Args &&... args)
       : std::vector<uint8_t>(std::forward<Args>(args)...){};
 };
 
-typedef intrusive_ptr_ <IntrusiveBinary> BinaryPtr;
+typedef intrusive_ptr_<IntrusiveBinary> BinaryPtr;
 
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
                        intrusive_ptr_<IntrusiveString>,
@@ -91,31 +90,29 @@ class Variant : public BaseVariant {
   explicit Variant(const char *v);
   explicit Variant(const char *v, size_t size);
   explicit Variant(const std::string &v);
-
+  explicit Variant(const std::string &&v);
 
   explicit Variant(const uint8_t *data, size_t size);
   explicit Variant(const std::vector<uint8_t> &v);
-
+  explicit Variant(const std::vector<uint8_t> &&v);
 
  public:
-  explicit Variant(std::initializer_list<VariantMap::value_type> init);
-  explicit Variant(std::initializer_list<Variant> init);
+  Variant(std::initializer_list<VariantMap::value_type> init);
+  Variant(std::initializer_list<Variant> init);
   static Variant new_map();
   static Variant new_array();
 
-template <class T>
-  inline Variant & operator= (T && other){
+  template <class T>
+  inline Variant &operator=(T &&other) {
     BaseVariant::operator=(std::forward<T>(other));
     return *this;
   }
 
-  Variant(const Variant & other) = default;
-  Variant(Variant && other) noexcept = default;
-
-  Variant & operator= (const Variant & other) = default;
-  Variant & operator= (Variant && other) noexcept = default;
-
-
+  Variant(const Variant &other) = default;
+  Variant(Variant &&other) noexcept = default;
+  Variant &operator=(const Variant &other) = default;
+  Variant &operator=(Variant &&other) noexcept = default;
+  ~Variant() = default;
 
  protected:
   explicit Variant(IntrusiveString *p);
@@ -167,7 +164,7 @@ template <class T>
   // msgpack encoding and decoding
  public:
   static Variant from_msgpack(const uint8_t *data, size_t size);
-  std::vector<uint8_t> to_msgpack() throw (const EncodingError&);
+  std::vector<uint8_t> to_msgpack() throw(const EncodingError &);
 
  protected:
   static Variant to_variant(const msgpack_object &obj);
