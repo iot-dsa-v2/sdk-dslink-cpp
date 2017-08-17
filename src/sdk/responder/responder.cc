@@ -3,8 +3,9 @@
 
 #include "responder.h"
 
-#include "node_model_manager.h"
 #include "module/security_manager.h"
+#include "node_model_manager.h"
+#include "node_state_manager.h"
 
 #include "core/session.h"
 
@@ -25,15 +26,20 @@ void Responder::receive_message(intrusive_ptr_<RequestMessage> message) {
     // TODO: implement permissions
 
     switch (message->type()) {
-      case MessageType::SubscribeRequest:on_subscribe_request(dynamic_cast<SubscribeRequestMessage &>(*message));
+      case MessageType::SubscribeRequest:
+        on_subscribe_request(dynamic_cast<SubscribeRequestMessage &>(*message));
         break;
-      case MessageType::InvokeRequest:on_invoke_request(dynamic_cast<InvokeRequestMessage &>(*message));
+      case MessageType::InvokeRequest:
+        on_invoke_request(dynamic_cast<InvokeRequestMessage &>(*message));
         break;
-      case MessageType::SetRequest:on_set_request(dynamic_cast<SetRequestMessage &>(*message));
+      case MessageType::SetRequest:
+        on_set_request(dynamic_cast<SetRequestMessage &>(*message));
         break;
-      case MessageType::ListRequest:on_list_request(dynamic_cast<ListRequestMessage &>(*message));
+      case MessageType::ListRequest:
+        on_list_request(dynamic_cast<ListRequestMessage &>(*message));
         break;
-      default:return;
+      default:
+        return;
     }
   };
 
@@ -105,4 +111,4 @@ void Responder::on_set_request(SetRequestMessage &message) {
                                                   _stream_count++);
   model->add_stream(stream);
 }
-}
+}  // namespace dsa

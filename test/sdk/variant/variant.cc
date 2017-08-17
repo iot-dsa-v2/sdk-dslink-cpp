@@ -9,21 +9,21 @@ TEST(VariantTest, BaseTest) {
     EXPECT_TRUE(v.is_null());
   }
   {
-    Variant v = Variant::create("hello");
+    Variant v("hello");
     EXPECT_TRUE(v.is_string());
   }
   {
-    Variant v = Variant::create(123);
+    Variant v(123);
     EXPECT_TRUE(v.is_int());
     EXPECT_EQ(v.get_int(), 123);
   }
   {
-    Variant v = Variant::create(1.23);
+    Variant v(1.23);
     EXPECT_TRUE(v.is_double());
     EXPECT_EQ(v.get_double(), 1.23);
   }
   {
-    Variant v = Variant::create(true);
+    Variant v(true);
     EXPECT_TRUE(v.is_bool());
     EXPECT_EQ(v.get_bool(), true);
   }
@@ -43,7 +43,7 @@ TEST(VariantTest, BinaryTest) {
   Variant v;
   {
     std::vector<uint8_t> vec = {0, 1, 2};
-    Variant v0 = Variant::create(vec);
+    Variant v0(vec);
     EXPECT_TRUE(v0.is_binary());
     v = v0;
   }

@@ -4,6 +4,7 @@
 #include <boost/asio/strand.hpp>
 #include <map>
 
+#include "message/base_message.h"
 #include "util/enable_intrusive.h"
 
 namespace dsa {

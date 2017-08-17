@@ -7,11 +7,12 @@
 #include <boost/asio/strand.hpp>
 
 #include "message/response/subscribe_response_message.h"
-#include "node_model.h"
 #include "outgoing_message_stream.h"
 #include "core/message_stream.h"
+#include "node_model.h"
 
 namespace dsa {
+class NodeModel;
 
 // maintain streams of a node
 class NodeState : public StreamHolder {
@@ -26,7 +27,8 @@ class NodeState : public StreamHolder {
   std::unique_ptr<SubscribeResponseMessage> _last_value;
 
  public:
-  explicit NodeState(boost::asio::io_service::strand &strand, std::string path);
+  explicit NodeState(boost::asio::io_service::strand &strand,
+                         const std::string &path);
 
   //////////////////////////
   // Getters
@@ -44,11 +46,13 @@ class NodeState : public StreamHolder {
   /////////////////////////
   void new_message(const SubscribeResponseMessage &message);
 
+
   void close() override {}
 
   void add_stream(const stream_ptr_ &stream) override;
   void remove_stream(const MessageStream *stream) override;
 };
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_NODE_STATE_H_

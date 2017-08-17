@@ -1,9 +1,9 @@
 #include "dsa_common.h"
 
-#include "parsed_message_value.h"
+#include "message_value.h"
 
 namespace dsa {
-ParsedMessageValue::ParsedMessageValue(const uint8_t* data, size_t size) {
+MessageValue::MessageValue(const uint8_t* data, size_t size) {
   if (size < 2) {
     return;
   }
@@ -22,6 +22,13 @@ ParsedMessageValue::ParsedMessageValue(const uint8_t* data, size_t size) {
   if (size) {
     value = std::move(Variant::from_msgpack(data, size));
   }
+}
+
+MessageValue::MessageValue(Variant &value) :value(value){
+
+}
+MessageValue::MessageValue(Variant &value, const std::string &ts)
+    : value(value), meta({{"ts", Variant(ts)}}) {
 }
 
 }  // namespace dsa

@@ -3,13 +3,13 @@
 
 #include "../../util/buffer.h"
 #include "../base_message.h"
-#include "../parsed_message_value.h"
+#include "message/message_value.h"
 
 namespace dsa {
 
 class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
  private:
-  std::unique_ptr<ParsedMessageValue> _parsed_value;
+  std::unique_ptr<MessageValue> _parsed_value;
 
  public:
   explicit SubscribeResponseMessage(const uint8_t* data, size_t size);
@@ -17,7 +17,7 @@ class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
   SubscribeResponseMessage();
 
  public:
-  const ParsedMessageValue& get_value();
+  const MessageValue& get_value();
   void set_value(const Variant & value, const Variant & meta);
 
  protected:

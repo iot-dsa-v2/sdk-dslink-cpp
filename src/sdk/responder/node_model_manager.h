@@ -8,6 +8,7 @@
 #include <boost/thread/shared_mutex.hpp>
 
 #include "util/enable_intrusive.h"
+#include "node_state.h"
 
 namespace dsa {
 class NodeModel;
@@ -16,7 +17,6 @@ class NodeState;
 class NodeModelManager : public EnableIntrusive<NodeModelManager> {
  private:
   std::map<std::string, shared_ptr_<NodeModel>> _models;
-  boost::shared_mutex _models_key;
 
  public:
   // should find and attach the node state to the model when it becomes available

@@ -16,7 +16,7 @@ void NodeModel::update_value(T new_value) {
     _state->new_message(message);
 }
 
-void NodeModel::add_stream(const stream_ptr_ &stream) {
+void NodeModel::add_stream(const intrusive_ptr_<MessageStream> &stream) {
   switch (stream->get_type()) {
     case StreamType::Invoke:_invoke_streams[stream->_unique_id] = stream;
       break;
@@ -25,6 +25,7 @@ void NodeModel::add_stream(const stream_ptr_ &stream) {
     default:
       return;
   }
+
   stream->add_holder(intrusive_this());
 }
 
@@ -36,9 +37,7 @@ void NodeModel::remove_stream(const MessageStream *stream) {
       break;
     case StreamType::Set:_set_streams.erase(stream->_unique_id);
       break;
-    default:
-      return;
+    default:return;
   }
 }
-
 }  // namespace dsa

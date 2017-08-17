@@ -6,7 +6,7 @@
 using namespace dsa;
 
 TEST(VariantTest, MsgpackEncodingDouble) {
-  Variant v = Variant::create(1.23);
+  Variant v(1.23);
 
   std::vector<uint8_t> encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
@@ -21,7 +21,7 @@ TEST(VariantTest, MsgpackEncodingDouble) {
 }
 
 TEST(VariantTest, MsgpackEncodingInt) {
-  Variant v = Variant::create(123);
+  Variant v(123);
 
   std::vector<uint8_t> encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
@@ -37,7 +37,7 @@ TEST(VariantTest, MsgpackEncodingInt) {
 
 TEST(VariantTest, MsgpackEncodingBool) {
   {
-    Variant v = Variant::create(true);
+    Variant v(true);
 
     std::vector<uint8_t> encoded_msg = v.to_msgpack();
     uint8_t encoded_buf[1024];
@@ -52,7 +52,7 @@ TEST(VariantTest, MsgpackEncodingBool) {
   }
 
   {
-    Variant v = Variant::create(false);
+    Variant v(false);
 
     std::vector<uint8_t> encoded_msg = v.to_msgpack();
     uint8_t encoded_buf[1024];
@@ -68,7 +68,7 @@ TEST(VariantTest, MsgpackEncodingBool) {
 }
 
 TEST(VariantTest, MsgpackEncodingString) {
-  Variant v = Variant::create("hello");
+  Variant v("hello");
 
   std::vector<uint8_t> encoded_msg = v.to_msgpack();
   uint8_t encoded_buf[1024];
@@ -100,7 +100,7 @@ TEST(VariantTest, MsgpackEncodingBinary) {
   Variant v;
   {
     std::vector<uint8_t> vec = {0, 1, 2};
-    Variant v0 = Variant::create(vec);
+    Variant v0(vec);
     v = v0;
   }
 

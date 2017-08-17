@@ -6,8 +6,8 @@
 
 namespace dsa {
 
-NodeState::NodeState(boost::asio::io_service::strand &strand, std::string path)
-    : _strand(strand), _path(std::move(path)) {}
+NodeState::NodeState(boost::asio::io_service::strand &strand, const std::string &path)
+    : _strand(strand), _path(path) {}
 
 void NodeState::new_message(const SubscribeResponseMessage &message) {
   _last_value.reset(new SubscribeResponseMessage(message));
