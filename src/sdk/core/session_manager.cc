@@ -2,17 +2,17 @@
 
 #include "session_manager.h"
 
+#include "server.h"
 #include "session.h"
-
 #include "crypto/hash.h"
 #include "crypto/misc.h"
-
 #include "module/security_manager.h"
 
 namespace dsa {
-
-SessionManager::SessionManager(boost::asio::io_service::strand &strand, Config &config)
-    : _strand(strand), _security_manager(*config.security_manager), _config(config) {}
+SessionManager::SessionManager(const Server &server, const Config &config)
+    : _server(server),
+      _strand(config.strand),
+      _security_manager(*config.security_manager) {}
 
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
@@ -30,7 +30,7 @@ void SessionManager::get_session(const std::string &dsid,
       return;
     }
     std::string sid = get_new_session_id();
-    auto session = make_intrusive_<Session>(_strand, sid, _config);
+    auto session = make_intrusive_<Session>(_server, sid);
 
     _sessions[sid] = session;
 
@@ -52,5 +52,4 @@ void SessionManager::end_all_sessions() {
     }
   }
 }
-
 }  // namespace dsa

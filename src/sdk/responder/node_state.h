@@ -18,7 +18,7 @@ class NodeState : public StreamHolder {
  private:
   typedef intrusive_ptr_<NodeModel> model_ptr_;
 
-  boost::asio::strand &_strand;
+  boost::asio::io_service::strand &_strand;
   std::string _path;
   model_ptr_ _model;
   std::map< size_t, stream_ptr_ > _subscription_streams;

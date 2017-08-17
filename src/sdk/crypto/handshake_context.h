@@ -11,15 +11,16 @@ class HandshakeContext {
  private:
   std::vector<uint8_t> _public_key;
   std::vector<uint8_t> _salt;
-  ECDH _ecdh;
   std::string _dsid;
+  intrusive_ptr_<ECDH> _ecdh;
 
  public:
-  explicit HandshakeContext(std::string dsid_prefix,
-                            const ECDH *ecdh = nullptr);
+  explicit HandshakeContext(const std::string &dsid_prefix,
+                            const intrusive_ptr_<ECDH> &ecdh);
+
   const std::vector<uint8_t> &public_key() const { return _public_key; };
   const std::vector<uint8_t> &salt() const { return _salt; };
-  const ECDH &ecdh() const { return _ecdh; };
+  const ECDH &ecdh() const { return *_ecdh; };
   const std::string &dsid() const { return _dsid; };
 };
 

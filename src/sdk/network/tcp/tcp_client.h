@@ -7,8 +7,16 @@
 
 namespace dsa {
 class TcpClient : public Client {
+ protected:
+  std::string _hostname;
+  uint16_t _port;
+
  public:
-  TcpClient(boost::asio::io_service::strand &strand, const Config &config);
+  TcpClient(const Config &config);
+
+  const std::string &get_hostname() const { return _hostname; }
+  uint16_t get_port() const { return _port; }
+
   void connect() override;
 };
 }  // namespace dsa

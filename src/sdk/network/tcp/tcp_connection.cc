@@ -1,16 +1,34 @@
 #include "dsa_common.h"
 
 #include "tcp_connection.h"
+
 #include <boost/bind.hpp>
 
+#include "tcp_client.h"
+#include "tcp_server.h"
 #include "core/session_manager.h"
 
 #define DEBUG 0
 
 namespace dsa {
 
-TcpConnection::TcpConnection(boost::asio::io_service::strand &strand, const Config &config)
-    : Connection(strand, config), _socket(strand.get_io_service()) {}
+TcpConnection::TcpConnection(boost::asio::io_service::strand &strand,
+                             uint32_t handshake_timeout_ms,
+                             const std::string &dsid_prefix,
+                             const intrusive_ptr_<ECDH> &ecdh)
+    : Connection(strand, handshake_timeout_ms, dsid_prefix, ecdh), 
+      _socket(strand.get_io_service()) {}
+
+TcpConnection::TcpConnection(const Config &config)
+  : Connection(config), _socket(config.strand.get_io_service()) {}
+
+TcpConnection::TcpConnection(const TcpServer &server)
+    : Connection(static_cast<const Server &>(server)),
+      _socket(server.get_strand().get_io_service()) {}
+
+TcpConnection::TcpConnection(const TcpClient &client)
+    : Connection(static_cast<const Client &>(client)),
+      _socket(client.get_strand().get_io_service()) {}
 
 void TcpConnection::close() {
   if (_socket_open.exchange(false)) {

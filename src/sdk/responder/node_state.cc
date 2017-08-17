@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-NodeState::NodeState(boost::asio::strand &strand, std::string path)
+NodeState::NodeState(boost::asio::io_service::strand &strand, std::string path)
     : _strand(strand), _path(std::move(path)) {}
 
 void NodeState::new_message(const SubscribeResponseMessage &message) {

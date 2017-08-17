@@ -25,16 +25,42 @@ class Connection;
 // maintain request and response streams
 //////////////////////////////////////////
 class Session : public IntrusiveClosable<Session> {
+ private:
+  static const std::string BlankDsid;
+
+  std::string _session_id;
+  shared_ptr_<Connection> _connection;
+
+  std::queue< intrusive_ptr_<MessageStream> > _ready_streams;
+  bool _is_writing{false};
+  boost::asio::io_service::strand &_strand;
+
+  intrusive_ptr_<MessageStream> get_next_ready_stream();
+  static void write_loop(intrusive_ptr_<Session> sthis);
+
+  friend class Connection;
   friend class Responder;
+  void connection_closed();
+  void receive_message(Message *message);
 
  public:
   Requester requester;
   Responder responder;
 
-  explicit Session(boost::asio::io_service::strand &strand,
-                   const std::string &session_id,
-                   const Config &config,
-                   const shared_ptr_<Connection> &connection = nullptr);
+  Session(boost::asio::io_service::strand &strand,
+          const std::string &session_id,
+          SecurityManager &security_manager,
+          NodeModelManager &model_manager,
+          NodeStateManager &state_manager,
+          const shared_ptr_<Connection> &connection = nullptr);
+
+  Session(const Server &server,
+          const std::string &session_id,
+          const shared_ptr_<Connection> &connection = nullptr);
+
+  Session(const Client &client,
+          const std::string &session_id,
+          const shared_ptr_<Connection> &connection = nullptr);
 
   const std::string &session_id() const { return _session_id; }
 
@@ -50,24 +76,6 @@ class Session : public IntrusiveClosable<Session> {
 
   intrusive_ptr_<Session> get_intrusive() { return intrusive_this<Session>(); }
   void add_ready_stream(intrusive_ptr_<MessageStream> stream);
-
- private:
-  static const std::string BlankDsid;
-
-  std::string _session_id;
-  shared_ptr_<Connection> _connection;
-  Config _config;
-
-  std::queue<intrusive_ptr_<MessageStream>> _ready_streams;
-  bool _is_writing{false};
-  boost::asio::io_service::strand &_strand;
-
-  intrusive_ptr_<MessageStream> get_next_ready_stream();
-  static void write_loop(intrusive_ptr_<Session> sthis);
-
-  friend class Connection;
-  void connection_closed();
-  void receive_message(Message *message);
 };
 
 }  // namespace dsa

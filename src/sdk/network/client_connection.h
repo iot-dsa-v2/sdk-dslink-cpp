@@ -5,12 +5,20 @@
 
 #include "core/connection.h"
 
+#include "enable_intrusive.h"
+
 namespace dsa {
 class ClientConnection : virtual public Connection {
  public:
-  ClientConnection(boost::asio::io_service::strand &strand, const Config &config);
+  ClientConnection(const Config &config);
+
+  ClientConnection(const Client &client);
+
+  virtual ~ClientConnection() = default;
 
  protected:
+  std::string _client_token;
+
   void on_connect() throw(const std::runtime_error &) override;
 
   // handshake functions

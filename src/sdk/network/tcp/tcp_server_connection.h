@@ -7,10 +7,12 @@
 
 #include "core/connection.h"
 #include "tcp_connection.h"
-#include "../server_connection.h"
+#include "network/server_connection.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
+class TcpServer;
+
 // TCP server side connection.
 // Handles server side of DSA handshake and starts read loop.
 class TcpServerConnection : public TcpConnection, public ServerConnection {
@@ -25,7 +27,10 @@ class TcpServerConnection : public TcpConnection, public ServerConnection {
   void start_handshake();
 
  public:
-  TcpServerConnection(boost::asio::io_service::strand &strand, const Config &config);
+  TcpServerConnection(const Config &config);
+
+  TcpServerConnection(const TcpServer &server);
+
   ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
 
   void connect() override;
@@ -33,7 +38,7 @@ class TcpServerConnection : public TcpConnection, public ServerConnection {
   std::string name() override { return "TcpServerConnection"; }
 
   void set_server(shared_ptr_<TcpServer> server) noexcept {
-    _server = std::move(server);
+    _server = std::move(std::dynamic_pointer_cast<Server>(server));
   };
 };
 }  // namespace dsa

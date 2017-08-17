@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_UTIL_ENABLE_INTRUSIVE_H_
 #define DSA_SDK_UTIL_ENABLE_INTRUSIVE_H_
 
+#include <atomic>
+
+#include <dsa_common.h>
+
 #include <stdexcept>
 
 #include <valarray>
@@ -53,7 +57,7 @@ class EnableIntrusive {
   template <typename _Ty>
   friend void intrusive_ptr_release(_Ty* t);
 
-  unsigned int _refs{0};
+  std::atomic_size_t _refs{0};
 
  public:
   unsigned int ref_count() const { return _refs; }
@@ -63,13 +67,15 @@ template <typename T>
 class IntrusiveClosable : public Closable, public EnableIntrusive<T> {};
 
 template <typename _Ty>
-inline void intrusive_ptr_add_ref(_Ty* t) {
+inline void intrusive_ptr_add_ref(_Ty *t) {
   ++t->_refs;
 }
 
 template <typename _Ty>
-inline void intrusive_ptr_release(_Ty* t) {
-  if (--t->_refs == 0) delete t;
+inline void intrusive_ptr_release(_Ty *t) {
+  if (--t->_refs == 0) {
+    delete t;
+  }
 }
 
 template <class _Ty, class... _Types>

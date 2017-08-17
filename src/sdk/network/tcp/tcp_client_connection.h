@@ -7,10 +7,12 @@
 
 #include "core/connection.h"
 #include "tcp_connection.h"
-#include "../client_connection.h"
+#include "network/client_connection.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
+class TcpClient;
+
 // TCP client side connection.
 // Handles client side of DSA handshake and starts read loop.
 class TcpClientConnection : public TcpConnection, public ClientConnection {
@@ -21,10 +23,16 @@ class TcpClientConnection : public TcpConnection, public ClientConnection {
                    size_t bytes_transferred);
 
  protected:
+  std::string _hostname;
+  uint16_t _port;
+
   void start_handshake(const boost::system::error_code &error) throw(const std::runtime_error &);
 
  public:
-  TcpClientConnection(boost::asio::io_service::strand &strand, const Config &config, intrusive_ptr_<Session> session);
+  TcpClientConnection(const Config &config);
+
+  TcpClientConnection(const TcpClient &config);
+
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 
   std::string name() override { return "TcpClientConnection"; }

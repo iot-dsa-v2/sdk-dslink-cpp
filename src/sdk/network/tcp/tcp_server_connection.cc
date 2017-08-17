@@ -1,29 +1,29 @@
 #include "dsa_common.h"
 
+#include "tcp_server_connection.h"
+
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
-#include "tcp_server_connection.h"
+#include "tcp_server.h"
 
 #define DEBUG 0
 
 namespace dsa {
+TcpServerConnection::TcpServerConnection(const Config &config)
+    : Connection(config), TcpConnection(config), ServerConnection(config) {}
 
-TcpServerConnection::TcpServerConnection(boost::asio::io_service::strand &strand, const Config &config)
-    : Connection(strand, config), TcpConnection(strand, config), ServerConnection(strand, config) {
-#if DEBUG
-  std::stringstream ss;
-  ss << "TcpServerConnection()" << std::endl;
-  std::cout << ss.str();
-#endif
-  _path = "/"; // TODO: get real path for the client
-}
+TcpServerConnection::TcpServerConnection(const TcpServer &server)
+    : Connection(static_cast<const Server &>(server)), 
+      ServerConnection(static_cast<const Server &>(server)),
+      TcpConnection(server) {}
 
 void TcpServerConnection::connect() { start_handshake(); }
 
 void TcpServerConnection::start_handshake() {
   // start timeout timer with handshake timeout specified in config
   _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_config.handshake_timeout_ms));
+      boost::posix_time::milliseconds(_handshake_timeout_ms));
   _deadline.async_wait(boost::bind(&TcpServerConnection::timeout,
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));
@@ -50,7 +50,7 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
   // reset timeout
   _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_config.handshake_timeout_ms));
+      boost::posix_time::milliseconds(_handshake_timeout_ms));
   _deadline.async_wait(boost::bind(&TcpServerConnection::timeout,
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));

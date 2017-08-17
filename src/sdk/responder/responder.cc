@@ -10,12 +10,15 @@
 
 namespace dsa {
 
-Responder::Responder(Session &session, const Config &config)
+Responder::Responder(Session &session, 
+                     SecurityManager &security_manager,
+                     NodeModelManager &model_manager,
+                     NodeStateManager &state_manager)
     : _session(session),
       _strand(session.strand()),
-      _security_manager(config.security_manager),
-      _model_manager(config.model_manager),
-      _state_manager(session.strand()) {}
+      _security_manager(security_manager),
+      _model_manager(model_manager),
+      _state_manager(state_manager) {}
 
 void Responder::receive_message(intrusive_ptr_<RequestMessage> message) {
   auto callback = [message, this](PermissionLevel permission) {
@@ -34,7 +37,7 @@ void Responder::receive_message(intrusive_ptr_<RequestMessage> message) {
     }
   };
 
-  _security_manager->check_permission(_session.dsid(),
+  _security_manager.check_permission(_session.dsid(),
                                       message->get_permission_token(),
                                       message->type(),
                                       message->get_target_path(),
@@ -59,7 +62,7 @@ void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
   node_state->add_stream(stream);
 
   if (!node_state->has_model())
-    _model_manager->find_model(node_state);
+    _model_manager.find_model(node_state);
 }
 
 void Responder::on_list_request(ListRequestMessage &message) {
@@ -72,11 +75,11 @@ void Responder::on_list_request(ListRequestMessage &message) {
   node_state->add_stream(stream);
 
   if (!node_state->has_model())
-    _model_manager->find_model(node_state);
+    _model_manager.find_model(node_state);
 }
 
 void Responder::on_invoke_request(InvokeRequestMessage &message) {
-  auto model = _model_manager->get_model(message.get_target_path());
+  auto model = _model_manager.get_model(message.get_target_path());
   if (model == nullptr) {
     send_error(MessageType::InvokeResponse, MessageStatus::Disconnected, message.request_id());
     return;
@@ -90,16 +93,16 @@ void Responder::on_invoke_request(InvokeRequestMessage &message) {
 }
 
 void Responder::on_set_request(SetRequestMessage &message) {
-  auto model = _model_manager->get_model(message.get_target_path());
+  auto model = _model_manager.get_model(message.get_target_path());
   if (model == nullptr) {
     send_error(MessageType::SubscribeResponse, MessageStatus::Disconnected, message.request_id());
     return;
   }
 
   auto stream = make_intrusive_<SetMessageStream>(_session.get_intrusive(),
-                                                     message.get_set_options(),
-                                                     message.request_id(),
-                                                     _stream_count++);
+                                                  message.get_set_options(),
+                                                  message.request_id(),
+                                                  _stream_count++);
   model->add_stream(stream);
 }
 }

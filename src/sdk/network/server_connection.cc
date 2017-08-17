@@ -4,9 +4,11 @@
 #include "core/server.h"
 
 namespace dsa {
+ServerConnection::ServerConnection(const Config &config)
+    : Connection(config) {}
 
-ServerConnection::ServerConnection(boost::asio::io_service::strand &strand, const Config &config)
-  : Connection(strand, config) {}
+ServerConnection::ServerConnection(const Server &server)
+    : Connection(server) {}
 
 void ServerConnection::on_connect() throw(const std::runtime_error &) {
   // setup session now that client session id has been parsed
@@ -18,16 +20,14 @@ void ServerConnection::on_connect() throw(const std::runtime_error &) {
       _session->set_connection(shared_from_this());
       _session->start();
     } else {
-      // TODO, send error
+      // TODO: send error
     }
   });
-
 }
 
 ///////////////////////
 // Handshake Functions
 ///////////////////////
-
 bool ServerConnection::parse_f0(size_t size) {
   if (size < MinF0Length)
     return false;
@@ -146,5 +146,4 @@ size_t ServerConnection::load_f3(Buffer &buf) {
 
   return size;
 }
-
 }  // namespace dsa

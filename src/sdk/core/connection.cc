@@ -12,14 +12,42 @@
 #define DEBUG 0
 
 namespace dsa {
-
-Connection::Connection(boost::asio::io_service::strand &strand, const Config &config)
-    : _handshake_context(config.dsid_prefix, config.ecdh),
+Connection::Connection(boost::asio::io_service::strand &strand,
+                       uint32_t handshake_timeout_ms,
+                       const std::string &dsid_prefix,
+                       const intrusive_ptr_<ECDH> &ecdh, std::string &&path)
+    : _handshake_context(dsid_prefix, ecdh),
+      _handshake_timeout_ms(handshake_timeout_ms),
       _read_buffer(new Buffer()),
       _write_buffer(new Buffer()),
-      _config(config),
       _deadline(strand.get_io_service()),
-      _strand(strand) {}
+      _strand(strand),
+      _path(std::move(path)) {}
+
+Connection::Connection(const Config &config, std::string &&path)
+  : Connection(config.strand, 
+               config.handshake_timeout_ms,
+               config.dsid_prefix, 
+               config.ecdh, 
+               std::move(path)) {}
+
+Connection::Connection(const Server &server, std::string &&path)
+  : Connection(server.get_strand(), 
+               server.get_handshake_timeout_ms(),
+               server.get_dsid_prefix(), 
+               server.get_ecdh(), 
+               std::move(path)) {}
+
+Connection::Connection(const Client &client, std::string &&path)
+  : Connection(client.get_strand(), 
+               client.get_handshake_timeout_ms(),
+               client.get_dsid_prefix(), 
+               client.get_ecdh(), 
+               std::move(path)) {}
+
+void Connection::set_session(const intrusive_ptr_<Session> &session) {
+  _session = session;
+}
 
 void Connection::success_or_close(const boost::system::error_code &error) {
   if (error != nullptr) close();

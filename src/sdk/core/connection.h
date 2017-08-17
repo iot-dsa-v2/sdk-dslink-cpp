@@ -15,6 +15,8 @@
 namespace dsa {
 class App;
 class Session;
+class Server;
+class Client;
 
 typedef std::function<void()> WriteHandler;
 
@@ -58,19 +60,28 @@ class Connection : public SharedClosable<Connection> {
         AuthLength,         // broker auth
   };
 
-
-//  void destroy() override;
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
   virtual void close();
   virtual void connect() = 0;
   virtual void start() noexcept = 0;
   const std::string &dsid() { return _handshake_context.dsid(); }
 
+  void set_session(const intrusive_ptr_<Session> &session);
+
  protected:
-  Connection(boost::asio::io_service::strand &strand, const Config &config);
+  Connection(boost::asio::io_service::strand &strand,
+             uint32_t handshake_timeout_ms, 
+             const std::string &dsid_prefix, 
+             const intrusive_ptr_<ECDH> &ecdh,
+             std::string &&path = "/");
+
+  Connection(const Config &config, std::string &&path = "/");
+
+  Connection(const Server &server, std::string &&path = "/");
+
+  Connection(const Client &client, std::string &&path = "/");
 
   HandshakeContext _handshake_context;
-  Config _config;
   boost::asio::io_service::strand &_strand;
 
   // this should rarely be touched
@@ -98,6 +109,7 @@ class Connection : public SharedClosable<Connection> {
   bool _security_preference;
   uint32_t _pending_messages{0};
   boost::asio::deadline_timer _deadline;
+  uint32_t _handshake_timeout_ms{1000};
 
   virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 

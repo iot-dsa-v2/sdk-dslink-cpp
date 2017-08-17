@@ -14,7 +14,9 @@ class Server;
 
 class ServerConnection : virtual public Connection {
  public:
-  ServerConnection(boost::asio::io_service::strand &strand, const Config &config);
+  ServerConnection(const Config &config);
+
+  ServerConnection(const Server &server);
 
  protected:
   void on_connect() throw(const std::runtime_error &) override;

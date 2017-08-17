@@ -1,14 +1,17 @@
 #include "dsa_common.h"
 
+#include "core/client.h"
 #include "core/session.h"
 #include "client_connection.h"
 
 #define DEBUG 0
 
 namespace dsa {
+ClientConnection::ClientConnection(const Config &config)
+  : Connection(config), _client_token(config.client_token) {}
 
-ClientConnection::ClientConnection(boost::asio::io_service::strand &strand, const Config &config)
-  : Connection(strand, config) {}
+ClientConnection::ClientConnection(const Client &client)
+    : Connection(client), _client_token(client.get_client_token()) {}
 
 void ClientConnection::on_connect() throw(const std::runtime_error &) {
   if (_session == nullptr)
@@ -122,7 +125,7 @@ size_t ClientConnection::load_f0(Buffer &buf) {
 }
 
 size_t ClientConnection::load_f2(Buffer &buf) {
-  auto token_length = (uint16_t) _config.client_token.size();
+  auto token_length = (uint16_t) _client_token.size();
   auto sid_length = (uint16_t)_previous_session_id.size();
 
   // ensure buf is large enough
@@ -134,7 +137,7 @@ size_t ClientConnection::load_f2(Buffer &buf) {
   header.write(data);
   data += StaticHeaders::TotalSize;
   data = std::copy(&token_length, &token_length + sizeof(token_length), data);
-  data += _config.client_token.copy(reinterpret_cast<char*>(data), token_length);
+  data += _client_token.copy(reinterpret_cast<char*>(data), token_length);
   (*data++) = (uint8_t) (_is_requester ? 1 : 0);
   (*data++) = (uint8_t) (_is_responder ? 1 : 0);
   data = std::copy(&sid_length, &sid_length + sizeof(sid_length), data);

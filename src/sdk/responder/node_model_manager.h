@@ -7,13 +7,13 @@
 
 #include <boost/thread/shared_mutex.hpp>
 
-#include "util/enable_shared.h"
+#include "util/enable_intrusive.h"
 
 namespace dsa {
 class NodeModel;
 class NodeState;
 
-class NodeModelManager {
+class NodeModelManager : public EnableIntrusive<NodeModelManager> {
  private:
   std::map<std::string, shared_ptr_<NodeModel>> _models;
   boost::shared_mutex _models_key;

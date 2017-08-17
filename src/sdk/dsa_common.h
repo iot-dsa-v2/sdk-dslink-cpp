@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <map>
 #include <boost/intrusive_ptr.hpp>
 
 namespace dsa {

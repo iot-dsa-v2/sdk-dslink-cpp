@@ -12,14 +12,12 @@
 using namespace dsa;
 
 TEST(TcpServerTest, SingleStrand) {
-  shared_ptr_<App> app;
+  App app("SingleStrandTest");
   ECDH ecdh;
 
-  ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
+  app.async_start(10);
 
-  app->async_start(10);
-
-  DefaultModules default_modules;
+  DefaultModules default_modules(app);
   Config server_config = default_modules.get_config();
 
   server_config.tcp_host = "127.0.0.1";
@@ -27,65 +25,61 @@ TEST(TcpServerTest, SingleStrand) {
 
   Config client_config = server_config;
 
-  auto global_strand = app->new_strand();
-
-  ServerPtr tcp_server(new TcpServer(global_strand, server_config));
+  auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
   std::vector<shared_ptr_<TcpClient>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
     shared_ptr_<TcpClient> tcp_client(
-        new TcpClient(global_strand, client_config));
+        new TcpClient(client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
 
-  app->sleep(2000);
+  app.sleep(2000);
 
   tcp_server->close();
   for (unsigned int i = 0; i < 2; ++i) {
     clients[i]->close();
   }
 
-  app->close();
+  app.close();
 
-  app->wait();
+  app.wait();
 }
 
 TEST(TcpServerTest, MultiStrand) {
-  shared_ptr_<App> app;
+  App app("MultiStrandTest");
 
-  ASSERT_NO_FATAL_FAILURE(app.reset(new App("Test")));
+  app.async_start(10);
 
-  app->async_start(10);
-
-  DefaultModules default_modules;
+  DefaultModules default_modules(app);
   Config server_config = default_modules.get_config();
 
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8092;
 
-  Config client_config = server_config;
+  Config client_config = default_modules.get_config();
 
-  ServerPtr tcp_server(new TcpServer(app->new_strand(), server_config));
+  ServerPtr tcp_server(new TcpServer(server_config));
   tcp_server->start();
 
   std::vector<shared_ptr_<TcpClient>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
     shared_ptr_<TcpClient> tcp_client(
-        new TcpClient(app->new_strand(), client_config));
+        new TcpClient(client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
 
-  app->sleep(2000);
+  app.sleep(2000);
 
   tcp_server->close();
   for (unsigned int i = 0; i < 2; ++i) {
     clients[i]->close();
   }
 
-  app->close();
+  app.close();
 
-  app->wait();
+  app.wait();
 }

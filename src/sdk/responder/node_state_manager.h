@@ -11,9 +11,9 @@
 
 namespace dsa {
 
-class NodeStateManager {
+class NodeStateManager : public EnableIntrusive<NodeStateManager> {
  private:
-  boost::asio::strand &_strand;
+  boost::asio::io_service::strand &_strand;
   std::map< std::string, intrusive_ptr_<NodeState> > _node_states;
 
  public:

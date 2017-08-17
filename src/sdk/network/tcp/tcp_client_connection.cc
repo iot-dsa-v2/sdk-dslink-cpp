@@ -1,27 +1,25 @@
 #include "dsa_common.h"
 
-#include <boost/bind.hpp>
-
 #include "tcp_client_connection.h"
 
+#include <boost/bind.hpp>
+
+#include "tcp_client.h"
+
 namespace dsa {
-TcpClientConnection::TcpClientConnection(boost::asio::io_service::strand &strand,
-                                         const Config &config, intrusive_ptr_<Session> session)
-    : Connection(strand, config), TcpConnection(strand, config), ClientConnection(strand, config) {
-  _session = std::move(session);
-#if DEBUG
-  std::cout << "TcpClientConnection()\n";
-#endif
-}
+TcpClientConnection::TcpClientConnection(const Config &config)
+    : Connection(config), TcpConnection(config), ClientConnection(config),
+      _hostname(config.tcp_host), _port(config.tcp_port) {}
+
+TcpClientConnection::TcpClientConnection(const TcpClient &client)
+    : Connection(client), TcpConnection(client), ClientConnection(client) {}
 
 void TcpClientConnection::connect() {
   // connect to server
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand.get_io_service());
-  tcp::resolver::query query(_config.tcp_host, std::to_string(_config.tcp_port));
-  tcp::endpoint endpoint = *resolver.resolve(query);
   _socket.async_connect(
-      *resolver.resolve(query),
+      *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
       boost::bind(&TcpClientConnection::start_handshake,
                   Connection::share_this<TcpClientConnection>(),
                   boost::asio::placeholders::error));
@@ -36,7 +34,7 @@ void TcpClientConnection::start_handshake(
 
   // start timeout timer
   _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_config.handshake_timeout_ms));
+      boost::posix_time::milliseconds(_handshake_timeout_ms));
   _deadline.async_wait(
       boost::bind(&TcpClientConnection::timeout,
                   Connection::share_this<TcpClientConnection>(),
@@ -62,7 +60,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
   if (!error && parse_f1(bytes_transferred)) {
     // cancel timer before timeout
     _deadline.expires_from_now(
-        boost::posix_time::milliseconds(_config.handshake_timeout_ms));
+        boost::posix_time::milliseconds(_handshake_timeout_ms));
 
     // server should be parsing f0 and waiting for f2 at this point
     // so we can compute the shared secret synchronously
@@ -98,12 +96,6 @@ void TcpClientConnection::f3_received(const boost::system::error_code &error,
   reset_standard_deadline_timer();
 
   if (!error && parse_f3(bytes_transferred)) {
-    // create new session object if none and pass to the on connect handler
-    _session = make_intrusive_<Session>(_strand,
-                                        _session_id,
-                                        _config,
-                                        Connection::shared_from_this());
-
     try {
       ClientConnection::on_connect();
     } catch (const std::runtime_error &error) {

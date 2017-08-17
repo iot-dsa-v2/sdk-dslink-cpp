@@ -23,10 +23,10 @@ class Responder {
 
  protected:
   Session &_session;
-  SecurityManager *_security_manager;
-  NodeModelManager *_model_manager;
-  NodeStateManager _state_manager;
-  boost::asio::strand &_strand;
+  SecurityManager &_security_manager;
+  NodeModelManager &_model_manager;
+  NodeStateManager &_state_manager;
+  boost::asio::io_service::strand &_strand;
   std::atomic_size_t _stream_count{0};
 
   std::map< uint32_t, intrusive_ptr_<MessageStream> > _outgoing_streams;
@@ -39,7 +39,10 @@ class Responder {
   void send_error(MessageType &&type, MessageStatus &&status, uint32_t &&request_id = 0);
 
  public:
-  Responder(Session &session, const Config &config);
+  Responder(Session &session, 
+            SecurityManager &security_manager,
+            NodeModelManager &model_manager,
+            NodeStateManager &state_manager);
 
   void receive_message(intrusive_ptr_<RequestMessage> message);
 };

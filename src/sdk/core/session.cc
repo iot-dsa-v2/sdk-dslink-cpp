@@ -4,6 +4,8 @@
 
 #include <boost/bind.hpp>
 
+#include "server.h"
+#include "client.h"
 #include "responder/outgoing_message_stream.h"
 
 #define DEBUG true
@@ -13,15 +15,28 @@ namespace dsa {
 const std::string Session::BlankDsid = "";
 
 Session::Session(boost::asio::io_service::strand &strand,
-                 const std::string &session_id,
-                 const Config &config,
+                 const std::string &session_id, 
+                 SecurityManager &security_manager,
+                 NodeModelManager &model_manager,
+                 NodeStateManager &state_manager,
                  const shared_ptr_<Connection> &connection)
-    : _connection(connection),
-      _config(config),
+    : _strand(strand),
       _session_id(session_id),
-      _strand(strand),
+      _connection(connection),
       requester(*this),
-      responder(*this, config) {}
+      responder(*this, security_manager, model_manager, state_manager) {}
+
+Session::Session(const Server &server, const std::string &session_id,
+                 const shared_ptr_<Connection> &connection)
+    : Session(server.get_strand(), session_id, server.get_security_manager(),
+              server.get_node_model_manager(),
+              server.get_node_state_manager()) {}
+
+Session::Session(const Client &client, const std::string &session_id,
+                 const shared_ptr_<Connection> &connection)
+    : Session(client.get_strand(), session_id, client.get_security_manager(),
+              client.get_node_model_manager(),
+              client.get_node_state_manager()) {}
 
 void Session::start() const {
   if (_connection == nullptr)

@@ -3,5 +3,6 @@
 #include "config.h"
 
 namespace dsa {
-Config::Config(const ECDH* ecdh) : ecdh(ecdh) {}
+Config::Config(intrusive_ptr_<ECDH> ecdh, boost::asio::io_service::strand &strand) 
+	: ecdh(ecdh), strand(strand) {}
 }  // namespace dsa

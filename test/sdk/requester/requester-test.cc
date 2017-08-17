@@ -10,13 +10,11 @@
 using namespace dsa;
 
 TEST(RequesterTest, BasicFlow) {
-  shared_ptr_<App> app;
+  App app("BasicFlowTest");
 
-  ASSERT_NO_FATAL_FAILURE(app.reset(new App("RequesterTest")));
+  app.async_start(2);
 
-  app->async_start(2);
-
-  DefaultModules default_modules;
+  DefaultModules default_modules(app);
   Config server_config = default_modules.get_config();
 
   server_config.tcp_host = "127.0.0.1";
@@ -24,13 +22,12 @@ TEST(RequesterTest, BasicFlow) {
 
   Config client_config = server_config;
 
-  std::shared_ptr<Server> tcp_server(new TcpServer(app->new_strand(), server_config));
+  auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  app->sleep(500);
+  app.sleep(500);
 
-  shared_ptr_<TcpClient> tcp_client(
-      new TcpClient(app->new_strand(), client_config));
+  auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();
 
   // requester = client->session()->requester();
@@ -46,10 +43,10 @@ TEST(RequesterTest, BasicFlow) {
   shared_ptr_<Buffer> b = make_shared_<Buffer>(256);
   // subscribe_request.write(b->data());
 
-  app->sleep(2000);
+  app.sleep(2000);
 
   tcp_server->close();
   tcp_client->close();
-  app->close();
-  app->wait();
+  app.close();
+  app.wait();
 }

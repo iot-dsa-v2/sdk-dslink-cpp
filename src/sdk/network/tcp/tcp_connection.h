@@ -7,10 +7,11 @@
 
 #include "core/connection.h"
 #include "crypto/handshake_context.h"
-#include "network/tcp/tcp_server.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
+class TcpServer;
+class TcpClient;
 
 typedef boost::asio::ip::tcp::socket tcp_socket;
 
@@ -22,14 +23,22 @@ class TcpConnection : virtual public Connection {
   static const uint32_t MAX_PENDING_MESSAGE = 2;
 
  protected:
-  const App *_app;
   void read_loop(size_t from_prev, const boost::system::error_code &error,
                  size_t bytes_transferred) override;
   tcp_socket _socket;
   std::atomic_bool _socket_open{true};
 
  public:
-  TcpConnection(boost::asio::io_service::strand &strand, const Config &config);
+  TcpConnection(boost::asio::io_service::strand &strand,
+                uint32_t handshake_timeout_ms,
+                const std::string &dsid_prefix,
+                const intrusive_ptr_<ECDH> &ecdh);
+
+  TcpConnection(const Config &config);
+
+  TcpConnection(const TcpServer &server);
+
+  TcpConnection(const TcpClient &client);
 
   void write_handler(WriteHandler callback,
                      const boost::system::error_code &error);

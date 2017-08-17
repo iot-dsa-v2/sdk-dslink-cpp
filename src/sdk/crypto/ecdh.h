@@ -6,9 +6,10 @@
 #include <openssl/ec.h>
 
 #include "util/buffer.h"
+#include "util/enable_intrusive.h"
 
 namespace dsa {
-class ECDH {
+class ECDH : public EnableIntrusive<ECDH> {
  public:
   static const char *curve_name;
 
