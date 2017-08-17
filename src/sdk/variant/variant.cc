@@ -69,7 +69,7 @@ Variant::Variant(const std::vector<uint8_t>&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
-    *this = intrusive_ptr_<IntrusiveBinary>(new IntrusiveBinary(std::move(v)));
+    *this = intrusive_ptr_<ByteBuffer>(new ByteBuffer(std::move(v)));
   }
 }
 
