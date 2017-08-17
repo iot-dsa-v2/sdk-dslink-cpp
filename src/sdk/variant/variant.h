@@ -9,6 +9,7 @@
 
 #include "util/enable_intrusive.h"
 #include "util/exception.h"
+#include "util/buffer.h"
 
 struct msgpack_object;
 
@@ -44,20 +45,10 @@ class IntrusiveString : public std::string,
       : std::string(std::forward<Args>(args)...){};
 };
 
-class IntrusiveBinary : public std::vector<uint8_t>,
-                        public EnableIntrusive<IntrusiveBinary> {
- public:
-  template <typename... Args>
-  inline IntrusiveBinary(Args &&... args)
-      : std::vector<uint8_t>(std::forward<Args>(args)...){};
-};
-
-typedef intrusive_ptr_<IntrusiveBinary> BinaryPtr;
-
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
                        intrusive_ptr_<IntrusiveString>,
                        intrusive_ptr_<VariantMap>, intrusive_ptr_<VariantArray>,
-                       std::vector<uint8_t>, intrusive_ptr_<IntrusiveBinary>>
+                       std::vector<uint8_t>, intrusive_ptr_<ByteBuffer>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -102,8 +93,8 @@ class Variant : public BaseVariant {
   static Variant new_map();
   static Variant new_array();
 
-  template <class T>
-  inline Variant &operator=(T &&other) {
+ template <class T>
+  inline Variant & operator= (T && other){
     BaseVariant::operator=(std::forward<T>(other));
     return *this;
   }
@@ -116,7 +107,7 @@ class Variant : public BaseVariant {
 
  protected:
   explicit Variant(IntrusiveString *p);
-  explicit Variant(IntrusiveBinary *p);
+  explicit Variant(ByteBuffer *p);
 
  public:
   bool is_double() const { return which() == Double; }
@@ -143,7 +134,7 @@ class Variant : public BaseVariant {
   }
   const std::vector<uint8_t> &get_binary() const {
     if (which() == SharedBinary) {
-      return *boost::get<intrusive_ptr_<IntrusiveBinary>>(*this);
+      return *boost::get<intrusive_ptr_<ByteBuffer>>(*this);
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }

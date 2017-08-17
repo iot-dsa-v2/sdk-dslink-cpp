@@ -18,8 +18,8 @@ Connection::Connection(boost::asio::io_service::strand &strand,
                        const intrusive_ptr_<ECDH> &ecdh, std::string &&path)
     : _handshake_context(dsid_prefix, ecdh),
       _handshake_timeout_ms(handshake_timeout_ms),
-      _read_buffer(new Buffer()),
-      _write_buffer(new Buffer()),
+      _read_buffer(new ByteBuffer()),
+      _write_buffer(new ByteBuffer()),
       _deadline(strand.get_io_service()),
       _strand(strand),
       _path(std::move(path)) {}
@@ -110,6 +110,5 @@ void Connection::post_message(Message *message) {
   } else {
     delete message;
   }
-
 }
 }  // namespace dsa

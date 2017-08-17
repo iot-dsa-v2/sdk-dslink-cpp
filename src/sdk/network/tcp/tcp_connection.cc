@@ -47,7 +47,7 @@ void TcpConnection::read_loop(size_t from_prev,
     std::cout << std::endl << "in read loop" << std::endl;
 
     BufferPtr buf = std::move(_read_buffer);
-    _read_buffer.reset(new Buffer());
+    _write_buffer.reset(new ByteBuffer());
 
     size_t total_bytes = from_prev + bytes_transferred;
     uint8_t *data = buf->data();
@@ -58,10 +58,10 @@ void TcpConnection::read_loop(size_t from_prev,
       // sure it's a valid message
       if (total_bytes - cur < sizeof(uint32_t)) {
         size_t partial_size = total_bytes - cur;
-        _read_buffer->assign(&data[cur], partial_size);
+        _write_buffer->assign(&data[cur], &data[cur] + partial_size);
         _socket.async_read_some(
-            boost::asio::buffer(_read_buffer->data() + partial_size,
-                                _read_buffer->capacity() - partial_size),
+            boost::asio::buffer(_write_buffer->data() + partial_size,
+                                _write_buffer->capacity() - partial_size),
             boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(),
                         partial_size, boost::asio::placeholders::error,
                         boost::asio::placeholders::bytes_transferred));
@@ -72,14 +72,14 @@ void TcpConnection::read_loop(size_t from_prev,
         size_t partial_size = total_bytes - cur;
 
         // make sure buffer capacity is enough to read full message
-        _read_buffer->resize(message_size);
-        _read_buffer->assign(&data[cur], partial_size);
+        _write_buffer->resize(message_size);
+        _write_buffer->assign(&data[cur], &data[cur] + partial_size);
 
         // read the rest of the message
         boost::asio::async_read(
             _socket,
-            boost::asio::buffer(_read_buffer->data() + partial_size,
-                                _read_buffer->capacity() - partial_size),
+            boost::asio::buffer(_write_buffer->data() + partial_size,
+                                _write_buffer->capacity() - partial_size),
             boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(),
                         partial_size, boost::asio::placeholders::error,
                         boost::asio::placeholders::bytes_transferred));
@@ -101,7 +101,7 @@ void TcpConnection::read_loop(size_t from_prev,
     }
 
     _socket.async_read_some(
-        boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
+        boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
         boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
                     boost::asio::placeholders::error,
                     boost::asio::placeholders::bytes_transferred));
@@ -144,7 +144,7 @@ void TcpConnection::start() throw() {
   name();
 
   _socket.async_read_some(
-      boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
+      boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
       boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
                   boost::asio::placeholders::error, 0));
 }

@@ -84,40 +84,6 @@ std::vector<uint8_t> CryptoTest::compute_public_key(BIGNUM *priv) {
 
 
 //---------------------------------------------
-class BufferExt : public Buffer {
- public:
-  BufferExt(const Buffer &other) {
-    _size = other.size();
-    _data = new uint8_t[_size];
-    memcpy(_data, other.data(), _size);
-  }
-
-  BufferExt(const std::string &str) : Buffer(str) {}
-  
-  std::string hexstr() {
-    uint8_t *ptr = data();
-    boost::format formater("%02x");
-    std::string out;
-    for(uint32_t i=0; i<size(); ++i) {
-      formater % (int)data()[i];
-      out += formater.str();
-    }
-    return out;
-  }
-
-  bool operator==(const BufferExt &other) {
-    return (memcmp(_data, other.data(), _size) == 0);
-  }
-
-  ~BufferExt() {
-//    delete[] _data;
-  }
-
- private:
-  size_t _size;
-  uint8_t* _data;
-};
-
 std::string hex_string(const std::vector<uint8_t> &buf) {
   auto ptr = buf.data();
   boost::format formater("%02x");

@@ -40,7 +40,7 @@ TEST(RequesterTest, BasicFlow) {
   subscribe_request.set_qos(StreamQos::_2);
   subscribe_request.set_target_path("/path/name");
 
-  shared_ptr_<Buffer> b = make_shared_<Buffer>(256);
+  shared_ptr_<ByteBuffer> b = make_shared_<ByteBuffer>(256);
   // subscribe_request.write(b->data());
 
   app.sleep(2000);

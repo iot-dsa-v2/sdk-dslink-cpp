@@ -87,7 +87,7 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
     return;
   }
 
-  auto buf = make_intrusive_<Buffer>();
+  auto buf = make_intrusive_<ByteBuffer>();
   auto stream = sthis->get_next_ready_stream();
 
   if (stream == nullptr)
@@ -97,7 +97,11 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
   buf->resize(stream->get_next_message_size());
 
   do {
-    buf->append(stream->get_next_message());
+    // append message data to buffer then resize
+    auto& message = stream->get_next_message();
+    buf->resize(buf->size() + message.size());
+    message.write(&buf->operator[](buf->size()));
+
     stream = sthis->get_next_ready_stream();
   } while (stream != nullptr && stream->get_next_message_size() + buf->size() < buf->capacity());
 

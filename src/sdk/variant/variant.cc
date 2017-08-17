@@ -55,14 +55,14 @@ Variant::Variant(const uint8_t* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::vector<uint8_t>(v, v + size);
   } else {
-    *this = intrusive_ptr_<IntrusiveBinary>(new IntrusiveBinary(v, v + size));
+    *this = intrusive_ptr_<ByteBuffer>(new ByteBuffer(v, v + size));
   }
 }
 Variant::Variant(const std::vector<uint8_t>& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
-    *this = intrusive_ptr_<IntrusiveBinary>(new IntrusiveBinary(v));
+    *this = intrusive_ptr_<ByteBuffer>(new ByteBuffer(v));
   }
 }
 Variant::Variant(const std::vector<uint8_t>&& v) {
@@ -76,8 +76,8 @@ Variant::Variant(const std::vector<uint8_t>&& v) {
 Variant::Variant(IntrusiveString* p)
     : BaseVariant(intrusive_ptr_<IntrusiveString>(p)) {}
 
-Variant::Variant(IntrusiveBinary* p)
-    : BaseVariant(intrusive_ptr_<IntrusiveBinary>(p)) {}
+Variant::Variant(ByteBuffer* p)
+    : BaseVariant(intrusive_ptr_<ByteBuffer>(p)) {}
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
 Variant::Variant(VariantMap* p) : BaseVariant(intrusive_ptr_<VariantMap>(p)) {}

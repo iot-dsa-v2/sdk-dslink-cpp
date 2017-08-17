@@ -32,7 +32,7 @@ bool ServerConnection::parse_f0(size_t size) {
   if (size < MinF0Length)
     return false;
 
-  const uint8_t *data = _read_buffer->data();
+  const uint8_t *data = _write_buffer->data();
 
   StaticHeaders header(data);
 
@@ -46,7 +46,7 @@ bool ServerConnection::parse_f0(size_t size) {
   _dsa_version_minor = *data++;
   dsid_length = *data++;
 
-  if ((data - _read_buffer->data()) + dsid_length + PublicKeyLength + 1 + SaltLength > size)
+  if ((data - _write_buffer->data()) + dsid_length + PublicKeyLength + 1 + SaltLength > size)
     return false;
 
   data += _other_dsid.assign(reinterpret_cast<const char *>(data), dsid_length).size();
@@ -59,14 +59,14 @@ bool ServerConnection::parse_f0(size_t size) {
 
   data += _other_salt.size();
 
-  return data == _read_buffer->data() + size;
+  return data == _write_buffer->data() + size;
 }
 
 bool ServerConnection::parse_f2(size_t size) {
   if (size < MinF2Length)
     return false;
 
-  const uint8_t *data = _read_buffer->data();
+  const uint8_t *data = _write_buffer->data();
 
   StaticHeaders header(data);
   if (!valid_handshake_header(header, size, MessageType::Handshake2))
@@ -80,7 +80,7 @@ bool ServerConnection::parse_f2(size_t size) {
   data += sizeof(token_length);
 
   // prevent accidental read in unowned memory
-  if ((data - _read_buffer->data()) + token_length + 2 + sizeof(session_id_length) > size)
+  if ((data - _write_buffer->data()) + token_length + 2 + sizeof(session_id_length) > size)
     return false;
 
   data += _other_token.assign(reinterpret_cast<const char *>(data), token_length).size();
@@ -90,17 +90,17 @@ bool ServerConnection::parse_f2(size_t size) {
   data += sizeof(session_id_length);
 
   // prevent accidental read in unowned memory
-  if ((data - _read_buffer->data()) + session_id_length + AuthLength != size)
+  if ((data - _write_buffer->data()) + session_id_length + AuthLength != size)
     return false;
 
   data += _session_id.assign(reinterpret_cast<const char *>(data), session_id_length).size();
   _other_auth.assign(data, data+AuthLength);
   data += _other_auth.size();
 
-  return data == _read_buffer->data() + size;
+  return data == _write_buffer->data() + size;
 }
 
-size_t ServerConnection::load_f1(Buffer &buf) {
+size_t ServerConnection::load_f1(ByteBuffer &buf) {
   uint16_t dsid_length =
       static_cast<uint16_t>(_handshake_context.dsid().size());
 
@@ -123,7 +123,7 @@ size_t ServerConnection::load_f1(Buffer &buf) {
   return size;
 }
 
-size_t ServerConnection::load_f3(Buffer &buf) {
+size_t ServerConnection::load_f3(ByteBuffer &buf) {
   auto sid_length = (uint16_t) _session_id.size();
   auto path_length = (uint16_t) _path.size();
 

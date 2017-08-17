@@ -27,7 +27,7 @@ bool ClientConnection::parse_f1(size_t size) {
   if (size < MinF1Length)
     return false;
 
-  const uint8_t *data = _read_buffer->data();
+  const uint8_t *data = _write_buffer->data();
 
   StaticHeaders header(data);
   if (!valid_handshake_header(header, size, MessageType::Handshake1))
@@ -39,7 +39,7 @@ bool ClientConnection::parse_f1(size_t size) {
   std::copy(data, data + sizeof(dsid_length), &dsid_length);
   data += sizeof(dsid_length);
 
-  if ((data - _read_buffer->data()) + dsid_length + PublicKeyLength + SaltLength > size)
+  if ((data - _write_buffer->data()) + dsid_length + PublicKeyLength + SaltLength > size)
     return false;
 
   data += _other_dsid.assign(reinterpret_cast<const char *>(data), dsid_length).size();
@@ -50,14 +50,14 @@ bool ClientConnection::parse_f1(size_t size) {
   _other_salt.assign(data, data + SaltLength);
   data += _other_salt.size();
 
-  return data == _read_buffer->data() + size;
+  return data == _write_buffer->data() + size;
 }
 
 bool ClientConnection::parse_f3(size_t size) {
   if (size < MinF3Length)
     return false;
 
-  const uint8_t *data = _read_buffer->data();
+  const uint8_t *data = _write_buffer->data();
 
   StaticHeaders header(data);
   if (!valid_handshake_header(header, size, MessageType::Handshake3))
@@ -93,11 +93,11 @@ bool ClientConnection::parse_f3(size_t size) {
   if (_auth_check != _other_auth)
     return false;
 
-  return data == _read_buffer->data() + size;
+  return data == _write_buffer->data() + size;
 }
 
 // Handshake load functions
-size_t ClientConnection::load_f0(Buffer &buf) {
+size_t ClientConnection::load_f0(ByteBuffer &buf) {
   uint16_t dsid_length =
       static_cast<uint16_t>(_handshake_context.dsid().size());
 
@@ -124,7 +124,7 @@ size_t ClientConnection::load_f0(Buffer &buf) {
   return size;
 }
 
-size_t ClientConnection::load_f2(Buffer &buf) {
+size_t ClientConnection::load_f2(ByteBuffer &buf) {
   auto token_length = (uint16_t) _client_token.size();
   auto sid_length = (uint16_t)_previous_session_id.size();
 

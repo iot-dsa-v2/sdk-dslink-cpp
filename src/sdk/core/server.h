@@ -18,10 +18,6 @@ namespace dsa {
 class Connection;
 class SessionManager;
 
-typedef std::function<void(const intrusive_ptr_<Session> &,
-                           Buffer::SharedBuffer)>
-    MessageHandler;
-
 class Server : public SharedClosable<Server> {
  protected:
   // for Session/Requester/Responder

@@ -24,8 +24,8 @@ class ServerConnection : virtual public Connection {
   // handshake functions
   bool parse_f0(size_t size);
   bool parse_f2(size_t size);
-  size_t load_f1(Buffer &buf);
-  size_t load_f3(Buffer &buf);
+  size_t load_f1(ByteBuffer &buf);
+  size_t load_f3(ByteBuffer &buf);
 
   // weak pointer needed here in order for the server to be able to be freed
   // once TcpServer::stop is called. std::weak_ptr::lock implementation just

@@ -24,8 +24,8 @@ class ClientConnection : virtual public Connection {
   // handshake functions
   bool parse_f1(size_t size);
   bool parse_f3(size_t size);
-  size_t load_f0(Buffer &buf);
-  size_t load_f2(Buffer &buf);
+  size_t load_f0(ByteBuffer &buf);
+  size_t load_f2(ByteBuffer &buf);
 };
 }  // namespace dsa
 

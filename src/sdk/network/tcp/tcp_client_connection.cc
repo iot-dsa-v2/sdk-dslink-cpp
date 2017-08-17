@@ -41,7 +41,7 @@ void TcpClientConnection::start_handshake(
                   boost::asio::placeholders::error));
 
   _socket.async_read_some(
-      boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
+      boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
       boost::bind(&TcpClientConnection::f1_received,
                   Connection::share_this<TcpClientConnection>(),
                   boost::asio::placeholders::error,
@@ -79,7 +79,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
                     boost::asio::placeholders::error));
 
     _socket.async_read_some(
-        boost::asio::buffer(_read_buffer->data(), _read_buffer->capacity()),
+        boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
         boost::bind(&TcpClientConnection::f3_received,
                     Connection::share_this<TcpClientConnection>(),
                     boost::asio::placeholders::error,
