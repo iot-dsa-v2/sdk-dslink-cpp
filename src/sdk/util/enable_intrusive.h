@@ -57,7 +57,7 @@ class EnableIntrusive {
   template <typename _Ty>
   friend void intrusive_ptr_release(_Ty* t);
 
-  std::atomic_size_t _refs{0};
+  size_t _refs{0};
 
  public:
   unsigned int ref_count() const { return _refs; }
@@ -67,19 +67,19 @@ template <typename T>
 class IntrusiveClosable : public Closable, public EnableIntrusive<T> {};
 
 template <typename _Ty>
-inline void intrusive_ptr_add_ref(_Ty *t) {
+void intrusive_ptr_add_ref(_Ty *t) {
   ++t->_refs;
 }
 
 template <typename _Ty>
-inline void intrusive_ptr_release(_Ty *t) {
+void intrusive_ptr_release(_Ty *t) {
   if (--t->_refs == 0) {
     delete t;
   }
 }
 
 template <class _Ty, class... _Types>
-inline intrusive_ptr_<_Ty> make_intrusive_(_Types&&... _Args) {
+intrusive_ptr_<_Ty> make_intrusive_(_Types&&... _Args) {
   return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
 };
 
