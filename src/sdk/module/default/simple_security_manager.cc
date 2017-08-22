@@ -2,6 +2,8 @@
 
 #include "simple_security_manager.h"
 
+#include <boost/asio/strand.hpp>
+
 namespace dsa {
 void SimpleSecurityManager::get_client(const std::string& dsid,
                                        const std::string& auth_token,

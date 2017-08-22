@@ -4,7 +4,6 @@
 #include <deque>
 #include <functional>
 
-#include <boost/asio/strand.hpp>
 #include <message/error_message.h>
 
 #include "message/response/subscribe_response_message.h"

@@ -5,8 +5,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/thread/shared_mutex.hpp>
-
 #include "util/enable_intrusive.h"
 #include "node_state.h"
 

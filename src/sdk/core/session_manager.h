@@ -5,10 +5,7 @@
 #ifndef DSA_SDK_NETWORK_SESSION_MANAGER_H
 #define DSA_SDK_NETWORK_SESSION_MANAGER_H
 
-#include <atomic>
 #include <map>
-
-#include <boost/asio/strand.hpp>
 
 #include "session.h"
 #include "util/enable_shared.h"

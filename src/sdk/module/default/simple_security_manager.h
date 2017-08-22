@@ -1,7 +1,7 @@
 #ifndef DSA_SDK_MODULE_DIMPLE_SECURITY_MANAGER_H_
 #define DSA_SDK_MODULE_DIMPLE_SECURITY_MANAGER_H_
 
-#include <boost/asio/strand.hpp>
+#include <boost/asio/io_service.hpp>
 
 #include "../security_manager.h"
 

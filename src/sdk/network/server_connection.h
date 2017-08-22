@@ -1,11 +1,6 @@
-//
-// Created by Ben Richards on 8/9/17.
-//
-
 #ifndef DSA_SDK_NETWORK_CONNECTION_SERVER_CONNECTION_H_
 #define DSA_SDK_NETWORK_CONNECTION_SERVER_CONNECTION_H_
 
-#include <boost/asio/strand.hpp>
 
 #include "core/connection.h"
 

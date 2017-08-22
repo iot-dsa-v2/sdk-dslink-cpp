@@ -5,8 +5,6 @@
 #include <map>
 #include <queue>
 
-#include <boost/thread/shared_mutex.hpp>
-
 #include "connection.h"
 #include "message_stream.h"
 #include "util/enable_shared.h"
