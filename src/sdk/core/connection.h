@@ -2,12 +2,10 @@
 #define DSA_SDK_CONNECTION_H_
 
 #include <functional>
-#include <atomic>
 #include <utility>
+#include <boost/asio/deadline_timer.hpp>
 
-#include <boost/asio.hpp>
-
-#include "core/config.h"
+#include "core/link_strand.h"
 #include "util/util.h"
 #include "message/static_headers.h"
 #include "crypto/handshake_context.h"
@@ -69,20 +67,13 @@ class Connection : public SharedClosable<Connection> {
   void set_session(const intrusive_ptr_<Session> &session);
 
  protected:
-  Connection(boost::asio::io_service::strand &strand,
-             uint32_t handshake_timeout_ms, 
-             const std::string &dsid_prefix, 
-             const intrusive_ptr_<ECDH> &ecdh,
-             std::string &&path = "/");
-
-  Connection(const Config &config, std::string &&path = "/");
-
-  Connection(const Server &server, std::string &&path = "/");
-
-  Connection(const Client &client, std::string &&path = "/");
+  Connection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+             const std::string &dsid_prefix,
+             const std::string &path = "");
+  virtual ~Connection() = default;
 
   HandshakeContext _handshake_context;
-  boost::asio::io_service::strand &_strand;
+  LinkStrandPtr _strand;
 
   // this should rarely be touched
   intrusive_ptr_<Session> _session;
@@ -111,7 +102,7 @@ class Connection : public SharedClosable<Connection> {
   boost::asio::deadline_timer _deadline;
   uint32_t _handshake_timeout_ms{1000};
 
-  virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
+//  virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
   virtual void on_connect() throw(const std::runtime_error &) = 0;
 

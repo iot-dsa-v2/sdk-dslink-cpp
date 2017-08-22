@@ -1,8 +1,9 @@
 #ifndef DSA_SDK_NETWORK_STREAM_H
 #define DSA_SDK_NETWORK_STREAM_H
 
-#include <boost/asio/strand.hpp>
 #include <map>
+
+#include "core/link_strand.h"
 
 #include "message/base_message.h"
 #include "util/enable_intrusive.h"
@@ -22,21 +23,13 @@ enum StreamType {
   Status
 };
 
-class StreamHolder : public IntrusiveClosable<StreamHolder> {
- protected:
-  typedef intrusive_ptr_<MessageStream> stream_ptr_;
 
- public:
-  virtual void add_stream(const stream_ptr_ &stream) = 0;
-  virtual void remove_stream(const MessageStream *raw_stream_ptr) = 0;
-  virtual ~StreamHolder() = default;
-};
 
 class MessageStream : public EnableIntrusive<MessageStream> {
  protected:
-  boost::asio::io_service::strand &_strand;
-  std::vector<intrusive_ptr_<StreamHolder>> _holders;
-  std::atomic_bool _closed{false};
+  LinkStrandPtr _strand;
+
+  bool _closed{false};
   std::function<void()> _set_ready;
 
  public:
@@ -48,7 +41,6 @@ class MessageStream : public EnableIntrusive<MessageStream> {
                 size_t unique_id);
   virtual ~MessageStream() = default;
 
-  void add_holder(intrusive_ptr_<StreamHolder> holder);
 
   virtual StreamType get_type() const = 0;
   virtual bool is_outgoing() const = 0;

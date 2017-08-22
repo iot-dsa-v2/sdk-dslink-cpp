@@ -21,7 +21,7 @@ struct ClientInfo {
         multi_session(multi_session) {}
 };
 
-class SecurityManager : public EnableIntrusive<SecurityManager> {
+class SecurityManager {
  public:
   typedef std::function<void(const ClientInfo client, bool error)> GetClientCallback;
   typedef std::function<void(PermissionLevel permission)> CheckPermissionCallback;

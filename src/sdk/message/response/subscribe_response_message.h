@@ -18,7 +18,7 @@ class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
 
  public:
   const MessageValue& get_value();
-  void set_value(const Variant & value, const Variant & meta);
+  void set_value(MessageValue value);
 
  protected:
   // measure the size and header size

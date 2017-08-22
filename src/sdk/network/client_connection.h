@@ -1,8 +1,6 @@
 #ifndef DSA_SDK_NETWORK_CONNECTION_CLIENT_CONNECTION_H
 #define DSA_SDK_NETWORK_CONNECTION_CLIENT_CONNECTION_H
 
-#include <boost/asio/strand.hpp>
-
 #include "core/connection.h"
 
 #include "util/enable_intrusive.h"
@@ -10,9 +8,9 @@
 namespace dsa {
 class ClientConnection : virtual public Connection {
  public:
-  ClientConnection(const Config &config);
-
-  ClientConnection(const Client &client);
+  ClientConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+                   const std::string &dsid_prefix, const std::string &path = "",
+                   const std::string &client_token = "");
 
   virtual ~ClientConnection() = default;
 

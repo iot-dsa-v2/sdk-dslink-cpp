@@ -6,8 +6,8 @@
 #define DSA_SDK_NETWORK_CONNECTION_TCP_CLIENT_CONNECTION_H_
 
 #include "core/connection.h"
-#include "tcp_connection.h"
 #include "network/client_connection.h"
+#include "tcp_connection.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -26,12 +26,14 @@ class TcpClientConnection : public TcpConnection, public ClientConnection {
   std::string _hostname;
   uint16_t _port;
 
-  void start_handshake(const boost::system::error_code &error) throw(const std::runtime_error &);
+  void start_handshake(const boost::system::error_code &error) throw(
+      const std::runtime_error &);
 
  public:
-  TcpClientConnection(const Config &config);
-
-  TcpClientConnection(const TcpClient &config);
+  TcpClientConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+                      const std::string &dsid_prefix,
+                      const std::string &tcp_host, uint16_t tcp_port,
+                      const std::string &path = "");
 
   ~TcpClientConnection() { std::cout << "~TcpClientConnection()\n"; }
 

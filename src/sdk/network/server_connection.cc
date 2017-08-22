@@ -4,15 +4,15 @@
 #include "core/server.h"
 
 namespace dsa {
-ServerConnection::ServerConnection(const Config &config)
-    : Connection(config) {}
+ServerConnection::ServerConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+                                   const std::string &dsid_prefix,
+                                   const std::string &path)
+    : Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path) {}
 
-ServerConnection::ServerConnection(const Server &server)
-    : Connection(server) {}
 
 void ServerConnection::on_connect() throw(const std::runtime_error &) {
   // setup session now that client session id has been parsed
-  _server->session_manager().get_session(
+  _strand->session_manager().get_session(
     _other_dsid, _other_token, _session_id, [=](const intrusive_ptr_<Session> &session) {
     if (session != nullptr) {
       _session = session;

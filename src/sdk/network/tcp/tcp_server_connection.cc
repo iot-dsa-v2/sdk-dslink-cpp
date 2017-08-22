@@ -2,21 +2,24 @@
 
 #include "tcp_server_connection.h"
 
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
+
+// TODO: remove this
+#include <boost/asio.hpp>
 
 #include "tcp_server.h"
 
 #define DEBUG 0
 
 namespace dsa {
-TcpServerConnection::TcpServerConnection(const Config &config)
-    : Connection(config), TcpConnection(config), ServerConnection(config) {}
+TcpServerConnection::TcpServerConnection(LinkStrandPtr strand,
+                                         uint32_t handshake_timeout_ms,
+                                         const std::string &dsid_prefix,
+                                         const std::string &path)
+    : Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path),
+      TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path),
+      ServerConnection(strand, handshake_timeout_ms, dsid_prefix, path) {}
 
-TcpServerConnection::TcpServerConnection(const TcpServer &server)
-    : Connection(static_cast<const Server &>(server)), 
-      ServerConnection(static_cast<const Server &>(server)),
-      TcpConnection(server) {}
 
 void TcpServerConnection::connect() { start_handshake(); }
 

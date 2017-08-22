@@ -6,40 +6,29 @@
 
 namespace dsa {
 
-NodeState::NodeState(boost::asio::io_service::strand &strand, const std::string &path)
-    : _strand(strand), _path(path) {}
+NodeState::NodeState(LinkStrandPtr strand, const std::string &path)
+    : strand(std::move(strand)), _path(path) {}
 
 void NodeState::new_message(const SubscribeResponseMessage &message) {
   _last_value.reset(new SubscribeResponseMessage(message));
   for (auto &it : _subscription_streams) {
-    auto &stream = dynamic_cast<SubscribeMessageStream &>(*it.second);
-    stream.new_message(message);
+    auto &stream = dynamic_cast<intrusive_ptr_<SubscribeMessageStream> &>(*it);
+    stream->new_message(message);
   }
 }
 
-void NodeState::add_stream(const stream_ptr_ &stream) {
-  switch (stream->get_type()) {
-    case StreamType::Subscribe:_subscription_streams[stream->_unique_id] = stream;
-      break;
-    case StreamType::List:_list_streams[stream->_unique_id] = stream;
-      break;
-    default:
-      return;
-  }
-  stream->add_holder(intrusive_this<StreamHolder>());
+void NodeState::add_stream(intrusive_ptr_<SubscribeMessageStream> p) {
+  _subscription_streams.insert(std::move(p));
+}
+void NodeState::add_stream(intrusive_ptr_<ListMessageStream> p) {
+  _list_streams.insert(std::move(p));
 }
 
-void NodeState::remove_stream(const MessageStream *stream) {
-  if (stream == nullptr) return;
-
-  switch (stream->get_type()) {
-    case StreamType::Subscribe:_subscription_streams.erase(stream->_unique_id);
-      break;
-    case StreamType::List:_list_streams.erase(stream->_unique_id);
-      break;
-    default:
-      break;
-  }
+void NodeState::remove_stream(intrusive_ptr_<SubscribeMessageStream> &p) {
+  _subscription_streams.erase(std::move(p));
+}
+void NodeState::remove_stream(intrusive_ptr_<ListMessageStream> &p) {
+  _list_streams.erase(std::move(p));
 }
 
 }  // namespace dsa

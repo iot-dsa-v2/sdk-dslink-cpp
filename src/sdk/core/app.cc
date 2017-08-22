@@ -2,7 +2,7 @@
 
 #include "app.h"
 
-#include <boost/asio.hpp>
+
 #include <boost/thread.hpp>
 
 namespace dsa {
@@ -57,17 +57,10 @@ void App::sleep(unsigned int milliseconds) {
   boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
 }
 
-void App::close() {
-  _work.reset();
-}
+void App::close() { _work.reset(); }
 
-boost::asio::io_service::strand &App::new_strand() {
-  auto new_strand = std::unique_ptr<boost::asio::io_service::strand>(
-    new boost::asio::io_service::strand(*_io_service));
-
-  std::lock_guard<std::mutex> lock(_strands_key);
-  _strands.push_back(std::move(new_strand));
-  return *_strands.back();
+boost::asio::io_service::strand *App::new_strand() {
+  return new boost::asio::io_service::strand(*_io_service);
 }
 
 void App::force_stop() { _work.reset(); }

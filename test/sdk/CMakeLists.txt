@@ -6,9 +6,9 @@ foreach(dir "./crypto"
 	    "./message"		
 	    "./util"
         "./variant"
-		"./network"
-		"./requester"		
-	    "./responder"
+#		"./network"
+#		"./requester"
+#	    "./responder"
 		)
   add_subdirectory(${dir})
 endforeach()

@@ -14,9 +14,9 @@ class Server;
 
 class ServerConnection : virtual public Connection {
  public:
-  ServerConnection(const Config &config);
-
-  ServerConnection(const Server &server);
+  ServerConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+                   const std::string &dsid_prefix,
+                   const std::string &path = "");
 
  protected:
   void on_connect() throw(const std::runtime_error &) override;

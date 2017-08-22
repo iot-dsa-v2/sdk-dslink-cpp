@@ -5,19 +5,19 @@
 #include <string>
 #include <utility>
 
-#include <boost/asio/strand.hpp>
+#include "core/link_strand.h"
 
 #include "node_state.h"
 
 namespace dsa {
 
-class NodeStateManager : public EnableIntrusive<NodeStateManager> {
+class NodeStateManager {
  private:
-  boost::asio::io_service::strand &_strand;
+  LinkStrandPtr strand;
   std::map< std::string, intrusive_ptr_<NodeState> > _node_states;
 
  public:
-  explicit NodeStateManager(boost::asio::io_service::strand &strand);
+  explicit NodeStateManager(LinkStrandPtr strand);
 
   const intrusive_ptr_<NodeState> &get_or_create(std::string path);
 };

@@ -2,22 +2,29 @@
 
 #include "tcp_client_connection.h"
 
+// TODO: remove this
+#include <boost/asio.hpp>
+
 #include <boost/bind.hpp>
 
 #include "tcp_client.h"
 
 namespace dsa {
-TcpClientConnection::TcpClientConnection(const Config &config)
-    : Connection(config), TcpConnection(config), ClientConnection(config),
-      _hostname(config.tcp_host), _port(config.tcp_port) {}
+TcpClientConnection::TcpClientConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+                                         const std::string &dsid_prefix,
+                                         const std::string &tcp_host, uint16_t tcp_port,
+                                         const std::string &path)
+    :    Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path),
+TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path),
+ClientConnection(strand, handshake_timeout_ms, dsid_prefix, path),
+      _hostname(tcp_host), _port(tcp_port) {}
 
-TcpClientConnection::TcpClientConnection(const TcpClient &client)
-    : Connection(client), TcpConnection(client), ClientConnection(client) {}
+
 
 void TcpClientConnection::connect() {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(_strand.get_io_service());
+  tcp::resolver resolver((*_strand)().get_io_service());
   _socket.async_connect(
       *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
       boost::bind(&TcpClientConnection::start_handshake,

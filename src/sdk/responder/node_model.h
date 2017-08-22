@@ -13,22 +13,18 @@ namespace dsa {
 class NodeState;
 
 // interface of the real model logic
-class NodeModel : public StreamHolder {
+class NodeModel : public EnableIntrusive<NodeModel>  {
  private:
-  typedef intrusive_ptr_<MessageStream> stream_ptr_;
 
   intrusive_ptr_<NodeState> _state;
   std::map< size_t, intrusive_ptr_<MessageStream> > _invoke_streams;
   std::map< size_t, intrusive_ptr_<MessageStream> > _set_streams;
 
-  std::queue<SubscribeResponseMessage> _to_send;
 
  public:
-  template<typename T>
-  void update_value(T new_value);
 
-  void add_stream(const stream_ptr_ &stream) override;
-  void remove_stream(const MessageStream *stream) override;
+  void update_value(MessageValue new_value);
+
 };
 
 }  // namespace dsa

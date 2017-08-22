@@ -18,7 +18,8 @@ const MessageValue& SubscribeResponseMessage::get_value() {
   }
   return *_parsed_value;
 }
-void SubscribeResponseMessage::set_value(const Variant & value, const Variant & meta) {
+void SubscribeResponseMessage::set_value(MessageValue value) {
+  _parsed_value.reset(new MessageValue(std::move(value)));
   // TODO: create encode both meta and value, and create a Buffer Object to store the value
   // Buffer format  2bytes(meta size) + meta msgpack + value msgpack
 }

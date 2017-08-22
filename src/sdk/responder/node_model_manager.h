@@ -14,7 +14,7 @@ namespace dsa {
 class NodeModel;
 class NodeState;
 
-class NodeModelManager : public EnableIntrusive<NodeModelManager> {
+class NodeModelManager {
  private:
   std::map<std::string, shared_ptr_<NodeModel>> _models;
 

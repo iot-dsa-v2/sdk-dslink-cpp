@@ -46,7 +46,7 @@ set(LIB_CORE "./core")
 set(LIB_MODULE "./module")
 
 # SOURCE FILES
-set(ProjectSourceFiles)
+set(ProjectSourceFiles core/link_strand.cc core/link_strand.h)
 
 # EXTERNAL LIBRARIES
 set(ExtraLibs)

@@ -1,9 +1,7 @@
 #ifndef DSA_SDK_TCP_CONNECTION_H_
 #define DSA_SDK_TCP_CONNECTION_H_
 
-#include <atomic>
-
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 #include "core/connection.h"
 #include "crypto/handshake_context.h"
@@ -23,22 +21,17 @@ class TcpConnection : virtual public Connection {
   static const uint32_t MAX_PENDING_MESSAGE = 2;
 
  protected:
-  void read_loop(size_t from_prev, const boost::system::error_code &error,
-                 size_t bytes_transferred) override;
+  static void read_loop(shared_ptr_<TcpConnection> connection, size_t from_prev, const boost::system::error_code &error,
+                 size_t bytes_transferred);
   tcp_socket _socket;
   std::atomic_bool _socket_open{true};
 
  public:
-  TcpConnection(boost::asio::io_service::strand &strand,
-                uint32_t handshake_timeout_ms,
+
+  TcpConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
                 const std::string &dsid_prefix,
-                const intrusive_ptr_<ECDH> &ecdh);
+                const std::string &path = "");
 
-  TcpConnection(const Config &config);
-
-  TcpConnection(const TcpServer &server);
-
-  TcpConnection(const TcpClient &client);
 
   void write_handler(WriteHandler callback,
                      const boost::system::error_code &error);

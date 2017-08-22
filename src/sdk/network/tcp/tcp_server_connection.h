@@ -27,9 +27,10 @@ class TcpServerConnection : public TcpConnection, public ServerConnection {
   void start_handshake();
 
  public:
-  TcpServerConnection(const Config &config);
+  TcpServerConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+                      const std::string &dsid_prefix = "",
+                      const std::string &path = "");
 
-  TcpServerConnection(const TcpServer &server);
 
   ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
 

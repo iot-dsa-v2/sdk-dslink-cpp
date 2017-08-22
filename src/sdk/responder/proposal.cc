@@ -2,7 +2,7 @@
 
 #include <queue>
 
-#include <boost/asio.hpp>
+
 
 #include "core/connection.h"
 #include "core/message_stream.h"

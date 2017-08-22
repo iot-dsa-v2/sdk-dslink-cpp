@@ -26,13 +26,10 @@ class SessionManager {
  private:
   std::map<std::string, intrusive_ptr_<Session>> _sessions;
 
-  boost::asio::io_service::strand &_strand;
-  SecurityManager &_security_manager;
+  LinkStrandPtr _strand;
 
-  const Server &_server;
-
- public:
-  SessionManager(const Server &server, const Config &config);
+public:
+  SessionManager(LinkStrandPtr strand);
   void get_session(const std::string &dsid, const std::string &auth_token,
                    const std::string &session_id,
                    const GetSessionCallback &&callback);

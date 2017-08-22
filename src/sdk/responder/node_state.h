@@ -2,33 +2,51 @@
 #define DSA_SDK_NODE_STATE_H_
 
 #include <string>
-#include <vector>
+#include <unordered_set>
 
-#include <boost/asio/strand.hpp>
+#include "core/link_strand.h"
 
-#include "message/response/subscribe_response_message.h"
-#include "outgoing_message_stream.h"
 #include "core/message_stream.h"
+#include "message/response/subscribe_response_message.h"
 #include "node_model.h"
+#include "outgoing_message_stream.h"
 
 namespace dsa {
 class NodeModel;
 
+class MessageStreamHashFunc {
+ public:
+  size_t operator()(const intrusive_ptr_<MessageStream> &key) const {
+    return reinterpret_cast<size_t>(key.get());
+  }
+};
+
+class MessageStreamKeyCmp {
+ public:
+  bool operator()(const intrusive_ptr_<MessageStream> &t1,
+                  const intrusive_ptr_<MessageStream> &t2) const {
+    return t1.get() == t2.get();
+  }
+};
+
 // maintain streams of a node
-class NodeState : public StreamHolder {
+class NodeState : public EnableIntrusive<NodeState> {
  private:
   typedef intrusive_ptr_<NodeModel> model_ptr_;
 
-  boost::asio::io_service::strand &_strand;
+  LinkStrandPtr strand;
   std::string _path;
   model_ptr_ _model;
-  std::map< size_t, stream_ptr_ > _subscription_streams;
-  std::map< size_t, stream_ptr_ > _list_streams;
+  std::unordered_set<intrusive_ptr_<SubscribeMessageStream>,
+                     MessageStreamHashFunc, MessageStreamKeyCmp>
+      _subscription_streams;
+  std::unordered_set<intrusive_ptr_<ListMessageStream>, MessageStreamHashFunc,
+                     MessageStreamKeyCmp>
+      _list_streams;
   std::unique_ptr<SubscribeResponseMessage> _last_value;
 
  public:
-  explicit NodeState(boost::asio::io_service::strand &strand,
-                         const std::string &path);
+  explicit NodeState(LinkStrandPtr strand, const std::string &path);
 
   //////////////////////////
   // Getters
@@ -46,11 +64,11 @@ class NodeState : public StreamHolder {
   /////////////////////////
   void new_message(const SubscribeResponseMessage &message);
 
+  void add_stream(intrusive_ptr_<SubscribeMessageStream> p);
+  void add_stream(intrusive_ptr_<ListMessageStream> p);
 
-  void close() override {}
-
-  void add_stream(const stream_ptr_ &stream) override;
-  void remove_stream(const MessageStream *stream) override;
+  void remove_stream(intrusive_ptr_<SubscribeMessageStream> &p);
+  void remove_stream(intrusive_ptr_<ListMessageStream> &p);
 };
 
 }  // namespace dsa

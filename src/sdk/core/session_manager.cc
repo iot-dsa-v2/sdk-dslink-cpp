@@ -9,16 +9,14 @@
 #include "module/security_manager.h"
 
 namespace dsa {
-SessionManager::SessionManager(const Server &server, const Config &config)
-    : _server(server),
-      _strand(config.strand),
-      _security_manager(*config.security_manager) {}
+SessionManager::SessionManager(LinkStrandPtr strand)
+    : _strand(std::move(strand)){}
 
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
                                  const std::string &session_id,
                                  const GetSessionCallback &&callback) {
-  _security_manager.get_client(dsid, auth_token, [
+  _strand->security_manager().get_client(dsid, auth_token, [
     =, callback = std::move(callback)
   ](const ClientInfo client, bool error) mutable {
     if (error) {
@@ -30,7 +28,7 @@ void SessionManager::get_session(const std::string &dsid,
       return;
     }
     std::string sid = get_new_session_id();
-    auto session = make_intrusive_<Session>(_server, sid);
+    auto session = make_intrusive_<Session>(_strand, sid);
 
     _sessions[sid] = session;
 

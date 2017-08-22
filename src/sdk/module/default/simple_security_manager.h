@@ -1,7 +1,7 @@
 #ifndef DSA_SDK_MODULE_DIMPLE_SECURITY_MANAGER_H_
 #define DSA_SDK_MODULE_DIMPLE_SECURITY_MANAGER_H_
 
-#include <boost/asio.hpp>
+#include <boost/asio/strand.hpp>
 
 #include "../security_manager.h"
 
@@ -20,10 +20,10 @@ class SimpleSecurityManager : public SecurityManager {
 
 class AsyncSimpleSecurityManager : public SecurityManager {
  protected:
-  boost::asio::io_service::strand& _strand;
+  std::unique_ptr<boost::asio::io_service::strand> _strand;
 
  public:
-  AsyncSimpleSecurityManager(boost::asio::io_service::strand& strand);
+  AsyncSimpleSecurityManager(boost::asio::io_service::strand* strand);
 
   void get_client(const std::string& dsid, const std::string& auth_token,
                   const GetClientCallback&& callback) override;

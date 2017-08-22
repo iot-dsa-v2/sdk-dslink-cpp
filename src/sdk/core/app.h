@@ -10,7 +10,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
 #include <boost/thread.hpp>
 
 #include "client.h"
@@ -25,7 +25,6 @@ class App {
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<boost::asio::io_service::work> _work;
   shared_ptr_<boost::thread_group> _threads;
-  std::mutex _strands_key;
   std::string _name;
 
  public:
@@ -53,9 +52,8 @@ class App {
   // sleep current thread in milliseconds
   void sleep(unsigned int milliseconds);
 
-  std::vector<std::unique_ptr<boost::asio::io_service::strand>> _strands;
 
-  boost::asio::io_service::strand &new_strand();
+  boost::asio::io_service::strand *new_strand();
 };
 }  // namespace dsa
 

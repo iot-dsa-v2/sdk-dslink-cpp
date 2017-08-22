@@ -4,9 +4,9 @@
 
 #include <boost/bind.hpp>
 
-#include "server.h"
 #include "client.h"
 #include "responder/outgoing_message_stream.h"
+#include "server.h"
 
 #define DEBUG true
 
@@ -14,29 +14,13 @@ namespace dsa {
 
 const std::string Session::BlankDsid = "";
 
-Session::Session(boost::asio::io_service::strand &strand,
-                 const std::string &session_id, 
-                 SecurityManager &security_manager,
-                 NodeModelManager &model_manager,
-                 NodeStateManager &state_manager,
+Session::Session(LinkStrandPtr strand, const std::string &session_id,
                  const shared_ptr_<Connection> &connection)
-    : _strand(strand),
+    : _strand(std::move(strand)),
       _session_id(session_id),
       _connection(connection),
       requester(*this),
-      responder(*this, security_manager, model_manager, state_manager) {}
-
-Session::Session(const Server &server, const std::string &session_id,
-                 const shared_ptr_<Connection> &connection)
-    : Session(server.get_strand(), session_id, server.get_security_manager(),
-              server.get_node_model_manager(),
-              server.get_node_state_manager()) {}
-
-Session::Session(const Client &client, const std::string &session_id,
-                 const shared_ptr_<Connection> &connection)
-    : Session(client.get_strand(), session_id, client.get_security_manager(),
-              client.get_node_model_manager(),
-              client.get_node_state_manager()) {}
+      responder(*this) {}
 
 void Session::start() const {
   if (_connection == nullptr)
@@ -57,16 +41,16 @@ void Session::close() {
   }
 }
 
-void Session::connection_closed() {
-  _connection.reset();
-}
+void Session::connection_closed() { _connection.reset(); }
 
 void Session::receive_message(Message *message) {
   if (message->is_request()) {
-    auto new_message = intrusive_ptr_<RequestMessage>(dynamic_cast<RequestMessage*>(message));
+    auto new_message =
+        intrusive_ptr_<RequestMessage>(dynamic_cast<RequestMessage *>(message));
     responder.receive_message(std::move(new_message));
   } else {
-    auto new_message = intrusive_ptr_<ResponseMessage>(dynamic_cast<ResponseMessage*>(message));
+    auto new_message = intrusive_ptr_<ResponseMessage>(
+        dynamic_cast<ResponseMessage *>(message));
     requester.receive_message(std::move(new_message));
   }
 }
@@ -75,8 +59,7 @@ intrusive_ptr_<MessageStream> Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {
     auto stream = _ready_streams.back();
     _ready_streams.pop();
-    if (!stream->is_closed())
-      return std::move(stream);
+    if (!stream->is_closed()) return std::move(stream);
   }
   return nullptr;
 }
@@ -90,27 +73,27 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
   auto buf = make_intrusive_<ByteBuffer>();
   auto stream = sthis->get_next_ready_stream();
 
-  if (stream == nullptr)
-    return;
+  if (stream == nullptr) return;
 
   // make sure buffer is big enough for at least the first message
   buf->resize(stream->get_next_message_size());
 
   do {
     // append message data to buffer then resize
-    auto& message = stream->get_next_message();
+    auto &message = stream->get_next_message();
     buf->resize(buf->size() + message.size());
     message.write(&buf->operator[](buf->size()));
 
     stream = sthis->get_next_ready_stream();
-  } while (stream != nullptr && stream->get_next_message_size() + buf->size() < buf->capacity());
+  } while (stream != nullptr &&
+           stream->get_next_message_size() + buf->size() < buf->capacity());
 
   sthis->_is_writing = true;
-  sthis->_connection->write(buf, buf->size(), [strand = sthis->strand(), callback = [sthis = std::move(sthis)]() {
-    write_loop(sthis);
-  }]() mutable {
-    strand.dispatch(callback);
-  });
+  sthis->_connection->write(buf, buf->size(), [
+    strand = sthis->_strand,
+    callback = [sthis = std::move(sthis)]() { write_loop(sthis); }
+    // TODO: avoid mutable lambda
+  ]() mutable { (*strand)().dispatch(callback); });
 }
 
 void Session::add_ready_stream(intrusive_ptr_<MessageStream> stream) {

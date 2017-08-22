@@ -1,8 +1,8 @@
 #ifndef DSA_SDK_TCP_SERVER_H_
 #define DSA_SDK_TCP_SERVER_H_
 
+#include <boost/asio/ip/tcp.hpp>
 
-#include <boost/asio.hpp>
 
 #include "core/session.h"
 #include "core/server.h"
@@ -14,15 +14,19 @@ class TcpServerConnection;
 
 class TcpServer : public Server {
  private:
+  std::string _hostname;
+  uint16_t _port;
+  uint32_t _handshake_timeout_ms = 5000;
+
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   shared_ptr_<TcpServerConnection> _new_connection;
 
   void accept_loop(const boost::system::error_code &error);
 
  public:
-  TcpServer(const Config &config);
+  TcpServer(WrapperConfig &config);
   void start() override;
-  void close() override;
+  void close();
   std::string type() override { return "TCP"; }
 };
 
