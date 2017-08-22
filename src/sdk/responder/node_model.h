@@ -24,7 +24,7 @@ class NodeModel : public EnableIntrusive<NodeModel>  {
  public:
 
   void update_value(MessageValue new_value);
-
+  void update_value(Variant new_value);
 };
 
 }  // namespace dsa

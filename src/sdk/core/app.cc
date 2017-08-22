@@ -3,18 +3,18 @@
 #include "app.h"
 
 
-#include <boost/thread.hpp>
-
 namespace dsa {
+
 //////////////
 // App
 //////////////
-App::App(std::string name)
+App::App(const std::string &name)
     : _name(name),
       _io_service(new boost::asio::io_service),
       _threads(new boost::thread_group) {}
 
-App::App(std::string name, shared_ptr_<boost::asio::io_service> io_service)
+App::App(const std::string &name,
+         shared_ptr_<boost::asio::io_service> io_service)
     : _name(name),
       _io_service(std::move(io_service)),
       _threads(new boost::thread_group) {}

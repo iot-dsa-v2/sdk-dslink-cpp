@@ -28,8 +28,8 @@ class App {
   std::string _name;
 
  public:
-  explicit App(std::string name);
-  App(std::string name, shared_ptr_<boost::asio::io_service> io_service);
+  explicit App(const std::string & name);
+  App(const std::string & name, shared_ptr_<boost::asio::io_service> io_service);
   boost::asio::io_service &io_service() const { return *_io_service; };
   const std::string &name() const { return _name; };
 

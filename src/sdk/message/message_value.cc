@@ -24,11 +24,13 @@ MessageValue::MessageValue(const uint8_t* data, size_t size) {
   }
 }
 
-MessageValue::MessageValue(Variant &value) :value(value){
-
+MessageValue::MessageValue(Variant value)
+  : value(std::move(value)) {
 }
-MessageValue::MessageValue(Variant &value, const std::string &ts)
-    : value(value), meta({{"ts", Variant(ts)}}) {
+
+
+MessageValue::MessageValue(Variant value, const std::string &ts)
+    : value(std::move(value)), meta({{"ts", Variant(ts)}}) {
 }
 
 }  // namespace dsa

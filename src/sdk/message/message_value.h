@@ -12,8 +12,8 @@ class MessageValue {
 
   MessageValue(const uint8_t* data, size_t size);
 
-  MessageValue(Variant &value);
-  MessageValue(Variant &value, const std::string &ts);
+  MessageValue(Variant value);
+  MessageValue(Variant value, const std::string& ts);
 };
 
 }  // namespace dsa
