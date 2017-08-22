@@ -29,7 +29,7 @@ public:
   SessionManager(LinkStrandPtr strand);
   void get_session(const std::string &dsid, const std::string &auth_token,
                    const std::string &session_id,
-                   const GetSessionCallback &&callback);
+                   GetSessionCallback &&callback);
 
   std::string get_new_session_id();
   void end_all_sessions();

@@ -15,7 +15,7 @@ SessionManager::SessionManager(LinkStrandPtr strand)
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
                                  const std::string &session_id,
-                                 const GetSessionCallback &&callback) {
+                                 GetSessionCallback &&callback) {
   _strand->security_manager().get_client(dsid, auth_token, [
     =, callback = std::move(callback)
   ](const ClientInfo client, bool error) mutable {
