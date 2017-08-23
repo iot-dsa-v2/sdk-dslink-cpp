@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
 
-set(CMAKE_CXX_STANDARD 11)
-
 # Add external cmake modules
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../cmake")
 
