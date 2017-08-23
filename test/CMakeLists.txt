@@ -37,7 +37,7 @@ if (WIN32)
     set(TEST_LIBS ${GTEST_LIBRARIES})
 endif (WIN32)
 
-find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time locale)
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time)
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
 

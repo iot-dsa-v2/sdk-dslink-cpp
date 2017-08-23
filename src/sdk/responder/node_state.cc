@@ -6,8 +6,8 @@
 
 namespace dsa {
 
-NodeState::NodeState(LinkStrandPtr strand, const std::string &path)
-    : strand(std::move(strand)), _path(path) {}
+NodeState::NodeState(LinkStrandPtr & strand, const std::string &path)
+    : strand(strand), _path(path) {}
 
 void NodeState::new_message(const SubscribeResponseMessage &message) {
   _last_value.reset(new SubscribeResponseMessage(message));

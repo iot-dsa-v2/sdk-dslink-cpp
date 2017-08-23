@@ -7,7 +7,6 @@
 
 #include "../connection.h"
 #include "tcp_connection.h"
-#include "network/server_connection.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -15,7 +14,7 @@ class TcpServer;
 
 // TCP server side connection.
 // Handles server side of DSA handshake and starts read loop.
-class TcpServerConnection : public TcpConnection, public ServerConnection {
+class TcpServerConnection : public TcpConnection{
  private:
   void f0_received(const boost::system::error_code &error,
                    size_t bytes_transferred);
@@ -27,7 +26,7 @@ class TcpServerConnection : public TcpConnection, public ServerConnection {
   void start_handshake();
 
  public:
-  TcpServerConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+  TcpServerConnection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
                       const std::string &dsid_prefix = "",
                       const std::string &path = "");
 
@@ -38,9 +37,7 @@ class TcpServerConnection : public TcpConnection, public ServerConnection {
 
   std::string name() override { return "TcpServerConnection"; }
 
-  void set_server(shared_ptr_<TcpServer> server) noexcept {
-    _server = std::move(std::dynamic_pointer_cast<Server>(server));
-  };
+
 };
 }  // namespace dsa
 

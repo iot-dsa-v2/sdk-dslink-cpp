@@ -46,7 +46,7 @@ class NodeState : public EnableIntrusive<NodeState> {
   std::unique_ptr<SubscribeResponseMessage> _last_value;
 
  public:
-  explicit NodeState(LinkStrandPtr strand, const std::string &path);
+  explicit NodeState(LinkStrandPtr & strand, const std::string &path);
 
   //////////////////////////
   // Getters

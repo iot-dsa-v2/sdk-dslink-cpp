@@ -10,16 +10,15 @@
 #include "tcp_client.h"
 
 namespace dsa {
-TcpClientConnection::TcpClientConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+TcpClientConnection::TcpClientConnection(LinkStrandPtr & strand,
+                                         uint32_t handshake_timeout_ms,
                                          const std::string &dsid_prefix,
-                                         const std::string &tcp_host, uint16_t tcp_port,
+                                         const std::string &tcp_host,
+                                         uint16_t tcp_port,
                                          const std::string &path)
-    :    Connection(strand, handshake_timeout_ms, dsid_prefix, path),
-TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path),
-ClientConnection(strand, handshake_timeout_ms, dsid_prefix, path),
-      _hostname(tcp_host), _port(tcp_port) {}
-
-
+    : TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path),
+      _hostname(tcp_host),
+      _port(tcp_port) {}
 
 void TcpClientConnection::connect() {
   // connect to server
@@ -82,7 +81,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
                     Connection::share_this<TcpClientConnection>(),
                     boost::asio::placeholders::error));
 
-    // restart timeout timer
+// restart timeout timer
 #if 0
     // TODO fix this
     _deadline.async_wait(
@@ -104,13 +103,12 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
 
 void TcpClientConnection::f3_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
-
   // start standard dsa 1 minute timeout
   reset_standard_deadline_timer();
 
   if (!error && parse_f3(bytes_transferred)) {
     try {
-      ClientConnection::on_connect();
+      Connection::on_client_connect();
     } catch (const std::runtime_error &error) {
 #if DEBUG
       std::stringstream ss;

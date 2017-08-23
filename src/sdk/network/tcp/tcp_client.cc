@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "network/client_connection.h"
+#include "../connection.h"
 #include "tcp_client.h"
 #include "tcp_client_connection.h"
 

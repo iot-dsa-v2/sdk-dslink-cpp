@@ -67,7 +67,7 @@ class Connection : public SharedClosable<Connection> {
   void set_session(const intrusive_ptr_<Session> &session);
 
  protected:
-  Connection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+  Connection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
              const std::string &dsid_prefix,
              const std::string &path = "");
   virtual ~Connection() = default;
@@ -104,7 +104,6 @@ class Connection : public SharedClosable<Connection> {
 
 //  virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
 
-  virtual void on_connect() throw(const std::runtime_error &) = 0;
 
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();
@@ -118,6 +117,30 @@ class Connection : public SharedClosable<Connection> {
   void reset_standard_deadline_timer();
 
   void post_message(Message *message);
+
+
+// server connection
+protected:
+  void on_server_connect() throw(const std::runtime_error &);
+
+  // handshake functions
+  bool parse_f0(size_t size);
+  bool parse_f2(size_t size);
+  size_t load_f1(ByteBuffer &buf);
+  size_t load_f3(ByteBuffer &buf);
+
+// client connection
+protected:
+  std::string _client_token;
+
+  void on_client_connect() throw(const std::runtime_error &);
+
+  // handshake functions
+  bool parse_f1(size_t size);
+  bool parse_f3(size_t size);
+  size_t load_f0(ByteBuffer &buf);
+  size_t load_f2(ByteBuffer &buf);
+
 };
 
 }  // namespace dsa

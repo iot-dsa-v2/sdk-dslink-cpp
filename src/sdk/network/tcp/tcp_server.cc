@@ -36,7 +36,6 @@ void TcpServer::close() {
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {
   if (!error) {
-    _new_connection->set_server(share_this<TcpServer>());
     _new_connection->connect();
     _new_connection = make_shared_<TcpServerConnection>(_strand, _handshake_timeout_ms);
     _acceptor->async_accept(

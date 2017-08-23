@@ -9,8 +9,8 @@
 #include "module/security_manager.h"
 
 namespace dsa {
-SessionManager::SessionManager(LinkStrandPtr strand)
-    : _strand(std::move(strand)){}
+SessionManager::SessionManager(LinkStrandPtr & strand)
+    : _strand(strand){}
 
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,

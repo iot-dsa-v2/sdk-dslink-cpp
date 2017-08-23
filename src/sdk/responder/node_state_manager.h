@@ -17,7 +17,7 @@ class NodeStateManager {
   std::map< std::string, intrusive_ptr_<NodeState> > _node_states;
 
  public:
-  explicit NodeStateManager(LinkStrandPtr strand);
+  explicit NodeStateManager(LinkStrandPtr & strand);
 
   const intrusive_ptr_<NodeState> &get_or_create(std::string path);
 };

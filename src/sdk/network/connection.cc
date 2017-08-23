@@ -11,7 +11,7 @@
 #define DEBUG 0
 
 namespace dsa {
-Connection::Connection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+Connection::Connection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
                        const std::string &dsid_prefix,
                        const std::string &path)
     : _handshake_context(dsid_prefix, strand->ecdh()),

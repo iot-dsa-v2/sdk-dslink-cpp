@@ -7,7 +7,7 @@
 
 namespace dsa {
 
-class ClientConnection;
+class Connection;
 
 class Client : public SharedClosable<Client> {
  protected:
@@ -19,7 +19,7 @@ class Client : public SharedClosable<Client> {
   std::string _dsid_prefix;
   std::string _client_token;
 
-  shared_ptr_<ClientConnection> _connection;
+  shared_ptr_<Connection> _connection;
   intrusive_ptr_<Session> _session;
 
  public:

@@ -4,8 +4,8 @@
 
 namespace dsa {
 
-NodeStateManager::NodeStateManager(LinkStrandPtr strand)
-    : strand(std::move(strand)) {}
+NodeStateManager::NodeStateManager(LinkStrandPtr & strand)
+    : strand(strand) {}
 
 const intrusive_ptr_<NodeState> &NodeStateManager::get_or_create(std::string path) {
   if (_node_states.count(path) == 0) {

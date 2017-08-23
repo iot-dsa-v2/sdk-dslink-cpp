@@ -13,15 +13,17 @@
 namespace dsa {
 DefaultModules::DefaultModules(App &app)
     : LinkConfig(app.new_strand(), new ECDH()) {
-  set_session_manager(new SessionManager(intrusive_this()));
-  set_state_manager(new NodeStateManager(intrusive_this()));
+  LinkStrandPtr ptr = intrusive_this();
+  set_session_manager(new SessionManager(ptr));
+  set_state_manager(new NodeStateManager(ptr));
   set_security_manager(new SimpleSecurityManager());
 }
 
 DefaultModules::DefaultModules(App &app, boost::asio::io_service::strand * strand)
   : LinkConfig(app.new_strand(), new ECDH()){
-  set_session_manager(new SessionManager(intrusive_this()));
-  set_state_manager(new NodeStateManager(intrusive_this()));
+  LinkStrandPtr ptr = intrusive_this();
+  set_session_manager(new SessionManager(ptr));
+  set_state_manager(new NodeStateManager(ptr));
   set_security_manager(new AsyncSimpleSecurityManager(app.new_strand()));
 }
 

@@ -12,13 +12,12 @@
 #define DEBUG 0
 
 namespace dsa {
-TcpServerConnection::TcpServerConnection(LinkStrandPtr strand,
+TcpServerConnection::TcpServerConnection(LinkStrandPtr & strand,
                                          uint32_t handshake_timeout_ms,
                                          const std::string &dsid_prefix,
                                          const std::string &path)
-    : Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path),
-      TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path),
-      ServerConnection(strand, handshake_timeout_ms, dsid_prefix, path) {}
+    : TcpConnection(strand, handshake_timeout_ms, dsid_prefix,
+                    path) {}
 
 void TcpServerConnection::connect() { start_handshake(); }
 
@@ -86,7 +85,7 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error,
 
   if (!error && parse_f2(bytes_transferred)) {
     try {
-      ServerConnection::on_connect();
+      Connection::on_server_connect();
     } catch (const std::runtime_error &error) {
 #if DEBUG
       std::stringstream ss;

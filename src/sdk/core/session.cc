@@ -14,9 +14,9 @@ namespace dsa {
 
 const std::string Session::BlankDsid = "";
 
-Session::Session(LinkStrandPtr strand, const std::string &session_id,
+Session::Session(LinkStrandPtr & strand, const std::string &session_id,
                  const shared_ptr_<Connection> &connection)
-    : _strand(std::move(strand)),
+    : _strand(strand),
       _session_id(session_id),
       _connection(connection),
       requester(*this),

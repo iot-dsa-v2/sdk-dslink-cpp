@@ -6,7 +6,6 @@
 #define DSA_SDK_NETWORK_CONNECTION_TCP_CLIENT_CONNECTION_H_
 
 #include "../connection.h"
-#include "network/client_connection.h"
 #include "tcp_connection.h"
 #include "util/enable_shared.h"
 
@@ -15,7 +14,7 @@ class TcpClient;
 
 // TCP client side connection.
 // Handles client side of DSA handshake and starts read loop.
-class TcpClientConnection : public TcpConnection, public ClientConnection {
+class TcpClientConnection : public TcpConnection {
  private:
   void f1_received(const boost::system::error_code &error,
                    size_t bytes_transferred);
@@ -30,7 +29,7 @@ class TcpClientConnection : public TcpConnection, public ClientConnection {
       const std::runtime_error &);
 
  public:
-  TcpClientConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+  TcpClientConnection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
                       const std::string &dsid_prefix,
                       const std::string &tcp_host, uint16_t tcp_port,
                       const std::string &path = "");

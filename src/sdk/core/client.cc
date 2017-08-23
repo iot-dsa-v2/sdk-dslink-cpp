@@ -2,7 +2,7 @@
 #include "dsa_common.h"
 
 #include "client.h"
-#include "network/client_connection.h"
+#include "network/connection.h"
 
 namespace dsa {
 Client::Client(WrapperConfig & config)

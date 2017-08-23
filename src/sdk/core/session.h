@@ -47,7 +47,7 @@ class Session : public IntrusiveClosable<Session> {
   Requester requester;
   Responder responder;
 
-  Session(LinkStrandPtr strand, const std::string &session_id,
+  Session(LinkStrandPtr & strand, const std::string &session_id,
           const shared_ptr_<Connection> &connection = nullptr);
 
 

@@ -13,10 +13,10 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
+TcpConnection::TcpConnection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
                              const std::string &dsid_prefix,
                              const std::string &path)
-    : Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path),
+    : Connection(strand, handshake_timeout_ms, dsid_prefix, path),
       _socket((*strand)().get_io_service()) {}
 
 

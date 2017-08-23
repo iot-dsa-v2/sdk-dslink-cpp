@@ -1,16 +1,13 @@
 #include "dsa_common.h"
 
-#include "server_connection.h"
+#include "connection.h"
 #include "core/server.h"
 
 namespace dsa {
-ServerConnection::ServerConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
-                                   const std::string &dsid_prefix,
-                                   const std::string &path)
-    : Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path) {}
 
 
-void ServerConnection::on_connect() throw(const std::runtime_error &) {
+
+void Connection::on_server_connect() throw(const std::runtime_error &) {
   // setup session now that client session id has been parsed
   _strand->session_manager().get_session(
     _other_dsid, _other_token, _session_id, [=](const intrusive_ptr_<Session> &session) {
@@ -28,7 +25,7 @@ void ServerConnection::on_connect() throw(const std::runtime_error &) {
 ///////////////////////
 // Handshake Functions
 ///////////////////////
-bool ServerConnection::parse_f0(size_t size) {
+bool Connection::parse_f0(size_t size) {
   if (size < MinF0Length)
     return false;
 
@@ -62,7 +59,7 @@ bool ServerConnection::parse_f0(size_t size) {
   return data == _write_buffer->data() + size;
 }
 
-bool ServerConnection::parse_f2(size_t size) {
+bool Connection::parse_f2(size_t size) {
   if (size < MinF2Length)
     return false;
 
@@ -100,7 +97,7 @@ bool ServerConnection::parse_f2(size_t size) {
   return data == _write_buffer->data() + size;
 }
 
-size_t ServerConnection::load_f1(ByteBuffer &buf) {
+size_t Connection::load_f1(ByteBuffer &buf) {
   uint16_t dsid_length =
       static_cast<uint16_t>(_handshake_context.dsid().size());
 
@@ -123,7 +120,7 @@ size_t ServerConnection::load_f1(ByteBuffer &buf) {
   return size;
 }
 
-size_t ServerConnection::load_f3(ByteBuffer &buf) {
+size_t Connection::load_f3(ByteBuffer &buf) {
   auto sid_length = (uint16_t) _session_id.size();
   auto path_length = (uint16_t) _path.size();
 

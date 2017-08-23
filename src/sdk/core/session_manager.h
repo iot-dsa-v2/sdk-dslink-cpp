@@ -26,7 +26,7 @@ class SessionManager {
   LinkStrandPtr _strand;
 
 public:
-  SessionManager(LinkStrandPtr strand);
+  SessionManager(LinkStrandPtr & strand);
   void get_session(const std::string &dsid, const std::string &auth_token,
                    const std::string &session_id,
                    GetSessionCallback &&callback);
