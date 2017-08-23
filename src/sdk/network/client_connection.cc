@@ -10,7 +10,7 @@ namespace dsa {
 ClientConnection::ClientConnection(LinkStrandPtr strand, uint32_t handshake_timeout_ms,
                                    const std::string &dsid_prefix, const std::string &path,
                                    const std::string &client_token)
-    : Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path), _client_token(client_token) {}
+    : Connection(strand, handshake_timeout_ms, dsid_prefix, path), _client_token(client_token) {}
 
 
 void ClientConnection::on_connect() throw(const std::runtime_error &) {

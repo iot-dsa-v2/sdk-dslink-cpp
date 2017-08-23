@@ -1,3 +1,5 @@
+#include "core/link_strand.h"
+#include "core/config.h"
 #include "dsa/network.h"
 
 #include "network/tcp/tcp_client.h"
@@ -13,25 +15,21 @@ using namespace dsa;
 
 TEST(TcpServerTest, SingleStrand) {
   App app("SingleStrandTest");
-  ECDH ecdh;
+
+  WrapperConfig config;
+  config.tcp_host = "127.0.0.1";
+  config.tcp_port = 8092;
 
   app.async_start(10);
+  config.strand = make_intrusive_<DefaultModules>(app);
 
-  DefaultModules default_modules(app);
-  Config server_config = default_modules.get_config();
-
-  server_config.tcp_host = "127.0.0.1";
-  server_config.tcp_port = 8092;
-
-  Config client_config = server_config;
-
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  auto tcp_server = make_shared_<TcpServer>(config);
   tcp_server->start();
 
   std::vector<shared_ptr_<TcpClient>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
     shared_ptr_<TcpClient> tcp_client(
-        new TcpClient(client_config));
+        new TcpClient(config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
@@ -47,27 +45,22 @@ TEST(TcpServerTest, SingleStrand) {
 
   app.wait();
 }
-
+/*
 TEST(TcpServerTest, MultiStrand) {
-  App app("MultiStrandTest");
+  WrapperConfig config;
+  config.tcp_host = "127.0.0.1";
+  config.tcp_port = 8092;
 
+  App app("MultiStrandTest");
   app.async_start(10);
 
-  DefaultModules default_modules(app);
-  Config server_config = default_modules.get_config();
-
-  server_config.tcp_host = "127.0.0.1";
-  server_config.tcp_port = 8092;
-
-  Config client_config = default_modules.get_config();
-
-  ServerPtr tcp_server(new TcpServer(server_config));
+  ServerPtr tcp_server(new TcpServer(config));
   tcp_server->start();
 
   std::vector<shared_ptr_<TcpClient>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
     shared_ptr_<TcpClient> tcp_client(
-        new TcpClient(client_config));
+        new TcpClient(config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
@@ -82,4 +75,4 @@ TEST(TcpServerTest, MultiStrand) {
   app.close();
 
   app.wait();
-}
+}*/

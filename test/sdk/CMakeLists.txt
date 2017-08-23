@@ -6,7 +6,7 @@ foreach(dir "./crypto"
 	    "./message"		
 	    "./util"
         "./variant"
-#		"./network"
+		"./network"
 #		"./requester"
 #	    "./responder"
 		)

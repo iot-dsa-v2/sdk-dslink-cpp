@@ -20,16 +20,18 @@ TcpServerConnection::TcpServerConnection(LinkStrandPtr strand,
       TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path),
       ServerConnection(strand, handshake_timeout_ms, dsid_prefix, path) {}
 
-
 void TcpServerConnection::connect() { start_handshake(); }
 
 void TcpServerConnection::start_handshake() {
+#if 0
+  // TODO fix this
   // start timeout timer with handshake timeout specified in config
   _deadline.expires_from_now(
       boost::posix_time::milliseconds(_handshake_timeout_ms));
   _deadline.async_wait(boost::bind(&TcpServerConnection::timeout,
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));
+#endif
 
   // start listening for f0
   _socket.async_read_some(
@@ -51,12 +53,15 @@ void TcpServerConnection::start_handshake() {
 
 void TcpServerConnection::f0_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
-  // reset timeout
+// reset timeout
+#if 0
+  // TODO fix this
   _deadline.expires_from_now(
       boost::posix_time::milliseconds(_handshake_timeout_ms));
   _deadline.async_wait(boost::bind(&TcpServerConnection::timeout,
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));
+#endif
 
   if (!error && parse_f0(bytes_transferred)) {
     // compute shared secret

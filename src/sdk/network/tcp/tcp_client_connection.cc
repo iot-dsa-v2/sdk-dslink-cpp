@@ -14,7 +14,7 @@ TcpClientConnection::TcpClientConnection(LinkStrandPtr strand, uint32_t handshak
                                          const std::string &dsid_prefix,
                                          const std::string &tcp_host, uint16_t tcp_port,
                                          const std::string &path)
-    :    Connection(std::move(strand), handshake_timeout_ms, dsid_prefix, path),
+    :    Connection(strand, handshake_timeout_ms, dsid_prefix, path),
 TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path),
 ClientConnection(strand, handshake_timeout_ms, dsid_prefix, path),
       _hostname(tcp_host), _port(tcp_port) {}
@@ -42,10 +42,13 @@ void TcpClientConnection::start_handshake(
   // start timeout timer
   _deadline.expires_from_now(
       boost::posix_time::milliseconds(_handshake_timeout_ms));
+#if 0
+  // TODO fix this
   _deadline.async_wait(
       boost::bind(&TcpClientConnection::timeout,
                   Connection::share_this<TcpClientConnection>(),
                   boost::asio::placeholders::error));
+#endif
 
   _socket.async_read_some(
       boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
@@ -80,10 +83,13 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
                     boost::asio::placeholders::error));
 
     // restart timeout timer
+#if 0
+    // TODO fix this
     _deadline.async_wait(
         boost::bind(&TcpClientConnection::timeout,
                     Connection::share_this<TcpClientConnection>(),
                     boost::asio::placeholders::error));
+#endif
 
     _socket.async_read_some(
         boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
