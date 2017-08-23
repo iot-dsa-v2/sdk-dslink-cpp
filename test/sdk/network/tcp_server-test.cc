@@ -41,7 +41,10 @@ TEST(TcpServerTest, SingleStrand) {
     clients[i]->close();
   }
 
-  app.close();
+  app.sleep(500);
+  // TODO: check if app has pending jobs
+
+  app.force_stop();
 
   app.wait();
 }

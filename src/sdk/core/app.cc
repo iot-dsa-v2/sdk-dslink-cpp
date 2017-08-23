@@ -63,6 +63,9 @@ boost::asio::io_service::strand *App::new_strand() {
   return new boost::asio::io_service::strand(*_io_service);
 }
 
-void App::force_stop() { _work.reset(); }
+void App::force_stop() {
+  _work.reset();
+  _io_service->stop();
+}
 
 }  // namespace dsa
