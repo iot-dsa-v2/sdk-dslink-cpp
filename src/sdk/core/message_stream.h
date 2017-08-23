@@ -48,7 +48,7 @@ class MessageStream : public IntrusiveClosable<MessageStream> {
   virtual const Message &get_next_message() = 0;
 
 
-  virtual void close();
+  virtual void close_impl();
 };
 
 }  // namespace dsa

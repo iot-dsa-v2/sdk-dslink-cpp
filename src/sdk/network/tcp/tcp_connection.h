@@ -37,7 +37,7 @@ class TcpConnection : public Connection {
 
   tcp_socket &socket();
 
-  void close() override;
+  void close_impl() override;
   void connect() override = 0;
   void start() throw() override;
 };

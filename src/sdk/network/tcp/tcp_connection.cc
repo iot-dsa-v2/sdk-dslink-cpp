@@ -18,11 +18,11 @@ TcpConnection::TcpConnection(LinkStrandPtr & strand, uint32_t handshake_timeout_
       _socket((*strand)().get_io_service()) {}
 
 
-void TcpConnection::close() {
+void TcpConnection::close_impl() {
   if (_socket_open.exchange(false)) {
     _socket.close();
   }
-  Connection::close();
+  Connection::close_impl();
 }
 
 void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection, size_t from_prev, const boost::system::error_code &error,

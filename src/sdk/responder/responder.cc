@@ -1,4 +1,4 @@
-#include <dsa/message.h>
+#include "dsa_common.h"
 
 #include "responder.h"
 
@@ -6,6 +6,11 @@
 #include "node_model_manager.h"
 
 #include "core/session.h"
+
+#include "message/request/invoke_request_message.h"
+#include "message/request/list_request_message.h"
+#include "message/request/set_request_message.h"
+#include "message/request/subscribe_request_message.h"
 
 namespace dsa {
 

@@ -28,13 +28,12 @@ void Connection::success_or_close(const boost::system::error_code &error) {
   if (error != nullptr) close();
 }
 
-void Connection::close() {
+void Connection::close_impl() {
   if (_session != nullptr) {
     _session->connection_closed();
     _session.reset();
   }
   _deadline.cancel();
-  Closable::close();
 }
 
 void Connection::compute_secret() {

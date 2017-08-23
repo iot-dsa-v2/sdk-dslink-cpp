@@ -59,7 +59,7 @@ class Connection : public SharedClosable<Connection> {
   };
 
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
-  virtual void close();
+  virtual void close_impl() override;
   virtual void connect() = 0;
   virtual void start() noexcept = 0;
   const std::string &dsid() { return _handshake_context.dsid(); }

@@ -1,4 +1,4 @@
-#include <module/default/simple_security_manager.h>
+#include "dsa_common.h"
 
 #include "client.h"
 
@@ -8,8 +8,7 @@ Client::Client(WrapperConfig & config)
       _client_token(config.client_token),
       _session( make_intrusive_<Session>(config.strand, "", nullptr)) {}
 
-void Client::close() {
+void Client::close_impl() {
   _connection->close();
-  Closable::close();
 }
 }  // namespace dsa

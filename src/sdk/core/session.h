@@ -55,7 +55,7 @@ class Session : public IntrusiveClosable<Session> {
 
   void start() const;
 
-  void close() override;
+  void close_impl() override;
 
   void set_connection(const shared_ptr_<Connection> &connection) {
     _connection = connection;

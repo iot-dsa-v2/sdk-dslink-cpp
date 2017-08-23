@@ -9,7 +9,13 @@ class Closable {
 
  public:
   bool is_closed() const { return _closed; }
-  virtual void close() { _closed = true; }
+  void close() {
+    if (!_closed) {
+      _closed = true;
+      close_impl();
+    }
+  }
+  virtual void close_impl(){};
 };
 
 }  // namespace dsa

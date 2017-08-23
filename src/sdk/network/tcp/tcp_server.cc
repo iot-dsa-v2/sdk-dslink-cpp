@@ -29,10 +29,12 @@ void TcpServer::start() {
                   boost::asio::placeholders::error));
 }
 
-void TcpServer::close() {
+void TcpServer::close_impl() {
   _acceptor->close();
   // TODO: fix this!
-  // Server::close();
+  _new_connection->close();
+  Server::close_impl();
+
 }
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {

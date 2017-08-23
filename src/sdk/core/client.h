@@ -31,7 +31,7 @@ class Client : public SharedClosable<Client> {
   const std::string &get_client_token() const { return _client_token; }
 
   virtual void connect() = 0;
-  void close() override;
+  void close_impl() override;
 };
 
 }  // namespace dsa

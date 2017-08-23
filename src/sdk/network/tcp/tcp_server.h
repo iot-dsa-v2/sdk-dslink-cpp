@@ -26,7 +26,7 @@ class TcpServer : public Server {
  public:
   TcpServer(WrapperConfig &config);
   void start() override;
-  void close();
+  void close_impl() override;
   std::string type() override { return "TCP"; }
 };
 

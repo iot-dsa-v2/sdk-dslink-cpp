@@ -34,11 +34,10 @@ void Session::start() const {
   _connection->start();
 }
 
-void Session::close() {
+void Session::close_impl() {
   if (_connection != nullptr) {
     _connection->close();
   }
-  Closable::close();
 }
 
 void Session::connection_closed() { _connection.reset(); }

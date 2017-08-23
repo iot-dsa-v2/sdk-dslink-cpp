@@ -39,7 +39,7 @@ class Server : public SharedClosable<Server> {
   const std::string &get_dsid_prefix() const { return _dsid_prefix; }
 
   virtual void start() = 0;
-  void close() override;
+  void close_impl() override;
   virtual std::string type() = 0;
 };
 
