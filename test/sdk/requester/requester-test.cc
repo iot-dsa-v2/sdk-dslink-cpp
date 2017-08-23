@@ -10,11 +10,13 @@
 using namespace dsa;
 
 TEST(RequesterTest, BasicFlow) {
+  App app("BasicFlowTest");
+
   WrapperConfig config;
   config.tcp_host = "127.0.0.1";
   config.tcp_port = 8090;
+  config.strand = make_intrusive_<DefaultModules>(app);
 
-  App app("BasicFlowTest");
   app.async_start(2);
 
   auto tcp_server = make_shared_<TcpServer>(config);
@@ -42,6 +44,6 @@ TEST(RequesterTest, BasicFlow) {
 
   tcp_server->close();
   tcp_client->close();
-  app.close();
+  app.force_stop();
   app.wait();
 }

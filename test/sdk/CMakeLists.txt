@@ -7,7 +7,7 @@ foreach(dir "./crypto"
 	    "./util"
         "./variant"
 		"./network"
-#		"./requester"
+		"./requester"
 #	    "./responder"
 		)
   add_subdirectory(${dir})

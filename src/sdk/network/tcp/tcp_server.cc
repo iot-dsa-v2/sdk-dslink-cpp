@@ -31,7 +31,8 @@ void TcpServer::start() {
 
 void TcpServer::close() {
   _acceptor->close();
-  Server::close();
+  // TODO: fix this!
+  // Server::close();
 }
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {

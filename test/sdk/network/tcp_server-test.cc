@@ -19,9 +19,9 @@ TEST(TcpServerTest, SingleStrand) {
   WrapperConfig config;
   config.tcp_host = "127.0.0.1";
   config.tcp_port = 8092;
+  config.strand = make_intrusive_<DefaultModules>(app);
 
   app.async_start(10);
-  config.strand = make_intrusive_<DefaultModules>(app);
 
   auto tcp_server = make_shared_<TcpServer>(config);
   tcp_server->start();
@@ -48,22 +48,30 @@ TEST(TcpServerTest, SingleStrand) {
 
   app.wait();
 }
-/*
-TEST(TcpServerTest, MultiStrand) {
-  WrapperConfig config;
-  config.tcp_host = "127.0.0.1";
-  config.tcp_port = 8092;
 
+TEST(TcpServerTest, MultiStrand) {
   App app("MultiStrandTest");
+
+  WrapperConfig server_config;
+  server_config.tcp_host = "127.0.0.1";
+  server_config.tcp_port = 8092;
+  server_config.strand = make_intrusive_<DefaultModules>(app);
+
   app.async_start(10);
 
-  ServerPtr tcp_server(new TcpServer(config));
+//  auto tcp_server(new TcpServer(server_config));
+  auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
+
+  WrapperConfig client_config;
+  client_config.tcp_host = "127.0.0.1";
+  client_config.tcp_port = 8092;
+  client_config.strand = make_intrusive_<DefaultModules>(app);
 
   std::vector<shared_ptr_<TcpClient>> clients;
   for (unsigned int i = 0; i < 2; ++i) {
     shared_ptr_<TcpClient> tcp_client(
-        new TcpClient(config));
+        new TcpClient(client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
@@ -75,7 +83,9 @@ TEST(TcpServerTest, MultiStrand) {
     clients[i]->close();
   }
 
-  app.close();
+  app.sleep(500);
+  // TODO: check if app has pending jobs
+  app.force_stop();
 
   app.wait();
-}*/
+}
