@@ -36,6 +36,7 @@ void Connection::close() {
     _session.reset();
   }
   _deadline.cancel();
+  Closable::close();
 }
 
 void Connection::compute_secret() {

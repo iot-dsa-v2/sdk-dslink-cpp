@@ -24,8 +24,6 @@ class ListResponseMessage;
 // maintain a smart queue of subscription updates
 // this queue works for a single subscription from a single client
 class OutgoingMessageStream : public MessageStream {
- protected:
-  using io_service = boost::asio::io_service;
 
  public:
   OutgoingMessageStream(intrusive_ptr_<Session> &&session,

@@ -14,6 +14,7 @@ Server::Server(WrapperConfig & config)
 void Server::close() {
   _strand->session_manager().end_all_sessions();
   _strand.reset();
+  Closable::close();
 }
 
 }  // namespace dsa

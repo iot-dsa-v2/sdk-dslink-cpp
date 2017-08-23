@@ -20,17 +20,17 @@ SubscribeMessageStream::SubscribeMessageStream(intrusive_ptr_<Session> &&session
     : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
 void SubscribeMessageStream::new_message(const SubscribeResponseMessage &new_message) {
-  _message_queue.push_front(new_message);
+  _message_queue.push_back(new_message);
   _set_ready();
 }
 
 size_t SubscribeMessageStream::get_next_message_size() {
-  return _message_queue.back().size();
+  return _message_queue.front().size();
 }
 
 const Message &SubscribeMessageStream::get_next_message() {
-  auto message = _message_queue.back();
-  _message_queue.pop_back();
+  auto message = _message_queue.front();
+  _message_queue.pop_front();
   return std::move(message);
 }
 
@@ -44,17 +44,17 @@ InvokeMessageStream::InvokeMessageStream(intrusive_ptr_<Session> &&session,
     : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
 void InvokeMessageStream::new_message(const InvokeResponseMessage &new_message) {
-  _message_queue.push_front(new_message);
+  _message_queue.push_back(new_message);
   _set_ready();
 }
 
 size_t InvokeMessageStream::get_next_message_size() {
-  return _message_queue.back().size();
+  return _message_queue.front().size();
 }
 
 const Message &InvokeMessageStream::get_next_message() {
-  auto message = _message_queue.back();
-  _message_queue.pop_back();
+  auto message = _message_queue.front();
+  _message_queue.pop_front();
   return std::move(message);
 }
 
@@ -68,17 +68,17 @@ ListMessageStream::ListMessageStream(intrusive_ptr_<Session> &&session,
     : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
 void ListMessageStream::new_message(const ListResponseMessage &new_message) {
-  { _message_queue.push_front(new_message); }
+  { _message_queue.push_back(new_message); }
   _set_ready();
 }
 
 size_t ListMessageStream::get_next_message_size() {
-  return _message_queue.back().size();
+  return _message_queue.front().size();
 }
 
 const Message &ListMessageStream::get_next_message() {
-  auto message = _message_queue.back();
-  _message_queue.pop_back();
+  auto message = _message_queue.front();
+  _message_queue.pop_front();
   return std::move(message);
 }
 
@@ -92,17 +92,17 @@ SetMessageStream::SetMessageStream(intrusive_ptr_<Session> &&session,
     : OutgoingMessageStream(std::move(session), request_id, unique_id), _config(std::move(config)) {}
 
 void SetMessageStream::new_message(const SetResponseMessage &new_message) {
-  _message_queue.push_front(new_message);
+  _message_queue.push_back(new_message);
   _set_ready();
 }
 
 size_t SetMessageStream::get_next_message_size() {
-  return _message_queue.back().size();
+  return _message_queue.front().size();
 }
 
 const Message &SetMessageStream::get_next_message() {
-  auto message = _message_queue.back();
-  _message_queue.pop_back();
+  auto message = _message_queue.front();
+  _message_queue.pop_front();
   return std::move(message);
 }
 
@@ -118,7 +118,6 @@ size_t ErrorMessageStream::get_next_message_size() {
 }
 
 const Message &ErrorMessageStream::get_next_message() {
-  _closed = true;
   return *_error_message;
 }
 

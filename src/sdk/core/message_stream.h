@@ -25,11 +25,10 @@ enum StreamType {
 
 
 
-class MessageStream : public EnableIntrusive<MessageStream> {
+class MessageStream : public IntrusiveClosable<MessageStream> {
  protected:
   LinkStrandPtr _strand;
 
-  bool _closed{false};
   std::function<void()> _set_ready;
 
  public:
@@ -47,9 +46,9 @@ class MessageStream : public EnableIntrusive<MessageStream> {
   virtual bool is_incoming() const = 0;
   virtual size_t get_next_message_size() = 0;
   virtual const Message &get_next_message() = 0;
-  bool is_closed() const { return _closed; }
 
-  virtual void close_stream();
+
+  virtual void close();
 };
 
 }  // namespace dsa

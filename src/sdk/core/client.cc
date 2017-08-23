@@ -12,5 +12,6 @@ Client::Client(WrapperConfig & config)
 
 void Client::close() {
   _connection->close();
+  Closable::close();
 }
 }  // namespace dsa

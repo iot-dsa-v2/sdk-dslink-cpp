@@ -4,8 +4,12 @@
 namespace dsa {
 
 class Closable {
+ private:
+  bool _closed{false};
+
  public:
-  virtual void close() = 0;
+  bool is_closed() const { return _closed; }
+  virtual void close() { _closed = true; }
 };
 
 }  // namespace dsa

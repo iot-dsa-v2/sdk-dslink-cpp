@@ -16,12 +16,12 @@ MessageStream::MessageStream(intrusive_ptr_<Session> &&session,
         session->add_ready_stream(intrusive_this<MessageStream>());
       }) {}
 
-void MessageStream::close_stream() {
+void MessageStream::close() {
 //  for (auto &holder : _holders) {
 //    if (holder != nullptr)
 //      holder->remove_stream(this);
 //  }
-  _closed = true;
+  Closable::close();
 }
 
 
