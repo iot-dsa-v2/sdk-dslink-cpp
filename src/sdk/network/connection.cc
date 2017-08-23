@@ -3,8 +3,6 @@
 #include "connection.h"
 #include "core/session.h"
 
-#include <boost/system/error_code.hpp>
-
 #include "core/app.h"
 #include "crypto/hmac.h"
 

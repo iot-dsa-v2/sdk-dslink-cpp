@@ -2,12 +2,10 @@
 
 #include "tcp_connection.h"
 
-#include <boost/asio/read.hpp>
 #include <boost/bind.hpp>
 
 #include "tcp_client.h"
 #include "tcp_server.h"
-#include "core/session_manager.h"
 
 #define DEBUG 0
 

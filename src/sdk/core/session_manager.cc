@@ -3,10 +3,8 @@
 #include "session_manager.h"
 
 #include "server.h"
-#include "session.h"
 #include "crypto/hash.h"
 #include "crypto/misc.h"
-#include "module/security_manager.h"
 
 namespace dsa {
 SessionManager::SessionManager(LinkStrandPtr & strand)

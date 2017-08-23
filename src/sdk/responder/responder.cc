@@ -1,11 +1,9 @@
 #include <dsa/message.h>
-#include "dsa_common.h"
 
 #include "responder.h"
 
 #include "module/security_manager.h"
 #include "node_model_manager.h"
-#include "node_state_manager.h"
 
 #include "core/session.h"
 

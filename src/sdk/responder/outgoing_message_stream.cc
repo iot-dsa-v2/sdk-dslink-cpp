@@ -1,7 +1,6 @@
 #include "dsa_common.h"
 
 #include "core/session.h"
-#include "outgoing_message_stream.h"
 
 namespace dsa {
 

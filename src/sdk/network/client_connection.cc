@@ -2,7 +2,6 @@
 
 #include "connection.h"
 #include "core/client.h"
-#include "core/session.h"
 
 #define DEBUG 0
 

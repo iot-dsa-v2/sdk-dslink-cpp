@@ -3,7 +3,6 @@
 #include "default_modules.h"
 
 #include "core/app.h"
-#include "crypto/ecdh.h"
 #include "default/simple_security_manager.h"
 /*
  *   std::unique_ptr<SecurityManager> _security_manager{nullptr};

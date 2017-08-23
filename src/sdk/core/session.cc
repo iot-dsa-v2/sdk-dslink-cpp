@@ -5,7 +5,6 @@
 #include <boost/bind.hpp>
 
 #include "client.h"
-#include "responder/outgoing_message_stream.h"
 #include "server.h"
 
 #define DEBUG true

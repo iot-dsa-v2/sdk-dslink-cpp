@@ -1,8 +1,6 @@
 #include <module/default/simple_security_manager.h>
-#include "dsa_common.h"
 
 #include "client.h"
-#include "network/connection.h"
 
 namespace dsa {
 Client::Client(WrapperConfig & config)
