@@ -5,7 +5,7 @@
 #ifndef DSA_SDK_NETWORK_CONNECTION_TCP_SERVER_CONNECTION_H_
 #define DSA_SDK_NETWORK_CONNECTION_TCP_SERVER_CONNECTION_H_
 
-#include "core/connection.h"
+#include "../connection.h"
 #include "tcp_connection.h"
 #include "network/server_connection.h"
 #include "util/enable_shared.h"

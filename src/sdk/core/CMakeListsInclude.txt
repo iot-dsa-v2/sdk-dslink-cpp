@@ -7,7 +7,6 @@ list(APPEND CoreSourceFiles
         session_manager.cc
 		config.cc
 		link_strand.cc
-		connection.cc
         )
 
 foreach(file ${CoreSourceFiles})

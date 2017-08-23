@@ -5,7 +5,7 @@
 #include <map>
 #include <queue>
 
-#include "connection.h"
+#include "network/connection.h"
 #include "message_stream.h"
 #include "util/enable_shared.h"
 

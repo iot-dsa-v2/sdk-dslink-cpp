@@ -3,7 +3,7 @@
 
 #include <boost/asio/ip/tcp.hpp>
 
-#include "core/connection.h"
+#include "../connection.h"
 #include "crypto/handshake_context.h"
 #include "util/enable_shared.h"
 

@@ -1,7 +1,7 @@
 #ifndef DSA_SDK_NETWORK_CONNECTION_CLIENT_CONNECTION_H
 #define DSA_SDK_NETWORK_CONNECTION_CLIENT_CONNECTION_H
 
-#include "core/connection.h"
+#include "connection.h"
 
 #include "util/enable_intrusive.h"
 

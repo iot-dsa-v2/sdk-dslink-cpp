@@ -2,7 +2,7 @@
 #define DSA_SDK_NETWORK_CONNECTION_SERVER_CONNECTION_H_
 
 
-#include "core/connection.h"
+#include "connection.h"
 
 namespace dsa {
 class Server;
