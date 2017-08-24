@@ -20,6 +20,24 @@ public:
     }
 };
 
+class SetResponseMessageExt : public SetResponseMessage{
+public:
+    SetResponseMessageExt() :
+            SetResponseMessage() {}
+
+    void update_static_header_ext() {
+        SetResponseMessage::update_static_header();
+    }
+
+    bool check_static_headers(uint8_t *expected_values, size_t size) {
+        uint8_t buf[1024];
+        static_headers.write(buf);
+
+        return (memcmp(expected_values, buf, size) == 0);
+    }
+};
+
+
 TEST(MessageTest, SetRequest__Constructor_01) {
   // public methods
   // SetRequestMessage();
@@ -176,7 +194,7 @@ TEST(MessageTest, SetRequest__write) {
 
   request.update_static_header_ext();
 
-  uint8_t buf[1014];
+  uint8_t buf[1024];
   request.write(buf);
 
   uint8_t expected_values[] = {0x1d, 0x0,  0x0,  0x0,  0x1d, 0x0,  0x4,  0x0,
@@ -186,4 +204,67 @@ TEST(MessageTest, SetRequest__write) {
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
+}
+
+
+TEST(MessageTest, SetResponse__Constructor) {
+    SetResponseMessage response;
+
+    EXPECT_EQ(15, response.size());
+    EXPECT_EQ(0, response.get_sequence_id());
+    EXPECT_EQ(0, response.get_page_id());
+    EXPECT_EQ(MessageType::SetResponse, response.type());
+    EXPECT_EQ(false, response.is_request());
+    EXPECT_EQ(0, response.request_id());
+}
+
+
+TEST(MessageTest, SetResponse__source_path) {
+    SetResponseMessage response;
+
+    EXPECT_EQ("", response.get_source_path());
+    response.set_source_path("/source/path");
+    EXPECT_EQ("/source/path", response.get_source_path());
+}
+
+TEST(MessageTest, SetResponse__status) {
+    SetResponseMessage response;
+
+    static const MessageStatus message_status_all [] {
+            MessageStatus::Ok,
+            MessageStatus::Initializing,
+            MessageStatus::Refreshed,
+            MessageStatus::NotAvailable,
+            MessageStatus::Closed,
+            MessageStatus::Disconnected,
+            MessageStatus::PermissionDenied,
+            MessageStatus::InvalidMessage,
+            MessageStatus::InvalidParameter,
+            MessageStatus::Busy,
+            MessageStatus::AliasLoop,
+            MessageStatus::ConnectionError,
+    };
+    for(const auto status : message_status_all) {
+        response.set_status(status);
+        EXPECT_EQ(status, response.get_status());
+    }
+}
+
+TEST(MessageTest, SetResponse__write) {
+    SetResponseMessageExt response;
+
+    response.set_source_path("source/path");
+    response.set_status(MessageStatus::Busy);
+
+    response.update_static_header_ext();
+
+    uint8_t buf[1024];
+    response.write(buf);
+
+    uint8_t expected_values[] = {0x11, 0x0,  0x0,  0x0,  0x11, 0x0,  0x84,  0x0,
+                                 0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
+                                 0x28};
+
+    EXPECT_EQ(0, memcmp(expected_values, buf,
+                        sizeof(expected_values) / sizeof(uint8_t)));
 }
