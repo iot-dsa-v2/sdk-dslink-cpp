@@ -9,8 +9,6 @@
 
 #include <valarray>
 
-#include "enable_closable.h"
-
 namespace dsa {
 
 template <typename T, typename F>
@@ -60,19 +58,32 @@ class EnableIntrusive {
   size_t _refs{0};
 
  public:
-  unsigned int ref_count() const { return _refs; }
+  size_t ref_count() const { return _refs; }
 };
 
 template <typename T>
-class IntrusiveClosable : public Closable, public EnableIntrusive<T> {};
+class IntrusiveClosable : public EnableIntrusive<T> {
+ private:
+  bool _closed{false};
+
+ public:
+  bool is_closed() const { return _closed; }
+  void close() {
+    if (!_closed) {
+      _closed = true;
+      close_impl();
+    }
+  }
+  virtual void close_impl(){};
+};
 
 template <typename _Ty>
-void intrusive_ptr_add_ref(_Ty *t) {
+void intrusive_ptr_add_ref(_Ty* t) {
   ++t->_refs;
 }
 
 template <typename _Ty>
-void intrusive_ptr_release(_Ty *t) {
+void intrusive_ptr_release(_Ty* t) {
   if (--t->_refs == 0) {
     delete t;
   }

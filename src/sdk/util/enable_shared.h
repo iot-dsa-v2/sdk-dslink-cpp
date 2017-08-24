@@ -5,7 +5,7 @@
 
 #include <valarray>
 
-#include "enable_closable.h"
+#include <atomic>
 
 namespace dsa {
 
@@ -57,8 +57,20 @@ class EnableShared : public std::enable_shared_from_this<T> {
 };
 
 template <typename T>
-class SharedClosable : public Closable, public EnableShared<T> {};
+class SharedClosable : public EnableShared<T> {
+private:
+  std::atomic_bool _closed{false};
 
+public:
+  bool is_closed() const { return _closed; }
+  void close() {
+    if (!_closed) {
+      _closed = true;
+      close_impl();
+    }
+  }
+  virtual void close_impl(){};
+};
 }  // namespace dsa
 
 #endif  // DSA_SDK_UTIL_ENABLE_SHARED_H_
