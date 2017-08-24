@@ -20,6 +20,7 @@ class TcpConnection : public Connection {
   static const uint32_t MAX_PENDING_MESSAGE = 2;
 
  protected:
+  static void start_read(shared_ptr_<TcpConnection> connection, size_t cur, size_t next);
   static void read_loop(shared_ptr_<TcpConnection> connection, size_t from_prev,
                         const boost::system::error_code &error,
                         size_t bytes_transferred);

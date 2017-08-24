@@ -33,16 +33,18 @@ void TcpClientConnection::connect() {
 
 void TcpClientConnection::start_handshake(
     const boost::system::error_code &error) throw(const std::runtime_error &) {
-  if (error != nullptr) {
+  if (error != boost::system::errc::errc_t::success) {
     close();
     throw std::runtime_error("Couldn't connect to specified host");
   }
 
+#if 0
+  // TODO fix this
   // start timeout timer
   _deadline.expires_from_now(
       boost::posix_time::milliseconds(_handshake_timeout_ms));
-#if 0
-  // TODO fix this
+
+
   _deadline.async_wait(
       boost::bind(&TcpClientConnection::timeout,
                   Connection::share_this<TcpClientConnection>(),
@@ -66,6 +68,7 @@ void TcpClientConnection::start_handshake(
 
 void TcpClientConnection::f1_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
+  print("f1_received", bytes_transferred);
   if (!error && parse_f1(bytes_transferred)) {
     // cancel timer before timeout
     _deadline.expires_from_now(

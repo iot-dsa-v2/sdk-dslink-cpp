@@ -11,12 +11,12 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
+TcpConnection::TcpConnection(LinkStrandPtr &strand,
+                             uint32_t handshake_timeout_ms,
                              const std::string &dsid_prefix,
                              const std::string &path)
     : Connection(strand, handshake_timeout_ms, dsid_prefix, path),
       _socket((*strand)().get_io_service()) {}
-
 
 void TcpConnection::close_impl() {
   if (_socket_open.exchange(false)) {
@@ -25,77 +25,74 @@ void TcpConnection::close_impl() {
   Connection::close_impl();
 }
 
-void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection, size_t from_prev, const boost::system::error_code &error,
+void TcpConnection::start_read(shared_ptr_<TcpConnection> connection,
+                               size_t cur, size_t next) {
+  ByteBuffer &buffer = *(connection->_read_buffer);
+  size_t partial_size = next - cur;
+  if (cur > 0) {
+    std::copy(&buffer[cur], &buffer[next], &buffer[0]);
+  } else if (partial_size * 2 > buffer.size() &&
+             buffer.size() < MAX_BUFFER_SIZE) {
+    // resize the buffer on demand
+    buffer.resize(buffer.size() * 2);
+  }
+  connection->_socket.async_read_some(
+      boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
+      [ connection = std::move(connection), partial_size ](
+          const boost::system::error_code &err, size_t transferred) mutable {
+        TcpConnection::read_loop(std::move(connection), partial_size, err,
+                                 transferred);
+      });
+}
+
+void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection,
+                              size_t from_prev,
+                              const boost::system::error_code &error,
                               size_t bytes_transferred) {
-//  // reset deadline timer for each new message
-//  //TODO: make this thread safe
-//  connection->reset_standard_deadline_timer();
-//
-//  if (!error) {
-//    std::cout << std::endl << "in read loop" << std::endl;
-//
-//    BufferPtr buf = std::move(connection->_read_buffer);
-//    _write_buffer.reset(new ByteBuffer());
-//
-//    size_t total_bytes = from_prev + bytes_transferred;
-//    uint8_t *data = buf->data();
-//    size_t cur = 0;
-//
-//    while (cur < total_bytes) {
-//      // always want full static header instead of just message size to make
-//      // sure it's a valid message
-//      if (total_bytes - cur < sizeof(uint32_t)) {
-//        size_t partial_size = total_bytes - cur;
-//        _write_buffer->assign(&data[cur], &data[cur] + partial_size);
-//        _socket.async_read_some(
-//            boost::asio::buffer(_write_buffer->data() + partial_size,
-//                                _write_buffer->capacity() - partial_size),
-//            boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(),
-//                        partial_size, boost::asio::placeholders::error,
-//                        boost::asio::placeholders::bytes_transferred));
-//        return;
-//      }
-//      uint32_t message_size = *((uint32_t*)cur);
-//      if (message_size < total_bytes - cur) {
-//        size_t partial_size = total_bytes - cur;
-//
-//        // make sure buffer capacity is enough to read full message
-//        _write_buffer->resize(message_size);
-//        _write_buffer->assign(&data[cur], &data[cur] + partial_size);
-//
-//        // read the rest of the message
-//        boost::asio::async_read(
-//            _socket,
-//            boost::asio::buffer(_write_buffer->data() + partial_size,
-//                                _write_buffer->capacity() - partial_size),
-//            boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(),
-//                        partial_size, boost::asio::placeholders::error,
-//                        boost::asio::placeholders::bytes_transferred));
-//        return;
-//      }
-//
-//      // post job with message buffer
-//      Message * message = Message::parse_message(&buf->data()[cur], message_size);
-//
-//      _strand.post(
-//          //boost::bind<void>(_message_handler, _session,
-//          //                  buf->get_shared_buffer(cur, header.message_size))
-//          [sthis = share_this<TcpConnection>(), message](){
-//            sthis->post_message(message);
-//          }
-//      );
-//
-//      cur += message_size;
-//    }
-//
-//    _socket.async_read_some(
-//        boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
-//        boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
-//                    boost::asio::placeholders::error,
-//                    boost::asio::placeholders::bytes_transferred));
-//  } else {
-//    close();
-//  }
+  // reset deadline timer for each new message
+  // TODO: make this thread safe
+  // connection->reset_standard_deadline_timer();
+
+  if (!error) {
+    ByteBuffer &buffer = *(connection->_read_buffer);
+    size_t total_bytes = from_prev + bytes_transferred;
+    const uint8_t *data = buffer.data();
+    size_t cur = 0;
+
+    while (cur < total_bytes) {
+      if (total_bytes - cur < sizeof(uint32_t)) {
+        // not enough data to check size
+        start_read(std::move(connection), cur, total_bytes);
+        return;
+      }
+      uint32_t message_size = *((uint32_t *)cur);
+      if (message_size < total_bytes - cur) {
+        // not enough data to parse message
+        start_read(std::move(connection), cur, total_bytes);
+        return;
+      }
+
+      // post job with message buffer
+
+      if (connection->on_read_message != nullptr) {
+        connection->on_read_message(
+            Message::parse_message(&buffer[cur], message_size));
+      }
+      //      _strand.post(
+      //          // boost::bind<void>(_message_handler, _session,
+      //          //                  buf->get_shared_buffer(cur,
+      //          header.message_size))
+      //          [ sthis = share_this<TcpConnection>(), message ]() {
+      //            sthis->post_message(message);
+      //          });
+
+      cur += message_size;
+    }
+
+    start_read(std::move(connection), 0, 0);
+  } else {
+    // TODO close connection on owner strand
+  }
 }
 
 void TcpConnection::write_handler(WriteHandler callback,
@@ -117,10 +114,11 @@ void TcpConnection::write(BufferPtr buf, size_t size, WriteHandler callback) {
     return;
   }
 
-//  boost::asio::async_write(
-//      _socket, boost::asio::buffer(buf->data(), size),
-//      boost::bind(&TcpConnection::write_handler, share_this<TcpConnection>(),
-//                  callback, boost::asio::placeholders::error));
+  //  boost::asio::async_write(
+  //      _socket, boost::asio::buffer(buf->data(), size),
+  //      boost::bind(&TcpConnection::write_handler,
+  //      share_this<TcpConnection>(),
+  //                  callback, boost::asio::placeholders::error));
 }
 
 void TcpConnection::start() throw() {
@@ -131,10 +129,10 @@ void TcpConnection::start() throw() {
 
   name();
 
-//  _socket.async_read_some(
-//      boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
-//      boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
-//                  boost::asio::placeholders::error, 0));
+  //  _socket.async_read_some(
+  //      boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
+  //      boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
+  //                  boost::asio::placeholders::error, 0));
 }
 
 tcp_socket &TcpConnection::socket() { return _socket; }

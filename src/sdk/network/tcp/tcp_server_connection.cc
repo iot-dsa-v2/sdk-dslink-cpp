@@ -43,6 +43,7 @@ void TcpServerConnection::start_handshake() {
   // prepare and send f1 then make sure it was successful
   // [success_or_close(...)]
   size_t f1_size = load_f1(*_write_buffer);
+  print("f1_write", f1_size);
   boost::asio::async_write(_socket,
                            boost::asio::buffer(_write_buffer->data(), f1_size),
                            boost::bind(&TcpServerConnection::success_or_close,

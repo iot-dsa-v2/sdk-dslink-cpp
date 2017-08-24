@@ -1,14 +1,14 @@
 #ifndef DSA_SDK_CONNECTION_H_
 #define DSA_SDK_CONNECTION_H_
 
+#include <boost/asio/deadline_timer.hpp>
 #include <functional>
 #include <utility>
-#include <boost/asio/deadline_timer.hpp>
 
 #include "core/link_strand.h"
-#include "util/util.h"
-#include "message/static_headers.h"
 #include "crypto/handshake_context.h"
+#include "message/static_headers.h"
+#include "util/util.h"
 
 namespace dsa {
 class App;
@@ -20,42 +20,39 @@ typedef std::function<void()> WriteHandler;
 
 class Connection : public SharedClosable<Connection> {
  public:
+  static const size_t MAX_BUFFER_SIZE = 65536;
+
+ public:
   virtual std::string name() = 0;
 
-  enum Protocol {
-    TCP
-  };
+  enum Protocol { TCP };
 
   enum {
     PublicKeyLength = 65,
     SaltLength = 32,
     AuthLength = 32,
-    MinF0Length = StaticHeaders::TotalSize +
-        2 +                 // client dsa version
-        1 +                 // client dsid length
-        1 +                 // client dsid content
-        PublicKeyLength +   // client public key
-        1 +                 // client security preference
-        SaltLength,         // client salt
-    MinF1Length = StaticHeaders::TotalSize +
-        1 +                 // broker dsid length
-        1 +                 // broker dsid content
-        PublicKeyLength +   // broker public key
-        SaltLength,         // broker salt
-    MinF2Length = StaticHeaders::TotalSize +
-        2 +                 // client token length
-        0 +                 // client token content
-        1 +                 // client is requester
-        1 +                 // client is responder
-        2 +                 // client session id length
-        0 +                 // client session id
-        AuthLength,         // client auth
-    MinF3Length = StaticHeaders::TotalSize +
-        2 +                 // session id length
-        1 +                 // session id content
-        2 +                 // client path length
-        1 +                 // client path content
-        AuthLength,         // broker auth
+    MinF0Length = StaticHeaders::TotalSize + 2 +  // client dsa version
+                  1 +                             // client dsid length
+                  1 +                             // client dsid content
+                  PublicKeyLength +               // client public key
+                  1 +                             // client security preference
+                  SaltLength,                     // client salt
+    MinF1Length = StaticHeaders::TotalSize + 1 +  // broker dsid length
+                  1 +                             // broker dsid content
+                  PublicKeyLength +               // broker public key
+                  SaltLength,                     // broker salt
+    MinF2Length = StaticHeaders::TotalSize + 2 +  // client token length
+                  0 +                             // client token content
+                  1 +                             // client is requester
+                  1 +                             // client is responder
+                  2 +                             // client session id length
+                  0 +                             // client session id
+                  AuthLength,                     // client auth
+    MinF3Length = StaticHeaders::TotalSize + 2 +  // session id length
+                  1 +                             // session id content
+                  2 +                             // client path length
+                  1 +                             // client path content
+                  AuthLength,                     // broker auth
   };
 
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
@@ -67,9 +64,8 @@ class Connection : public SharedClosable<Connection> {
   void set_session(const intrusive_ptr_<Session> &session);
 
  protected:
-  Connection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
-             const std::string &dsid_prefix,
-             const std::string &path = "");
+  Connection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
+             const std::string &dsid_prefix, const std::string &path = "");
   virtual ~Connection() = default;
 
   HandshakeContext _handshake_context;
@@ -102,13 +98,15 @@ class Connection : public SharedClosable<Connection> {
   boost::asio::deadline_timer _deadline;
   uint32_t _handshake_timeout_ms{1000};
 
-//  virtual void read_loop(size_t from_prev, const boost::system::error_code &error, size_t bytes_transferred) = 0;
-
+  //  virtual void read_loop(size_t from_prev, const boost::system::error_code
+  //  &error, size_t bytes_transferred) = 0;
 
   // for this to be successful, _other_salt and _other_public_key need to valid
   void compute_secret();
 
-  static bool valid_handshake_header(StaticHeaders &header, size_t expected_size, MessageType expected_type);
+  static bool valid_handshake_header(StaticHeaders &header,
+                                     size_t expected_size,
+                                     MessageType expected_type);
 
   void success_or_close(const boost::system::error_code &error);
 
@@ -116,11 +114,11 @@ class Connection : public SharedClosable<Connection> {
 
   void reset_standard_deadline_timer();
 
+  std::function<void(Message*)> on_read_message;
   void post_message(Message *message);
 
-
-// server connection
-protected:
+  // server connection
+ protected:
   void on_server_connect() throw(const std::runtime_error &);
 
   // handshake functions
@@ -129,8 +127,8 @@ protected:
   size_t load_f1(ByteBuffer &buf);
   size_t load_f3(ByteBuffer &buf);
 
-// client connection
-protected:
+  // client connection
+ protected:
   std::string _client_token;
 
   void on_client_connect() throw(const std::runtime_error &);
@@ -140,7 +138,6 @@ protected:
   bool parse_f3(size_t size);
   size_t load_f0(ByteBuffer &buf);
   size_t load_f2(ByteBuffer &buf);
-
 };
 
 }  // namespace dsa
