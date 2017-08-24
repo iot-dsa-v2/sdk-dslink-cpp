@@ -3,7 +3,24 @@
 
 using namespace dsa;
 
-TEST(MessageTest, SetRequest__MessageConstruction_01) {
+class SetRequestMessageExt : public SetRequestMessage{
+public:
+    SetRequestMessageExt() :
+            SetRequestMessage() {}
+
+    void update_static_header_ext() {
+      SetRequestMessage::update_static_header();
+    }
+
+    bool check_static_headers(uint8_t *expected_values, size_t size) {
+      uint8_t buf[1024];
+      static_headers.write(buf);
+
+      return (memcmp(expected_values, buf, size) == 0);
+    }
+};
+
+TEST(MessageTest, SetRequest__Constructor_01) {
   // public methods
   // SetRequestMessage();
 
@@ -16,14 +33,14 @@ TEST(MessageTest, SetRequest__MessageConstruction_01) {
   EXPECT_EQ(true, request.is_request());
   EXPECT_EQ(0, request.request_id());
 
-  EXPECT_EQ(0, request.get_priority());
+  EXPECT_EQ(false, request.get_priority());
   EXPECT_EQ("", request.get_target_path());
   EXPECT_EQ("", request.get_permission_token());
   EXPECT_EQ(false, request.get_no_stream());
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, SetRequest__MessageConstruction_02) {
+TEST(MessageTest, SetRequest__Constructor_02) {
   //   SetRequestMessage(const SetRequestMessage&);
 
   const SetRequestMessage src__request;
@@ -36,7 +53,7 @@ TEST(MessageTest, SetRequest__MessageConstruction_02) {
   EXPECT_EQ(true, target__request.is_request());
   EXPECT_EQ(0, target__request.request_id());
 
-  EXPECT_EQ(0, target__request.get_priority());
+  EXPECT_EQ(false, target__request.get_priority());
   EXPECT_EQ("", target__request.get_target_path());
   EXPECT_EQ("", target__request.get_permission_token());
   EXPECT_EQ(false, target__request.get_no_stream());
@@ -49,7 +66,7 @@ TEST(MessageTest, SetRequest__MessageConstruction_02) {
   EXPECT_EQ(target_path, target__request.get_target_path());
 }
 
-TEST(MessageTest, SetRequest__MessageConstruction_03) {
+TEST(MessageTest, SetRequest__Constructor_03) {
   //   SetRequestMessage(const uint8_t* data, size_t size);
 
   const uint8_t data[] = {0xf, 0x0, 0x0, 0x0,
@@ -67,14 +84,14 @@ TEST(MessageTest, SetRequest__MessageConstruction_03) {
   EXPECT_EQ(true, request.is_request());
   EXPECT_EQ(0, request.request_id());
 
-  EXPECT_EQ(0, request.get_priority());
+  EXPECT_EQ(false, request.get_priority());
   EXPECT_EQ("", request.get_target_path());
   EXPECT_EQ("", request.get_permission_token());
   EXPECT_EQ(false, request.get_no_stream());
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, SetRequest__MessageConstruction_04) {
+TEST(MessageTest, SetRequest__Constructor_04) {
   //   SetRequestMessage(const uint8_t* data, size_t size);
 
   SetRequestMessage request;
@@ -92,7 +109,7 @@ TEST(MessageTest, SetRequest__MessageConstruction_04) {
   EXPECT_EQ(true, other.is_request());
   EXPECT_EQ(0, other.request_id());
 
-  EXPECT_EQ(0, other.get_priority());
+  EXPECT_EQ(false, other.get_priority());
   EXPECT_EQ("/other", other.get_target_path());
   EXPECT_EQ("", other.get_permission_token());
   EXPECT_EQ(false, other.get_no_stream());
@@ -110,28 +127,63 @@ TEST(MessageTest, SetRequest__get_set_options) {
 
 TEST(MessageTest, SetRequest__update_static_header) {
   // void update_static_header();
-
-  class SetRequestMessageExt : public SetRequestMessage{
-  public:
-    SetRequestMessageExt() :
-      SetRequestMessage() {}
-
-    void update_static_header_ext() {
-      SetRequestMessage::update_static_header();
-    }
-
-    bool check_static_headers(uint8_t *expected_values, size_t size) {
-      uint8_t buf[1024];
-      static_headers.write(buf);
-
-      return (memcmp(expected_values, buf, size) == 0);
-    }
-  };
-
   SetRequestMessageExt request;
   request.update_static_header_ext();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
   EXPECT_EQ(true, request.check_static_headers(expect_values, 
 					    sizeof(expect_values)/sizeof(uint8_t)));
+}
+
+TEST(MessageTest, SetRequest__priority) {
+  SetRequestMessage request;
+
+  EXPECT_EQ(false, request.get_priority());
+  request.set_priority(true);
+  EXPECT_EQ(true, request.get_priority());
+}
+
+TEST(MessageTest, SetRequest__target_path) {
+  SetRequestMessage request;
+
+  EXPECT_EQ("", request.get_target_path());
+  request.set_target_path("path/to/node");
+  EXPECT_EQ("path/to/node", request.get_target_path());
+}
+
+TEST(MessageTest, SetRequest__permission_token) {
+  // TODO: to be implemented
+  SetRequestMessage request;
+
+  EXPECT_EQ("", request.get_permission_token());
+  request.set_permission_token("permission-token");
+  EXPECT_EQ("permission-token", request.get_permission_token());
+}
+
+TEST(MessageTest, SetRequest__no_stream) {
+  SetRequestMessage request;
+
+  EXPECT_EQ(false, request.get_no_stream());
+  request.set_no_stream(true);
+  EXPECT_EQ(true, request.get_no_stream());
+}
+
+TEST(MessageTest, SetRequest__write) {
+  SetRequestMessageExt request;
+
+  request.set_target_path("path/to/dsa");
+  request.set_no_stream(true);
+
+  request.update_static_header_ext();
+
+  uint8_t buf[1014];
+  request.write(buf);
+
+  uint8_t expected_values[] = {0x1d, 0x0,  0x0,  0x0,  0x1d, 0x0,  0x4,  0x0,
+                               0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x80,
+                               0x0b, 0x0,  0x70, 0x61, 0x74, 0x68, 0x2f, 0x74,
+                               0x6f, 0x2f, 0x64, 0x73, 0x61};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
 }
