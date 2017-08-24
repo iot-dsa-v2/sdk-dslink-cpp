@@ -52,15 +52,15 @@ void TcpClientConnection::start_handshake(
 #endif
 
   _socket.async_read_some(
-      boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
+      boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
       boost::bind(&TcpClientConnection::f1_received,
                   Connection::share_this<TcpClientConnection>(),
                   boost::asio::placeholders::error,
                   boost::asio::placeholders::bytes_transferred));
 
-  size_t f0_size = load_f0(*_write_buffer);
+  size_t f0_size = load_f0(_write_buffer);
   boost::asio::async_write(
-      _socket, boost::asio::buffer(_write_buffer->data(), f0_size),
+      _socket, boost::asio::buffer(_write_buffer.data(), f0_size),
       boost::bind(&TcpClientConnection::success_or_close,
                   Connection::share_this<TcpClientConnection>(),
                   boost::asio::placeholders::error));
@@ -77,9 +77,9 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
     // server should be parsing f0 and waiting for f2 at this point
     // so we can compute the shared secret synchronously
     compute_secret();
-    size_t f2_size = load_f2(*_write_buffer);
+    size_t f2_size = load_f2(_write_buffer);
     boost::asio::async_write(
-        _socket, boost::asio::buffer(_write_buffer->data(), f2_size),
+        _socket, boost::asio::buffer(_write_buffer.data(), f2_size),
         boost::bind(&TcpClientConnection::success_or_close,
                     Connection::share_this<TcpClientConnection>(),
                     boost::asio::placeholders::error));
@@ -94,7 +94,7 @@ void TcpClientConnection::f1_received(const boost::system::error_code &error,
 #endif
 
     _socket.async_read_some(
-        boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
+        boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
         boost::bind(&TcpClientConnection::f3_received,
                     Connection::share_this<TcpClientConnection>(),
                     boost::asio::placeholders::error,

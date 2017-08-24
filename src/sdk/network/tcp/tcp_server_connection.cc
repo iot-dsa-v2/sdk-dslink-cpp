@@ -34,7 +34,7 @@ void TcpServerConnection::start_handshake() {
 
   // start listening for f0
   _socket.async_read_some(
-      boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
+      boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
       boost::bind(&TcpServerConnection::f0_received,
                   share_this<TcpServerConnection>(),
                   boost::asio::placeholders::error,
@@ -42,10 +42,10 @@ void TcpServerConnection::start_handshake() {
 
   // prepare and send f1 then make sure it was successful
   // [success_or_close(...)]
-  size_t f1_size = load_f1(*_write_buffer);
+  size_t f1_size = load_f1(_write_buffer);
   print("f1_write", f1_size);
   boost::asio::async_write(_socket,
-                           boost::asio::buffer(_write_buffer->data(), f1_size),
+                           boost::asio::buffer(_write_buffer.data(), f1_size),
                            boost::bind(&TcpServerConnection::success_or_close,
                                        share_this<TcpServerConnection>(),
                                        boost::asio::placeholders::error));
@@ -69,7 +69,7 @@ void TcpServerConnection::f0_received(const boost::system::error_code &error,
 
     // read and goto -> f2_received()
     _socket.async_read_some(
-        boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
+        boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
         boost::bind(&TcpServerConnection::f2_received,
                     share_this<TcpServerConnection>(),
                     boost::asio::placeholders::error,
@@ -106,9 +106,9 @@ void TcpServerConnection::f2_received(const boost::system::error_code &error,
 
 void TcpServerConnection::send_f3() {
   // send f3
-  size_t f3_size = load_f3(*_write_buffer);
+  size_t f3_size = load_f3(_write_buffer);
   boost::asio::async_write(
-      _socket, boost::asio::buffer(_write_buffer->data(), f3_size),
+      _socket, boost::asio::buffer(_write_buffer.data(), f3_size),
       boost::bind(&TcpServerConnection::success_or_close, shared_from_this(),
                   boost::asio::placeholders::error));
 }

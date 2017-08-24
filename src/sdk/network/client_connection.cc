@@ -7,8 +7,6 @@
 
 namespace dsa {
 
-
-
 void Connection::on_client_connect() throw(const std::runtime_error &) {
   if (_session == nullptr)
     throw std::runtime_error("no session attached to client connection");
@@ -22,7 +20,7 @@ void Connection::on_client_connect() throw(const std::runtime_error &) {
 bool Connection::parse_f1(size_t size) {
   if (size < MinF1Length) return false;
 
-  const uint8_t *data = _write_buffer->data();
+  const uint8_t *data = _write_buffer.data();
 
   StaticHeaders header(data);
   if (!valid_handshake_header(header, size, MessageType::Handshake1))
@@ -34,7 +32,7 @@ bool Connection::parse_f1(size_t size) {
   std::copy(data, data + sizeof(dsid_length), &dsid_length);
   data += sizeof(dsid_length);
 
-  if ((data - _write_buffer->data()) + dsid_length + PublicKeyLength +
+  if ((data - _write_buffer.data()) + dsid_length + PublicKeyLength +
           SaltLength >
       size)
     return false;
@@ -48,13 +46,13 @@ bool Connection::parse_f1(size_t size) {
   _other_salt.assign(data, data + SaltLength);
   data += _other_salt.size();
 
-  return data == _write_buffer->data() + size;
+  return data == _write_buffer.data() + size;
 }
 
 bool Connection::parse_f3(size_t size) {
   if (size < MinF3Length) return false;
 
-  const uint8_t *data = _write_buffer->data();
+  const uint8_t *data = _write_buffer.data();
 
   StaticHeaders header(data);
   if (!valid_handshake_header(header, size, MessageType::Handshake3))
@@ -90,11 +88,11 @@ bool Connection::parse_f3(size_t size) {
   // make sure other auth is correct
   if (_auth_check != _other_auth) return false;
 
-  return data == _write_buffer->data() + size;
+  return data == _write_buffer.data() + size;
 }
 
 // Handshake load functions
-size_t Connection::load_f0(ByteBuffer &buf) {
+size_t Connection::load_f0(std::vector<uint8_t> &buf) {
   uint16_t dsid_length =
       static_cast<uint16_t>(_handshake_context.dsid().size());
 
@@ -125,7 +123,7 @@ size_t Connection::load_f0(ByteBuffer &buf) {
   return size;
 }
 
-size_t Connection::load_f2(ByteBuffer &buf) {
+size_t Connection::load_f2(std::vector<uint8_t> &buf) {
   auto token_length = (uint16_t)_client_token.size();
   auto sid_length = (uint16_t)_previous_session_id.size();
 

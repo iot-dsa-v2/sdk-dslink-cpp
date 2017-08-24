@@ -20,6 +20,7 @@ typedef std::function<void()> WriteHandler;
 
 class Connection : public SharedClosable<Connection> {
  public:
+  static const size_t DEFAULT_BUFFER_SIZE = 1024;
   static const size_t MAX_BUFFER_SIZE = 65536;
 
  public:
@@ -74,8 +75,9 @@ class Connection : public SharedClosable<Connection> {
   // this should rarely be touched
   intrusive_ptr_<Session> _session;
 
-  BufferPtr _read_buffer;
-  BufferPtr _write_buffer;
+  std::vector<uint8_t> _read_buffer;
+  std::vector<uint8_t> _write_buffer;
+
   std::vector<uint8_t> _shared_secret;
   std::vector<uint8_t> _other_public_key;
   std::vector<uint8_t> _other_salt;
@@ -124,8 +126,8 @@ class Connection : public SharedClosable<Connection> {
   // handshake functions
   bool parse_f0(size_t size);
   bool parse_f2(size_t size);
-  size_t load_f1(ByteBuffer &buf);
-  size_t load_f3(ByteBuffer &buf);
+  size_t load_f1(std::vector<uint8_t> &buf);
+  size_t load_f3(std::vector<uint8_t> &buf);
 
   // client connection
  protected:
@@ -136,8 +138,8 @@ class Connection : public SharedClosable<Connection> {
   // handshake functions
   bool parse_f1(size_t size);
   bool parse_f3(size_t size);
-  size_t load_f0(ByteBuffer &buf);
-  size_t load_f2(ByteBuffer &buf);
+  size_t load_f0(std::vector<uint8_t> &buf);
+  size_t load_f2(std::vector<uint8_t> &buf);
 };
 
 }  // namespace dsa

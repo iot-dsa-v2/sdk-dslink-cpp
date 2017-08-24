@@ -27,14 +27,14 @@ void TcpConnection::close_impl() {
 
 void TcpConnection::start_read(shared_ptr_<TcpConnection> connection,
                                size_t cur, size_t next) {
-  ByteBuffer &buffer = *(connection->_read_buffer);
+  std::vector<uint8_t> &buffer = connection->_read_buffer;
   size_t partial_size = next - cur;
   if (cur > 0) {
     std::copy(&buffer[cur], &buffer[next], &buffer[0]);
   } else if (partial_size * 2 > buffer.size() &&
              buffer.size() < MAX_BUFFER_SIZE) {
     // resize the buffer on demand
-    buffer.resize(buffer.size() * 2);
+    buffer.resize(buffer.size() * 4);
   }
   connection->_socket.async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
@@ -54,9 +54,8 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection,
   // connection->reset_standard_deadline_timer();
 
   if (!error) {
-    ByteBuffer &buffer = *(connection->_read_buffer);
+    std::vector<uint8_t> &buffer = connection->_read_buffer;
     size_t total_bytes = from_prev + bytes_transferred;
-    const uint8_t *data = buffer.data();
     size_t cur = 0;
 
     while (cur < total_bytes) {
@@ -65,6 +64,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection,
         start_read(std::move(connection), cur, total_bytes);
         return;
       }
+      //TODO: check if message_size is valid;
       uint32_t message_size = *((uint32_t *)cur);
       if (message_size < total_bytes - cur) {
         // not enough data to parse message
@@ -77,6 +77,8 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection,
       if (connection->on_read_message != nullptr) {
         connection->on_read_message(
             Message::parse_message(&buffer[cur], message_size));
+      } else {
+        throw std::runtime_error("on_read_message is null");
       }
       //      _strand.post(
       //          // boost::bind<void>(_message_handler, _session,
