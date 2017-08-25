@@ -14,6 +14,11 @@ namespace dsa {
 
 class Message : public EnableIntrusive<Message> {
  public:
+  static const uint8_t PublicKeyLength = 65;
+  static const uint8_t SaltLength = 32;
+  static const uint8_t AuthLength = 32;
+
+ public:
   static Message* parse_message(const uint8_t* data, size_t size) throw(
       const MessageParsingError&);
 

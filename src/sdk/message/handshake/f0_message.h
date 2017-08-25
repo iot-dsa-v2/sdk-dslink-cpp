@@ -18,7 +18,7 @@ class HandshakeF0Message : public Message {
 
   HandshakeF0Message(const uint8_t* data, size_t size);
   HandshakeF0Message();
-  //  HandshakeF1Message(const HandshakeF0Message&);
+  HandshakeF0Message(const HandshakeF0Message&);
 
  protected:
   // measure the size and header size
