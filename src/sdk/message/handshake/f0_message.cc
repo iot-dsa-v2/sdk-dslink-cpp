@@ -12,14 +12,30 @@ HandshakeF0Message::HandshakeF0Message(const uint8_t* data, size_t size)
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 
-HandshakeF0Message::HandshakeF0Message() : Message(MessageType::Handshake0) {}
+HandshakeF0Message::HandshakeF0Message() : Message(MessageType::Handshake0) {
+  dsa_version_major = 2;
+  dsa_version_minor = 0;
+  dsid_length = 0;
+  dsid.resize(0);
+  public_key.resize(PublicKeyLength, ' ');
+  security_preference = false;
+  salt.resize(SaltLength, ' ');
+}
 
 HandshakeF0Message::HandshakeF0Message(const HandshakeF0Message& from)
-    : Message{from.static_headers} {}
+    : Message{from.static_headers} {
+  dsa_version_major = from.dsa_version_major;
+  dsa_version_minor = from.dsa_version_minor;
+  dsid_length = from.dsid_length;
+  dsid = from.dsid;
+  public_key = from.public_key;
+  security_preference = from.security_preference;
+  salt = from.salt;
+}
 
 void HandshakeF0Message::update_static_header() {
   uint32_t header_size =
-      StaticHeaders::TotalSize + PublicKeyLength + SaltLength + 5;
+      StaticHeaders::TotalSize + PublicKeyLength + SaltLength + 4;
 
   static_headers.message_size = header_size;
   static_headers.header_size = (uint16_t)header_size;
@@ -58,4 +74,5 @@ void HandshakeF0Message::parse_dynamic_headers(
 
   salt.assign(data, data + SaltLength);
 }
+
 }  // namespace dsa

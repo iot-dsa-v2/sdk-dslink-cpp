@@ -1,8 +1,8 @@
 #ifndef DSA_SDK_F0_MESSAGE_H
 #define DSA_SDK_F0_MESSAGE_H
 
-#include "../base_message.h"
 #include <stdexcept>
+#include "../base_message.h"
 
 namespace dsa {
 
