@@ -3,12 +3,12 @@
 
 using namespace dsa;
 
-class HandshakeF0MessageExt : public HandshakeF0Message {
+class HandshakeF1MessageExt : public HandshakeF1Message {
  public:
-  HandshakeF0MessageExt() : HandshakeF0Message() {}
+  HandshakeF1MessageExt() : HandshakeF1Message() {}
 
   void update_static_header_ext() {
-    HandshakeF0Message::update_static_header();
+    HandshakeF1Message::update_static_header();
   }
 
   bool check_static_headers(uint8_t *expected_values, size_t size) {
@@ -19,11 +19,11 @@ class HandshakeF0MessageExt : public HandshakeF0Message {
   }
 };
 
-TEST(MessageTest, HandshakeF0__Constructor_01) {
-  HandshakeF0MessageExt message;
+TEST(MessageTest, HandshakeF1__Constructor_01) {
+  HandshakeF1MessageExt message;
 
   message.update_static_header_ext();
 
   uint8_t buf[1024];
-  message.write(buf);
+//  message.write(buf);
 }

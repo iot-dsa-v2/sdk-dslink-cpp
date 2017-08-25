@@ -35,7 +35,7 @@ HandshakeF0Message::HandshakeF0Message(const HandshakeF0Message& from)
 
 void HandshakeF0Message::update_static_header() {
   uint32_t header_size =
-      StaticHeaders::TotalSize + PublicKeyLength + SaltLength + 4;
+      StaticHeaders::TotalSize + dsid_length + PublicKeyLength + SaltLength + 4;
 
   static_headers.message_size = header_size;
   static_headers.header_size = (uint16_t)header_size;

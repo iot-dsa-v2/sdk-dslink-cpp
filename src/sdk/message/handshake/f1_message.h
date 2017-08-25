@@ -1,8 +1,8 @@
 #ifndef DSA_SDK_F1_MESSAGE_H
 #define DSA_SDK_F1_MESSAGE_H
 
-#include "../base_message.h"
 #include <stdexcept>
+#include "../base_message.h"
 
 namespace dsa {
 
@@ -15,7 +15,7 @@ class HandshakeF1Message : public Message {
 
   HandshakeF1Message(const uint8_t* data, size_t size);
   HandshakeF1Message();
-  //  HandshakeF1Message(const HandshakeF1Message&);
+  HandshakeF1Message(const HandshakeF1Message&);
 
  protected:
   // measure the size and header size
