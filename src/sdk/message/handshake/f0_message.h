@@ -6,12 +6,19 @@
 
 namespace dsa {
 
-
 class HandshakeF0Message : public Message {
  public:
+  uint8_t dsa_version_major;
+  uint8_t dsa_version_minor;
+  uint8_t dsid_length;
+  std::string dsid;
+  std::vector<uint8_t> public_key;
+  bool security_preference;
+  std::vector<uint8_t> salt;
+
   HandshakeF0Message(const uint8_t* data, size_t size);
   HandshakeF0Message();
-//  HandshakeF1Message(const HandshakeF0Message&);
+  //  HandshakeF1Message(const HandshakeF0Message&);
 
  protected:
   // measure the size and header size
@@ -21,7 +28,6 @@ class HandshakeF0Message : public Message {
   void parse_dynamic_headers(const uint8_t* data,
                              size_t size) throw(const MessageParsingError&);
 };
-
 }
 
 #endif  // DSA_SDK_F0_MESSAGE_H
