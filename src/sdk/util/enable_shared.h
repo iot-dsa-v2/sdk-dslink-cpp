@@ -34,25 +34,12 @@ template <class T>
 class EnableShared : public std::enable_shared_from_this<T> {
  public:
   shared_ptr_<T> shared_from_this() {
-    return std::dynamic_pointer_cast<T>(
-        std::move(std::enable_shared_from_this<T>::shared_from_this()));
+    return std::enable_shared_from_this<T>::shared_from_this();
   }
 
   template <class Down>
   shared_ptr_<Down> share_this() {
-    return std::dynamic_pointer_cast<Down>(std::move(shared_from_this()));
-  }
-
-  template <typename F>
-  auto make_shared_this_lambda(F f) -> shared_this_lambda<T, F> {
-    return shared_this_lambda<T, F>(static_cast<T*>(this)->shared_from_this(),
-                                    f);
-  }
-
-  template <typename F>
-  auto make_shared_this_lambda(F f) const -> shared_this_lambda<const T, F> {
-    return shared_this_lambda<const T, F>(
-        static_cast<const T*>(this)->shared_from_this(), f);
+    return std::static_pointer_cast<Down>(std::move(shared_from_this()));
   }
 };
 

@@ -16,6 +16,10 @@ class Session;
 class Server;
 class Client;
 
+class Message;
+
+
+
 typedef std::function<void()> WriteHandler;
 
 class Connection : public SharedClosable<Connection> {
@@ -60,6 +64,10 @@ class Connection : public SharedClosable<Connection> {
 
   virtual void close_impl() override;
   static void close_in_strand(shared_ptr_<Connection> &&connection);
+
+  std::function<void(Message *)> on_read_message;
+  std::function<void()> on_read_message_error;
+
   virtual void connect() = 0;
   virtual void start() noexcept = 0;
   const std::string &dsid() { return _handshake_context.dsid(); }
@@ -147,9 +155,6 @@ class Connection : public SharedClosable<Connection> {
   bool parse_f3(size_t size);
   size_t load_f0(std::vector<uint8_t> &buf);
   size_t load_f2(std::vector<uint8_t> &buf);
-
- public:
-  std::function<void(Message *)> on_read_message;
 };
 
 }  // namespace dsa
