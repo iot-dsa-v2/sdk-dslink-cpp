@@ -29,7 +29,7 @@ HandshakeF1Message::HandshakeF1Message(const HandshakeF1Message& from)
 
 void HandshakeF1Message::update_static_header() {
   uint32_t header_size =
-      StaticHeaders::TotalSize + dsid_length + PublicKeyLength + SaltLength + 4;
+      StaticHeaders::TotalSize + 1 + dsid_length + PublicKeyLength + SaltLength;
 
   static_headers.message_size = header_size;
   static_headers.header_size = (uint16_t)header_size;
@@ -37,7 +37,9 @@ void HandshakeF1Message::update_static_header() {
 
 void HandshakeF1Message::write_dynamic_data(uint8_t* data) const {
   data = std::copy(&dsid_length, &dsid_length + sizeof(dsid_length), data);
+  if (dsid_length > 0) {
   data += dsid.copy(reinterpret_cast<char*>(data), dsid_length);
+  }
   data = std::copy(public_key.begin(), public_key.end(), data);
   data = std::copy(salt.begin(), salt.end(), data);
 }

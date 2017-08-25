@@ -14,7 +14,7 @@ HandshakeF3Message::HandshakeF3Message(const uint8_t* data, size_t size)
 
 HandshakeF3Message::HandshakeF3Message() : Message(MessageType::Handshake1) {}
 
-// HandshakeF3Message::HandshakeF3Message(const HandshakeF3Message&){}
+HandshakeF3Message::HandshakeF3Message(const HandshakeF3Message&){}
 
 void HandshakeF3Message::update_static_header() {}
 void HandshakeF3Message::write_dynamic_data(uint8_t* data) const {}
