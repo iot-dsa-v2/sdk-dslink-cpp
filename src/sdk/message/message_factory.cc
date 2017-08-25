@@ -10,6 +10,11 @@
 #include "response/set_response_message.h"
 #include "response/subscribe_response_message.h"
 
+#include "handshake/f0_message.h"
+#include "handshake/f1_message.h"
+#include "handshake/f2_message.h"
+#include "handshake/f3_message.h"
+
 namespace dsa {
 
 Message* Message::parse_message(const uint8_t* data, size_t size) throw(
@@ -37,6 +42,14 @@ Message* Message::parse_message(const uint8_t* data, size_t size) throw(
       return new InvokeResponseMessage(data, size);
     case MessageType::SetResponse:
       return new SetResponseMessage(data, size);
+    case MessageType::Handshake0:
+      return new HandshakeF0Message(data, size);
+    case MessageType::Handshake1:
+      return new HandshakeF1Message(data, size);
+    case MessageType::Handshake2:
+      return new HandshakeF2Message(data, size);
+    case MessageType::Handshake3:
+      return new HandshakeF3Message(data, size);
     default:
       throw MessageParsingError("invalid message type");
   }

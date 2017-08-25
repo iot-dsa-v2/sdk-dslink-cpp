@@ -5,6 +5,10 @@ list(APPEND MessageSourceFiles
         dynamic_header.cc
 		message_options.cc
 		message_value.cc
+        handshake/f0_message.cc
+        handshake/f1_message.cc
+        handshake/f2_message.cc
+        handshake/f3_message.cc
         request/invoke_request_message.cc
         request/subscribe_request_message.cc
         request/list_request_message.cc

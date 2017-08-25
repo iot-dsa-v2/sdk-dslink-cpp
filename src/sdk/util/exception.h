@@ -2,6 +2,7 @@
 #define DSA_SDK_MESSAGE_EXCEPTION_H
 
 #include <string>
+#include <stdexcept>
 
 namespace dsa {
 

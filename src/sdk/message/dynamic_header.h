@@ -2,6 +2,7 @@
 #define DSA_SDK_DYNAMIC_HEADER_H
 
 #include <string>
+#include <memory>
 
 #include "../util/exception.h"
 
