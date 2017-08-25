@@ -38,18 +38,6 @@ class EnableIntrusive {
     return intrusive_ptr_<_Downcast>(static_cast<_Downcast*>(this));
   }
 
-  template <typename F>
-  intrusive_this_lambda<T, F> make_intrusive_this_lambda(F&& func) {
-    return intrusive_this_lambda<T, F>(static_cast<T*>(this)->intrusive_this(),
-                                       std::forward<F>(func));
-  }
-
-  template <typename F>
-  intrusive_this_lambda<const T, F> make_intrusive_this_lambda(F&& func) const {
-    return intrusive_this_lambda<const T, F>(
-        static_cast<T*>(this)->intrusive_this(), std::forward<F>(func));
-  }
-
   template <typename _Ty>
   friend void intrusive_ptr_add_ref(_Ty* t);
   template <typename _Ty>
