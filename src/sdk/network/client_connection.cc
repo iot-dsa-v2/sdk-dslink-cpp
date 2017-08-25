@@ -13,6 +13,20 @@ void Connection::on_client_connect() throw(const std::runtime_error &) {
   _session->start();
 }
 
+void Connection::on_receive_f1(Message *msg) {
+  if (msg->type() != MessageType::Handshake0) {
+    delete msg;
+    throw new MessageParsingError("invalid handshake message, expect f1");
+  }
+}
+
+void Connection::on_receive_f3(Message *msg) {
+  if (msg->type() != MessageType::Handshake2) {
+    delete msg;
+    throw new MessageParsingError("invalid handshake message, expect f3");
+  }
+}
+
 ///////////////////////
 // Handshake Functions
 ///////////////////////

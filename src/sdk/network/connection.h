@@ -57,7 +57,9 @@ class Connection : public SharedClosable<Connection> {
   };
 
   virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
+
   virtual void close_impl() override;
+  static void close_in_strand(shared_ptr_<Connection> &&connection);
   virtual void connect() = 0;
   virtual void start() noexcept = 0;
   const std::string &dsid() { return _handshake_context.dsid(); }
@@ -116,12 +118,14 @@ class Connection : public SharedClosable<Connection> {
 
   void reset_standard_deadline_timer();
 
-  std::function<void(Message*)> on_read_message;
   void post_message(Message *message);
 
   // server connection
  protected:
   void on_server_connect() throw(const std::runtime_error &);
+
+  void on_receive_f0(Message *msg);
+  void on_receive_f2(Message *msg);
 
   // handshake functions
   bool parse_f0(size_t size);
@@ -135,11 +139,17 @@ class Connection : public SharedClosable<Connection> {
 
   void on_client_connect() throw(const std::runtime_error &);
 
+  void on_receive_f1(Message *msg);
+  void on_receive_f3(Message *msg);
+
   // handshake functions
   bool parse_f1(size_t size);
   bool parse_f3(size_t size);
   size_t load_f0(std::vector<uint8_t> &buf);
   size_t load_f2(std::vector<uint8_t> &buf);
+
+ public:
+  std::function<void(Message *)> on_read_message;
 };
 
 }  // namespace dsa

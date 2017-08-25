@@ -25,7 +25,7 @@ void TcpConnection::close_impl() {
   Connection::close_impl();
 }
 
-void TcpConnection::start_read(shared_ptr_<TcpConnection> connection,
+void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
                                size_t cur, size_t next) {
   std::vector<uint8_t> &buffer = connection->_read_buffer;
   size_t partial_size = next - cur;
@@ -45,7 +45,7 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> connection,
       });
 }
 
-void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection,
+void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
                               size_t from_prev,
                               const boost::system::error_code &error,
                               size_t bytes_transferred) {
@@ -64,7 +64,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> connection,
         start_read(std::move(connection), cur, total_bytes);
         return;
       }
-      //TODO: check if message_size is valid;
+      // TODO: check if message_size is valid;
       uint32_t message_size = *((uint32_t *)cur);
       if (message_size < total_bytes - cur) {
         // not enough data to parse message

@@ -10,7 +10,7 @@
 #include "tcp_client.h"
 
 namespace dsa {
-TcpClientConnection::TcpClientConnection(LinkStrandPtr & strand,
+TcpClientConnection::TcpClientConnection(LinkStrandPtr &strand,
                                          uint32_t handshake_timeout_ms,
                                          const std::string &dsid_prefix,
                                          const std::string &tcp_host,
@@ -24,47 +24,58 @@ void TcpClientConnection::connect() {
   // connect to server
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver((*_strand)().get_io_service());
+  // TODO: timeout
   _socket.async_connect(
       *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
-      boost::bind(&TcpClientConnection::start_handshake,
-                  Connection::share_this<TcpClientConnection>(),
-                  boost::asio::placeholders::error));
+      // capture shared_ptr to keep the instance
+      // capture this to access protected member
+      [connection = share_this<TcpConnection>(), this](const boost::system::error_code &error) mutable {
+        if (error != boost::system::errc::errc_t::success) {
+          TcpConnection::close_in_strand(std::move(connection));
+          //TODO: log or return the error?
+          return;
+        }
+        on_read_message = [this](Message * message){
+          on_receive_f1(message);
+        };
+        TcpConnection::start_read(std::move(connection));
+      });
 }
 
-void TcpClientConnection::start_handshake(
-    const boost::system::error_code &error) throw(const std::runtime_error &) {
-  if (error != boost::system::errc::errc_t::success) {
-    close();
-    throw std::runtime_error("Couldn't connect to specified host");
-  }
-
-#if 0
-  // TODO fix this
-  // start timeout timer
-  _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_handshake_timeout_ms));
-
-
-  _deadline.async_wait(
-      boost::bind(&TcpClientConnection::timeout,
-                  Connection::share_this<TcpClientConnection>(),
-                  boost::asio::placeholders::error));
-#endif
-
-  _socket.async_read_some(
-      boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
-      boost::bind(&TcpClientConnection::f1_received,
-                  Connection::share_this<TcpClientConnection>(),
-                  boost::asio::placeholders::error,
-                  boost::asio::placeholders::bytes_transferred));
-
-  size_t f0_size = load_f0(_write_buffer);
-  boost::asio::async_write(
-      _socket, boost::asio::buffer(_write_buffer.data(), f0_size),
-      boost::bind(&TcpClientConnection::success_or_close,
-                  Connection::share_this<TcpClientConnection>(),
-                  boost::asio::placeholders::error));
-}
+//void TcpClientConnection::start_handshake(
+//    const boost::system::error_code &error) throw(const std::runtime_error &) {
+//  if (error != boost::system::errc::errc_t::success) {
+//    close();
+//    throw std::runtime_error("Couldn't connect to specified host");
+//  }
+//
+//#if 0
+//  // TODO fix this
+//  // start timeout timer
+//  _deadline.expires_from_now(
+//      boost::posix_time::milliseconds(_handshake_timeout_ms));
+//
+//
+//  _deadline.async_wait(
+//      boost::bind(&TcpClientConnection::timeout,
+//                  Connection::share_this<TcpClientConnection>(),
+//                  boost::asio::placeholders::error));
+//#endif
+//
+//  _socket.async_read_some(
+//      boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
+//      boost::bind(&TcpClientConnection::f1_received,
+//                  Connection::share_this<TcpClientConnection>(),
+//                  boost::asio::placeholders::error,
+//                  boost::asio::placeholders::bytes_transferred));
+//
+//  size_t f0_size = load_f0(_write_buffer);
+//  boost::asio::async_write(
+//      _socket, boost::asio::buffer(_write_buffer.data(), f0_size),
+//      boost::bind(&TcpClientConnection::success_or_close,
+//                  Connection::share_this<TcpClientConnection>(),
+//                  boost::asio::placeholders::error));
+//}
 
 void TcpClientConnection::f1_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
