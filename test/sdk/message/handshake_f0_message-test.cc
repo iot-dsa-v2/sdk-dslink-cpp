@@ -27,21 +27,6 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
 
   message.update_static_header_ext();
 
-  //  EXPECT_EQ(15, request.size());
-  //  EXPECT_EQ(0, request.get_sequence_id());
-  //  EXPECT_EQ(0, request.get_page_id());
-  //  EXPECT_EQ(MessageType::SetRequest, request.type());
-  //  EXPECT_EQ(true, request.is_request());
-  //  EXPECT_EQ(0, request.request_id());
-  //
-  //  EXPECT_EQ(false, request.get_priority());
-  //  EXPECT_EQ("", request.get_target_path());
-  //  EXPECT_EQ("", request.get_permission_token());
-  //  EXPECT_EQ(false, request.get_no_stream());
-  //  EXPECT_EQ(0, request.get_alias_count());
-
   uint8_t buf[1024];
   message.write(buf);
-
-int i;
 }
