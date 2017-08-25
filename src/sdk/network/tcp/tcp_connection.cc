@@ -19,6 +19,7 @@ TcpConnection::TcpConnection(LinkStrandPtr &strand,
       _socket((*strand)().get_io_service()) {}
 
 void TcpConnection::close_impl() {
+  print("connection closed");
   if (_socket_open.exchange(false)) {
     _socket.close();
   }
@@ -36,7 +37,8 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
     // resize the buffer on demand
     buffer.resize(buffer.size() * 4);
   }
-  connection->_socket.async_read_some(
+  tcp_socket &socket = connection->_socket;
+  socket.async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
       [ connection = std::move(connection), partial_size ](
           const boost::system::error_code &err, size_t transferred) mutable {
@@ -65,8 +67,13 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
         return;
       }
       // TODO: check if message_size is valid;
-      uint32_t message_size = *((uint32_t *)cur);
-      if (message_size < total_bytes - cur) {
+      uint32_t message_size = *(reinterpret_cast<uint32_t *>(&buffer[cur]));
+      if (message_size > MAX_BUFFER_SIZE) {
+        // TODO: send error
+        TcpConnection::close_in_strand(std::move(connection));
+        return;
+      }
+      if (message_size > total_bytes - cur) {
         // not enough data to parse message
         start_read(std::move(connection), cur, total_bytes);
         return;
@@ -75,8 +82,15 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
       // post job with message buffer
 
       if (connection->on_read_message != nullptr) {
-        connection->on_read_message(
-            Message::parse_message(&buffer[cur], message_size));
+        try {
+          connection->on_read_message(
+              Message::parse_message(&buffer[cur], message_size));
+        } catch (const MessageParsingError &err) {
+          // TODO: send error
+          TcpConnection::close_in_strand(std::move(connection));
+          return;
+        }
+
       } else {
         throw std::runtime_error("on_read_message is null");
       }
@@ -93,7 +107,9 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
 
     start_read(std::move(connection), 0, 0);
   } else {
-    // TODO close connection on owner strand
+    // TODO: send error
+    TcpConnection::close_in_strand(std::move(connection));
+    return;
   }
 }
 

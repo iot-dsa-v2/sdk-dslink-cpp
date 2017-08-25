@@ -2,7 +2,6 @@
 
 #include "connection.h"
 
-#include "core/session.h"
 #include "core/app.h"
 #include "core/session.h"
 #include "crypto/hmac.h"
@@ -37,10 +36,16 @@ void Connection::close_impl() {
 }
 
 void Connection::close_in_strand(shared_ptr_<Connection> &&connection) {
-  (*connection->_strand)().dispatch([connection =
-                                         std::move(connection)]() mutable {
-    connection->close();
-  });
+  Connection *raw_conn = connection.get();
+  // obtain the lock before dispatch to strand to reduce the load on main strand
+
+  (*raw_conn->_strand)().dispatch([
+    connection = std::move(connection),
+    // because asio require callback to be copy constructable, lock can't be
+    // directly used, and we need shared_ptr
+    lock = std::make_shared<boost::unique_lock<boost::shared_mutex>>(
+        raw_conn->mutex)
+  ]() mutable { connection->close(*lock); });
 }
 
 void Connection::compute_secret() {

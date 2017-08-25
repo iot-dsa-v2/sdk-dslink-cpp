@@ -5,14 +5,13 @@
 
 #include <valarray>
 
-#include <atomic>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 namespace dsa {
 
-
-
 template <class T, typename... Args>
-inline shared_ptr_<T> make_shared_(Args&&... args) {
+inline shared_ptr_<T> make_shared_(Args &&... args) {
   return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
@@ -24,7 +23,7 @@ class shared_this_lambda {
  public:
   shared_this_lambda(shared_ptr_<T> t, F f) : t(t), f(f) {}
   template <class... Args>
-  auto operator()(Args&&... args)
+  auto operator()(Args &&... args)
       -> decltype(this->f(std::forward<Args>(args)...)) {
     return f(std::forward<Args>(args)...);
   }
@@ -39,23 +38,31 @@ class EnableShared : public std::enable_shared_from_this<T> {
 
   template <class Down>
   shared_ptr_<Down> share_this() {
-    return std::static_pointer_cast<Down>(std::move(shared_from_this()));
+    return std::static_pointer_cast<Down>(shared_from_this());
   }
 };
 
 template <typename T>
 class SharedClosable : public EnableShared<T> {
-private:
-  std::atomic_bool _closed{false};
+ private:
+  bool _closed{false};
 
-public:
+ public:
+  boost::shared_mutex mutex;
   bool is_closed() const { return _closed; }
-  void close() {
+
+  // reuse any lock
+  void close(boost::unique_lock<boost::shared_mutex> &unique_lock) {
     if (!_closed) {
       _closed = true;
       close_impl();
     }
   }
+  void close() {
+    boost::unique_lock<boost::shared_mutex> lock(mutex);
+    close(lock);
+  }
+
   virtual void close_impl(){};
 };
 }  // namespace dsa
