@@ -4,7 +4,7 @@
 #include <map>
 #include <queue>
 
-#include "core/message_stream.h"
+#include "message/base_message.h"
 #include "util/enable_intrusive.h"
 #include "outgoing_message_stream.h"
 #include "node_state.h"

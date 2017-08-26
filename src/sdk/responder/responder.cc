@@ -3,7 +3,7 @@
 #include "responder.h"
 
 #include "module/security_manager.h"
-#include "node_model_manager.h"
+
 
 #include "core/session.h"
 
@@ -57,8 +57,8 @@ void Responder::send_error(MessageType &&type, MessageStatus &&status, uint32_t 
 void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
   auto stream = make_intrusive_<SubscribeMessageStream>(_session.get_intrusive(),
                                                         message.get_subscribe_options(),
-                                                        message.request_id(),
-                                                        _stream_count++);
+                                                        message.request_id()
+                                                        );
 
   auto node_state = _session._strand->state_manager().get_or_create(message.get_target_path());
   node_state->add_stream(stream);
@@ -70,8 +70,8 @@ void Responder::on_subscribe_request(SubscribeRequestMessage &message) {
 void Responder::on_list_request(ListRequestMessage &message) {
   auto stream = make_intrusive_<ListMessageStream>(_session.get_intrusive(),
                                                    message.get_list_options(),
-                                                   message.request_id(),
-                                                   _stream_count++);
+                                                   message.request_id()
+                                                   );
 
   auto node_state = _session._strand->state_manager().get_or_create(message.get_target_path());
   node_state->add_stream(stream);
@@ -90,7 +90,7 @@ void Responder::on_invoke_request(InvokeRequestMessage &message) {
 //  auto stream = make_intrusive_<InvokeMessageStream>(_session.get_intrusive(),
 //                                                     message.get_invoke_options(),
 //                                                     message.request_id(),
-//                                                     _stream_count++);
+//                                                     );
 //  model->add_stream(stream);
 }
 
@@ -104,7 +104,7 @@ void Responder::on_set_request(SetRequestMessage &message) {
 //  auto stream = make_intrusive_<SetMessageStream>(_session.get_intrusive(),
 //                                                  message.get_set_options(),
 //                                                  message.request_id(),
-//                                                  _stream_count++);
+//                                                  );
 //  model->add_stream(stream);
 }
 }  // namespace dsa

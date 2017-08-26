@@ -6,13 +6,14 @@
 
 #include "core/link_strand.h"
 
-#include "core/message_stream.h"
 #include "message/response/subscribe_response_message.h"
 #include "node_model.h"
 #include "outgoing_message_stream.h"
 
 namespace dsa {
+
 class NodeModel;
+typedef intrusive_ptr_<NodeModel> ModelPtr;
 
 class MessageStreamHashFunc {
  public:
@@ -32,11 +33,11 @@ class MessageStreamKeyCmp {
 // maintain streams of a node
 class NodeState : public EnableIntrusive<NodeState> {
  private:
-  typedef intrusive_ptr_<NodeModel> model_ptr_;
+  
 
   LinkStrandPtr strand;
   std::string _path;
-  model_ptr_ _model;
+  ModelPtr _model;
   std::unordered_set<intrusive_ptr_<SubscribeMessageStream>,
                      MessageStreamHashFunc, MessageStreamKeyCmp>
       _subscription_streams;
@@ -57,7 +58,7 @@ class NodeState : public EnableIntrusive<NodeState> {
   //////////////////////////
   // Setters
   //////////////////////////
-  void set_model(model_ptr_ model) { _model = std::move(model); }
+  void set_model(ModelPtr model);
 
   /////////////////////////
   // Other

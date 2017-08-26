@@ -57,6 +57,8 @@ class Message : public EnableIntrusive<Message> {
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
 };
+typedef intrusive_ptr_<Message> MessagePtr;
+
 
 class PagedMessageMixin {
  public:
@@ -111,6 +113,15 @@ class ResponseMessage : public Message {
 
   MessageStatus get_status() const;
   void set_status(MessageStatus value);
+};
+
+
+class MessageStream : public IntrusiveClosable<MessageStream> {
+public:
+  virtual ~MessageStream() = default;
+
+  virtual size_t peek_next_message_size() = 0;
+  virtual MessagePtr get_next_message() = 0;
 };
 
 }  // namespace dsa

@@ -4,7 +4,6 @@
 #include <map>
 #include <string>
 
-#include "core/message_stream.h"
 #include "node_state_manager.h"
 
 namespace dsa {
@@ -23,8 +22,6 @@ class Responder {
 
  protected:
   Session &_session;
-
-  uint32_t _stream_count{0};
 
   std::map< uint32_t, intrusive_ptr_<MessageStream> > _outgoing_streams;
 

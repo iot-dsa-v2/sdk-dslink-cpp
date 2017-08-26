@@ -18,14 +18,15 @@ class Client;
 
 class Message;
 
-
-
 typedef std::function<void()> WriteHandler;
 
 class Connection : public SharedClosable<Connection> {
  public:
-  static const size_t DEFAULT_BUFFER_SIZE = 1024;
-  static const size_t MAX_BUFFER_SIZE = 65536;
+  enum : size_t {
+    DEFAULT_BUFFER_SIZE = 1024,
+    MAX_BUFFER_SIZE = 65536
+
+  };
 
  public:
   virtual std::string name() = 0;

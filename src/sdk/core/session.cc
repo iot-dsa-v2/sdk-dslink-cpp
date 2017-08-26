@@ -11,9 +11,7 @@
 
 namespace dsa {
 
-const std::string Session::BlankDsid = "";
-
-Session::Session(LinkStrandPtr & strand, const std::string &session_id,
+Session::Session(LinkStrandPtr &strand, const std::string &session_id,
                  const shared_ptr_<Connection> &connection)
     : _strand(strand),
       _session_id(session_id),
@@ -56,54 +54,69 @@ void Session::receive_message(Message *message) {
 
 intrusive_ptr_<MessageStream> Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {
-    auto stream = _ready_streams.back();
-    _ready_streams.pop();
-    if (!stream->is_closed()) return std::move(stream);
+    intrusive_ptr_<MessageStream> stream = std::move(_ready_streams.front());
+    _ready_streams.pop_front();
+    if (stream->peek_next_message_size() > 0) {
+      return std::move(stream);
+    }
   }
   return nullptr;
 }
 
+size_t Session::peek_next_message() {
+  while (!_ready_streams.empty()) {
+    intrusive_ptr_<MessageStream> &stream = _ready_streams.front();
+    size_t size = stream->peek_next_message_size();
+    if (size > 0) {
+      return size;
+    }
+    _ready_streams.pop_front();
+  }
+  return 0;
+}
+
 void Session::write_loop(intrusive_ptr_<Session> sthis) {
-  if (sthis->_ready_streams.empty()) {
+  size_t next_message_size = sthis->peek_next_message();
+  if (next_message_size == 0) {
     sthis->_is_writing = false;
     return;
   }
-
-  auto buf = make_intrusive_<ByteBuffer>();
-  auto stream = sthis->get_next_ready_stream();
-
-  if (stream == nullptr) return;
-
-  // make sure buffer is big enough for at least the first message
-  buf->resize(stream->get_next_message_size());
-
-  do {
-    // append message data to buffer then resize
-    auto &message = stream->get_next_message();
-    buf->resize(buf->size() + message.size());
-    message.write(&buf->operator[](buf->size()));
-
-    stream = sthis->get_next_ready_stream();
-  } while (stream != nullptr &&
-           stream->get_next_message_size() + buf->size() < buf->capacity());
-
   sthis->_is_writing = true;
-  sthis->_connection->write(buf, buf->size(), [
-    strand = sthis->_strand,
-    callback = [sthis = std::move(sthis)]() { write_loop(sthis); }
-    // TODO: avoid mutable lambda
-  ]() mutable { (*strand)().dispatch(callback); });
+  auto buf = make_intrusive_<ByteBuffer>(Connection::DEFAULT_BUFFER_SIZE);
+
+  size_t total_size = 0;
+  while (next_message_size > 0 &&
+         total_size < Connection::DEFAULT_BUFFER_SIZE &&
+         total_size + next_message_size < Connection::MAX_BUFFER_SIZE) {
+    auto stream = sthis->get_next_ready_stream();
+    MessagePtr message = stream->get_next_message();
+
+    if (buf->size() < Connection::MAX_BUFFER_SIZE &&
+        total_size + message->size() > buf->size()) {
+      buf->resize(buf->size() * 4);
+    }
+
+    message->write(&(*buf)[total_size]);
+    total_size += message->size();
+
+    next_message_size = sthis->peek_next_message();
+  }
+
+  auto connection = sthis->_connection;
+  connection->write(buf, buf->size(), [sthis = std::move(sthis)]() mutable {
+    LinkStrandPtr strand = sthis->_strand;
+    (*strand)().dispatch([sthis = std::move(sthis)]() {
+      Session::write_loop(sthis);
+    });
+  });
 }
 
 void Session::add_ready_stream(intrusive_ptr_<MessageStream> stream) {
-  _ready_streams.push(std::move(stream));
+  _ready_streams.push_back(std::move(stream));
   if (!_is_writing) {
-    write_loop(intrusive_this<Session>());
+    write_loop(intrusive_this());
   }
 }
 
-const std::string &Session::dsid() {
-  return (_connection == nullptr) ? BlankDsid : _connection->dsid();
-}
 
 }  // namespace dsa

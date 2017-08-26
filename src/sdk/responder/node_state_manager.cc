@@ -2,6 +2,8 @@
 
 #include "node_state_manager.h"
 
+#include "core/session.h"
+
 namespace dsa {
 
 NodeStateManager::NodeStateManager(LinkStrandPtr & strand)

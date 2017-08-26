@@ -35,7 +35,7 @@ class EnableIntrusive {
 
   template <typename _Downcast>
   intrusive_ptr_<_Downcast> intrusive_this() {
-    return intrusive_ptr_<_Downcast>(static_cast<_Downcast*>(this));
+    return intrusive_ptr_<_Downcast>(dynamic_cast<_Downcast*>(this));
   }
 
   template <typename _Ty>
@@ -51,7 +51,7 @@ class EnableIntrusive {
 
 template <typename T>
 class IntrusiveClosable : public EnableIntrusive<T> {
- private:
+ protected:
   bool _closed{false};
 
  public:

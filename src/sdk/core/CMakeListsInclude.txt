@@ -1,6 +1,5 @@
 list(APPEND CoreSourceFiles
         app.cc
-        message_stream.cc
         session.cc
         server.cc
 		client.cc

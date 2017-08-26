@@ -26,6 +26,7 @@ list(APPEND MessageSourceFiles
         response/list_response_message_generated.cc
         response/set_response_message_generated.cc
         error_message.cc
+        message_io_stream.cc
 		enums.h)
 
 foreach(file ${MessageSourceFiles})

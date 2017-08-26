@@ -38,7 +38,7 @@ class EnableShared : public std::enable_shared_from_this<T> {
 
   template <class Down>
   shared_ptr_<Down> share_this() {
-    return std::static_pointer_cast<Down>(shared_from_this());
+    return std::dynamic_pointer_cast<Down>(shared_from_this());
   }
 };
 
