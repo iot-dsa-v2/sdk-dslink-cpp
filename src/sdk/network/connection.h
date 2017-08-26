@@ -65,7 +65,6 @@ class Connection : public SharedClosable<Connection> {
 
   virtual void write(const uint8_t * data, size_t size, WriteHandler &&callback) = 0;
 
-  virtual void close_impl() override;
   static void close_in_strand(shared_ptr_<Connection> &&connection);
 
   std::function<void(Message *)> on_read_message;
@@ -90,6 +89,8 @@ class Connection : public SharedClosable<Connection> {
 
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
+
+  void close_impl() override;
 
   std::vector<uint8_t> _shared_secret;
   std::vector<uint8_t> _other_public_key;

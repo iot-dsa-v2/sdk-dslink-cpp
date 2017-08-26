@@ -22,6 +22,8 @@ class Client : public SharedClosable<Client> {
   shared_ptr_<Connection> _connection;
   intrusive_ptr_<Session> _session;
 
+  void close_impl() override;
+
  public:
   Client(WrapperConfig &config);
 
@@ -31,7 +33,7 @@ class Client : public SharedClosable<Client> {
   const std::string &get_client_token() const { return _client_token; }
 
   virtual void connect() = 0;
-  void close_impl() override;
+  
 };
 
 }  // namespace dsa

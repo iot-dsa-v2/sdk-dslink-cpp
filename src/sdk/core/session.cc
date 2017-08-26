@@ -56,17 +56,17 @@ intrusive_ptr_<MessageStream> Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {
     intrusive_ptr_<MessageStream> stream = std::move(_ready_streams.front());
     _ready_streams.pop_front();
-    if (stream->peek_next_message_size() > 0) {
+    if (stream->peek_next_message_size(0) > 0) {
       return std::move(stream);
     }
   }
   return nullptr;
 }
 
-size_t Session::peek_next_message() {
+size_t Session::peek_next_message(size_t availible) {
   while (!_ready_streams.empty()) {
     intrusive_ptr_<MessageStream> &stream = _ready_streams.front();
-    size_t size = stream->peek_next_message_size();
+    size_t size = stream->peek_next_message_size(availible);
     if (size > 0) {
       return size;
     }
@@ -82,7 +82,7 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
     return;
   }
 
-  size_t next_message_size = sthis->peek_next_message();
+  size_t next_message_size = sthis->peek_next_message(Connection::MAX_BUFFER_SIZE);
   if (next_message_size == 0) {
     sthis->_is_writing = false;
     return;
@@ -106,7 +106,7 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
     message->write(&buf[total_size]);
     total_size += message->size();
 
-    next_message_size = sthis->peek_next_message();
+    next_message_size = sthis->peek_next_message(Connection::MAX_BUFFER_SIZE - total_size);
   }
 
   connection->write(

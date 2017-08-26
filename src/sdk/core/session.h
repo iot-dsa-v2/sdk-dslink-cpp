@@ -36,7 +36,7 @@ class Session : public IntrusiveClosable<Session> {
 
   intrusive_ptr_<MessageStream> get_next_ready_stream();
 
-  size_t peek_next_message();
+  size_t peek_next_message(size_t availible);
 
   static void write_loop(intrusive_ptr_<Session> sthis);
 

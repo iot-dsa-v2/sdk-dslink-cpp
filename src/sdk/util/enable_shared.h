@@ -45,7 +45,10 @@ class EnableShared : public std::enable_shared_from_this<T> {
 template <typename T>
 class SharedClosable : public EnableShared<T> {
  private:
-  bool _closed{false};
+  bool _closed = false;
+
+ protected:
+  virtual void close_impl(){};
 
  public:
   boost::shared_mutex mutex;
@@ -62,8 +65,6 @@ class SharedClosable : public EnableShared<T> {
     boost::unique_lock<boost::shared_mutex> lock(mutex);
     close(lock);
   }
-
-  virtual void close_impl(){};
 };
 }  // namespace dsa
 

@@ -120,7 +120,7 @@ class MessageStream : public IntrusiveClosable<MessageStream> {
 public:
   virtual ~MessageStream() = default;
 
-  virtual size_t peek_next_message_size() = 0;
+  virtual size_t peek_next_message_size(size_t available) = 0;
   virtual MessagePtr get_next_message() = 0;
 };
 

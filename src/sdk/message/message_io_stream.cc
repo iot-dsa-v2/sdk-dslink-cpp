@@ -14,14 +14,22 @@ MessageIoStream::~MessageIoStream() {
 
 }
 
-size_t MessageIoStream::peek_next_message_size() {
-  if (_closed || _queue.empty()) {
+void MessageIoStream::close_impl() {
+ if (_on_close != nullptr) {
+   _on_close();
+ }
+  _queue.clear();
+  _session.reset();
+}
+
+size_t MessageIoStream::peek_next_message_size(size_t available) {
+  if (is_closed() || _queue.empty()) {
     return 0;
   }
   return _queue.front()->size();
 }
 MessagePtr MessageIoStream::get_next_message() {
-  if (_closed || _queue.empty()) {
+  if (is_closed() || _queue.empty()) {
     return nullptr;
   }
   MessagePtr msg = std::move(_queue.front());

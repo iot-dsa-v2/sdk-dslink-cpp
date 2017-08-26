@@ -51,8 +51,11 @@ class EnableIntrusive {
 
 template <typename T>
 class IntrusiveClosable : public EnableIntrusive<T> {
+ private:
+  bool _closed = false;
+
  protected:
-  bool _closed{false};
+  virtual void close_impl(){};
 
  public:
   bool is_closed() const { return _closed; }
@@ -62,7 +65,6 @@ class IntrusiveClosable : public EnableIntrusive<T> {
       close_impl();
     }
   }
-  virtual void close_impl(){};
 };
 
 template <typename _Ty>

@@ -29,6 +29,8 @@ class Server : public SharedClosable<Server> {
 
   //  void on_session_connected(const intrusive_ptr_ <Session> session);
 
+  void close_impl() override;
+  
  public:
   enum Protocol { TCP };
 
@@ -39,7 +41,7 @@ class Server : public SharedClosable<Server> {
   const std::string &get_dsid_prefix() const { return _dsid_prefix; }
 
   virtual void start() = 0;
-  void close_impl() override;
+
   virtual std::string type() = 0;
 };
 
