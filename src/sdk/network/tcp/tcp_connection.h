@@ -33,10 +33,8 @@ class TcpConnection : public Connection {
   TcpConnection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
                 const std::string &dsid_prefix, const std::string &path = "");
 
-  void write_handler(WriteHandler callback,
-                     const boost::system::error_code &error);
 
-  void write(BufferPtr buf, size_t size, WriteHandler callback) override;
+  void write(const uint8_t *data, size_t size, WriteHandler &&callback) override;
 
   tcp_socket &socket();
 

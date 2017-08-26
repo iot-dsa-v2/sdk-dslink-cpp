@@ -76,13 +76,20 @@ size_t Session::peek_next_message() {
 }
 
 void Session::write_loop(intrusive_ptr_<Session> sthis) {
+  Connection *connection = sthis->_connection.get();
+  if (connection == nullptr) {
+    sthis->_is_writing = false;
+    return;
+  }
+
   size_t next_message_size = sthis->peek_next_message();
   if (next_message_size == 0) {
     sthis->_is_writing = false;
     return;
   }
+
   sthis->_is_writing = true;
-  auto buf = make_intrusive_<ByteBuffer>(Connection::DEFAULT_BUFFER_SIZE);
+  std::vector<uint8_t> &buf = connection->_write_buffer;
 
   size_t total_size = 0;
   while (next_message_size > 0 &&
@@ -91,24 +98,26 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
     auto stream = sthis->get_next_ready_stream();
     MessagePtr message = stream->get_next_message();
 
-    if (buf->size() < Connection::MAX_BUFFER_SIZE &&
-        total_size + message->size() > buf->size()) {
-      buf->resize(buf->size() * 4);
+    if (buf.size() < Connection::MAX_BUFFER_SIZE &&
+        total_size + message->size() > buf.size()) {
+      buf.resize(buf.size() * 4);
     }
 
-    message->write(&(*buf)[total_size]);
+    message->write(&buf[total_size]);
     total_size += message->size();
 
     next_message_size = sthis->peek_next_message();
   }
 
-  auto connection = sthis->_connection;
-  connection->write(buf, buf->size(), [sthis = std::move(sthis)]() mutable {
-    LinkStrandPtr strand = sthis->_strand;
-    (*strand)().dispatch([sthis = std::move(sthis)]() {
-      Session::write_loop(sthis);
-    });
-  });
+  connection->write(
+      buf.data(),
+      total_size, [sthis = std::move(sthis)](
+                      const boost::system::error_code &error) mutable {
+        LinkStrandPtr strand = sthis->_strand;
+        (*strand)().dispatch([sthis = std::move(sthis)]() mutable {
+          Session::write_loop(std::move(sthis));
+        });
+      });
 }
 
 void Session::add_ready_stream(intrusive_ptr_<MessageStream> stream) {
@@ -117,6 +126,5 @@ void Session::add_ready_stream(intrusive_ptr_<MessageStream> stream) {
     write_loop(intrusive_this());
   }
 }
-
 
 }  // namespace dsa

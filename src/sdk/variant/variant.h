@@ -48,7 +48,7 @@ class IntrusiveString : public std::string,
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
                        intrusive_ptr_<IntrusiveString>,
                        intrusive_ptr_<VariantMap>, intrusive_ptr_<VariantArray>,
-                       std::vector<uint8_t>, intrusive_ptr_<ByteBuffer>>
+                       std::vector<uint8_t>, intrusive_ptr_<IntrusiveBytes>>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -107,7 +107,7 @@ class Variant : public BaseVariant {
 
  protected:
   explicit Variant(IntrusiveString *p);
-  explicit Variant(ByteBuffer *p);
+  explicit Variant(IntrusiveBytes *p);
 
  public:
   bool is_double() const { return which() == Double; }
@@ -134,7 +134,7 @@ class Variant : public BaseVariant {
   }
   const std::vector<uint8_t> &get_binary() const {
     if (which() == SharedBinary) {
-      return *boost::get<intrusive_ptr_<ByteBuffer>>(*this);
+      return *boost::get<intrusive_ptr_<IntrusiveBytes>>(*this);
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }

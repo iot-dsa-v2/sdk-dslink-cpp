@@ -18,9 +18,11 @@ class Client;
 
 class Message;
 
-typedef std::function<void()> WriteHandler;
+typedef std::function<void(const boost::system::error_code &error)> WriteHandler;
 
 class Connection : public SharedClosable<Connection> {
+  friend class Session;
+
  public:
   enum : size_t {
     DEFAULT_BUFFER_SIZE = 1024,
@@ -61,7 +63,7 @@ class Connection : public SharedClosable<Connection> {
                   AuthLength,                     // broker auth
   };
 
-  virtual void write(BufferPtr buf, size_t size, WriteHandler callback) = 0;
+  virtual void write(const uint8_t * data, size_t size, WriteHandler &&callback) = 0;
 
   virtual void close_impl() override;
   static void close_in_strand(shared_ptr_<Connection> &&connection);
