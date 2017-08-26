@@ -22,8 +22,57 @@ class HandshakeF1MessageExt : public HandshakeF1Message {
 TEST(MessageTest, HandshakeF1__Constructor_01) {
   HandshakeF1MessageExt message;
 
+  message.dsid = "dsid";
+  message.dsid_length = message.dsid.length();
+
+  uint8_t public_key[] =
+      "public-key1234567890123456789012345678901234567890123456789012345";
+  message.public_key =
+      std::vector<uint8_t>(public_key, public_key + Message::PublicKeyLength);
+
+  uint8_t salt[] = "salt5678901234567890123456789012";
+  message.salt = std::vector<uint8_t>(salt, salt + Message::SaltLength);
+
   message.update_static_header_ext();
 
   uint8_t buf[1024];
   message.write(buf);
+
+
+  // 15 + 1 + 4 + 65 + 32 = 117
+  uint8_t expected_values[117];
+
+  uint32_t message_size = 117;
+  uint16_t header_size = message_size;
+  MessageType type = MessageType::Handshake1;
+  uint32_t request_id = 0;
+  uint32_t ack_id = 0;
+
+  std::memcpy(&expected_values[StaticHeaders::MessageSizeOffset], &message_size,
+              sizeof(uint32_t));
+  std::memcpy(&expected_values[StaticHeaders::HeaderSizeOffset], &header_size,
+              sizeof(uint16_t));
+  std::memcpy(&expected_values[StaticHeaders::TypeOffset], &type,
+              sizeof(uint8_t));
+  std::memcpy(&expected_values[StaticHeaders::RequestIdOffset], &request_id,
+              sizeof(request_id));
+  std::memcpy(&expected_values[StaticHeaders::AckIdOffset], &ack_id,
+              sizeof(ack_id));
+
+  uint8_t DsidLengthOffset = StaticHeaders::TotalSize;
+  uint8_t DsidOffset = DsidLengthOffset + sizeof(message.dsid_length);
+  uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
+  uint8_t SaltOffset = PublicKeyOffset + Message::PublicKeyLength;
+
+  std::memcpy(&expected_values[DsidLengthOffset], &message.dsid_length,
+              sizeof(message.dsid_length));
+  std::memcpy(&expected_values[DsidOffset], message.dsid.data(),
+              message.dsid.size());
+  std::memcpy(&expected_values[PublicKeyOffset], message.public_key.data(),
+              Message::PublicKeyLength);
+  std::memcpy(&expected_values[SaltOffset], message.salt.data(),
+              message.salt.size());
+
+  EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
+
 }
