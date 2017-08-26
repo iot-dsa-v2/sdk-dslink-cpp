@@ -24,7 +24,7 @@ class IntrusiveBytes : public std::vector<uint8_t>,
   typedef std::vector<uint8_t>::const_iterator const_iterator;
 };
 
-typedef intrusive_ptr_<IntrusiveBytes> BufferPtr;
+typedef intrusive_ptr_<IntrusiveBytes> BytesPtr;
 }  // namespace dsa
 
 inline std::ostream &operator<<(std::ostream &os, const dsa::IntrusiveBytes &buf) {

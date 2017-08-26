@@ -30,7 +30,7 @@ class Session : public IntrusiveClosable<Session> {
   shared_ptr_<Connection> _connection;
 
   std::deque<intrusive_ptr_<MessageStream> > _ready_streams;
-  bool _is_writing{false};
+  bool _is_writing = false;
 
   LinkStrandPtr _strand;
 

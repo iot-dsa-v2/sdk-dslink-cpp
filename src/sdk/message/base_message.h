@@ -52,7 +52,7 @@ class Message : public EnableIntrusive<Message> {
 
   StaticHeaders static_headers;
 
-  BufferPtr body;
+  BytesPtr body;
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;

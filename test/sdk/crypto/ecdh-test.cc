@@ -23,7 +23,7 @@ TEST(ECDHTest, get_private_key) {
 
 //TEST(ECDHTest, get_private_key_MemoryLeak) {
 //  ECDH ecdh();
-//  BufferPtr key(ecdh.get_private_key());
+//  BytesPtr key(ecdh.get_private_key());
 //  EXPECT_EQ(0, 0);
 //}
 
@@ -44,7 +44,7 @@ TEST(ECDHTest, get_public_key) {
 
 //TEST(ECDHTest, get_public_key_MemoryLeak) {
 //  ECDH ecdh();
-//  BufferPtr key(ecdh.get_public_key());
+//  BytesPtr key(ecdh.get_public_key());
 //  EXPECT_EQ(0, 0);
 //}
 
