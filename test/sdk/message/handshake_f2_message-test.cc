@@ -25,5 +25,5 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   message.update_static_header_ext();
 
   uint8_t buf[1024];
-//  message.write(buf);
+  message.write(buf);
 }
