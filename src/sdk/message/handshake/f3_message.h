@@ -13,7 +13,7 @@ class HandshakeF3Message : public Message {
   uint16_t path_length;
   std::string path;
   std::vector<uint8_t> other_auth;
-    
+
   HandshakeF3Message(const uint8_t* data, size_t size);
   HandshakeF3Message();
   HandshakeF3Message(const HandshakeF3Message&);

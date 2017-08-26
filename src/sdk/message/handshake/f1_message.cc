@@ -38,7 +38,7 @@ void HandshakeF1Message::update_static_header() {
 void HandshakeF1Message::write_dynamic_data(uint8_t* data) const {
   data = std::copy(&dsid_length, &dsid_length + sizeof(dsid_length), data);
   if (dsid_length > 0) {
-  data += dsid.copy(reinterpret_cast<char*>(data), dsid_length);
+    data += dsid.copy(reinterpret_cast<char*>(data), dsid_length);
   }
   data = std::copy(public_key.begin(), public_key.end(), data);
   data = std::copy(salt.begin(), salt.end(), data);
