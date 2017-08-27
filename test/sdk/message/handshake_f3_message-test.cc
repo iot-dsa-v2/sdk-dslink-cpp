@@ -34,7 +34,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   std::string session_id("session-id123456789012345678901234567890123456789012345678901234");
   message.session_id = session_id;
 
-  message.path = 32;
+  message.path_length = 32;
   std::string path("path5678901234567890123456789012");
   message.path = path;
 
@@ -51,7 +51,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
 
   uint32_t message_size = 147;
   uint16_t header_size = message_size;
-  MessageType type = MessageType::Handshake2;
+  MessageType type = MessageType::Handshake3;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
 
@@ -70,7 +70,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t SessionIdOffset = SessionIdLengthOffset + sizeof(uint16_t);
   uint8_t PathLengthOffset = SessionIdOffset + message.session_id.size();
   uint8_t PathOffset = PathLengthOffset + sizeof(uint16_t);
-  uint8_t AuthOffset = PathOffset + Message::AuthLength;
+  uint8_t AuthOffset = PathOffset + message.path_length;
 
   std::memcpy(&expected_values[SessionIdLengthOffset], &message.session_id_length,  sizeof(message.session_id_length));
   std::memcpy(&expected_values[SessionIdOffset], message.session_id.data(), message.session_id.size());
