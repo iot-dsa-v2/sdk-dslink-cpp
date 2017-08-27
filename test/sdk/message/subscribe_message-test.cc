@@ -1,6 +1,5 @@
-#include <dsa/util.h>
-#include "dsa/message.h"
 #include "dsa/util.h"
+#include "dsa/message.h"
 #include "gtest/gtest.h"
 
 using namespace dsa;
