@@ -75,6 +75,20 @@ static uint32_t read_32_t(const uint8_t* data) {
 }
 
 #endif
+
+// write str into data, return total bytes used in data
+static size_t write_str_with_len(uint8_t* data, const std::string& str) {
+  write_16_t(data, str.length());
+  str.copy(reinterpret_cast<char*>(data + sizeof(uint16_t)), str.length());
+  return str.length() + sizeof(uint16_t);
+}
+
+// read data into str, return total bytes used in data
+static size_t read_str_with_len(const uint8_t* data, std::string& str) {
+  size_t len = read_16_t(data);
+  str.assign(reinterpret_cast<const char*>(data + sizeof(uint16_t)), len);
+  return len + sizeof(uint16_t);
+}
 }
 
 #endif  // DSA_SDK_LITTLE_ENDIAN_H

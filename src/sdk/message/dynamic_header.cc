@@ -4,6 +4,8 @@
 
 #include <cstring>
 
+#include "util/little_endian.h"
+
 namespace dsa {
 
 DynamicHeader::DynamicHeader(DynamicKey key, size_t size) : _key(key) {
@@ -34,8 +36,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     case TargetPath:
     case SourcePath: {
       if (size > 0) {
-        uint16_t str_size;
-        memcpy(&str_size, data + 1, sizeof(str_size));
+        uint16_t str_size = read_16_t(data + 1);
         if (str_size + 3 <= size) {
           return new DynamicStringHeader(
               data, str_size + 3,
@@ -59,20 +60,18 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
 const std::string DynamicStringHeader::BLANK_STRING = "";
 
 DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size,
-                                         std::string str)
+                                         std::string &&str)
     : DynamicHeader(static_cast<DynamicKey>(*data), size), _value(std::move(str)) {}
 
 DynamicStringHeader::DynamicStringHeader(DynamicKey key,
                                          const std::string &str)
-    : DynamicHeader(key, str.length() + 3), _value(std::move(str)) {}
+    : DynamicHeader(key, str.length() + 3), _value(str) {}
 
 const std::string &DynamicStringHeader::value() const { return _value; }
 
 void DynamicStringHeader::write(uint8_t *data) const {
-  data[Key] = _key;
-  uint16_t str_size = static_cast<uint16_t>(_value.length());
-  memcpy(data + StringLength, &str_size, sizeof(str_size));
-  memcpy(data + StringValue, _value.c_str(), str_size);
+  data[0] = _key;
+  write_str_with_len(&data[1],_value);
 }
 
 DynamicByteHeader::DynamicByteHeader(const uint8_t *data)

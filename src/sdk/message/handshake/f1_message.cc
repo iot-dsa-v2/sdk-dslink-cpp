@@ -24,18 +24,14 @@ void HandshakeF1Message::update_static_header() {
 }
 
 void HandshakeF1Message::write_dynamic_data(uint8_t* data) const {
-  data += write_16_t(data, static_cast<uint16_t>(dsid.length()));
-  data += dsid.copy(reinterpret_cast<char*>(data), dsid.length());
-
+  data += write_str_with_len(data, dsid);
   data = std::copy(public_key.begin(), public_key.end(), data);
   data = std::copy(salt.begin(), salt.end(), data);
 }
 
 void HandshakeF1Message::parse_dynamic_headers(
     const uint8_t* data, size_t size) throw(const MessageParsingError&) {
-  uint16_t dsid_length = read_16_t(data);
-
-  data += dsid.assign(reinterpret_cast<const char*>(data), dsid_length).size();
+  data += read_str_with_len(data, dsid);
   public_key.assign(data, data + PublicKeyLength);
   data += public_key.size();
 

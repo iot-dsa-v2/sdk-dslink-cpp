@@ -29,9 +29,7 @@ void HandshakeF0Message::update_static_header() {
 void HandshakeF0Message::write_dynamic_data(uint8_t* data) const {
   (*data++) = dsa_version_major;
   (*data++) = dsa_version_minor;
-  data += write_16_t(data, static_cast<uint16_t>(dsid.length()));
-
-  data += dsid.copy(reinterpret_cast<char*>(data), dsid.length());
+  data += write_str_with_len(data, dsid);
   data = std::copy(public_key.begin(), public_key.end(), data);
   (*data++) = static_cast<uint8_t>(security_preference);
   data = std::copy(salt.begin(), salt.end(), data);
@@ -42,11 +40,7 @@ void HandshakeF0Message::parse_dynamic_headers(
   dsa_version_major = *data++;
   dsa_version_minor = *data++;
 
-  uint16_t dsid_length = read_16_t(data);
-  data += sizeof(uint16_t);
-
-  dsid.assign(reinterpret_cast<const char*>(data), dsid_length).size();
-  data += dsid_length;
+  data += read_str_with_len(data, dsid);
 
   public_key.assign(data, data + PublicKeyLength);
   data += PublicKeyLength;

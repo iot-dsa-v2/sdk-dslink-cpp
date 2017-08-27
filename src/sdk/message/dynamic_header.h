@@ -1,8 +1,8 @@
 #ifndef DSA_SDK_DYNAMIC_HEADER_H
 #define DSA_SDK_DYNAMIC_HEADER_H
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "../util/exception.h"
 
@@ -28,13 +28,6 @@ class DynamicHeader {
     SourcePath = 0x81
   };
 
-  enum Offset {
-    Key = 0,
-    ByteValue = Key + sizeof(uint8_t),
-    StringLength = Key + sizeof(uint8_t),
-    StringValue = StringLength + sizeof(uint16_t)
-  };
-
   static DynamicHeader *parse(const uint8_t *data,
                               size_t size) throw(const MessageParsingError &);
 
@@ -58,7 +51,7 @@ class DynamicStringHeader : public DynamicHeader {
   static const std::string BLANK_STRING;
 
  public:
-  DynamicStringHeader(const uint8_t *data, uint16_t size, std::string str);
+  DynamicStringHeader(const uint8_t *data, uint16_t size, std::string &&str);
   DynamicStringHeader(DynamicKey key, const std::string &str);
   const std::string &value() const;
   void write(uint8_t *data) const override;

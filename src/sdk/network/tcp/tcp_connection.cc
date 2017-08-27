@@ -8,6 +8,8 @@
 #include "tcp_client.h"
 #include "tcp_server.h"
 
+#include "util/little_endian.h"
+
 #define DEBUG 0
 
 namespace dsa {
@@ -68,7 +70,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
         return;
       }
       // TODO: check if message_size is valid;
-      uint32_t message_size = *(reinterpret_cast<uint32_t *>(&buffer[cur]));
+      uint32_t message_size = read_32_t(&buffer[cur]);
       if (message_size > MAX_BUFFER_SIZE) {
         // TODO: send error
         TcpConnection::close_in_strand(std::move(connection));
