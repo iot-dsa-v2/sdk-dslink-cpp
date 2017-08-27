@@ -16,7 +16,6 @@ class HandshakeF3Message : public Message {
 
   HandshakeF3Message(const uint8_t* data, size_t size);
   HandshakeF3Message();
-  HandshakeF3Message(const HandshakeF3Message&);
 
  protected:
   // measure the size and header size

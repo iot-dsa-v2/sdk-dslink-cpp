@@ -1,6 +1,8 @@
 #include "dsa/message.h"
 #include "gtest/gtest.h"
 
+#include "util/little_endian.h"
+
 using namespace dsa;
 
 class HandshakeF1MessageExt : public HandshakeF1Message {
@@ -23,7 +25,6 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
   HandshakeF1MessageExt message;
 
   message.dsid = "dsid";
-  message.dsid_length = message.dsid.length();
 
   uint8_t public_key[] =
       "public-key1234567890123456789012345678901234567890123456789012345";
@@ -37,7 +38,6 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
 
   uint8_t buf[1024];
   message.write(buf);
-
 
   // 15 + 1 + 4 + 65 + 32 = 117
   uint8_t expected_values[117];
@@ -60,12 +60,12 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
               sizeof(ack_id));
 
   uint8_t DsidLengthOffset = StaticHeaders::TotalSize;
-  uint8_t DsidOffset = DsidLengthOffset + sizeof(message.dsid_length);
+  uint8_t DsidOffset = DsidLengthOffset + sizeof(uint16_t);
   uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
   uint8_t SaltOffset = PublicKeyOffset + Message::PublicKeyLength;
 
-  std::memcpy(&expected_values[DsidLengthOffset], &message.dsid_length,
-              sizeof(message.dsid_length));
+  write_16_t(&expected_values[DsidLengthOffset], message.dsid.length());
+
   std::memcpy(&expected_values[DsidOffset], message.dsid.data(),
               message.dsid.size());
   std::memcpy(&expected_values[PublicKeyOffset], message.public_key.data(),
@@ -74,5 +74,4 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
               message.salt.size());
 
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
-
 }

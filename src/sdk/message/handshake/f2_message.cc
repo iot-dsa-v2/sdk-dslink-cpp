@@ -22,16 +22,6 @@ HandshakeF2Message::HandshakeF2Message() : Message(MessageType::Handshake2) {
   auth.resize(AuthLength, ' ');
 }
 
-HandshakeF2Message::HandshakeF2Message(const HandshakeF2Message& from)
-    : Message{from.static_headers} {
-  token_length = from.token_length;
-  token = from.token;
-  is_requester = from.is_requester;
-  is_responder = from.is_responder;
-  session_id_length = from.session_id_length;
-  session_id = from.session_id;
-  auth = from.auth;
-}
 
 void HandshakeF2Message::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize + sizeof(token_length) +

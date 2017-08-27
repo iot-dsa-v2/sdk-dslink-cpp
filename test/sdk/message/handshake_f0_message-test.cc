@@ -1,6 +1,8 @@
 #include "dsa/message.h"
 #include "gtest/gtest.h"
 
+#include "util/little_endian.h"
+
 using namespace dsa;
 
 class HandshakeF0MessageExt : public HandshakeF0Message {
@@ -23,7 +25,6 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   HandshakeF0MessageExt message;
 
   message.dsid = "dsid";
-  message.dsid_length = message.dsid.length();
 
   uint8_t public_key[] =
       "public-key1234567890123456789012345678901234567890123456789012345";
@@ -61,15 +62,15 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
               sizeof(ack_id));
 
   uint8_t DsidLengthOffset = StaticHeaders::TotalSize + 2 * sizeof(uint8_t);
-  uint8_t DsidOffset = DsidLengthOffset + sizeof(message.dsid_length);
+  uint8_t DsidOffset = DsidLengthOffset + sizeof(uint16_t);
   uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
   uint8_t SecurityPreferenceOffset = PublicKeyOffset + Message::PublicKeyLength;
   uint8_t SaltOffset = SecurityPreferenceOffset + sizeof(uint8_t);
 
   expected_values[StaticHeaders::TotalSize] = 2;
   expected_values[StaticHeaders::TotalSize + 1] = 0;
-  std::memcpy(&expected_values[DsidLengthOffset], &message.dsid_length,
-              sizeof(message.dsid_length));
+  write_16_t(&expected_values[DsidLengthOffset], message.dsid.length());
+
   std::memcpy(&expected_values[DsidOffset], message.dsid.data(),
               message.dsid.size());
 

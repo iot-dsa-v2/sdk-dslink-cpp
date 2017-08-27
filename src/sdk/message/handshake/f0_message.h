@@ -8,23 +8,22 @@ namespace dsa {
 
 class HandshakeF0Message : public Message {
  public:
-  uint8_t dsa_version_major;
-  uint8_t dsa_version_minor;
-  uint8_t dsid_length;
+  uint8_t dsa_version_major = 2;
+  uint8_t dsa_version_minor = 0;
+  bool security_preference = false;
+
   std::string dsid;
   std::vector<uint8_t> public_key;
-  bool security_preference;
   std::vector<uint8_t> salt;
 
   HandshakeF0Message(const uint8_t* data, size_t size);
   HandshakeF0Message();
-  HandshakeF0Message(const HandshakeF0Message&);
 
  protected:
   // measure the size and header size
-  void update_static_header();
+  void update_static_header() override;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const;
+  void write_dynamic_data(uint8_t* data) const override;
   void parse_dynamic_headers(const uint8_t* data,
                              size_t size) throw(const MessageParsingError&);
 };

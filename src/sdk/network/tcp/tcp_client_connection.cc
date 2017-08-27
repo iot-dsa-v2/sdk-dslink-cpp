@@ -7,7 +7,10 @@
 
 #include <boost/bind.hpp>
 
-#include "tcp_client.h"
+#include "core/session.h"
+
+#include "message/handshake/f0_message.h"
+
 
 namespace dsa {
 TcpClientConnection::TcpClientConnection(LinkStrandPtr &strand,
@@ -35,6 +38,9 @@ void TcpClientConnection::connect() {
           //TODO: log or return the error?
           return;
         }
+
+
+
         on_read_message = [this](Message * message){
           on_receive_f1(message);
         };

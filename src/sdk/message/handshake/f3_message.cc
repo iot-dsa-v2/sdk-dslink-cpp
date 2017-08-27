@@ -18,14 +18,6 @@ HandshakeF3Message::HandshakeF3Message() : Message(MessageType::Handshake3) {
   other_auth.resize(AuthLength, ' ');
 }
 
-HandshakeF3Message::HandshakeF3Message(const HandshakeF3Message& from)
-    : Message{from.static_headers} {
-  session_id_length = from.session_id_length;
-  session_id = from.session_id;
-  path_length = from.path_length;
-  path = from.path;
-  other_auth = from.other_auth;
-}
 
 void HandshakeF3Message::update_static_header() {
   uint32_t header_size = StaticHeaders::TotalSize + sizeof(session_id_length) +

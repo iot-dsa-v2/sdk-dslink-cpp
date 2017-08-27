@@ -18,7 +18,7 @@ class HandshakeF2Message : public Message {
 
   HandshakeF2Message(const uint8_t* data, size_t size);
   HandshakeF2Message();
-  HandshakeF2Message(const HandshakeF2Message&);
+
 
  protected:
   // measure the size and header size

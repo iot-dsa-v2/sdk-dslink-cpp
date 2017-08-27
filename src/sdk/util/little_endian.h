@@ -15,13 +15,13 @@ static size_t write_32_t(uint8_t* data, uint32_t n) {
   return sizeof(uint32_t);
 }
 
-static uint16_t read_16_t(uint8_t* data) {
+static uint16_t read_16_t(const uint8_t* data) {
   uint16_t result;
   memcpy(&result, data, sizeof(uint16_t));
   return result;
 }
 
-static uint32_t read_32_t(uint8_t* data) {
+static uint32_t read_32_t(const uint8_t* data) {
   uint16_t result;
   memcpy(&result, data, sizeof(uint32_t));
   return result;
@@ -42,16 +42,16 @@ static size_t write_32_t(uint8_t* data, uint32_t n) {
   return sizeof(uint32_t);
 }
 
-static uint16_t read_16_t(uint8_t* data) {
+static uint16_t read_16_t(const uint8_t* data) {
   uint16_t result;
-  uint8_t* raw = reinterpret_cast<uint8_t*> & result;
+  uint8_t* raw = reinterpret_cast<const uint8_t*> & result;
   raw[0] = data[1];
   raw[1] = data[0];
   return result;
 }
 
-static uint32_t read_32_t(uint8_t* data) {
-  return __builtin_bswap32(*reinterpret_cast<uint32_t*>(data));
+static uint32_t read_32_t(const uint8_t* data) {
+  return __builtin_bswap32(*reinterpret_cast<const uint32_t*>(data));
 }
 
 #else
@@ -66,12 +66,12 @@ static size_t write_32_t(uint8_t* data, uint32_t n) {
   return sizeof(uint32_t);
 }
 
-static uint16_t read_16_t(uint8_t* data) {
-  return *reinterpret_cast<uint16_t*>(data);
+static uint16_t read_16_t(const uint8_t* data) {
+  return *reinterpret_cast<const uint16_t*>(data);
 }
 
-static uint32_t read_32_t(uint8_t* data) {
-  return *reinterpret_cast<uint32_t*>(data);
+static uint32_t read_32_t(const uint8_t* data) {
+  return *reinterpret_cast<const uint32_t*>(data);
 }
 
 #endif
