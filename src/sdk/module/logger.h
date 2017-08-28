@@ -17,7 +17,7 @@ class Logger {
   };
 
  public:
-  uint8_t level = 0xF0;
+  uint8_t level = 0;
 
   virtual void log(const std::string& str) = 0;
   virtual ~Logger() = default;

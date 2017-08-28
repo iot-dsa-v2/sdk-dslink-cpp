@@ -13,7 +13,7 @@ void Connection::on_client_connect() throw(const std::runtime_error &) {
 }
 
 void Connection::on_receive_f1(Message *msg) {
-  if (msg->type() != MessageType::Handshake0) {
+  if (msg->type() != MessageType::Handshake1) {
     delete msg;
     throw MessageParsingError("invalid handshake message, expect f1");
   }
