@@ -19,7 +19,7 @@ class TcpServer : public Server {
   uint32_t _handshake_timeout_ms = 5000;
 
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
-  shared_ptr_<TcpServerConnection> _new_connection;
+  shared_ptr_<TcpServerConnection> _next_connection;
 
   void accept_loop(const boost::system::error_code &error);
 

@@ -21,10 +21,10 @@ TcpServer::TcpServer(WrapperConfig &config)
 
 void TcpServer::start() {
   // start taking connections
-  _new_connection = make_shared_<TcpServerConnection>(_strand, _handshake_timeout_ms);
+  _next_connection = make_shared_<TcpServerConnection>(_strand, _handshake_timeout_ms);
 
   _acceptor->async_accept(
-      _new_connection->socket(),
+      _next_connection->socket(),
       boost::bind(&TcpServer::accept_loop, share_this<TcpServer>(),
                   boost::asio::placeholders::error));
 }
@@ -32,17 +32,17 @@ void TcpServer::start() {
 void TcpServer::close_impl() {
   _acceptor->close();
   // TODO: fix this!
-  _new_connection->close();
+  _next_connection->close();
   Server::close_impl();
 
 }
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {
   if (!error) {
-    _new_connection->connect();
-    _new_connection = make_shared_<TcpServerConnection>(_strand, _handshake_timeout_ms);
+    _next_connection->accept();
+    _next_connection = make_shared_<TcpServerConnection>(_strand, _handshake_timeout_ms);
     _acceptor->async_accept(
-        _new_connection->socket(),
+        _next_connection->socket(),
         boost::bind(&TcpServer::accept_loop, share_this<TcpServer>(),
                     boost::asio::placeholders::error));
   } else {
