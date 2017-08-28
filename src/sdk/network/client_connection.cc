@@ -3,7 +3,6 @@
 #include "connection.h"
 #include "core/client.h"
 
-#define DEBUG 0
 
 namespace dsa {
 
@@ -18,7 +17,7 @@ void Connection::on_receive_f1(Message *msg) {
     delete msg;
     throw MessageParsingError("invalid handshake message, expect f1");
   }
-  print("f1 received");
+  LOG_DEBUG(_strand->logger(), _<<"f1 received");
 }
 
 void Connection::on_receive_f3(Message *msg) {

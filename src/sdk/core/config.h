@@ -5,14 +5,16 @@
 #include "module/security_manager.h"
 #include "responder/node_state_manager.h"
 #include "session_manager.h"
+#include "module/logger.h"
 
 namespace dsa {
 
 class LinkConfig : public LinkStrand {
   // modules
-  std::unique_ptr<SecurityManager> _security_manager{nullptr};
-  std::unique_ptr<NodeStateManager> _state_manager{nullptr};
-  std::unique_ptr<SessionManager> _session_manager{nullptr};
+  std::unique_ptr<SecurityManager> _security_manager = nullptr;
+  std::unique_ptr<NodeStateManager> _state_manager = nullptr;
+  std::unique_ptr<SessionManager> _session_manager = nullptr;
+  std::unique_ptr<Logger> _logger = nullptr;
 
  public:
   explicit LinkConfig(Strand* strand, ECDH* ecdh);
@@ -28,6 +30,11 @@ class LinkConfig : public LinkStrand {
   void set_session_manager(SessionManager* p) {
     __session_manager = p;
     _session_manager.reset(p);
+  };
+
+  void set_logger(Logger* p) {
+    __logger = p;
+    _logger.reset(p);
   };
 };
 

@@ -4,6 +4,7 @@
 
 #include "core/server.h"
 #include "message/base_message.h"
+#include "message/handshake/f0_message.h"
 
 namespace dsa {
 
@@ -28,7 +29,11 @@ void Connection::on_receive_f0(Message *msg) {
     delete msg;
     throw MessageParsingError("invalid handshake message, expect f0");
   }
-  print("f0 received");
+  HandshakeF0Message *f0 = static_cast<HandshakeF0Message*>(msg);
+  this->_handshake_context.set_remote(std::move(f0->dsid), std::move(f0->public_key), std::move(f0->salt));
+  on_read_message = [this](Message * message){
+    on_receive_f2(message);
+  };
 }
 void Connection::on_receive_f2(Message *msg) {
   if (msg->type() != MessageType::Handshake2) {

@@ -11,19 +11,21 @@ class SecurityManager;
 class SessionManager;
 class NodeStateManager;
 class ECDH;
+class Logger;
 
 typedef boost::asio::io_service::strand Strand;
 
 class LinkStrand : public EnableIntrusive<LinkStrand> {
  private:
   // managed pointer by LinkStrand
-  Strand *__strand{nullptr};
-  ECDH *__ecdh{nullptr};
+  Strand *__strand = nullptr;
+  ECDH *__ecdh = nullptr;
 
  protected:
-  SecurityManager *__security_manager{nullptr};
-  NodeStateManager *__state_manager{nullptr};
-  SessionManager *__session_manager{nullptr};
+  SecurityManager *__security_manager = nullptr;
+  NodeStateManager *__state_manager = nullptr;
+  SessionManager *__session_manager = nullptr;
+  Logger *__logger = nullptr;
 
  public:
   explicit LinkStrand(Strand *strand, ECDH *ecdh);
@@ -37,6 +39,8 @@ class LinkStrand : public EnableIntrusive<LinkStrand> {
   NodeStateManager &state_manager() { return *__state_manager; };
 
   SessionManager &session_manager() { return *__session_manager; };
+
+  Logger &logger() { return *__logger; };
 
   ECDH &ecdh() { return *__ecdh; };
 };

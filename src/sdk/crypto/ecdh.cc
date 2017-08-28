@@ -66,8 +66,7 @@ std::vector<uint8_t> ECDH::get_public_key() const throw(const std::runtime_error
   size = EC_POINT_point2oct(group, pub, form, nullptr, 0, nullptr);
   if (size == 0) throw std::runtime_error("Couldn't get public key");
 
-  std::vector<uint8_t> out;
-  out.resize(size);
+  std::vector<uint8_t> out(size);
 
   size_t r = EC_POINT_point2oct(group, pub, form, &out[0], size, nullptr);
   if (r != size) {

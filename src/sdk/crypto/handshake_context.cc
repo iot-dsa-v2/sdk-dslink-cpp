@@ -25,4 +25,10 @@ HandshakeContext::HandshakeContext(std::string dsid_prefix) {
   _salt = gen_salt(32);
 }
 
+void HandshakeContext::set_remote(std::string &&dsid,
+                                  std::vector<uint8_t> &&public_key,
+                                  std::vector<uint8_t> &&salt) {
+  _remote_dsid = std::move(dsid);
+}
+
 }  // namespace dsa

@@ -9,19 +9,36 @@ namespace dsa {
 
 class HandshakeContext {
  private:
+  ECDH _ecdh;
+
   std::vector<uint8_t> _public_key;
   std::vector<uint8_t> _salt;
-  ECDH _ecdh;
   std::string _dsid;
 
+  std::vector<uint8_t> _remote_public_key;
+  std::vector<uint8_t> _remote_salt;
+  std::string _remote_dsid;
+
  public:
-  explicit HandshakeContext(std::string dsid_prefix,
-                            const ECDH &ecdh);
+  explicit HandshakeContext(std::string dsid_prefix, const ECDH &ecdh);
   explicit HandshakeContext(std::string dsid_prefix);
-  const std::vector<uint8_t> &public_key() const { return _public_key; };
+
+  const std::vector<uint8_t> public_key() const {
+    return _ecdh.get_public_key();
+  };
   const std::vector<uint8_t> &salt() const { return _salt; };
-  const ECDH &ecdh() const { return _ecdh; };
   const std::string &dsid() const { return _dsid; };
+
+  const std::vector<uint8_t> &remote_public_key() const {
+    return _remote_public_key;
+  };
+  const std::vector<uint8_t> &remote_salt() const { return _remote_salt; };
+  const std::string &remote_dsid() const { return _remote_dsid; };
+
+  const ECDH &ecdh() const { return _ecdh; };
+
+  void set_remote(std::string &&dsid, std::vector<uint8_t> &&public_key,
+                  std::vector<uint8_t> &&salt);
 };
 
 typedef shared_ptr_<HandshakeContext> SecurityContextPtr;
