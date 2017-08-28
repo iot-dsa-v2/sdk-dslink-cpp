@@ -24,35 +24,35 @@ class Logger {
 };
 }
 
-#define LOG_CRITICAL(logger, stream)        \
+#define LOG_CRITICAL(logger, stream_exp)        \
   if ((logger).level <= Logger::CRITICAL) { \
-    std::stringstream _;                    \
-    stream << std::endl;                    \
-    (logger).log(_.str());                  \
+    std::stringstream LOG;                    \
+    stream_exp << std::endl;                    \
+    (logger).log(LOG.str());                  \
   }
-#define LOG_ERROR(logger, stream)        \
+#define LOG_ERROR(logger, stream_exp)        \
   if ((logger).level <= Logger::ERROR) { \
-    std::stringstream _;                 \
-    stream << std::endl;                 \
-    (logger).log(_.str());               \
+    std::stringstream LOG;                 \
+    stream_exp << std::endl;                 \
+    (logger).log(LOG.str());               \
   }
-#define LOG_WARNING(logger, stream)        \
+#define LOG_WARNING(logger, stream_exp)        \
   if ((logger).level <= Logger::WARNING) { \
-    std::stringstream _;                   \
-    stream << std::endl;                   \
-    (logger).log(_.str());                 \
+    std::stringstream LOG;                   \
+    stream_exp << std::endl;                   \
+    (logger).log(LOG.str());                 \
   }
-#define LOG_INFO(logger, stream)        \
+#define LOG_INFO(logger, stream_exp)        \
   if ((logger).level <= Logger::INFO) { \
-    std::stringstream _;                \
-    stream << std::endl;                \
-    (logger).log(_.str());              \
+    std::stringstream LOG;                \
+    stream_exp << std::endl;                \
+    (logger).log(LOG.str());              \
   }
-#define LOG_DEBUG(logger, stream)        \
+#define LOG_DEBUG(logger, stream_exp)        \
   if ((logger).level <= Logger::DEBUG) { \
-    std::stringstream _;                 \
-    stream << std::endl;                 \
-    (logger).log(_.str());               \
+    std::stringstream LOG;                 \
+    stream_exp << std::endl;                 \
+    (logger).log(LOG.str());               \
   }
 
 #endif  // DSA_SDK_MODULE__LOGGER_H

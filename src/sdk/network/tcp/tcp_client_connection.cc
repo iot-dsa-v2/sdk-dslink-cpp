@@ -99,7 +99,7 @@ void TcpClientConnection::connect() {
 
 void TcpClientConnection::f1_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {
-  LOG_DEBUG(_strand->logger(), _<<"f1_received closed"<<bytes_transferred);
+  LOG_DEBUG(_strand->logger(), LOG<<"f1_received closed"<<bytes_transferred);
   if (!error && parse_f1(bytes_transferred)) {
     // cancel timer before timeout
     _deadline.expires_from_now(

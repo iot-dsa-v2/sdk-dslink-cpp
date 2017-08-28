@@ -20,7 +20,7 @@ TcpConnection::TcpConnection(LinkStrandPtr &strand,
       _socket((*strand)().get_io_service()) {}
 
 void TcpConnection::close_impl() {
-  LOG_DEBUG(_strand->logger(), _<<"connection closed");
+  LOG_DEBUG(_strand->logger(), LOG<<"connection closed");
   if (_socket_open.exchange(false)) {
     _socket.close();
   }

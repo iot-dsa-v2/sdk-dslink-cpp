@@ -17,7 +17,7 @@ void Connection::on_receive_f1(Message *msg) {
     delete msg;
     throw MessageParsingError("invalid handshake message, expect f1");
   }
-  LOG_DEBUG(_strand->logger(), _<<"f1 received");
+  LOG_DEBUG(_strand->logger(), LOG<<"f1 received");
 }
 
 void Connection::on_receive_f3(Message *msg) {
