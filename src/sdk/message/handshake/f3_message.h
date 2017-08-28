@@ -8,9 +8,7 @@ namespace dsa {
 
 class HandshakeF3Message : public Message {
  public:
-  uint16_t session_id_length;
   std::string session_id;
-  uint16_t path_length;
   std::string path;
   std::vector<uint8_t> other_auth;
 

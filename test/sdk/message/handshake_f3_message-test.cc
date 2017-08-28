@@ -22,19 +22,11 @@ class HandshakeF3MessageExt : public HandshakeF3Message {
 TEST(MessageTest, HandshakeF3__Constructor_01) {
   HandshakeF3MessageExt message;
 
-  /*
-  uint16_t session_id_length;
-  std::string session_id;
-  uint16_t path_length;
-  std::string path;
-  std::vector<uint8_t> other_auth;
-  */
-
-  message.session_id_length = 64;
+  uint16_t session_id_length = 64;
   std::string session_id("session-id123456789012345678901234567890123456789012345678901234");
   message.session_id = session_id;
 
-  message.path_length = 32;
+  uint16_t path_length = 32;
   std::string path("path5678901234567890123456789012");
   message.path = path;
 
@@ -50,7 +42,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t expected_values[147];
 
   uint32_t message_size = 147;
-  uint16_t header_size = message_size;
+  uint16_t header_size = StaticHeaders::TotalSize;
   MessageType type = MessageType::Handshake3;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
@@ -70,14 +62,14 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t SessionIdOffset = SessionIdLengthOffset + sizeof(uint16_t);
   uint8_t PathLengthOffset = SessionIdOffset + message.session_id.size();
   uint8_t PathOffset = PathLengthOffset + sizeof(uint16_t);
-  uint8_t AuthOffset = PathOffset + message.path_length;
+  uint8_t AuthOffset = PathOffset + path_length;
 
-  std::memcpy(&expected_values[SessionIdLengthOffset], &message.session_id_length,  sizeof(message.session_id_length));
+  std::memcpy(&expected_values[SessionIdLengthOffset], &session_id_length,  sizeof(session_id_length));
   std::memcpy(&expected_values[SessionIdOffset], message.session_id.data(), message.session_id.size());
-  std::memcpy(&expected_values[PathLengthOffset], &message.path_length,  sizeof(message.path_length));
+  std::memcpy(&expected_values[PathLengthOffset], &path_length,  sizeof(path_length));
   std::memcpy(&expected_values[PathOffset], message.path.data(), message.path.size());
   std::memcpy(&expected_values[AuthOffset], message.other_auth.data(), Message::AuthLength);
 
-//  EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
+  EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
 
 }

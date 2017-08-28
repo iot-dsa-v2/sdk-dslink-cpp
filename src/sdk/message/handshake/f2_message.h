@@ -8,11 +8,10 @@ namespace dsa {
 
 class HandshakeF2Message : public Message {
  public:
-  uint16_t token_length;
-  std::string token;
   bool is_requester;
   bool is_responder;
-  uint16_t session_id_length;
+
+  std::string token;
   std::string session_id;
   std::vector<uint8_t> auth;
 
