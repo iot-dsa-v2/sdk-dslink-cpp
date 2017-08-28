@@ -40,8 +40,7 @@ class TcpConnection : public Connection {
 
   tcp_socket &socket();
 
-  
-  void connect() override = 0;
+
   void start() throw() override;
 };
 

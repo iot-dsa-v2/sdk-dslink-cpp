@@ -18,7 +18,8 @@ class Client;
 
 class Message;
 
-typedef std::function<void(const boost::system::error_code &error)> WriteHandler;
+typedef std::function<void(const boost::system::error_code &error)>
+    WriteHandler;
 
 class Connection : public SharedClosable<Connection> {
   friend class Session;
@@ -63,14 +64,27 @@ class Connection : public SharedClosable<Connection> {
                   AuthLength,                     // broker auth
   };
 
-  virtual void write(const uint8_t * data, size_t size, WriteHandler &&callback) = 0;
+ protected:
+  size_t _preferred_buffer_size = DEFAULT_BUFFER_SIZE;
+  size_t _max_buffer_size = MAX_BUFFER_SIZE;
+
+ public:
+  size_t preferred_buffer_size() const { return _preferred_buffer_size; };
+  size_t max_buffer_size() const { return _max_buffer_size; };
+
+  virtual void write(const uint8_t *data, size_t size,
+                     WriteHandler &&callback) = 0;
 
   static void close_in_strand(shared_ptr_<Connection> &&connection);
 
   std::function<void(Message *)> on_read_message;
   std::function<void()> on_read_message_error;
 
-  virtual void connect() = 0;
+  // as client
+  virtual void connect();
+  // as server
+  virtual void accept();
+
   virtual void start() noexcept = 0;
   const std::string &dsid() { return _handshake_context.dsid(); }
 
@@ -105,8 +119,6 @@ class Connection : public SharedClosable<Connection> {
   std::string _other_token;
   std::string _previous_session_id;
 
-  uint8_t _dsa_version_major;
-  uint8_t _dsa_version_minor;
   bool _is_requester;
   bool _is_responder;
   bool _security_preference;

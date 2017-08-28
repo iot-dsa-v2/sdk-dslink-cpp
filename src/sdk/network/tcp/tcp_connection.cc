@@ -2,8 +2,8 @@
 
 #include "tcp_connection.h"
 
-#include <boost/bind.hpp>
 #include <boost/asio/write.hpp>
+#include <boost/bind.hpp>
 
 #include "tcp_client.h"
 #include "tcp_server.h"
@@ -116,18 +116,16 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
   }
 }
 
-void TcpConnection::write(const uint8_t *data, size_t size, WriteHandler &&callback) {
-  // check to see if current number of pending messages is above allowed limit
-  if (++_pending_messages > MAX_PENDING_MESSAGE) {
-    close();
-    return;
-  }
-
-    boost::asio::async_write(
-        _socket, boost::asio::buffer(data, size),
-        [callback = std::move(callback)](const boost::system::error_code &error, size_t bytes_transferred ){
-          callback(error);
-        });
+void TcpConnection::write(const uint8_t *data, size_t size,
+                          WriteHandler &&callback) {
+  boost::asio::async_write(
+      _socket,
+      boost::asio::buffer(data, size), [callback = std::move(callback)](
+                                           const boost::system::error_code
+                                               &error,
+                                           size_t bytes_transferred) {
+        callback(error);
+      });
 }
 
 void TcpConnection::start() throw() {

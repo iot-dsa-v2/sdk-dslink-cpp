@@ -19,6 +19,9 @@ Connection::Connection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
       _strand(strand),
       _path(path) {}
 
+void Connection::connect() { throw std::runtime_error("not implemented"); }
+void Connection::accept() { throw std::runtime_error("not implemented"); }
+
 void Connection::set_session(const intrusive_ptr_<Session> &session) {
   _session = session;
 }

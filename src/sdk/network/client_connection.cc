@@ -16,14 +16,15 @@ void Connection::on_client_connect() throw(const std::runtime_error &) {
 void Connection::on_receive_f1(Message *msg) {
   if (msg->type() != MessageType::Handshake0) {
     delete msg;
-    throw new MessageParsingError("invalid handshake message, expect f1");
+    throw MessageParsingError("invalid handshake message, expect f1");
   }
+  print("f1 received");
 }
 
 void Connection::on_receive_f3(Message *msg) {
   if (msg->type() != MessageType::Handshake2) {
     delete msg;
-    throw new MessageParsingError("invalid handshake message, expect f3");
+    throw MessageParsingError("invalid handshake message, expect f3");
   }
 }
 

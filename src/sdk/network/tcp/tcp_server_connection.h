@@ -33,7 +33,7 @@ class TcpServerConnection : public TcpConnection{
 
   ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
 
-  void connect() override;
+  void accept() override;
 
   std::string name() override { return "TcpServerConnection"; }
 

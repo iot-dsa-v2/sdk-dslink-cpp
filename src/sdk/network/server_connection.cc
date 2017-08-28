@@ -26,13 +26,14 @@ void Connection::on_server_connect() throw(const std::runtime_error &) {
 void Connection::on_receive_f0(Message *msg) {
   if (msg->type() != MessageType::Handshake0) {
     delete msg;
-    throw new MessageParsingError("invalid handshake message, expect f0");
+    throw MessageParsingError("invalid handshake message, expect f0");
   }
+  print("f0 received");
 }
 void Connection::on_receive_f2(Message *msg) {
   if (msg->type() != MessageType::Handshake2) {
     delete msg;
-    throw new MessageParsingError("invalid handshake message, expect f2");
+    throw MessageParsingError("invalid handshake message, expect f2");
   }
 }
 
@@ -50,8 +51,8 @@ bool Connection::parse_f0(size_t size) {
   data += StaticHeaders::TotalSize;
   uint8_t dsid_length;
 
-  _dsa_version_major = *data++;
-  _dsa_version_minor = *data++;
+//  _dsa_version_major = *data++;
+//  _dsa_version_minor = *data++;
   dsid_length = *data++;
 
   if ((data - _write_buffer.data()) + dsid_length + PublicKeyLength + 1 +

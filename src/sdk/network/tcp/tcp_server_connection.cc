@@ -9,6 +9,8 @@
 
 #include "tcp_server.h"
 
+#include "message/handshake/f1_message.h"
+
 #define DEBUG 0
 
 namespace dsa {
@@ -19,9 +21,7 @@ TcpServerConnection::TcpServerConnection(LinkStrandPtr & strand,
     : TcpConnection(strand, handshake_timeout_ms, dsid_prefix,
                     path) {}
 
-void TcpServerConnection::connect() { start_handshake(); }
-
-void TcpServerConnection::start_handshake() {
+void TcpServerConnection::accept() {
 #if 0
   // TODO fix this
   // start timeout timer with handshake timeout specified in config
@@ -32,23 +32,30 @@ void TcpServerConnection::start_handshake() {
                                    boost::asio::placeholders::error));
 #endif
 
-  // start listening for f0
-  _socket.async_read_some(
-      boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
-      boost::bind(&TcpServerConnection::f0_received,
-                  share_this<TcpServerConnection>(),
-                  boost::asio::placeholders::error,
-                  boost::asio::placeholders::bytes_transferred));
 
-  // prepare and send f1 then make sure it was successful
-  // [success_or_close(...)]
-  size_t f1_size = load_f1(_write_buffer);
-  print("f1_write", f1_size);
-  boost::asio::async_write(_socket,
-                           boost::asio::buffer(_write_buffer.data(), f1_size),
-                           boost::bind(&TcpServerConnection::success_or_close,
-                                       share_this<TcpServerConnection>(),
-                                       boost::asio::placeholders::error));
+  // TODO: when a new version is not compatible with v 2.0
+  // f1 will need to be sent after f0 is received to check version
+  HandshakeF1Message f1;
+  f1.dsid = _handshake_context.dsid();
+  f1.public_key = _handshake_context.public_key();
+  f1.salt = _handshake_context.salt();
+  f1.size(); // calculate size
+  f1.write(_write_buffer.data());
+
+  write(
+    _write_buffer.data(),
+    f1.size(), [sthis = shared_from_this()](
+      const boost::system::error_code &err) mutable {
+      if (err != boost::system::errc::success) {
+        Connection::close_in_strand(std::move(sthis));
+      }
+    });
+
+
+  on_read_message = [this](Message * message){
+    on_receive_f0(message);
+  };
+  TcpConnection::start_read(share_this<TcpServerConnection>(), 0, 0);
 }
 
 void TcpServerConnection::f0_received(const boost::system::error_code &error,

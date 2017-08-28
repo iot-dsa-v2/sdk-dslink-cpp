@@ -33,13 +33,27 @@ void TcpClientConnection::connect() {
       // capture shared_ptr to keep the instance
       // capture this to access protected member
       [connection = share_this<TcpConnection>(), this](const boost::system::error_code &error) mutable {
-        if (error != boost::system::errc::errc_t::success) {
+        if (error != boost::system::errc::success) {
           TcpConnection::close_in_strand(std::move(connection));
           //TODO: log or return the error?
           return;
         }
 
+        HandshakeF0Message f0;
+        f0.dsid = _handshake_context.dsid();
+        f0.public_key = _handshake_context.public_key();
+        f0.salt = _handshake_context.salt();
+        f0.size(); // calculate size
+        f0.write(_write_buffer.data());
 
+        connection->write(
+          _write_buffer.data(),
+          f0.size(), [sthis = shared_from_this()](
+            const boost::system::error_code &err) mutable {
+            if (err != boost::system::errc::success) {
+              Connection::close_in_strand(std::move(sthis));
+            }
+          });
 
         on_read_message = [this](Message * message){
           on_receive_f1(message);

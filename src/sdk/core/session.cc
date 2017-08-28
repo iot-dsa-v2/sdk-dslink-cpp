@@ -82,7 +82,8 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
     return;
   }
 
-  size_t next_message_size = sthis->peek_next_message(Connection::MAX_BUFFER_SIZE);
+  size_t next_message_size =
+      sthis->peek_next_message(connection->max_buffer_size());
   if (next_message_size == 0) {
     sthis->_is_writing = false;
     return;
@@ -93,12 +94,12 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
 
   size_t total_size = 0;
   while (next_message_size > 0 &&
-         total_size < Connection::DEFAULT_BUFFER_SIZE &&
-         total_size + next_message_size < Connection::MAX_BUFFER_SIZE) {
+         total_size < connection->preferred_buffer_size() &&
+         total_size + next_message_size < connection->max_buffer_size()) {
     auto stream = sthis->get_next_ready_stream();
     MessagePtr message = stream->get_next_message();
 
-    if (buf.size() < Connection::MAX_BUFFER_SIZE &&
+    if (buf.size() < connection->max_buffer_size() &&
         total_size + message->size() > buf.size()) {
       buf.resize(buf.size() * 4);
     }
@@ -106,7 +107,8 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
     message->write(&buf[total_size]);
     total_size += message->size();
 
-    next_message_size = sthis->peek_next_message(Connection::MAX_BUFFER_SIZE - total_size);
+    next_message_size =
+        sthis->peek_next_message(connection->max_buffer_size() - total_size);
   }
 
   connection->write(
