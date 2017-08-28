@@ -41,11 +41,11 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   uint8_t buf[1024];
   message.write(buf);
 
-  // 15 + 1 + 1+ 1 + 4 + 65 + 1 + 32 = 120
-  uint8_t expected_values[120];
+  // 15 + 1 + 1 + 2 + 4 + 65 + 1 + 32 = 121
+  uint8_t expected_values[121];
 
-  uint32_t message_size = 120;
-  uint16_t header_size = message_size;
+  uint32_t message_size = 121;
+  uint16_t header_size = StaticHeaders::TotalSize;
   MessageType type = MessageType::Handshake0;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
@@ -73,7 +73,6 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
 
   std::memcpy(&expected_values[DsidOffset], message.dsid.data(),
               message.dsid.size());
-
   std::memcpy(&expected_values[PublicKeyOffset], message.public_key.data(),
               Message::PublicKeyLength);
   std::memcpy(&expected_values[SecurityPreferenceOffset],

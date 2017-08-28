@@ -39,11 +39,11 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
   uint8_t buf[1024];
   message.write(buf);
 
-  // 15 + 1 + 4 + 65 + 32 = 117
-  uint8_t expected_values[117];
+  // 15 + 2 + 4 + 65 + 32 = 118
+  uint8_t expected_values[118];
 
-  uint32_t message_size = 117;
-  uint16_t header_size = message_size;
+  uint32_t message_size = 118;
+  uint16_t header_size = StaticHeaders::TotalSize;
   MessageType type = MessageType::Handshake1;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
