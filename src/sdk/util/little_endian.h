@@ -27,7 +27,9 @@ static uint32_t read_32_t(const uint8_t* data) {
   return result;
 }
 
-#elif __BIG_ENDIAN__
+#else // __arm__
+
+#ifdef __BIG_ENDIAN__
 
 static size_t write_16_t(uint8_t* data, uint16_t n) {
   uint8_t* raw = reinterpret_cast<uint8_t*> & n;
@@ -54,7 +56,7 @@ static uint32_t read_32_t(const uint8_t* data) {
   return __builtin_bswap32(*reinterpret_cast<const uint32_t*>(data));
 }
 
-#else
+#else // __BIG_ENDIAN__
 
 static size_t write_16_t(uint8_t* data, uint16_t n) {
   memcpy(data, &n, sizeof(uint16_t));
@@ -74,7 +76,8 @@ static uint32_t read_32_t(const uint8_t* data) {
   return *reinterpret_cast<const uint32_t*>(data);
 }
 
-#endif
+#endif // __BIG_ENDIAN__
+#endif // __arm__
 
 // write str into data, return total bytes used in data
 static size_t write_str_with_len(uint8_t* data, const std::string& str) {

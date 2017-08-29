@@ -129,8 +129,7 @@ class Connection : public SharedClosable<Connection> {
   //  virtual void read_loop(size_t from_prev, const boost::system::error_code
   //  &error, size_t bytes_transferred) = 0;
 
-  // for this to be successful, _other_salt and _other_public_key need to valid
-  void compute_secret();
+
 
   static bool valid_handshake_header(StaticHeaders &header,
                                      size_t expected_size,
@@ -163,6 +162,7 @@ class Connection : public SharedClosable<Connection> {
 
   void on_client_connect() throw(const std::runtime_error &);
 
+  void start_client_f0();
   void on_receive_f1(Message *msg);
   void on_receive_f3(Message *msg);
 

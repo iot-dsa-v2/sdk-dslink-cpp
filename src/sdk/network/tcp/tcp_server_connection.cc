@@ -58,33 +58,7 @@ void TcpServerConnection::accept() {
   TcpConnection::start_read(share_this<TcpServerConnection>(), 0, 0);
 }
 
-void TcpServerConnection::f0_received(const boost::system::error_code &error,
-                                      size_t bytes_transferred) {
-// reset timeout
-#if 0
-  // TODO fix this
-  _deadline.expires_from_now(
-      boost::posix_time::milliseconds(_handshake_timeout_ms));
-  _deadline.async_wait(boost::bind(&TcpServerConnection::timeout,
-                                   share_this<TcpServerConnection>(),
-                                   boost::asio::placeholders::error));
-#endif
 
-  if (!error && parse_f0(bytes_transferred)) {
-    // compute shared secret
-    compute_secret();
-
-    // read and goto -> f2_received()
-    _socket.async_read_some(
-        boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
-        boost::bind(&TcpServerConnection::f2_received,
-                    share_this<TcpServerConnection>(),
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred));
-  } else {
-    close();
-  }
-}
 
 void TcpServerConnection::f2_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {

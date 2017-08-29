@@ -51,27 +51,7 @@ void Connection::close_in_strand(shared_ptr_<Connection> &&connection) {
   ]() mutable { connection->close(*lock); });
 }
 
-void Connection::compute_secret() {
-  _shared_secret = _handshake_context.ecdh().compute_secret(_other_public_key);
 
-  /* compute user auth */
-  dsa::HMAC hmac("sha256", _shared_secret);
-  hmac.update(_other_salt);
-  _auth = hmac.digest();
-
-  /* compute other auth */
-  dsa::HMAC other_hmac("sha256", _shared_secret);
-  other_hmac.update(_handshake_context.salt());
-  _other_auth = other_hmac.digest();
-
-#if DEBUG
-  std::stringstream ss;
-  ss << name() << "::compute_secret()" << std::endl;
-  ss << "auth:       " << *_auth << std::endl;
-  ss << "other auth: " << *_other_auth << std::endl;
-  std::cout << ss.str();
-#endif
-}
 
 bool Connection::valid_handshake_header(StaticHeaders &header,
                                         size_t expected_size,

@@ -39,25 +39,8 @@ void TcpClientConnection::connect() {
           return;
         }
 
-        HandshakeF0Message f0;
-        f0.dsid = _handshake_context.dsid();
-        f0.public_key = _handshake_context.public_key();
-        f0.salt = _handshake_context.salt();
-        f0.size(); // calculate size
-        f0.write(_write_buffer.data());
+        start_client_f0();
 
-        connection->write(
-          _write_buffer.data(),
-          f0.size(), [sthis = shared_from_this()](
-            const boost::system::error_code &err) mutable {
-            if (err != boost::system::errc::success) {
-              Connection::close_in_strand(std::move(sthis));
-            }
-          });
-
-        on_read_message = [this](Message * message){
-          on_receive_f1(message);
-        };
         TcpConnection::start_read(std::move(connection));
       });
 }
@@ -97,43 +80,6 @@ void TcpClientConnection::connect() {
 //                  boost::asio::placeholders::error));
 //}
 
-void TcpClientConnection::f1_received(const boost::system::error_code &error,
-                                      size_t bytes_transferred) {
-  LOG_DEBUG(_strand->logger(), LOG<<"f1_received closed"<<bytes_transferred);
-  if (!error && parse_f1(bytes_transferred)) {
-    // cancel timer before timeout
-    _deadline.expires_from_now(
-        boost::posix_time::milliseconds(_handshake_timeout_ms));
-
-    // server should be parsing f0 and waiting for f2 at this point
-    // so we can compute the shared secret synchronously
-    compute_secret();
-    size_t f2_size = load_f2(_write_buffer);
-    boost::asio::async_write(
-        _socket, boost::asio::buffer(_write_buffer.data(), f2_size),
-        boost::bind(&TcpClientConnection::success_or_close,
-                    Connection::share_this<TcpClientConnection>(),
-                    boost::asio::placeholders::error));
-
-// restart timeout timer
-#if 0
-    // TODO fix this
-    _deadline.async_wait(
-        boost::bind(&TcpClientConnection::timeout,
-                    Connection::share_this<TcpClientConnection>(),
-                    boost::asio::placeholders::error));
-#endif
-
-    _socket.async_read_some(
-        boost::asio::buffer(_write_buffer.data(), _write_buffer.capacity()),
-        boost::bind(&TcpClientConnection::f3_received,
-                    Connection::share_this<TcpClientConnection>(),
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred));
-  } else {
-    close();
-  }
-}
 
 void TcpClientConnection::f3_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {

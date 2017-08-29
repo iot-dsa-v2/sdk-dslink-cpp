@@ -16,8 +16,7 @@ class TcpServer;
 // Handles server side of DSA handshake and starts read loop.
 class TcpServerConnection : public TcpConnection{
  private:
-  void f0_received(const boost::system::error_code &error,
-                   size_t bytes_transferred);
+
   void f2_received(const boost::system::error_code &error,
                    size_t bytes_transferred);
   void send_f3();

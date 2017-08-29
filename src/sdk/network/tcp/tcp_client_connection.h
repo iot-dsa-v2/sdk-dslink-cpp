@@ -16,8 +16,7 @@ class TcpClient;
 // Handles client side of DSA handshake and starts read loop.
 class TcpClientConnection : public TcpConnection {
  private:
-  void f1_received(const boost::system::error_code &error,
-                   size_t bytes_transferred);
+
   void f3_received(const boost::system::error_code &error,
                    size_t bytes_transferred);
 
@@ -25,8 +24,6 @@ class TcpClientConnection : public TcpConnection {
   std::string _hostname;
   uint16_t _port;
 
-  void start_handshake(const boost::system::error_code &error) throw(
-      const std::runtime_error &);
 
  public:
   TcpClientConnection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,

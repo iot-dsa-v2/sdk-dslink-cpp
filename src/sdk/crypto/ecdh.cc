@@ -14,12 +14,16 @@ namespace dsa {
 
 const char *ECDH::curve_name = "prime256v1";
 
-ECDH::ECDH() throw(const std::runtime_error &) { generate_key(); }
+ECDH::ECDH() throw(const std::runtime_error &) {
+  generate_key();
+  cache_public_key();
+}
 ECDH::ECDH(const ECDH &ecdh) {
   int nid = OBJ_sn2nid(curve_name);
   key = EC_KEY_new_by_curve_name(nid);
   EC_KEY_copy(key, ecdh.key);
   group = EC_KEY_get0_group(key);
+  cache_public_key();
 }
 ECDH::~ECDH() { EC_KEY_free(key); }
 
@@ -41,7 +45,8 @@ void ECDH::generate_key() throw(const std::runtime_error &) {
   group = EC_KEY_get0_group(key);
 }
 
-std::vector<uint8_t> ECDH::get_private_key() const throw(const std::runtime_error &) {
+const std::vector<uint8_t> ECDH::get_private_key() const
+    throw(const std::runtime_error &) {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
   if (priv == nullptr) throw std::runtime_error("private key not set");
   int size = BN_num_bytes(priv);
@@ -56,7 +61,7 @@ std::vector<uint8_t> ECDH::get_private_key() const throw(const std::runtime_erro
   return std::move(out);
 }
 
-std::vector<uint8_t> ECDH::get_public_key() const throw(const std::runtime_error &) {
+void ECDH::cache_public_key() {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
 
@@ -66,14 +71,12 @@ std::vector<uint8_t> ECDH::get_public_key() const throw(const std::runtime_error
   size = EC_POINT_point2oct(group, pub, form, nullptr, 0, nullptr);
   if (size == 0) throw std::runtime_error("Couldn't get public key");
 
-  std::vector<uint8_t> out(size);
+  _public_key_cache.resize(size);
 
-  size_t r = EC_POINT_point2oct(group, pub, form, &out[0], size, nullptr);
+  size_t r = EC_POINT_point2oct(group, pub, form, &_public_key_cache[0], size, nullptr);
   if (r != size) {
     throw std::runtime_error("Couldn't get public key");
   }
-
-  return std::move(out);
 }
 
 bool ECDH::is_key_valid_for_curve(BIGNUM *private_key) throw(
@@ -130,7 +133,8 @@ void ECDH::set_private_key_hex(const char *data) throw(
   EC_POINT_free(pub);
 }
 
-std::vector<uint8_t> ECDH::compute_secret(const std::vector<uint8_t> &public_key) const
+std::vector<uint8_t> ECDH::compute_secret(
+    const std::vector<uint8_t> &public_key) const
     throw(const std::runtime_error &) {
   EC_POINT *pub = EC_POINT_new(group);
   int r = EC_POINT_oct2point(group, pub, public_key.data(), public_key.size(),

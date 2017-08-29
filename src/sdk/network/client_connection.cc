@@ -1,8 +1,11 @@
 #include "dsa_common.h"
 
 #include "connection.h"
-#include "core/client.h"
 
+#include "core/client.h"
+#include "message/handshake/f0_message.h"
+#include "message/handshake/f1_message.h"
+#include "message/handshake/f2_message.h"
 
 namespace dsa {
 
@@ -11,13 +14,55 @@ void Connection::on_client_connect() throw(const std::runtime_error &) {
     throw std::runtime_error("no session attached to client connection");
   _session->start();
 }
+void Connection::start_client_f0() {
+  HandshakeF0Message f0;
+  f0.dsid = _handshake_context.dsid();
+  f0.public_key = _handshake_context.public_key();
+  f0.salt = _handshake_context.salt();
+  f0.size();  // calculate size
+  f0.write(_write_buffer.data());
 
+  write(_write_buffer.data(),
+        f0.size(), [sthis = shared_from_this()](
+                       const boost::system::error_code &err) mutable {
+          if (err != boost::system::errc::success) {
+            Connection::close_in_strand(std::move(sthis));
+          }
+        });
+
+  on_read_message = [this](Message *message) { on_receive_f1(message); };
+}
 void Connection::on_receive_f1(Message *msg) {
   if (msg->type() != MessageType::Handshake1) {
     delete msg;
     throw MessageParsingError("invalid handshake message, expect f1");
   }
-  LOG_DEBUG(_strand->logger(), LOG<<"f1 received");
+  LOG_DEBUG(_strand->logger(), LOG << "f1 received");
+  HandshakeF1Message *f1 = static_cast<HandshakeF1Message *>(msg);
+  _handshake_context.set_remote(std::move(f1->dsid), std::move(f1->public_key),
+                                std::move(f1->salt));
+  _handshake_context.compute_secret();
+
+  HandshakeF2Message f2;
+  f2.auth = _handshake_context.auth();
+  // TODO:
+  // f2.is_requester = true;
+  // f2.is_responder = true;
+  // f2.session_id =
+  // f2.token =
+
+  f2.size();  // calculate size
+  f2.write(_write_buffer.data());
+
+  write(_write_buffer.data(),
+        f2.size(), [sthis = shared_from_this()](
+                       const boost::system::error_code &err) mutable {
+          if (err != boost::system::errc::success) {
+            Connection::close_in_strand(std::move(sthis));
+          }
+        });
+
+  on_read_message = [this](Message *message) { on_receive_f3(message); };
 }
 
 void Connection::on_receive_f3(Message *msg) {
