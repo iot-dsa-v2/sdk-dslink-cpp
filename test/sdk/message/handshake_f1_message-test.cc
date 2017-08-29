@@ -5,24 +5,8 @@
 
 using namespace dsa;
 
-class HandshakeF1MessageExt : public HandshakeF1Message {
- public:
-  HandshakeF1MessageExt() : HandshakeF1Message() {}
-
-  void update_static_header_ext() {
-    HandshakeF1Message::update_static_header();
-  }
-
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
-
 TEST(MessageTest, HandshakeF1__Constructor_01) {
-  HandshakeF1MessageExt message;
+  HandshakeF1Message message;
 
   message.dsid = "dsid";
 
@@ -34,7 +18,7 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
   uint8_t salt[] = "salt5678901234567890123456789012";
   message.salt = std::vector<uint8_t>(salt, salt + Message::SaltLength);
 
-  message.update_static_header_ext();
+  message.size();
 
   uint8_t buf[1024];
   message.write(buf);

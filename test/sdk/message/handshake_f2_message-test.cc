@@ -3,24 +3,8 @@
 
 using namespace dsa;
 
-class HandshakeF2MessageExt : public HandshakeF2Message {
- public:
-  HandshakeF2MessageExt() : HandshakeF2Message() {}
-
-  void update_static_header_ext() {
-    HandshakeF2Message::update_static_header();
-  }
-
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
-
 TEST(MessageTest, HandshakeF2__Constructor_01) {
-  HandshakeF2MessageExt message;
+  HandshakeF2Message message;
 
   std::string token(
       "token6789012345678901234567890123456789012345678901234567890123456789012"
@@ -34,7 +18,7 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   uint8_t auth[] = "auth5678901234567890123456789012";
   message.auth = std::vector<uint8_t>(auth, auth + Message::AuthLength);
 
-  message.update_static_header_ext();
+  message.size();
 
   uint8_t buf[1024];
   message.write(buf);

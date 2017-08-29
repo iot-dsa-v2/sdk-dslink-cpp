@@ -7,8 +7,6 @@ class SetRequestMessageExt : public SetRequestMessage {
  public:
   SetRequestMessageExt() : SetRequestMessage() {}
 
-  void update_static_header_ext() { SetRequestMessage::update_static_header(); }
-
   bool check_static_headers(uint8_t *expected_values, size_t size) {
     uint8_t buf[1024];
     static_headers.write(buf);
@@ -20,10 +18,6 @@ class SetRequestMessageExt : public SetRequestMessage {
 class SetResponseMessageExt : public SetResponseMessage {
  public:
   SetResponseMessageExt() : SetResponseMessage() {}
-
-  void update_static_header_ext() {
-    SetResponseMessage::update_static_header();
-  }
 
   bool check_static_headers(uint8_t *expected_values, size_t size) {
     uint8_t buf[1024];
@@ -139,7 +133,7 @@ TEST(MessageTest, SetRequest__get_set_options) {
 TEST(MessageTest, SetRequest__update_static_header) {
   // void update_static_header();
   SetRequestMessageExt request;
-  request.update_static_header_ext();
+  request.size();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
   EXPECT_EQ(true,
@@ -186,7 +180,7 @@ TEST(MessageTest, SetRequest__write) {
   request.set_target_path("path/to/dsa");
   request.set_no_stream(true);
 
-  request.update_static_header_ext();
+  request.size();
 
   uint8_t buf[1024];
   request.write(buf);
@@ -248,7 +242,7 @@ TEST(MessageTest, SetResponse__write) {
   response.set_source_path("source/path");
   response.set_status(MessageStatus::Busy);
 
-  response.update_static_header_ext();
+  response.size();
 
   uint8_t buf[1024];
   response.write(buf);

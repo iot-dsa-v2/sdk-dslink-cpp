@@ -3,24 +3,8 @@
 
 using namespace dsa;
 
-class HandshakeF3MessageExt : public HandshakeF3Message {
- public:
-  HandshakeF3MessageExt() : HandshakeF3Message() {}
-
-  void update_static_header_ext() {
-    HandshakeF3Message::update_static_header();
-  }
-
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
-
 TEST(MessageTest, HandshakeF3__Constructor_01) {
-  HandshakeF3MessageExt message;
+  HandshakeF3Message message;
 
   uint16_t session_id_length = 64;
   std::string session_id("session-id123456789012345678901234567890123456789012345678901234");
@@ -33,7 +17,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t auth[] = "auth5678901234567890123456789012";
   message.auth = std::vector<uint8_t>(auth, auth + Message::AuthLength);
 
-  message.update_static_header_ext();
+  message.size();
 
   uint8_t buf[1024];
   message.write(buf);

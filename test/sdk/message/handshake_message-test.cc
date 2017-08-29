@@ -8,42 +8,6 @@
 
 using namespace dsa;
 
-class HandshakeF0MessageExt : public HandshakeF0Message {
- public:
-  HandshakeF0MessageExt() : HandshakeF0Message() {}
-
-  void update_static_header_ext() {
-    HandshakeF0Message::update_static_header();
-  }
-};
-
-class HandshakeF1MessageExt : public HandshakeF1Message {
- public:
-  HandshakeF1MessageExt() : HandshakeF1Message() {}
-
-  void update_static_header_ext() {
-    HandshakeF1Message::update_static_header();
-  }
-};
-
-class HandshakeF2MessageExt : public HandshakeF2Message {
- public:
-  HandshakeF2MessageExt() : HandshakeF2Message() {}
-
-  void update_static_header_ext() {
-    HandshakeF2Message::update_static_header();
-  }
-};
-
-class HandshakeF3MessageExt : public HandshakeF3Message {
- public:
-  HandshakeF3MessageExt() : HandshakeF3Message() {}
-
-  void update_static_header_ext() {
-    HandshakeF3Message::update_static_header();
-  }
-};
-
 #define TO_CHAR(x) ((x) <= 0x9) ? (x) + 0x30 : 'a' + (x)-0xa
 
 void to_char(std::stringstream& ss, uint8_t x) {
@@ -74,7 +38,7 @@ const uint8_t broker_salt[] = {0xec, 0xcb, 0xc8, 0x7e, 0x4b, 0x5c, 0xe2, 0xfe,
 std::vector<uint8_t> broker_public_key;
 
 TEST(MessageTest, HandshakeF0) {
-  HandshakeF0MessageExt message;
+  HandshakeF0Message message;
 
   // Client dsid
   ECDH client_ecdh;
@@ -97,7 +61,7 @@ TEST(MessageTest, HandshakeF0) {
       std::vector<uint8_t>(client_salt, client_salt + sizeof(client_salt));
 
   // Update header_size and message_size
-  message.update_static_header_ext();
+  message.size();
 
   //
   uint8_t buf[1024];
@@ -120,7 +84,7 @@ TEST(MessageTest, HandshakeF0) {
 }
 
 TEST(MessageTest, HandshakeF1) {
-  HandshakeF1MessageExt message;
+  HandshakeF1Message message;
 
   // Broker dsid
   ECDH broker_ecdh;
@@ -141,7 +105,7 @@ TEST(MessageTest, HandshakeF1) {
       std::vector<uint8_t>(broker_salt, broker_salt + sizeof(broker_salt));
 
   // Update header_size and message_size
-  message.update_static_header_ext();
+  message.size();
 
   //
   uint8_t buf[1024];
@@ -164,7 +128,7 @@ TEST(MessageTest, HandshakeF1) {
 }
 
 TEST(MessageTest, HandshakeF2) {
-  HandshakeF2MessageExt message;
+  HandshakeF2Message message;
 
   message.token = client_token;
   message.is_requester = true;
@@ -185,7 +149,7 @@ TEST(MessageTest, HandshakeF2) {
   message.auth = hmac.digest();
 
   // Update header_size and message_size
-  message.update_static_header_ext();
+  message.size();
 
   //
   uint8_t buf[1024];
@@ -206,7 +170,7 @@ TEST(MessageTest, HandshakeF2) {
 }
 
 TEST(MessageTest, HandshakeF3) {
-  HandshakeF3MessageExt message;
+  HandshakeF3Message message;
 
   message.path = "/downstream/mlink1";
   message.session_id = "sampe-session-001";
@@ -230,7 +194,7 @@ TEST(MessageTest, HandshakeF3) {
   message.auth = hmac.digest();
 
   // Update header_size and message_size
-  message.update_static_header_ext();
+  message.size();
 
   //
   uint8_t buf[1024];
