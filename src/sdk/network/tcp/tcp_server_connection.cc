@@ -30,10 +30,12 @@ void TcpServerConnection::accept() {
                                    share_this<TcpServerConnection>(),
                                    boost::asio::placeholders::error));
 #endif
-
-  on_read_message = [this](MessagePtr message) {
-    on_receive_f0(std::move(message));
-  };
+  {
+    boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
+    on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
+      on_receive_f0(std::move(message), lock);
+    };
+  }
   TcpConnection::start_read(share_this<TcpServerConnection>(), 0, 0);
 }
 //

@@ -3,7 +3,7 @@
 #include "tcp_connection.h"
 
 #include <boost/asio/write.hpp>
-#include <boost/bind.hpp>
+#include <boost/thread/locks.hpp>
 
 #include "tcp_client.h"
 #include "tcp_server.h"
@@ -20,7 +20,7 @@ TcpConnection::TcpConnection(LinkStrandPtr &strand,
       _socket((*strand)().get_io_service()) {}
 
 void TcpConnection::close_impl() {
-  LOG_DEBUG(_strand->logger(), LOG<<"connection closed");
+  LOG_DEBUG(_strand->logger(), LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.close();
   }
@@ -60,52 +60,48 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
     std::vector<uint8_t> &buffer = connection->_read_buffer;
     size_t total_bytes = from_prev + bytes_transferred;
     size_t cur = 0;
-
-    while (cur < total_bytes) {
-      if (total_bytes - cur < sizeof(uint32_t)) {
-        // not enough data to check size
-        start_read(std::move(connection), cur, total_bytes);
-        return;
-      }
-      // TODO: check if message_size is valid;
-      uint32_t message_size = read_32_t(&buffer[cur]);
-      if (message_size > MAX_BUFFER_SIZE) {
-        // TODO: send error
-        TcpConnection::close_in_strand(std::move(connection));
-        return;
-      }
-      if (message_size > total_bytes - cur) {
-        // not enough data to parse message
-        start_read(std::move(connection), cur, total_bytes);
-        return;
-      }
-
-      // post job with message buffer
-
-      if (connection->on_read_message != nullptr) {
-        try {
-          connection->on_read_message(
-              Message::parse_message(&buffer[cur], message_size));
-        } catch (const MessageParsingError &err) {
+    {
+      boost::upgrade_lock<boost::shared_mutex> read_loop_lock(
+          connection->read_loop_mutex);
+      while (cur < total_bytes) {
+        if (total_bytes - cur < sizeof(uint32_t)) {
+          // not enough data to check size
+          start_read(std::move(connection), cur, total_bytes);
+          return;
+        }
+        // TODO: check if message_size is valid;
+        uint32_t message_size = read_32_t(&buffer[cur]);
+        if (message_size > MAX_BUFFER_SIZE) {
           // TODO: send error
           TcpConnection::close_in_strand(std::move(connection));
           return;
         }
+        if (message_size > total_bytes - cur) {
+          // not enough data to parse message
+          start_read(std::move(connection), cur, total_bytes);
+          return;
+        }
 
-      } else {
-        throw std::runtime_error("on_read_message is null");
+        // post job with message buffer
+
+        if (connection->on_read_message != nullptr) {
+          try {
+            connection->on_read_message(
+                Message::parse_message(&buffer[cur], message_size),
+                read_loop_lock);
+          } catch (const MessageParsingError &err) {
+            // TODO: send error
+            TcpConnection::close_in_strand(std::move(connection));
+            return;
+          }
+
+        } else {
+          throw std::runtime_error("on_read_message is null");
+        }
+
+        cur += message_size;
       }
-      //      _strand.post(
-      //          // boost::bind<void>(_message_handler, _session,
-      //          //                  buf->get_shared_buffer(cur,
-      //          header.message_size))
-      //          [ sthis = share_this<TcpConnection>(), message ]() {
-      //            sthis->post_message(message);
-      //          });
-
-      cur += message_size;
     }
-
     start_read(std::move(connection), 0, 0);
   } else {
     // TODO: send error

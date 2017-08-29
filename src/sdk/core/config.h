@@ -11,10 +11,10 @@ namespace dsa {
 
 class LinkConfig : public LinkStrand {
   // modules
-  std::unique_ptr<SecurityManager> _security_manager = nullptr;
-  std::unique_ptr<NodeStateManager> _state_manager = nullptr;
-  std::unique_ptr<SessionManager> _session_manager = nullptr;
-  std::unique_ptr<Logger> _logger = nullptr;
+  shared_ptr_<SecurityManager> _security_manager = nullptr;
+  shared_ptr_<NodeStateManager> _state_manager = nullptr;
+  shared_ptr_<SessionManager> _session_manager = nullptr;
+  shared_ptr_<Logger> _logger = nullptr;
 
  public:
   explicit LinkConfig(Strand* strand, ECDH* ecdh);

@@ -16,7 +16,7 @@ namespace dsa {
 Responder::Responder(Session &session) : _session(session) {}
 
 void Responder::receive_message(intrusive_ptr_<Message> &&message) {
-  RequestMessage *request = static_cast<RequestMessage *>(message.get());
+  auto request = DOWN_CAST<RequestMessage *>(message.get());
   auto callback = [ message = std::move(message),
                     this ](PermissionLevel permission) mutable {
     // TODO: implement permissions
@@ -24,21 +24,21 @@ void Responder::receive_message(intrusive_ptr_<Message> &&message) {
     switch (message->type()) {
       case MessageType::SubscribeRequest:
         on_subscribe_request(intrusive_ptr_<SubscribeRequestMessage>(
-            static_cast<SubscribeRequestMessage *>(message.get())));
+            DOWN_CAST<SubscribeRequestMessage *>(message.get())));
         break;
       case MessageType::InvokeRequest:
         on_invoke_request(intrusive_ptr_<InvokeRequestMessage>(
-            static_cast<InvokeRequestMessage *>(message.get())));
+            DOWN_CAST<InvokeRequestMessage *>(message.get())));
 
         break;
       case MessageType::SetRequest:
         on_set_request(intrusive_ptr_<SetRequestMessage>(
-            static_cast<SetRequestMessage *>(message.get())));
+            DOWN_CAST<SetRequestMessage *>(message.get())));
 
         break;
       case MessageType::ListRequest:
         on_list_request(intrusive_ptr_<ListRequestMessage>(
-            static_cast<ListRequestMessage *>(message.get())));
+            DOWN_CAST<ListRequestMessage *>(message.get())));
 
         break;
       default:

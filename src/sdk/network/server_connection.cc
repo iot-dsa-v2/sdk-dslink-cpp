@@ -27,12 +27,12 @@ namespace dsa {
 //      });
 //}
 
-void Connection::on_receive_f0(MessagePtr &&msg) {
+void Connection::on_receive_f0(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
   if (msg->type() != MessageType::Handshake0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f0 received");
-  HandshakeF0Message *f0 = static_cast<HandshakeF0Message *>(msg.get());
+  auto *f0 = DOWN_CAST<HandshakeF0Message *>(msg.get());
   this->_handshake_context.set_remote(
       std::move(f0->dsid), std::move(f0->public_key), std::move(f0->salt));
 
@@ -50,18 +50,18 @@ void Connection::on_receive_f0(MessagePtr &&msg) {
             Connection::close_in_strand(std::move(sthis));
           }
         });
-
-  on_read_message = [this](MessagePtr message) {
-    on_receive_f2(std::move(message));
+  boost::upgrade_to_unique_lock<boost::shared_mutex> lock_read_loop(lock);
+  on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
+    on_receive_f2(std::move(message), lock);
   };
 }
-void Connection::on_receive_f2(MessagePtr &&msg) {
+void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
   if (msg->type() != MessageType::Handshake2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f2 received");
 
-  HandshakeF2Message *f2 = static_cast<HandshakeF2Message *>(msg.get());
+  auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
 
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f2->auth.begin())) {
@@ -87,8 +87,8 @@ void Connection::on_receive_f2(MessagePtr &&msg) {
                       Connection::close_in_strand(std::move(sthis));
                     }
                   });
-
-            on_read_message = [this](MessagePtr message) {
+            boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
+            on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
               post_message(std::move(message));
             };
 

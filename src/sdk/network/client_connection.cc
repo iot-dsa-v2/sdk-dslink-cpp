@@ -29,17 +29,17 @@ void Connection::start_client_f0() {
             Connection::close_in_strand(std::move(sthis));
           }
         });
-
-  on_read_message = [this](MessagePtr message) {
-    on_receive_f1(std::move(message));
+  boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
+  on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
+    on_receive_f1(std::move(message), lock);
   };
 }
-void Connection::on_receive_f1(MessagePtr &&msg) {
+void Connection::on_receive_f1(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
   if (msg->type() != MessageType::Handshake1) {
     throw MessageParsingError("invalid handshake message, expect f1");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f1 received");
-  HandshakeF1Message *f1 = static_cast<HandshakeF1Message *>(msg.get());
+  auto *f1 = DOWN_CAST<HandshakeF1Message *>(msg.get());
   _handshake_context.set_remote(std::move(f1->dsid), std::move(f1->public_key),
                                 std::move(f1->salt));
   _handshake_context.compute_secret();
@@ -63,15 +63,17 @@ void Connection::on_receive_f1(MessagePtr &&msg) {
           }
         });
 
-  on_read_message = [this](MessagePtr message) {
-    on_receive_f3(std::move(message));
+  boost::upgrade_to_unique_lock<boost::shared_mutex> lock_read_loop(lock);
+  on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
+    on_receive_f3(std::move(message),lock);
   };
 }
 
-void Connection::on_receive_f3(MessagePtr &&msg) {
-  if (msg->type() != MessageType::Handshake2) {
+void Connection::on_receive_f3(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
+  if (msg->type() != MessageType::Handshake3) {
     throw MessageParsingError("invalid handshake message, expect f3");
   }
+  LOG_DEBUG(_strand->logger(), LOG << "f3 received");
 }
 
 /////////////////////////

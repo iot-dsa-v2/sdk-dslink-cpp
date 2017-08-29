@@ -2,36 +2,35 @@
 
 #include "session_manager.h"
 
-#include "server.h"
 #include "crypto/hash.h"
 #include "crypto/misc.h"
+#include "server.h"
 
 namespace dsa {
-SessionManager::SessionManager(LinkStrandPtr & strand)
-    : _strand(strand){}
+SessionManager::SessionManager(LinkStrandPtr &strand) : _strand(strand) {}
 
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
                                  const std::string &session_id,
                                  GetSessionCallback &&callback) {
-  _strand->security_manager().get_client(dsid, auth_token, [
-    =, callback = std::move(callback)
-  ](const ClientInfo client, bool error) mutable {
-    if (error) {
-      callback(nullptr);
-      return;
-    }
-    if (_sessions.count(session_id) != 0) {
-      callback(_sessions.at(session_id));
-      return;
-    }
-    std::string sid = get_new_session_id();
-    auto session = make_intrusive_<Session>(_strand, sid);
+  _strand->security_manager().get_client(
+      dsid, auth_token, [ =, callback = std::move(callback) ](
+                            const ClientInfo client, bool error) mutable {
+        if (error) {
+          callback(intrusive_ptr_<Session>()); // return nullptr
+          return;
+        }
+        if (_sessions.count(session_id) != 0) {
+          callback(_sessions.at(session_id));
+          return;
+        }
+        std::string sid = get_new_session_id();
+        auto session = make_intrusive_<Session>(_strand, sid);
 
-    _sessions[sid] = session;
+        _sessions[sid] = session;
 
-    callback(session);
-  });
+        callback(session);
+      });
 }
 
 std::string SessionManager::get_new_session_id() {

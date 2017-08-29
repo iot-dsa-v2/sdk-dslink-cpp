@@ -8,6 +8,8 @@
 
 #endif  // _MSC_VER
 
+#define DOWN_CAST dynamic_cast
+
 #include <algorithm>
 #include <boost/intrusive_ptr.hpp>
 #include <cstdint>
