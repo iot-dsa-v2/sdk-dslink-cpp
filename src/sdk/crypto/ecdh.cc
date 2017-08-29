@@ -129,8 +129,9 @@ void ECDH::set_private_key_hex(const char *data) throw(
     EC_POINT_free(pub);
     return throw std::runtime_error("Failed to set generated public key");
   }
-
   EC_POINT_free(pub);
+
+  cache_public_key();
 }
 
 std::vector<uint8_t> ECDH::compute_secret(
