@@ -40,15 +40,13 @@ void Session::close_impl() {
 
 void Session::connection_closed() { _connection.reset(); }
 
-void Session::receive_message(Message *message) {
+void Session::receive_message(MessagePtr &&message) {
   if (message->is_request()) {
-    auto new_message =
-        intrusive_ptr_<RequestMessage>(dynamic_cast<RequestMessage *>(message));
-    responder.receive_message(std::move(new_message));
+    // responder receive request and send response
+    responder.receive_message(std::move(message));
   } else {
-    auto new_message = intrusive_ptr_<ResponseMessage>(
-        dynamic_cast<ResponseMessage *>(message));
-    requester.receive_message(std::move(new_message));
+    // requester sent request and receive response
+    requester.receive_message(std::move(message));
   }
 }
 

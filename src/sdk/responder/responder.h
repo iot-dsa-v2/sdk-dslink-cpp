@@ -23,19 +23,22 @@ class Responder {
  protected:
   Session &_session;
 
-  std::map< uint32_t, intrusive_ptr_<MessageStream> > _outgoing_streams;
+  std::map<uint32_t, intrusive_ptr_<MessageStream> > _outgoing_streams;
 
-  virtual void on_invoke_request(InvokeRequestMessage &request);
-  virtual void on_list_request(ListRequestMessage &request);
-  virtual void on_set_request(SetRequestMessage &request);
-  virtual void on_subscribe_request(SubscribeRequestMessage &request);
+  virtual void on_invoke_request(
+      intrusive_ptr_<InvokeRequestMessage> &&request);
+  virtual void on_list_request(intrusive_ptr_<ListRequestMessage> &&request);
+  virtual void on_set_request(intrusive_ptr_<SetRequestMessage> &&request);
+  virtual void on_subscribe_request(
+      intrusive_ptr_<SubscribeRequestMessage> &&request);
 
-  void send_error(MessageType &&type, MessageStatus &&status, uint32_t &&request_id = 0);
+  void send_error(MessageType &&type, MessageStatus &&status,
+                  uint32_t &&request_id = 0);
 
  public:
-  Responder(Session &session);
+  explicit Responder(Session &session);
 
-  void receive_message(intrusive_ptr_<RequestMessage> message);
+  void receive_message(intrusive_ptr_<Message> &&message);
 };
 
 }  // namespace dsa

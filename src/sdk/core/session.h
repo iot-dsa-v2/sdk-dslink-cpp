@@ -41,7 +41,7 @@ class Session : public IntrusiveClosable<Session> {
   static void write_loop(intrusive_ptr_<Session> sthis);
 
   void connection_closed();
-  void receive_message(Message *message);
+  void receive_message(MessagePtr &&message);
 
  public:
   Requester requester;

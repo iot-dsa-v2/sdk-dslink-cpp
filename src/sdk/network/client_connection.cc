@@ -30,15 +30,16 @@ void Connection::start_client_f0() {
           }
         });
 
-  on_read_message = [this](Message *message) { on_receive_f1(message); };
+  on_read_message = [this](MessagePtr message) {
+    on_receive_f1(std::move(message));
+  };
 }
-void Connection::on_receive_f1(Message *msg) {
+void Connection::on_receive_f1(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake1) {
-    delete msg;
     throw MessageParsingError("invalid handshake message, expect f1");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f1 received");
-  HandshakeF1Message *f1 = static_cast<HandshakeF1Message *>(msg);
+  HandshakeF1Message *f1 = static_cast<HandshakeF1Message *>(msg.get());
   _handshake_context.set_remote(std::move(f1->dsid), std::move(f1->public_key),
                                 std::move(f1->salt));
   _handshake_context.compute_secret();
@@ -62,12 +63,13 @@ void Connection::on_receive_f1(Message *msg) {
           }
         });
 
-  on_read_message = [this](Message *message) { on_receive_f3(message); };
+  on_read_message = [this](MessagePtr message) {
+    on_receive_f3(std::move(message));
+  };
 }
 
-void Connection::on_receive_f3(Message *msg) {
+void Connection::on_receive_f3(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake2) {
-    delete msg;
     throw MessageParsingError("invalid handshake message, expect f3");
   }
 }

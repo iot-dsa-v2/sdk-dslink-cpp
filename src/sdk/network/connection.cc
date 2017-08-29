@@ -51,8 +51,6 @@ void Connection::close_in_strand(shared_ptr_<Connection> &&connection) {
   ]() mutable { connection->close(*lock); });
 }
 
-
-
 bool Connection::valid_handshake_header(StaticHeaders &header,
                                         size_t expected_size,
                                         MessageType expected_type) {
@@ -72,11 +70,9 @@ void Connection::reset_standard_deadline_timer() {
   }));
 }
 
-void Connection::post_message(Message *message) {
+void Connection::post_message(MessagePtr &&message) {
   if (_session != nullptr) {
-    _session->receive_message(message);
-  } else {
-    delete message;
+    _session->receive_message(std::move(message));
   }
 }
 }  // namespace dsa

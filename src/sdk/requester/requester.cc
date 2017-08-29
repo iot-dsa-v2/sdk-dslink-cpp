@@ -3,7 +3,7 @@
 #include "requester.h"
 
 namespace dsa {
-void Requester::receive_message(intrusive_ptr_<Message> message){
+void Requester::receive_message(MessagePtr &&message) {
 
 }
 }

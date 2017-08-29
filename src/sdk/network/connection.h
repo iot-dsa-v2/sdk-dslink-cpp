@@ -7,7 +7,7 @@
 
 #include "core/link_strand.h"
 #include "crypto/handshake_context.h"
-#include "message/static_headers.h"
+#include "message/base_message.h"
 #include "util/util.h"
 
 namespace dsa {
@@ -77,7 +77,7 @@ class Connection : public SharedClosable<Connection> {
 
   static void close_in_strand(shared_ptr_<Connection> &&connection);
 
-  std::function<void(Message *)> on_read_message;
+  std::function<void(MessagePtr)> on_read_message;
   std::function<void()> on_read_message_error;
 
   // as client
@@ -129,8 +129,6 @@ class Connection : public SharedClosable<Connection> {
   //  virtual void read_loop(size_t from_prev, const boost::system::error_code
   //  &error, size_t bytes_transferred) = 0;
 
-
-
   static bool valid_handshake_header(StaticHeaders &header,
                                      size_t expected_size,
                                      MessageType expected_type);
@@ -141,14 +139,14 @@ class Connection : public SharedClosable<Connection> {
 
   void reset_standard_deadline_timer();
 
-  void post_message(Message *message);
+  void post_message(MessagePtr &&msg);
 
   // server connection
  protected:
   void on_server_connect() throw(const std::runtime_error &);
 
-  void on_receive_f0(Message *msg);
-  void on_receive_f2(Message *msg);
+  void on_receive_f0(MessagePtr &&msg);
+  void on_receive_f2(MessagePtr &&msg);
 
   // handshake functions
   bool parse_f0(size_t size);
@@ -163,8 +161,8 @@ class Connection : public SharedClosable<Connection> {
   void on_client_connect() throw(const std::runtime_error &);
 
   void start_client_f0();
-  void on_receive_f1(Message *msg);
-  void on_receive_f3(Message *msg);
+  void on_receive_f1(MessagePtr &&msg);
+  void on_receive_f3(MessagePtr &&msg);
 
   // handshake functions
   bool parse_f1(size_t size);

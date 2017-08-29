@@ -14,12 +14,11 @@
 #define DEBUG 0
 
 namespace dsa {
-TcpServerConnection::TcpServerConnection(LinkStrandPtr & strand,
+TcpServerConnection::TcpServerConnection(LinkStrandPtr &strand,
                                          uint32_t handshake_timeout_ms,
                                          const std::string &dsid_prefix,
                                          const std::string &path)
-    : TcpConnection(strand, handshake_timeout_ms, dsid_prefix,
-                    path) {}
+    : TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path) {}
 
 void TcpServerConnection::accept() {
 #if 0
@@ -32,33 +31,28 @@ void TcpServerConnection::accept() {
                                    boost::asio::placeholders::error));
 #endif
 
-
   // TODO: when a new version is not compatible with v 2.0
   // f1 will need to be sent after f0 is received to check version
   HandshakeF1Message f1;
   f1.dsid = _handshake_context.dsid();
   f1.public_key = _handshake_context.public_key();
   f1.salt = _handshake_context.salt();
-  f1.size(); // calculate size
+  f1.size();  // calculate size
   f1.write(_write_buffer.data());
 
-  write(
-    _write_buffer.data(),
-    f1.size(), [sthis = shared_from_this()](
-      const boost::system::error_code &err) mutable {
-      if (err != boost::system::errc::success) {
-        Connection::close_in_strand(std::move(sthis));
-      }
-    });
+  write(_write_buffer.data(),
+        f1.size(), [sthis = shared_from_this()](
+                       const boost::system::error_code &err) mutable {
+          if (err != boost::system::errc::success) {
+            Connection::close_in_strand(std::move(sthis));
+          }
+        });
 
-
-  on_read_message = [this](Message * message){
-    on_receive_f0(message);
+  on_read_message = [this](MessagePtr message) {
+    on_receive_f0(std::move(message));
   };
   TcpConnection::start_read(share_this<TcpServerConnection>(), 0, 0);
 }
-
-
 
 void TcpServerConnection::f2_received(const boost::system::error_code &error,
                                       size_t bytes_transferred) {

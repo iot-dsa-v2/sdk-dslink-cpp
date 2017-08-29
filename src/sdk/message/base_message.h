@@ -14,17 +14,15 @@ namespace dsa {
 
 class Message : public EnableIntrusive<Message> {
  public:
-  enum : size_t {
-    MAX_MESSAGE_SIZE = 65536
-  };
+  enum : size_t { MAX_MESSAGE_SIZE = 65536 };
 
   static const uint8_t PublicKeyLength = 65;
   static const uint8_t SaltLength = 32;
   static const uint8_t AuthLength = 32;
 
  public:
-  static Message* parse_message(const uint8_t* data, size_t size) throw(
-      const MessageParsingError&);
+  static intrusive_ptr_<Message> parse_message(
+      const uint8_t* data, size_t size) throw(const MessageParsingError&);
 
  public:
   explicit Message(const uint8_t* data, size_t size);
@@ -44,7 +42,9 @@ class Message : public EnableIntrusive<Message> {
   void set_page_id(int32_t value);
 
   MessageType type() const { return static_headers.type; }
-  bool is_request() const { return static_cast<uint8_t>(static_headers.type) < 0x80; }
+  bool is_request() const {
+    return static_cast<uint8_t>(static_headers.type) < 0x80;
+  }
 
   uint32_t request_id() const { return static_headers.request_id; }
 
@@ -62,7 +62,6 @@ class Message : public EnableIntrusive<Message> {
   std::unique_ptr<DynamicIntHeader> page_id;
 };
 typedef intrusive_ptr_<Message> MessagePtr;
-
 
 class PagedMessageMixin {
  public:
@@ -119,9 +118,8 @@ class ResponseMessage : public Message {
   void set_status(MessageStatus value);
 };
 
-
 class MessageStream : public IntrusiveClosable<MessageStream> {
-public:
+ public:
   virtual ~MessageStream() = default;
 
   virtual size_t peek_next_message_size(size_t available) = 0;

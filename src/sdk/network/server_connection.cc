@@ -24,20 +24,19 @@ void Connection::on_server_connect() throw(const std::runtime_error &) {
       });
 }
 
-void Connection::on_receive_f0(Message *msg) {
+void Connection::on_receive_f0(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake0) {
-    delete msg;
     throw MessageParsingError("invalid handshake message, expect f0");
   }
-  HandshakeF0Message *f0 = static_cast<HandshakeF0Message*>(msg);
-  this->_handshake_context.set_remote(std::move(f0->dsid), std::move(f0->public_key), std::move(f0->salt));
-  on_read_message = [this](Message * message){
-    on_receive_f2(message);
+  HandshakeF0Message *f0 = static_cast<HandshakeF0Message *>(msg.get());
+  this->_handshake_context.set_remote(
+      std::move(f0->dsid), std::move(f0->public_key), std::move(f0->salt));
+  on_read_message = [this](MessagePtr message) {
+    on_receive_f2(std::move(message));
   };
 }
-void Connection::on_receive_f2(Message *msg) {
+void Connection::on_receive_f2(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake2) {
-    delete msg;
     throw MessageParsingError("invalid handshake message, expect f2");
   }
 }
@@ -56,8 +55,8 @@ bool Connection::parse_f0(size_t size) {
   data += StaticHeaders::TotalSize;
   uint8_t dsid_length;
 
-//  _dsa_version_major = *data++;
-//  _dsa_version_minor = *data++;
+  //  _dsa_version_major = *data++;
+  //  _dsa_version_minor = *data++;
   dsid_length = *data++;
 
   if ((data - _write_buffer.data()) + dsid_length + PublicKeyLength + 1 +
