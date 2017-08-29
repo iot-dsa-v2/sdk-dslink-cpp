@@ -22,7 +22,7 @@ static uint16_t read_16_t(const uint8_t* data) {
 }
 
 static uint32_t read_32_t(const uint8_t* data) {
-  uint16_t result;
+  uint32_t result;
   memcpy(&result, data, sizeof(uint32_t));
   return result;
 }
