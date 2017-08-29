@@ -90,3 +90,36 @@ TEST(VariantTest, InitilizerList__Map) {
   EXPECT_TRUE(map["bool"].is_bool());
   EXPECT_EQ(true, map["bool"].get_bool());
 }
+
+
+TEST(VariantTest, InitilizerList__NestedMap) {
+  Variant v{{"string", Variant("hello")}, 
+{"int", Variant(123)}, 
+  {"map", {{"first", Variant("one")},
+       {"second", Variant("two")} } } };
+
+  EXPECT_TRUE(v.is_map());
+
+  VariantMap& map = v.get_map();
+
+  EXPECT_EQ(3, map.size());
+
+  EXPECT_TRUE(map["string"].is_string());
+  EXPECT_EQ("hello", map["string"].get_string());
+
+  EXPECT_TRUE(map["int"].is_int());
+  EXPECT_EQ(123, map["int"].get_int());
+
+  EXPECT_TRUE(map["map"].is_map());
+  
+  VariantMap& nested_map = map["map"].get_map();
+
+  EXPECT_EQ(2, nested_map.size());
+
+  EXPECT_TRUE(nested_map["first"].is_string());
+  EXPECT_EQ("one", nested_map["first"].get_string());
+
+  EXPECT_TRUE(nested_map["second"].is_string());
+  EXPECT_EQ("two", nested_map["second"].get_string());
+
+}
