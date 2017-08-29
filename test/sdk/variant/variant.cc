@@ -4,7 +4,7 @@
 using namespace dsa;
 
 TEST(VariantTest, BaseTest) {
-{
+  {
     Variant v;
     EXPECT_TRUE(v.is_null());
   }
@@ -51,4 +51,42 @@ TEST(VariantTest, BinaryTest) {
 
   const std::vector<uint8_t>& vec = v.get_binary();
   EXPECT_EQ(vec[1], 1);
+}
+
+TEST(VariantTest, InitializerList__Array) {
+  Variant v{Variant("hello"), Variant(123), Variant(true)};
+
+  EXPECT_TRUE(v.is_array());
+
+  VariantArray& vec = v.get_array();
+
+  EXPECT_EQ(3, vec.size());
+
+  EXPECT_TRUE(vec[0].is_string());
+  EXPECT_EQ("hello", vec[0].get_string());
+
+  EXPECT_TRUE(vec[1].is_int());
+  EXPECT_EQ(123, vec[1].get_int());
+
+  EXPECT_TRUE(vec[2].is_bool());
+  EXPECT_EQ(true, vec[2].get_bool());
+}
+
+TEST(VariantTest, InitilizerList__Map) {
+  Variant v{{"string", Variant("hello")}, {"int", Variant(123)}, {"bool", Variant(true)}};
+
+  EXPECT_TRUE(v.is_map());
+
+  VariantMap& map = v.get_map();
+
+  EXPECT_EQ(3, map.size());
+
+  EXPECT_TRUE(map["string"].is_string());
+  EXPECT_EQ("hello", map["string"].get_string());
+
+  EXPECT_TRUE(map["int"].is_int());
+  EXPECT_EQ(123, map["int"].get_int());
+
+  EXPECT_TRUE(map["bool"].is_bool());
+  EXPECT_EQ(true, map["bool"].get_bool());
 }
