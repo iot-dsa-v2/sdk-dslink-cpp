@@ -227,7 +227,7 @@ TEST(MessageTest, HandshakeF3) {
       std::vector<uint8_t>(client_salt, client_salt + sizeof(client_salt));
   hmac.update(salt_buffer);
 
-  message.other_auth = hmac.digest();
+  message.auth = hmac.digest();
 
   // Update header_size and message_size
   message.update_static_header_ext();
