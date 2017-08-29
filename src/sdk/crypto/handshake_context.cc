@@ -3,8 +3,8 @@
 #include "handshake_context.h"
 
 #include "hash.h"
-#include "misc.h"
 #include "hmac.h"
+#include "misc.h"
 
 namespace dsa {
 
@@ -30,6 +30,8 @@ void HandshakeContext::set_remote(std::string &&dsid,
                                   std::vector<uint8_t> &&public_key,
                                   std::vector<uint8_t> &&salt) {
   _remote_dsid = std::move(dsid);
+  _remote_public_key = std::move(public_key);
+  _remote_salt = std::move(salt);
 }
 
 void HandshakeContext::compute_secret() {

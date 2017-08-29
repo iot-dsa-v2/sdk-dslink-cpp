@@ -32,7 +32,7 @@ class HandshakeContext {
   };
   const std::vector<uint8_t> &salt() const { return _salt; };
   const std::string &dsid() const { return _dsid; };
-
+  const std::string &remote_dsid() const { return _remote_dsid; };
   const std::vector<uint8_t> &auth() const { return _auth; };
   const std::vector<uint8_t> &remote_auth() const { return _remote_auth; };
 

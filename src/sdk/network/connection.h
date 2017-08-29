@@ -106,14 +106,7 @@ class Connection : public SharedClosable<Connection> {
 
   void close_impl() override;
 
-  std::vector<uint8_t> _shared_secret;
-  std::vector<uint8_t> _other_public_key;
-  std::vector<uint8_t> _other_salt;
-  std::vector<uint8_t> _auth;
-  std::vector<uint8_t> _auth_check;
-  std::vector<uint8_t> _other_auth;
   std::string _session_id;
-  std::string _other_dsid;
   std::string _path;
   std::string _token;
   std::string _other_token;

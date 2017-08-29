@@ -15,7 +15,7 @@ HandshakeF3Message::HandshakeF3Message(const uint8_t* data, size_t size)
 }
 
 HandshakeF3Message::HandshakeF3Message()
-    : Message(MessageType::Handshake3), other_auth(AuthLength) {}
+    : Message(MessageType::Handshake3), auth(AuthLength) {}
 
 void HandshakeF3Message::update_static_header() {
   static_headers.header_size = (uint16_t)StaticHeaders::TotalSize;
@@ -27,14 +27,14 @@ void HandshakeF3Message::update_static_header() {
 void HandshakeF3Message::write_dynamic_data(uint8_t* data) const {
   data += write_str_with_len(data, session_id);
   data += write_str_with_len(data, path);
-  data = std::copy(other_auth.begin(), other_auth.end(), data);
+  data = std::copy(auth.begin(), auth.end(), data);
 }
 
 void HandshakeF3Message::parse_dynamic_headers(
     const uint8_t* data, size_t size) throw(const MessageParsingError&) {
   data += read_str_with_len(data, session_id);
   data += read_str_with_len(data, path);
-  other_auth.assign(data, data + AuthLength);
+  auth.assign(data, data + AuthLength);
 }
 
 }  // namespace dsa

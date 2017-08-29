@@ -79,26 +79,24 @@ void TcpClientConnection::connect() {
 //                  Connection::share_this<TcpClientConnection>(),
 //                  boost::asio::placeholders::error));
 //}
-
-
-void TcpClientConnection::f3_received(const boost::system::error_code &error,
-                                      size_t bytes_transferred) {
-  // start standard dsa 1 minute timeout
-  reset_standard_deadline_timer();
-
-  if (!error && parse_f3(bytes_transferred)) {
-    try {
-      Connection::on_client_connect();
-    } catch (const std::runtime_error &error) {
-#if DEBUG
-      std::stringstream ss;
-      ss << "[TcpClientConnection::f3_received] Error: " << error << std::endl;
-      std::cerr << ss.str();
-#endif
-      close();
-    }
-  } else {
-    close();
-  }
-}
+//void TcpClientConnection::f3_received(const boost::system::error_code &error,
+//                                      size_t bytes_transferred) {
+//  // start standard dsa 1 minute timeout
+//  reset_standard_deadline_timer();
+//
+//  if (!error && parse_f3(bytes_transferred)) {
+//    try {
+//      Connection::on_client_connect();
+//    } catch (const std::runtime_error &error) {
+//#if DEBUG
+//      std::stringstream ss;
+//      ss << "[TcpClientConnection::f3_received] Error: " << error << std::endl;
+//      std::cerr << ss.str();
+//#endif
+//      close();
+//    }
+//  } else {
+//    close();
+//  }
+//}
 }  // namespace dsa

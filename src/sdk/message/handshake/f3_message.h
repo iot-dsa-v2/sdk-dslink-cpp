@@ -10,7 +10,7 @@ class HandshakeF3Message : public Message {
  public:
   std::string session_id;
   std::string path;
-  std::vector<uint8_t> other_auth;
+  std::vector<uint8_t> auth;
 
   HandshakeF3Message(const uint8_t* data, size_t size);
   HandshakeF3Message();
