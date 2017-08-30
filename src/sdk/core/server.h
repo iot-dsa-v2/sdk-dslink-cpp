@@ -30,11 +30,11 @@ class Server : public SharedClosable<Server> {
   //  void on_session_connected(const intrusive_ptr_ <Session> session);
 
   void close_impl() override;
-  
- public:
-  enum Protocol { TCP };
 
+ public:
   explicit Server(WrapperConfig &config);
+
+  boost::asio::strand *asio_strand() { return (*_strand)(); }
 
   LinkStrand &get_strand() const { return *_strand; }
   uint32_t get_handshake_timeout_ms() const { return _handshake_timeout_ms; }

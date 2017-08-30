@@ -27,13 +27,14 @@ class Client : public SharedClosable<Client> {
  public:
   Client(WrapperConfig &config);
 
+  boost::asio::strand *asio_strand() { return (*_strand)(); }
+
   LinkStrand &get_strand() const { return *_strand; }
   uint32_t get_handshake_timeout_ms() const { return handshake_timeout_ms; }
   const std::string &get_dsid_prefix() const { return _dsid_prefix; }
   const std::string &get_client_token() const { return _client_token; }
 
   virtual void connect() = 0;
-  
 };
 
 }  // namespace dsa

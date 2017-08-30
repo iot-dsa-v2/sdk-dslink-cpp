@@ -17,7 +17,7 @@ TcpConnection::TcpConnection(LinkStrandPtr &strand,
                              const std::string &dsid_prefix,
                              const std::string &path)
     : Connection(strand, handshake_timeout_ms, dsid_prefix, path),
-      _socket((*strand)().get_io_service()) {}
+      _socket((*strand)()->get_io_service()) {}
 
 void TcpConnection::close_impl() {
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");
@@ -121,19 +121,6 @@ void TcpConnection::write(const uint8_t *data, size_t size,
       });
 }
 
-void TcpConnection::start() throw() {
-  if (_session == nullptr) {
-    close();
-    throw std::runtime_error("Error: connection started with no session");
-  }
-
-  name();
-
-  //  _socket.async_read_some(
-  //      boost::asio::buffer(_write_buffer->data(), _write_buffer->capacity()),
-  //      boost::bind(&TcpConnection::read_loop, share_this<TcpConnection>(), 0,
-  //                  boost::asio::placeholders::error, 0));
-}
 
 tcp_socket &TcpConnection::socket() { return _socket; }
 

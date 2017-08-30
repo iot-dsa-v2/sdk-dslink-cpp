@@ -7,29 +7,19 @@
 #include "client.h"
 #include "server.h"
 
-#define DEBUG true
-
 namespace dsa {
 
-Session::Session(LinkStrandPtr &strand, const std::string &session_id,
-                 const shared_ptr_<Connection> &connection)
+Session::Session(LinkStrandPtr &strand, const std::string &session_id)
     : _strand(strand),
       _session_id(session_id),
-      _connection(connection),
       requester(*this),
       responder(*this) {}
 
-void Session::start() const {
-  if (_connection == nullptr)
-    throw std::runtime_error("Session started without connection");
-
-#if DEBUG
-  std::stringstream ss;
-  ss << _connection->name() << " -> Session::start()" << std::endl;
-  std::cout << ss.str();
-#endif
-
-  _connection->start();
+void Session::connected(shared_ptr_<Connection> connection) {
+  if (_connection != nullptr) {
+    _connection->close();
+  }
+  _connection = std::move(connection);
 }
 
 void Session::close_impl() {
@@ -38,7 +28,11 @@ void Session::close_impl() {
   }
 }
 
-void Session::connection_closed() { _connection.reset(); }
+void Session::disconnected(const shared_ptr_<Connection> &connection) {
+  if (_connection.get() == connection.get()) {
+    _connection.reset();
+  }
+}
 
 void Session::receive_message(MessagePtr &&message) {
   if (message->is_request()) {
@@ -114,7 +108,7 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
       total_size, [sthis = std::move(sthis)](
                       const boost::system::error_code &error) mutable {
         LinkStrandPtr strand = sthis->_strand;
-        (*strand)().dispatch([sthis = std::move(sthis)]() mutable {
+        (*strand)()->dispatch([sthis = std::move(sthis)]() mutable {
           Session::write_loop(std::move(sthis));
         });
       });

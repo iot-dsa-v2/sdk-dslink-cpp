@@ -10,10 +10,15 @@
 
 namespace dsa {
 
-void Connection::on_client_connect() throw(const std::runtime_error &) {
-  if (_session == nullptr)
+void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
+    const std::runtime_error &) {
+  if (connection->_session == nullptr) {
+    LOG_CRITICAL(connection->_strand->logger(),
+                 "no session attached to client connection");
     throw std::runtime_error("no session attached to client connection");
-  _session->start();
+  }
+  Session *session = connection->_session.get();
+  session->connected(std::move(connection));
 }
 void Connection::start_client_f0() {
   HandshakeF0Message f0;
@@ -64,7 +69,6 @@ void Connection::on_receive_f1(MessagePtr &&msg) {
           }
         });
 
-  
   on_read_message = [this](MessagePtr message) {
     on_receive_f3(std::move(message));
   };
@@ -80,8 +84,8 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f3->auth.begin())) {
-    (*_strand)().post([sthis=shared_from_this()](){
-      sthis->on_client_connect();
+    (*_strand)()->post([sthis = shared_from_this()]() mutable {
+      on_client_connect(std::move(sthis));
     });
   }
 }
@@ -90,7 +94,7 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 //// Handshake Functions
 /////////////////////////
 //
-//bool Connection::parse_f1(size_t size) {
+// bool Connection::parse_f1(size_t size) {
 //  if (size < MinF1Length) return false;
 //
 //  const uint8_t *data = _write_buffer.data();
@@ -110,7 +114,8 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 //      size)
 //    return false;
 //
-//  data += _other_dsid.assign(reinterpret_cast<const char *>(data), dsid_length)
+//  data += _other_dsid.assign(reinterpret_cast<const char *>(data),
+//  dsid_length)
 //              .size();
 //
 //  _other_public_key.assign(data, data + PublicKeyLength);
@@ -122,7 +127,7 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 //  return data == _write_buffer.data() + size;
 //}
 //
-//bool Connection::parse_f3(size_t size) {
+// bool Connection::parse_f3(size_t size) {
 //  if (size < MinF3Length) return false;
 //
 //  const uint8_t *data = _write_buffer.data();
@@ -165,7 +170,7 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 //}
 //
 //// Handshake load functions
-//size_t Connection::load_f0(std::vector<uint8_t> &buf) {
+// size_t Connection::load_f0(std::vector<uint8_t> &buf) {
 //  uint16_t dsid_length =
 //      static_cast<uint16_t>(_handshake_context.dsid().size());
 //
@@ -173,7 +178,8 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 //  buf.resize(MinF0Length + _handshake_context.dsid().size());
 //
 //  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake0, 0,
+//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake0,
+//  0,
 //                       0);
 //  uint8_t *data = buf.data();
 //  header.write(data);
@@ -196,7 +202,7 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 //  return size;
 //}
 //
-//size_t Connection::load_f2(std::vector<uint8_t> &buf) {
+// size_t Connection::load_f2(std::vector<uint8_t> &buf) {
 //  auto token_length = (uint16_t)_client_token.size();
 //  auto sid_length = (uint16_t)_previous_session_id.size();
 //
@@ -204,7 +210,8 @@ void Connection::on_receive_f3(MessagePtr &&msg) {
 //  buf.resize(MinF2Length + token_length);
 //
 //  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake2, 0,
+//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake2,
+//  0,
 //                       0);
 //  uint8_t *data = buf.data();
 //  header.write(data);

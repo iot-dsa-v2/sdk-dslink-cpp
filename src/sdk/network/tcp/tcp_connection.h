@@ -39,9 +39,6 @@ class TcpConnection : public Connection {
   void write(const uint8_t *data, size_t size, WriteHandler &&callback) override;
 
   tcp_socket &socket();
-
-
-  void start() throw() override;
 };
 
 }  // namespace dsa

@@ -31,7 +31,7 @@ class LinkStrand : public EnableIntrusive<LinkStrand> {
 
   virtual ~LinkStrand();
 
-  Strand &operator()() { return *__strand; }
+  Strand * operator()() { return __strand; }
 
   SecurityManager &security_manager() { return *__security_manager; };
 

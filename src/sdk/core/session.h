@@ -40,26 +40,21 @@ class Session : public IntrusiveClosable<Session> {
 
   static void write_loop(intrusive_ptr_<Session> sthis);
 
-  void connection_closed();
   void receive_message(MessagePtr &&message);
 
  public:
   Requester requester;
   Responder responder;
 
-  Session(LinkStrandPtr &strand, const std::string &session_id,
-          const shared_ptr_<Connection> &connection = nullptr);
+  Session(LinkStrandPtr &strand, const std::string &session_id);
 
   const std::string &dsid() const { return _dsid; }
   const std::string &session_id() const { return _session_id; }
 
-  void start() const;
+  void connected(shared_ptr_<Connection> connection);
+  void disconnected(const shared_ptr_<Connection> &connection);
 
   void close_impl() override;
-
-  void set_connection(const shared_ptr_<Connection> &connection) {
-    _connection = connection;
-  };
 
   intrusive_ptr_<Session> get_intrusive() { return intrusive_this(); }
   void add_ready_stream(intrusive_ptr_<MessageStream> stream);

@@ -41,28 +41,6 @@ class Connection : public SharedClosable<Connection> {
     PublicKeyLength = 65,
     SaltLength = 32,
     AuthLength = 32,
-    MinF0Length = StaticHeaders::TotalSize + 2 +  // client dsa version
-                  1 +                             // client dsid length
-                  1 +                             // client dsid content
-                  PublicKeyLength +               // client public key
-                  1 +                             // client security preference
-                  SaltLength,                     // client salt
-    MinF1Length = StaticHeaders::TotalSize + 1 +  // broker dsid length
-                  1 +                             // broker dsid content
-                  PublicKeyLength +               // broker public key
-                  SaltLength,                     // broker salt
-    MinF2Length = StaticHeaders::TotalSize + 2 +  // client token length
-                  0 +                             // client token content
-                  1 +                             // client is requester
-                  1 +                             // client is responder
-                  2 +                             // client session id length
-                  0 +                             // client session id
-                  AuthLength,                     // client auth
-    MinF3Length = StaticHeaders::TotalSize + 2 +  // session id length
-                  1 +                             // session id content
-                  2 +                             // client path length
-                  1 +                             // client path content
-                  AuthLength,                     // broker auth
   };
 
  protected:
@@ -76,8 +54,6 @@ class Connection : public SharedClosable<Connection> {
   virtual void write(const uint8_t *data, size_t size,
                      WriteHandler &&callback) = 0;
 
-  static void close_in_strand(shared_ptr_<Connection> &&connection);
-
   std::function<void(MessagePtr)> on_read_message;
   std::function<void()> on_read_message_error;
   boost::mutex read_loop_mutex;
@@ -87,11 +63,11 @@ class Connection : public SharedClosable<Connection> {
   // as server
   virtual void accept();
 
-  virtual void start() noexcept = 0;
   const std::string &dsid() { return _handshake_context.dsid(); }
 
   void set_session(const intrusive_ptr_<Session> &session);
 
+  boost::asio::strand * asio_strand(){return (*_strand)();}
  protected:
   Connection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
              const std::string &dsid_prefix, const std::string &path = "");
@@ -147,7 +123,7 @@ class Connection : public SharedClosable<Connection> {
  protected:
   std::string _client_token;
 
-  void on_client_connect() throw(const std::runtime_error &);
+  static void on_client_connect(shared_ptr_<Connection> connection) throw(const std::runtime_error &);
 
   void start_client_f0();
   void on_receive_f1(MessagePtr &&msg);

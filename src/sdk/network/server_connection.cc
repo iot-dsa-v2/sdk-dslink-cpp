@@ -67,7 +67,7 @@ void Connection::on_receive_f2(MessagePtr &&msg) {
 
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f2->auth.begin())) {
-    (*_strand)().post([ msg, this, sthis = shared_from_this() ]() mutable {
+    (*_strand)()->post([ msg, this, sthis = shared_from_this() ]() mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token, f2->session_id,
@@ -75,8 +75,7 @@ void Connection::on_receive_f2(MessagePtr &&msg) {
             sthis = std::move(sthis) ](const intrusive_ptr_<Session> &session) {
             if (session != nullptr) {
               _session = session;
-              _session->set_connection(shared_from_this());
-              _session->start();
+              _session->connected(shared_from_this());
 
               HandshakeF3Message f3;
               f3.auth = _handshake_context.auth();

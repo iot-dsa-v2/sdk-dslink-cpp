@@ -5,6 +5,7 @@
 
 #include <valarray>
 
+#include <boost/asio/strand.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
@@ -49,6 +50,7 @@ class SharedClosable : public EnableShared<T> {
 
  protected:
   virtual void close_impl(){};
+  virtual boost::asio::strand * asio_strand() = 0;
 
  public:
   boost::shared_mutex mutex;
@@ -64,6 +66,19 @@ class SharedClosable : public EnableShared<T> {
   void close() {
     boost::unique_lock<boost::shared_mutex> lock(mutex);
     close(lock);
+  }
+
+  static void close_in_strand(shared_ptr_<SharedClosable<T>> closable) {
+    SharedClosable<T> *raw_ptr = closable.get();
+    // obtain the lock before dispatch to strand to reduce the load on main
+    // strand
+    raw_ptr->asio_strand()->dispatch([
+      closable = std::move(closable),
+      // because asio require callback to be copy constructable, lock can't be
+      // directly used, and we need shared_ptr
+      lock = std::make_shared<boost::unique_lock<boost::shared_mutex>>(
+          raw_ptr->mutex)
+    ]() mutable { closable->close(*lock); });
   }
 };
 }  // namespace dsa

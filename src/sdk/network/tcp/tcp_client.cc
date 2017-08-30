@@ -10,7 +10,6 @@ TcpClient::TcpClient(WrapperConfig &config)
   _connection = make_shared_<TcpClientConnection>(
       config.strand, config.handshake_timeout_ms, config.dsid_prefix,
       config.tcp_host, config.tcp_port);
-  _session = make_intrusive_<Session>(config.strand, "", _connection);
   _connection->set_session(_session);
 }
 

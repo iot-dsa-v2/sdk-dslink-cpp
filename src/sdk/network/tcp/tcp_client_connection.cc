@@ -26,7 +26,7 @@ TcpClientConnection::TcpClientConnection(LinkStrandPtr &strand,
 void TcpClientConnection::connect() {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver((*_strand)().get_io_service());
+  tcp::resolver resolver((*_strand)()->get_io_service());
   // TODO: timeout
   _socket.async_connect(
       *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
