@@ -78,7 +78,7 @@ std::string base64_url_convert(const std::string &str) {
         break;
       case '=':
         out.resize(idx);
-        break;
+        return std::move(out);
       default:;
     }
   }
