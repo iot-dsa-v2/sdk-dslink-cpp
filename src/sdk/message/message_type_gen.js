@@ -139,6 +139,7 @@ const messages = {
             new ByteHeader('AliasCount'),
             new StringHeader('TargetPath'),
             new StringHeader('PermissionToken'),
+            new BoolHeader('NoStream'),
         ],
         Subscribe: [
             new BoolHeader('Priority'),
