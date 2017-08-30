@@ -2,7 +2,7 @@
 #define DSA_SDK_CONNECTION_H_
 
 #include <boost/asio/deadline_timer.hpp>
-#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/mutex.hpp>
 #include <functional>
 #include <utility>
 
