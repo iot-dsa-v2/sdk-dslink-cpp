@@ -177,7 +177,7 @@ TEST(MessageTest, SetRequest__no_stream) {
 }
 
 TEST(MessageTest, SetRequest__write) {
-  SetRequestMessageExt request;
+  SetRequestMessage request;
 
   request.set_target_path("path/to/dsa");
   request.set_no_stream(true);
@@ -187,10 +187,44 @@ TEST(MessageTest, SetRequest__write) {
   uint8_t buf[1024];
   request.write(buf);
 
-  uint8_t expected_values[] = {0x1d, 0x0,  0x0,  0x0,  0x1d, 0x0,  0x4,  0x0,
+  uint8_t expected_values[] = {0x1e, 0x0,  0x0,  0x0,  0x1e, 0x0,  0x4,  0x0,
                                0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x80,
                                0x0b, 0x0,  0x70, 0x61, 0x74, 0x68, 0x2f, 0x74,
-                               0x6f, 0x2f, 0x64, 0x73, 0x61};
+                               0x6f, 0x2f, 0x64, 0x73, 0x61, 0x11};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
+}
+
+TEST(MessageTest, SetRequest__dynamic_structure) {
+  SetRequestMessage request;
+
+  //    request.set_status(MessageStatus::Closed);
+  request.set_sequence_id(1234);  // no effect
+  request.set_page_id(4321);      // no effect
+  request.set_alias_count(11);
+  request.set_priority(true);
+  //      request.set_no_stream(); // TODO: TBI
+  //      request.set_qos(1); //
+  //      request.set_queue_size();
+  //      request.set_queue_time();
+  //      request.set_base_path();
+  //      request.skippable();
+  //      request.set_max_permission();
+  request.set_permission_token("ptoken");
+  request.set_target_path("/target/path");
+  //    request.set_source_path("/source/path");  // no effect
+
+  request.size();
+
+  uint8_t buf[1024];
+  request.write(buf);
+
+  uint8_t expected_values[] = {
+      0x2f, 0x0,  0x0,  0x0,  0x2f, 0x0,  0x04, 0x0,  0x0,  0x0,  0x0,  0x0,
+      0x0,  0x0,  0x0,  0x10, 0x02, 0xe1, 0x10, 0x0,  0x0,  0x08, 0x0b, 0x80,
+      0x0c, 0x0,  0x2f, 0x74, 0x61, 0x72, 0x67, 0x65, 0x74, 0x2f, 0x70, 0x61,
+      0x74, 0x68, 0x60, 0x06, 0x0,  0x70, 0x74, 0x6f, 0x6b, 0x65, 0x6e};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
@@ -239,7 +273,7 @@ TEST(MessageTest, SetResponse__status) {
 }
 
 TEST(MessageTest, SetResponse__write) {
-  SetResponseMessageExt response;
+  SetResponseMessage response;
 
   response.set_source_path("source/path");
   response.set_status(MessageStatus::Busy);
@@ -251,6 +285,37 @@ TEST(MessageTest, SetResponse__write) {
 
   uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x84, 0x0, 0x0,
                                0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x28};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
+}
+
+TEST(MessageTest, SetResponse__dynamic_structure) {
+  SetResponseMessage response;
+
+  response.set_status(MessageStatus::Closed);
+  response.set_sequence_id(1234);  // no effect
+  response.set_page_id(4321);      // no effect
+                                   //  response.set_alias_count(11);
+                                   //  response.set_priority(0x80); // TODO: TBI
+                                   //  response.set_no_stream();
+                                   //  response.set_qos(1); //
+                                   //  response.set_queue_size();
+                                   //  response.set_queue_time();
+                                   //  response.set_base_path();
+                                   //  response.skippable();
+                                   //  response.set_max_permission();
+                                   //  response.set_permission_token();
+                                   //  response.set_target_path("/target/path");
+  response.set_source_path("/source/path");  // no effect
+
+  response.size();
+
+  uint8_t buf[1024];
+  response.write(buf);
+
+  uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x84, 0x0, 0x0,
+                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x10};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
