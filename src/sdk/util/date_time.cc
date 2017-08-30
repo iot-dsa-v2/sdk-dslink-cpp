@@ -6,6 +6,10 @@
 #include <iomanip>
 #include <sstream>
 
+#if _MSC_VER
+#define localtime_r localtime_s
+#endif
+
 namespace dsa {
 
 thread_local std::chrono::milliseconds _last_ms{0};
