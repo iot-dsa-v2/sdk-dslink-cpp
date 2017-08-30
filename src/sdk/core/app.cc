@@ -2,7 +2,6 @@
 
 #include "app.h"
 
-
 namespace dsa {
 
 //////////////
@@ -25,7 +24,7 @@ void run_worker_thread(const shared_ptr_<boost::asio::io_service> &io_service) {
       boost::system::error_code err;
       io_service->run(err);
 
-      if (err != nullptr) {
+      if (err != boost::system::errc::success) {
         // TODO: log error message to file?
       } else {
         return;
@@ -67,5 +66,7 @@ void App::force_stop() {
   _work.reset();
   _io_service->stop();
 }
+
+bool App::is_stopped() { return _io_service->stopped(); }
 
 }  // namespace dsa

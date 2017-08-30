@@ -46,6 +46,9 @@ class App {
   // halts jobs and stops io_service
   void force_stop();
 
+
+  bool is_stopped();
+
   // wait forever or until all worker threads fail
   void wait();
 

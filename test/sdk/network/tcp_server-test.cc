@@ -53,11 +53,19 @@ TEST(TcpServerTest, SingleStrand) {
     Client::close_in_strand(clients[i]);
   }
 
-  //
-  //  app.sleep(500);
-  //  // TODO: check if app has pending jobs
-  //
   app.close();
+  for (int i = 0; i < 10; ++i) {
+    app.sleep(50);
+    if (app.is_stopped()){
+      break;
+    }
+  }
+
+  EXPECT_TRUE(app.is_stopped());
+
+  if (!app.is_stopped()){
+    app.force_stop();
+  }
 
   app.wait();
 }
@@ -110,12 +118,19 @@ TEST(TcpServerTest, MultiStrand) {
     Client::close_in_strand(clients[i]);
   }
 
-  //
-  //  app.sleep(500);
-  //  // TODO: check if app has pending jobs
-  //
-
   app.close();
+  for (int i = 0; i < 10; ++i) {
+    app.sleep(50);
+    if (app.is_stopped()){
+      break;
+    }
+  }
+
+  EXPECT_TRUE(app.is_stopped());
+
+  if (!app.is_stopped()){
+    app.force_stop();
+  }
 
   app.wait();
 }
