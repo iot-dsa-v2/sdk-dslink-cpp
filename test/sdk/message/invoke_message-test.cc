@@ -179,7 +179,7 @@ TEST(MessageTest, InvokeRequest__no_stream) {
 }
 
 TEST(MessageTest, InvokeRequest__write) {
-  InvokeRequestMessageExt request;
+  InvokeRequestMessage request;
 
   request.set_target_path("path/to/dsa");
   request.set_no_stream(true);
@@ -241,9 +241,9 @@ TEST(MessageTest, InvokeResponse__status) {
 }
 
 TEST(MessageTest, InvokeResponse__write) {
-  InvokeResponseMessageExt response;
+  InvokeResponseMessage response;
 
-  response.set_source_path("source/path");
+  response.set_source_path("source/path"); // no effect
   response.set_status(MessageStatus::Busy);
 
   response.size();
