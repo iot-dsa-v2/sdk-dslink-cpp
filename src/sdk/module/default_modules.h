@@ -10,8 +10,7 @@ class ECDH;
 class DefaultModules :public LinkConfig{
 
  public:
-  DefaultModules(App &app);
-  DefaultModules(App &app, boost::asio::io_service::strand * security_strand);
+  DefaultModules(App &app, bool async = false);
 };
 
 }  // namespace dsa

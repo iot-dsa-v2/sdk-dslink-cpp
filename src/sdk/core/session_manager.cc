@@ -17,7 +17,7 @@ void SessionManager::get_session(const std::string &dsid,
       dsid, auth_token, [ =, callback = std::move(callback) ](
                             const ClientInfo client, bool error) mutable {
         if (error) {
-          callback(intrusive_ptr_<Session>()); // return nullptr
+          callback(intrusive_ptr_<Session>());  // return nullptr
           return;
         }
         if (_sessions.count(session_id) != 0) {
@@ -39,7 +39,7 @@ std::string SessionManager::get_new_session_id() {
   return std::move(hash.digest_base64());
 }
 
-void SessionManager::end_all_sessions() {
+void SessionManager::close() {
   for (auto &kv : _sessions) {
     if (kv.second != nullptr) {
       kv.second->close();

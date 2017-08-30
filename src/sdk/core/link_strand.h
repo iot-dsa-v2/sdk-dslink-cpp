@@ -16,12 +16,11 @@ class Logger;
 typedef boost::asio::io_service::strand Strand;
 
 class LinkStrand : public EnableIntrusive<LinkStrand> {
- private:
+ protected:
   // managed pointer by LinkStrand
   Strand *__strand = nullptr;
   ECDH *__ecdh = nullptr;
 
- protected:
   SecurityManager *__security_manager = nullptr;
   NodeStateManager *__state_manager = nullptr;
   SessionManager *__session_manager = nullptr;

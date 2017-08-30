@@ -11,7 +11,7 @@
 
 namespace dsa {
 
-//void Connection::on_server_connect() throw(const std::runtime_error &) {
+// void Connection::on_server_connect() throw(const std::runtime_error &) {
 //  // setup session now that client session id has been parsed
 //  _strand->session_manager().get_session(
 //      _other_dsid, _other_token, _session_id,
@@ -27,7 +27,8 @@ namespace dsa {
 //      });
 //}
 
-void Connection::on_receive_f0(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
+void Connection::on_receive_f0(MessagePtr &&msg,
+                               boost::upgrade_lock<boost::shared_mutex> &lock) {
   if (msg->type() != MessageType::Handshake0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
@@ -51,11 +52,13 @@ void Connection::on_receive_f0(MessagePtr &&msg, boost::upgrade_lock<boost::shar
           }
         });
   boost::upgrade_to_unique_lock<boost::shared_mutex> lock_read_loop(lock);
-  on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
+  on_read_message = [this](MessagePtr message,
+                           boost::upgrade_lock<boost::shared_mutex> &lock) {
     on_receive_f2(std::move(message), lock);
   };
 }
-void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
+void Connection::on_receive_f2(MessagePtr &&msg,
+                               boost::upgrade_lock<boost::shared_mutex> &lock) {
   if (msg->type() != MessageType::Handshake2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
@@ -65,37 +68,45 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f2->auth.begin())) {
-    _strand->session_manager().get_session(
-        _handshake_context.remote_dsid(), f2->token, f2->session_id,
-        [ this, sthis = shared_from_this() ](const intrusive_ptr_<Session> &session) {
-          if (session != nullptr) {
-            _session = session;
-            _session->set_connection(shared_from_this());
-            _session->start();
+    (*_strand)().post([msg, this, sthis = shared_from_this()]() mutable {
+      auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
+      _strand->session_manager().get_session(
+          _handshake_context.remote_dsid(), f2->token, f2->session_id, [
+            this, sthis=std::move(sthis)
+          ](const intrusive_ptr_<Session> &session) {
+            if (session != nullptr) {
+              _session = session;
+              _session->set_connection(shared_from_this());
+              _session->start();
 
-            HandshakeF3Message f3;
-            f3.auth = _handshake_context.auth();
-            f3.session_id = _session->session_id();
+              HandshakeF3Message f3;
+              f3.auth = _handshake_context.auth();
+              f3.session_id = _session->session_id();
 
-            f3.size();  // calculate size
-            f3.write(_write_buffer.data());
+              f3.size();  // calculate size
+              f3.write(_write_buffer.data());
 
-            write(_write_buffer.data(),
+              write(
+                  _write_buffer.data(),
                   f3.size(), [sthis = shared_from_this()](
                                  const boost::system::error_code &err) mutable {
                     if (err != boost::system::errc::success) {
                       Connection::close_in_strand(std::move(sthis));
                     }
                   });
-            boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
-            on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
-              post_message(std::move(message));
-            };
+              boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
+              on_read_message = [this](
+                  MessagePtr message,
+                  boost::upgrade_lock<boost::shared_mutex> &lock) {
+                post_message(std::move(message));
+              };
 
-          } else {
-            close();
-          }
-        });
+            } else {
+              close();
+            }
+          });
+
+    });
 
   } else {
     Connection::close_in_strand(shared_from_this());
@@ -103,7 +114,7 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 }
 
 /////////////////////////_write_buffer->data
-//bool Connection::parse_f0(size_t size) {
+// bool Connection::parse_f0(size_t size) {
 //  if (size < MinF0Length) return false;
 //
 //  const uint8_t *data = _write_buffer.data();
@@ -125,7 +136,8 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 //      size)
 //    return false;
 //
-//  data += _other_dsid.assign(reinterpret_cast<const char *>(data), dsid_length)
+//  data += _other_dsid.assign(reinterpret_cast<const char *>(data),
+//  dsid_length)
 //              .size();
 //  _other_public_key.assign(data, data + PublicKeyLength);
 //  data += _other_public_key.size();
@@ -139,7 +151,7 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 //  return data == _write_buffer.data() + size;
 //}
 //
-//bool Connection::parse_f2(size_t size) {
+// bool Connection::parse_f2(size_t size) {
 //  if (size < MinF2Length) return false;
 //
 //  const uint8_t *data = _write_buffer.data();
@@ -182,7 +194,7 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 //  return data == _write_buffer.data() + size;
 //}
 //
-//size_t Connection::load_f1(std::vector<uint8_t> &buf) {
+// size_t Connection::load_f1(std::vector<uint8_t> &buf) {
 //  uint16_t dsid_length =
 //      static_cast<uint16_t>(_handshake_context.dsid().size());
 //
@@ -190,7 +202,8 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 //  buf.resize(MinF1Length + dsid_length);
 //
 //  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake1, 0,
+//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake1,
+//  0,
 //                       0);
 //  uint8_t *data = buf.data();
 //  header.write(data);
@@ -209,7 +222,7 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 //  return size;
 //}
 //
-//size_t Connection::load_f3(std::vector<uint8_t> &buf) {
+// size_t Connection::load_f3(std::vector<uint8_t> &buf) {
 //  auto sid_length = (uint16_t)_session_id.size();
 //  auto path_length = (uint16_t)_path.size();
 //
@@ -217,7 +230,8 @@ void Connection::on_receive_f2(MessagePtr &&msg, boost::upgrade_lock<boost::shar
 //  buf.resize(MinF2Length + sid_length);
 //
 //  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake3, 0,
+//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake3,
+//  0,
 //                       0);
 //  uint8_t *data = buf.data();
 //  header.write(data);

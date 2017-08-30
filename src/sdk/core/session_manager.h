@@ -32,7 +32,8 @@ public:
                    GetSessionCallback &&callback);
 
   std::string get_new_session_id();
-  void end_all_sessions();
+
+  void close();
 };
 
 }  // namespace dsa

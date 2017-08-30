@@ -2,14 +2,15 @@
 #define DSA_SDK_CONFIG_H_
 
 #include "link_strand.h"
+#include "module/logger.h"
 #include "module/security_manager.h"
 #include "responder/node_state_manager.h"
 #include "session_manager.h"
-#include "module/logger.h"
 
 namespace dsa {
 
 class LinkConfig : public LinkStrand {
+ protected:
   // modules
   shared_ptr_<SecurityManager> _security_manager = nullptr;
   shared_ptr_<NodeStateManager> _state_manager = nullptr;

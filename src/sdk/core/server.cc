@@ -10,7 +10,7 @@ Server::Server(WrapperConfig & config)
     : _strand(config.strand) {}
 
 void Server::close_impl() {
-  _strand->session_manager().end_all_sessions();
+  _strand->session_manager().close();
   _strand.reset();
 }
 
