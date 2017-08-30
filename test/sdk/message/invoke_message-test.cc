@@ -198,6 +198,33 @@ TEST(MessageTest, InvokeRequest__write) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
+TEST(MessageTest, InvokeRequest__dynamic_structure) {
+  InvokeRequestMessage request;
+
+  request.set_sequence_id(1234);
+  request.set_page_id(4321);
+  request.set_alias_count(11);
+  request.set_priority(true);
+  request.set_no_stream(true);
+  //  request.set_max_permission(); // TODO : TBI
+  request.set_permission_token("ptoken");
+  request.set_target_path("/target/path");
+
+  request.size();
+
+  uint8_t buf[1024];
+  request.write(buf);
+
+  uint8_t expected_values[] = {
+      0x30, 0x0,  0x0,  0x0,  0x30, 0x0,  0x03, 0x0,  0x0,  0x0,  0x0,  0x0,
+      0x0,  0x0,  0x0,  0x10, 0x02, 0xe1, 0x10, 0x0,  0x0,  0x08, 0x0b, 0x80,
+      0x0c, 0x0,  0x2f, 0x74, 0x61, 0x72, 0x67, 0x65, 0x74, 0x2f, 0x70, 0x61,
+      0x74, 0x68, 0x60, 0x06, 0x0,  0x70, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x11};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
+}
+
 TEST(MessageTest, InvokeResponse__Constructor) {
   InvokeResponseMessage response;
 
@@ -253,6 +280,29 @@ TEST(MessageTest, InvokeResponse__write) {
 
   uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x83, 0x0, 0x0,
                                0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x28};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
+}
+
+TEST(MessageTest, InvokeResponse__dynamic_structure) {
+  InvokeResponseMessage response;
+
+  response.set_status(MessageStatus::Closed);
+  response.set_sequence_id(1234);
+  response.set_page_id(4321);
+  //  response.skippable(true); // TODO: TBI
+  response.set_source_path("/source/path");  // no effect
+
+  response.size();
+
+  uint8_t buf[1024];
+  response.write(buf);
+
+  uint8_t expected_values[] = {0x1b, 0x0,  0x0,  0x0,  0x1b, 0x0,  0x83, 0x0,
+                               0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
+                               0x10, 0x01, 0xd2, 0x04, 0x0,  0x0,  0x02, 0xe1,
+                               0x10, 0x0,  0x0};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
