@@ -116,7 +116,7 @@ TEST(HandshakeTest, ClientInfo) {
   Hash hash("sha256");
   hash.update(ecdh.get_public_key());
 
-  EXPECT_EQ("TTDXtL-U_NQ2sgFRU5w0HrZVib2D-O4CxXQrKk4hUsI", base64url(hash.digest_base64()));
+  EXPECT_EQ("TTDXtL-U_NQ2sgFRU5w0HrZVib2D-O4CxXQrKk4hUsI", base64_url_convert(hash.digest_base64()));
 
   // Shared secret
   char server_private_key[] = "82848ef9d9204097a98a8c393e06aac9cb9a1ba3cdabf772f4ca7e6899b9f277";
@@ -166,7 +166,7 @@ TEST(HandshakeTest, ServerInfo) {
   Hash hash("sha256");
   hash.update(ecdh.get_public_key());
 
-  EXPECT_EQ("g675gaSQogzMxjJFvL7HsCbyS8B0Ly2_Abhkw_-g4iI", base64url(hash.digest_base64()));
+  EXPECT_EQ("g675gaSQogzMxjJFvL7HsCbyS8B0Ly2_Abhkw_-g4iI", base64_url_convert(hash.digest_base64()));
 
   // Shared secret
   char client_private_key[] = "55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da538c2787c3a4dc59";

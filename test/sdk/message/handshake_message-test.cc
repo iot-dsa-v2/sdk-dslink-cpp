@@ -48,7 +48,7 @@ TEST(MessageTest, HandshakeF0) {
   Hash hash("sha256");
   hash.update(client_public_key);
 
-  message.dsid = "mylink-" + base64url(hash.digest_base64());
+  message.dsid = "mylink-" + base64_url_convert(hash.digest_base64());
 
   // Client public _key
   message.public_key = client_public_key;
@@ -94,7 +94,7 @@ TEST(MessageTest, HandshakeF1) {
   Hash hash("sha256");
   hash.update(broker_public_key);
 
-  message.dsid = "broker-" + base64url(hash.digest_base64());
+  message.dsid = "broker-" + base64_url_convert(hash.digest_base64());
 
   // Broker public _key
   message.public_key = broker_public_key;

@@ -94,21 +94,21 @@ TEST(Base64Test, Base64URL) {
   {
     std::string s("=123");
 
-    EXPECT_EQ("", base64url(s));
+    EXPECT_EQ("", base64_url_convert(s));
   }
   {
     std::string s("123==");
 
-    EXPECT_EQ("123", base64url(s));
+    EXPECT_EQ("123", base64_url_convert(s));
   }
   {
     std::string s("1+2+3==");
 
-    EXPECT_EQ("1-2-3", base64url(s));
+    EXPECT_EQ("1-2-3", base64_url_convert(s));
   }
   {
     std::string s("1////23==");
 
-    EXPECT_EQ("1____23", base64url(s));
+    EXPECT_EQ("1____23", base64_url_convert(s));
   }
 }
