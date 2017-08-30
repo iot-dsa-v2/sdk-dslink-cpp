@@ -3,9 +3,9 @@
 
 using namespace dsa;
 
-class SetRequestMessageExt : public SetRequestMessage {
+class InvokeRequestMessageExt : public InvokeRequestMessage {
  public:
-  SetRequestMessageExt() : SetRequestMessage() {}
+  InvokeRequestMessageExt() : InvokeRequestMessage() {}
 
   bool check_static_headers(uint8_t *expected_values, size_t size) {
     uint8_t buf[1024];
@@ -15,9 +15,9 @@ class SetRequestMessageExt : public SetRequestMessage {
   }
 };
 
-class SetResponseMessageExt : public SetResponseMessage {
+class InvokeResponseMessageExt : public InvokeResponseMessage {
  public:
-  SetResponseMessageExt() : SetResponseMessage() {}
+  InvokeResponseMessageExt() : InvokeResponseMessage() {}
 
   bool check_static_headers(uint8_t *expected_values, size_t size) {
     uint8_t buf[1024];
@@ -27,16 +27,16 @@ class SetResponseMessageExt : public SetResponseMessage {
   }
 };
 
-TEST(MessageTest, SetRequest__Constructor_01) {
+TEST(MessageTest, InvokeRequest__Constructor_01) {
   // public methods
-  // SetRequestMessage();
+  // InvokeRequestMessage();
 
-  SetRequestMessage request;
+  InvokeRequestMessage request;
 
   EXPECT_EQ(15, request.size());
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, request.type());
+  EXPECT_EQ(MessageType::InvokeRequest, request.type());
   EXPECT_EQ(true, request.is_request());
   EXPECT_EQ(0, request.request_id());
 
@@ -47,16 +47,16 @@ TEST(MessageTest, SetRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, SetRequest__Constructor_02) {
-  //   SetRequestMessage(const SetRequestMessage&);
+TEST(MessageTest, InvokeRequest__Constructor_02) {
+  //   InvokeRequestMessage(const InvokeRequestMessage&);
 
-  const SetRequestMessage src__request;
-  SetRequestMessage target__request(src__request);
+  const InvokeRequestMessage src__request;
+  InvokeRequestMessage target__request(src__request);
 
   EXPECT_EQ(15, target__request.size());
   EXPECT_EQ(0, target__request.get_sequence_id());
   EXPECT_EQ(0, target__request.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, target__request.type());
+  EXPECT_EQ(MessageType::InvokeRequest, target__request.type());
   EXPECT_EQ(true, target__request.is_request());
   EXPECT_EQ(0, target__request.request_id());
 
@@ -71,23 +71,21 @@ TEST(MessageTest, SetRequest__Constructor_02) {
 
   EXPECT_EQ("", src__request.get_target_path());
   EXPECT_EQ(target_path, target__request.get_target_path());
-
-  EXPECT_EQ(29, target__request.size());
 }
 
-TEST(MessageTest, SetRequest__Constructor_03) {
-  //   SetRequestMessage(const uint8_t* data, size_t size);
+TEST(MessageTest, InvokeRequest__Constructor_03) {
+  //   InvokeRequestMessage(const uint8_t* data, size_t size);
 
-  const uint8_t data[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0, 0x4, 0x0,
+  const uint8_t data[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0, 0x3, 0x0,
                           0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
   size_t data_size = sizeof(data) / sizeof(uint8_t);
 
-  SetRequestMessage request(data, data_size);
+  InvokeRequestMessage request(data, data_size);
 
   EXPECT_EQ(15, request.size());
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, request.type());
+  EXPECT_EQ(MessageType::InvokeRequest, request.type());
   EXPECT_EQ(true, request.is_request());
   EXPECT_EQ(0, request.request_id());
 
@@ -96,14 +94,18 @@ TEST(MessageTest, SetRequest__Constructor_03) {
   EXPECT_EQ("", request.get_permission_token());
   EXPECT_EQ(false, request.get_no_stream());
   EXPECT_EQ(0, request.get_alias_count());
+
+  uint8_t buf[1024];
+  request.size();
+  request.write(buf);
 }
 
-TEST(MessageTest, SetRequest__Constructor_04) {
-  //   SetRequestMessage(const uint8_t* data, size_t size);
+TEST(MessageTest, InvokeRequest__Constructor_04) {
+  //   InvokeRequestMessage(const uint8_t* data, size_t size);
 
-  SetRequestMessage request;
+  InvokeRequestMessage request;
   request.set_target_path("/request");
-  SetRequestMessage other = request;
+  InvokeRequestMessage other = request;
   EXPECT_EQ("/request", other.get_target_path());
   other.set_target_path("/other");
   EXPECT_EQ("/request", request.get_target_path());
@@ -112,7 +114,7 @@ TEST(MessageTest, SetRequest__Constructor_04) {
   EXPECT_EQ(24, other.size());
   EXPECT_EQ(0, other.get_sequence_id());
   EXPECT_EQ(0, other.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, other.type());
+  EXPECT_EQ(MessageType::InvokeRequest, other.type());
   EXPECT_EQ(true, other.is_request());
   EXPECT_EQ(0, other.request_id());
 
@@ -123,18 +125,18 @@ TEST(MessageTest, SetRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
-TEST(MessageTest, SetRequest__get_set_options) {
-  //   SetOptions get_set_options() const;
+TEST(MessageTest, InvokeRequest__get_set_options) {
+  //   InvokeOptions get_invoke_options() const;
 
-  SetRequestMessage request;
-  SetOptions option = request.get_set_options();
+  InvokeRequestMessage request;
+  InvokeOptions option = request.get_invoke_options();
 
   EXPECT_EQ(1, sizeof(option));
 }
 
-TEST(MessageTest, SetRequest__update_static_header) {
+TEST(MessageTest, InvokeRequest__update_static_header) {
   // void update_static_header();
-  SetRequestMessageExt request;
+  InvokeRequestMessageExt request;
   request.size();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
@@ -143,41 +145,41 @@ TEST(MessageTest, SetRequest__update_static_header) {
                 expect_values, sizeof(expect_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SetRequest__priority) {
-  SetRequestMessage request;
+TEST(MessageTest, InvokeRequest__priority) {
+  InvokeRequestMessage request;
 
   EXPECT_EQ(false, request.get_priority());
   request.set_priority(true);
   EXPECT_EQ(true, request.get_priority());
 }
 
-TEST(MessageTest, SetRequest__target_path) {
-  SetRequestMessage request;
+TEST(MessageTest, InvokeRequest__target_path) {
+  InvokeRequestMessage request;
 
   EXPECT_EQ("", request.get_target_path());
   request.set_target_path("path/to/node");
   EXPECT_EQ("path/to/node", request.get_target_path());
 }
 
-TEST(MessageTest, SetRequest__permission_token) {
+TEST(MessageTest, InvokeRequest__permission_token) {
   // TODO: to be implemented
-  SetRequestMessage request;
+  InvokeRequestMessage request;
 
   EXPECT_EQ("", request.get_permission_token());
   request.set_permission_token("permission-token");
   EXPECT_EQ("permission-token", request.get_permission_token());
 }
 
-TEST(MessageTest, SetRequest__no_stream) {
-  SetRequestMessage request;
+TEST(MessageTest, InvokeRequest__no_stream) {
+  InvokeRequestMessage request;
 
   EXPECT_EQ(false, request.get_no_stream());
   request.set_no_stream(true);
   EXPECT_EQ(true, request.get_no_stream());
 }
 
-TEST(MessageTest, SetRequest__write) {
-  SetRequestMessageExt request;
+TEST(MessageTest, InvokeRequest__write) {
+  InvokeRequestMessageExt request;
 
   request.set_target_path("path/to/dsa");
   request.set_no_stream(true);
@@ -187,36 +189,36 @@ TEST(MessageTest, SetRequest__write) {
   uint8_t buf[1024];
   request.write(buf);
 
-  uint8_t expected_values[] = {0x1d, 0x0,  0x0,  0x0,  0x1d, 0x0,  0x4,  0x0,
+  uint8_t expected_values[] = {0x1e, 0x0,  0x0,  0x0,  0x1e, 0x0,  0x3,  0x0,
                                0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x80,
                                0x0b, 0x0,  0x70, 0x61, 0x74, 0x68, 0x2f, 0x74,
-                               0x6f, 0x2f, 0x64, 0x73, 0x61};
+                               0x6f, 0x2f, 0x64, 0x73, 0x61, 0x11};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SetResponse__Constructor) {
-  SetResponseMessage response;
+TEST(MessageTest, InvokeResponse__Constructor) {
+  InvokeResponseMessage response;
 
   EXPECT_EQ(15, response.size());
   EXPECT_EQ(0, response.get_sequence_id());
   EXPECT_EQ(0, response.get_page_id());
-  EXPECT_EQ(MessageType::SetResponse, response.type());
+  EXPECT_EQ(MessageType::InvokeResponse, response.type());
   EXPECT_EQ(false, response.is_request());
   EXPECT_EQ(0, response.request_id());
 }
 
-TEST(MessageTest, SetResponse__source_path) {
-  SetResponseMessage response;
+TEST(MessageTest, InvokeResponse__source_path) {
+  InvokeResponseMessage response;
 
   EXPECT_EQ("", response.get_source_path());
   response.set_source_path("/source/path");
   EXPECT_EQ("/source/path", response.get_source_path());
 }
 
-TEST(MessageTest, SetResponse__status) {
-  SetResponseMessage response;
+TEST(MessageTest, InvokeResponse__status) {
+  InvokeResponseMessage response;
 
   static const MessageStatus message_status_all[]{
       MessageStatus::Ok,
@@ -238,8 +240,8 @@ TEST(MessageTest, SetResponse__status) {
   }
 }
 
-TEST(MessageTest, SetResponse__write) {
-  SetResponseMessageExt response;
+TEST(MessageTest, InvokeResponse__write) {
+  InvokeResponseMessageExt response;
 
   response.set_source_path("source/path");
   response.set_status(MessageStatus::Busy);
@@ -249,7 +251,7 @@ TEST(MessageTest, SetResponse__write) {
   uint8_t buf[1024];
   response.write(buf);
 
-  uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x84, 0x0, 0x0,
+  uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x83, 0x0, 0x0,
                                0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x28};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
