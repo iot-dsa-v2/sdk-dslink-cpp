@@ -1,6 +1,6 @@
-#include "core/link_strand.h"
-#include "core/config.h"
 #include "dsa/network.h"
+
+#include <atomic>
 
 #include "network/tcp/tcp_client.h"
 #include "network/tcp/tcp_server.h"
@@ -8,8 +8,6 @@
 #include "module/default_modules.h"
 
 #include "gtest/gtest.h"
-
-#include <iostream>
 
 using namespace dsa;
 
@@ -26,25 +24,40 @@ TEST(TcpServerTest, SingleStrand) {
   auto tcp_server = make_shared_<TcpServer>(config);
   tcp_server->start();
 
+  const uint32_t NUM_CLIENT = 2;
+
   std::vector<shared_ptr_<TcpClient>> clients;
-  for (unsigned int i = 0; i < 2; ++i) {
-    shared_ptr_<TcpClient> tcp_client(
-        new TcpClient(config));
+  for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
+    shared_ptr_<TcpClient> tcp_client(new TcpClient(config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
 
-  app.sleep(2000);
-
-  tcp_server->close();
-  for (unsigned int i = 0; i < 2; ++i) {
-    clients[i]->close();
+  std::atomic_bool all_connected{false};
+  while (!all_connected) {
+    (*config.strand)()->dispatch([&]() {
+      bool result = true;
+      for (auto& client : clients) {
+        if (!client->get_session().is_connected()) {
+          result = false;
+          break;
+        }
+      }
+      all_connected = result;
+    });
+    app.sleep(50);
   }
 
-  app.sleep(500);
-  // TODO: check if app has pending jobs
+  Server::close_in_strand(tcp_server);
+  for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
+    Client::close_in_strand(clients[i]);
+  }
 
-  app.force_stop();
+  //
+  //  app.sleep(500);
+  //  // TODO: check if app has pending jobs
+  //
+  app.close();
 
   app.wait();
 }
@@ -59,7 +72,7 @@ TEST(TcpServerTest, MultiStrand) {
 
   app.async_start(10);
 
-//  auto tcp_server(new TcpServer(server_config));
+  //  auto tcp_server(new TcpServer(server_config));
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
@@ -68,24 +81,41 @@ TEST(TcpServerTest, MultiStrand) {
   client_config.tcp_port = 8092;
   client_config.strand = make_intrusive_<DefaultModules>(app);
 
+  const uint32_t NUM_CLIENT = 2;
+
   std::vector<shared_ptr_<TcpClient>> clients;
-  for (unsigned int i = 0; i < 2; ++i) {
-    shared_ptr_<TcpClient> tcp_client(
-        new TcpClient(client_config));
+  for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
+    shared_ptr_<TcpClient> tcp_client(new TcpClient(client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
 
-  app.sleep(2000);
-
-  tcp_server->close();
-  for (unsigned int i = 0; i < 2; ++i) {
-    clients[i]->close();
+  std::atomic_bool all_connected{false};
+  while (!all_connected) {
+    (*client_config.strand)()->dispatch([&]() {
+      bool result = true;
+      for (auto& client : clients) {
+        if (!client->get_session().is_connected()) {
+          result = false;
+          break;
+        }
+      }
+      all_connected = result;
+    });
+    app.sleep(50);
   }
 
-  app.sleep(500);
-  // TODO: check if app has pending jobs
-  app.force_stop();
+  Server::close_in_strand(tcp_server);
+  for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
+    Client::close_in_strand(clients[i]);
+  }
+
+  //
+  //  app.sleep(500);
+  //  // TODO: check if app has pending jobs
+  //
+
+  app.close();
 
   app.wait();
 }

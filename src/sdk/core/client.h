@@ -29,6 +29,8 @@ class Client : public SharedClosable<Client> {
 
   boost::asio::strand *asio_strand() { return (*_strand)(); }
 
+  Session &get_session() { return *_session; };
+
   LinkStrand &get_strand() const { return *_strand; }
   uint32_t get_handshake_timeout_ms() const { return handshake_timeout_ms; }
   const std::string &get_dsid_prefix() const { return _dsid_prefix; }
