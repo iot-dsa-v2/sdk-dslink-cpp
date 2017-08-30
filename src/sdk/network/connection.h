@@ -78,10 +78,9 @@ class Connection : public SharedClosable<Connection> {
 
   static void close_in_strand(shared_ptr_<Connection> &&connection);
 
-  std::function<void(MessagePtr, boost::upgrade_lock<boost::shared_mutex> &)>
-      on_read_message;
+  std::function<void(MessagePtr)> on_read_message;
   std::function<void()> on_read_message_error;
-  boost::shared_mutex read_loop_mutex;
+  boost::mutex read_loop_mutex;
 
   // as client
   virtual void connect();
@@ -141,10 +140,8 @@ class Connection : public SharedClosable<Connection> {
  protected:
   //  void on_server_connect() throw(const std::runtime_error &);
 
-  void on_receive_f0(MessagePtr &&msg,
-                     boost::upgrade_lock<boost::shared_mutex> &lock);
-  void on_receive_f2(MessagePtr &&msg,
-                     boost::upgrade_lock<boost::shared_mutex> &lock);
+  void on_receive_f0(MessagePtr &&msg);
+  void on_receive_f2(MessagePtr &&msg);
 
   // client connection
  protected:
@@ -153,10 +150,8 @@ class Connection : public SharedClosable<Connection> {
   void on_client_connect() throw(const std::runtime_error &);
 
   void start_client_f0();
-  void on_receive_f1(MessagePtr &&msg,
-                     boost::upgrade_lock<boost::shared_mutex> &lock);
-  void on_receive_f3(MessagePtr &&msg,
-                     boost::upgrade_lock<boost::shared_mutex> &lock);
+  void on_receive_f1(MessagePtr &&msg);
+  void on_receive_f3(MessagePtr &&msg);
 };
 
 }  // namespace dsa

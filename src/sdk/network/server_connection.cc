@@ -27,8 +27,7 @@ namespace dsa {
 //      });
 //}
 
-void Connection::on_receive_f0(MessagePtr &&msg,
-                               boost::upgrade_lock<boost::shared_mutex> &lock) {
+void Connection::on_receive_f0(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
@@ -51,14 +50,12 @@ void Connection::on_receive_f0(MessagePtr &&msg,
             Connection::close_in_strand(std::move(sthis));
           }
         });
-  boost::upgrade_to_unique_lock<boost::shared_mutex> lock_read_loop(lock);
-  on_read_message = [this](MessagePtr message,
-                           boost::upgrade_lock<boost::shared_mutex> &lock) {
-    on_receive_f2(std::move(message), lock);
+
+  on_read_message = [this](MessagePtr message) {
+    on_receive_f2(std::move(message));
   };
 }
-void Connection::on_receive_f2(MessagePtr &&msg,
-                               boost::upgrade_lock<boost::shared_mutex> &lock) {
+void Connection::on_receive_f2(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
@@ -66,14 +63,16 @@ void Connection::on_receive_f2(MessagePtr &&msg,
 
   auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
 
+  _handshake_context.compute_secret();
+
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f2->auth.begin())) {
-    (*_strand)().post([msg, this, sthis = shared_from_this()]() mutable {
+    (*_strand)().post([ msg, this, sthis = shared_from_this() ]() mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
-          _handshake_context.remote_dsid(), f2->token, f2->session_id, [
-            this, sthis=std::move(sthis)
-          ](const intrusive_ptr_<Session> &session) {
+          _handshake_context.remote_dsid(), f2->token, f2->session_id,
+          [ this,
+            sthis = std::move(sthis) ](const intrusive_ptr_<Session> &session) {
             if (session != nullptr) {
               _session = session;
               _session->set_connection(shared_from_this());
@@ -94,10 +93,8 @@ void Connection::on_receive_f2(MessagePtr &&msg,
                       Connection::close_in_strand(std::move(sthis));
                     }
                   });
-              boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
-              on_read_message = [this](
-                  MessagePtr message,
-                  boost::upgrade_lock<boost::shared_mutex> &lock) {
+              boost::lock_guard<boost::mutex> read_loop_lock(read_loop_mutex);
+              on_read_message = [this](MessagePtr message) {
                 post_message(std::move(message));
               };
 

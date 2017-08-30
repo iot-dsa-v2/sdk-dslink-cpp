@@ -7,11 +7,11 @@
 #include "util/buffer.h"
 
 namespace dsa {
-std::string base64url(std::string str);
+std::string base64_url_convert(const std::string &str);
 std::string base64_decode(std::string const &encoded_string);
 std::string base64_encode(unsigned char const *bytes_to_encode,
                           unsigned int in_len);
-std::vector<uint8_t> gen_salt(int len);
+void gen_salt(uint8_t *data, size_t len);
 std::string hex2bin(const char *src);
 }  // namespace dsa
 

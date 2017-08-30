@@ -21,6 +21,9 @@ class SessionManager {
       GetSessionCallback;
 
  private:
+  uint64_t _session_id_seed;
+  uint64_t _session_id_count = 0;
+
   std::map<std::string, intrusive_ptr_<Session>> _sessions;
 
   LinkStrandPtr _strand;

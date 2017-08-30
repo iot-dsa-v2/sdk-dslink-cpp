@@ -7,7 +7,9 @@
 #include "server.h"
 
 namespace dsa {
-SessionManager::SessionManager(LinkStrandPtr &strand) : _strand(strand) {}
+SessionManager::SessionManager(LinkStrandPtr &strand) : _strand(strand) {
+  gen_salt(reinterpret_cast<uint8_t *>(&_session_id_seed), sizeof(uint64_t));
+}
 
 void SessionManager::get_session(const std::string &dsid,
                                  const std::string &auth_token,
@@ -35,8 +37,14 @@ void SessionManager::get_session(const std::string &dsid,
 
 std::string SessionManager::get_new_session_id() {
   Hash hash("sha256");
-  hash.update(gen_salt(32));
-  return std::move(hash.digest_base64());
+
+  std::vector<uint8_t> data(16);
+  memcpy(&data[0], &_session_id_seed, sizeof(uint64_t));
+  memcpy(&data[8], &_session_id_count, sizeof(uint64_t));
+  _session_id_count++;
+
+  hash.update(data);
+  return std::move(base64_url_convert(hash.digest_base64()));
 }
 
 void SessionManager::close() {

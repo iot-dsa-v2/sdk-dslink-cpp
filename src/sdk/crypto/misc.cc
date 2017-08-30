@@ -2,10 +2,10 @@
 
 #include "misc.h"
 
-#include <openssl/rand.h>
 #include <openssl/bio.h>
-#include <openssl/evp.h>
 #include <openssl/buffer.h>
+#include <openssl/evp.h>
+#include <openssl/rand.h>
 
 static inline bool is_base64(uint8_t c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
@@ -19,7 +19,7 @@ static int char2int(char input) {
 }
 
 namespace dsa {
-std::string base64_encode(uint8_t const* bytes_to_encode, unsigned int in_len) {
+std::string base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len) {
   BIO *bio, *b64;
   BUF_MEM *bufferPtr;
 
@@ -41,7 +41,7 @@ std::string base64_encode(uint8_t const* bytes_to_encode, unsigned int in_len) {
   return ret;
 }
 
-std::string base64_decode(std::string const& encoded_string) {
+std::string base64_decode(std::string const &encoded_string) {
   size_t in_len = encoded_string.size();
   BIO *bio, *b64;
 
@@ -55,39 +55,37 @@ std::string base64_decode(std::string const& encoded_string) {
   BIO_read(b64, buffer, in_len);
   BIO_flush(b64);
 
-  std::string ret = std::string((const char*)buffer, in_len);
+  std::string ret = std::string((const char *)buffer, in_len);
 
-  delete [] buffer;
+  delete[] buffer;
 
   BIO_free_all(b64);
 
   return ret;
 }
 
-std::string base64url(std::string str) {
+std::string base64_url_convert(const std::string &str) {
   std::string out(str);
   size_t length = str.size();
 
-  for(size_t idx=0; idx<length; ++idx) {
-    switch(str[idx]) {
-    case '+':
-      out[idx] = '-';
-      break;
-    case '/':
-      out[idx] = '_';
-      break;
-    case '=':
-      out.resize(idx);
-      return out;
-    default:
-      ;
+  for (size_t idx = 0; idx < length; ++idx) {
+    switch (out[idx]) {
+      case '+':
+        out[idx] = '-';
+        break;
+      case '/':
+        out[idx] = '_';
+        break;
+      case '=':
+        out.resize(idx);
+        break;
+      default:;
     }
   }
-
-  return out;
+  return std::move(out);
 }
 
-std::string hex2bin(const char* src) {
+std::string hex2bin(const char *src) {
   std::stringstream out;
 
   int i = 0;
@@ -99,11 +97,5 @@ std::string hex2bin(const char* src) {
   return out.str();
 }
 
-std::vector<uint8_t> gen_salt(int len) {
-  std::vector<uint8_t> out;
-  out.reserve(len);
-  if (!RAND_bytes(out.data(), len))
-    throw std::runtime_error("Unable to generate salt");
-  return std::move(out);
-}
+void gen_salt(uint8_t *data, size_t len) { RAND_bytes(data, len); }
 }  // namespace dsa

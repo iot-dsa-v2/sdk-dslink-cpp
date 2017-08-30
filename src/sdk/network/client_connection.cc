@@ -6,6 +6,7 @@
 #include "message/handshake/f0_message.h"
 #include "message/handshake/f1_message.h"
 #include "message/handshake/f2_message.h"
+#include "message/handshake/f3_message.h"
 
 namespace dsa {
 
@@ -30,11 +31,11 @@ void Connection::start_client_f0() {
           }
         });
   boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
-  on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
-    on_receive_f1(std::move(message), lock);
+  on_read_message = [this](MessagePtr message) {
+    on_receive_f1(std::move(message));
   };
 }
-void Connection::on_receive_f1(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
+void Connection::on_receive_f1(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake1) {
     throw MessageParsingError("invalid handshake message, expect f1");
   }
@@ -63,17 +64,26 @@ void Connection::on_receive_f1(MessagePtr &&msg, boost::upgrade_lock<boost::shar
           }
         });
 
-  boost::upgrade_to_unique_lock<boost::shared_mutex> lock_read_loop(lock);
-  on_read_message = [this](MessagePtr message, boost::upgrade_lock<boost::shared_mutex>& lock) {
-    on_receive_f3(std::move(message),lock);
+  
+  on_read_message = [this](MessagePtr message) {
+    on_receive_f3(std::move(message));
   };
 }
 
-void Connection::on_receive_f3(MessagePtr &&msg, boost::upgrade_lock<boost::shared_mutex>& lock) {
+void Connection::on_receive_f3(MessagePtr &&msg) {
   if (msg->type() != MessageType::Handshake3) {
     throw MessageParsingError("invalid handshake message, expect f3");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f3 received");
+
+  auto *f3 = DOWN_CAST<HandshakeF3Message *>(msg.get());
+
+  if (std::equal(_handshake_context.remote_auth().begin(),
+                 _handshake_context.remote_auth().end(), f3->auth.begin())) {
+    (*_strand)().post([sthis=shared_from_this()](){
+      sthis->on_client_connect();
+    });
+  }
 }
 
 /////////////////////////

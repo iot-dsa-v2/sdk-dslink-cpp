@@ -11,7 +11,6 @@ class HandshakeContext {
  private:
   ECDH _ecdh;
 
-  std::vector<uint8_t> _public_key;
   std::vector<uint8_t> _salt;
   std::string _dsid;
   std::vector<uint8_t> _auth;
