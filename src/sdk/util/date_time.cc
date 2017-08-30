@@ -15,7 +15,10 @@ static void update_ts(std::chrono::system_clock::time_point now) {
   std::time_t t = std::chrono::system_clock::to_time_t(now);
   std::stringstream ss;
 
-  ss << std::put_time(std::localtime(&t), "%FT%T.000%z0");
+  tm localt;
+  localtime_r(&t, &localt);
+  ss << std::put_time(&localt, "%FT%T.000%z0");
+
   std::string str = ss.str();
 
   // set milli second;
