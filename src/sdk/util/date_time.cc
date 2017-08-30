@@ -7,7 +7,7 @@
 #include <sstream>
 
 #if _MSC_VER
-#define localtime_r localtime_s
+#define localtime_r(a,b) localtime_s(b,a)
 #endif
 
 namespace dsa {
