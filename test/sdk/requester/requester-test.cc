@@ -15,7 +15,7 @@ TEST(RequesterTest, BasicFlow) {
   WrapperConfig config;
   config.tcp_host = "127.0.0.1";
   config.tcp_port = 8090;
-  config.strand = make_intrusive_<DefaultModules>(app);
+  config.strand = make_ref_<DefaultModules>(app);
 
   app.async_start(2);
 
