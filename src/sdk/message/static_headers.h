@@ -8,12 +8,12 @@ namespace dsa {
 
 struct StaticHeaders {
   enum : size_t {
-    MessageSizeOffset = 0,
-    HeaderSizeOffset = MessageSizeOffset + sizeof(uint32_t),
-    TypeOffset = HeaderSizeOffset + sizeof(uint16_t),
-    RequestIdOffset = TypeOffset + sizeof(uint8_t),
-    AckIdOffset = RequestIdOffset + sizeof(uint32_t),
-    TotalSize = AckIdOffset + sizeof(uint32_t)
+    MESSAGE_SIZE_OFFSET = 0,
+    HEADER_SIZE_OFFSET = MESSAGE_SIZE_OFFSET + sizeof(uint32_t),
+    TYPE_OFFSET = HEADER_SIZE_OFFSET + sizeof(uint16_t),
+    REQUEST_ID_OFFSET = TYPE_OFFSET + sizeof(uint8_t),
+    ACK_ID_OFFSET = REQUEST_ID_OFFSET + sizeof(uint32_t),
+    TOTAL_SIZE = ACK_ID_OFFSET + sizeof(uint32_t)
   };
 
   uint32_t message_size;

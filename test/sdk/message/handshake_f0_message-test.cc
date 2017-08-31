@@ -29,30 +29,30 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   uint8_t expected_values[121];
 
   uint32_t message_size = 121;
-  uint16_t header_size = StaticHeaders::TotalSize;
+  uint16_t header_size = StaticHeaders::TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE0;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
 
-  std::memcpy(&expected_values[StaticHeaders::MessageSizeOffset], &message_size,
+  std::memcpy(&expected_values[StaticHeaders::MESSAGE_SIZE_OFFSET], &message_size,
               sizeof(uint32_t));
-  std::memcpy(&expected_values[StaticHeaders::HeaderSizeOffset], &header_size,
+  std::memcpy(&expected_values[StaticHeaders::HEADER_SIZE_OFFSET], &header_size,
               sizeof(uint16_t));
-  std::memcpy(&expected_values[StaticHeaders::TypeOffset], &type,
+  std::memcpy(&expected_values[StaticHeaders::TYPE_OFFSET], &type,
               sizeof(uint8_t));
-  std::memcpy(&expected_values[StaticHeaders::RequestIdOffset], &request_id,
+  std::memcpy(&expected_values[StaticHeaders::REQUEST_ID_OFFSET], &request_id,
               sizeof(request_id));
-  std::memcpy(&expected_values[StaticHeaders::AckIdOffset], &ack_id,
+  std::memcpy(&expected_values[StaticHeaders::ACK_ID_OFFSET], &ack_id,
               sizeof(ack_id));
 
-  uint8_t DsidLengthOffset = StaticHeaders::TotalSize + 2 * sizeof(uint8_t);
+  uint8_t DsidLengthOffset = StaticHeaders::TOTAL_SIZE + 2 * sizeof(uint8_t);
   uint8_t DsidOffset = DsidLengthOffset + sizeof(uint16_t);
   uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
   uint8_t SecurityPreferenceOffset = PublicKeyOffset + Message::PUBLIC_KEY_LENGTH;
   uint8_t SaltOffset = SecurityPreferenceOffset + sizeof(uint8_t);
 
-  expected_values[StaticHeaders::TotalSize] = 2;
-  expected_values[StaticHeaders::TotalSize + 1] = 0;
+  expected_values[StaticHeaders::TOTAL_SIZE] = 2;
+  expected_values[StaticHeaders::TOTAL_SIZE + 1] = 0;
   write_16_t(&expected_values[DsidLengthOffset], message.dsid.length());
 
   std::memcpy(&expected_values[DsidOffset], message.dsid.data(),

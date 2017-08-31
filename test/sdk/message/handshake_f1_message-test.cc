@@ -27,23 +27,23 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
   uint8_t expected_values[118];
 
   uint32_t message_size = 118;
-  uint16_t header_size = StaticHeaders::TotalSize;
+  uint16_t header_size = StaticHeaders::TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE1;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
 
-  std::memcpy(&expected_values[StaticHeaders::MessageSizeOffset], &message_size,
+  std::memcpy(&expected_values[StaticHeaders::MESSAGE_SIZE_OFFSET], &message_size,
               sizeof(uint32_t));
-  std::memcpy(&expected_values[StaticHeaders::HeaderSizeOffset], &header_size,
+  std::memcpy(&expected_values[StaticHeaders::HEADER_SIZE_OFFSET], &header_size,
               sizeof(uint16_t));
-  std::memcpy(&expected_values[StaticHeaders::TypeOffset], &type,
+  std::memcpy(&expected_values[StaticHeaders::TYPE_OFFSET], &type,
               sizeof(uint8_t));
-  std::memcpy(&expected_values[StaticHeaders::RequestIdOffset], &request_id,
+  std::memcpy(&expected_values[StaticHeaders::REQUEST_ID_OFFSET], &request_id,
               sizeof(request_id));
-  std::memcpy(&expected_values[StaticHeaders::AckIdOffset], &ack_id,
+  std::memcpy(&expected_values[StaticHeaders::ACK_ID_OFFSET], &ack_id,
               sizeof(ack_id));
 
-  uint8_t DsidLengthOffset = StaticHeaders::TotalSize;
+  uint8_t DsidLengthOffset = StaticHeaders::TOTAL_SIZE;
   uint8_t DsidOffset = DsidLengthOffset + sizeof(uint16_t);
   uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
   uint8_t SaltOffset = PublicKeyOffset + Message::PUBLIC_KEY_LENGTH;

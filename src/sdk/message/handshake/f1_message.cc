@@ -8,8 +8,8 @@ namespace dsa {
 
 HandshakeF1Message::HandshakeF1Message(const uint8_t* data, size_t size)
     : Message(data, size), public_key(PUBLIC_KEY_LENGTH), salt(SALT_LENGTH) {
-  parse_dynamic_headers(data + StaticHeaders::TotalSize,
-                        static_headers.header_size - StaticHeaders::TotalSize);
+  parse_dynamic_headers(data + StaticHeaders::TOTAL_SIZE,
+                        static_headers.header_size - StaticHeaders::TOTAL_SIZE);
 }
 
 HandshakeF1Message::HandshakeF1Message()
@@ -18,8 +18,8 @@ HandshakeF1Message::HandshakeF1Message()
       salt(SALT_LENGTH) {}
 
 void HandshakeF1Message::update_static_header() {
-  static_headers.header_size = (uint16_t)StaticHeaders::TotalSize;
-  static_headers.message_size = StaticHeaders::TotalSize + 2 /*dsidlen*/ +
+  static_headers.header_size = (uint16_t)StaticHeaders::TOTAL_SIZE;
+  static_headers.message_size = StaticHeaders::TOTAL_SIZE + 2 /*dsidlen*/ +
                                 dsid.length() + PUBLIC_KEY_LENGTH + SALT_LENGTH;
 }
 

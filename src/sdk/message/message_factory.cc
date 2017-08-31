@@ -19,11 +19,11 @@ namespace dsa {
 
 MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
     const MessageParsingError&) {
-  if (size < StaticHeaders::TotalSize) {
+  if (size < StaticHeaders::TOTAL_SIZE) {
     return nullptr;
   }
 
-  auto type = MessageType(data[StaticHeaders::TypeOffset]);
+  auto type = MessageType(data[StaticHeaders::TYPE_OFFSET]);
 
   switch (type) {
     case MessageType::SUBSCRIBE_REQUEST:

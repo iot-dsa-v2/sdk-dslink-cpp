@@ -10,8 +10,8 @@ namespace dsa {
 
 HandshakeF2Message::HandshakeF2Message(const uint8_t* data, size_t size)
     : Message(data, size) {
-  parse_dynamic_headers(data + StaticHeaders::TotalSize,
-                        static_headers.header_size - StaticHeaders::TotalSize);
+  parse_dynamic_headers(data + StaticHeaders::TOTAL_SIZE,
+                        static_headers.header_size - StaticHeaders::TOTAL_SIZE);
 }
 
 HandshakeF2Message::HandshakeF2Message()
@@ -21,9 +21,9 @@ HandshakeF2Message::HandshakeF2Message()
       auth(AUTH_LENGTH) {}
 
 void HandshakeF2Message::update_static_header() {
-  static_headers.header_size = (uint16_t)StaticHeaders::TotalSize;
+  static_headers.header_size = (uint16_t)StaticHeaders::TOTAL_SIZE;
   static_headers.message_size =
-      StaticHeaders::TotalSize +
+      StaticHeaders::TOTAL_SIZE +
       6 /* token_length, is_requester, is_responder, session_id_length */ +
       token.length() + session_id.length() + AUTH_LENGTH;
 }

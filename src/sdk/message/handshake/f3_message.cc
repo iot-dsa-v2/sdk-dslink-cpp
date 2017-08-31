@@ -10,17 +10,17 @@ namespace dsa {
 
 HandshakeF3Message::HandshakeF3Message(const uint8_t* data, size_t size)
     : Message(data, size) {
-  parse_dynamic_headers(data + StaticHeaders::TotalSize,
-                        static_headers.header_size - StaticHeaders::TotalSize);
+  parse_dynamic_headers(data + StaticHeaders::TOTAL_SIZE,
+                        static_headers.header_size - StaticHeaders::TOTAL_SIZE);
 }
 
 HandshakeF3Message::HandshakeF3Message()
     : Message(MessageType::HANDSHAKE3), auth(AUTH_LENGTH) {}
 
 void HandshakeF3Message::update_static_header() {
-  static_headers.header_size = (uint16_t)StaticHeaders::TotalSize;
+  static_headers.header_size = (uint16_t)StaticHeaders::TOTAL_SIZE;
   static_headers.message_size =
-      StaticHeaders::TotalSize + 4 /* session_id_length + path_length */ +
+      StaticHeaders::TOTAL_SIZE + 4 /* session_id_length + path_length */ +
       session_id.length() + path.length() + AUTH_LENGTH;
 }
 

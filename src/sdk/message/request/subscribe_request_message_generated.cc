@@ -87,7 +87,7 @@ void SubscribeRequestMessage::write_dynamic_data(uint8_t *data) const {
 }
 
 void SubscribeRequestMessage::update_static_header() {
-  uint32_t header_size = StaticHeaders::TotalSize;
+  uint32_t header_size = StaticHeaders::TOTAL_SIZE;
   if (priority != nullptr) {
     header_size += priority->size();
   }

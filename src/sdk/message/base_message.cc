@@ -19,7 +19,7 @@ void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
     throw MessageParsingError("invalid message size");
   }
   static_headers.write(data);
-  write_dynamic_data(data + StaticHeaders::TotalSize);
+  write_dynamic_data(data + StaticHeaders::TOTAL_SIZE);
 }
 
 int32_t Message::get_sequence_id() const {

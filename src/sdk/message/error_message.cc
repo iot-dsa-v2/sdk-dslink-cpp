@@ -16,7 +16,7 @@ void ErrorMessage::write_dynamic_data(uint8_t *data) const {
 }
 
 void ErrorMessage::update_static_header() {
-  uint32_t header_size = StaticHeaders::TotalSize;
+  uint32_t header_size = StaticHeaders::TOTAL_SIZE;
   if (status != nullptr) {
     header_size += status->size();
   }

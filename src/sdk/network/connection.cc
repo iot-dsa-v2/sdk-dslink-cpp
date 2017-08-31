@@ -42,7 +42,7 @@ bool Connection::valid_handshake_header(StaticHeaders &header,
                                         size_t expected_size,
                                         MessageType expected_type) {
   return (header.message_size == expected_size &&
-          header.header_size == StaticHeaders::TotalSize &&
+          header.header_size == StaticHeaders::TOTAL_SIZE &&
           header.type == expected_type && header.request_id == 0 &&
           header.ack_id == 0);
 }

@@ -26,23 +26,23 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t expected_values[147];
 
   uint32_t message_size = 147;
-  uint16_t header_size = StaticHeaders::TotalSize;
+  uint16_t header_size = StaticHeaders::TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE3;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
 
-  std::memcpy(&expected_values[StaticHeaders::MessageSizeOffset], &message_size,
+  std::memcpy(&expected_values[StaticHeaders::MESSAGE_SIZE_OFFSET], &message_size,
               sizeof(uint32_t));
-  std::memcpy(&expected_values[StaticHeaders::HeaderSizeOffset], &header_size,
+  std::memcpy(&expected_values[StaticHeaders::HEADER_SIZE_OFFSET], &header_size,
               sizeof(uint16_t));
-  std::memcpy(&expected_values[StaticHeaders::TypeOffset], &type,
+  std::memcpy(&expected_values[StaticHeaders::TYPE_OFFSET], &type,
               sizeof(uint8_t));
-  std::memcpy(&expected_values[StaticHeaders::RequestIdOffset], &request_id,
+  std::memcpy(&expected_values[StaticHeaders::REQUEST_ID_OFFSET], &request_id,
               sizeof(request_id));
-  std::memcpy(&expected_values[StaticHeaders::AckIdOffset], &ack_id,
+  std::memcpy(&expected_values[StaticHeaders::ACK_ID_OFFSET], &ack_id,
               sizeof(ack_id));
 
-  uint8_t SessionIdLengthOffset = StaticHeaders::TotalSize;
+  uint8_t SessionIdLengthOffset = StaticHeaders::TOTAL_SIZE;
   uint8_t SessionIdOffset = SessionIdLengthOffset + sizeof(uint16_t);
   uint8_t PathLengthOffset = SessionIdOffset + message.session_id.size();
   uint8_t PathOffset = PathLengthOffset + sizeof(uint16_t);
