@@ -16,7 +16,7 @@ StreamQos SubscribeRequestMessage::get_qos() const {
   return static_cast<StreamQos>(DynamicByteHeader::read_value(qos));
 }
 void SubscribeRequestMessage::set_qos(StreamQos value) {
-  if (DynamicByteHeader::write_value(qos, DynamicHeader::Qos, value)) {
+  if (DynamicByteHeader::write_value(qos, DynamicHeader::QOS, value)) {
     static_headers.message_size = 0;
   }
 }
@@ -25,7 +25,7 @@ int32_t SubscribeRequestMessage::get_queue_size() const {
   return DynamicIntHeader::read_value(queue_size);
 }
 void SubscribeRequestMessage::set_queue_size(int32_t value) {
-  if (DynamicIntHeader::write_value(queue_size, DynamicHeader::QueueSize,
+  if (DynamicIntHeader::write_value(queue_size, DynamicHeader::QUEUE_SIZE,
                                     value)) {
     static_headers.message_size = 0;
   }
@@ -35,7 +35,7 @@ int32_t SubscribeRequestMessage::get_queue_time() const {
   return DynamicIntHeader::read_value(queue_time);
 }
 void SubscribeRequestMessage::set_queue_time(int32_t value) {
-  if (DynamicIntHeader::write_value(queue_time, DynamicHeader::QueueTime,
+  if (DynamicIntHeader::write_value(queue_time, DynamicHeader::QUEUE_TIME,
                                     value)) {
     static_headers.message_size = 0;
   }

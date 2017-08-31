@@ -9,21 +9,21 @@ InvokeRequestMessage::InvokeRequestMessage(const InvokeRequestMessage& from)
   if (from.body != nullptr)
     body.reset(from.body.get());
   if (from.priority != nullptr)
-    priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+    priority.reset(new DynamicBoolHeader(DynamicHeader::PRIORITY));
   if (from.sequence_id != nullptr)
-    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SequenceId, from.sequence_id->value()));
+    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SEQUENCE_ID, from.sequence_id->value()));
   if (from.page_id != nullptr)
-    page_id.reset(new DynamicIntHeader(DynamicHeader::PageId, from.page_id->value()));
+    page_id.reset(new DynamicIntHeader(DynamicHeader::PAGE_ID, from.page_id->value()));
   if (from.alias_count != nullptr)
-    alias_count.reset(new DynamicByteHeader(DynamicHeader::AliasCount, from.alias_count->value()));
+    alias_count.reset(new DynamicByteHeader(DynamicHeader::ALIAS_COUNT, from.alias_count->value()));
   if (from.target_path != nullptr)
-    target_path.reset(new DynamicStringHeader(DynamicHeader::TargetPath, from.target_path->value()));
+    target_path.reset(new DynamicStringHeader(DynamicHeader::TARGET_PATH, from.target_path->value()));
   if (from.permission_token != nullptr)
-    permission_token.reset(new DynamicStringHeader(DynamicHeader::PermissionToken, from.permission_token->value()));
+    permission_token.reset(new DynamicStringHeader(DynamicHeader::PERMISSION_TOKEN, from.permission_token->value()));
   if (from.max_permission != nullptr)
-    max_permission.reset(new DynamicByteHeader(DynamicHeader::MaxPermission, from.max_permission->value()));
+    max_permission.reset(new DynamicByteHeader(DynamicHeader::MAX_PERMISSION, from.max_permission->value()));
   if (from.no_stream != nullptr)
-    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NoStream));
+    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NO_STREAM));
 }
 
 void InvokeRequestMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
@@ -32,21 +32,21 @@ void InvokeRequestMessage::parse_dynamic_headers(const uint8_t *data, size_t siz
     data += header->size();
     size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::Priority:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::PRIORITY:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;
-      case DynamicHeader::SequenceId:sequence_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(dynamic_cast<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::PageId:page_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::PAGE_ID:page_id.reset(dynamic_cast<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::AliasCount:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::ALIAS_COUNT:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::TargetPath:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::TARGET_PATH:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::PermissionToken:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::MaxPermission:max_permission.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::MAX_PERMISSION:max_permission.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::NoStream:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::NO_STREAM:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

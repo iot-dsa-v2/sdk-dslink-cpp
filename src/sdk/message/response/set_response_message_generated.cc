@@ -7,7 +7,7 @@ namespace dsa {
 SetResponseMessage::SetResponseMessage(const SetResponseMessage& from)
     : ResponseMessage(from.static_headers) {
   if (from.status != nullptr)
-    status.reset(new DynamicByteHeader(DynamicHeader::Status, from.status->value()));
+    status.reset(new DynamicByteHeader(DynamicHeader::STATUS, from.status->value()));
 }
 
 void SetResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
@@ -16,7 +16,7 @@ void SetResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t size)
     data += header->size();
     size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::Status:status.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::STATUS:status.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

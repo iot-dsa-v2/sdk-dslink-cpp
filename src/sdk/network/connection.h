@@ -35,14 +35,6 @@ class Connection : public SharedClosable<Connection> {
  public:
   virtual std::string name() = 0;
 
-  enum Protocol { TCP };
-
-  enum {
-    PublicKeyLength = 65,
-    SaltLength = 32,
-    AuthLength = 32,
-  };
-
  protected:
   size_t _preferred_buffer_size = DEFAULT_BUFFER_SIZE;
   size_t _max_buffer_size = MAX_BUFFER_SIZE;

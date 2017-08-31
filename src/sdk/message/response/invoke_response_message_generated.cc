@@ -9,13 +9,13 @@ InvokeResponseMessage::InvokeResponseMessage(const InvokeResponseMessage& from)
   if (from.body != nullptr)
     body.reset(from.body.get());
   if (from.status != nullptr)
-    status.reset(new DynamicByteHeader(DynamicHeader::Status, from.status->value()));
+    status.reset(new DynamicByteHeader(DynamicHeader::STATUS, from.status->value()));
   if (from.sequence_id != nullptr)
-    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SequenceId, from.sequence_id->value()));
+    sequence_id.reset(new DynamicIntHeader(DynamicHeader::SEQUENCE_ID, from.sequence_id->value()));
   if (from.page_id != nullptr)
-    page_id.reset(new DynamicIntHeader(DynamicHeader::PageId, from.page_id->value()));
+    page_id.reset(new DynamicIntHeader(DynamicHeader::PAGE_ID, from.page_id->value()));
   if (from.skippable != nullptr)
-    skippable.reset(new DynamicBoolHeader(DynamicHeader::Skippable));
+    skippable.reset(new DynamicBoolHeader(DynamicHeader::SKIPPABLE));
 }
 
 void InvokeResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
@@ -24,13 +24,13 @@ void InvokeResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t si
     data += header->size();
     size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::Status:status.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::STATUS:status.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::SequenceId:sequence_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(dynamic_cast<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::PageId:page_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::PAGE_ID:page_id.reset(dynamic_cast<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::Skippable:skippable.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::SKIPPABLE:skippable.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

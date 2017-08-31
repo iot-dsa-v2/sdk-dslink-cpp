@@ -26,7 +26,7 @@ int32_t Message::get_sequence_id() const {
   return DynamicIntHeader::read_value(sequence_id);
 }
 void Message::set_sequence_id(int32_t value) {
-  if (DynamicIntHeader::write_value(sequence_id, DynamicHeader::SequenceId,
+  if (DynamicIntHeader::write_value(sequence_id, DynamicHeader::SEQUENCE_ID,
                                     value)) {
     static_headers.message_size = 0;
   }
@@ -36,7 +36,7 @@ int32_t Message::get_page_id() const {
   return DynamicIntHeader::read_value(page_id);
 }
 void Message::set_page_id(int32_t value) {
-  if (DynamicIntHeader::write_value(page_id, DynamicHeader::PageId, value)) {
+  if (DynamicIntHeader::write_value(page_id, DynamicHeader::PAGE_ID, value)) {
     static_headers.message_size = 0;
   }
 }
@@ -52,7 +52,7 @@ bool RequestMessage::get_priority() const {
   return DynamicBoolHeader::read_value(priority);
 }
 void RequestMessage::set_priority(bool value) {
-  if (DynamicBoolHeader::write_value(priority, DynamicHeader::Priority,
+  if (DynamicBoolHeader::write_value(priority, DynamicHeader::PRIORITY,
                                      value)) {
     static_headers.message_size = 0;
   }
@@ -62,7 +62,7 @@ const std::string& RequestMessage::get_target_path() const {
   return DynamicStringHeader::read_value(target_path);
 }
 void RequestMessage::set_target_path(const std::string& value) {
-  if (DynamicStringHeader::write_value(target_path, DynamicHeader::TargetPath,
+  if (DynamicStringHeader::write_value(target_path, DynamicHeader::TARGET_PATH,
                                        value)) {
     static_headers.message_size = 0;
   }
@@ -73,7 +73,7 @@ const std::string& RequestMessage::get_permission_token() const {
 }
 void RequestMessage::set_permission_token(const std::string& value) {
   if (DynamicStringHeader::write_value(permission_token,
-                                       DynamicHeader::PermissionToken, value)) {
+                                       DynamicHeader::PERMISSION_TOKEN, value)) {
     static_headers.message_size = 0;
   }
 }
@@ -82,7 +82,7 @@ bool RequestMessage::get_no_stream() const {
   return DynamicBoolHeader::read_value(no_stream);
 }
 void RequestMessage::set_no_stream(bool value) {
-  if (DynamicBoolHeader::write_value(no_stream, DynamicHeader::NoStream,
+  if (DynamicBoolHeader::write_value(no_stream, DynamicHeader::NO_STREAM,
                                      value)) {
     static_headers.message_size = 0;
   }
@@ -92,7 +92,7 @@ uint8_t RequestMessage::get_alias_count() const {
   return DynamicByteHeader::read_value(alias_count);
 }
 void RequestMessage::set_alias_count(uint8_t value) {
-  if (DynamicByteHeader::write_value(alias_count, DynamicHeader::AliasCount,
+  if (DynamicByteHeader::write_value(alias_count, DynamicHeader::ALIAS_COUNT,
                                      value)) {
     static_headers.message_size = 0;
   }
@@ -109,7 +109,7 @@ const std::string& ResponseMessage::get_source_path() const {
 }
 
 void ResponseMessage::set_source_path(const std::string& value) {
-  if (DynamicStringHeader::write_value(source_path, DynamicHeader::SourcePath,
+  if (DynamicStringHeader::write_value(source_path, DynamicHeader::SOURCE_PATH,
                                        value)) {
     static_headers.message_size = 0;
   }
@@ -119,7 +119,7 @@ MessageStatus ResponseMessage::get_status() const {
   return MessageStatus(DynamicByteHeader::read_value(status));
 }
 void ResponseMessage::set_status(MessageStatus value) {
-  if (DynamicByteHeader::write_value(status, DynamicHeader::Status, uint8_t(value))) {
+  if (DynamicByteHeader::write_value(status, DynamicHeader::STATUS, uint8_t(value))) {
     static_headers.message_size = 0;
   }
 }

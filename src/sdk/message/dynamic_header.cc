@@ -17,24 +17,24 @@ DynamicHeader::DynamicHeader(DynamicKey key, size_t size) : _key(key) {
 DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     const MessageParsingError &) {
   switch (*data) {
-    case Status:
-    case SequenceId:
-    case PageId:
-    case AliasCount:
-    case Priority:
-    case Qos:
-    case QueueSize:
-    case QueueTime:
-    case MaxPermission: {
+    case STATUS:
+    case SEQUENCE_ID:
+    case PAGE_ID:
+    case ALIAS_COUNT:
+    case PRIORITY:
+    case QOS:
+    case QUEUE_SIZE:
+    case QUEUE_TIME:
+    case MAX_PERMISSION: {
       if (size >= 2) {
         return new DynamicByteHeader(data);
       }
       throw MessageParsingError("invalid size for DynamicByteHeader");
     }
-    case BasePath:
-    case PermissionToken:
-    case TargetPath:
-    case SourcePath: {
+    case BASE_PATH:
+    case PERMISSION_TOKEN:
+    case TARGET_PATH:
+    case SOURCE_PATH: {
       if (size > 0) {
         uint16_t str_size = read_16_t(data + 1);
         if (str_size + 3 <= size) {
@@ -45,8 +45,8 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
       }
       throw MessageParsingError("invalid size for DynamicStringHeader");
     }
-    case NoStream:
-    case Skippable: {
+    case NO_STREAM:
+    case SKIPPABLE: {
       if (size >= 1) {
         return new DynamicBoolHeader(data);
       }

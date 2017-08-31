@@ -7,15 +7,15 @@ namespace dsa {
 ListRequestMessage::ListRequestMessage(const ListRequestMessage& from)
     : RequestMessage(from.static_headers) {
   if (from.priority != nullptr)
-    priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+    priority.reset(new DynamicBoolHeader(DynamicHeader::PRIORITY));
   if (from.alias_count != nullptr)
-    alias_count.reset(new DynamicByteHeader(DynamicHeader::AliasCount, from.alias_count->value()));
+    alias_count.reset(new DynamicByteHeader(DynamicHeader::ALIAS_COUNT, from.alias_count->value()));
   if (from.target_path != nullptr)
-    target_path.reset(new DynamicStringHeader(DynamicHeader::TargetPath, from.target_path->value()));
+    target_path.reset(new DynamicStringHeader(DynamicHeader::TARGET_PATH, from.target_path->value()));
   if (from.permission_token != nullptr)
-    permission_token.reset(new DynamicStringHeader(DynamicHeader::PermissionToken, from.permission_token->value()));
+    permission_token.reset(new DynamicStringHeader(DynamicHeader::PERMISSION_TOKEN, from.permission_token->value()));
   if (from.no_stream != nullptr)
-    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NoStream));
+    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NO_STREAM));
 }
 
 void ListRequestMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
@@ -24,15 +24,15 @@ void ListRequestMessage::parse_dynamic_headers(const uint8_t *data, size_t size)
     data += header->size();
     size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::Priority:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::PRIORITY:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;
-      case DynamicHeader::AliasCount:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::ALIAS_COUNT:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::TargetPath:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::TARGET_PATH:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::PermissionToken:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::NoStream:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::NO_STREAM:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

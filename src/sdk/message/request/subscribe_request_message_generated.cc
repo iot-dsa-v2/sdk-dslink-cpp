@@ -7,21 +7,21 @@ namespace dsa {
 SubscribeRequestMessage::SubscribeRequestMessage(const SubscribeRequestMessage& from)
     : RequestMessage(from.static_headers) {
   if (from.priority != nullptr)
-    priority.reset(new DynamicBoolHeader(DynamicHeader::Priority));
+    priority.reset(new DynamicBoolHeader(DynamicHeader::PRIORITY));
   if (from.alias_count != nullptr)
-    alias_count.reset(new DynamicByteHeader(DynamicHeader::AliasCount, from.alias_count->value()));
+    alias_count.reset(new DynamicByteHeader(DynamicHeader::ALIAS_COUNT, from.alias_count->value()));
   if (from.target_path != nullptr)
-    target_path.reset(new DynamicStringHeader(DynamicHeader::TargetPath, from.target_path->value()));
+    target_path.reset(new DynamicStringHeader(DynamicHeader::TARGET_PATH, from.target_path->value()));
   if (from.permission_token != nullptr)
-    permission_token.reset(new DynamicStringHeader(DynamicHeader::PermissionToken, from.permission_token->value()));
+    permission_token.reset(new DynamicStringHeader(DynamicHeader::PERMISSION_TOKEN, from.permission_token->value()));
   if (from.no_stream != nullptr)
-    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NoStream));
+    no_stream.reset(new DynamicBoolHeader(DynamicHeader::NO_STREAM));
   if (from.qos != nullptr)
-    qos.reset(new DynamicByteHeader(DynamicHeader::Qos, from.qos->value()));
+    qos.reset(new DynamicByteHeader(DynamicHeader::QOS, from.qos->value()));
   if (from.queue_size != nullptr)
-    queue_size.reset(new DynamicIntHeader(DynamicHeader::QueueSize, from.queue_size->value()));
+    queue_size.reset(new DynamicIntHeader(DynamicHeader::QUEUE_SIZE, from.queue_size->value()));
   if (from.queue_time != nullptr)
-    queue_time.reset(new DynamicIntHeader(DynamicHeader::QueueTime, from.queue_time->value()));
+    queue_time.reset(new DynamicIntHeader(DynamicHeader::QUEUE_TIME, from.queue_time->value()));
 }
 
 void SubscribeRequestMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
@@ -30,21 +30,21 @@ void SubscribeRequestMessage::parse_dynamic_headers(const uint8_t *data, size_t 
     data += header->size();
     size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::Priority:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::PRIORITY:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;
-      case DynamicHeader::AliasCount:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::ALIAS_COUNT:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::TargetPath:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::TARGET_PATH:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::PermissionToken:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::NoStream:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::NO_STREAM:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;
-      case DynamicHeader::Qos:qos.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::QOS:qos.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::QueueSize:queue_size.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::QUEUE_SIZE:queue_size.reset(dynamic_cast<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::QueueTime:queue_time.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::QUEUE_TIME:queue_time.reset(dynamic_cast<DynamicIntHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

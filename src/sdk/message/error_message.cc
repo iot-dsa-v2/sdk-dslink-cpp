@@ -4,7 +4,7 @@
 namespace dsa {
 ErrorMessage::ErrorMessage(MessageType type, MessageStatus s, uint32_t request_id)
     : ResponseMessage(type) {
-  status.reset(new DynamicByteHeader(DynamicHeader::Status, static_cast<uint8_t>(s)));
+  status.reset(new DynamicByteHeader(DynamicHeader::STATUS, static_cast<uint8_t>(s)));
   static_headers.request_id = request_id;
 }
 

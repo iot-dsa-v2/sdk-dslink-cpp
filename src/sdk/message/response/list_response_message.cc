@@ -16,7 +16,7 @@ const std::string& ListResponseMessage::get_base_path() const {
   return DynamicStringHeader::read_value(base_path);
 }
 void ListResponseMessage::set_base_path(const std::string& value) {
-  if (DynamicStringHeader::write_value(base_path, DynamicHeader::BasePath,
+  if (DynamicStringHeader::write_value(base_path, DynamicHeader::BASE_PATH,
                                        value)) {
     static_headers.message_size = 0;
   }
