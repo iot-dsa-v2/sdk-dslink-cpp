@@ -6,12 +6,12 @@
 
 namespace dsa {
 
-NodeStateManager::NodeStateManager(LinkStrandPtr & strand)
+NodeStateManager::NodeStateManager(LinkStrandRef & strand)
     : strand(strand) {}
 
-const intrusive_ptr_<NodeState> &NodeStateManager::get_or_create(std::string path) {
+const ref_<NodeState> &NodeStateManager::get_or_create(std::string path) {
   if (_node_states.count(path) == 0) {
-    _node_states[path] = make_intrusive_<NodeState>(strand, path);
+    _node_states[path] = make_ref_<NodeState>(strand, path);
   }
   return _node_states.at(path);
 }

@@ -9,7 +9,7 @@
 #define DEBUG 0
 
 namespace dsa {
-Connection::Connection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
+Connection::Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
                        const std::string &dsid_prefix, const std::string &path)
     : _handshake_context(dsid_prefix, strand->ecdh()),
       _handshake_timeout_ms(handshake_timeout_ms),
@@ -22,7 +22,7 @@ Connection::Connection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
 void Connection::connect() { throw std::runtime_error("not implemented"); }
 void Connection::accept() { throw std::runtime_error("not implemented"); }
 
-void Connection::set_session(const intrusive_ptr_<Session> &session) {
+void Connection::set_session(const ref_<Session> &session) {
   _session = session;
 }
 
@@ -57,7 +57,7 @@ void Connection::reset_standard_deadline_timer() {
   }));
 }
 
-void Connection::dispatch_message(MessagePtr &&message) {
+void Connection::dispatch_message(MessageRef &&message) {
   if (_session != nullptr) {
     asio_strand()->dispatch(
         [ sthis = shared_from_this(), message = std::move(message) ]() mutable {

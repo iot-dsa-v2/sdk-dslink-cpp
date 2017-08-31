@@ -20,10 +20,10 @@ class SimpleSecurityManager : public SecurityManager {
 
 class AsyncSimpleSecurityManager : public SecurityManager {
  protected:
-  std::unique_ptr<boost::asio::io_service::strand> _strand;
+  std::unique_ptr<boost::asio::strand> _strand;
 
  public:
-  explicit AsyncSimpleSecurityManager(boost::asio::io_service::strand* strand);
+  explicit AsyncSimpleSecurityManager(boost::asio::strand* strand);
 
   void get_client(const std::string& dsid, const std::string& auth_token,
                   GetClientCallback&& callback) override;

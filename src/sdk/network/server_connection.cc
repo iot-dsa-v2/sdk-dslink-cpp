@@ -15,7 +15,7 @@ namespace dsa {
 //  // setup session now that client session id has been parsed
 //  _strand->session_manager().get_session(
 //      _other_dsid, _other_token, _session_id,
-//      [=](const intrusive_ptr_<Session> &session) {
+//      [=](const ref_<Session> &session) {
 //        if (session != nullptr) {
 //          _session = session;
 //          _session_id = _session->session_id();
@@ -27,7 +27,7 @@ namespace dsa {
 //      });
 //}
 
-void Connection::on_receive_f0(MessagePtr &&msg) {
+void Connection::on_receive_f0(MessageRef &&msg) {
   if (msg->type() != MessageType::Handshake0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
@@ -51,11 +51,11 @@ void Connection::on_receive_f0(MessagePtr &&msg) {
           }
         });
 
-  on_read_message = [this](MessagePtr message) {
+  on_read_message = [this](MessageRef message) {
     on_receive_f2(std::move(message));
   };
 }
-void Connection::on_receive_f2(MessagePtr &&msg) {
+void Connection::on_receive_f2(MessageRef &&msg) {
   if (msg->type() != MessageType::Handshake2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
@@ -72,11 +72,11 @@ void Connection::on_receive_f2(MessagePtr &&msg) {
       _strand->session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token, f2->session_id,
           [ this,
-            sthis = std::move(sthis) ](const intrusive_ptr_<Session> &session) {
+            sthis = std::move(sthis) ](const ref_<Session> &session) {
             if (session != nullptr) {
               _session = session;
               _session->connected(shared_from_this());
-              on_read_message = [this](MessagePtr message) {
+              on_read_message = [this](MessageRef message) {
                 dispatch_message(std::move(message));
               };
               

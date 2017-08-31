@@ -41,7 +41,7 @@ class LinkConfig : public LinkStrand {
 
 class WrapperConfig {
  public:
-  LinkStrandPtr strand;
+  LinkStrandRef strand;
   std::string dsid_prefix;
   std::string tcp_host;
   uint16_t tcp_port{0};

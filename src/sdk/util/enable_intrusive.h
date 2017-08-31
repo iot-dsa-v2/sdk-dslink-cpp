@@ -11,31 +11,17 @@
 
 namespace dsa {
 
-template <typename T, typename F>
-class intrusive_this_lambda {
- private:
-  intrusive_ptr_<T> _this;
-  F _func;
-
- public:
-  intrusive_this_lambda(intrusive_ptr_<T> t, F f) : _this(t), _func(f) {}
-  template <typename... _Args>
-  auto operator()(_Args&&... args)
-      -> decltype(this->_func(std::forward<_Args>(args)...)) {
-    return _func(std::forward<_Args>(args)...);
-  }
-};
 
 template <class T>
-class EnableIntrusive {
+class EnableRef {
  protected:
-  intrusive_ptr_<T> intrusive_this() {
-    return intrusive_ptr_<T>(static_cast<T*>(this));
+  ref_<T> intrusive_this() {
+    return ref_<T>(static_cast<T*>(this));
   }
 
   template <typename _Downcast>
-  intrusive_ptr_<_Downcast> intrusive_this() {
-    return intrusive_ptr_<_Downcast>(DOWN_CAST<_Downcast*>(this));
+  ref_<_Downcast> intrusive_this() {
+    return ref_<_Downcast>(DOWN_CAST<_Downcast*>(this));
   }
 
   template <typename _Ty>
@@ -50,7 +36,7 @@ class EnableIntrusive {
 };
 
 template <typename T>
-class IntrusiveClosable : public EnableIntrusive<T> {
+class ClosableRef : public EnableRef<T> {
  private:
   bool _closed = false;
 
@@ -80,8 +66,8 @@ void intrusive_ptr_release(_Ty* t) {
 }
 
 template <class _Ty, class... _Types>
-intrusive_ptr_<_Ty> make_intrusive_(_Types&&... _Args) {
-  return intrusive_ptr_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
+ref_<_Ty> make_ref_(_Types &&... _Args) {
+  return ref_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
 };
 
 }  // namespace dsa

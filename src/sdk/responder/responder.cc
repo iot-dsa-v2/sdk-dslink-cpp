@@ -15,7 +15,7 @@ namespace dsa {
 
 Responder::Responder(Session &session) : _session(session) {}
 
-void Responder::receive_message(intrusive_ptr_<Message> &&message) {
+void Responder::receive_message(ref_<Message> &&message) {
   auto request = DOWN_CAST<RequestMessage *>(message.get());
   auto callback = [ message = std::move(message),
                     this ](PermissionLevel permission) mutable {
@@ -23,21 +23,21 @@ void Responder::receive_message(intrusive_ptr_<Message> &&message) {
 
     switch (message->type()) {
       case MessageType::SubscribeRequest:
-        on_subscribe_request(intrusive_ptr_<SubscribeRequestMessage>(
+        on_subscribe_request(ref_<SubscribeRequestMessage>(
             DOWN_CAST<SubscribeRequestMessage *>(message.get())));
         break;
       case MessageType::InvokeRequest:
-        on_invoke_request(intrusive_ptr_<InvokeRequestMessage>(
+        on_invoke_request(ref_<InvokeRequestMessage>(
             DOWN_CAST<InvokeRequestMessage *>(message.get())));
 
         break;
       case MessageType::SetRequest:
-        on_set_request(intrusive_ptr_<SetRequestMessage>(
+        on_set_request(ref_<SetRequestMessage>(
             DOWN_CAST<SetRequestMessage *>(message.get())));
 
         break;
       case MessageType::ListRequest:
-        on_list_request(intrusive_ptr_<ListRequestMessage>(
+        on_list_request(ref_<ListRequestMessage>(
             DOWN_CAST<ListRequestMessage *>(message.get())));
 
         break;
@@ -52,10 +52,10 @@ void Responder::receive_message(intrusive_ptr_<Message> &&message) {
 }
 
 void Responder::on_subscribe_request(
-    intrusive_ptr_<SubscribeRequestMessage> &&message) {
-  auto stream = make_intrusive_<SubscribeMessageStream>(
-      _session.get_intrusive(), message->get_subscribe_options(),
-      message->request_id());
+    ref_<SubscribeRequestMessage> &&message) {
+  auto stream = make_ref_<SubscribeMessageStream>(
+    _session.get_intrusive(), message->get_subscribe_options(),
+    message->request_id());
 
   auto node_state = _session._strand->state_manager().get_or_create(
       message->get_target_path());
@@ -65,10 +65,10 @@ void Responder::on_subscribe_request(
   //    _model_manager.find_model(node_state);
 }
 
-void Responder::on_list_request(intrusive_ptr_<ListRequestMessage> &&message) {
-  auto stream = make_intrusive_<ListMessageStream>(_session.get_intrusive(),
-                                                   message->get_list_options(),
-                                                   message->request_id());
+void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
+  auto stream = make_ref_<ListMessageStream>(_session.get_intrusive(),
+                                             message->get_list_options(),
+                                             message->request_id());
 
   auto node_state = _session._strand->state_manager().get_or_create(
       message->get_target_path());
@@ -79,7 +79,7 @@ void Responder::on_list_request(intrusive_ptr_<ListRequestMessage> &&message) {
 }
 
 void Responder::on_invoke_request(
-    intrusive_ptr_<InvokeRequestMessage> &&message) {
+    ref_<InvokeRequestMessage> &&message) {
   //  auto model = _model_manager.get_model(message.get_target_path());
   //  if (model == nullptr) {
   //    send_error(MessageType::InvokeResponse, MessageStatus::Disconnected,
@@ -88,14 +88,14 @@ void Responder::on_invoke_request(
   //  }
   //
   //  auto stream =
-  //  make_intrusive_<InvokeMessageStream>(_session.get_intrusive(),
+  //  make_ref_<InvokeMessageStream>(_session.get_intrusive(),
   //                                                     message.get_invoke_options(),
   //                                                     message.request_id(),
   //                                                     );
   //  model->add_stream(stream);
 }
 
-void Responder::on_set_request(intrusive_ptr_<SetRequestMessage> &&message) {
+void Responder::on_set_request(ref_<SetRequestMessage> &&message) {
   //  auto model = _model_manager.get_model(message.get_target_path());
   //  if (model == nullptr) {
   //    send_error(MessageType::SubscribeResponse, MessageStatus::Disconnected,
@@ -103,7 +103,7 @@ void Responder::on_set_request(intrusive_ptr_<SetRequestMessage> &&message) {
   //    return;
   //  }
   //
-  //  auto stream = make_intrusive_<SetMessageStream>(_session.get_intrusive(),
+  //  auto stream = make_ref_<SetMessageStream>(_session.get_intrusive(),
   //                                                  message.get_set_options(),
   //                                                  message.request_id(),
   //                                                  );

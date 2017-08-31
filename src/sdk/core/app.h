@@ -56,7 +56,7 @@ class App {
   void sleep(unsigned int milliseconds);
 
 
-  boost::asio::io_service::strand *new_strand();
+  boost::asio::strand *new_strand();
 };
 }  // namespace dsa
 

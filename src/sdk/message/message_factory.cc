@@ -17,7 +17,7 @@
 
 namespace dsa {
 
-MessagePtr Message::parse_message(const uint8_t* data, size_t size) throw(
+MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
     const MessageParsingError&) {
   if (size < StaticHeaders::TotalSize) {
     return nullptr;

@@ -18,7 +18,7 @@ class NodeModelManager {
 
  public:
   // should find and attach the node state to the model when it becomes available
-  void find_model(intrusive_ptr_<NodeState> node_state);
+  void find_model(ref_<NodeState> node_state);
 
   // should immediately return the node model if it exists
   // return nullptr is model doesn't exist

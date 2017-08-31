@@ -17,19 +17,19 @@ class Config;
 
 class SessionManager {
  public:
-  typedef std::function<void(const intrusive_ptr_<Session> &session)>
+  typedef std::function<void(const ref_<Session> &session)>
       GetSessionCallback;
 
  private:
   uint64_t _session_id_seed;
   uint64_t _session_id_count = 0;
 
-  std::map<std::string, intrusive_ptr_<Session>> _sessions;
+  std::map<std::string, ref_<Session>> _sessions;
 
-  LinkStrandPtr _strand;
+  LinkStrandRef _strand;
 
 public:
-  SessionManager(LinkStrandPtr & strand);
+  SessionManager(LinkStrandRef & strand);
   void get_session(const std::string &dsid, const std::string &auth_token,
                    const std::string &session_id,
                    GetSessionCallback &&callback);

@@ -14,13 +14,13 @@ class Client : public SharedClosable<Client> {
   // for Session/Requester/Responder
 
   // for ClientConnection
-  LinkStrandPtr _strand;
+  LinkStrandRef _strand;
   uint32_t handshake_timeout_ms;
   std::string _dsid_prefix;
   std::string _client_token;
 
   shared_ptr_<Connection> _connection;
-  intrusive_ptr_<Session> _session;
+  ref_<Session> _session;
 
   void close_impl() override;
 

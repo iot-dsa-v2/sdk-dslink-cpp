@@ -25,7 +25,7 @@ template <typename T>
 using shared_ptr_ = std::shared_ptr<T>;
 
 template <typename T>
-using intrusive_ptr_ = boost::intrusive_ptr<T>;
+using ref_ = boost::intrusive_ptr<T>;
 
 }  // namespace dsa
 

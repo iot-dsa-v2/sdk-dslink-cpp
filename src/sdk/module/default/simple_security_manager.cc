@@ -19,7 +19,7 @@ void SimpleSecurityManager::check_permission(
 }
 
 AsyncSimpleSecurityManager::AsyncSimpleSecurityManager(
-    boost::asio::io_service::strand* strand)
+    boost::asio::strand* strand)
     : _strand(strand){};
 
 void AsyncSimpleSecurityManager::get_client(

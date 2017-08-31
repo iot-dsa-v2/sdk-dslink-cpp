@@ -12,7 +12,7 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(LinkStrandPtr &strand,
+TcpConnection::TcpConnection(LinkStrandRef &strand,
                              uint32_t handshake_timeout_ms,
                              const std::string &dsid_prefix,
                              const std::string &path)

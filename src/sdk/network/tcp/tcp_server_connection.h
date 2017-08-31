@@ -16,7 +16,7 @@ class TcpServer;
 // Handles server side of DSA handshake and starts read loop.
 class TcpServerConnection : public TcpConnection {
  public:
-  TcpServerConnection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
+  TcpServerConnection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
                       const std::string &dsid_prefix = "",
                       const std::string &path = "");
 

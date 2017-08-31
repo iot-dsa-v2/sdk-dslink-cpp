@@ -9,7 +9,7 @@
 
 namespace dsa {
 
-Session::Session(LinkStrandPtr &strand, const std::string &session_id)
+Session::Session(LinkStrandRef &strand, const std::string &session_id)
     : _strand(strand),
       _session_id(session_id),
       requester(*this),
@@ -34,7 +34,7 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   }
 }
 
-void Session::receive_message(MessagePtr &&message) {
+void Session::receive_message(MessageRef &&message) {
   if (message->is_request()) {
     // responder receive request and send response
     responder.receive_message(std::move(message));
@@ -44,9 +44,9 @@ void Session::receive_message(MessagePtr &&message) {
   }
 }
 
-intrusive_ptr_<MessageStream> Session::get_next_ready_stream() {
+ref_<MessageStream> Session::get_next_ready_stream() {
   while (!_ready_streams.empty()) {
-    intrusive_ptr_<MessageStream> stream = std::move(_ready_streams.front());
+    ref_<MessageStream> stream = std::move(_ready_streams.front());
     _ready_streams.pop_front();
     if (stream->peek_next_message_size(0) > 0) {
       return std::move(stream);
@@ -57,7 +57,7 @@ intrusive_ptr_<MessageStream> Session::get_next_ready_stream() {
 
 size_t Session::peek_next_message(size_t availible) {
   while (!_ready_streams.empty()) {
-    intrusive_ptr_<MessageStream> &stream = _ready_streams.front();
+    ref_<MessageStream> &stream = _ready_streams.front();
     size_t size = stream->peek_next_message_size(availible);
     if (size > 0) {
       return size;
@@ -67,7 +67,7 @@ size_t Session::peek_next_message(size_t availible) {
   return 0;
 }
 
-void Session::write_loop(intrusive_ptr_<Session> sthis) {
+void Session::write_loop(ref_<Session> sthis) {
   Connection *connection = sthis->_connection.get();
   if (connection == nullptr) {
     sthis->_is_writing = false;
@@ -89,7 +89,7 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
          total_size < connection->preferred_buffer_size() &&
          total_size + next_message_size < connection->max_buffer_size()) {
     auto stream = sthis->get_next_ready_stream();
-    MessagePtr message = stream->get_next_message();
+    MessageRef message = stream->get_next_message();
 
     if (buf.size() < connection->max_buffer_size() &&
         total_size + message->size() > buf.size()) {
@@ -107,14 +107,14 @@ void Session::write_loop(intrusive_ptr_<Session> sthis) {
       buf.data(),
       total_size, [sthis = std::move(sthis)](
                       const boost::system::error_code &error) mutable {
-        LinkStrandPtr strand = sthis->_strand;
+        LinkStrandRef strand = sthis->_strand;
         (*strand)()->dispatch([sthis = std::move(sthis)]() mutable {
           Session::write_loop(std::move(sthis));
         });
       });
 }
 
-void Session::add_ready_stream(intrusive_ptr_<MessageStream> stream) {
+void Session::add_ready_stream(ref_<MessageStream> stream) {
   _ready_streams.push_back(std::move(stream));
   if (!_is_writing) {
     write_loop(intrusive_this());

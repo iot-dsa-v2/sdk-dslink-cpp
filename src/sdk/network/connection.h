@@ -54,7 +54,7 @@ class Connection : public SharedClosable<Connection> {
   virtual void write(const uint8_t *data, size_t size,
                      WriteHandler &&callback) = 0;
 
-  std::function<void(MessagePtr)> on_read_message;
+  std::function<void(MessageRef)> on_read_message;
   std::function<void()> on_read_message_error;
   boost::mutex read_loop_mutex;
 
@@ -65,22 +65,22 @@ class Connection : public SharedClosable<Connection> {
 
   const std::string &dsid() { return _handshake_context.dsid(); }
 
-  void set_session(const intrusive_ptr_<Session> &session);
+  void set_session(const ref_<Session> &session);
 
   boost::asio::strand *asio_strand() { return (*_strand)(); }
 
   Session *session() { return _session.get(); }
 
  protected:
-  Connection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
+  Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
              const std::string &dsid_prefix, const std::string &path = "");
   virtual ~Connection() = default;
 
   HandshakeContext _handshake_context;
-  LinkStrandPtr _strand;
+  LinkStrandRef _strand;
 
   // this should rarely be touched
-  intrusive_ptr_<Session> _session;
+  ref_<Session> _session;
 
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
@@ -113,14 +113,14 @@ class Connection : public SharedClosable<Connection> {
 
   void reset_standard_deadline_timer();
 
-  void dispatch_message(MessagePtr &&msg);
+  void dispatch_message(MessageRef &&msg);
 
   // server connection
  protected:
   //  void on_server_connect() throw(const std::runtime_error &);
 
-  void on_receive_f0(MessagePtr &&msg);
-  void on_receive_f2(MessagePtr &&msg);
+  void on_receive_f0(MessageRef &&msg);
+  void on_receive_f2(MessageRef &&msg);
 
   // client connection
  protected:
@@ -130,8 +130,8 @@ class Connection : public SharedClosable<Connection> {
       const std::runtime_error &);
 
   void start_client_f0();
-  void on_receive_f1(MessagePtr &&msg);
-  void on_receive_f3(MessagePtr &&msg);
+  void on_receive_f1(MessageRef &&msg);
+  void on_receive_f3(MessageRef &&msg);
 };
 
 }  // namespace dsa

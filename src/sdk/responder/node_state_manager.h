@@ -13,13 +13,13 @@ namespace dsa {
 
 class NodeStateManager {
  private:
-  LinkStrandPtr strand;
-  std::map< std::string, intrusive_ptr_<NodeState> > _node_states;
+  LinkStrandRef strand;
+  std::map< std::string, ref_<NodeState> > _node_states;
 
  public:
-  explicit NodeStateManager(LinkStrandPtr & strand);
+  explicit NodeStateManager(LinkStrandRef & strand);
 
-  const intrusive_ptr_<NodeState> &get_or_create(std::string path);
+  const ref_<NodeState> &get_or_create(std::string path);
 };
 }  // namespace dsa
 

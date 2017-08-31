@@ -32,7 +32,7 @@ class TcpConnection : public Connection {
   void close_impl() override;
 
  public:
-  TcpConnection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
+  TcpConnection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
                 const std::string &dsid_prefix, const std::string &path = "");
 
 

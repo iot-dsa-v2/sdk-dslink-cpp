@@ -25,7 +25,7 @@ void NodeModel::update_value(Variant new_value) {
 }
 
 //
-//void NodeModel::add_stream(const intrusive_ptr_<MessageStream> &stream) {
+//void NodeModel::add_stream(const ref_<MessageStream> &stream) {
 //  switch (stream->get_type()) {
 //    case StreamType::Invoke:_invoke_streams[stream->_unique_id] = stream;
 //      break;

@@ -26,7 +26,7 @@ class TcpClientConnection : public TcpConnection {
 
 
  public:
-  TcpClientConnection(LinkStrandPtr & strand, uint32_t handshake_timeout_ms,
+  TcpClientConnection(LinkStrandRef & strand, uint32_t handshake_timeout_ms,
                       const std::string &dsid_prefix,
                       const std::string &tcp_host, uint16_t tcp_port,
                       const std::string &path = "");
@@ -37,7 +37,7 @@ class TcpClientConnection : public TcpConnection {
 
   void connect() override;
 
-  intrusive_ptr_<Session> session() { return _session; }
+  ref_<Session> session() { return _session; }
 };
 
 }  // namespace dsa

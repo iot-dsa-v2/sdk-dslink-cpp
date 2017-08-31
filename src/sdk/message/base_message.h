@@ -12,7 +12,7 @@
 
 namespace dsa {
 
-class Message : public EnableIntrusive<Message> {
+class Message : public EnableRef<Message> {
  public:
   enum : size_t { MAX_MESSAGE_SIZE = 65536 };
 
@@ -21,7 +21,7 @@ class Message : public EnableIntrusive<Message> {
   static const uint8_t AuthLength = 32;
 
  public:
-  static intrusive_ptr_<Message> parse_message(
+  static ref_<Message> parse_message(
       const uint8_t* data, size_t size) throw(const MessageParsingError&);
 
  public:
@@ -56,19 +56,19 @@ class Message : public EnableIntrusive<Message> {
 
   StaticHeaders static_headers;
 
-  BytesPtr body;
+  BytesRef body;
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
 };
-typedef intrusive_ptr_<Message> MessagePtr;
+typedef ref_<Message> MessageRef;
 
 class PagedMessageMixin {
  public:
   PagedMessageMixin();
 
  protected:
-  std::vector<intrusive_ptr_<Message>> other_pages;
+  std::vector<ref_<Message>> other_pages;
   size_t current_page;
 };
 
@@ -118,16 +118,16 @@ class ResponseMessage : public Message {
   void set_status(MessageStatus value);
 };
 
-class MessageStream : public IntrusiveClosable<MessageStream> {
+class MessageStream : public ClosableRef<MessageStream> {
  public:
   virtual ~MessageStream() = default;
 
   // write message to remote
   virtual size_t peek_next_message_size(size_t available) = 0;
-  virtual MessagePtr get_next_message() = 0;
+  virtual MessageRef get_next_message() = 0;
 
   // read message from remote
-  virtual void receive_message(MessagePtr&& msg) = 0;
+  virtual void receive_message(MessageRef&& msg) = 0;
 };
 
 }  // namespace dsa

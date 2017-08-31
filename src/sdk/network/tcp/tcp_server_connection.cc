@@ -14,7 +14,7 @@
 #define DEBUG 0
 
 namespace dsa {
-TcpServerConnection::TcpServerConnection(LinkStrandPtr &strand,
+TcpServerConnection::TcpServerConnection(LinkStrandRef &strand,
                                          uint32_t handshake_timeout_ms,
                                          const std::string &dsid_prefix,
                                          const std::string &path)
@@ -32,7 +32,7 @@ void TcpServerConnection::accept() {
 #endif
   {
     boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
-    on_read_message = [this](MessagePtr message) {
+    on_read_message = [this](MessageRef message) {
       on_receive_f0(std::move(message));
     };
   }

@@ -5,23 +5,26 @@
 
 #include "incoming_message_stream.h"
 
+#include "stream/incoming_subscribe_stream.h"
+
 namespace dsa {
+
 class Session;
-class SubscribeRequestMessage;
 
 class Requester {
   friend class Session;
 
  protected:
   Session &_session;
-  std::map<uint32_t, intrusive_ptr_<IncomingMessageStream>> _incoming_streams;
+  std::map<uint32_t, ref_<IncomingMessageStream>> _incoming_streams;
 
-  void receive_message(MessagePtr &&message);
+  void receive_message(MessageRef &&message);
 
  public:
   Requester(Session &session);
 
-  void new_subscribe(intrusive_ptr_<SubscribeRequestMessage> &&message);
+  ref_<IncomingSubscribeStream> subscribe(
+      ref_<SubscribeRequestMessage> &&message);
 };
 
 }  // namespace dsa

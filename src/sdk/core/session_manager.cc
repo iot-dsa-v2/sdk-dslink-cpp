@@ -7,7 +7,7 @@
 #include "server.h"
 
 namespace dsa {
-SessionManager::SessionManager(LinkStrandPtr &strand) : _strand(strand) {
+SessionManager::SessionManager(LinkStrandRef &strand) : _strand(strand) {
   gen_salt(reinterpret_cast<uint8_t *>(&_session_id_seed), sizeof(uint64_t));
 }
 
@@ -19,7 +19,7 @@ void SessionManager::get_session(const std::string &dsid,
       dsid, auth_token, [ =, callback = std::move(callback) ](
                             const ClientInfo client, bool error) mutable {
         if (error) {
-          callback(intrusive_ptr_<Session>());  // return nullptr
+          callback(ref_<Session>());  // return nullptr
           return;
         }
         if (_sessions.count(session_id) != 0) {
@@ -27,7 +27,7 @@ void SessionManager::get_session(const std::string &dsid,
           return;
         }
         std::string sid = get_new_session_id();
-        auto session = make_intrusive_<Session>(_strand, sid);
+        auto session = make_ref_<Session>(_strand, sid);
 
         _sessions[sid] = session;
 

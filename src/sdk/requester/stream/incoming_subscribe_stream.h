@@ -4,11 +4,13 @@
 #include "../incoming_message_stream.h"
 
 namespace dsa {
-class incoming_subscribe_stream : public IncomingMessageStream {
 
+class SubscribeRequestMessage;
+
+class IncomingSubscribeStream : public IncomingMessageStream {
+public:
+  typedef std::function<void(ref_<SubscribeRequestMessage>, bool)> Callback;
 };
-
 }
 
-
-#endif //DSA_SDK_INCOMING_SUBSCRIBE_STREAM_H
+#endif  // DSA_SDK_INCOMING_SUBSCRIBE_STREAM_H

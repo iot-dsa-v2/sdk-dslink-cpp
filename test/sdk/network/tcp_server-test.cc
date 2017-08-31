@@ -17,7 +17,7 @@ TEST(TcpServerTest, SingleStrand) {
   WrapperConfig config;
   config.tcp_host = "127.0.0.1";
   config.tcp_port = 8092;
-  config.strand = make_intrusive_<DefaultModules>(app);
+  config.strand = make_ref_<DefaultModules>(app);
   config.strand->logger().level = Logger::WARNING;
 
   app.async_start(10);
@@ -77,7 +77,7 @@ TEST(TcpServerTest, MultiStrand) {
   WrapperConfig server_config;
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8092;
-  server_config.strand = make_intrusive_<DefaultModules>(app);
+  server_config.strand = make_ref_<DefaultModules>(app);
   server_config.strand->logger().level = Logger::WARNING;
 
   app.async_start(10);
@@ -89,7 +89,7 @@ TEST(TcpServerTest, MultiStrand) {
   WrapperConfig client_config;
   client_config.tcp_host = "127.0.0.1";
   client_config.tcp_port = 8092;
-  client_config.strand = make_intrusive_<DefaultModules>(app);
+  client_config.strand = make_ref_<DefaultModules>(app);
   client_config.strand->logger().level = Logger::WARNING;
 
   const uint32_t NUM_CLIENT = 2;

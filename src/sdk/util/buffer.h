@@ -14,7 +14,7 @@ namespace dsa {
 class Message;
 
 class IntrusiveBytes : public std::vector<uint8_t>,
-                   public EnableIntrusive<IntrusiveBytes> {
+                   public EnableRef<IntrusiveBytes> {
  public:
   template <typename... Args>
   inline explicit IntrusiveBytes(Args &&... args)
@@ -24,7 +24,7 @@ class IntrusiveBytes : public std::vector<uint8_t>,
   typedef std::vector<uint8_t>::const_iterator const_iterator;
 };
 
-typedef intrusive_ptr_<IntrusiveBytes> BytesPtr;
+typedef ref_<IntrusiveBytes> BytesRef;
 }  // namespace dsa
 
 inline std::ostream &operator<<(std::ostream &os, const dsa::IntrusiveBytes &buf) {

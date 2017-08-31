@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-MessageQueueStream::MessageQueueStream(intrusive_ptr_<Session> &&session, uint32_t rid)
+MessageQueueStream::MessageQueueStream(ref_<Session> &&session, uint32_t rid)
     : _session(std::move(session)), _rid(rid) {
 
 }
@@ -28,11 +28,11 @@ size_t MessageQueueStream::peek_next_message_size(size_t available) {
   }
   return _queue.front()->size();
 }
-MessagePtr MessageQueueStream::get_next_message() {
+MessageRef MessageQueueStream::get_next_message() {
   if (is_closed() || _queue.empty()) {
     return nullptr;
   }
-  MessagePtr msg = std::move(_queue.front());
+  MessageRef msg = std::move(_queue.front());
   _queue.pop_front();
 
   if (!_queue.empty()) {

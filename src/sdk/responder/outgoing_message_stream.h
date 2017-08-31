@@ -27,7 +27,7 @@ class ListResponseMessage;
 class OutgoingMessageStream : public MessageQueueStream {
 
  public:
-  OutgoingMessageStream(intrusive_ptr_<Session> &&session, uint32_t rid);
+  OutgoingMessageStream(ref_<Session> &&session, uint32_t rid);
 };
 
 class SubscribeMessageStream : public OutgoingMessageStream {
@@ -35,11 +35,11 @@ class SubscribeMessageStream : public OutgoingMessageStream {
   SubscribeOptions _config;
 
  public:
-  SubscribeMessageStream(intrusive_ptr_<Session> &&session,
+  SubscribeMessageStream(ref_<Session> &&session,
                          SubscribeOptions &&config, uint32_t request_id);
 
   void new_message(const SubscribeResponseMessage &new_message);
-  void receive_message(MessagePtr&& msg){}
+  void receive_message(MessageRef&& msg){}
 };
 
 class InvokeMessageStream : public OutgoingMessageStream {
@@ -47,11 +47,11 @@ class InvokeMessageStream : public OutgoingMessageStream {
   InvokeOptions _config;
 
  public:
-  InvokeMessageStream(intrusive_ptr_<Session> &&session, InvokeOptions &&config,
+  InvokeMessageStream(ref_<Session> &&session, InvokeOptions &&config,
                       uint32_t request_id);
 
   void new_message(const InvokeResponseMessage &new_message);
-  void receive_message(MessagePtr&& msg){}
+  void receive_message(MessageRef&& msg){}
 };
 
 class ListMessageStream : public OutgoingMessageStream {
@@ -59,11 +59,11 @@ class ListMessageStream : public OutgoingMessageStream {
   ListOptions _config;
 
  public:
-  ListMessageStream(intrusive_ptr_<Session> &&session, ListOptions &&config,
+  ListMessageStream(ref_<Session> &&session, ListOptions &&config,
                     uint32_t request_id);
 
   void new_message(const ListResponseMessage &new_message);
-  void receive_message(MessagePtr&& msg){}
+  void receive_message(MessageRef&& msg){}
 };
 
 class SetMessageStream : public OutgoingMessageStream {
@@ -71,7 +71,7 @@ class SetMessageStream : public OutgoingMessageStream {
   SetOptions _config;
 
  public:
-  SetMessageStream(intrusive_ptr_<Session> &&session, SetOptions &&config,
+  SetMessageStream(ref_<Session> &&session, SetOptions &&config,
                    uint32_t request_id);
 
   //void new_message(const SetResponseMessage &new_message);
@@ -79,13 +79,13 @@ class SetMessageStream : public OutgoingMessageStream {
 
 class ErrorMessageStream : public OutgoingMessageStream {
  private:
-  MessagePtr _error_message;
+  MessageRef _error_message;
 
  public:
-  ErrorMessageStream(intrusive_ptr_<Session> &&session, MessageType type,
+  ErrorMessageStream(ref_<Session> &&session, MessageType type,
                      MessageStatus status, uint32_t request_id = 0);
 
-  MessagePtr get_next_message() override;
+  MessageRef get_next_message() override;
 };
 
 };  // namespace dsa

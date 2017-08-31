@@ -4,7 +4,7 @@
 
 namespace dsa {
 
-OutgoingMessageStream::OutgoingMessageStream(intrusive_ptr_<Session> &&session,
+OutgoingMessageStream::OutgoingMessageStream(ref_<Session> &&session,
                                              uint32_t rid)
     : MessageQueueStream(std::move(session), rid){}
 
@@ -12,7 +12,7 @@ OutgoingMessageStream::OutgoingMessageStream(intrusive_ptr_<Session> &&session,
 // SubscribeMessageStream
 /////////////////////////////
 SubscribeMessageStream::SubscribeMessageStream(
-    intrusive_ptr_<Session> &&session, SubscribeOptions &&config,
+    ref_<Session> &&session, SubscribeOptions &&config,
     uint32_t request_id)
     : OutgoingMessageStream(std::move(session), request_id),
       _config(std::move(config)) {}
@@ -25,7 +25,7 @@ void SubscribeMessageStream::new_message(
 ///////////////////////////////
 // InvokeMessageStream
 ///////////////////////////////
-InvokeMessageStream::InvokeMessageStream(intrusive_ptr_<Session> &&session,
+InvokeMessageStream::InvokeMessageStream(ref_<Session> &&session,
                                          InvokeOptions &&config,
                                          uint32_t request_id)
     : OutgoingMessageStream(std::move(session), request_id),
@@ -38,7 +38,7 @@ void InvokeMessageStream::new_message(
 //////////////////////////
 // ListMessageStream
 //////////////////////////
-ListMessageStream::ListMessageStream(intrusive_ptr_<Session> &&session,
+ListMessageStream::ListMessageStream(ref_<Session> &&session,
                                      ListOptions &&config, uint32_t request_id)
     : OutgoingMessageStream(std::move(session), request_id),
       _config(std::move(config)) {}
@@ -49,19 +49,19 @@ void ListMessageStream::new_message(const ListResponseMessage &new_message) {}
 //////////////////////////
 // SetMessageStream
 //////////////////////////
-SetMessageStream::SetMessageStream(intrusive_ptr_<Session> &&session,
+SetMessageStream::SetMessageStream(ref_<Session> &&session,
                                    SetOptions &&config, uint32_t request_id)
     : OutgoingMessageStream(std::move(session), request_id),
       _config(std::move(config)) {}
 
 
-ErrorMessageStream::ErrorMessageStream(intrusive_ptr_<Session> &&session,
+ErrorMessageStream::ErrorMessageStream(ref_<Session> &&session,
                                        MessageType type, MessageStatus status,
                                        uint32_t request_id)
     : OutgoingMessageStream(std::move(session), request_id),
       _error_message(new ErrorMessage(type, status, request_id)) {}
 
 
-MessagePtr ErrorMessageStream::get_next_message() { return _error_message; }
+MessageRef ErrorMessageStream::get_next_message() { return _error_message; }
 
 }  // namespace dsa

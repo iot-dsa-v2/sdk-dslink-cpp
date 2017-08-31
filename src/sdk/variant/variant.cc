@@ -25,7 +25,7 @@ Variant::Variant(const char* v) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::string(v, size);
   } else {
-    *this = intrusive_ptr_<IntrusiveString>(new IntrusiveString(v, size));
+    *this = ref_<IntrusiveString>(new IntrusiveString(v, size));
   }
 }
 
@@ -33,21 +33,21 @@ Variant::Variant(const char* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::string(v, size);
   } else {
-    *this = intrusive_ptr_<IntrusiveString>(new IntrusiveString(v, size));
+    *this = ref_<IntrusiveString>(new IntrusiveString(v, size));
   }
 }
 Variant::Variant(const std::string& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
-    *this = intrusive_ptr_<IntrusiveString>(new IntrusiveString(v));
+    *this = ref_<IntrusiveString>(new IntrusiveString(v));
   }
 }
 Variant::Variant(const std::string&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
-    *this = intrusive_ptr_<IntrusiveString>(new IntrusiveString(std::move(v)));
+    *this = ref_<IntrusiveString>(new IntrusiveString(std::move(v)));
   }
 }
 
@@ -55,39 +55,39 @@ Variant::Variant(const uint8_t* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::vector<uint8_t>(v, v + size);
   } else {
-    *this = intrusive_ptr_<IntrusiveBytes>(new IntrusiveBytes(v, v + size));
+    *this = ref_<IntrusiveBytes>(new IntrusiveBytes(v, v + size));
   }
 }
 Variant::Variant(const std::vector<uint8_t>& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
-    *this = intrusive_ptr_<IntrusiveBytes>(new IntrusiveBytes(v));
+    *this = ref_<IntrusiveBytes>(new IntrusiveBytes(v));
   }
 }
 Variant::Variant(const std::vector<uint8_t>&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
-    *this = intrusive_ptr_<IntrusiveBytes>(new IntrusiveBytes(std::move(v)));
+    *this = ref_<IntrusiveBytes>(new IntrusiveBytes(std::move(v)));
   }
 }
 
 Variant::Variant(IntrusiveString* p)
-    : BaseVariant(intrusive_ptr_<IntrusiveString>(p)) {}
+    : BaseVariant(ref_<IntrusiveString>(p)) {}
 
 Variant::Variant(IntrusiveBytes* p)
-    : BaseVariant(intrusive_ptr_<IntrusiveBytes>(p)) {}
+    : BaseVariant(ref_<IntrusiveBytes>(p)) {}
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
-Variant::Variant(VariantMap* p) : BaseVariant(intrusive_ptr_<VariantMap>(p)) {}
+Variant::Variant(VariantMap* p) : BaseVariant(ref_<VariantMap>(p)) {}
 Variant::Variant(VariantArray* p)
-    : BaseVariant(intrusive_ptr_<VariantArray>(p)) {}
+    : BaseVariant(ref_<VariantArray>(p)) {}
 
 Variant::Variant(std::initializer_list<VariantMap::value_type> init)
-    : BaseVariant(intrusive_ptr_<VariantMap>(new VariantMap(init))) {}
+    : BaseVariant(ref_<VariantMap>(new VariantMap(init))) {}
 Variant::Variant(std::initializer_list<Variant> init)
-    : BaseVariant(intrusive_ptr_<VariantArray>(new VariantArray(init))) {}
+    : BaseVariant(ref_<VariantArray>(new VariantArray(init))) {}
 
 Variant Variant::new_map() { return Variant(new VariantMap()); }
 Variant Variant::new_array() { return Variant(new VariantArray()); }

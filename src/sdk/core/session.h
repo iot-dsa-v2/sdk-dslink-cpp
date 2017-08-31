@@ -19,7 +19,7 @@ class Connection;
 //////////////////////////////////////////
 // maintain request and response streams
 //////////////////////////////////////////
-class Session : public IntrusiveClosable<Session> {
+class Session : public ClosableRef<Session> {
   friend class Connection;
   friend class Responder;
   friend class MessageStream;
@@ -29,24 +29,24 @@ class Session : public IntrusiveClosable<Session> {
   std::string _session_id;
   shared_ptr_<Connection> _connection;
 
-  std::deque<intrusive_ptr_<MessageStream> > _ready_streams;
+  std::deque<ref_<MessageStream> > _ready_streams;
   bool _is_writing = false;
 
-  LinkStrandPtr _strand;
+  LinkStrandRef _strand;
 
-  intrusive_ptr_<MessageStream> get_next_ready_stream();
+  ref_<MessageStream> get_next_ready_stream();
 
   size_t peek_next_message(size_t availible);
 
-  static void write_loop(intrusive_ptr_<Session> sthis);
+  static void write_loop(ref_<Session> sthis);
 
-  void receive_message(MessagePtr &&message);
+  void receive_message(MessageRef &&message);
 
  public:
   Requester requester;
   Responder responder;
 
-  Session(LinkStrandPtr &strand, const std::string &session_id);
+  Session(LinkStrandRef &strand, const std::string &session_id);
 
   const std::string &dsid() const { return _dsid; }
   const std::string &session_id() const { return _session_id; }
@@ -57,8 +57,8 @@ class Session : public IntrusiveClosable<Session> {
 
   void close_impl() override;
 
-  intrusive_ptr_<Session> get_intrusive() { return intrusive_this(); }
-  void add_ready_stream(intrusive_ptr_<MessageStream> stream);
+  ref_<Session> get_intrusive() { return intrusive_this(); }
+  void add_ready_stream(ref_<MessageStream> stream);
 };
 
 }  // namespace dsa

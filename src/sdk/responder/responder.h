@@ -23,16 +23,16 @@ class Responder {
  protected:
   Session &_session;
 
-  std::map<uint32_t, intrusive_ptr_<MessageStream> > _outgoing_streams;
+  std::map<uint32_t, ref_<MessageStream> > _outgoing_streams;
 
   virtual void on_invoke_request(
-      intrusive_ptr_<InvokeRequestMessage> &&request);
-  virtual void on_list_request(intrusive_ptr_<ListRequestMessage> &&request);
-  virtual void on_set_request(intrusive_ptr_<SetRequestMessage> &&request);
+      ref_<InvokeRequestMessage> &&request);
+  virtual void on_list_request(ref_<ListRequestMessage> &&request);
+  virtual void on_set_request(ref_<SetRequestMessage> &&request);
   virtual void on_subscribe_request(
-      intrusive_ptr_<SubscribeRequestMessage> &&request);
+      ref_<SubscribeRequestMessage> &&request);
 
-  void receive_message(intrusive_ptr_<Message> &&message);
+  void receive_message(ref_<Message> &&message);
 
  public:
   explicit Responder(Session &session);

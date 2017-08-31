@@ -13,12 +13,12 @@ namespace dsa {
 class NodeState;
 
 // interface of the real model logic
-class NodeModel : public EnableIntrusive<NodeModel>  {
+class NodeModel : public EnableRef<NodeModel>  {
  private:
 
-  intrusive_ptr_<NodeState> _state;
-  std::map< size_t, intrusive_ptr_<MessageStream> > _invoke_streams;
-  std::map< size_t, intrusive_ptr_<MessageStream> > _set_streams;
+  ref_<NodeState> _state;
+  std::map< size_t, ref_<MessageStream> > _invoke_streams;
+  std::map< size_t, ref_<MessageStream> > _set_streams;
 
 
  public:

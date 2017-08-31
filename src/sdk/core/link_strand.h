@@ -13,9 +13,9 @@ class NodeStateManager;
 class ECDH;
 class Logger;
 
-typedef boost::asio::io_service::strand Strand;
+typedef boost::asio::strand Strand;
 
-class LinkStrand : public EnableIntrusive<LinkStrand> {
+class LinkStrand : public EnableRef<LinkStrand> {
  protected:
   // managed pointer by LinkStrand
   Strand *__strand = nullptr;
@@ -43,6 +43,6 @@ class LinkStrand : public EnableIntrusive<LinkStrand> {
 
   ECDH &ecdh() { return *__ecdh; };
 };
-typedef intrusive_ptr_<LinkStrand> LinkStrandPtr;
+typedef ref_<LinkStrand> LinkStrandRef;
 }  // namespace dsa
 #endif  // DSA_SDK_LINK_STRAND_H

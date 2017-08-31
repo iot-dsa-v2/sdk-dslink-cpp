@@ -11,8 +11,8 @@ class Session;
 
 class MessageQueueStream : public MessageStream {
  protected:
-  intrusive_ptr_<Session> _session;
-  std::deque<MessagePtr> _queue;
+  ref_<Session> _session;
+  std::deque<MessageRef> _queue;
 
   uint32_t _rid;
 
@@ -21,13 +21,13 @@ class MessageQueueStream : public MessageStream {
   void close_impl() override;
 
  public:
-  MessageQueueStream(intrusive_ptr_<Session> &&session, uint32_t rid = 0);
+  MessageQueueStream(ref_<Session> &&session, uint32_t rid = 0);
   ~MessageQueueStream() override;
 
   uint32_t get_rid() { return _rid; };
 
   size_t peek_next_message_size(size_t available) override;
-  MessagePtr get_next_message() override;
+  MessageRef get_next_message() override;
 
 
 };

@@ -23,11 +23,11 @@ class Server : public SharedClosable<Server> {
   // for Session/Requester/Responder
 
   // for ServerConnection
-  LinkStrandPtr _strand;
+  LinkStrandRef _strand;
   uint32_t _handshake_timeout_ms;
   std::string _dsid_prefix;
 
-  //  void on_session_connected(const intrusive_ptr_ <Session> session);
+  //  void on_session_connected(const ref_ <Session> session);
 
   void close_impl() override;
 
