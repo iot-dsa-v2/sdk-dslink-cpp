@@ -13,14 +13,14 @@ HandshakeContext::HandshakeContext(std::string dsid_prefix, const ECDH &ecdh)
   Hash hash("sha256");
   hash.update(_ecdh.get_public_key());
   _dsid = dsid_prefix + base64_url_convert(hash.digest_base64());
-  //_salt = gen_salt(Connection::SaltLength);
+  //_salt = gen_salt(Connection::SALT_LENGTH);
   gen_salt(_salt.data(), _salt.size());
 }
 HandshakeContext::HandshakeContext(std::string dsid_prefix) : _salt(32) {
   Hash hash("sha256");
   hash.update(_ecdh.get_public_key());
   _dsid = dsid_prefix + base64_url_convert(hash.digest_base64());
-  //_salt = gen_salt(Connection::SaltLength);
+  //_salt = gen_salt(Connection::SALT_LENGTH);
   gen_salt(_salt.data(), _salt.size());
 }
 

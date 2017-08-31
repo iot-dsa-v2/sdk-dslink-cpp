@@ -13,12 +13,12 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   uint8_t public_key[] =
       "public-key1234567890123456789012345678901234567890123456789012345";
   message.public_key =
-      std::vector<uint8_t>(public_key, public_key + Message::PublicKeyLength);
+      std::vector<uint8_t>(public_key, public_key + Message::PUBLIC_KEY_LENGTH);
 
   message.security_preference = true;
 
   uint8_t salt[] = "salt5678901234567890123456789012";
-  message.salt = std::vector<uint8_t>(salt, salt + Message::SaltLength);
+  message.salt = std::vector<uint8_t>(salt, salt + Message::SALT_LENGTH);
 
   message.size();
 
@@ -48,7 +48,7 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   uint8_t DsidLengthOffset = StaticHeaders::TotalSize + 2 * sizeof(uint8_t);
   uint8_t DsidOffset = DsidLengthOffset + sizeof(uint16_t);
   uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
-  uint8_t SecurityPreferenceOffset = PublicKeyOffset + Message::PublicKeyLength;
+  uint8_t SecurityPreferenceOffset = PublicKeyOffset + Message::PUBLIC_KEY_LENGTH;
   uint8_t SaltOffset = SecurityPreferenceOffset + sizeof(uint8_t);
 
   expected_values[StaticHeaders::TotalSize] = 2;
@@ -58,7 +58,7 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   std::memcpy(&expected_values[DsidOffset], message.dsid.data(),
               message.dsid.size());
   std::memcpy(&expected_values[PublicKeyOffset], message.public_key.data(),
-              Message::PublicKeyLength);
+              Message::PUBLIC_KEY_LENGTH);
   std::memcpy(&expected_values[SecurityPreferenceOffset],
               &message.security_preference,
               sizeof(message.security_preference));

@@ -16,9 +16,9 @@ class Message : public EnableRef<Message> {
  public:
   enum : size_t { MAX_MESSAGE_SIZE = 65536 };
 
-  static const uint8_t PublicKeyLength = 65;
-  static const uint8_t SaltLength = 32;
-  static const uint8_t AuthLength = 32;
+  static const uint8_t PUBLIC_KEY_LENGTH = 65;
+  static const uint8_t SALT_LENGTH = 32;
+  static const uint8_t AUTH_LENGTH = 32;
 
  public:
   static ref_<Message> parse_message(

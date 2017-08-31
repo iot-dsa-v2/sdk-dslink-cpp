@@ -128,20 +128,20 @@ void Connection::on_receive_f2(MessageRef &&msg) {
 //  //  _dsa_version_minor = *data++;
 //  dsid_length = *data++;
 //
-//  if ((data - _write_buffer.data()) + dsid_length + PublicKeyLength + 1 +
-//          SaltLength >
+//  if ((data - _write_buffer.data()) + dsid_length + PUBLIC_KEY_LENGTH + 1 +
+//          SALT_LENGTH >
 //      size)
 //    return false;
 //
 //  data += _other_dsid.assign(reinterpret_cast<const char *>(data),
 //  dsid_length)
 //              .size();
-//  _other_public_key.assign(data, data + PublicKeyLength);
+//  _other_public_key.assign(data, data + PUBLIC_KEY_LENGTH);
 //  data += _other_public_key.size();
 //
 //  _security_preference = static_cast<bool>(*data++);
 //
-//  _other_salt.assign(data, data + SaltLength);
+//  _other_salt.assign(data, data + SALT_LENGTH);
 //
 //  data += _other_salt.size();
 //
@@ -179,13 +179,13 @@ void Connection::on_receive_f2(MessageRef &&msg) {
 //  data += sizeof(session_id_length);
 //
 //  // prevent accidental read in unowned memory
-//  if ((data - _write_buffer.data()) + session_id_length + AuthLength != size)
+//  if ((data - _write_buffer.data()) + session_id_length + AUTH_LENGTH != size)
 //    return false;
 //
 //  data += _session_id
 //              .assign(reinterpret_cast<const char *>(data), session_id_length)
 //              .size();
-//  _other_auth.assign(data, data + AuthLength);
+//  _other_auth.assign(data, data + AUTH_LENGTH);
 //  data += _other_auth.size();
 //
 //  return data == _write_buffer.data() + size;

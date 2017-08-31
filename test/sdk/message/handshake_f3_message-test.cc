@@ -15,7 +15,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   message.path = path;
 
   uint8_t auth[] = "auth5678901234567890123456789012";
-  message.auth = std::vector<uint8_t>(auth, auth + Message::AuthLength);
+  message.auth = std::vector<uint8_t>(auth, auth + Message::AUTH_LENGTH);
 
   message.size();
 
@@ -52,7 +52,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   std::memcpy(&expected_values[SessionIdOffset], message.session_id.data(), message.session_id.size());
   std::memcpy(&expected_values[PathLengthOffset], &path_length,  sizeof(path_length));
   std::memcpy(&expected_values[PathOffset], message.path.data(), message.path.size());
-  std::memcpy(&expected_values[AuthOffset], message.auth.data(), Message::AuthLength);
+  std::memcpy(&expected_values[AuthOffset], message.auth.data(), Message::AUTH_LENGTH);
 
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
 

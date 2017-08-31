@@ -13,10 +13,10 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
   uint8_t public_key[] =
       "public-key1234567890123456789012345678901234567890123456789012345";
   message.public_key =
-      std::vector<uint8_t>(public_key, public_key + Message::PublicKeyLength);
+      std::vector<uint8_t>(public_key, public_key + Message::PUBLIC_KEY_LENGTH);
 
   uint8_t salt[] = "salt5678901234567890123456789012";
-  message.salt = std::vector<uint8_t>(salt, salt + Message::SaltLength);
+  message.salt = std::vector<uint8_t>(salt, salt + Message::SALT_LENGTH);
 
   message.size();
 
@@ -46,14 +46,14 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
   uint8_t DsidLengthOffset = StaticHeaders::TotalSize;
   uint8_t DsidOffset = DsidLengthOffset + sizeof(uint16_t);
   uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
-  uint8_t SaltOffset = PublicKeyOffset + Message::PublicKeyLength;
+  uint8_t SaltOffset = PublicKeyOffset + Message::PUBLIC_KEY_LENGTH;
 
   write_16_t(&expected_values[DsidLengthOffset], message.dsid.length());
 
   std::memcpy(&expected_values[DsidOffset], message.dsid.data(),
               message.dsid.size());
   std::memcpy(&expected_values[PublicKeyOffset], message.public_key.data(),
-              Message::PublicKeyLength);
+              Message::PUBLIC_KEY_LENGTH);
   std::memcpy(&expected_values[SaltOffset], message.salt.data(),
               message.salt.size());
 

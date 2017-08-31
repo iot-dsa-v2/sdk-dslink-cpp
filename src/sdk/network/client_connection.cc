@@ -112,8 +112,8 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 //  std::copy(data, data + sizeof(dsid_length), &dsid_length);
 //  data += sizeof(dsid_length);
 //
-//  if ((data - _write_buffer.data()) + dsid_length + PublicKeyLength +
-//          SaltLength >
+//  if ((data - _write_buffer.data()) + dsid_length + PUBLIC_KEY_LENGTH +
+//          SALT_LENGTH >
 //      size)
 //    return false;
 //
@@ -121,10 +121,10 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 //  dsid_length)
 //              .size();
 //
-//  _other_public_key.assign(data, data + PublicKeyLength);
+//  _other_public_key.assign(data, data + PUBLIC_KEY_LENGTH);
 //  data += _other_public_key.size();
 //
-//  _other_salt.assign(data, data + SaltLength);
+//  _other_salt.assign(data, data + SALT_LENGTH);
 //  data += _other_salt.size();
 //
 //  return data == _write_buffer.data() + size;
@@ -151,11 +151,11 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 //
 //  std::copy(data, data + sizeof(path_length), &path_length);
 //  data += sizeof(path_length);
-//  if (cur + path_length + AuthLength > size) return false;
+//  if (cur + path_length + AUTH_LENGTH > size) return false;
 //  data +=
 //      _path.assign(reinterpret_cast<const char *>(data), path_length).size();
 //
-//  _auth_check.assign(data, data + AuthLength);
+//  _auth_check.assign(data, data + AUTH_LENGTH);
 //  data += _auth_check.size();
 //
 //#if DEBUG

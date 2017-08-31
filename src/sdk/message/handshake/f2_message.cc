@@ -18,14 +18,14 @@ HandshakeF2Message::HandshakeF2Message()
     : Message(MessageType::HANDSHAKE2),
       is_requester(false),
       is_responder(false),
-      auth(AuthLength) {}
+      auth(AUTH_LENGTH) {}
 
 void HandshakeF2Message::update_static_header() {
   static_headers.header_size = (uint16_t)StaticHeaders::TotalSize;
   static_headers.message_size =
       StaticHeaders::TotalSize +
       6 /* token_length, is_requester, is_responder, session_id_length */ +
-      token.length() + session_id.length() + AuthLength;
+      token.length() + session_id.length() + AUTH_LENGTH;
 }
 
 void HandshakeF2Message::write_dynamic_data(uint8_t* data) const {
@@ -45,7 +45,7 @@ void HandshakeF2Message::parse_dynamic_headers(
 
   data += read_str_with_len(data, session_id);
 
-  auth.assign(data, data + AuthLength);
+  auth.assign(data, data + AUTH_LENGTH);
 }
 
 }  // namespace dsa

@@ -9,21 +9,21 @@
 namespace dsa {
 
 HandshakeF0Message::HandshakeF0Message(const uint8_t* data, size_t size)
-    : Message(data, size), public_key(PublicKeyLength), salt(SaltLength) {
+    : Message(data, size), public_key(PUBLIC_KEY_LENGTH), salt(SALT_LENGTH) {
   parse_dynamic_headers(data + StaticHeaders::TotalSize,
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 
 HandshakeF0Message::HandshakeF0Message()
     : Message(MessageType::HANDSHAKE0),
-      public_key(PublicKeyLength),
-      salt(SaltLength) {}
+      public_key(PUBLIC_KEY_LENGTH),
+      salt(SALT_LENGTH) {}
 
 void HandshakeF0Message::update_static_header() {
   static_headers.header_size = (uint16_t)StaticHeaders::TotalSize;
   static_headers.message_size = StaticHeaders::TotalSize + 2 /*version*/ +
                                 2 /*dsidlen*/ + dsid.length() +
-                                PublicKeyLength + SaltLength + 1 /*encryption*/;
+                                PUBLIC_KEY_LENGTH + SALT_LENGTH + 1 /*encryption*/;
 }
 
 void HandshakeF0Message::write_dynamic_data(uint8_t* data) const {
@@ -42,12 +42,12 @@ void HandshakeF0Message::parse_dynamic_headers(
 
   data += read_str_with_len(data, dsid);
 
-  public_key.assign(data, data + PublicKeyLength);
-  data += PublicKeyLength;
+  public_key.assign(data, data + PUBLIC_KEY_LENGTH);
+  data += PUBLIC_KEY_LENGTH;
 
   security_preference = static_cast<bool>(*data++);
 
-  salt.assign(data, data + SaltLength);
+  salt.assign(data, data + SALT_LENGTH);
 }
 
 }  // namespace dsa

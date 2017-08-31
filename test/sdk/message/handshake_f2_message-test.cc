@@ -16,7 +16,7 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
       "session-id123456789012345678901234567890123456789012345678901234");
   message.session_id = session_id;
   uint8_t auth[] = "auth5678901234567890123456789012";
-  message.auth = std::vector<uint8_t>(auth, auth + Message::AuthLength);
+  message.auth = std::vector<uint8_t>(auth, auth + Message::AUTH_LENGTH);
 
   message.size();
 
@@ -66,7 +66,7 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   std::memcpy(&expected_values[SessionIdOffset], message.session_id.data(),
               message.session_id.size());
   std::memcpy(&expected_values[AuthOffset], message.auth.data(),
-              Message::AuthLength);
+              Message::AUTH_LENGTH);
 
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
 }
