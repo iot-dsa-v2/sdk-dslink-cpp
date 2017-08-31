@@ -53,16 +53,16 @@ typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
 
 class Variant : public BaseVariant {
   enum : int {
-    Null = 0,
-    Double,
-    Int,
-    Bool,
-    String,
-    SharedString,
-    Map,
-    Array,
-    Binary,
-    SharedBinary
+    NUL = 0,
+    DOUBLE,
+    INT,
+    BOOL,
+    STRING,
+    SHARED_STRING,
+    MAP,
+    ARRAY,
+    BINARY,
+    SHARED_BINARY
   };
 
  public:
@@ -110,30 +110,30 @@ class Variant : public BaseVariant {
   explicit Variant(IntrusiveBytes *p);
 
  public:
-  bool is_double() const { return which() == Double; }
-  bool is_int() const { return which() == Int; }
-  bool is_bool() const { return which() == Bool; }
+  bool is_double() const { return which() == DOUBLE; }
+  bool is_int() const { return which() == INT; }
+  bool is_bool() const { return which() == BOOL; }
   bool is_string() const {
-    return which() == String || which() == SharedString;
+    return which() == STRING || which() == SHARED_STRING;
   }
-  bool is_map() const { return which() == Map; }
-  bool is_array() const { return which() == Array; }
+  bool is_map() const { return which() == MAP; }
+  bool is_array() const { return which() == ARRAY; }
   bool is_binary() const {
-    return which() == Binary || which() == SharedBinary;
+    return which() == BINARY || which() == SHARED_BINARY;
   }
-  bool is_null() const { return which() == Null; }
+  bool is_null() const { return which() == NUL; }
 
   double get_double() const { return boost::get<double>(*this); }
   int64_t get_int() const { return boost::get<int64_t>(*this); }
   bool get_bool() const { return boost::get<bool>(*this); }
   const std::string &get_string() const {
-    if (which() == SharedString) {
+    if (which() == SHARED_STRING) {
       return *boost::get<ref_<IntrusiveString>>(*this);
     }
     return boost::get<const std::string>(*this);
   }
   const std::vector<uint8_t> &get_binary() const {
-    if (which() == SharedBinary) {
+    if (which() == SHARED_BINARY) {
       return *boost::get<ref_<IntrusiveBytes>>(*this);
     }
     return boost::get<const std::vector<uint8_t>>(*this);

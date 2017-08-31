@@ -94,7 +94,7 @@ Variant Variant::new_array() { return Variant(new VariantArray()); }
 
 Variant Variant::copy() const {
   switch (which()) {
-    case Map: {
+    case MAP: {
       auto new_map = new VariantMap();
       VariantMap& map = get_map();
 
@@ -103,7 +103,7 @@ Variant Variant::copy() const {
       }
       return Variant(new_map);
     }
-    case Array: {
+    case ARRAY: {
       auto new_array = new VariantArray();
       VariantArray& array = get_array();
       new_array->reserve(array.size());
@@ -120,7 +120,7 @@ Variant Variant::copy() const {
 
 Variant Variant::deep_copy() const {
   switch (which()) {
-    case Map: {
+    case MAP: {
       auto new_map = new VariantMap();
       VariantMap& map = get_map();
 
@@ -129,7 +129,7 @@ Variant Variant::deep_copy() const {
       }
       return Variant(new_map);
     }
-    case Array: {
+    case ARRAY: {
       auto new_array = new VariantArray();
       VariantArray& array = get_array();
       new_array->reserve(array.size());
