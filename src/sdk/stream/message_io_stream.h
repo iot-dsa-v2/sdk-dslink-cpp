@@ -1,7 +1,7 @@
 #ifndef DSA_SDK_MESSAGE_IO_STREAM_H
 #define DSA_SDK_MESSAGE_IO_STREAM_H
 
-#include "base_message.h"
+#include "message/base_message.h"
 
 #include <deque>
 

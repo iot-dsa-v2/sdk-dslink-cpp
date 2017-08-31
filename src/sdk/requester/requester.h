@@ -3,9 +3,9 @@
 
 #include <map>
 
-#include "incoming_message_stream.h"
+#include "stream/incoming_message_stream.h"
 
-#include "stream/incoming_subscribe_stream.h"
+#include "stream/requester/incoming_subscribe_stream.h"
 
 namespace dsa {
 

@@ -25,9 +25,7 @@ list(APPEND MessageSourceFiles
         response/subscribe_response_message_generated.cc
         response/list_response_message_generated.cc
         response/set_response_message_generated.cc
-        error_message.cc
-        message_io_stream.cc
-		enums.h)
+        error_message.cc)
 
 foreach(file ${MessageSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_MESSAGE}/${file})
