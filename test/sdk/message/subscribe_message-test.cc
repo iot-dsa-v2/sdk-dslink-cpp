@@ -334,8 +334,8 @@ TEST(MessageTest, SubscribeResponse__dynamic_structure) {
   SubscribeResponseMessage response;
 
   response.set_status(MessageStatus::Closed);
-  response.set_sequence_id(1234);  // no effect
-  response.set_page_id(4321);      // no effect
+  response.set_sequence_id(1234);
+  response.set_page_id(4321);
   response.set_source_path("/source/path");
 
   response.size();
