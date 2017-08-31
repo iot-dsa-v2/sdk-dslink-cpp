@@ -48,7 +48,7 @@ TEST(VariantTest, MsgpackEncodingBool) {
         reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
     EXPECT_TRUE(v_dash.is_bool());
-    EXPECT_EQ(true, v_dash.get_bool());
+    EXPECT_TRUE(v_dash.get_bool());
   }
 
   {
@@ -63,7 +63,7 @@ TEST(VariantTest, MsgpackEncodingBool) {
         reinterpret_cast<const uint8_t *>(encoded_buf), encoded_buf_size);
 
     EXPECT_TRUE(v_dash.is_bool());
-    EXPECT_EQ(false, v_dash.get_bool());
+    EXPECT_FALSE(v_dash.get_bool());
   }
 }
 
@@ -171,7 +171,7 @@ TEST(VariantTest, MsgpackEncodingArray) {
   EXPECT_EQ(1, vec[0].get_int());
 
   EXPECT_TRUE(vec[1].is_bool());
-  EXPECT_EQ(true, vec[1].get_bool());
+  EXPECT_TRUE(vec[1].get_bool());
 
   EXPECT_TRUE(vec[2].is_string());
   EXPECT_EQ("example", vec[2].get_string());
@@ -239,7 +239,7 @@ TEST(VariantTest, MsgpackEncodingNestedArray) {
   EXPECT_EQ(1, vec[0].get_int());
 
   EXPECT_TRUE(vec[1].is_bool());
-  EXPECT_EQ(true, vec[1].get_bool());
+  EXPECT_TRUE(vec[1].get_bool());
 
   EXPECT_TRUE(vec[2].is_string());
   EXPECT_EQ("example", vec[2].get_string());
@@ -362,7 +362,7 @@ TEST(VariantTest, MsgpackEncodingNestedMap) {
   EXPECT_EQ(1, vec[0].get_int());
 
   EXPECT_TRUE(vec[1].is_bool());
-  EXPECT_EQ(true, vec[1].get_bool());
+  EXPECT_TRUE(vec[1].get_bool());
 
   EXPECT_TRUE(vec[2].is_string());
   EXPECT_EQ("example", vec[2].get_string());

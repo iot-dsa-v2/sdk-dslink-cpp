@@ -69,7 +69,7 @@ TEST(VariantTest, InitializerList__Array) {
   EXPECT_EQ(123, vec[1].get_int());
 
   EXPECT_TRUE(vec[2].is_bool());
-  EXPECT_EQ(true, vec[2].get_bool());
+  EXPECT_TRUE(vec[2].get_bool());
 }
 
 TEST(VariantTest, InitilizerList__Map) {
@@ -88,7 +88,7 @@ TEST(VariantTest, InitilizerList__Map) {
   EXPECT_EQ(123, map["int"].get_int());
 
   EXPECT_TRUE(map["bool"].is_bool());
-  EXPECT_EQ(true, map["bool"].get_bool());
+  EXPECT_TRUE(map["bool"].get_bool());
 }
 
 

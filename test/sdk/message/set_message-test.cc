@@ -58,7 +58,7 @@ TEST(MessageTest, SetRequest__Constructor_02) {
   EXPECT_EQ(0, target__request.get_sequence_id());
   EXPECT_EQ(0, target__request.get_page_id());
   EXPECT_EQ(MessageType::SetRequest, target__request.type());
-  EXPECT_EQ(true, target__request.is_request());
+  EXPECT_TRUE(target__request.is_request());
   EXPECT_EQ(0, target__request.request_id());
 
   EXPECT_FALSE(target__request.get_priority());
@@ -89,7 +89,7 @@ TEST(MessageTest, SetRequest__Constructor_03) {
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
   EXPECT_EQ(MessageType::SetRequest, request.type());
-  EXPECT_EQ(true, request.is_request());
+  EXPECT_TRUE(request.is_request());
   EXPECT_EQ(0, request.request_id());
 
   EXPECT_FALSE(request.get_priority());
@@ -114,7 +114,7 @@ TEST(MessageTest, SetRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_sequence_id());
   EXPECT_EQ(0, other.get_page_id());
   EXPECT_EQ(MessageType::SetRequest, other.type());
-  EXPECT_EQ(true, other.is_request());
+  EXPECT_TRUE(other.is_request());
   EXPECT_EQ(0, other.request_id());
 
   EXPECT_FALSE(other.get_priority());
@@ -139,8 +139,7 @@ TEST(MessageTest, SetRequest__update_static_header) {
   request.size();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
-  EXPECT_EQ(true,
-            request.check_static_headers(
+  EXPECT_TRUE(request.check_static_headers(
                 expect_values, sizeof(expect_values) / sizeof(uint8_t)));
 }
 
@@ -149,7 +148,7 @@ TEST(MessageTest, SetRequest__priority) {
 
   EXPECT_FALSE(request.get_priority());
   request.set_priority(true);
-  EXPECT_EQ(true, request.get_priority());
+  EXPECT_TRUE(request.get_priority());
 }
 
 TEST(MessageTest, SetRequest__target_path) {
@@ -174,7 +173,7 @@ TEST(MessageTest, SetRequest__no_stream) {
 
   EXPECT_FALSE(request.get_no_stream());
   request.set_no_stream(true);
-  EXPECT_EQ(true, request.get_no_stream());
+  EXPECT_TRUE(request.get_no_stream());
 }
 
 TEST(MessageTest, SetRequest__write) {
