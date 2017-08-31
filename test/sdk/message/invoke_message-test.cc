@@ -125,13 +125,13 @@ TEST(MessageTest, InvokeRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
-TEST(MessageTest, InvokeRequest__get_set_options) {
+TEST(MessageTest, InvokeRequest__get_invoke_options) {
   //   InvokeOptions get_invoke_options() const;
 
   InvokeRequestMessage request;
-  InvokeOptions option = request.get_invoke_options();
+  InvokeOptions options = request.get_invoke_options();
 
-  EXPECT_EQ(1, sizeof(option));
+  EXPECT_EQ(1, sizeof(options));
 }
 
 TEST(MessageTest, InvokeRequest__update_static_header) {

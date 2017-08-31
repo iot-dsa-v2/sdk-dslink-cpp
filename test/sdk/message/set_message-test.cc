@@ -127,9 +127,9 @@ TEST(MessageTest, SetRequest__get_set_options) {
   //   SetOptions get_set_options() const;
 
   SetRequestMessage request;
-  SetOptions option = request.get_set_options();
+  SetOptions options = request.get_set_options();
 
-  EXPECT_EQ(1, sizeof(option));
+  EXPECT_EQ(1, sizeof(options));
 }
 
 TEST(MessageTest, SetRequest__update_static_header) {

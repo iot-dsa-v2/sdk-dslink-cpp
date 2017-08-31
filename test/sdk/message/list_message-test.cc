@@ -123,13 +123,13 @@ TEST(MessageTest, ListRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
-TEST(MessageTest, ListRequest__get_set_options) {
-  //   SetOptions get_set_options() const;
+TEST(MessageTest, ListRequest__get_list_options) {
+  //   SetOptions get_list_options() const;
 
   ListRequestMessage request;
-  ListOptions option = request.get_list_options();
+  ListOptions options = request.get_list_options();
 
-  EXPECT_EQ(1, sizeof(option));
+  EXPECT_EQ(1, sizeof(options));
 }
 
 TEST(MessageTest, ListRequest__update_static_header) {
