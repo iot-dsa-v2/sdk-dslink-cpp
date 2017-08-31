@@ -8,6 +8,7 @@ add_library(${TARGET_NAME} OBJECT
         handshake_f3_message-test.cc
         handshake_message-test.cc
         subscribe_message-test.cc
+        list_message-test.cc
         invoke_message-test.cc
         set_message-test.cc
         )
