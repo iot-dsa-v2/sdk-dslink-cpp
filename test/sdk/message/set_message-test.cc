@@ -1,4 +1,5 @@
 #include "dsa/message.h"
+
 #include "gtest/gtest.h"
 
 using namespace dsa;
@@ -37,13 +38,13 @@ TEST(MessageTest, SetRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
   EXPECT_EQ(MessageType::SetRequest, request.type());
-  EXPECT_EQ(true, request.is_request());
+  EXPECT_TRUE(request.is_request());
   EXPECT_EQ(0, request.request_id());
 
-  EXPECT_EQ(false, request.get_priority());
+  EXPECT_FALSE(request.get_priority());
   EXPECT_EQ("", request.get_target_path());
   EXPECT_EQ("", request.get_permission_token());
-  EXPECT_EQ(false, request.get_no_stream());
+  EXPECT_FALSE(request.get_no_stream());
   EXPECT_EQ(0, request.get_alias_count());
 }
 
@@ -60,10 +61,10 @@ TEST(MessageTest, SetRequest__Constructor_02) {
   EXPECT_EQ(true, target__request.is_request());
   EXPECT_EQ(0, target__request.request_id());
 
-  EXPECT_EQ(false, target__request.get_priority());
+  EXPECT_FALSE(target__request.get_priority());
   EXPECT_EQ("", target__request.get_target_path());
   EXPECT_EQ("", target__request.get_permission_token());
-  EXPECT_EQ(false, target__request.get_no_stream());
+  EXPECT_FALSE(target__request.get_no_stream());
   EXPECT_EQ(0, target__request.get_alias_count());
 
   std::string target_path("path/to/abc");
@@ -91,10 +92,10 @@ TEST(MessageTest, SetRequest__Constructor_03) {
   EXPECT_EQ(true, request.is_request());
   EXPECT_EQ(0, request.request_id());
 
-  EXPECT_EQ(false, request.get_priority());
+  EXPECT_FALSE(request.get_priority());
   EXPECT_EQ("", request.get_target_path());
   EXPECT_EQ("", request.get_permission_token());
-  EXPECT_EQ(false, request.get_no_stream());
+  EXPECT_FALSE(request.get_no_stream());
   EXPECT_EQ(0, request.get_alias_count());
 }
 
@@ -116,10 +117,10 @@ TEST(MessageTest, SetRequest__Constructor_04) {
   EXPECT_EQ(true, other.is_request());
   EXPECT_EQ(0, other.request_id());
 
-  EXPECT_EQ(false, other.get_priority());
+  EXPECT_FALSE(other.get_priority());
   EXPECT_EQ("/other", other.get_target_path());
   EXPECT_EQ("", other.get_permission_token());
-  EXPECT_EQ(false, other.get_no_stream());
+  EXPECT_FALSE(other.get_no_stream());
   EXPECT_EQ(0, other.get_alias_count());
 }
 
@@ -146,7 +147,7 @@ TEST(MessageTest, SetRequest__update_static_header) {
 TEST(MessageTest, SetRequest__priority) {
   SetRequestMessage request;
 
-  EXPECT_EQ(false, request.get_priority());
+  EXPECT_FALSE(request.get_priority());
   request.set_priority(true);
   EXPECT_EQ(true, request.get_priority());
 }
@@ -171,7 +172,7 @@ TEST(MessageTest, SetRequest__permission_token) {
 TEST(MessageTest, SetRequest__no_stream) {
   SetRequestMessage request;
 
-  EXPECT_EQ(false, request.get_no_stream());
+  EXPECT_FALSE(request.get_no_stream());
   request.set_no_stream(true);
   EXPECT_EQ(true, request.get_no_stream());
 }
@@ -237,7 +238,7 @@ TEST(MessageTest, SetResponse__Constructor) {
   EXPECT_EQ(0, response.get_sequence_id());
   EXPECT_EQ(0, response.get_page_id());
   EXPECT_EQ(MessageType::SetResponse, response.type());
-  EXPECT_EQ(false, response.is_request());
+  EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.request_id());
 }
 
