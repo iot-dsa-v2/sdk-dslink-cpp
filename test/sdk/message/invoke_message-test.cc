@@ -36,7 +36,7 @@ TEST(MessageTest, InvokeRequest__Constructor_01) {
   EXPECT_EQ(15, request.size());
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
-  EXPECT_EQ(MessageType::InvokeRequest, request.type());
+  EXPECT_EQ(MessageType::INVOKE_REQUEST, request.type());
   EXPECT_TRUE(request.is_request());
   EXPECT_EQ(0, request.request_id());
 
@@ -56,7 +56,7 @@ TEST(MessageTest, InvokeRequest__Constructor_02) {
   EXPECT_EQ(15, target__request.size());
   EXPECT_EQ(0, target__request.get_sequence_id());
   EXPECT_EQ(0, target__request.get_page_id());
-  EXPECT_EQ(MessageType::InvokeRequest, target__request.type());
+  EXPECT_EQ(MessageType::INVOKE_REQUEST, target__request.type());
   EXPECT_TRUE(target__request.is_request());
   EXPECT_EQ(0, target__request.request_id());
 
@@ -85,7 +85,7 @@ TEST(MessageTest, InvokeRequest__Constructor_03) {
   EXPECT_EQ(15, request.size());
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
-  EXPECT_EQ(MessageType::InvokeRequest, request.type());
+  EXPECT_EQ(MessageType::INVOKE_REQUEST, request.type());
   EXPECT_TRUE(request.is_request());
   EXPECT_EQ(0, request.request_id());
 
@@ -114,7 +114,7 @@ TEST(MessageTest, InvokeRequest__Constructor_04) {
   EXPECT_EQ(24, other.size());
   EXPECT_EQ(0, other.get_sequence_id());
   EXPECT_EQ(0, other.get_page_id());
-  EXPECT_EQ(MessageType::InvokeRequest, other.type());
+  EXPECT_EQ(MessageType::INVOKE_REQUEST, other.type());
   EXPECT_TRUE(other.is_request());
   EXPECT_EQ(0, other.request_id());
 
@@ -231,7 +231,7 @@ TEST(MessageTest, InvokeResponse__Constructor) {
   EXPECT_EQ(15, response.size());
   EXPECT_EQ(0, response.get_sequence_id());
   EXPECT_EQ(0, response.get_page_id());
-  EXPECT_EQ(MessageType::InvokeResponse, response.type());
+  EXPECT_EQ(MessageType::INVOKE_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.request_id());
 }
@@ -248,18 +248,18 @@ TEST(MessageTest, InvokeResponse__status) {
   InvokeResponseMessage response;
 
   static const MessageStatus message_status_all[]{
-      MessageStatus::Ok,
-      MessageStatus::Initializing,
-      MessageStatus::Refreshed,
-      MessageStatus::NotAvailable,
-      MessageStatus::Closed,
-      MessageStatus::Disconnected,
-      MessageStatus::PermissionDenied,
-      MessageStatus::InvalidMessage,
-      MessageStatus::InvalidParameter,
-      MessageStatus::Busy,
-      MessageStatus::AliasLoop,
-      MessageStatus::ConnectionError,
+      MessageStatus::OK,
+      MessageStatus::INITIALIZING,
+      MessageStatus::REFRESHED,
+      MessageStatus::NOT_AVAILABLE,
+      MessageStatus::CLOSED,
+      MessageStatus::DISCONNECTED,
+      MessageStatus::PERMISSION_DENIED,
+      MessageStatus::INVALID_MESSAGE,
+      MessageStatus::INVALID_PARAMETER,
+      MessageStatus::BUSY,
+      MessageStatus::ALIAS_LOOP,
+      MessageStatus::CONNECTION_ERROR,
   };
   for (const auto status : message_status_all) {
     response.set_status(status);
@@ -271,7 +271,7 @@ TEST(MessageTest, InvokeResponse__write) {
   InvokeResponseMessage response;
 
   response.set_source_path("source/path");  // no effect
-  response.set_status(MessageStatus::Busy);
+  response.set_status(MessageStatus::BUSY);
 
   response.size();
 
@@ -288,7 +288,7 @@ TEST(MessageTest, InvokeResponse__write) {
 TEST(MessageTest, InvokeResponse__dynamic_structure) {
   InvokeResponseMessage response;
 
-  response.set_status(MessageStatus::Closed);
+  response.set_status(MessageStatus::CLOSED);
   response.set_sequence_id(1234);
   response.set_page_id(4321);
   //  response.skippable(true); // TODO: TBI

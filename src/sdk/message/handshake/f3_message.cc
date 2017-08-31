@@ -15,7 +15,7 @@ HandshakeF3Message::HandshakeF3Message(const uint8_t* data, size_t size)
 }
 
 HandshakeF3Message::HandshakeF3Message()
-    : Message(MessageType::Handshake3), auth(AuthLength) {}
+    : Message(MessageType::HANDSHAKE3), auth(AuthLength) {}
 
 void HandshakeF3Message::update_static_header() {
   static_headers.header_size = (uint16_t)StaticHeaders::TotalSize;

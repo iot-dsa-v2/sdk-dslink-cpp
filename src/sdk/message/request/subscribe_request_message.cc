@@ -10,7 +10,7 @@ SubscribeRequestMessage::SubscribeRequestMessage(const uint8_t* data, size_t siz
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 
-SubscribeRequestMessage::SubscribeRequestMessage() : RequestMessage(MessageType::SubscribeRequest){};
+SubscribeRequestMessage::SubscribeRequestMessage() : RequestMessage(MessageType::SUBSCRIBE_REQUEST){};
 
 StreamQos SubscribeRequestMessage::get_qos() const {
   return static_cast<StreamQos>(DynamicByteHeader::read_value(qos));

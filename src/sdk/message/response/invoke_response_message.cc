@@ -10,6 +10,6 @@ InvokeResponseMessage::InvokeResponseMessage(const uint8_t* data, size_t size)
 }
 
 InvokeResponseMessage::InvokeResponseMessage()
-    : ResponseMessage(MessageType::InvokeResponse) {}
+    : ResponseMessage(MessageType::INVOKE_RESPONSE) {}
 
 }  // namespace dsa

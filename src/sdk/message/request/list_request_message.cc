@@ -9,7 +9,7 @@ ListRequestMessage::ListRequestMessage(const uint8_t* data, size_t size)
                         static_headers.header_size - StaticHeaders::TotalSize);
 }
 ListRequestMessage::ListRequestMessage()
-    : RequestMessage(MessageType::ListRequest) {}
+    : RequestMessage(MessageType::LIST_REQUEST) {}
 
 ListOptions ListRequestMessage::get_list_options() const {
   return {};

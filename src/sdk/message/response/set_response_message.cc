@@ -10,6 +10,6 @@ SetResponseMessage::SetResponseMessage(const uint8_t* data, size_t size)
 }
 
 SetResponseMessage::SetResponseMessage()
-    : ResponseMessage(MessageType::SetResponse) {}
+    : ResponseMessage(MessageType::SET_RESPONSE) {}
 
 }  // namespace dsa

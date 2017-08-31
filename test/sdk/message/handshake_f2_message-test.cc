@@ -28,7 +28,7 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
 
   uint32_t message_size = 245;
   uint16_t header_size = StaticHeaders::TotalSize;
-  MessageType type = MessageType::Handshake2;
+  MessageType type = MessageType::HANDSHAKE2;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
 

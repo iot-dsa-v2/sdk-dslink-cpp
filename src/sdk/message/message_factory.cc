@@ -26,29 +26,29 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
   auto type = MessageType(data[StaticHeaders::TypeOffset]);
 
   switch (type) {
-    case MessageType::SubscribeRequest:
+    case MessageType::SUBSCRIBE_REQUEST:
       return new SubscribeRequestMessage(data, size);
-    case MessageType::ListRequest:
+    case MessageType::LIST_REQUEST:
       return new ListRequestMessage(data, size);
-    case MessageType::InvokeRequest:
+    case MessageType::INVOKE_REQUEST:
       return new InvokeRequestMessage(data, size);
-    case MessageType::SetRequest:
+    case MessageType::SET_REQUEST:
       return new SetRequestMessage(data, size);
-    case MessageType::SubscribeResponse:
+    case MessageType::SUBSCRIBE_RESPONSE:
       return new SubscribeResponseMessage(data, size);
-    case MessageType::ListResponse:
+    case MessageType::LIST_RESPONSE:
       return new ListResponseMessage(data, size);
-    case MessageType::InvokeResponse:
+    case MessageType::INVOKE_RESPONSE:
       return new InvokeResponseMessage(data, size);
-    case MessageType::SetResponse:
+    case MessageType::SET_RESPONSE:
       return new SetResponseMessage(data, size);
-    case MessageType::Handshake0:
+    case MessageType::HANDSHAKE0:
       return new HandshakeF0Message(data, size);
-    case MessageType::Handshake1:
+    case MessageType::HANDSHAKE1:
       return new HandshakeF1Message(data, size);
-    case MessageType::Handshake2:
+    case MessageType::HANDSHAKE2:
       return new HandshakeF2Message(data, size);
-    case MessageType::Handshake3:
+    case MessageType::HANDSHAKE3:
       return new HandshakeF3Message(data, size);
     default:
       throw MessageParsingError("invalid message type");

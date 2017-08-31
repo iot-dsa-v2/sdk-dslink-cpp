@@ -10,7 +10,7 @@ SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data, size_t s
 }
 
 SubscribeResponseMessage::SubscribeResponseMessage()
-    : ResponseMessage(MessageType::SubscribeResponse) {}
+    : ResponseMessage(MessageType::SUBSCRIBE_RESPONSE) {}
 
 const MessageValue& SubscribeResponseMessage::get_value() {
   if (_parsed_value == nullptr && body != nullptr) {

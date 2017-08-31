@@ -15,7 +15,7 @@ HandshakeF2Message::HandshakeF2Message(const uint8_t* data, size_t size)
 }
 
 HandshakeF2Message::HandshakeF2Message()
-    : Message(MessageType::Handshake2),
+    : Message(MessageType::HANDSHAKE2),
       is_requester(false),
       is_responder(false),
       auth(AuthLength) {}

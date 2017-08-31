@@ -11,7 +11,7 @@ InvokeRequestMessage::InvokeRequestMessage(const uint8_t* data, size_t size)
 }
 
 InvokeRequestMessage::InvokeRequestMessage()
-    : RequestMessage(MessageType::InvokeRequest) {}
+    : RequestMessage(MessageType::INVOKE_REQUEST) {}
 
 InvokeOptions InvokeRequestMessage::get_invoke_options() const {
   return {};

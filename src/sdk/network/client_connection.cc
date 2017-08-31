@@ -44,7 +44,7 @@ void Connection::start_client_f0() {
   };
 }
 void Connection::on_receive_f1(MessageRef &&msg) {
-  if (msg->type() != MessageType::Handshake1) {
+  if (msg->type() != MessageType::HANDSHAKE1) {
     throw MessageParsingError("invalid handshake message, expect f1");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f1 received");
@@ -78,7 +78,7 @@ void Connection::on_receive_f1(MessageRef &&msg) {
 }
 
 void Connection::on_receive_f3(MessageRef &&msg) {
-  if (msg->type() != MessageType::Handshake3) {
+  if (msg->type() != MessageType::HANDSHAKE3) {
     throw MessageParsingError("invalid handshake message, expect f3");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f3 received");
@@ -103,7 +103,7 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 //  const uint8_t *data = _write_buffer.data();
 //
 //  StaticHeaders header(data);
-//  if (!valid_handshake_header(header, size, MessageType::Handshake1))
+//  if (!valid_handshake_header(header, size, MessageType::HANDSHAKE1))
 //    return false;
 //
 //  data += StaticHeaders::TotalSize;
@@ -136,7 +136,7 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 //  const uint8_t *data = _write_buffer.data();
 //
 //  StaticHeaders header(data);
-//  if (!valid_handshake_header(header, size, MessageType::Handshake3))
+//  if (!valid_handshake_header(header, size, MessageType::HANDSHAKE3))
 //    return false;
 //
 //  uint32_t cur = StaticHeaders::TotalSize;
@@ -181,7 +181,7 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 //  buf.resize(MinF0Length + _handshake_context.dsid().size());
 //
 //  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake0,
+//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::HANDSHAKE0,
 //  0,
 //                       0);
 //  uint8_t *data = buf.data();
@@ -213,7 +213,7 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 //  buf.resize(MinF2Length + token_length);
 //
 //  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake2,
+//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::HANDSHAKE2,
 //  0,
 //                       0);
 //  uint8_t *data = buf.data();

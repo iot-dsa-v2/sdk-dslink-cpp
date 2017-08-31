@@ -28,7 +28,7 @@ namespace dsa {
 //}
 
 void Connection::on_receive_f0(MessageRef &&msg) {
-  if (msg->type() != MessageType::Handshake0) {
+  if (msg->type() != MessageType::HANDSHAKE0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f0 received");
@@ -56,7 +56,7 @@ void Connection::on_receive_f0(MessageRef &&msg) {
   };
 }
 void Connection::on_receive_f2(MessageRef &&msg) {
-  if (msg->type() != MessageType::Handshake2) {
+  if (msg->type() != MessageType::HANDSHAKE2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
   LOG_DEBUG(_strand->logger(), LOG << "f2 received");
@@ -118,7 +118,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
 //
 //  StaticHeaders header(data);
 //
-//  if (!valid_handshake_header(header, size, MessageType::Handshake0))
+//  if (!valid_handshake_header(header, size, MessageType::HANDSHAKE0))
 //    return false;
 //
 //  data += StaticHeaders::TotalSize;
@@ -154,7 +154,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
 //  const uint8_t *data = _write_buffer.data();
 //
 //  StaticHeaders header(data);
-//  if (!valid_handshake_header(header, size, MessageType::Handshake2))
+//  if (!valid_handshake_header(header, size, MessageType::HANDSHAKE2))
 //    return false;
 //
 //  data += StaticHeaders::TotalSize;
@@ -199,7 +199,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
 //  buf.resize(MinF1Length + dsid_length);
 //
 //  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake1,
+//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::HANDSHAKE1,
 //  0,
 //                       0);
 //  uint8_t *data = buf.data();

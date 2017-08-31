@@ -10,7 +10,7 @@ ListResponseMessage::ListResponseMessage(const uint8_t* data, size_t size)
 }
 
 ListResponseMessage::ListResponseMessage()
-    : ResponseMessage(MessageType::ListResponse) {}
+    : ResponseMessage(MessageType::LIST_RESPONSE) {}
 
 const std::string& ListResponseMessage::get_base_path() const {
   return DynamicStringHeader::read_value(base_path);

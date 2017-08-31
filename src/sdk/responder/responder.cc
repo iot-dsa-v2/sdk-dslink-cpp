@@ -22,21 +22,21 @@ void Responder::receive_message(ref_<Message> &&message) {
     // TODO: implement permissions
 
     switch (message->type()) {
-      case MessageType::SubscribeRequest:
+      case MessageType::SUBSCRIBE_REQUEST:
         on_subscribe_request(ref_<SubscribeRequestMessage>(
             DOWN_CAST<SubscribeRequestMessage *>(message.get())));
         break;
-      case MessageType::InvokeRequest:
+      case MessageType::INVOKE_REQUEST:
         on_invoke_request(ref_<InvokeRequestMessage>(
             DOWN_CAST<InvokeRequestMessage *>(message.get())));
 
         break;
-      case MessageType::SetRequest:
+      case MessageType::SET_REQUEST:
         on_set_request(ref_<SetRequestMessage>(
             DOWN_CAST<SetRequestMessage *>(message.get())));
 
         break;
-      case MessageType::ListRequest:
+      case MessageType::LIST_REQUEST:
         on_list_request(ref_<ListRequestMessage>(
             DOWN_CAST<ListRequestMessage *>(message.get())));
 
@@ -82,7 +82,7 @@ void Responder::on_invoke_request(
     ref_<InvokeRequestMessage> &&message) {
   //  auto model = _model_manager.get_model(message.get_target_path());
   //  if (model == nullptr) {
-  //    send_error(MessageType::InvokeResponse, MessageStatus::Disconnected,
+  //    send_error(MessageType::INVOKE_RESPONSE, MessageStatus::DISCONNECTED,
   //    message.request_id());
   //    return;
   //  }
@@ -98,7 +98,7 @@ void Responder::on_invoke_request(
 void Responder::on_set_request(ref_<SetRequestMessage> &&message) {
   //  auto model = _model_manager.get_model(message.get_target_path());
   //  if (model == nullptr) {
-  //    send_error(MessageType::SubscribeResponse, MessageStatus::Disconnected,
+  //    send_error(MessageType::SUBSCRIBE_RESPONSE, MessageStatus::DISCONNECTED,
   //    message.request_id());
   //    return;
   //  }

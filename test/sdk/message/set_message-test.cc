@@ -37,7 +37,7 @@ TEST(MessageTest, SetRequest__Constructor_01) {
   EXPECT_EQ(15, request.size());
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, request.type());
+  EXPECT_EQ(MessageType::SET_REQUEST, request.type());
   EXPECT_TRUE(request.is_request());
   EXPECT_EQ(0, request.request_id());
 
@@ -57,7 +57,7 @@ TEST(MessageTest, SetRequest__Constructor_02) {
   EXPECT_EQ(15, target__request.size());
   EXPECT_EQ(0, target__request.get_sequence_id());
   EXPECT_EQ(0, target__request.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, target__request.type());
+  EXPECT_EQ(MessageType::SET_REQUEST, target__request.type());
   EXPECT_TRUE(target__request.is_request());
   EXPECT_EQ(0, target__request.request_id());
 
@@ -88,7 +88,7 @@ TEST(MessageTest, SetRequest__Constructor_03) {
   EXPECT_EQ(15, request.size());
   EXPECT_EQ(0, request.get_sequence_id());
   EXPECT_EQ(0, request.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, request.type());
+  EXPECT_EQ(MessageType::SET_REQUEST, request.type());
   EXPECT_TRUE(request.is_request());
   EXPECT_EQ(0, request.request_id());
 
@@ -113,7 +113,7 @@ TEST(MessageTest, SetRequest__Constructor_04) {
   EXPECT_EQ(24, other.size());
   EXPECT_EQ(0, other.get_sequence_id());
   EXPECT_EQ(0, other.get_page_id());
-  EXPECT_EQ(MessageType::SetRequest, other.type());
+  EXPECT_EQ(MessageType::SET_REQUEST, other.type());
   EXPECT_TRUE(other.is_request());
   EXPECT_EQ(0, other.request_id());
 
@@ -199,7 +199,7 @@ TEST(MessageTest, SetRequest__write) {
 TEST(MessageTest, SetRequest__dynamic_structure) {
   SetRequestMessage request;
 
-  //    request.set_status(MessageStatus::Closed);
+  //    request.set_status(MessageStatus::CLOSED);
   request.set_sequence_id(1234);  // no effect
   request.set_page_id(4321);
   request.set_alias_count(11);
@@ -236,7 +236,7 @@ TEST(MessageTest, SetResponse__Constructor) {
   EXPECT_EQ(15, response.size());
   EXPECT_EQ(0, response.get_sequence_id());
   EXPECT_EQ(0, response.get_page_id());
-  EXPECT_EQ(MessageType::SetResponse, response.type());
+  EXPECT_EQ(MessageType::SET_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.request_id());
 }
@@ -253,18 +253,18 @@ TEST(MessageTest, SetResponse__status) {
   SetResponseMessage response;
 
   static const MessageStatus message_status_all[]{
-      MessageStatus::Ok,
-      MessageStatus::Initializing,
-      MessageStatus::Refreshed,
-      MessageStatus::NotAvailable,
-      MessageStatus::Closed,
-      MessageStatus::Disconnected,
-      MessageStatus::PermissionDenied,
-      MessageStatus::InvalidMessage,
-      MessageStatus::InvalidParameter,
-      MessageStatus::Busy,
-      MessageStatus::AliasLoop,
-      MessageStatus::ConnectionError,
+      MessageStatus::OK,
+      MessageStatus::INITIALIZING,
+      MessageStatus::REFRESHED,
+      MessageStatus::NOT_AVAILABLE,
+      MessageStatus::CLOSED,
+      MessageStatus::DISCONNECTED,
+      MessageStatus::PERMISSION_DENIED,
+      MessageStatus::INVALID_MESSAGE,
+      MessageStatus::INVALID_PARAMETER,
+      MessageStatus::BUSY,
+      MessageStatus::ALIAS_LOOP,
+      MessageStatus::CONNECTION_ERROR,
   };
   for (const auto status : message_status_all) {
     response.set_status(status);
@@ -276,7 +276,7 @@ TEST(MessageTest, SetResponse__write) {
   SetResponseMessage response;
 
   response.set_source_path("source/path");
-  response.set_status(MessageStatus::Busy);
+  response.set_status(MessageStatus::BUSY);
 
   response.size();
 
@@ -293,7 +293,7 @@ TEST(MessageTest, SetResponse__write) {
 TEST(MessageTest, SetResponse__dynamic_structure) {
   SetResponseMessage response;
 
-  response.set_status(MessageStatus::Closed);
+  response.set_status(MessageStatus::CLOSED);
   response.set_sequence_id(1234);  // no effect
   response.set_page_id(4321);      // no effect
   //  response.set_alias_count(11);

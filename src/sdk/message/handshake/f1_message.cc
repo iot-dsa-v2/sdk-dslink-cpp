@@ -13,7 +13,7 @@ HandshakeF1Message::HandshakeF1Message(const uint8_t* data, size_t size)
 }
 
 HandshakeF1Message::HandshakeF1Message()
-    : Message(MessageType::Handshake1),
+    : Message(MessageType::HANDSHAKE1),
       public_key(PublicKeyLength),
       salt(SaltLength) {}
 
