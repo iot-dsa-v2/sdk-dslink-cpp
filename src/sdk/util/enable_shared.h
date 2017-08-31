@@ -64,8 +64,8 @@ class SharedClosable : public EnableShared<T> {
     }
   }
   void close() {
-    boost::unique_lock<boost::shared_mutex> lock(mutex);
-    close(lock);
+    boost::unique_lock<boost::shared_mutex> unique_lock(mutex);
+    close(unique_lock);
   }
 
   static void close_in_strand(shared_ptr_<SharedClosable<T>> closable) {
@@ -73,12 +73,8 @@ class SharedClosable : public EnableShared<T> {
     // obtain the lock before dispatch to strand to reduce the load on main
     // strand
     raw_ptr->asio_strand()->dispatch([
-      closable = std::move(closable),
-      // because asio require callback to be copy constructable, lock can't be
-      // directly used, and we need shared_ptr
-      lock = std::make_shared<boost::unique_lock<boost::shared_mutex>>(
-          raw_ptr->mutex)
-    ]() mutable { closable->close(*lock); });
+      closable = std::move(closable)
+    ]() mutable { closable->close(); });
   }
 };
 }  // namespace dsa
