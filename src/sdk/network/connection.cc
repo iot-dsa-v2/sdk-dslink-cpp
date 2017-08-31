@@ -61,8 +61,8 @@ void Connection::dispatch_message(MessagePtr &&message) {
   if (_session != nullptr) {
     asio_strand()->dispatch(
         [ sthis = shared_from_this(), message = std::move(message) ]() mutable {
-          if (_session != nullptr) {
-            sthis->_session->receive_message(std::move(message));
+          if (sthis->session() != nullptr) {
+            sthis->session()->receive_message(std::move(message));
           }
         });
   }

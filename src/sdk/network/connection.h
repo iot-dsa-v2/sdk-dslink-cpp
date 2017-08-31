@@ -67,7 +67,10 @@ class Connection : public SharedClosable<Connection> {
 
   void set_session(const intrusive_ptr_<Session> &session);
 
-  boost::asio::strand * asio_strand(){return (*_strand)();}
+  boost::asio::strand *asio_strand() { return (*_strand)(); }
+
+  Session *session() { return _session.get(); }
+
  protected:
   Connection(LinkStrandPtr &strand, uint32_t handshake_timeout_ms,
              const std::string &dsid_prefix, const std::string &path = "");
@@ -123,7 +126,8 @@ class Connection : public SharedClosable<Connection> {
  protected:
   std::string _client_token;
 
-  static void on_client_connect(shared_ptr_<Connection> connection) throw(const std::runtime_error &);
+  static void on_client_connect(shared_ptr_<Connection> connection) throw(
+      const std::runtime_error &);
 
   void start_client_f0();
   void on_receive_f1(MessagePtr &&msg);
