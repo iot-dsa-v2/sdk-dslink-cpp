@@ -13,7 +13,6 @@ class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
   InvokeRequestMessage();
   InvokeRequestMessage(const InvokeRequestMessage&);
 
-  std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicByteHeader> max_permission;
   InvokeOptions get_invoke_options() const;
 
