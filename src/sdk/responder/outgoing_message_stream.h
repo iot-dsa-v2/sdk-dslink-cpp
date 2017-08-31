@@ -24,7 +24,7 @@ class ListResponseMessage;
 
 // maintain a smart queue of subscription updates
 // this queue works for a single subscription from a single client
-class OutgoingMessageStream : public MessageIoStream {
+class OutgoingMessageStream : public MessageQueueStream {
 
  public:
   OutgoingMessageStream(intrusive_ptr_<Session> &&session, uint32_t rid);
@@ -39,6 +39,7 @@ class SubscribeMessageStream : public OutgoingMessageStream {
                          SubscribeOptions &&config, uint32_t request_id);
 
   void new_message(const SubscribeResponseMessage &new_message);
+  void receive_message(MessagePtr&& msg){}
 };
 
 class InvokeMessageStream : public OutgoingMessageStream {
@@ -50,6 +51,7 @@ class InvokeMessageStream : public OutgoingMessageStream {
                       uint32_t request_id);
 
   void new_message(const InvokeResponseMessage &new_message);
+  void receive_message(MessagePtr&& msg){}
 };
 
 class ListMessageStream : public OutgoingMessageStream {
@@ -61,6 +63,7 @@ class ListMessageStream : public OutgoingMessageStream {
                     uint32_t request_id);
 
   void new_message(const ListResponseMessage &new_message);
+  void receive_message(MessagePtr&& msg){}
 };
 
 class SetMessageStream : public OutgoingMessageStream {

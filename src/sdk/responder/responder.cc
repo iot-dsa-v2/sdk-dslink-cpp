@@ -51,15 +51,6 @@ void Responder::receive_message(intrusive_ptr_<Message> &&message) {
       request->get_target_path(), std::move(callback));
 }
 
-void Responder::send_error(MessageType &&type, MessageStatus &&status,
-                           uint32_t &&request_id) {
-  _session.add_ready_stream(
-      intrusive_ptr_<MessageStream>(new ErrorMessageStream(
-          _session.get_intrusive(), std::forward<MessageType>(type),
-          std::forward<MessageStatus>(status),
-          std::forward<uint32_t>(request_id))));
-}
-
 void Responder::on_subscribe_request(
     intrusive_ptr_<SubscribeRequestMessage> &&message) {
   auto stream = make_intrusive_<SubscribeMessageStream>(

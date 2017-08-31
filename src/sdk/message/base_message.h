@@ -122,8 +122,12 @@ class MessageStream : public IntrusiveClosable<MessageStream> {
  public:
   virtual ~MessageStream() = default;
 
+  // write message to remote
   virtual size_t peek_next_message_size(size_t available) = 0;
   virtual MessagePtr get_next_message() = 0;
+
+  // read message from remote
+  virtual void receive_message(MessagePtr&& msg) = 0;
 };
 
 }  // namespace dsa

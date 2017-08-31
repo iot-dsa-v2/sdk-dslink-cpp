@@ -32,13 +32,10 @@ class Responder {
   virtual void on_subscribe_request(
       intrusive_ptr_<SubscribeRequestMessage> &&request);
 
-  void send_error(MessageType &&type, MessageStatus &&status,
-                  uint32_t &&request_id = 0);
+  void receive_message(intrusive_ptr_<Message> &&message);
 
  public:
   explicit Responder(Session &session);
-
-  void receive_message(intrusive_ptr_<Message> &&message);
 };
 
 }  // namespace dsa

@@ -6,15 +6,15 @@
 
 namespace dsa {
 
-MessageIoStream::MessageIoStream(intrusive_ptr_<Session> &&session, uint32_t rid)
+MessageQueueStream::MessageQueueStream(intrusive_ptr_<Session> &&session, uint32_t rid)
     : _session(std::move(session)), _rid(rid) {
 
 }
-MessageIoStream::~MessageIoStream() {
+MessageQueueStream::~MessageQueueStream() {
 
 }
 
-void MessageIoStream::close_impl() {
+void MessageQueueStream::close_impl() {
  if (_on_close != nullptr) {
    _on_close();
  }
@@ -22,13 +22,13 @@ void MessageIoStream::close_impl() {
   _session.reset();
 }
 
-size_t MessageIoStream::peek_next_message_size(size_t available) {
+size_t MessageQueueStream::peek_next_message_size(size_t available) {
   if (is_closed() || _queue.empty()) {
     return 0;
   }
   return _queue.front()->size();
 }
-MessagePtr MessageIoStream::get_next_message() {
+MessagePtr MessageQueueStream::get_next_message() {
   if (is_closed() || _queue.empty()) {
     return nullptr;
   }

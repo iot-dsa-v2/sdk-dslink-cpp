@@ -1,6 +1,7 @@
 list(APPEND RequesterSourceFiles
         requester.cc
-        incoming_message_stream.cc)
+        incoming_message_stream.cc
+        stream/incoming_subscribe_stream.cc)
 
 foreach(file ${RequesterSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_REQUESTER}/${file})

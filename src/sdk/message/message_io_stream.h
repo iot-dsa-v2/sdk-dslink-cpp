@@ -9,7 +9,7 @@ namespace dsa {
 
 class Session;
 
-class MessageIoStream : public MessageStream {
+class MessageQueueStream : public MessageStream {
  protected:
   intrusive_ptr_<Session> _session;
   std::deque<MessagePtr> _queue;
@@ -21,8 +21,8 @@ class MessageIoStream : public MessageStream {
   void close_impl() override;
 
  public:
-  MessageIoStream(intrusive_ptr_<Session> &&session, uint32_t rid = 0);
-  ~MessageIoStream() override;
+  MessageQueueStream(intrusive_ptr_<Session> &&session, uint32_t rid = 0);
+  ~MessageQueueStream() override;
 
   uint32_t get_rid() { return _rid; };
 

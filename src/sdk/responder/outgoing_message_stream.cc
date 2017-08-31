@@ -6,7 +6,7 @@ namespace dsa {
 
 OutgoingMessageStream::OutgoingMessageStream(intrusive_ptr_<Session> &&session,
                                              uint32_t rid)
-    : MessageIoStream(std::move(session), rid){}
+    : MessageQueueStream(std::move(session), rid){}
 
 /////////////////////////////
 // SubscribeMessageStream
