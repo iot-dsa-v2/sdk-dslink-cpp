@@ -17,8 +17,11 @@ void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
                  "no session attached to client connection");
     throw std::runtime_error("no session attached to client connection");
   }
-  Session *session = connection->_session.get();
-  session->connected(std::move(connection));
+  Connection *raw_ptr = connection.get();
+  raw_ptr->_session->connected(std::move(connection));
+  raw_ptr->on_read_message = [raw_ptr](MessagePtr message) {
+    raw_ptr->dispatch_message(std::move(message));
+  };
 }
 void Connection::start_client_f0() {
   HandshakeF0Message f0;

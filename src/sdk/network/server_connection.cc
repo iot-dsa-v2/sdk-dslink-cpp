@@ -76,7 +76,10 @@ void Connection::on_receive_f2(MessagePtr &&msg) {
             if (session != nullptr) {
               _session = session;
               _session->connected(shared_from_this());
-
+              on_read_message = [this](MessagePtr message) {
+                dispatch_message(std::move(message));
+              };
+              
               HandshakeF3Message f3;
               f3.auth = _handshake_context.auth();
               f3.session_id = _session->session_id();
@@ -93,9 +96,7 @@ void Connection::on_receive_f2(MessagePtr &&msg) {
                     }
                   });
               boost::lock_guard<boost::mutex> read_loop_lock(read_loop_mutex);
-              on_read_message = [this](MessagePtr message) {
-                post_message(std::move(message));
-              };
+
 
             } else {
               close();

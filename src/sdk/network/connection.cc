@@ -57,9 +57,14 @@ void Connection::reset_standard_deadline_timer() {
   }));
 }
 
-void Connection::post_message(MessagePtr &&message) {
+void Connection::dispatch_message(MessagePtr &&message) {
   if (_session != nullptr) {
-    _session->receive_message(std::move(message));
+    asio_strand()->dispatch(
+        [ sthis = shared_from_this(), message = std::move(message) ]() mutable {
+          if (_session != nullptr) {
+            sthis->_session->receive_message(std::move(message));
+          }
+        });
   }
 }
 }  // namespace dsa
