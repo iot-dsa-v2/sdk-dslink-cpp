@@ -15,7 +15,6 @@ class SubscribeRequestMessage;
 class InvokeRequestMessage;
 class SetRequestMessage;
 class ListRequestMessage;
-class Config;
 
 class Responder {
   friend class Session;

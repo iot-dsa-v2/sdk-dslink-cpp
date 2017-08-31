@@ -7,7 +7,7 @@
 #include "crypto/ecdh.h"
 
 namespace dsa {
-LinkStrand::LinkStrand(Strand* strand, ECDH* ecdh)
+LinkStrand::LinkStrand(AsioStrand* strand, ECDH* ecdh)
   : __strand(strand), __ecdh(ecdh) {}
 LinkStrand::~LinkStrand() {
   delete __strand;

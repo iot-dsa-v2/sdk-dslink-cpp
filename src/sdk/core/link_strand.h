@@ -13,12 +13,12 @@ class NodeStateManager;
 class ECDH;
 class Logger;
 
-typedef boost::asio::strand Strand;
+typedef boost::asio::io_service::strand AsioStrand;
 
 class LinkStrand : public EnableRef<LinkStrand> {
  protected:
   // managed pointer by LinkStrand
-  Strand *__strand = nullptr;
+  AsioStrand *__strand = nullptr;
   ECDH *__ecdh = nullptr;
 
   SecurityManager *__security_manager = nullptr;
@@ -27,11 +27,11 @@ class LinkStrand : public EnableRef<LinkStrand> {
   Logger *__logger = nullptr;
 
  public:
-  explicit LinkStrand(Strand *strand, ECDH *ecdh);
+  explicit LinkStrand(AsioStrand *strand, ECDH *ecdh);
 
   virtual ~LinkStrand();
 
-  Strand * operator()() { return __strand; }
+  AsioStrand * operator()() { return __strand; }
 
   SecurityManager &security_manager() { return *__security_manager; };
 

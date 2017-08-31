@@ -5,11 +5,17 @@
 
 namespace dsa {
 
-class SubscribeRequestMessage;
+class SubscribeResponseMessage;
 
-class IncomingSubscribeStream : public IncomingMessageStream {
+class IncomingSubscribeStream : public MessageCacheStream {
 public:
-  typedef std::function<void(ref_<SubscribeRequestMessage>, bool)> Callback;
+  typedef std::function<void(ref_<SubscribeResponseMessage> &&)> Callback;
+
+protected:
+  Callback _callback;
+public:
+  explicit IncomingSubscribeStream(ref_<Session> &&session, uint32_t rid = 0);
+  void receive_message(MessageRef&& msg) override;
 };
 }
 

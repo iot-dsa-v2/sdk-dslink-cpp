@@ -18,7 +18,7 @@ class LinkConfig : public LinkStrand {
   shared_ptr_<Logger> _logger = nullptr;
 
  public:
-  explicit LinkConfig(Strand* strand, ECDH* ecdh);
+  explicit LinkConfig(AsioStrand* strand, ECDH* ecdh);
 
   void set_security_manager(SecurityManager* p) {
     __security_manager = p;

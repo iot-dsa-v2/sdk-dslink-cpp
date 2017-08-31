@@ -42,8 +42,6 @@ class HandshakeContext {
   void compute_secret();
 };
 
-typedef shared_ptr_<HandshakeContext> SecurityContextPtr;
-
 }  // namespace dsa
 
 #endif  // DSA_SDK_HANDSHAKR_CONTEXT_H

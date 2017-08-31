@@ -117,7 +117,7 @@ void Session::write_loop(ref_<Session> sthis) {
 void Session::add_ready_stream(ref_<MessageStream> stream) {
   _ready_streams.push_back(std::move(stream));
   if (!_is_writing) {
-    write_loop(intrusive_this());
+    write_loop(get_ref());
   }
 }
 

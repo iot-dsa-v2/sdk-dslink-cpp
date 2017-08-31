@@ -16,15 +16,17 @@ class Requester {
 
  protected:
   Session &_session;
-  std::map<uint32_t, ref_<IncomingMessageStream>> _incoming_streams;
+  uint32_t _next_rid = 0;
+  uint32_t next_rid();
+
+  std::map<uint32_t, ref_<MessageStream>> _incoming_streams;
 
   void receive_message(MessageRef &&message);
 
  public:
   Requester(Session &session);
 
-  ref_<IncomingSubscribeStream> subscribe(
-      ref_<SubscribeRequestMessage> &&message);
+  ref_<IncomingSubscribeStream> subscribe();
 };
 
 }  // namespace dsa

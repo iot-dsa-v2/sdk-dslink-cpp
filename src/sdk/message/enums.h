@@ -5,7 +5,7 @@ namespace dsa {
 
 enum class MessageType : uint8_t {
   // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Header-Structure.md
-
+  CLOSE = 0x00,
   SUBSCRIBE_REQUEST = 0x01,
   LIST_REQUEST = 0x02,
   INVOKE_REQUEST = 0x03,

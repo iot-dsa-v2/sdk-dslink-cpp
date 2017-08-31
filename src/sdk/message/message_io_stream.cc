@@ -6,18 +6,36 @@
 
 namespace dsa {
 
+MessageCacheStream::MessageCacheStream(ref_<Session> &&session, uint32_t rid)
+    : MessageRefedStream(std::move(session), rid) {}
+MessageCacheStream::~MessageCacheStream() {}
+
+void MessageCacheStream::close_impl() {
+  _cache.reset();
+  _session.reset();
+}
+
+size_t MessageCacheStream::peek_next_message_size(size_t available) {
+  if (is_closed() || _cache == nullptr) {
+    return 0;
+  }
+  return _cache->size();
+}
+MessageRef MessageCacheStream::get_next_message() {
+  if (is_closed() || _cache == nullptr) {
+    return nullptr;
+  }
+  return std::move(_cache);
+}
+
+MessageRefedStream::MessageRefedStream(ref_<Session> &&session, uint32_t rid)
+    : _session(std::move(session)), _rid(rid){};
+
 MessageQueueStream::MessageQueueStream(ref_<Session> &&session, uint32_t rid)
-    : _session(std::move(session)), _rid(rid) {
-
-}
-MessageQueueStream::~MessageQueueStream() {
-
-}
+    : MessageRefedStream(std::move(session), rid) {}
+MessageQueueStream::~MessageQueueStream() {}
 
 void MessageQueueStream::close_impl() {
- if (_on_close != nullptr) {
-   _on_close();
- }
   _queue.clear();
   _session.reset();
 }
@@ -36,7 +54,7 @@ MessageRef MessageQueueStream::get_next_message() {
   _queue.pop_front();
 
   if (!_queue.empty()) {
-    _session->add_ready_stream(intrusive_this());
+    _session->add_ready_stream(get_ref());
   }
   return msg;
 }

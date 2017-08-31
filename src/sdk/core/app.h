@@ -13,9 +13,6 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/thread.hpp>
 
-#include "client.h"
-
-#include "server.h"
 #include "util/enable_shared.h"
 
 namespace dsa {

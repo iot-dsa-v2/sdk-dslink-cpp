@@ -14,13 +14,13 @@ namespace dsa {
 
 template <class T>
 class EnableRef {
- protected:
-  ref_<T> intrusive_this() {
+ public:
+  ref_<T> get_ref() {
     return ref_<T>(static_cast<T*>(this));
   }
 
   template <typename _Downcast>
-  ref_<_Downcast> intrusive_this() {
+  ref_<_Downcast> get_ref() {
     return ref_<_Downcast>(DOWN_CAST<_Downcast*>(this));
   }
 

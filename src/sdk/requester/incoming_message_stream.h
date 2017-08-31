@@ -5,8 +5,9 @@
 
 namespace dsa {
 
-class IncomingMessageStream : public MessageStream {
+class IncomingMessageStream : public MessageRefedStream {
  public:
+  IncomingMessageStream(ref_<Session> &&session, uint32_t rid = 0);
   virtual ~IncomingMessageStream() = default;
 };
 

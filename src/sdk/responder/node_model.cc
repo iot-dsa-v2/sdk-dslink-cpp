@@ -35,7 +35,7 @@ void NodeModel::update_value(Variant new_value) {
 //      return;
 //  }
 //
-//  stream->add_holder(intrusive_this());
+//  stream->add_holder(get_ref());
 //}
 //
 //void NodeModel::remove_stream(const MessageStream *stream) {
