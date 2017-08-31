@@ -19,10 +19,9 @@ class Requester {
   void receive_message(MessagePtr &&message);
 
  public:
-  Requester(Session &session) : _session(session){};
+  Requester(Session &session);
 
-  void new_subscribe(intrusive_ptr_<SubscribeRequestMessage> message);
-
+  void new_subscribe(intrusive_ptr_<SubscribeRequestMessage> &&message);
 };
 
 }  // namespace dsa
