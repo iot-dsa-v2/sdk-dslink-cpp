@@ -57,7 +57,6 @@ class Session : public ClosableRef<Session> {
 
   void close_impl() override;
 
-  ref_<Session> get_intrusive() { return get_ref(); }
   void add_ready_stream(ref_<MessageStream> stream);
 };
 

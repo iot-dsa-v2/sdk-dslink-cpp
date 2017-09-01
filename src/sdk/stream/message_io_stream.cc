@@ -6,7 +6,8 @@
 
 namespace dsa {
 
-MessageCacheStream::MessageCacheStream(ref_<Session> &&session, const std::string &path, uint32_t rid)
+MessageCacheStream::MessageCacheStream(ref_<Session> &&session,
+                                       const std::string &path, uint32_t rid)
     : MessageRefedStream(std::move(session), path, rid) {}
 MessageCacheStream::~MessageCacheStream() {}
 
@@ -15,11 +16,15 @@ void MessageCacheStream::close_impl() {
   _session.reset();
 }
 
-void MessageCacheStream::set_cache(MessageRef && msg){
+void MessageCacheStream::set_cache(MessageRef &&msg) {
   _cache = std::move(msg);
+  if (!_writing && _cache != nullptr && !is_closed()) {
+    _session->add_ready_stream(get_ref());
+  }
 }
 
 size_t MessageCacheStream::peek_next_message_size(size_t available) {
+  _writing = false;
   if (is_closed() || _cache == nullptr) {
     return 0;
   }
@@ -29,13 +34,18 @@ MessageRef MessageCacheStream::get_next_message() {
   if (is_closed() || _cache == nullptr) {
     return nullptr;
   }
+  // same message can be shared between multiple stream,
+  // need to update rid before writing
+  _cache->set_rid(rid);
   return std::move(_cache);
 }
 
-MessageRefedStream::MessageRefedStream(ref_<Session> &&session, const std::string &path, uint32_t rid)
+MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
+                                       const std::string &path, uint32_t rid)
     : _session(std::move(session)), rid(rid){};
 
-MessageQueueStream::MessageQueueStream(ref_<Session> &&session, const std::string &path, uint32_t rid)
+MessageQueueStream::MessageQueueStream(ref_<Session> &&session,
+                                       const std::string &path, uint32_t rid)
     : MessageRefedStream(std::move(session), path, rid) {}
 MessageQueueStream::~MessageQueueStream() {}
 
@@ -43,8 +53,16 @@ void MessageQueueStream::close_impl() {
   _queue.clear();
   _session.reset();
 }
+void MessageQueueStream::add_queue(MessageRef &&msg) {
+  if (msg == nullptr || is_closed()) return;
+  _queue.push_back(std::move(msg));
+  if (!_writing) {
+    _session->add_ready_stream(get_ref());
+  }
+}
 
 size_t MessageQueueStream::peek_next_message_size(size_t available) {
+  _writing = false;
   if (is_closed() || _queue.empty()) {
     return 0;
   }
@@ -60,6 +78,9 @@ MessageRef MessageQueueStream::get_next_message() {
   if (!_queue.empty()) {
     _session->add_ready_stream(get_ref());
   }
+  // same message can be shared between multiple stream
+  // need to update rid before writing
+  msg->set_rid(rid);
   return msg;
 }
 }

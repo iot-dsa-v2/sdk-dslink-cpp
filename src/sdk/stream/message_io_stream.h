@@ -12,27 +12,29 @@ class Session;
 class MessageRefedStream : public MessageStream {
  protected:
   ref_<Session> _session;
+  bool _writing = false;
 
-  explicit MessageRefedStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
+  explicit MessageRefedStream(ref_<Session> &&session, const std::string &path,
+                              uint32_t rid = 0);
 
  public:
   const uint32_t rid;
   const std::string path;
-
 };
 
 /// message stream with one message cache to write
 class MessageCacheStream : public MessageRefedStream {
-protected:
+ protected:
   MessageRef _cache;
 
   void close_impl() override;
 
-public:
-  MessageCacheStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
+ public:
+  MessageCacheStream(ref_<Session> &&session, const std::string &path,
+                     uint32_t rid = 0);
   ~MessageCacheStream() override;
 
-  void set_cache(MessageRef && msg);
+  void set_cache(MessageRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
   MessageRef get_next_message() override;
@@ -46,8 +48,11 @@ class MessageQueueStream : public MessageRefedStream {
   void close_impl() override;
 
  public:
-  explicit MessageQueueStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
+  explicit MessageQueueStream(ref_<Session> &&session, const std::string &path,
+                              uint32_t rid = 0);
   ~MessageQueueStream() override;
+
+  void add_queue(MessageRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
   MessageRef get_next_message() override;

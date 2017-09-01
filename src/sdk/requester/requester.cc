@@ -12,7 +12,7 @@ Requester::Requester(Session &session) : _session(session) {}
 
 uint32_t Requester::next_rid() {
   while (_incoming_streams.find(++_next_rid) != _incoming_streams.end()) {
-    // find next available rid;
+    // find next available get_rid;
   }
   if (_next_rid == 0) {
     // rid can't be 0, do it again;
@@ -22,7 +22,7 @@ uint32_t Requester::next_rid() {
 }
 
 void Requester::receive_message(MessageRef &&message) {
-  auto search = _incoming_streams.find(message->rid());
+  auto search = _incoming_streams.find(message->get_rid());
   if (search != _incoming_streams.end()) {
     auto &stream = search->second;
     stream->receive_message(std::move(message));
@@ -34,12 +34,13 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
   uint32_t rid = next_rid();
   auto stream = make_ref_<IncomingSubscribeStream>(_session.get_ref(), path,
                                                    std::move(callback), rid);
+  _incoming_streams[rid] = stream;
+
   auto msg = make_ref_<SubscribeRequestMessage>();
-  msg->rid()
+  msg->set_subscribe_option(options);
+  msg->set_target_path(path);
   stream->set_cache(std::move(msg));
 
-  _incoming_streams[rid] = stream;
-  _session.add_ready_stream(stream);
   return stream;
 }
 }

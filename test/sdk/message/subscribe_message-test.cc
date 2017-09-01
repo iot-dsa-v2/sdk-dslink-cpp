@@ -73,7 +73,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_page_id());
   EXPECT_EQ(MessageType::SUBSCRIBE_REQUEST, request.type());
   EXPECT_TRUE(request.is_request());
-  EXPECT_EQ(0, request.request_id());
+  EXPECT_EQ(0, request.get_rid());
 
   EXPECT_FALSE(request.get_priority());
   EXPECT_EQ("", request.get_target_path());
@@ -93,7 +93,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_02) {
   EXPECT_EQ(0, target__request.get_page_id());
   EXPECT_EQ(MessageType::SUBSCRIBE_REQUEST, target__request.type());
   EXPECT_TRUE(target__request.is_request());
-  EXPECT_EQ(0, target__request.request_id());
+  EXPECT_EQ(0, target__request.get_rid());
 
   EXPECT_FALSE(target__request.get_priority());
   EXPECT_EQ("", target__request.get_target_path());
@@ -124,7 +124,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_03) {
   EXPECT_EQ(0, request.get_page_id());
   EXPECT_EQ(MessageType::SUBSCRIBE_REQUEST, request.type());
   EXPECT_TRUE(request.is_request());
-  EXPECT_EQ(0, request.request_id());
+  EXPECT_EQ(0, request.get_rid());
 
   EXPECT_FALSE(request.get_priority());
   EXPECT_EQ("", request.get_target_path());
@@ -149,7 +149,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_page_id());
   EXPECT_EQ(MessageType::SUBSCRIBE_REQUEST, other.type());
   EXPECT_TRUE(other.is_request());
-  EXPECT_EQ(0, other.request_id());
+  EXPECT_EQ(0, other.get_rid());
 
   EXPECT_FALSE(other.get_priority());
   EXPECT_EQ("/other", other.get_target_path());
@@ -275,7 +275,7 @@ TEST(MessageTest, SubscribeResponse__Constructor) {
   EXPECT_EQ(0, response.get_page_id());
   EXPECT_EQ(MessageType::SUBSCRIBE_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
-  EXPECT_EQ(0, response.request_id());
+  EXPECT_EQ(0, response.get_rid());
 }
 
 TEST(MessageTest, SubscribeResponse__source_path) {

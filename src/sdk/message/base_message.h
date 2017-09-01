@@ -21,8 +21,8 @@ class Message : public EnableRef<Message> {
   static const uint8_t AUTH_LENGTH = 32;
 
  public:
-  static ref_<Message> parse_message(
-      const uint8_t* data, size_t size) throw(const MessageParsingError&);
+  static ref_<Message> parse_message(const uint8_t* data, size_t size) throw(
+      const MessageParsingError&);
 
  public:
   explicit Message(const uint8_t* data, size_t size);
@@ -46,7 +46,8 @@ class Message : public EnableRef<Message> {
     return static_cast<uint8_t>(static_headers.type) < 0x80;
   }
 
-  uint32_t rid() const { return static_headers.rid; }
+  uint32_t get_rid() const { return static_headers.rid; }
+  void set_rid(uint32_t rid) { static_headers.rid = rid; }
 
  protected:
   // measure the size and header size
