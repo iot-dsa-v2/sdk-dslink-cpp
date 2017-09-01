@@ -5,7 +5,7 @@
 
 namespace dsa {
 
-enum StreamQos : uint8_t {
+enum SubscriptionQos : uint8_t {
   _0 = 0,  // only last value
   _1 = 1,  // send all values but drop based on TTL
   _2 = 2,  // send all values and maintain values if connection is dropped
@@ -13,18 +13,29 @@ enum StreamQos : uint8_t {
            // resubscribe is needed
 };
 
-struct SubscribeOptions {
+struct BaseRequestOptions {
+  bool priority = false;
+
+  bool operator==(BaseRequestOptions& other) const;
+
+  bool needUpdateOnRemoval(const BaseRequestOptions& options) const;
+
+  // merge from an other option and update self values
+  // return true if value is updated;
+  bool mergeFrom(const BaseRequestOptions& options);
+};
+
+struct SubscribeOptions : BaseRequestOptions {
   // queue size in bytes;
-  int32_t queue_size;
+  int32_t queue_size = 0;
   // queue time in seconds
-  int32_t queue_time;
+  int32_t queue_time = 0;
 
-  StreamQos qos;
+  SubscriptionQos qos = SubscriptionQos::_0;
 
-  bool priority;
+  bool operator==(SubscribeOptions& other) const;
 
-  SubscribeOptions(StreamQos qos = StreamQos::_0, int32_t queue_size = 0,
-                   int32_t queue_time = 0, bool priority = false);
+  bool needUpdateOnRemoval(const SubscribeOptions& options) const;
 
   // merge from an other option and update self values
   // return true if value is updated;
