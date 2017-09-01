@@ -45,9 +45,9 @@ void Session::receive_message(MessageRef &&message) {
 }
 
 ref_<MessageStream> Session::get_next_ready_stream() {
-  while (!_ready_streams.empty()) {
-    ref_<MessageStream> stream = std::move(_ready_streams.front());
-    _ready_streams.pop_front();
+  while (!_write_streams.empty()) {
+    ref_<MessageStream> stream = std::move(_write_streams.front());
+    _write_streams.pop_front();
     if (stream->peek_next_message_size(0) > 0) {
       return std::move(stream);
     }
@@ -56,13 +56,13 @@ ref_<MessageStream> Session::get_next_ready_stream() {
 }
 
 size_t Session::peek_next_message(size_t availible) {
-  while (!_ready_streams.empty()) {
-    ref_<MessageStream> &stream = _ready_streams.front();
+  while (!_write_streams.empty()) {
+    ref_<MessageStream> &stream = _write_streams.front();
     size_t size = stream->peek_next_message_size(availible);
     if (size > 0) {
       return size;
     }
-    _ready_streams.pop_front();
+    _write_streams.pop_front();
   }
   return 0;
 }
@@ -114,8 +114,8 @@ void Session::write_loop(ref_<Session> sthis) {
       });
 }
 
-void Session::add_ready_stream(ref_<MessageStream> stream) {
-  _ready_streams.push_back(std::move(stream));
+void Session::write_stream(ref_<MessageStream> &&stream) {
+  _write_streams.push_back(std::move(stream));
   if (!_is_writing) {
     write_loop(get_ref());
   }

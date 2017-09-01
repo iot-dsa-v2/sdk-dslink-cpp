@@ -26,8 +26,8 @@ class SubscribeRequestMessage : public RequestMessage {
   SubscribeRequestMessage();
   SubscribeRequestMessage(const SubscribeRequestMessage&);
 
-  StreamQos get_qos() const;
-  void set_qos(StreamQos value);
+  QosLevel get_qos() const;
+  void set_qos(QosLevel value);
 
   int32_t get_queue_size() const;
   void set_queue_size(int32_t value);

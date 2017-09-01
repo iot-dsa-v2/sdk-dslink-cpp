@@ -29,17 +29,17 @@ void Requester::receive_message(MessageRef &&message) {
   }
 }
 ref_<IncomingSubscribeStream> Requester::subscribe(
-    const std::string path, IncomingSubscribeStream::Callback &&callback,
+    const std::string &path, IncomingSubscribeStream::Callback &&callback,
     const SubscribeOptions &options) {
   uint32_t rid = next_rid();
   auto stream = make_ref_<IncomingSubscribeStream>(_session.get_ref(), path,
-                                                   std::move(callback), rid);
+                                                   rid, std::move(callback));
   _incoming_streams[rid] = stream;
 
   auto msg = make_ref_<SubscribeRequestMessage>();
   msg->set_subscribe_option(options);
   msg->set_target_path(path);
-  stream->set_cache(std::move(msg));
+  stream->write_message(std::move(msg));
 
   return stream;
 }

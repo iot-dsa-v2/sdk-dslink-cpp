@@ -14,10 +14,10 @@ SubscribeRequestMessage::SubscribeRequestMessage(const uint8_t* data,
 SubscribeRequestMessage::SubscribeRequestMessage()
     : RequestMessage(MessageType::SUBSCRIBE_REQUEST){};
 
-StreamQos SubscribeRequestMessage::get_qos() const {
-  return static_cast<StreamQos>(DynamicByteHeader::read_value(qos));
+QosLevel SubscribeRequestMessage::get_qos() const {
+  return static_cast<QosLevel>(DynamicByteHeader::read_value(qos));
 }
-void SubscribeRequestMessage::set_qos(StreamQos value) {
+void SubscribeRequestMessage::set_qos(QosLevel value) {
   if (DynamicByteHeader::write_value(qos, DynamicHeader::QOS, value)) {
     static_headers.message_size = 0;
   }
@@ -44,7 +44,8 @@ void SubscribeRequestMessage::set_queue_time(int32_t value) {
 }
 
 SubscribeOptions SubscribeRequestMessage::get_subscribe_options() const {
-  return {get_qos(), get_queue_size(), get_queue_time()};
+  return SubscribeOptions(get_qos(), get_queue_size(), get_queue_time(),
+                          get_priority());
 }
 void SubscribeRequestMessage::set_subscribe_option(
     const SubscribeOptions& options) {
@@ -52,7 +53,6 @@ void SubscribeRequestMessage::set_subscribe_option(
   set_qos(options.qos);
   set_queue_size(options.queue_size);
   set_queue_time(options.queue_time);
-
 }
 
 }  // namespace dsa

@@ -29,7 +29,7 @@ class Session final : public ClosableRef<Session> {
   std::string _session_id;
   shared_ptr_<Connection> _connection;
 
-  std::deque<ref_<MessageStream> > _ready_streams;
+  std::deque<ref_<MessageStream> > _write_streams;
   bool _is_writing = false;
 
   LinkStrandRef _strand;
@@ -57,7 +57,7 @@ class Session final : public ClosableRef<Session> {
 
   void close_impl() final;
 
-  void add_ready_stream(ref_<MessageStream> stream);
+  void write_stream(ref_<MessageStream> &&stream);
 };
 
 }  // namespace dsa

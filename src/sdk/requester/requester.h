@@ -27,7 +27,7 @@ class Requester {
   Requester(Session &session);
 
   ref_<IncomingSubscribeStream> subscribe(
-      const std::string path, IncomingSubscribeStream::Callback &&callback,
+      const std::string& path, IncomingSubscribeStream::Callback &&callback,
       const SubscribeOptions &options =
           IncomingSubscribeStream::default_options);
 };

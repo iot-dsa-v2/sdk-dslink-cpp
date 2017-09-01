@@ -11,7 +11,9 @@ class SubscribeResponseMessage;
 
 class IncomingSubscribeStream : public MessageCacheStream {
  public:
-  typedef std::function<void(ref_<SubscribeResponseMessage>&&)> Callback;
+  typedef std::function<void(ref_<SubscribeResponseMessage>&&,
+                             IncomingSubscribeStream&)>
+      Callback;
 
   static const SubscribeOptions default_options;
 
@@ -20,8 +22,9 @@ class IncomingSubscribeStream : public MessageCacheStream {
 
  public:
   explicit IncomingSubscribeStream(ref_<Session>&& session,
-                                   const std::string& path, Callback&& callback,
-                                   uint32_t rid);
+                                   const std::string& path, uint32_t rid,
+                                   Callback&& callback);
+
   void receive_message(MessageRef&& msg) override;
 };
 }

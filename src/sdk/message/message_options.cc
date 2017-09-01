@@ -4,6 +4,9 @@
 
 namespace dsa {
 
+BaseRequestOptions::BaseRequestOptions() {}
+BaseRequestOptions::BaseRequestOptions(bool priority) : priority(priority) {}
+
 bool BaseRequestOptions::operator==(BaseRequestOptions& other) const {
   if (other.priority != priority) return false;
   return true;
@@ -23,6 +26,14 @@ bool BaseRequestOptions::mergeFrom(const BaseRequestOptions& other) {
   }
   return changed;
 }
+
+SubscribeOptions::SubscribeOptions() {}
+SubscribeOptions::SubscribeOptions(QosLevel qos, int32_t queue_size,
+                                   int32_t queue_time, bool priority)
+    : BaseRequestOptions(priority),
+      qos(qos),
+      queue_size(queue_size),
+      queue_time(queue_time) {}
 
 bool SubscribeOptions::operator==(SubscribeOptions& other) const {
   if (!BaseRequestOptions::operator==(other)) return false;

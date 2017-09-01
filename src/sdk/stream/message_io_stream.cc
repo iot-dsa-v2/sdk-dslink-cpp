@@ -16,10 +16,11 @@ void MessageCacheStream::close_impl() {
   _session.reset();
 }
 
-void MessageCacheStream::set_cache(MessageRef &&msg) {
+void MessageCacheStream::write_message(MessageRef &&msg) {
   _cache = std::move(msg);
   if (!_writing && _cache != nullptr && !is_closed()) {
-    _session->add_ready_stream(get_ref());
+    _writing = true;
+    _session->write_stream(get_ref());
   }
 }
 
@@ -53,11 +54,12 @@ void MessageQueueStream::close_impl() {
   _queue.clear();
   _session.reset();
 }
-void MessageQueueStream::add_queue(MessageRef &&msg) {
+void MessageQueueStream::add_message(MessageRef &&msg) {
   if (msg == nullptr || is_closed()) return;
   _queue.push_back(std::move(msg));
   if (!_writing) {
-    _session->add_ready_stream(get_ref());
+    _writing = true;
+    _session->write_stream(get_ref());
   }
 }
 
@@ -76,7 +78,8 @@ MessageRef MessageQueueStream::get_next_message() {
   _queue.pop_front();
 
   if (!_queue.empty()) {
-    _session->add_ready_stream(get_ref());
+    _writing = true;
+    _session->write_stream(get_ref());
   }
   // same message can be shared between multiple stream
   // need to update rid before writing

@@ -33,11 +33,11 @@ TEST(MessageTest, subscribe_request_message) {
 
   EXPECT_EQ(0, subscribe_request.get_qos());
 
-  subscribe_request.set_qos(StreamQos::_2);
-  EXPECT_EQ(StreamQos::_2, subscribe_request.get_qos());
+  subscribe_request.set_qos(QosLevel::_2);
+  EXPECT_EQ(QosLevel::_2, subscribe_request.get_qos());
 
   SubscribeOptions option = subscribe_request.get_subscribe_options();
-  EXPECT_EQ(StreamQos::_2, option.qos);
+  EXPECT_EQ(QosLevel::_2, option.qos);
 
   auto b = make_ref_<IntrusiveBytes>(256);
 
@@ -55,7 +55,7 @@ TEST(MessageTest, subscribe_request_message) {
   SubscribeRequestMessage subscribe_request2(&b->front(), b->size());
 
   SubscribeOptions option2 = subscribe_request2.get_subscribe_options();
-  EXPECT_EQ(StreamQos::_2, option2.qos);
+  EXPECT_EQ(QosLevel::_2, option2.qos);
 
   EXPECT_EQ(22, subscribe_request2.size());
 
@@ -166,11 +166,11 @@ TEST(MessageTest, SubscribeRequest__get_subscribe_options) {
 
   EXPECT_EQ(0, request.get_qos());
 
-  request.set_qos(StreamQos::_2);
-  EXPECT_EQ(StreamQos::_2, request.get_qos());
+  request.set_qos(QosLevel::_2);
+  EXPECT_EQ(QosLevel::_2, request.get_qos());
 
   SubscribeOptions option = request.get_subscribe_options();
-  EXPECT_EQ(StreamQos::_2, option.qos);
+  EXPECT_EQ(QosLevel::_2, option.qos);
 }
 
 TEST(MessageTest, SubscribeRequest__update_static_header) {
@@ -245,7 +245,7 @@ TEST(MessageTest, SubscribeRequest__dynamic_structure) {
   request.set_alias_count(11);
   request.set_priority(true);
   request.set_no_stream(true);
-  request.set_qos(StreamQos::_2);
+  request.set_qos(QosLevel::_2);
   request.set_queue_size(5678);
   request.set_queue_time(1248);
   request.set_permission_token("ptoken");

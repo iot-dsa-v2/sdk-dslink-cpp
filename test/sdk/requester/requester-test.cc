@@ -43,8 +43,7 @@ TEST(RequesterTest, Subscribe) {
   }
 
   tcp_client->get_session().requester.subscribe(
-      "/path", [](ref_<SubscribeResponseMessage>&& msg) {});
-
+      "/path", [](ref_<SubscribeResponseMessage>&& msg , IncomingSubscribeStream & stream) {});
 
   app.sleep(500);
 

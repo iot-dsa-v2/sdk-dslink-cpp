@@ -5,7 +5,7 @@
 
 namespace dsa {
 
-enum SubscriptionQos : uint8_t {
+enum QosLevel : uint8_t {
   _0 = 0,  // only last value
   _1 = 1,  // send all values but drop based on TTL
   _2 = 2,  // send all values and maintain values if connection is dropped
@@ -16,6 +16,8 @@ enum SubscriptionQos : uint8_t {
 struct BaseRequestOptions {
   bool priority = false;
 
+  BaseRequestOptions();
+  BaseRequestOptions(bool priority);
   bool operator==(BaseRequestOptions& other) const;
 
   bool needUpdateOnRemoval(const BaseRequestOptions& options) const;
@@ -31,7 +33,11 @@ struct SubscribeOptions : BaseRequestOptions {
   // queue time in seconds
   int32_t queue_time = 0;
 
-  SubscriptionQos qos = SubscriptionQos::_0;
+  QosLevel qos = QosLevel::_0;
+
+  SubscribeOptions();
+  SubscribeOptions(QosLevel qos, int32_t queue_size = 0, int32_t queue_time = 0,
+                   bool priority = false);
 
   bool operator==(SubscribeOptions& other) const;
 
@@ -42,15 +48,15 @@ struct SubscribeOptions : BaseRequestOptions {
   bool mergeFrom(const SubscribeOptions& options);
 };
 
-struct InvokeOptions {
+struct InvokeOptions : BaseRequestOptions {
   // TODO: implement this
 };
 
-struct SetOptions {
+struct SetOptions : BaseRequestOptions {
   // TODO: implement this
 };
 
-struct ListOptions {
+struct ListOptions : BaseRequestOptions {
   // TODO: implement this
 };
 
