@@ -5,9 +5,13 @@
 #include "message/response/subscribe_response_message.h"
 
 namespace dsa {
+
+const SubscribeOptions IncomingSubscribeStream::default_options;
+
 IncomingSubscribeStream::IncomingSubscribeStream(ref_<Session>&& session,
+                                                 const std::string& path,
                                                  uint32_t rid)
-    : MessageCacheStream(std::move(session), rid) {}
+    : MessageCacheStream(std::move(session), path, rid) {}
 
 void IncomingSubscribeStream::receive_message(MessageRef&& msg) {
   if (msg->type() == MessageType::SUBSCRIBE_RESPONSE) {

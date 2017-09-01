@@ -53,26 +53,26 @@ void Responder::receive_message(ref_<Message> &&message) {
 
 void Responder::on_subscribe_request(
     ref_<SubscribeRequestMessage> &&message) {
-  auto stream = make_ref_<SubscribeMessageStream>(
-    _session.get_intrusive(), message->get_subscribe_options(),
-    message->request_id());
-
-  auto node_state = _session._strand->state_manager().get_or_create(
-      message->get_target_path());
-  node_state->add_stream(stream);
+//  auto stream = make_ref_<SubscribeMessageStream>(
+//    _session.get_intrusive(), message->get_subscribe_options(),
+//    message->request_id());
+//
+//  auto node_state = _session._strand->state_manager().get_or_create(
+//      message->get_target_path());
+//  node_state->add_stream(stream);
 
   //  if (!node_state->has_model())
   //    _model_manager.find_model(node_state);
 }
 
 void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
-  auto stream = make_ref_<ListMessageStream>(_session.get_intrusive(),
-                                             message->get_list_options(),
-                                             message->request_id());
-
-  auto node_state = _session._strand->state_manager().get_or_create(
-      message->get_target_path());
-  node_state->add_stream(stream);
+//  auto stream = make_ref_<ListMessageStream>(_session.get_intrusive(),
+//                                             message->get_list_options(),
+//                                             message->request_id());
+//
+//  auto node_state = _session._strand->state_manager().get_or_create(
+//      message->get_target_path());
+//  node_state->add_stream(stream);
 
   //  if (!node_state->has_model())
   //    _model_manager.find_model(node_state);

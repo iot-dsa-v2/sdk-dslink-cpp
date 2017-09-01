@@ -28,9 +28,12 @@ void Requester::receive_message(MessageRef &&message) {
     stream->receive_message(std::move(message));
   }
 }
-ref_<IncomingSubscribeStream> Requester::subscribe() {
+ref_<IncomingSubscribeStream> Requester::subscribe(
+    const std::string path, IncomingSubscribeStream::Callback &&callback,
+    const SubscribeOptions &options) {
   uint32_t rid = next_rid();
-  auto stream = make_ref_<IncomingSubscribeStream>(_session.get_ref(), rid);
+  auto stream =
+      make_ref_<IncomingSubscribeStream>(_session.get_ref(), path, rid);
   _incoming_streams[rid] = stream;
   return stream;
 }

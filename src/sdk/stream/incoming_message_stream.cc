@@ -6,6 +6,7 @@
 
 namespace dsa {
 IncomingMessageStream::IncomingMessageStream(ref_<Session> &&session,
+                                             const std::string &path,
                                              uint32_t rid)
-    : MessageRefedStream(std::move(session), rid) {}
+    : MessageRefedStream(std::move(session), path, rid) {}
 }

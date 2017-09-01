@@ -3,18 +3,24 @@
 
 #include "../incoming_message_stream.h"
 
+#include "message/message_options.h"
+
 namespace dsa {
 
 class SubscribeResponseMessage;
 
 class IncomingSubscribeStream : public MessageCacheStream {
-public:
-  typedef std::function<void(ref_<SubscribeResponseMessage> &&)> Callback;
+ public:
+  typedef std::function<void(ref_<SubscribeResponseMessage>&&)> Callback;
 
-protected:
+  static const SubscribeOptions default_options;
+
+ protected:
   Callback _callback;
-public:
-  explicit IncomingSubscribeStream(ref_<Session> &&session, uint32_t rid = 0);
+
+ public:
+  explicit IncomingSubscribeStream(ref_<Session>&& session,
+                                   const std::string& path, uint32_t rid = 0);
   void receive_message(MessageRef&& msg) override;
 };
 }

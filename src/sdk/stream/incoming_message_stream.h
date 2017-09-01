@@ -7,7 +7,7 @@ namespace dsa {
 
 class IncomingMessageStream : public MessageRefedStream {
  public:
-  IncomingMessageStream(ref_<Session> &&session, uint32_t rid = 0);
+  IncomingMessageStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
   virtual ~IncomingMessageStream() = default;
 };
 

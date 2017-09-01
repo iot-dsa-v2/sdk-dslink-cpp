@@ -26,7 +26,10 @@ class Requester {
  public:
   Requester(Session &session);
 
-  ref_<IncomingSubscribeStream> subscribe();
+  ref_<IncomingSubscribeStream> subscribe(
+      const std::string path, IncomingSubscribeStream::Callback &&callback,
+      const SubscribeOptions &options =
+          IncomingSubscribeStream::default_options);
 };
 
 }  // namespace dsa

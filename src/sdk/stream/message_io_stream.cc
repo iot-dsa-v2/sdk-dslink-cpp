@@ -6,8 +6,8 @@
 
 namespace dsa {
 
-MessageCacheStream::MessageCacheStream(ref_<Session> &&session, uint32_t rid)
-    : MessageRefedStream(std::move(session), rid) {}
+MessageCacheStream::MessageCacheStream(ref_<Session> &&session, const std::string &path, uint32_t rid)
+    : MessageRefedStream(std::move(session), path, rid) {}
 MessageCacheStream::~MessageCacheStream() {}
 
 void MessageCacheStream::close_impl() {
@@ -28,11 +28,11 @@ MessageRef MessageCacheStream::get_next_message() {
   return std::move(_cache);
 }
 
-MessageRefedStream::MessageRefedStream(ref_<Session> &&session, uint32_t rid)
-    : _session(std::move(session)), _rid(rid){};
+MessageRefedStream::MessageRefedStream(ref_<Session> &&session, const std::string &path, uint32_t rid)
+    : _session(std::move(session)), rid(rid){};
 
-MessageQueueStream::MessageQueueStream(ref_<Session> &&session, uint32_t rid)
-    : MessageRefedStream(std::move(session), rid) {}
+MessageQueueStream::MessageQueueStream(ref_<Session> &&session, const std::string &path, uint32_t rid)
+    : MessageRefedStream(std::move(session), path, rid) {}
 MessageQueueStream::~MessageQueueStream() {}
 
 void MessageQueueStream::close_impl() {

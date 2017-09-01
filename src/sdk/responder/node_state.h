@@ -33,21 +33,19 @@ class MessageStreamKeyCmp {
 // maintain streams of a node
 class NodeState : public EnableRef<NodeState> {
  private:
-  
-
   LinkStrandRef strand;
   std::string _path;
   ModelRef _model;
-  std::unordered_set<ref_<SubscribeMessageStream>,
-                     MessageStreamHashFunc, MessageStreamKeyCmp>
+  std::unordered_set<ref_<OutgoingSubscribeStream>, MessageStreamHashFunc,
+                     MessageStreamKeyCmp>
       _subscription_streams;
-  std::unordered_set<ref_<ListMessageStream>, MessageStreamHashFunc,
+  std::unordered_set<ref_<OutgoingListStream>, MessageStreamHashFunc,
                      MessageStreamKeyCmp>
       _list_streams;
   std::unique_ptr<SubscribeResponseMessage> _last_value;
 
  public:
-  explicit NodeState(LinkStrandRef & strand, const std::string &path);
+  explicit NodeState(LinkStrandRef &strand, const std::string &path);
 
   //////////////////////////
   // Getters
@@ -65,11 +63,11 @@ class NodeState : public EnableRef<NodeState> {
   /////////////////////////
   void new_message(const SubscribeResponseMessage &message);
 
-  void add_stream(ref_<SubscribeMessageStream> p);
-  void add_stream(ref_<ListMessageStream> p);
+  void add_stream(ref_<OutgoingSubscribeStream> p);
+  void add_stream(ref_<OutgoingListStream> p);
 
-  void remove_stream(ref_<SubscribeMessageStream> &p);
-  void remove_stream(ref_<ListMessageStream> &p);
+  void remove_stream(ref_<OutgoingSubscribeStream> &p);
+  void remove_stream(ref_<OutgoingListStream> &p);
 };
 
 }  // namespace dsa

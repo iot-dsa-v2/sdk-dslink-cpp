@@ -12,12 +12,13 @@ class Session;
 class MessageRefedStream : public MessageStream {
  protected:
   ref_<Session> _session;
-  uint32_t _rid;
 
-  explicit MessageRefedStream(ref_<Session> &&session, uint32_t rid = 0);
+  explicit MessageRefedStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
 
  public:
-  uint32_t get_rid() { return _rid; };
+  const uint32_t rid;
+  const std::string path;
+
 };
 
 /// message stream with one message cache to write
@@ -28,7 +29,7 @@ protected:
   void close_impl() override;
 
 public:
-  MessageCacheStream(ref_<Session> &&session, uint32_t rid = 0);
+  MessageCacheStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
   ~MessageCacheStream() override;
 
   size_t peek_next_message_size(size_t available) override;
@@ -43,7 +44,7 @@ class MessageQueueStream : public MessageRefedStream {
   void close_impl() override;
 
  public:
-  explicit MessageQueueStream(ref_<Session> &&session, uint32_t rid = 0);
+  explicit MessageQueueStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
   ~MessageQueueStream() override;
 
   size_t peek_next_message_size(size_t available) override;

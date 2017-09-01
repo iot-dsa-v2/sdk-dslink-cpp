@@ -27,66 +27,79 @@ class ListResponseMessage;
 class OutgoingMessageStream : public MessageQueueStream {
 
  public:
-  OutgoingMessageStream(ref_<Session> &&session, uint32_t rid);
+  OutgoingMessageStream(ref_<Session> &&session, const std::string &path, uint32_t rid);
 };
 
-class SubscribeMessageStream : public OutgoingMessageStream {
- private:
-  SubscribeOptions _config;
-
+class OutgoingSubscribeStream : public OutgoingMessageStream {
  public:
-  SubscribeMessageStream(ref_<Session> &&session,
-                         SubscribeOptions &&config, uint32_t request_id);
-
+  OutgoingSubscribeStream(ref_<Session> &&session, const std::string &path, uint32_t rid);
   void new_message(const SubscribeResponseMessage &new_message);
-  void receive_message(MessageRef&& msg){}
+
+};
+class OutgoingListStream : public OutgoingMessageStream {
+public:
+  OutgoingListStream(ref_<Session> &&session, const std::string &path, uint32_t rid);
+
 };
 
-class InvokeMessageStream : public OutgoingMessageStream {
- private:
-  InvokeOptions _config;
-
- public:
-  InvokeMessageStream(ref_<Session> &&session, InvokeOptions &&config,
-                      uint32_t request_id);
-
-  void new_message(const InvokeResponseMessage &new_message);
-  void receive_message(MessageRef&& msg){}
-};
-
-class ListMessageStream : public OutgoingMessageStream {
- private:
-  ListOptions _config;
-
- public:
-  ListMessageStream(ref_<Session> &&session, ListOptions &&config,
-                    uint32_t request_id);
-
-  void new_message(const ListResponseMessage &new_message);
-  void receive_message(MessageRef&& msg){}
-};
-
-class SetMessageStream : public OutgoingMessageStream {
- private:
-  SetOptions _config;
-
- public:
-  SetMessageStream(ref_<Session> &&session, SetOptions &&config,
-                   uint32_t request_id);
-
-  //void new_message(const SetResponseMessage &new_message);
-};
-
-class ErrorMessageStream : public OutgoingMessageStream {
- private:
-  MessageRef _error_message;
-
- public:
-  ErrorMessageStream(ref_<Session> &&session, MessageType type,
-                     MessageStatus status, uint32_t request_id = 0);
-
-  MessageRef get_next_message() override;
-};
+//
+//class SubscribeMessageStream : public OutgoingMessageStream {
+// private:
+//  SubscribeOptions _config;
+//
+// public:
+//  SubscribeMessageStream(ref_<Session> &&session,
+//                         SubscribeOptions &option, uint32_t request_id);
+//
+//  void new_message(const SubscribeResponseMessage &new_message);
+//  void receive_message(MessageRef&& msg){}
+//};
+//
+//class InvokeMessageStream : public OutgoingMessageStream {
+// private:
+//  InvokeOptions _config;
+//
+// public:
+//  InvokeMessageStream(ref_<Session> &&session, InvokeOptions &option,
+//                      uint32_t request_id);
+//
+//  void new_message(const InvokeResponseMessage &new_message);
+//  void receive_message(MessageRef&& msg){}
+//};
+//
+//class ListMessageStream : public OutgoingMessageStream {
+// private:
+//  ListOptions _config;
+//
+// public:
+//  ListMessageStream(ref_<Session> &&session, ListOptions &option,
+//                    uint32_t request_id);
+//
+//  void new_message(const ListResponseMessage &new_message);
+//  void receive_message(MessageRef&& msg){}
+//};
+//
+//class SetMessageStream : public OutgoingMessageStream {
+// private:
+//  SetOptions _config;
+//
+// public:
+//  SetMessageStream(ref_<Session> &&session, SetOptions &option,
+//                   uint32_t request_id);
+//
+//  //void new_message(const SetResponseMessage &new_message);
+//};
+//
+//class ErrorMessageStream : public OutgoingMessageStream {
+// private:
+//  MessageRef _error_message;
+//
+// public:
+//  ErrorMessageStream(ref_<Session> &&session, MessageType type,
+//                     MessageStatus status, uint32_t request_id = 0);
+//
+//  MessageRef get_next_message() override;
+//};
 
 };  // namespace dsa
 
