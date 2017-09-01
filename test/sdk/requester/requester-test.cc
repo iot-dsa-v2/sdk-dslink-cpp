@@ -9,41 +9,61 @@
 
 using namespace dsa;
 
-TEST(RequesterTest, BasicFlow) {
+TEST(RequesterTest, Subscribe) {
   App app;
 
-  WrapperConfig config;
-  config.tcp_host = "127.0.0.1";
-  config.tcp_port = 8090;
-  config.strand = make_ref_<DefaultModules>(app);
+  WrapperConfig server_config;
+  server_config.tcp_host = "127.0.0.1";
+  server_config.tcp_port = 8092;
+  server_config.strand = make_ref_<DefaultModules>(app);
+  server_config.strand->logger().level = Logger::WARNING;
 
-  app.async_start(2);
+  app.async_start(10);
 
-  auto tcp_server = make_shared_<TcpServer>(config);
+  //  auto tcp_server(new TcpServer(server_config));
+  auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
+
+  WrapperConfig client_config;
+  client_config.tcp_host = "127.0.0.1";
+  client_config.tcp_port = 8092;
+  client_config.strand = make_ref_<DefaultModules>(app);
+  client_config.strand->logger().level = Logger::WARNING;
+
+  auto tcp_client = make_shared_<TcpClient>(client_config);
+  tcp_client->connect();
+
+  std::atomic_bool connected{false};
+
+  // wait till all client is connected
+  while (!connected) {
+    (*client_config.strand)()->dispatch(
+        [&]() { connected = tcp_client->get_session().is_connected(); });
+    app.sleep(50);
+  }
+
+  tcp_client->get_session().requester.subscribe(
+      "/path", [](ref_<SubscribeResponseMessage>&& msg) {});
+
 
   app.sleep(500);
 
-  auto tcp_client = make_shared_<TcpClient>(config);
-  tcp_client->connect();
+  Server::close_in_strand(tcp_server);
+  Client::close_in_strand(tcp_client);
 
-  // requester = client->session()->requester();
+  app.close();
+  for (int i = 0; i < 10; ++i) {
+    app.sleep(50);
+    if (app.is_stopped()) {
+      break;
+    }
+  }
 
-  // stream = requester.subscribe("/abc", func);
-  // stream.close();
+  EXPECT_TRUE(app.is_stopped());
 
-  // Construct a subscribe message request
-  SubscribeRequestMessage subscribe_request;
-  subscribe_request.set_qos(StreamQos::_2);
-  subscribe_request.set_target_path("/path/name");
+  if (!app.is_stopped()) {
+    app.force_stop();
+  }
 
-  shared_ptr_<IntrusiveBytes> b = make_shared_<IntrusiveBytes>(256);
-  // subscribe_request.write(b->data());
-
-  app.sleep(2000);
-
-  tcp_server->close();
-  tcp_client->close();
-  app.force_stop();
   app.wait();
 }

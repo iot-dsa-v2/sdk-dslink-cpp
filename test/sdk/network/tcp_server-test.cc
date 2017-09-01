@@ -35,6 +35,8 @@ TEST(TcpServerTest, SingleStrand) {
   }
 
   std::atomic_bool all_connected{false};
+
+  // wait till all clients are connected
   while (!all_connected) {
     (*config.strand)()->dispatch([&]() {
       bool result = true;
@@ -49,6 +51,9 @@ TEST(TcpServerTest, SingleStrand) {
     app.sleep(50);
   }
 
+  EXPECT_TRUE(all_connected);
+
+  // close everything
   Server::close_in_strand(tcp_server);
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
     Client::close_in_strand(clients[i]);
@@ -62,6 +67,7 @@ TEST(TcpServerTest, SingleStrand) {
     }
   }
 
+  // io_service should be idle by now
   EXPECT_TRUE(app.is_stopped());
 
   if (!app.is_stopped()) {
@@ -102,6 +108,8 @@ TEST(TcpServerTest, MultiStrand) {
   }
 
   std::atomic_bool all_connected{false};
+
+  // wait till all clients are connected
   while (!all_connected) {
     (*client_config.strand)()->dispatch([&]() {
       bool result = true;
@@ -116,6 +124,9 @@ TEST(TcpServerTest, MultiStrand) {
     app.sleep(50);
   }
 
+  EXPECT_TRUE(all_connected);
+
+  // close everything
   Server::close_in_strand(tcp_server);
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
     Client::close_in_strand(clients[i]);
@@ -129,6 +140,7 @@ TEST(TcpServerTest, MultiStrand) {
     }
   }
 
+  // io_service should be idle by now
   EXPECT_TRUE(app.is_stopped());
 
   if (!app.is_stopped()) {
