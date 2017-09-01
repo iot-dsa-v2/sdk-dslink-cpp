@@ -22,13 +22,11 @@ class App {
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<boost::asio::io_service::work> _work;
   shared_ptr_<boost::thread_group> _threads;
-  std::string _name;
 
  public:
-  explicit App(const std::string & name);
-  App(const std::string & name, shared_ptr_<boost::asio::io_service> io_service);
+  explicit App();
+  App(shared_ptr_<boost::asio::io_service> io_service);
   boost::asio::io_service &io_service() const { return *_io_service; };
-  const std::string &name() const { return _name; };
 
   // start io_service and wait forever
   void run(unsigned int thread_count = 5);
@@ -43,7 +41,6 @@ class App {
   // halts jobs and stops io_service
   void force_stop();
 
-
   bool is_stopped();
 
   // wait forever or until all worker threads fail
@@ -51,7 +48,6 @@ class App {
 
   // sleep current thread in milliseconds
   void sleep(unsigned int milliseconds);
-
 
   boost::asio::strand *new_strand();
 };

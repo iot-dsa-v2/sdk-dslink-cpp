@@ -10,7 +10,7 @@
 using namespace dsa;
 
 TEST(RequesterTest, BasicFlow) {
-  App app("BasicFlowTest");
+  App app;
 
   WrapperConfig config;
   config.tcp_host = "127.0.0.1";

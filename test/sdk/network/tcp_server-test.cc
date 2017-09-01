@@ -12,7 +12,7 @@
 using namespace dsa;
 
 TEST(TcpServerTest, SingleStrand) {
-  App app("SingleStrandTest");
+  App app;
 
   WrapperConfig config;
   config.tcp_host = "127.0.0.1";
@@ -72,7 +72,7 @@ TEST(TcpServerTest, SingleStrand) {
 }
 
 TEST(TcpServerTest, MultiStrand) {
-  App app("MultiStrandTest");
+  App app;
 
   WrapperConfig server_config;
   server_config.tcp_host = "127.0.0.1";

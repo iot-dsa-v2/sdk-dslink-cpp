@@ -7,16 +7,12 @@ namespace dsa {
 //////////////
 // App
 //////////////
-App::App(const std::string &name)
-    : _name(name),
-      _io_service(new boost::asio::io_service),
+App::App()
+    : _io_service(new boost::asio::io_service),
       _threads(new boost::thread_group) {}
 
-App::App(const std::string &name,
-         shared_ptr_<boost::asio::io_service> io_service)
-    : _name(name),
-      _io_service(std::move(io_service)),
-      _threads(new boost::thread_group) {}
+App::App(shared_ptr_<boost::asio::io_service> io_service)
+    : _io_service(std::move(io_service)), _threads(new boost::thread_group) {}
 
 void run_worker_thread(const shared_ptr_<boost::asio::io_service> &io_service) {
   while (true) {

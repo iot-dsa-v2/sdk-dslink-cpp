@@ -19,7 +19,7 @@ class Connection;
 //////////////////////////////////////////
 // maintain request and response streams
 //////////////////////////////////////////
-class Session : public ClosableRef<Session> {
+class Session final : public ClosableRef<Session> {
   friend class Connection;
   friend class Responder;
   friend class MessageStream;
@@ -55,7 +55,7 @@ class Session : public ClosableRef<Session> {
   void connected(shared_ptr_<Connection> connection);
   void disconnected(const shared_ptr_<Connection> &connection);
 
-  void close_impl() override;
+  void close_impl() final;
 
   void add_ready_stream(ref_<MessageStream> stream);
 };
