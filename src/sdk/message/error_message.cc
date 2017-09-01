@@ -2,10 +2,10 @@
 #include "error_message.h"
 
 namespace dsa {
-ErrorMessage::ErrorMessage(MessageType type, MessageStatus s, uint32_t request_id)
+ErrorMessage::ErrorMessage(MessageType type, MessageStatus s, uint32_t rid)
     : ResponseMessage(type) {
   status.reset(new DynamicByteHeader(DynamicHeader::STATUS, static_cast<uint8_t>(s)));
-  static_headers.request_id = request_id;
+  static_headers.rid = rid;
 }
 
 void ErrorMessage::write_dynamic_data(uint8_t *data) const {

@@ -55,7 +55,7 @@ void Responder::on_subscribe_request(
     ref_<SubscribeRequestMessage> &&message) {
 //  auto stream = make_ref_<SubscribeMessageStream>(
 //    _session.get_intrusive(), message->get_subscribe_options(),
-//    message->request_id());
+//    message->rid());
 //
 //  auto node_state = _session._strand->state_manager().get_or_create(
 //      message->get_target_path());
@@ -68,7 +68,7 @@ void Responder::on_subscribe_request(
 void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
 //  auto stream = make_ref_<ListMessageStream>(_session.get_intrusive(),
 //                                             message->get_list_options(),
-//                                             message->request_id());
+//                                             message->rid());
 //
 //  auto node_state = _session._strand->state_manager().get_or_create(
 //      message->get_target_path());
@@ -83,14 +83,14 @@ void Responder::on_invoke_request(
   //  auto model = _model_manager.get_model(message.get_target_path());
   //  if (model == nullptr) {
   //    send_error(MessageType::INVOKE_RESPONSE, MessageStatus::DISCONNECTED,
-  //    message.request_id());
+  //    message.rid());
   //    return;
   //  }
   //
   //  auto stream =
   //  make_ref_<InvokeMessageStream>(_session.get_intrusive(),
   //                                                     message.get_invoke_options(),
-  //                                                     message.request_id(),
+  //                                                     message.rid(),
   //                                                     );
   //  model->add_stream(stream);
 }
@@ -99,13 +99,13 @@ void Responder::on_set_request(ref_<SetRequestMessage> &&message) {
   //  auto model = _model_manager.get_model(message.get_target_path());
   //  if (model == nullptr) {
   //    send_error(MessageType::SUBSCRIBE_RESPONSE, MessageStatus::DISCONNECTED,
-  //    message.request_id());
+  //    message.rid());
   //    return;
   //  }
   //
   //  auto stream = make_ref_<SetMessageStream>(_session.get_intrusive(),
   //                                                  message.get_set_options(),
-  //                                                  message.request_id(),
+  //                                                  message.rid(),
   //                                                  );
   //  model->add_stream(stream);
 }

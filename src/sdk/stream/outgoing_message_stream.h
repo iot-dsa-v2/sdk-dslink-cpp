@@ -49,7 +49,7 @@ public:
 //
 // public:
 //  SubscribeMessageStream(ref_<Session> &&session,
-//                         SubscribeOptions &option, uint32_t request_id);
+//                         SubscribeOptions &option, uint32_t rid);
 //
 //  void new_message(const SubscribeResponseMessage &new_message);
 //  void receive_message(MessageRef&& msg){}
@@ -61,7 +61,7 @@ public:
 //
 // public:
 //  InvokeMessageStream(ref_<Session> &&session, InvokeOptions &option,
-//                      uint32_t request_id);
+//                      uint32_t rid);
 //
 //  void new_message(const InvokeResponseMessage &new_message);
 //  void receive_message(MessageRef&& msg){}
@@ -73,7 +73,7 @@ public:
 //
 // public:
 //  ListMessageStream(ref_<Session> &&session, ListOptions &option,
-//                    uint32_t request_id);
+//                    uint32_t rid);
 //
 //  void new_message(const ListResponseMessage &new_message);
 //  void receive_message(MessageRef&& msg){}
@@ -85,7 +85,7 @@ public:
 //
 // public:
 //  SetMessageStream(ref_<Session> &&session, SetOptions &option,
-//                   uint32_t request_id);
+//                   uint32_t rid);
 //
 //  //void new_message(const SetResponseMessage &new_message);
 //};
@@ -96,7 +96,7 @@ public:
 //
 // public:
 //  ErrorMessageStream(ref_<Session> &&session, MessageType type,
-//                     MessageStatus status, uint32_t request_id = 0);
+//                     MessageStatus status, uint32_t rid = 0);
 //
 //  MessageRef get_next_message() override;
 //};

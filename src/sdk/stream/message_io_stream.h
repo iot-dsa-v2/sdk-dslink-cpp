@@ -32,6 +32,8 @@ public:
   MessageCacheStream(ref_<Session> &&session, const std::string &path, uint32_t rid = 0);
   ~MessageCacheStream() override;
 
+  void set_cache(MessageRef && msg);
+
   size_t peek_next_message_size(size_t available) override;
   MessageRef get_next_message() override;
 };

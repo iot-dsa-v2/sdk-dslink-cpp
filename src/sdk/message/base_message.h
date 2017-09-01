@@ -46,7 +46,7 @@ class Message : public EnableRef<Message> {
     return static_cast<uint8_t>(static_headers.type) < 0x80;
   }
 
-  uint32_t request_id() const { return static_headers.request_id; }
+  uint32_t rid() const { return static_headers.rid; }
 
  protected:
   // measure the size and header size

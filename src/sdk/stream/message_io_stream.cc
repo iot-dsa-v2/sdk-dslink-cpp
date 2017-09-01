@@ -15,6 +15,10 @@ void MessageCacheStream::close_impl() {
   _session.reset();
 }
 
+void MessageCacheStream::set_cache(MessageRef && msg){
+  _cache = std::move(msg);
+}
+
 size_t MessageCacheStream::peek_next_message_size(size_t available) {
   if (is_closed() || _cache == nullptr) {
     return 0;

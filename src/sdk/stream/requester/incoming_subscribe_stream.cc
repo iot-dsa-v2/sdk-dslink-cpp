@@ -10,8 +10,10 @@ const SubscribeOptions IncomingSubscribeStream::default_options;
 
 IncomingSubscribeStream::IncomingSubscribeStream(ref_<Session>&& session,
                                                  const std::string& path,
+                                                 Callback&& callback,
                                                  uint32_t rid)
-    : MessageCacheStream(std::move(session), path, rid) {}
+    : MessageCacheStream(std::move(session), path, rid),
+      _callback(std::move(callback)) {}
 
 void IncomingSubscribeStream::receive_message(MessageRef&& msg) {
   if (msg->type() == MessageType::SUBSCRIBE_RESPONSE) {

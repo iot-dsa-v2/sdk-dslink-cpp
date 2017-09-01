@@ -27,8 +27,8 @@ OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
 ///////////////////////////////
 // SubscribeMessageStream::SubscribeMessageStream(
 //    ref_<Session> &&session, SubscribeOptions &&config,
-//    uint32_t request_id)
-//    : OutgoingMessageStream(std::move(session), request_id),
+//    uint32_t rid)
+//    : OutgoingMessageStream(std::move(session), rid),
 //      _config(std::move(config)) {}
 //
 // void SubscribeMessageStream::new_message(
@@ -41,8 +41,8 @@ OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
 /////////////////////////////////
 // InvokeMessageStream::InvokeMessageStream(ref_<Session> &&session,
 //                                         InvokeOptions &&config,
-//                                         uint32_t request_id)
-//    : OutgoingMessageStream(std::move(session), request_id),
+//                                         uint32_t rid)
+//    : OutgoingMessageStream(std::move(session), rid),
 //      _config(std::move(config)) {}
 //
 // void InvokeMessageStream::new_message(
@@ -54,8 +54,8 @@ OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
 ////////////////////////////
 // ListMessageStream::ListMessageStream(ref_<Session> &&session,
 //                                     ListOptions &&config, uint32_t
-//                                     request_id)
-//    : OutgoingMessageStream(std::move(session), request_id),
+//                                     rid)
+//    : OutgoingMessageStream(std::move(session), rid),
 //      _config(std::move(config)) {}
 //
 // void ListMessageStream::new_message(const ListResponseMessage &new_message)
@@ -66,16 +66,16 @@ OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
 //// SetMessageStream
 ////////////////////////////
 // SetMessageStream::SetMessageStream(ref_<Session> &&session,
-//                                   SetOptions &&config, uint32_t request_id)
-//    : OutgoingMessageStream(std::move(session), request_id),
+//                                   SetOptions &&config, uint32_t rid)
+//    : OutgoingMessageStream(std::move(session), rid),
 //      _config(std::move(config)) {}
 //
 //
 // ErrorMessageStream::ErrorMessageStream(ref_<Session> &&session,
 //                                       MessageType type, MessageStatus status,
-//                                       uint32_t request_id)
-//    : OutgoingMessageStream(std::move(session), request_id),
-//      _error_message(new ErrorMessage(type, status, request_id)) {}
+//                                       uint32_t rid)
+//    : OutgoingMessageStream(std::move(session), rid),
+//      _error_message(new ErrorMessage(type, status, rid)) {}
 //
 //
 // MessageRef ErrorMessageStream::get_next_message() { return _error_message; }

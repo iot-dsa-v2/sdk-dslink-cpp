@@ -19,12 +19,12 @@ struct StaticHeaders {
   uint32_t message_size;
   uint16_t header_size;
   MessageType type;
-  uint32_t request_id;
+  uint32_t rid;
   uint32_t ack_id;
 
   StaticHeaders(const uint8_t *data);
   StaticHeaders(uint32_t message_size, uint16_t header_size, MessageType type,
-                uint32_t request_id, uint32_t ack_id);
+                uint32_t rid, uint32_t ack_id);
 
   void write(uint8_t *data) const;
 };
