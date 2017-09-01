@@ -7,7 +7,8 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   HandshakeF3Message message;
 
   uint16_t session_id_length = 64;
-  std::string session_id("session-id123456789012345678901234567890123456789012345678901234");
+  std::string session_id(
+      "session-id123456789012345678901234567890123456789012345678901234");
   message.session_id = session_id;
 
   uint16_t path_length = 32;
@@ -31,8 +32,8 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
 
-  std::memcpy(&expected_values[StaticHeaders::MESSAGE_SIZE_OFFSET], &message_size,
-              sizeof(uint32_t));
+  std::memcpy(&expected_values[StaticHeaders::MESSAGE_SIZE_OFFSET],
+              &message_size, sizeof(uint32_t));
   std::memcpy(&expected_values[StaticHeaders::HEADER_SIZE_OFFSET], &header_size,
               sizeof(uint16_t));
   std::memcpy(&expected_values[StaticHeaders::TYPE_OFFSET], &type,
@@ -48,12 +49,16 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t PathOffset = PathLengthOffset + sizeof(uint16_t);
   uint8_t AuthOffset = PathOffset + path_length;
 
-  std::memcpy(&expected_values[SessionIdLengthOffset], &session_id_length,  sizeof(session_id_length));
-  std::memcpy(&expected_values[SessionIdOffset], message.session_id.data(), message.session_id.size());
-  std::memcpy(&expected_values[PathLengthOffset], &path_length,  sizeof(path_length));
-  std::memcpy(&expected_values[PathOffset], message.path.data(), message.path.size());
-  std::memcpy(&expected_values[AuthOffset], message.auth.data(), Message::AUTH_LENGTH);
+  std::memcpy(&expected_values[SessionIdLengthOffset], &session_id_length,
+              sizeof(session_id_length));
+  std::memcpy(&expected_values[SessionIdOffset], message.session_id.data(),
+              message.session_id.size());
+  std::memcpy(&expected_values[PathLengthOffset], &path_length,
+              sizeof(path_length));
+  std::memcpy(&expected_values[PathOffset], message.path.data(),
+              message.path.size());
+  std::memcpy(&expected_values[AuthOffset], message.auth.data(),
+              Message::AUTH_LENGTH);
 
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
-
 }

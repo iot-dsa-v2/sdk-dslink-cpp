@@ -30,7 +30,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
         "Vhc3VyZS4=",
         encoded);
 
-    EXPECT_EQ(0, strncmp((const char*)data, base64_decode(encoded).c_str(),
+    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
                          data_size));
   }
   {
@@ -41,7 +41,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     EXPECT_EQ("c2RrLWRzbGluay1jcHA=", encoded);
 
-    EXPECT_EQ(0, strncmp((const char*)data, base64_decode(encoded).c_str(),
+    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
                          data_size));
   }
   {
@@ -52,7 +52,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     EXPECT_EQ("LWRzbGluay1jcHA=", encoded);
 
-    EXPECT_EQ(0, strncmp((const char*)data, base64_decode(encoded).c_str(),
+    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
                          data_size));
   }
   {
@@ -63,7 +63,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     EXPECT_EQ("ZHNsaW5rLWNwcA==", encoded);
 
-    EXPECT_EQ(0, strncmp((const char*)data, base64_decode(encoded).c_str(),
+    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
                          data_size));
   }
   {
@@ -74,7 +74,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     EXPECT_EQ("LWNwcA==", encoded);
 
-    EXPECT_EQ(0, strncmp((const char*)data, base64_decode(encoded).c_str(),
+    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
                          data_size));
   }
   {
@@ -85,7 +85,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     EXPECT_EQ("Y3Bw", encoded);
 
-    EXPECT_EQ(0, strncmp((const char*)data, base64_decode(encoded).c_str(),
+    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
                          data_size));
   }
 }

@@ -141,7 +141,7 @@ TEST(MessageTest, InvokeRequest__update_static_header) {
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
   EXPECT_TRUE(request.check_static_headers(
-                expect_values, sizeof(expect_values) / sizeof(uint8_t)));
+      expect_values, sizeof(expect_values) / sizeof(uint8_t)));
 }
 
 TEST(MessageTest, InvokeRequest__priority) {

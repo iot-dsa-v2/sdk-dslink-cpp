@@ -32,8 +32,8 @@ TEST(MessageTest, HandshakeF1__Constructor_01) {
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
 
-  std::memcpy(&expected_values[StaticHeaders::MESSAGE_SIZE_OFFSET], &message_size,
-              sizeof(uint32_t));
+  std::memcpy(&expected_values[StaticHeaders::MESSAGE_SIZE_OFFSET],
+              &message_size, sizeof(uint32_t));
   std::memcpy(&expected_values[StaticHeaders::HEADER_SIZE_OFFSET], &header_size,
               sizeof(uint16_t));
   std::memcpy(&expected_values[StaticHeaders::TYPE_OFFSET], &type,

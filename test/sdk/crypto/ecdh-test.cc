@@ -21,7 +21,7 @@ TEST(ECDHTest, get_private_key) {
   EXPECT_NE(0, memcmp(pkey1.data(), pkey2.data(), pkey1_size));
 }
 
-//TEST(ECDHTest, get_private_key_MemoryLeak) {
+// TEST(ECDHTest, get_private_key_MemoryLeak) {
 //  ECDH ecdh();
 //  BytesPtr key(ecdh.get_private_key());
 //  EXPECT_EQ(0, 0);
@@ -38,11 +38,11 @@ TEST(ECDHTest, get_public_key) {
   EXPECT_EQ(65, pkey1_size);
   EXPECT_EQ(65, pkey2.size());
 
-  EXPECT_NE(0, memcmp((const char *)pkey1.data(),
-		       (const char *)pkey2.data(), pkey1_size));
+  EXPECT_NE(0, memcmp((const char *)pkey1.data(), (const char *)pkey2.data(),
+                      pkey1_size));
 }
 
-//TEST(ECDHTest, get_public_key_MemoryLeak) {
+// TEST(ECDHTest, get_public_key_MemoryLeak) {
 //  ECDH ecdh();
 //  BytesPtr key(ecdh.get_public_key());
 //  EXPECT_EQ(0, 0);
@@ -58,16 +58,17 @@ TEST(ECDHTest, set_private_key_hex_MemoryLeak) {
 TEST(ECDHTest, set_private_key_hex_Exception) {
   ECDH ecdh;
 
-  EXPECT_THROW({
-      try {
-	const char data[128] = {0};
-	ecdh.set_private_key_hex(data);
-      } catch (std::runtime_error &e) {
-	EXPECT_STREQ("invalid key for curve", e.what());
-        throw;
-      }
-    }, std::runtime_error);
-
+  EXPECT_THROW(
+      {
+        try {
+          const char data[128] = {0};
+          ecdh.set_private_key_hex(data);
+        } catch (std::runtime_error &e) {
+          EXPECT_STREQ("invalid key for curve", e.what());
+          throw;
+        }
+      },
+      std::runtime_error);
 }
 
 TEST(ECDHTest, compute_secret) {
@@ -84,8 +85,6 @@ TEST(ECDHTest, compute_secret) {
   size_t B_ss_size = B_shared_secret.size();
 
   EXPECT_EQ(B_ss_size, A_ss_size);
-  EXPECT_EQ(0, memcmp(A_shared_secret.data(),
-		    B_shared_secret.data(), A_ss_size));
+  EXPECT_EQ(0,
+            memcmp(A_shared_secret.data(), B_shared_secret.data(), A_ss_size));
 }
-
-

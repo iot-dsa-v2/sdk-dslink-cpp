@@ -57,14 +57,14 @@ TEST(TcpServerTest, SingleStrand) {
   app.close();
   for (int i = 0; i < 10; ++i) {
     app.sleep(50);
-    if (app.is_stopped()){
+    if (app.is_stopped()) {
       break;
     }
   }
 
   EXPECT_TRUE(app.is_stopped());
 
-  if (!app.is_stopped()){
+  if (!app.is_stopped()) {
     app.force_stop();
   }
 
@@ -124,14 +124,14 @@ TEST(TcpServerTest, MultiStrand) {
   app.close();
   for (int i = 0; i < 10; ++i) {
     app.sleep(50);
-    if (app.is_stopped()){
+    if (app.is_stopped()) {
       break;
     }
   }
 
   EXPECT_TRUE(app.is_stopped());
 
-  if (!app.is_stopped()){
+  if (!app.is_stopped()) {
     app.force_stop();
   }
 

@@ -7,9 +7,7 @@ class RefCheck : public dsa::EnableRef<RefCheck> {
   static int count;
   RefCheck(int a) { ++count; }
   ~RefCheck() { --count; }
-  dsa::ref_<RefCheck> get_intrusive_from_this() {
-    return get_ref();
-  }
+  dsa::ref_<RefCheck> get_intrusive_from_this() { return get_ref(); }
 };
 int RefCheck::count = 0;
 }

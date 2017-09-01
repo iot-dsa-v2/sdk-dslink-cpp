@@ -1,5 +1,5 @@
-#include "dsa/util.h"
 #include "dsa/message.h"
+#include "dsa/util.h"
 #include "gtest/gtest.h"
 
 #include <msgpack.h>
@@ -50,7 +50,8 @@ TEST(MessageValueTest, Constructor_01) {
     buf_size += sbuf.size;
     buf.resize(buf_size);
 
-    buf.insert(buf.begin()+buf_size-sbuf.size, &sbuf.data[0], &sbuf.data[sbuf.size]);
+    buf.insert(buf.begin() + buf_size - sbuf.size, &sbuf.data[0],
+               &sbuf.data[sbuf.size]);
     msgpack_sbuffer_destroy(&sbuf);
   }
 
@@ -103,7 +104,6 @@ TEST(MessageValueTest, Constructor_02) {
     EXPECT_TRUE(v.is_map());
   }
 }
-
 
 TEST(MessageValueTest, Constructor_03) {
   //  MessageValue(Variant value, const std::string& ts);
