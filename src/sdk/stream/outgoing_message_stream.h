@@ -9,7 +9,7 @@
 #include "message/response/invoke_response_message.h"
 #include "message/response/list_response_message.h"
 #include "message/response/set_response_message.h"
-#include "message/response/subscribe_response_message.h"
+
 
 #include "message/base_message.h"
 #include "message/message_options.h"
@@ -18,6 +18,7 @@
 namespace dsa {
 class Session;
 class SubscribeResponseMessage;
+class SubscribeRequestMessage;
 class InvokeResponseMessage;
 class SetResponseMessage;
 class ListResponseMessage;
@@ -25,25 +26,20 @@ class ListResponseMessage;
 // maintain a smart queue of subscription updates
 // this queue works for a single subscription from a single client
 class OutgoingMessageStream : public MessageQueueStream {
-
  public:
-  OutgoingMessageStream(ref_<Session> &&session, const std::string &path, uint32_t rid);
+  OutgoingMessageStream(ref_<Session> &&session, const std::string &path,
+                        uint32_t rid);
 };
 
-class OutgoingSubscribeStream : public OutgoingMessageStream {
- public:
-  OutgoingSubscribeStream(ref_<Session> &&session, const std::string &path, uint32_t rid);
-  void new_message(const SubscribeResponseMessage &new_message);
 
-};
 class OutgoingListStream : public OutgoingMessageStream {
-public:
-  OutgoingListStream(ref_<Session> &&session, const std::string &path, uint32_t rid);
-
+ public:
+  OutgoingListStream(ref_<Session> &&session, const std::string &path,
+                     uint32_t rid);
 };
 
 //
-//class SubscribeMessageStream : public OutgoingMessageStream {
+// class SubscribeMessageStream : public OutgoingMessageStream {
 // private:
 //  SubscribeOptions _config;
 //
@@ -55,7 +51,7 @@ public:
 //  void receive_message(MessageRef&& msg){}
 //};
 //
-//class InvokeMessageStream : public OutgoingMessageStream {
+// class InvokeMessageStream : public OutgoingMessageStream {
 // private:
 //  InvokeOptions _config;
 //
@@ -67,7 +63,7 @@ public:
 //  void receive_message(MessageRef&& msg){}
 //};
 //
-//class ListMessageStream : public OutgoingMessageStream {
+// class ListMessageStream : public OutgoingMessageStream {
 // private:
 //  ListOptions _config;
 //
@@ -79,7 +75,7 @@ public:
 //  void receive_message(MessageRef&& msg){}
 //};
 //
-//class SetMessageStream : public OutgoingMessageStream {
+// class SetMessageStream : public OutgoingMessageStream {
 // private:
 //  SetOptions _config;
 //
@@ -90,7 +86,7 @@ public:
 //  //void new_message(const SetResponseMessage &new_message);
 //};
 //
-//class ErrorMessageStream : public OutgoingMessageStream {
+// class ErrorMessageStream : public OutgoingMessageStream {
 // private:
 //  MessageRef _error_message;
 //

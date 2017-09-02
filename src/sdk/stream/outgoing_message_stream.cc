@@ -9,18 +9,10 @@ OutgoingMessageStream::OutgoingMessageStream(ref_<Session> &&session,
                                              uint32_t rid)
     : MessageQueueStream(std::move(session), path, rid) {}
 
-OutgoingSubscribeStream::OutgoingSubscribeStream(ref_<Session> &&session,
-                                                 const std::string &path,
-                                                 uint32_t rid)
-    : OutgoingMessageStream(std::move(session), path, rid) {}
-
-void OutgoingSubscribeStream::new_message(const SubscribeResponseMessage &new_message){
-
-}
 
 OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
                                        const std::string &path, uint32_t rid)
-    : OutgoingMessageStream(std::move(session), path, rid) {}
+  : OutgoingMessageStream(std::move(session), path, rid) {}
 
 ///////////////////////////////
 //// SubscribeMessageStream

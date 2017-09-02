@@ -2,7 +2,8 @@ list(APPEND StreamSourceFiles
         message_io_stream.cc
         incoming_message_stream.cc
         outgoing_message_stream.cc
-        requester/incoming_subscribe_stream)
+        requester/incoming_subscribe_stream.cc
+        responder/outgoing_subscribe_stream.cc)
 
 foreach(file ${StreamSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_STREAM}/${file})

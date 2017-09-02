@@ -1,6 +1,8 @@
 #ifndef DSA_SDK_NODE_STATE_MANAGER_H_
 #define DSA_SDK_NODE_STATE_MANAGER_H_
 
+#include "stream/outgoing_stream_accepter.h"
+
 #include <map>
 #include <string>
 #include <utility>
@@ -11,15 +13,20 @@
 
 namespace dsa {
 
-class NodeStateManager {
+class NodeStateManager : public OutgoingStreamAcceptor {
  private:
   LinkStrandRef strand;
-  std::map< std::string, ref_<NodeState> > _node_states;
+  std::map<std::string, ref_<NodeState> > _node_states;
+
+  ref_<NodeState> &get_or_create(const std::string &path);
 
  public:
-  explicit NodeStateManager(LinkStrandRef & strand);
+  explicit NodeStateManager(LinkStrandRef &strand);
 
-  const ref_<NodeState> &get_or_create(std::string path);
+  void add(ref_<OutgoingSubscribeStream> &stream) override;
+  void add(ref_<OutgoingListStream> &stream) override;
+  void add(ref_<OutgoingInvokeStream> &stream) override;
+  void add(ref_<OutgoingSetStream> &stream) override;
 };
 }  // namespace dsa
 

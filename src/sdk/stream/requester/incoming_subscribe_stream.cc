@@ -20,12 +20,6 @@ void IncomingSubscribeStream::receive_message(MessageRef&& msg) {
     if (_callback != nullptr) {
       _callback(DOWN_CAST<SubscribeResponseMessage*>(msg.get()), *this);
     }
-  } else if (msg->type() == MessageType::CLOSE) {
-    if (_callback != nullptr) {
-      // callback with nullptr
-      _callback(ref_<SubscribeResponseMessage>(), *this);
-    }
-    close();
   }
 }
 }

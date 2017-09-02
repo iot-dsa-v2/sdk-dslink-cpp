@@ -11,6 +11,8 @@
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
 
+#include "stream/responder/outgoing_subscribe_stream.h"
+
 namespace dsa {
 
 Responder::Responder(Session &session) : _session(session) {}
@@ -51,35 +53,30 @@ void Responder::receive_message(ref_<Message> &&message) {
       request->get_target_path(), std::move(callback));
 }
 
-void Responder::on_subscribe_request(
-    ref_<SubscribeRequestMessage> &&message) {
-//  auto stream = make_ref_<SubscribeMessageStream>(
-//    _session.get_intrusive(), message->get_subscribe_options(),
-//    message->get_rid());
-//
-//  auto node_state = _session._strand->state_manager().get_or_create(
-//      message->get_target_path());
-//  node_state->add_stream(stream);
+void Responder::on_subscribe_request(ref_<SubscribeRequestMessage> &&message) {
+  auto stream = make_ref_<OutgoingSubscribeStream>(
+      _session.get_ref(), message->get_target_path(), message->get_rid(),
+      message->get_subscribe_options());
 
-  //  if (!node_state->has_model())
-  //    _model_manager.find_model(node_state);
+  _outgoing_streams[stream->rid] = stream;
+
+  _session._strand->stream_acceptor().add(stream);
 }
 
 void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
-//  auto stream = make_ref_<ListMessageStream>(_session.get_intrusive(),
-//                                             message->get_list_options(),
-//                                             message->get_rid());
-//
-//  auto node_state = _session._strand->state_manager().get_or_create(
-//      message->get_target_path());
-//  node_state->add_stream(stream);
+  //  auto stream = make_ref_<ListMessageStream>(_session.get_intrusive(),
+  //                                             message->get_list_options(),
+  //                                             message->get_rid());
+  //
+  //  auto node_state = _session._strand->state_manager().get_or_create(
+  //      message->get_target_path());
+  //  node_state->add_stream(stream);
 
   //  if (!node_state->has_model())
   //    _model_manager.find_model(node_state);
 }
 
-void Responder::on_invoke_request(
-    ref_<InvokeRequestMessage> &&message) {
+void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message) {
   //  auto model = _model_manager.get_model(message.get_target_path());
   //  if (model == nullptr) {
   //    send_error(MessageType::INVOKE_RESPONSE, MessageStatus::DISCONNECTED,

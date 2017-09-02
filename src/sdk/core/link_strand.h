@@ -9,7 +9,7 @@ namespace dsa {
 
 class SecurityManager;
 class SessionManager;
-class NodeStateManager;
+class OutgoingStreamAcceptor;
 class ECDH;
 class Logger;
 
@@ -22,7 +22,7 @@ class LinkStrand : public EnableRef<LinkStrand> {
   ECDH *__ecdh = nullptr;
 
   SecurityManager *__security_manager = nullptr;
-  NodeStateManager *__state_manager = nullptr;
+  OutgoingStreamAcceptor *__stream_acceptor = nullptr;
   SessionManager *__session_manager = nullptr;
   Logger *__logger = nullptr;
 
@@ -35,7 +35,7 @@ class LinkStrand : public EnableRef<LinkStrand> {
 
   SecurityManager &security_manager() { return *__security_manager; };
 
-  NodeStateManager &state_manager() { return *__state_manager; };
+  OutgoingStreamAcceptor &stream_acceptor() { return *__stream_acceptor; };
 
   SessionManager &session_manager() { return *__session_manager; };
 

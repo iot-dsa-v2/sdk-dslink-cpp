@@ -13,7 +13,7 @@ class LinkConfig : public LinkStrand {
  protected:
   // modules
   shared_ptr_<SecurityManager> _security_manager = nullptr;
-  shared_ptr_<NodeStateManager> _state_manager = nullptr;
+  shared_ptr_<OutgoingStreamAcceptor> _stream_acceptor = nullptr;
   shared_ptr_<SessionManager> _session_manager = nullptr;
   shared_ptr_<Logger> _logger = nullptr;
 
@@ -24,9 +24,9 @@ class LinkConfig : public LinkStrand {
     __security_manager = p;
     _security_manager.reset(p);
   };
-  void set_state_manager(NodeStateManager* p) {
-    __state_manager = p;
-    _state_manager.reset(p);
+  void set_stream_acceptor(OutgoingStreamAcceptor *p) {
+    __stream_acceptor = p;
+    _stream_acceptor.reset(p);
   };
   void set_session_manager(SessionManager* p) {
     __session_manager = p;

@@ -8,7 +8,7 @@
 
 #include "message/response/subscribe_response_message.h"
 #include "node_model.h"
-#include "stream/outgoing_message_stream.h"
+#include "stream/responder/outgoing_subscribe_stream.h"
 
 namespace dsa {
 

@@ -12,7 +12,7 @@ DefaultModules::DefaultModules(App &app, bool async)
     : LinkConfig(app.new_strand(), new ECDH()) {
   LinkStrandRef ptr = get_ref();
   set_session_manager(new SessionManager(ptr));
-  set_state_manager(new NodeStateManager(ptr));
+  set_stream_acceptor(new NodeStateManager(ptr));
 
   if (async) {
     set_security_manager(new AsyncSimpleSecurityManager(__strand));

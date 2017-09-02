@@ -2,13 +2,14 @@
 set(SOURCES "")
 
 #
-foreach(dir "./crypto"
-	    "./message"		
+foreach(dir
+		"./crypto"
+	    "./message"
 	    "./util"
         "./variant"
 		"./network"
 		"./requester"
-#	    "./responder"
+	    "./responder"
 		)
   add_subdirectory(${dir})
 endforeach()
