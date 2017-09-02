@@ -18,19 +18,25 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     const MessageParsingError &) {
   switch (*data) {
     case STATUS:
-    case SEQUENCE_ID:
-    case PAGE_ID:
     case ALIAS_COUNT:
     case PRIORITY:
     case QOS:
-    case QUEUE_SIZE:
-    case QUEUE_TIME:
     case MAX_PERMISSION: {
       if (size >= 2) {
         return new DynamicByteHeader(data);
       }
       throw MessageParsingError("invalid size for DynamicByteHeader");
     }
+    case SEQUENCE_ID:
+    case PAGE_ID:
+    case QUEUE_SIZE:
+    case QUEUE_TIME: {
+      if (size >= 5) {
+        return new DynamicIntHeader(data);
+      }
+      throw MessageParsingError("invalid size for DynamicByteHeader");
+    }
+
     case BASE_PATH:
     case PERMISSION_TOKEN:
     case TARGET_PATH:
@@ -61,17 +67,17 @@ const std::string DynamicStringHeader::BLANK_STRING = "";
 
 DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size,
                                          std::string &&str)
-    : DynamicHeader(static_cast<DynamicKey>(*data), size), _value(std::move(str)) {}
+    : DynamicHeader(static_cast<DynamicKey>(*data), size),
+      _value(std::move(str)) {}
 
-DynamicStringHeader::DynamicStringHeader(DynamicKey key,
-                                         const std::string &str)
+DynamicStringHeader::DynamicStringHeader(DynamicKey key, const std::string &str)
     : DynamicHeader(key, str.length() + 3), _value(str) {}
 
 const std::string &DynamicStringHeader::value() const { return _value; }
 
 void DynamicStringHeader::write(uint8_t *data) const {
   data[0] = _key;
-  write_str_with_len(&data[1],_value);
+  write_str_with_len(&data[1], _value);
 }
 
 DynamicByteHeader::DynamicByteHeader(const uint8_t *data)
@@ -101,8 +107,7 @@ void DynamicIntHeader::write(uint8_t *data) const {
 DynamicBoolHeader::DynamicBoolHeader(const uint8_t *data)
     : DynamicHeader(static_cast<DynamicKey>(*data), 1) {}
 
-DynamicBoolHeader::DynamicBoolHeader(DynamicKey key)
-    : DynamicHeader(key, 1) {}
+DynamicBoolHeader::DynamicBoolHeader(DynamicKey key) : DynamicHeader(key, 1) {}
 
 void DynamicBoolHeader::write(uint8_t *data) const { data[0] = key(); }
 
