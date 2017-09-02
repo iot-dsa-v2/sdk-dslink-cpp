@@ -31,8 +31,6 @@ class TcpClientConnection : public TcpConnection {
                       const std::string &tcp_host, uint16_t tcp_port,
                       const std::string &path = "");
 
-  ~TcpClientConnection() override { std::cout << "~TcpClientConnection()\n"; }
-
   std::string name() override { return "TcpClientConnection"; }
 
   void connect() override;

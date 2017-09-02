@@ -20,8 +20,6 @@ class TcpServerConnection : public TcpConnection {
                       const std::string &dsid_prefix = "",
                       const std::string &path = "");
 
-  ~TcpServerConnection() { std::cout << "~TcpServerConnection()\n"; }
-
   void accept() override;
 
   std::string name() override { return "TcpServerConnection"; }

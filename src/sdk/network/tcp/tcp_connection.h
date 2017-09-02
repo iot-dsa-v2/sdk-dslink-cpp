@@ -35,8 +35,10 @@ class TcpConnection : public Connection {
   TcpConnection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
                 const std::string &dsid_prefix, const std::string &path = "");
 
+  ~TcpConnection() {}
 
-  void write(const uint8_t *data, size_t size, WriteHandler &&callback) override;
+  void write(const uint8_t *data, size_t size,
+             WriteHandler &&callback) override;
 
   tcp_socket &socket();
 };

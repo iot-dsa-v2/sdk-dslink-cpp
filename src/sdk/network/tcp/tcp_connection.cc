@@ -72,8 +72,11 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
         // TODO: check if message_size is valid;
         uint32_t message_size = read_32_t(&buffer[cur]);
         if (message_size > MAX_BUFFER_SIZE) {
-          // TODO: send error
-          TcpConnection::close_in_strand(std::move(connection));
+          LOG_DEBUG(connection->_strand->logger(),
+                    LOG << "message is bigger than maxed buffer size");
+          TcpConnection::close_in_strand(connection);
+          // TODO: send error, and close with std::move
+          // TcpConnection::close_in_strand(std::move(connection));
           return;
         }
         if (message_size > total_bytes - cur) {
@@ -89,8 +92,12 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
             connection->on_read_message(
                 Message::parse_message(&buffer[cur], message_size));
           } catch (const MessageParsingError &err) {
-            // TODO: send error
-            TcpConnection::close_in_strand(std::move(connection));
+            LOG_DEBUG(connection->_strand->logger(),
+                      LOG << "invalid message received, close connection : "
+                          << err.what());
+            TcpConnection::close_in_strand(connection);
+            // TODO: send error, and close with std::move
+            // TcpConnection::close_in_strand(std::move(connection));
             return;
           }
 
@@ -120,7 +127,6 @@ void TcpConnection::write(const uint8_t *data, size_t size,
         callback(error);
       });
 }
-
 
 tcp_socket &TcpConnection::socket() { return _socket; }
 

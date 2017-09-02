@@ -20,22 +20,22 @@ class LinkConfig : public LinkStrand {
  public:
   explicit LinkConfig(AsioStrand* strand, ECDH* ecdh);
 
-  void set_security_manager(SecurityManager* p) {
-    __security_manager = p;
-    _security_manager.reset(p);
+  void set_security_manager(shared_ptr_<SecurityManager> p) {
+    __security_manager = p.get();
+    _security_manager = std::move(p);
   };
-  void set_stream_acceptor(OutgoingStreamAcceptor *p) {
-    __stream_acceptor = p;
-    _stream_acceptor.reset(p);
+  void set_stream_acceptor(shared_ptr_<OutgoingStreamAcceptor> p) {
+    __stream_acceptor = p.get();
+    _stream_acceptor = std::move(p);
   };
-  void set_session_manager(SessionManager* p) {
-    __session_manager = p;
-    _session_manager.reset(p);
+  void set_session_manager(shared_ptr_<SessionManager> p) {
+    __session_manager = p.get();
+    _session_manager = std::move(p);
   };
 
-  void set_logger(Logger* p) {
-    __logger = p;
-    _logger.reset(p);
+  void set_logger(shared_ptr_<Logger> p) {
+    __logger = p.get();
+    _logger = std::move(p);
   };
 };
 

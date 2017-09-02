@@ -18,13 +18,13 @@ struct BaseRequestOptions {
 
   BaseRequestOptions();
   BaseRequestOptions(bool priority);
-  bool operator==(BaseRequestOptions& other) const;
+  bool operator==(const BaseRequestOptions& other) const;
 
-  bool needUpdateOnRemoval(const BaseRequestOptions& options) const;
+  bool needUpdateOnRemoval(const BaseRequestOptions& other) const;
 
   // merge from an other option and update self values
   // return true if value is updated;
-  bool mergeFrom(const BaseRequestOptions& options);
+  bool mergeFrom(const BaseRequestOptions& other);
 };
 
 struct SubscribeOptions : BaseRequestOptions {
@@ -39,13 +39,13 @@ struct SubscribeOptions : BaseRequestOptions {
   SubscribeOptions(QosLevel qos, int32_t queue_size = 0, int32_t queue_time = 0,
                    bool priority = false);
 
-  bool operator==(SubscribeOptions& other) const;
+  bool operator==(const SubscribeOptions& other) const;
 
-  bool needUpdateOnRemoval(const SubscribeOptions& options) const;
+  bool needUpdateOnRemoval(const SubscribeOptions& other) const;
 
   // merge from an other option and update self values
   // return true if value is updated;
-  bool mergeFrom(const SubscribeOptions& options);
+  bool mergeFrom(const SubscribeOptions& other);
 };
 
 struct InvokeOptions : BaseRequestOptions {

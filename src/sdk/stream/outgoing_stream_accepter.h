@@ -9,7 +9,7 @@ class OutgoingListStream;
 class OutgoingInvokeStream;
 class OutgoingSetStream;
 
-class OutgoingStreamAcceptor : public EnableRef<OutgoingStreamAcceptor> {
+class OutgoingStreamAcceptor {
  public:
   virtual void add(ref_<OutgoingSubscribeStream> &stream) = 0;
   virtual void add(ref_<OutgoingListStream> &stream) = 0;
