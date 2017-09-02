@@ -1,5 +1,7 @@
 #include "dsa/message.h"
 #include "dsa/network.h"
+
+#include "../async_test.h"
 #include "gtest/gtest.h"
 
 #include "network/tcp/tcp_client.h"
@@ -50,39 +52,32 @@ TEST(RequesterTest, Subscribe) {
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();
 
-  std::atomic_bool connected{false};
+  ASYNC_EXPECT_TRUE(500, (*client_config.strand)(),
+                    [&]() { return tcp_client->get_session().is_connected(); });
 
-  // wait till all client is connected
-  while (!connected) {
-    (*client_config.strand)()->dispatch(
-        [&]() { connected = tcp_client->get_session().is_connected(); });
-    app.sleep(50);
-  }
   SubscribeOptions options;
   options.queue_time = 0x1234;
   options.queue_size = 0x5678;
 
   tcp_client->get_session().requester.subscribe(
       "/path", [](ref_<SubscribeResponseMessage> &&msg,
-                  IncomingSubscribeStream &stream) {},  options);
+                  IncomingSubscribeStream &stream) {},
+      options);
 
-  app.sleep(500);
+  // wait for acceptor to receive the request
+  WAIT_EXPECT_TRUE(500, [&]() -> bool {
+    return mock_stream_acceptor->last_subscribe_stream != nullptr;
+  });
 
-  EXPECT_TRUE(mock_stream_acceptor->last_subscribe_stream != nullptr);
+  // received request option should be same as the original one
   EXPECT_TRUE(options == mock_stream_acceptor->last_subscribe_stream->options);
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);
 
   app.close();
-  for (int i = 0; i < 10; ++i) {
-    app.sleep(50);
-    if (app.is_stopped()) {
-      break;
-    }
-  }
 
-  EXPECT_TRUE(app.is_stopped());
+  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();

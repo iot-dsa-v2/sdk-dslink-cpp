@@ -14,6 +14,12 @@ foreach(dir
   add_subdirectory(${dir})
 endforeach()
 
+
+add_library(dsa_async_test OBJECT
+		async_test.cc
+		)
+set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_async_test>)
+
 #
 set(SOURCES ${SOURCES} PARENT_SCOPE)
 

@@ -7,6 +7,7 @@
 
 #include "module/default_modules.h"
 
+#include "../async_test.h"
 #include "gtest/gtest.h"
 
 using namespace dsa;
@@ -34,24 +35,14 @@ TEST(TcpServerTest, SingleStrand) {
     clients.push_back(std::move(tcp_client));
   }
 
-  std::atomic_bool all_connected{false};
-
-  // wait till all clients are connected
-  while (!all_connected) {
-    (*config.strand)()->dispatch([&]() {
-      bool result = true;
-      for (auto& client : clients) {
-        if (!client->get_session().is_connected()) {
-          result = false;
-          break;
-        }
+  ASYNC_EXPECT_TRUE(500, (*config.strand)(), [&]() {
+    for (auto& client : clients) {
+      if (!client->get_session().is_connected()) {
+        return false;
       }
-      all_connected = result;
-    });
-    app.sleep(50);
-  }
-
-  EXPECT_TRUE(all_connected);
+    }
+    return true;
+  });
 
   // close everything
   Server::close_in_strand(tcp_server);
@@ -60,15 +51,8 @@ TEST(TcpServerTest, SingleStrand) {
   }
 
   app.close();
-  for (int i = 0; i < 10; ++i) {
-    app.sleep(50);
-    if (app.is_stopped()) {
-      break;
-    }
-  }
 
-  // io_service should be idle by now
-  EXPECT_TRUE(app.is_stopped());
+  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();
@@ -107,24 +91,14 @@ TEST(TcpServerTest, MultiStrand) {
     clients.push_back(std::move(tcp_client));
   }
 
-  std::atomic_bool all_connected{false};
-
-  // wait till all clients are connected
-  while (!all_connected) {
-    (*client_config.strand)()->dispatch([&]() {
-      bool result = true;
-      for (auto& client : clients) {
-        if (!client->get_session().is_connected()) {
-          result = false;
-          break;
-        }
+  ASYNC_EXPECT_TRUE(500, (*client_config.strand)(), [&]() {
+    for (auto& client : clients) {
+      if (!client->get_session().is_connected()) {
+        return false;
       }
-      all_connected = result;
-    });
-    app.sleep(50);
-  }
-
-  EXPECT_TRUE(all_connected);
+    }
+    return true;
+  });
 
   // close everything
   Server::close_in_strand(tcp_server);
@@ -133,15 +107,8 @@ TEST(TcpServerTest, MultiStrand) {
   }
 
   app.close();
-  for (int i = 0; i < 10; ++i) {
-    app.sleep(50);
-    if (app.is_stopped()) {
-      break;
-    }
-  }
 
-  // io_service should be idle by now
-  EXPECT_TRUE(app.is_stopped());
+  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();
