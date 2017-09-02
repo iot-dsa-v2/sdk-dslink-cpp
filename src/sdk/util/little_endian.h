@@ -10,9 +10,9 @@ static size_t write_16_t(uint8_t* data, uint16_t n) {
   return sizeof(uint16_t);
 }
 
-static size_t write_32_t(uint8_t* data, uint32_t n) {
-  memcpy(data, &n, sizeof(uint32_t));
-  return sizeof(uint32_t);
+static size_t write_32_t(uint8_t* data, int32_t n) {
+  memcpy(data, &n, sizeof(int32_t));
+  return sizeof(int32_t);
 }
 
 static uint16_t read_16_t(const uint8_t* data) {
@@ -21,9 +21,9 @@ static uint16_t read_16_t(const uint8_t* data) {
   return result;
 }
 
-static uint32_t read_32_t(const uint8_t* data) {
-  uint32_t result;
-  memcpy(&result, data, sizeof(uint32_t));
+static int32_t read_32_t(const uint8_t* data) {
+  int32_t result;
+  memcpy(&result, data, sizeof(int32_t));
   return result;
 }
 
@@ -38,10 +38,10 @@ static size_t write_16_t(uint8_t* data, uint16_t n) {
   return sizeof(uint16_t);
 }
 
-static size_t write_32_t(uint8_t* data, uint32_t n) {
-  uint32_t swap32 = __builtin_bswap32(n);
-  memcpy(data, &swap32, sizeof(uint32_t));
-  return sizeof(uint32_t);
+static size_t write_32_t(uint8_t* data, int32_t n) {
+  int32_t swap32 = __builtin_bswap32(n);
+  memcpy(data, &swap32, sizeof(int32_t));
+  return sizeof(int32_t);
 }
 
 static uint16_t read_16_t(const uint8_t* data) {
@@ -52,8 +52,8 @@ static uint16_t read_16_t(const uint8_t* data) {
   return result;
 }
 
-static uint32_t read_32_t(const uint8_t* data) {
-  return __builtin_bswap32(*reinterpret_cast<const uint32_t*>(data));
+static int32_t read_32_t(const uint8_t* data) {
+  return __builtin_bswap32(*reinterpret_cast<const int32_t*>(data));
 }
 
 #else // __BIG_ENDIAN__
@@ -63,17 +63,17 @@ static size_t write_16_t(uint8_t* data, uint16_t n) {
   return sizeof(uint16_t);
 }
 
-static size_t write_32_t(uint8_t* data, uint32_t n) {
-  memcpy(data, &n, sizeof(uint32_t));
-  return sizeof(uint32_t);
+static size_t write_32_t(uint8_t* data, int32_t n) {
+  memcpy(data, &n, sizeof(int32_t));
+  return sizeof(int32_t);
 }
 
 static uint16_t read_16_t(const uint8_t* data) {
   return *reinterpret_cast<const uint16_t*>(data);
 }
 
-static uint32_t read_32_t(const uint8_t* data) {
-  return *reinterpret_cast<const uint32_t*>(data);
+static int32_t read_32_t(const uint8_t* data) {
+  return *reinterpret_cast<const int32_t*>(data);
 }
 
 #endif // __BIG_ENDIAN__

@@ -93,7 +93,7 @@ void DynamicByteHeader::write(uint8_t *data) const {
 
 DynamicIntHeader::DynamicIntHeader(const uint8_t *data)
     : DynamicHeader(static_cast<DynamicKey>(*data), 5) {
-  memcpy(&_value, data + 1, sizeof(_value));
+  _value = read_32_t(data + 1);
 }
 
 DynamicIntHeader::DynamicIntHeader(DynamicKey key, int32_t value)
@@ -101,7 +101,7 @@ DynamicIntHeader::DynamicIntHeader(DynamicKey key, int32_t value)
 
 void DynamicIntHeader::write(uint8_t *data) const {
   data[0] = key();
-  memcpy(data + 1, &_value, sizeof(_value));
+  write_32_t(data + 1, _value);
 }
 
 DynamicBoolHeader::DynamicBoolHeader(const uint8_t *data)
