@@ -1,7 +1,6 @@
 list(APPEND UtilSourceFiles
         date_time.cc
-        enable_shared.h
-        enable_intrusive.h)
+        boost_debug.cc)
 
 foreach (file ${UtilSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_UTIL}/${file})

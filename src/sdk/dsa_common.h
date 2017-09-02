@@ -8,7 +8,17 @@
 
 #endif  // _MSC_VER
 
+#ifdef DSA_DEBUG
+
 #define DOWN_CAST dynamic_cast
+#define BOOST_ENABLE_ASSERT_HANDLER
+
+#else  // DSA_DEBUG
+
+#define DOWN_CAST static_cast
+#define BOOST_DISABLE_ASSERTS
+
+#endif  // DSA_DEBUG
 
 #include <algorithm>
 #include <boost/intrusive_ptr.hpp>
