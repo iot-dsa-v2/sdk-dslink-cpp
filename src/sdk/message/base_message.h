@@ -46,8 +46,11 @@ class Message : public EnableRef<Message> {
     return static_cast<uint8_t>(static_headers.type) < 0x80;
   }
 
-  uint32_t get_rid() const { return static_headers.rid; }
-  void set_rid(uint32_t rid) const { static_headers.rid = rid; }
+  uint32_t get_rid() { return static_headers.rid; }
+  void set_rid(int32_t rid) const { static_headers.rid = rid; }
+
+  uint32_t get_ack_id() { return static_headers.ack_id; }
+  void set_ack_rid(int32_t ack_id) const { static_headers.ack_id = ack_id; }
 
  protected:
   // measure the size and header size

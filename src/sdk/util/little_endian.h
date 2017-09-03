@@ -1,6 +1,8 @@
 #ifndef DSA_SDK_LITTLE_ENDIAN_H
 #define DSA_SDK_LITTLE_ENDIAN_H
 
+#include <cstring>
+
 namespace dsa {
 
 #ifdef __arm__
