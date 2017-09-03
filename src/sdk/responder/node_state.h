@@ -42,7 +42,7 @@ class NodeState : public EnableRef<NodeState> {
   std::unordered_set<ref_<OutgoingListStream>, MessageStreamHashFunc,
                      MessageStreamKeyCmp>
       _list_streams;
-  std::unique_ptr<SubscribeResponseMessage> _last_value;
+  ref_<SubscribeResponseMessage> _last_value;
 
  public:
   explicit NodeState(LinkStrandRef &strand, const std::string &path);
@@ -61,7 +61,7 @@ class NodeState : public EnableRef<NodeState> {
   /////////////////////////
   // Other
   /////////////////////////
-  void new_message(const SubscribeResponseMessage &message);
+  void new_message(ref_<SubscribeResponseMessage> &&message);
 
   void add_stream(ref_<OutgoingSubscribeStream> p);
   void add_stream(ref_<OutgoingListStream> p);

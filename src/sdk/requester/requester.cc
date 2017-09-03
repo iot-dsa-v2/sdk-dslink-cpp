@@ -39,7 +39,7 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
   auto msg = make_ref_<SubscribeRequestMessage>();
   msg->set_subscribe_option(options);
   msg->set_target_path(path);
-  stream->write_message(std::move(msg));
+  stream->send_message(std::move(msg));
 
   return stream;
 }

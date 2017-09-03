@@ -16,12 +16,12 @@ class SetRequestMessage : public RequestMessage, PagedMessageMixin {
   SetOptions get_set_options() const;
 
  protected:
-
   // measure the size and header size
   void update_static_header();
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const;
-  void parse_dynamic_headers(const uint8_t* data, size_t size) throw(const MessageParsingError &);
+  void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,
+                          size_t body_size) throw(const MessageParsingError&);
 };
 
 }  // namespace dsa

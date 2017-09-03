@@ -106,11 +106,13 @@ TEST(MessageValueTest, Constructor_02) {
 }
 
 TEST(MessageValueTest, Constructor_03) {
+  const char* timestamp = "2000-01-01T00:00:00.000+00:00";
+
   //  MessageValue(Variant value, const std::string& ts);
   {
     Variant v("hello");
 
-    MessageValue mv = MessageValue(v, "timestamp");
+    MessageValue mv = MessageValue(Variant(v), timestamp);
 
     EXPECT_TRUE(mv.value.is_string());
     EXPECT_EQ("hello", mv.value.get_string());
@@ -119,7 +121,7 @@ TEST(MessageValueTest, Constructor_03) {
     VariantMap& map = mv.meta.get_map();
     EXPECT_EQ(1, map.size());
     EXPECT_TRUE(map["ts"].is_string());
-    EXPECT_EQ("timestamp", map["ts"].get_string());
+    EXPECT_EQ(timestamp, map["ts"].get_string());
 
     EXPECT_TRUE(v.is_string());
     EXPECT_EQ("hello", v.get_string());
@@ -128,7 +130,7 @@ TEST(MessageValueTest, Constructor_03) {
   {
     Variant v = {{"dsid", Variant("dsid-1234")}};
 
-    MessageValue mv(v, "timestamp");
+    MessageValue mv(Variant(v), timestamp);
 
     EXPECT_TRUE(mv.value.is_map());
     VariantMap vm = mv.value.get_map();
@@ -139,7 +141,7 @@ TEST(MessageValueTest, Constructor_03) {
     VariantMap& map = mv.meta.get_map();
     EXPECT_EQ(1, map.size());
     EXPECT_TRUE(map["ts"].is_string());
-    EXPECT_EQ("timestamp", map["ts"].get_string());
+    EXPECT_EQ(timestamp, map["ts"].get_string());
 
     EXPECT_TRUE(v.is_map());
   }

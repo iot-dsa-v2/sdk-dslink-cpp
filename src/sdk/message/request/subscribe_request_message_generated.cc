@@ -24,11 +24,11 @@ SubscribeRequestMessage::SubscribeRequestMessage(const SubscribeRequestMessage& 
     queue_time.reset(new DynamicIntHeader(DynamicHeader::QUEUE_TIME, from.queue_time->value()));
 }
 
-void SubscribeRequestMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
-  while (size > 0) {
-    DynamicHeader *header = DynamicHeader::parse(data, size);
+void SubscribeRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_size, size_t body_size) throw(const MessageParsingError &) {
+  while (dynamic_header_size > 0) {
+    DynamicHeader *header = DynamicHeader::parse(data, dynamic_header_size);
     data += header->size();
-    size -= header->size();
+    dynamic_header_size -= header->size();
     switch (header->key()) {
       case DynamicHeader::PRIORITY:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;

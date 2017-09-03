@@ -43,7 +43,8 @@ void Message::set_page_id(int32_t value) {
 
 PagedMessageMixin::PagedMessageMixin() : current_page(SIZE_MAX) {}
 
-RequestMessage::RequestMessage(const uint8_t* data, size_t size) : Message(data, size){};
+RequestMessage::RequestMessage(const uint8_t* data, size_t size)
+    : Message(data, size){};
 RequestMessage::RequestMessage(MessageType type) : Message(type){};
 RequestMessage::RequestMessage(const StaticHeaders& headers)
     : Message(headers){};
@@ -72,8 +73,8 @@ const std::string& RequestMessage::get_permission_token() const {
   return DynamicStringHeader::read_value(permission_token);
 }
 void RequestMessage::set_permission_token(const std::string& value) {
-  if (DynamicStringHeader::write_value(permission_token,
-                                       DynamicHeader::PERMISSION_TOKEN, value)) {
+  if (DynamicStringHeader::write_value(
+          permission_token, DynamicHeader::PERMISSION_TOKEN, value)) {
     static_headers.message_size = 0;
   }
 }
@@ -119,7 +120,8 @@ MessageStatus ResponseMessage::get_status() const {
   return MessageStatus(DynamicByteHeader::read_value(status));
 }
 void ResponseMessage::set_status(MessageStatus value) {
-  if (DynamicByteHeader::write_value(status, DynamicHeader::STATUS, uint8_t(value))) {
+  if (DynamicByteHeader::write_value(status, DynamicHeader::STATUS,
+                                     uint8_t(value))) {
     static_headers.message_size = 0;
   }
 }

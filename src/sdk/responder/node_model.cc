@@ -9,19 +9,19 @@ namespace dsa {
 
 
 void NodeModel::update_value(MessageValue new_value) {
-  SubscribeResponseMessage message;
-  message.set_status(MessageStatus::OK);
-  message.set_value(std::move(new_value));
-  if (_state != nullptr)
-    _state->new_message(message);
+//  SubscribeResponseMessage message;
+//  message.set_status(MessageStatus::OK);
+//  message.set_value(std::move(new_value));
+//  if (_state != nullptr)
+//    _state->new_message(message);
 }
 
 void NodeModel::update_value(Variant new_value) {
-  SubscribeResponseMessage message;
-  message.set_status(MessageStatus::OK);
-  message.set_value(MessageValue(std::move(new_value), DateTime::get_ts()));
-  if (_state != nullptr)
-    _state->new_message(message);
+//  SubscribeResponseMessage message;
+//  message.set_status(MessageStatus::OK);
+//  message.set_value(MessageValue(std::move(new_value), DateTime::get_ts()));
+//  if (_state != nullptr)
+//    _state->new_message(message);
 }
 
 //

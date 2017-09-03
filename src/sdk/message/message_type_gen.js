@@ -26,6 +26,7 @@ class Header {
     constructor(name) {
         this.name = name;
         this.underName = camelToUnder(name);
+        this.upperName = this.underName.toUpperCase();
     }
 
     writeDynamicDataStatement() {
@@ -46,48 +47,48 @@ class Header {
 
 class BoolHeader extends Header {
     copyConstructorStatement() {
-        return `new DynamicBoolHeader(DynamicHeader::${this.name})`
+        return `new DynamicBoolHeader(DynamicHeader::${this.upperName})`
     }
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.name}:${this.underName}.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicBoolHeader *>(header));
         break;`
     }
 }
 
 class IntHeader extends Header {
     copyConstructorStatement() {
-        return `new DynamicIntHeader(DynamicHeader::${this.name}, from.${this.underName}->value())`
+        return `new DynamicIntHeader(DynamicHeader::${this.upperName}, from.${this.underName}->value())`
     }
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.name}:${this.underName}.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicIntHeader *>(header));
         break;`
     }
 }
 
 class StringHeader extends Header {
     copyConstructorStatement() {
-        return `new DynamicStringHeader(DynamicHeader::${this.name}, from.${this.underName}->value())`
+        return `new DynamicStringHeader(DynamicHeader::${this.upperName}, from.${this.underName}->value())`
     }
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.name}:${this.underName}.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicStringHeader *>(header));
         break;`
     }
 }
 
 class ByteHeader extends Header {
     copyConstructorStatement() {
-        return `new DynamicByteHeader(DynamicHeader::${this.name}, from.${this.underName}->value())`
+        return `new DynamicByteHeader(DynamicHeader::${this.upperName}, from.${this.underName}->value())`
     }
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.name}:${this.underName}.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;`
     }
 }
@@ -115,7 +116,6 @@ class BodyHeader extends Header {
 const messages = {
     Request: {
         Invoke: [
-            new BodyHeader('Body'),
             new BoolHeader('Priority'),
             new IntHeader('SequenceId'),
             new IntHeader('PageId'),
@@ -124,6 +124,7 @@ const messages = {
             new StringHeader('PermissionToken'),
             new ByteHeader('MaxPermission'),
             new BoolHeader('NoStream'),
+            new BodyHeader('Body'),
         ],
         List: [
             new BoolHeader('Priority'),
@@ -133,13 +134,13 @@ const messages = {
             new BoolHeader('NoStream'),
         ],
         Set: [
-            new BodyHeader('Body'),
             new BoolHeader('Priority'),
             new IntHeader('PageId'),
             new ByteHeader('AliasCount'),
             new StringHeader('TargetPath'),
             new StringHeader('PermissionToken'),
             new BoolHeader('NoStream'),
+            new BodyHeader('Body'),
         ],
         Subscribe: [
             new BoolHeader('Priority'),
@@ -154,34 +155,34 @@ const messages = {
     },
     Response: {
         Invoke: [
-            new BodyHeader('Body'),
             new ByteHeader('Status'),
             new IntHeader('SequenceId'),
             new IntHeader('PageId'),
             new BoolHeader('Skippable'),
+            new BodyHeader('Body'),
         ],
         List: [
-            new BodyHeader('Body'),
             new ByteHeader('Status'),
             new IntHeader('SequenceId'),
             new StringHeader('BasePath'),
             new StringHeader('SourcePath'),
+            new BodyHeader('Body'),
         ],
         Set: [
             new ByteHeader('Status'),
         ],
         Subscribe: [
-            new BodyHeader('Body'),
             new ByteHeader('Status'),
             new IntHeader('SequenceId'),
             new IntHeader('PageId'),
             new StringHeader('SourcePath'),
+            new BodyHeader('Body'),
         ]
     }
 };
 
 function gen_source(path, typename, baseTypeName, header, configs) {
-
+    let hasBody = false;
     let data = `#include "dsa_common.h"
 
 #include "${header}"`;
@@ -201,42 +202,49 @@ ${typename}::${typename}(const ${typename}& from)
     data += `
 }
 
-void ${typename}::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
-  while (size > 0) {
-    DynamicHeader *header = DynamicHeader::parse(data, size);
+void ${typename}::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_size, size_t body_size) throw(const MessageParsingError &) {
+  while (dynamic_header_size > 0) {
+    DynamicHeader *header = DynamicHeader::parse(data, dynamic_header_size);
     data += header->size();
-    size -= header->size();
+    dynamic_header_size -= header->size();
     switch (header->key()) {`;
+
     configs.forEach(field => {
-        if (field.name !== 'Body')
+        if (field.name !== 'Body') {
             data += field.parseDynamicHeadersStatement()
+        } else {
+            hasBody = true;
+        }
     });
     data += `
       default:throw MessageParsingError("Invalid dynamic header");
     }
-  }
+  }`;
+    if (hasBody) {
+        data+=`
+  if ( body_size > 0) {
+      body.reset(new IntrusiveBytes(data, data + body_size));
+  }`;
+    }
+    data+=`
 }
 
 void ${typename}::write_dynamic_data(uint8_t *data) const {`;
-    let hasBody = false;
     configs.forEach(field => {
         if (field.name !== 'Body')
             data += field.writeDynamicDataStatement();
-        else
-            hasBody = true;
+
     });
     if (hasBody) data += new BodyHeader('Body').writeDynamicDataStatement()
     data += `
 }
 
 void ${typename}::update_static_header() {
-  uint32_t header_size = StaticHeaders::TotalSize;`;
-    hasBody = false;
+  uint32_t header_size = StaticHeaders::TOTAL_SIZE;`;
     configs.forEach(field => {
         if (field.name !== 'Body')
             data += field.updateStaticHeadersStatement();
-        else
-            hasBody = true
+
     });
     data += `
 

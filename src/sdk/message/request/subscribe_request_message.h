@@ -13,8 +13,8 @@ class SubscribeRequestMessage : public RequestMessage {
   void update_static_header() override;
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const override;
-  void parse_dynamic_headers(const uint8_t* data,
-                             size_t size) throw(const MessageParsingError&);
+  void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,
+                          size_t body_size) throw(const MessageParsingError&);
 
   std::unique_ptr<DynamicByteHeader> qos;
   // std::unique_ptr<DynamicByteHeader> update_frequency;

@@ -6,8 +6,6 @@ namespace dsa {
 
 SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessage& from)
     : ResponseMessage(from.static_headers) {
-  if (from.body != nullptr)
-    body.reset(from.body.get());
   if (from.status != nullptr)
     status.reset(new DynamicByteHeader(DynamicHeader::STATUS, from.status->value()));
   if (from.sequence_id != nullptr)
@@ -16,13 +14,15 @@ SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessag
     page_id.reset(new DynamicIntHeader(DynamicHeader::PAGE_ID, from.page_id->value()));
   if (from.source_path != nullptr)
     source_path.reset(new DynamicStringHeader(DynamicHeader::SOURCE_PATH, from.source_path->value()));
+  if (from.body != nullptr)
+    body.reset(from.body.get());
 }
 
-void SubscribeResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
-  while (size > 0) {
-    DynamicHeader *header = DynamicHeader::parse(data, size);
+void SubscribeResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_size, size_t body_size) throw(const MessageParsingError &) {
+  while (dynamic_header_size > 0) {
+    DynamicHeader *header = DynamicHeader::parse(data, dynamic_header_size);
     data += header->size();
-    size -= header->size();
+    dynamic_header_size -= header->size();
     switch (header->key()) {
       case DynamicHeader::STATUS:status.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;
@@ -34,6 +34,9 @@ void SubscribeResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }
+  }
+  if ( body_size > 0) {
+      body.reset(new IntrusiveBytes(data, data + body_size));
   }
 }
 

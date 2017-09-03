@@ -10,11 +10,11 @@ SetResponseMessage::SetResponseMessage(const SetResponseMessage& from)
     status.reset(new DynamicByteHeader(DynamicHeader::STATUS, from.status->value()));
 }
 
-void SetResponseMessage::parse_dynamic_headers(const uint8_t *data, size_t size) throw(const MessageParsingError &) {
-  while (size > 0) {
-    DynamicHeader *header = DynamicHeader::parse(data, size);
+void SetResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_size, size_t body_size) throw(const MessageParsingError &) {
+  while (dynamic_header_size > 0) {
+    DynamicHeader *header = DynamicHeader::parse(data, dynamic_header_size);
     data += header->size();
-    size -= header->size();
+    dynamic_header_size -= header->size();
     switch (header->key()) {
       case DynamicHeader::STATUS:status.reset(dynamic_cast<DynamicByteHeader *>(header));
         break;

@@ -16,7 +16,7 @@ void MessageCacheStream::close_impl() {
   _session.reset();
 }
 
-void MessageCacheStream::write_message(MessageRef &&msg) {
+void MessageCacheStream::send_message(MessageRef &&msg) {
   _cache = std::move(msg);
   if (!_writing && _cache != nullptr && !is_closed()) {
     _writing = true;
@@ -54,7 +54,7 @@ void MessageQueueStream::close_impl() {
   _queue.clear();
   _session.reset();
 }
-void MessageQueueStream::add_message(MessageRef &&msg) {
+void MessageQueueStream::send_message(MessageRef &&msg) {
   if (msg == nullptr || is_closed()) return;
   _queue.push_back(std::move(msg));
   if (!_writing) {

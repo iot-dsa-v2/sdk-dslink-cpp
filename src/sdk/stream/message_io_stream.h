@@ -34,7 +34,8 @@ class MessageCacheStream : public MessageRefedStream {
                      uint32_t rid = 0);
   ~MessageCacheStream() override;
 
-  void write_message(MessageRef &&msg);
+  /// put message to writing cache
+  void send_message(MessageRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
   MessageRef get_next_message() override;
@@ -52,7 +53,8 @@ class MessageQueueStream : public MessageRefedStream {
                               uint32_t rid = 0);
   ~MessageQueueStream() override;
 
-  void add_message(MessageRef &&msg);
+  /// add message to the queue
+  void send_message(MessageRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
   MessageRef get_next_message() override;

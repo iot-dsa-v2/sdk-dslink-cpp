@@ -11,11 +11,11 @@ NodeState::NodeState(LinkStrandRef &strand, const std::string &path)
 
 void NodeState::set_model(ModelRef model) { _model = std::move(model); }
 
-void NodeState::new_message(const SubscribeResponseMessage &message) {
-  _last_value.reset(new SubscribeResponseMessage(message));
+void NodeState::new_message(ref_<SubscribeResponseMessage> &&message) {
+  _last_value = message;
   for (auto &it : _subscription_streams) {
     auto &stream = dynamic_cast<ref_<OutgoingSubscribeStream> &>(*it);
-    stream->new_message(message);
+    stream->send_message(message);
   }
 }
 

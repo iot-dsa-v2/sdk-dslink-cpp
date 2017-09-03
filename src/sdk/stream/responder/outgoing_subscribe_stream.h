@@ -19,9 +19,11 @@ class OutgoingSubscribeStream : public OutgoingMessageStream {
 
   OutgoingSubscribeStream(ref_<Session> &&session, const std::string &path,
                           uint32_t rid, SubscribeOptions &&options);
-  void new_message(const SubscribeResponseMessage &new_message);
 
   void receive_message(MessageRef &&mesage) override;
+
+  void send_value(Variant &&value);
+  void send_value(MessageValue &&value);
 };
 }
 
