@@ -14,7 +14,7 @@ SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data,
 SubscribeResponseMessage::SubscribeResponseMessage()
     : ResponseMessage(MessageType::SUBSCRIBE_RESPONSE) {}
 
-const MessageValue& SubscribeResponseMessage::get_value() {
+const MessageValue& SubscribeResponseMessage::get_value() const {
   if (!_parsed && body != nullptr) {
     _parsed_value.parse(body->data(), body->size());
     _parsed = true;

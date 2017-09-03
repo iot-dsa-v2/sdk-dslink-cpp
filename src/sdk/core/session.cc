@@ -89,7 +89,7 @@ void Session::write_loop(ref_<Session> sthis) {
          total_size < connection->preferred_buffer_size() &&
          total_size + next_message_size < connection->max_buffer_size()) {
     auto stream = sthis->get_next_ready_stream();
-    MessageRef message = stream->get_next_message();
+    MessageCRef message = stream->get_next_message();
 
     if (buf.size() < connection->max_buffer_size() &&
         total_size + message->size() > buf.size()) {

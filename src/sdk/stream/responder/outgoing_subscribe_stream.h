@@ -26,7 +26,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
 
   void on_update(Callback &&callback);
 
-  void receive_message(MessageRef &&mesage) override;
+  void receive_message(MessageCRef &&mesage) override;
 
   void send_value(Variant &&value);
   void send_value(MessageValue &&value);

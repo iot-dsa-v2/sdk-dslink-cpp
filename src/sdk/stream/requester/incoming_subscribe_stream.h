@@ -11,7 +11,7 @@ class SubscribeResponseMessage;
 
 class IncomingSubscribeStream : public MessageCacheStream {
  public:
-  typedef std::function<void(ref_<SubscribeResponseMessage>&&,
+  typedef std::function<void(ref_<const SubscribeResponseMessage>&&,
                              IncomingSubscribeStream&)>
       Callback;
 
@@ -25,7 +25,7 @@ class IncomingSubscribeStream : public MessageCacheStream {
                                    const std::string& path, uint32_t rid,
                                    Callback&& callback);
 
-  void receive_message(MessageRef&& msg) override;
+  void receive_message(MessageCRef&& msg) override;
 };
 }
 

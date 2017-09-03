@@ -23,8 +23,8 @@ void OutgoingSubscribeStream::on_update(Callback &&callback) {
   _callback = callback;
 }
 
-void OutgoingSubscribeStream::receive_message(MessageRef &&message) {
-  auto request_message = DOWN_CAST<SubscribeRequestMessage*>(message.get());
+void OutgoingSubscribeStream::receive_message(MessageCRef &&message) {
+  auto request_message = DOWN_CAST<const SubscribeRequestMessage*>(message.get());
   _options = request_message->get_subscribe_options();
   if (_callback != nullptr) {
     _callback(*this);

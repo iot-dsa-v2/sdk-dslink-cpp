@@ -31,7 +31,7 @@ class MessageRefedStream : public MessageStream {
 /// message stream with one message cache to write
 class MessageCacheStream : public MessageRefedStream {
  protected:
-  MessageRef _cache;
+  MessageCRef _cache;
 
   void close_impl() override;
 
@@ -41,16 +41,16 @@ class MessageCacheStream : public MessageRefedStream {
   ~MessageCacheStream() override;
 
   /// put message to writing cache
-  void send_message(MessageRef &&msg);
+  void send_message(MessageCRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
-  MessageRef get_next_message() override;
+  MessageCRef get_next_message() override;
 };
 
 /// message stream with a queue to write
 class MessageQueueStream : public MessageRefedStream {
  protected:
-  std::deque<MessageRef> _queue;
+  std::deque<MessageCRef> _queue;
 
   void close_impl() override;
 
@@ -60,10 +60,10 @@ class MessageQueueStream : public MessageRefedStream {
   ~MessageQueueStream() override;
 
   /// add message to the queue
-  void send_message(MessageRef &&msg);
+  void send_message(MessageCRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
-  MessageRef get_next_message() override;
+  MessageCRef get_next_message() override;
 };
 }
 

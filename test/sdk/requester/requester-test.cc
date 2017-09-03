@@ -70,10 +70,10 @@ TEST(RequesterTest, Subscribe) {
   update_options.queue_time = 0x9876;
   update_options.queue_size = 0x5432;
 
-  ref_<SubscribeResponseMessage> last_response;
+  ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "/path",
-      [&](ref_<SubscribeResponseMessage> &&msg,
+      [&](ref_<const SubscribeResponseMessage> &&msg,
           IncomingSubscribeStream &stream) {
         last_response = std::move(msg);  // store response
       },

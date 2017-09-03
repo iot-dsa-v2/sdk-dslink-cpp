@@ -29,7 +29,7 @@ class EnableRef {
   template <typename _Ty>
   friend void intrusive_ptr_release(_Ty* t);
 
-  size_t _refs{0};
+  mutable size_t _refs{0};
 
  public:
   size_t ref_count() const { return _refs; }

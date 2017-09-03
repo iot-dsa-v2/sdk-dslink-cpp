@@ -47,7 +47,7 @@ class Message : public EnableRef<Message> {
   }
 
   uint32_t get_rid() const { return static_headers.rid; }
-  void set_rid(uint32_t rid) { static_headers.rid = rid; }
+  void set_rid(uint32_t rid) const { static_headers.rid = rid; }
 
  protected:
   // measure the size and header size
@@ -63,6 +63,7 @@ class Message : public EnableRef<Message> {
   std::unique_ptr<DynamicIntHeader> page_id;
 };
 typedef ref_<Message> MessageRef;
+typedef ref_<const Message> MessageCRef;
 
 class PagedMessageMixin {
  public:
@@ -125,10 +126,10 @@ class MessageStream : public ClosableRef<MessageStream> {
 
   // write message to remote
   virtual size_t peek_next_message_size(size_t available) = 0;
-  virtual MessageRef get_next_message() = 0;
+  virtual MessageCRef get_next_message() = 0;
 
   // read message from remote
-  virtual void receive_message(MessageRef&& msg) = 0;
+  virtual void receive_message(MessageCRef&& msg) = 0;
 };
 
 }  // namespace dsa

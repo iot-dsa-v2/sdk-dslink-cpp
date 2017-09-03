@@ -15,10 +15,10 @@ IncomingSubscribeStream::IncomingSubscribeStream(ref_<Session>&& session,
     : MessageCacheStream(std::move(session), path, rid),
       _callback(std::move(callback)) {}
 
-void IncomingSubscribeStream::receive_message(MessageRef&& msg) {
+void IncomingSubscribeStream::receive_message(MessageCRef&& msg) {
   if (msg->type() == MessageType::SUBSCRIBE_RESPONSE) {
     if (_callback != nullptr) {
-      _callback(ref_cast_<SubscribeResponseMessage>(msg), *this);
+      _callback(ref_cast_<const SubscribeResponseMessage>(msg), *this);
     }
   }
 }

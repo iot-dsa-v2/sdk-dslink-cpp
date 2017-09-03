@@ -16,11 +16,11 @@ struct StaticHeaders {
     TOTAL_SIZE = ACK_ID_OFFSET + sizeof(uint32_t)
   };
 
-  uint32_t message_size;
+  mutable uint32_t message_size;
   uint16_t header_size;
   MessageType type;
-  uint32_t rid;
-  uint32_t ack_id;
+  mutable uint32_t rid;
+  mutable uint32_t ack_id;
 
   StaticHeaders(const uint8_t *data);
   StaticHeaders(uint32_t message_size, uint16_t header_size, MessageType type,

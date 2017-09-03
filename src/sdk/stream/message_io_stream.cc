@@ -16,7 +16,7 @@ void MessageCacheStream::close_impl() {
   _session.reset();
 }
 
-void MessageCacheStream::send_message(MessageRef &&msg) {
+void MessageCacheStream::send_message(MessageCRef &&msg) {
   _cache = std::move(msg);
   if (!_writing && _cache != nullptr && !is_closed()) {
     _writing = true;
@@ -31,7 +31,7 @@ size_t MessageCacheStream::peek_next_message_size(size_t available) {
   }
   return _cache->size();
 }
-MessageRef MessageCacheStream::get_next_message() {
+MessageCRef MessageCacheStream::get_next_message() {
   if (is_closed() || _cache == nullptr) {
     return nullptr;
   }
@@ -55,9 +55,9 @@ void MessageQueueStream::close_impl() {
   _queue.clear();
   _session.reset();
 }
-void MessageQueueStream::send_message(MessageRef &&msg) {
+void MessageQueueStream::send_message(MessageCRef &&msg) {
   if (msg == nullptr || is_closed()) return;
-  _queue.push_back(std::move(msg));
+  _queue.emplace_back(std::move(msg));
   if (!_writing) {
     _writing = true;
     _session->write_stream(get_ref());
@@ -71,11 +71,11 @@ size_t MessageQueueStream::peek_next_message_size(size_t available) {
   }
   return _queue.front()->size();
 }
-MessageRef MessageQueueStream::get_next_message() {
+MessageCRef MessageQueueStream::get_next_message() {
   if (is_closed() || _queue.empty()) {
     return nullptr;
   }
-  MessageRef msg = std::move(_queue.front());
+  MessageCRef msg = std::move(_queue.front());
   _queue.pop_front();
 
   if (!_queue.empty()) {
