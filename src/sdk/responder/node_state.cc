@@ -4,6 +4,9 @@
 
 #include "core/session.h"
 
+#include "stream/responder/outgoing_subscribe_stream.h"
+#include "stream/responder/outgoing_list_stream.h"
+
 namespace dsa {
 
 NodeState::NodeState(LinkStrandRef &strand, const std::string &path)
