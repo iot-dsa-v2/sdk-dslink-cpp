@@ -20,7 +20,7 @@ void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
   Connection *raw_ptr = connection.get();
   raw_ptr->_session->connected(std::move(connection));
   raw_ptr->on_read_message = [raw_ptr](MessageRef message) {
-    raw_ptr->dispatch_message(std::move(message));
+    raw_ptr->post_message(std::move(message));
   };
 }
 void Connection::start_client_f0() {

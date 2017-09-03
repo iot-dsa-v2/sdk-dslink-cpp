@@ -77,7 +77,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
               _session = session;
               _session->connected(shared_from_this());
               on_read_message = [this](MessageRef message) {
-                dispatch_message(std::move(message));
+                post_message(std::move(message));
               };
               
               HandshakeF3Message f3;

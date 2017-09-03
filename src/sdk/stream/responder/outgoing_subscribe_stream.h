@@ -1,24 +1,30 @@
 #ifndef DSA_SDK_OUTGOING_SUBSCRIBE_STREAM_H
 #define DSA_SDK_OUTGOING_SUBSCRIBE_STREAM_H
 
-#include "../outgoing_message_stream.h"
+#include "../message_io_stream.h"
 
+#include "message/request/subscribe_request_message.h"
 #include "message/response/subscribe_response_message.h"
 
 namespace dsa {
-class SubscribeRequestMessage;
 
-class OutgoingSubscribeStream : public OutgoingMessageStream {
+class OutgoingSubscribeStream : public MessageQueueStream {
  public:
-  typedef std::function<void(ref_<SubscribeRequestMessage> &&,
-                             OutgoingSubscribeStream &stream)>
-      Callback;
+  typedef std::function<void(OutgoingSubscribeStream &)> Callback;
+
+ protected:
+  Callback _callback;
+  SubscribeOptions _options;
+
+  void close_impl() override;
 
  public:
-  const SubscribeOptions options;
+  const SubscribeOptions &options() { return _options; }
 
   OutgoingSubscribeStream(ref_<Session> &&session, const std::string &path,
                           uint32_t rid, SubscribeOptions &&options);
+
+  void on_update(Callback &&callback);
 
   void receive_message(MessageRef &&mesage) override;
 

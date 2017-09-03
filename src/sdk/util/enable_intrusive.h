@@ -19,10 +19,10 @@ class EnableRef {
     return ref_<T>(static_cast<T*>(this));
   }
 
-  template <typename _Downcast>
-  ref_<_Downcast> get_ref() {
-    return ref_<_Downcast>(DOWN_CAST<_Downcast*>(this));
-  }
+//  template <typename _Downcast>
+//  ref_<_Downcast> get_ref() {
+//    return ref_<_Downcast>(static_cast<_Downcast*>(this));
+//  }
 
   template <typename _Ty>
   friend void intrusive_ptr_add_ref(_Ty* t);
@@ -68,6 +68,11 @@ void intrusive_ptr_release(_Ty* t) {
 template <class _Ty, class... _Types>
 ref_<_Ty> make_ref_(_Types &&... _Args) {
   return ref_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
+};
+
+template <typename T, typename TBase>
+ref_<T> ref_cast_(ref_<TBase> & ref) {
+  return ref_<T>(DOWN_CAST<T*>(ref.get()));
 };
 
 }  // namespace dsa

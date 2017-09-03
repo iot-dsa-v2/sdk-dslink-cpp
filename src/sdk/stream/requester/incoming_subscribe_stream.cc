@@ -18,7 +18,7 @@ IncomingSubscribeStream::IncomingSubscribeStream(ref_<Session>&& session,
 void IncomingSubscribeStream::receive_message(MessageRef&& msg) {
   if (msg->type() == MessageType::SUBSCRIBE_RESPONSE) {
     if (_callback != nullptr) {
-      _callback(DOWN_CAST<SubscribeResponseMessage*>(msg.get()), *this);
+      _callback(ref_cast_<SubscribeResponseMessage>(msg), *this);
     }
   }
 }

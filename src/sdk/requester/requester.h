@@ -3,8 +3,6 @@
 
 #include <map>
 
-#include "stream/incoming_message_stream.h"
-
 #include "stream/requester/incoming_subscribe_stream.h"
 
 namespace dsa {

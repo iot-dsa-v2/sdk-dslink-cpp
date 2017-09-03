@@ -14,12 +14,18 @@ class MessageRefedStream : public MessageStream {
   ref_<Session> _session;
   bool _writing = false;
 
-  explicit MessageRefedStream(ref_<Session> &&session, const std::string &path,
-                              uint32_t rid = 0);
-
  public:
   const uint32_t rid;
   const std::string path;
+
+  explicit MessageRefedStream(ref_<Session> &&session, const std::string &path,
+                              uint32_t rid = 0);
+
+  MessageRefedStream(const MessageRefedStream &other) = delete;
+  MessageRefedStream(MessageRefedStream &&other) noexcept= delete;
+  MessageRefedStream &operator=(const MessageRefedStream &other) = delete;
+  MessageRefedStream &operator=(MessageRefedStream &&other) noexcept = delete;
+  ~MessageRefedStream() override;
 };
 
 /// message stream with one message cache to write

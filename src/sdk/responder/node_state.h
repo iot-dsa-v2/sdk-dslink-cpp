@@ -11,7 +11,7 @@
 #include "stream/responder/outgoing_subscribe_stream.h"
 
 namespace dsa {
-
+class OutgoingListStream;
 class NodeModel;
 typedef ref_<NodeModel> ModelRef;
 
@@ -39,9 +39,9 @@ class NodeState : public EnableRef<NodeState> {
   std::unordered_set<ref_<OutgoingSubscribeStream>, MessageStreamHashFunc,
                      MessageStreamKeyCmp>
       _subscription_streams;
-  std::unordered_set<ref_<OutgoingListStream>, MessageStreamHashFunc,
-                     MessageStreamKeyCmp>
-      _list_streams;
+//  std::unordered_set<ref_<OutgoingListStream>, MessageStreamHashFunc,
+//                     MessageStreamKeyCmp>
+//      _list_streams;
   ref_<SubscribeResponseMessage> _last_value;
 
  public:

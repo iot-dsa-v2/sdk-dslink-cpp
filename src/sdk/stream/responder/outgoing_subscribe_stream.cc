@@ -10,12 +10,24 @@ OutgoingSubscribeStream::OutgoingSubscribeStream(ref_<Session> &&session,
                                                  const std::string &path,
                                                  uint32_t rid,
                                                  SubscribeOptions &&options)
-    : OutgoingMessageStream(std::move(session), path, rid),
-      options(std::move(options)) {}
+    : MessageQueueStream(std::move(session), path, rid),
+      _options(std::move(options)) {}
+
+void OutgoingSubscribeStream::close_impl() {
+  if (_callback != nullptr) {
+    _callback(*this);
+    _callback = nullptr;
+  };
+}
+void OutgoingSubscribeStream::on_update(Callback &&callback) {
+  _callback = callback;
+}
 
 void OutgoingSubscribeStream::receive_message(MessageRef &&message) {
-  if (message->type() == MessageType::CLOSE) {
-  } else {
+  auto request_message = DOWN_CAST<SubscribeRequestMessage*>(message.get());
+  _options = request_message->get_subscribe_options();
+  if (_callback != nullptr) {
+    _callback(*this);
   }
 }
 

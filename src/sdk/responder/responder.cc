@@ -19,6 +19,16 @@ Responder::Responder(Session &session) : _session(session) {}
 
 void Responder::receive_message(ref_<Message> &&message) {
   auto request = DOWN_CAST<RequestMessage *>(message.get());
+  auto find_stream = _outgoing_streams.find(request->get_rid());
+  if (find_stream != _outgoing_streams.end()) {
+    if (request->type() == MessageType::CLOSE) {
+      find_stream->second->close();
+    } else {
+      find_stream->second->receive_message(std::move(message));
+    }
+    return;
+  }
+
   auto callback = [ message = std::move(message),
                     this ](PermissionLevel permission) mutable {
     // TODO: implement permissions
@@ -26,21 +36,21 @@ void Responder::receive_message(ref_<Message> &&message) {
     switch (message->type()) {
       case MessageType::SUBSCRIBE_REQUEST:
         on_subscribe_request(ref_<SubscribeRequestMessage>(
-            DOWN_CAST<SubscribeRequestMessage *>(message.get())));
+            ref_cast_<SubscribeRequestMessage>(message)));
         break;
       case MessageType::INVOKE_REQUEST:
         on_invoke_request(ref_<InvokeRequestMessage>(
-            DOWN_CAST<InvokeRequestMessage *>(message.get())));
+            ref_cast_<InvokeRequestMessage>(message)));
 
         break;
       case MessageType::SET_REQUEST:
         on_set_request(ref_<SetRequestMessage>(
-            DOWN_CAST<SetRequestMessage *>(message.get())));
+            ref_cast_<SetRequestMessage>(message)));
 
         break;
       case MessageType::LIST_REQUEST:
         on_list_request(ref_<ListRequestMessage>(
-            DOWN_CAST<ListRequestMessage *>(message.get())));
+            ref_cast_<ListRequestMessage>(message)));
 
         break;
       default:

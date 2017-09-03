@@ -6,7 +6,6 @@
 
 #include "message/base_message.h"
 #include "util/enable_intrusive.h"
-#include "stream/outgoing_message_stream.h"
 #include "node_state.h"
 
 namespace dsa {

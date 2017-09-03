@@ -1,7 +1,7 @@
 #ifndef DSA_SDK_INCOMING_SUBSCRIBE_STREAM_H
 #define DSA_SDK_INCOMING_SUBSCRIBE_STREAM_H
 
-#include "../incoming_message_stream.h"
+#include "../message_io_stream.h"
 
 #include "message/message_options.h"
 

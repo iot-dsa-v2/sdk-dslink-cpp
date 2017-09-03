@@ -105,7 +105,7 @@ class Connection : public SharedClosable<Connection> {
 
   void reset_standard_deadline_timer();
 
-  void dispatch_message(MessageRef &&msg);
+  void post_message(MessageRef &&msg);
 
   // server connection
  protected:

@@ -57,9 +57,9 @@ void Connection::reset_standard_deadline_timer() {
   }));
 }
 
-void Connection::dispatch_message(MessageRef &&message) {
+void Connection::post_message(MessageRef &&message) {
   if (_session != nullptr) {
-    asio_strand()->dispatch(
+    asio_strand()->post(
         [ sthis = shared_from_this(), message = std::move(message) ]() mutable {
           if (sthis->session() != nullptr) {
             sthis->session()->receive_message(std::move(message));

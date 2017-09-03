@@ -44,6 +44,7 @@ MessageRef MessageCacheStream::get_next_message() {
 MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
                                        const std::string &path, uint32_t rid)
     : _session(std::move(session)), rid(rid){};
+MessageRefedStream::~MessageRefedStream() = default;
 
 MessageQueueStream::MessageQueueStream(ref_<Session> &&session,
                                        const std::string &path, uint32_t rid)

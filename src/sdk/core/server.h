@@ -33,6 +33,7 @@ class Server : public SharedClosable<Server> {
 
  public:
   explicit Server(WrapperConfig &config);
+  virtual ~Server() = default;
 
   boost::asio::strand *asio_strand() { return (*_strand)(); }
 
