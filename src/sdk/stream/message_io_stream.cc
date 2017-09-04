@@ -31,19 +31,16 @@ size_t MessageCacheStream::peek_next_message_size(size_t available) {
   }
   return _cache->size();
 }
-MessageCRef MessageCacheStream::get_next_message() {
+MessageCRef MessageCacheStream::get_next_message(int32_t ack_id) {
   if (is_closed() || _cache == nullptr) {
     return nullptr;
   }
-  // same message can be shared between multiple stream,
-  // need to update rid before writing
-  _cache->set_rid(rid);
   return std::move(_cache);
 }
 
 MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
                                        const std::string &path, uint32_t rid)
-    : _session(std::move(session)), rid(rid){};
+    : MessageStream(rid), _session(std::move(session)){};
 MessageRefedStream::~MessageRefedStream() = default;
 
 MessageQueueStream::MessageQueueStream(ref_<Session> &&session,
@@ -71,7 +68,7 @@ size_t MessageQueueStream::peek_next_message_size(size_t available) {
   }
   return _queue.front()->size();
 }
-MessageCRef MessageQueueStream::get_next_message() {
+MessageCRef MessageQueueStream::get_next_message(int32_t ack_id) {
   if (is_closed() || _queue.empty()) {
     return nullptr;
   }
@@ -82,9 +79,6 @@ MessageCRef MessageQueueStream::get_next_message() {
     _writing = true;
     _session->write_stream(get_ref());
   }
-  // same message can be shared between multiple stream
-  // need to update rid before writing
-  msg->set_rid(rid);
   return msg;
 }
 }

@@ -13,12 +13,22 @@ uint32_t Message::size() const {
   }
   return static_headers.message_size;
 }
-void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
+//void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
+//  if (static_headers.message_size == 0) {
+//    // message_size shouldn't be 0
+//    throw MessageParsingError("invalid message size");
+//  }
+//  static_headers.write(data);
+//  write_dynamic_data(data + StaticHeaders::TOTAL_SIZE);
+//}
+
+void Message::write(uint8_t* data, int32_t rid, int32_t ack_id) const
+    throw(const MessageParsingError&) {
   if (static_headers.message_size == 0) {
     // message_size shouldn't be 0
     throw MessageParsingError("invalid message size");
   }
-  static_headers.write(data);
+  static_headers.write(data, rid, ack_id);
   write_dynamic_data(data + StaticHeaders::TOTAL_SIZE);
 }
 

@@ -39,4 +39,12 @@ void StaticHeaders::write(uint8_t *data) const {
   /* data += */ write_32_t(data, ack_id);
 }
 
+void StaticHeaders::write(uint8_t *data, int32_t rid, int32_t ack_id) const {
+  data += write_32_t(data, message_size);
+  data += write_16_t(data, header_size);
+  *(data++) = static_cast<uint8_t>(type);
+  data += write_32_t(data, rid);
+  /* data += */ write_32_t(data, ack_id);
+}
+
 }  // namespace dsa

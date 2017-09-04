@@ -15,7 +15,7 @@ class MessageRefedStream : public MessageStream {
   bool _writing = false;
 
  public:
-  const uint32_t rid;
+
   const std::string path;
 
   explicit MessageRefedStream(ref_<Session> &&session, const std::string &path,
@@ -44,7 +44,7 @@ class MessageCacheStream : public MessageRefedStream {
   void send_message(MessageCRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
-  MessageCRef get_next_message() override;
+  MessageCRef get_next_message(int32_t ack_id) override;
 };
 
 /// message stream with a queue to write
@@ -63,7 +63,7 @@ class MessageQueueStream : public MessageRefedStream {
   void send_message(MessageCRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
-  MessageCRef get_next_message() override;
+  MessageCRef get_next_message(int32_t ack_id) override;
 };
 }
 

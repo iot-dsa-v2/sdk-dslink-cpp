@@ -19,14 +19,16 @@ struct StaticHeaders {
   int32_t message_size;
   uint16_t header_size;
   MessageType type;
-  mutable int32_t rid;
-  mutable int32_t ack_id;
+  int32_t rid;
+  int32_t ack_id;
 
   StaticHeaders(const uint8_t *data);
   StaticHeaders(int32_t message_size, uint16_t header_size, MessageType type,
                 int32_t rid, int32_t ack_id);
 
   void write(uint8_t *data) const;
+
+  void write(uint8_t *data, int32_t rid, int32_t ack_id) const;
 };
 
 }  // namespace dsa

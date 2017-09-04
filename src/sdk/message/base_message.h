@@ -33,7 +33,9 @@ class Message : public EnableRef<Message> {
   uint32_t size() const;
 
   // update_static_header must be called before write
-  void write(uint8_t* data) const throw(const MessageParsingError&);
+  // void write(uint8_t* data) const throw(const MessageParsingError&);
+  void write(uint8_t* data, int32_t rid = 0, int32_t ack_id = 0) const
+      throw(const MessageParsingError&);
 
   int32_t get_sequence_id() const;
   void set_sequence_id(int32_t value);
@@ -46,11 +48,11 @@ class Message : public EnableRef<Message> {
     return static_cast<uint8_t>(static_headers.type) < 0x80;
   }
 
-  uint32_t get_rid() { return static_headers.rid; }
-  void set_rid(int32_t rid) const { static_headers.rid = rid; }
+  int32_t get_rid() { return static_headers.rid; }
+  void set_rid(int32_t rid) { static_headers.rid = rid; }
 
-  uint32_t get_ack_id() { return static_headers.ack_id; }
-  void set_ack_rid(int32_t ack_id) const { static_headers.ack_id = ack_id; }
+  int32_t get_ack_id() const { return static_headers.ack_id; }
+  void set_ack_rid(int32_t ack_id) { static_headers.ack_id = ack_id; }
 
  protected:
   // measure the size and header size
@@ -125,11 +127,14 @@ class ResponseMessage : public Message {
 
 class MessageStream : public ClosableRef<MessageStream> {
  public:
+  const int32_t rid;
+
+  explicit MessageStream(int32_t rid) : rid(rid){};
   virtual ~MessageStream() = default;
 
   // write message to remote
   virtual size_t peek_next_message_size(size_t available) = 0;
-  virtual MessageCRef get_next_message() = 0;
+  virtual MessageCRef get_next_message(int32_t ack_id) = 0;
 
   // read message from remote
   virtual void receive_message(MessageCRef&& msg) = 0;
