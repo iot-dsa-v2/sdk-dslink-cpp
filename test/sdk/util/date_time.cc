@@ -19,5 +19,5 @@ TEST(DateTime, DateTime) {
   EXPECT_GT(str2, str1);
 
   // should be able to run multiple times per millisecond
-  EXPECT_GT(count, 0);
+  EXPECT_GT(count, 0) << str0 << " " << str1 << " " << str2;
 }
