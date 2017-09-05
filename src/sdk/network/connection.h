@@ -9,7 +9,7 @@
 #include "core/link_strand.h"
 #include "crypto/handshake_context.h"
 #include "message/base_message.h"
-#include "util/util.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
 class App;
