@@ -16,7 +16,7 @@ void SetResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::STATUS:status.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::STATUS:status.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

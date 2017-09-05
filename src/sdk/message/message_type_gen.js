@@ -52,7 +52,7 @@ class BoolHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;`
     }
 }
@@ -64,7 +64,7 @@ class IntHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;`
     }
 }
@@ -76,7 +76,7 @@ class StringHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;`
     }
 }
@@ -88,7 +88,7 @@ class ByteHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;`
     }
 }
@@ -113,6 +113,17 @@ class BodyHeader extends Header {
     }
 }
 
+class TargetPathHeader extends StringHeader {
+    parseDynamicHeadersStatement() {
+        return `
+      case DynamicHeader::${this.upperName}: {
+        ${this.underName}.reset(DOWN_CAST<DynamicStringHeader *>(header));
+        _parsed_target_path.reset(new Path(DOWN_CAST<DynamicStringHeader *>(header)->value()));
+        break;
+      }`
+    }
+}
+
 const messages = {
     Request: {
         Invoke: [
@@ -120,7 +131,7 @@ const messages = {
             new IntHeader('SequenceId'),
             new IntHeader('PageId'),
             new ByteHeader('AliasCount'),
-            new StringHeader('TargetPath'),
+            new TargetPathHeader('TargetPath'),
             new StringHeader('PermissionToken'),
             new ByteHeader('MaxPermission'),
             new BoolHeader('NoStream'),
@@ -129,7 +140,7 @@ const messages = {
         List: [
             new BoolHeader('Priority'),
             new ByteHeader('AliasCount'),
-            new StringHeader('TargetPath'),
+            new TargetPathHeader('TargetPath'),
             new StringHeader('PermissionToken'),
             new BoolHeader('NoStream'),
         ],
@@ -137,7 +148,7 @@ const messages = {
             new BoolHeader('Priority'),
             new IntHeader('PageId'),
             new ByteHeader('AliasCount'),
-            new StringHeader('TargetPath'),
+            new TargetPathHeader('TargetPath'),
             new StringHeader('PermissionToken'),
             new BoolHeader('NoStream'),
             new BodyHeader('Body'),
@@ -145,7 +156,7 @@ const messages = {
         Subscribe: [
             new BoolHeader('Priority'),
             new ByteHeader('AliasCount'),
-            new StringHeader('TargetPath'),
+            new TargetPathHeader('TargetPath'),
             new StringHeader('PermissionToken'),
             new BoolHeader('NoStream'),
             new ByteHeader('Qos'),

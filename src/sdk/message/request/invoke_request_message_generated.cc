@@ -32,21 +32,24 @@ void InvokeRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dynami
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::PRIORITY:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::PRIORITY:priority.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
-      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::PAGE_ID:page_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::PAGE_ID:page_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::ALIAS_COUNT:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::ALIAS_COUNT:alias_count.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::TARGET_PATH:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::TARGET_PATH: {
+        target_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
+        _parsed_target_path.reset(new Path(DOWN_CAST<DynamicStringHeader *>(header)->value()));
         break;
-      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
+      }
+      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::MAX_PERMISSION:max_permission.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::MAX_PERMISSION:max_permission.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::NO_STREAM:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::NO_STREAM:no_stream.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

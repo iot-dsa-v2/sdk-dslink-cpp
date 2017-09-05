@@ -24,13 +24,13 @@ void InvokeResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynam
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::STATUS:status.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::STATUS:status.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::PAGE_ID:page_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::PAGE_ID:page_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::SKIPPABLE:skippable.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::SKIPPABLE:skippable.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

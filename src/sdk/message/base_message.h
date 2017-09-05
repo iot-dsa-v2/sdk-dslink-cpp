@@ -88,7 +88,7 @@ class RequestMessage : public Message {
   std::unique_ptr<DynamicBoolHeader> no_stream;
   std::unique_ptr<DynamicByteHeader> alias_count;
 
-  mutable std::unique_ptr<const Path> _parsed_path;
+  mutable std::unique_ptr<const Path> _parsed_target_path;
 
  public:
   explicit RequestMessage(const uint8_t* data, size_t size);

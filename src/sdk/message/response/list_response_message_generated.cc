@@ -24,13 +24,13 @@ void ListResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::STATUS:status.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::STATUS:status.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::BASE_PATH:base_path.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::BASE_PATH:base_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::SOURCE_PATH:source_path.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::SOURCE_PATH:source_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

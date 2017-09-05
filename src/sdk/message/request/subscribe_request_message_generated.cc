@@ -30,21 +30,24 @@ void SubscribeRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dyn
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::PRIORITY:priority.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::PRIORITY:priority.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
-      case DynamicHeader::ALIAS_COUNT:alias_count.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::ALIAS_COUNT:alias_count.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::TARGET_PATH:target_path.reset(dynamic_cast<DynamicStringHeader *>(header));
+      case DynamicHeader::TARGET_PATH: {
+        target_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
+        _parsed_target_path.reset(new Path(DOWN_CAST<DynamicStringHeader *>(header)->value()));
         break;
-      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(dynamic_cast<DynamicStringHeader *>(header));
+      }
+      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
-      case DynamicHeader::NO_STREAM:no_stream.reset(dynamic_cast<DynamicBoolHeader *>(header));
+      case DynamicHeader::NO_STREAM:no_stream.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
-      case DynamicHeader::QOS:qos.reset(dynamic_cast<DynamicByteHeader *>(header));
+      case DynamicHeader::QOS:qos.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
-      case DynamicHeader::QUEUE_SIZE:queue_size.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::QUEUE_SIZE:queue_size.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
-      case DynamicHeader::QUEUE_TIME:queue_time.reset(dynamic_cast<DynamicIntHeader *>(header));
+      case DynamicHeader::QUEUE_TIME:queue_time.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

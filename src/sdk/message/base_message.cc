@@ -70,15 +70,15 @@ void RequestMessage::set_priority(bool value) {
 }
 
 const Path& RequestMessage::get_target_path() const {
-  if (_parsed_path == nullptr) {
-    _parsed_path.reset(new Path(DynamicStringHeader::read_value(target_path)));
+  if (_parsed_target_path == nullptr) {
+    _parsed_target_path.reset(new Path(DynamicStringHeader::read_value(target_path)));
   }
-  return *_parsed_path;
+  return *_parsed_target_path;
 }
 void RequestMessage::set_target_path(const std::string& value) {
   if (DynamicStringHeader::write_value(target_path, DynamicHeader::TARGET_PATH,
                                        value)) {
-    _parsed_path.reset();
+    _parsed_target_path.reset();
     static_headers.message_size = 0;
   }
 }
