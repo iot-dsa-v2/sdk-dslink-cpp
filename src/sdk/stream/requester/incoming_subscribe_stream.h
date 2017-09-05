@@ -22,7 +22,7 @@ class IncomingSubscribeStream : public MessageCacheStream {
 
  public:
   explicit IncomingSubscribeStream(ref_<Session>&& session,
-                                   const std::string& path, uint32_t rid,
+                                   const Path& path, uint32_t rid,
                                    Callback&& callback);
 
   void receive_message(MessageCRef&& msg) override;

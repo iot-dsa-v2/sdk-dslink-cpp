@@ -13,8 +13,7 @@ void SimpleSecurityManager::get_client(const std::string& dsid,
 
 void SimpleSecurityManager::check_permission(
     const std::string& dsid, const std::string& permission_token,
-    MessageType method, const std::string& path,
-    CheckPermissionCallback&& callback) {
+    MessageType method, const Path& path, CheckPermissionCallback&& callback) {
   callback(PermissionLevel::CONFIG);
 }
 
@@ -22,9 +21,9 @@ AsyncSimpleSecurityManager::AsyncSimpleSecurityManager(
     boost::asio::strand* strand)
     : _strand(strand){};
 
-void AsyncSimpleSecurityManager::get_client(
-    const std::string& dsid, const std::string& auth_token,
-    GetClientCallback&& callback) {
+void AsyncSimpleSecurityManager::get_client(const std::string& dsid,
+                                            const std::string& auth_token,
+                                            GetClientCallback&& callback) {
   _strand->post([ =, callback = std::move(callback) ]() {
     callback(ClientInfo(dsid, auth_token), false);
   });
@@ -33,8 +32,7 @@ void AsyncSimpleSecurityManager::get_client(
 
 void AsyncSimpleSecurityManager::check_permission(
     const std::string& dsid, const std::string& permission_token,
-    MessageType method, const std::string& path,
-    CheckPermissionCallback&& callback) {
+    MessageType method, const Path& path, CheckPermissionCallback&& callback) {
   _strand->post([ =, callback = std::move(callback) ]() {
     callback(PermissionLevel::CONFIG);
   });

@@ -7,35 +7,38 @@
 
 namespace dsa {
 
-class Path : public EnableRef<Path> {
+class PathData : public EnableRef<PathData> {
  public:
-  enum Type : uint8_t { INVALID, NODE, CONFIG, ATTRIBUTE };
+  enum Type : uint8_t { INVALID, ROOT, NODE, CONFIG, ATTRIBUTE };
 
-  std::string full;
+  std::string str;
   std::vector<std::string> names;
   Type type;
 
-  explicit Path(const std::string &path);
+  explicit PathData(const std::string &path);
 };
 
-class PathRange : public std::vector<std::string> {
+class Path {
  private:
-  const ref_<const Path> _path;
-  std::vector<std::string>::const_iterator _current;
+  size_t _current;
 
-  PathRange(const ref_<const Path> &path,
-            std::vector<std::string>::const_iterator &&it);
+  Path(const ref_<const PathData> &data, size_t idx);
 
  public:
-  explicit PathRange(const std::string &path);
+  const ref_<const PathData> data;
 
-  bool invalid() { return _path->type == Path::INVALID; }
+  explicit Path(const std::string &path);
 
-  const std::string &current() const { return *_current; }
+  bool is_invalid() const { return data->type == PathData::INVALID; }
 
-  bool is_last() const { return _current + 1 != _path->names.end(); }
+  const std::string &current() const { return data->names[_current]; }
 
-  const PathRange next() const { return PathRange(_path, _current + 1); }
+  bool is_last() const { return _current + 1 == data->names.size(); }
+
+  const Path next() const { return Path(data, _current + 1); }
+
+  // deep copy the path to share with other thread
+  const Path copy();
 };
 }
 

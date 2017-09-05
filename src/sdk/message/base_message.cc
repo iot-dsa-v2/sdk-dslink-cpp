@@ -13,7 +13,7 @@ uint32_t Message::size() const {
   }
   return static_headers.message_size;
 }
-//void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
+// void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
 //  if (static_headers.message_size == 0) {
 //    // message_size shouldn't be 0
 //    throw MessageParsingError("invalid message size");
@@ -69,12 +69,16 @@ void RequestMessage::set_priority(bool value) {
   }
 }
 
-const std::string& RequestMessage::get_target_path() const {
-  return DynamicStringHeader::read_value(target_path);
+const Path& RequestMessage::get_target_path() const {
+  if (_parsed_path == nullptr) {
+    _parsed_path.reset(new Path(DynamicStringHeader::read_value(target_path)));
+  }
+  return *_parsed_path;
 }
 void RequestMessage::set_target_path(const std::string& value) {
   if (DynamicStringHeader::write_value(target_path, DynamicHeader::TARGET_PATH,
                                        value)) {
+    _parsed_path.reset();
     static_headers.message_size = 0;
   }
 }

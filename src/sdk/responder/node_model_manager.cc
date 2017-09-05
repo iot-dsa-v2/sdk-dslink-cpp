@@ -4,10 +4,10 @@
 
 namespace dsa {
 
-shared_ptr_<NodeModel> NodeModelManager::get_model(const std::string &path) {
+ref_<NodeModel> & NodeModelManager::get_model(const std::string &path) {
   if (_models.count(path) > 0)
     return _models.at(path);
-  return nullptr;
+  throw "not implemented";
 }
 
 void NodeModelManager::find_model(ref_<NodeState> node_state) {

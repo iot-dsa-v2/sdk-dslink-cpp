@@ -7,7 +7,7 @@
 namespace dsa {
 
 OutgoingSubscribeStream::OutgoingSubscribeStream(ref_<Session> &&session,
-                                                 const std::string &path,
+                                                 const Path &path,
                                                  uint32_t rid,
                                                  SubscribeOptions &&options)
     : MessageQueueStream(std::move(session), path, rid),

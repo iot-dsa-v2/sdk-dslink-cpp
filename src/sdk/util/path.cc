@@ -23,12 +23,21 @@ static bool invalid_name(const std::string &name, bool is_last) {
 
 namespace dsa {
 
-Path::Path(const std::string &path) {
-  if (path.empty()) return;
+PathData::PathData(const std::string &path) : str(path) {
+  if (path.empty()) {
+    type = ROOT;
+    return;
+  }
   auto current = path.begin();
   auto end = path.end();
 
-  if (*current == '/') ++current;
+  if (*current == '/') {
+    ++current;
+    if (current == end) {
+      type = ROOT;
+      return;
+    }
+  }
 
   while (current < end) {
     auto next = std::find(current, end, '/');
@@ -54,9 +63,12 @@ Path::Path(const std::string &path) {
   }
 }
 
-PathRange::PathRange(const std::string &path)
-    : _path(make_ref_<Path>(path)), _current(_path->names.begin()) {}
-PathRange::PathRange(const ref_<const Path> &path,
-                     std::vector<std::string>::const_iterator &&it)
-    : _path(path), _current(it) {}
+Path::Path(const std::string &path)
+    : data(make_ref_<PathData>(path)), _current(0) {}
+Path::Path(const ref_<const PathData> &data, size_t idx)
+    : data(data), _current(idx) {}
+
+const Path Path::copy() {
+  return Path(ref_<PathData>(new PathData(*data)), _current);
+}
 }

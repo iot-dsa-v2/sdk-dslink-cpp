@@ -9,7 +9,7 @@ namespace dsa {
 const SubscribeOptions IncomingSubscribeStream::default_options;
 
 IncomingSubscribeStream::IncomingSubscribeStream(ref_<Session>&& session,
-                                                 const std::string& path,
+                                                 const Path& path,
                                                  uint32_t rid,
                                                  Callback&& callback)
     : MessageCacheStream(std::move(session), path, rid),

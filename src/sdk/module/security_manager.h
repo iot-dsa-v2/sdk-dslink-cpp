@@ -9,6 +9,8 @@
 
 namespace dsa {
 
+class Path;
+
 struct ClientInfo {
   const std::string dsid;
   const std::string permission_token;
@@ -23,8 +25,10 @@ struct ClientInfo {
 
 class SecurityManager {
  public:
-  typedef std::function<void(const ClientInfo client, bool error)> GetClientCallback;
-  typedef std::function<void(PermissionLevel permission)> CheckPermissionCallback;
+  typedef std::function<void(const ClientInfo client, bool error)>
+      GetClientCallback;
+  typedef std::function<void(PermissionLevel permission)>
+      CheckPermissionCallback;
 
   virtual void get_client(const std::string& dsid,
                           const std::string& auth_token,
@@ -32,9 +36,9 @@ class SecurityManager {
 
   virtual void check_permission(const std::string& dsid,
                                 const std::string& permission_token,
-                                MessageType method, const std::string& path,
+                                MessageType method, const Path& path,
                                 CheckPermissionCallback&& callback) = 0;
-  virtual ~SecurityManager() {};
+  virtual ~SecurityManager(){};
 };
 
 }  // namespace dsa

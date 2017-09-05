@@ -14,7 +14,7 @@ class SimpleSecurityManager : public SecurityManager {
 
   void check_permission(const std::string& dsid,
                         const std::string& permission_token, MessageType method,
-                        const std::string& path,
+                        const Path& path,
                         CheckPermissionCallback&& callback) override;
 };
 
@@ -30,7 +30,7 @@ class AsyncSimpleSecurityManager : public SecurityManager {
 
   void check_permission(const std::string& dsid,
                         const std::string& permission_token, MessageType method,
-                        const std::string& path,
+                        const Path& path,
                         CheckPermissionCallback&& callback) override;
 };
 

@@ -21,7 +21,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
  public:
   const SubscribeOptions &options() { return _options; }
 
-  OutgoingSubscribeStream(ref_<Session> &&session, const std::string &path,
+  OutgoingSubscribeStream(ref_<Session> &&session, const Path &path,
                           uint32_t rid, SubscribeOptions &&options);
 
   void on_update(Callback &&callback);

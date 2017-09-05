@@ -16,9 +16,9 @@ class MessageRefedStream : public MessageStream {
 
  public:
 
-  const std::string path;
+  const Path path;
 
-  explicit MessageRefedStream(ref_<Session> &&session, const std::string &path,
+  explicit MessageRefedStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);
 
   MessageRefedStream(const MessageRefedStream &other) = delete;
@@ -36,7 +36,7 @@ class MessageCacheStream : public MessageRefedStream {
   void close_impl() override;
 
  public:
-  MessageCacheStream(ref_<Session> &&session, const std::string &path,
+  MessageCacheStream(ref_<Session> &&session, const Path &path,
                      uint32_t rid = 0);
   ~MessageCacheStream() override;
 
@@ -55,7 +55,7 @@ class MessageQueueStream : public MessageRefedStream {
   void close_impl() override;
 
  public:
-  explicit MessageQueueStream(ref_<Session> &&session, const std::string &path,
+  explicit MessageQueueStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);
   ~MessageQueueStream() override;
 

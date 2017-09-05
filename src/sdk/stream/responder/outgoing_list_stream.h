@@ -11,7 +11,7 @@ protected:
   ListOptions _option;
 
 public:
-  OutgoingListStream(ref_<Session> &&session, const std::string &path,
+  OutgoingListStream(ref_<Session> &&session, const Path &path,
     uint32_t rid, ListOptions &&options);
 
 };

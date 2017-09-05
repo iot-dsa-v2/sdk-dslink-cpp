@@ -6,7 +6,7 @@
 
 namespace dsa {
 OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
-                                       const std::string &path, uint32_t rid,
+                                       const Path &path, uint32_t rid,
                                        ListOptions &&options)
     : MessageRefedStream(std::move(session), path, rid) {}
 }

@@ -8,6 +8,7 @@
 #include "static_headers.h"
 #include "util/buffer.h"
 #include "util/enable_intrusive.h"
+#include "util/path.h"
 #include "variant/variant.h"
 
 namespace dsa {
@@ -87,6 +88,8 @@ class RequestMessage : public Message {
   std::unique_ptr<DynamicBoolHeader> no_stream;
   std::unique_ptr<DynamicByteHeader> alias_count;
 
+  mutable std::unique_ptr<const Path> _parsed_path;
+
  public:
   explicit RequestMessage(const uint8_t* data, size_t size);
   explicit RequestMessage(MessageType type);
@@ -95,7 +98,7 @@ class RequestMessage : public Message {
   bool get_priority() const;
   void set_priority(bool value);
 
-  const std::string& get_target_path() const;
+  const Path& get_target_path() const;
   void set_target_path(const std::string& value);
 
   const std::string& get_permission_token() const;
