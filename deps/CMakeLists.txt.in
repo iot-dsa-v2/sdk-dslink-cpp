@@ -134,7 +134,7 @@ FOREACH (F ${PREPROCESSOR_FILES})
    FILE (GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/msgpack/${F} CONTENT ${CONTENT})
 ENDFOREACH ()
 
-OPTION (MSGPACK_ENABLE_CXX "Enable C++ interface." ON)
+OPTION (MSGPACK_ENABLE_CXX "Enable C++ interface." OFF)
 OPTION (MSGPACK_ENABLE_SHARED "Build shared libaries in addition to static libraries." OFF)
 
 INCLUDE (CheckCXXSourceCompiles)
