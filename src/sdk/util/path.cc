@@ -47,18 +47,18 @@ PathData::PathData(const std::string &path) : str(path) {
       type = INVALID;
       return;
     }
+    const char first_char = name[0];
+    names.emplace_back(std::move(name));
     if (is_last) {
-      const char &c = name[0];
-      if (c == '$') {
+      if (first_char == '$') {
         type = CONFIG;
-      } else if (c == '@') {
+      } else if (first_char == '@') {
         type = ATTRIBUTE;
       } else {
         type = NODE;
       }
+      return;
     }
-
-    names.emplace_back(std::move(name));
     current = next + 1;
   }
 }
