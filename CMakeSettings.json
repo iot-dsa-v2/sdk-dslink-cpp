@@ -45,10 +45,6 @@
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
           "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-        },
-        {
-          "name": "MSGPACK_LIBRARY",
-          "value": "C:\\vcpkg\\packages\\msgpack_x64-windows-static\\debug\\lib\\msgpackc.lib"
         }
       ]
 
@@ -65,10 +61,6 @@
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
           "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-        },
-        {
-          "name": "MSGPACK_LIBRARY",
-          "value": "C:\\vcpkg\\packages\\msgpack_x64-windows-static\\lib\\msgpackc.lib"
         }
       ]
 
