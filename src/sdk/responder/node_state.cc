@@ -4,13 +4,18 @@
 
 #include "core/session.h"
 
-#include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
+#include "stream/responder/outgoing_subscribe_stream.h"
 
 namespace dsa {
 
 NodeState::NodeState(LinkStrandRef &strand, const std::string &path)
     : strand(strand), _path(path) {}
+
+ref_<NodeState> &NodeState::get_child(const Path &path) {
+
+
+}
 
 void NodeState::set_model(ModelRef model) { _model = std::move(model); }
 

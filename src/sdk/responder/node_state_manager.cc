@@ -10,15 +10,11 @@ namespace dsa {
 
 NodeStateManager::NodeStateManager(LinkStrandRef &strand) : strand(strand) {}
 
-ref_<NodeState> &NodeStateManager::get_or_create(const std::string &path) {
-
-  std::vector< std::string > path_nodes;
-  boost::split( path_nodes, path, boost::is_space()); // SplitVec == { "hello abc","ABC","aBc goodbye" }
-
-  if (_node_states.count(path) == 0) {
-    _node_states[path] = make_ref_<NodeState>(strand, path);
+ref_<NodeState> &NodeStateManager::get_node(const Path &path) {
+  if (path.is_root()) {
+    return _root;
   }
-  return _node_states.at(path);
+  return _root->get_child(path);
 }
 
 void NodeStateManager::add(ref_<OutgoingSubscribeStream> &stream) {}

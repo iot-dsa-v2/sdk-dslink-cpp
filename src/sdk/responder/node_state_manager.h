@@ -16,9 +16,9 @@ namespace dsa {
 class NodeStateManager : public OutgoingStreamAcceptor {
  private:
   LinkStrandRef strand;
-  std::map<std::string, ref_<NodeState> > _node_states;
+  ref_<NodeState> _root;
 
-  ref_<NodeState> &get_or_create(const std::string &path);
+  ref_<NodeState> &get_node(const Path &path);
 
  public:
   explicit NodeStateManager(LinkStrandRef &strand);

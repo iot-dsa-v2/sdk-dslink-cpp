@@ -39,13 +39,15 @@ class NodeState : public EnableRef<NodeState> {
   std::unordered_set<ref_<OutgoingSubscribeStream>, MessageStreamHashFunc,
                      MessageStreamKeyCmp>
       _subscription_streams;
-//  std::unordered_set<ref_<OutgoingListStream>, MessageStreamHashFunc,
-//                     MessageStreamKeyCmp>
-//      _list_streams;
+  //  std::unordered_set<ref_<OutgoingListStream>, MessageStreamHashFunc,
+  //                     MessageStreamKeyCmp>
+  //      _list_streams;
   ref_<SubscribeResponseMessage> _last_value;
 
  public:
   explicit NodeState(LinkStrandRef &strand, const std::string &path);
+
+  ref_<NodeState> &get_child(const Path &path);
 
   //////////////////////////
   // Getters

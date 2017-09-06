@@ -30,10 +30,23 @@ class Path {
   explicit Path(const std::string &path);
 
   bool is_invalid() const { return data->type == PathData::INVALID; }
+  bool is_root() const { return data->type == PathData::ROOT; }
+  bool is_node() const { return data->type == PathData::NODE; }
+  bool is_config() const { return data->type == PathData::CONFIG; }
+  bool is_attribute() const { return data->type == PathData::ATTRIBUTE; }
 
   const std::string &current() const { return data->names[_current]; }
 
+  // last part of the path
   bool is_last() const { return _current + 1 == data->names.size(); }
+
+  // last part of node name of the path, exclude config name or attribute name
+  bool is_last_node() const {
+    if (is_node()) {
+      return _current + 1 == data->names.size();
+    }
+    return _current + 2 == data->names.size();
+  }
 
   const Path next() const { return Path(data, _current + 1); }
 
