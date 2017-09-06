@@ -13,8 +13,7 @@ NodeState::NodeState(LinkStrandRef &strand, const std::string &path)
     : strand(strand), _path(path) {}
 
 ref_<NodeState> &NodeState::get_child(const Path &path) {
-
-
+  throw std::runtime_error("get_child is not implemented!");
 }
 
 void NodeState::set_model(ModelRef model) { _model = std::move(model); }

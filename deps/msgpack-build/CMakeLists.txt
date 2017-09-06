@@ -182,6 +182,15 @@ ADD_LIBRARY (msgpackc-object OBJECT
     ${msgpackc_HEADERS}
 )
 
+TARGET_INCLUDE_DIRECTORIES (msgpackc-object
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../msgpack/include>
+        $<INSTALL_INTERFACE:include>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack
+)
+
 IF (MSGPACK_BUILD_TESTS)
     ENABLE_TESTING ()
     # MEMORYCHECK_COMMAND_OPTIONS needs to place prior to CTEST_MEMORYCHECK_COMMAND
