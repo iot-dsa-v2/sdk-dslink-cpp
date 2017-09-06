@@ -7,10 +7,7 @@ ENDIF ()
 
 PROJECT (msgpack)
 
-message("----")
-message(${CMAKE_CURRENT_SOURCE_DIR})
-
-FILE (READ ${CMAKE_CURRENT_SOURCE_DIR}/include/msgpack/version_master.h contents)
+FILE (READ ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/include/msgpack/version_master.h contents)
 STRING (REGEX MATCH "#define MSGPACK_VERSION_MAJOR *([0-9a-zA-Z_]*)" NULL_OUT ${contents})
 SET (VERSION_MAJOR ${CMAKE_MATCH_1})
 STRING (REGEX MATCH "#define MSGPACK_VERSION_MINOR *([0-9a-zA-Z_]*)" NULL_OUT ${contents})
@@ -117,24 +114,24 @@ ELSE ()
    SET (CMAKE_CXX_FLAGS "-DMSGPACK_DEFAULT_API_VERSION=2 ${CMAKE_CXX_FLAGS}")
 ENDIF ()
 
-FILE (GLOB_RECURSE PREDEF_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/predef/include/boost ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/predef/include/boost/*.h)
+FILE (GLOB_RECURSE PREDEF_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/external/boost/predef/include/boost ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/external/boost/predef/include/boost/*.h)
 FOREACH (F ${PREDEF_FILES})
    SET(M "Converting ${F}")
    MESSAGE(STATUS ${M})
-   FILE (READ ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/predef/include/boost/${F} CONTENT)
+   FILE (READ ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/external/boost/predef/include/boost/${F} CONTENT)
    STRING(REPLACE "BOOST_" "MSGPACK_" CONTENT ${CONTENT})
    STRING(REPLACE "boost/" "msgpack/" CONTENT ${CONTENT})
-   FILE (GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/msgpack/${F} CONTENT ${CONTENT})
+   FILE (GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/include/msgpack/${F} CONTENT ${CONTENT})
 ENDFOREACH ()
 
-FILE (GLOB_RECURSE PREPROCESSOR_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/preprocessor/include/boost ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/preprocessor/include/boost/*.hpp)
+FILE (GLOB_RECURSE PREPROCESSOR_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/external/boost/preprocessor/include/boost ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/external/boost/preprocessor/include/boost/*.hpp)
 FOREACH (F ${PREPROCESSOR_FILES})
    SET(M "Converting ${F}")
    MESSAGE(STATUS ${M})
-   FILE (READ ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/preprocessor/include/boost/${F} CONTENT)
+   FILE (READ ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/external/boost/preprocessor/include/boost/${F} CONTENT)
    STRING(REPLACE "BOOST_" "MSGPACK_" CONTENT ${CONTENT})
    STRING(REPLACE "boost/" "msgpack/" CONTENT ${CONTENT})
-   FILE (GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/msgpack/${F} CONTENT ${CONTENT})
+   FILE (GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/include/msgpack/${F} CONTENT ${CONTENT})
 ENDFOREACH ()
 
 OPTION (MSGPACK_ENABLE_CXX "Enable C++ interface." OFF)
@@ -159,8 +156,8 @@ EXECUTE_PROCESS (
 )
 
 CONFIGURE_FILE (
-    msgpack.pc.in
-    msgpack.pc
+    ../msgpack/msgpack.pc.in
+    ../msgpack/msgpack.pc
     @ONLY
 )
 
@@ -172,11 +169,11 @@ IF (MSGPACK_ENABLE_SHARED)
 
     TARGET_INCLUDE_DIRECTORIES (msgpackc
         PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../msgpack/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../msgpack/include>
             $<INSTALL_INTERFACE:include>
         PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/../msgpack
     )
 ENDIF ()
 

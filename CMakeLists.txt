@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDSA_DEBUG")
 
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
-add_subdirectory("${CMAKE_SOURCE_DIR}/deps/msgpack")
+add_subdirectory("${CMAKE_SOURCE_DIR}/deps/msgpack-build")
 
 add_subdirectory("./src")
 add_subdirectory("./test")
