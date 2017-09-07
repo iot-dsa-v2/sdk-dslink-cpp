@@ -10,8 +10,6 @@
 
 .\vcpkg install openssl:x64-windows
 
-.\vcpkg install msgpack:x64-windows
-
 .\vcpkg install gtest:x64-windows
 
 ```
@@ -26,7 +24,7 @@ If you don't have homebrew installed already, follow the setup instructions [her
 
 Once homebrew is installed, run the command
 
-```brew install cmake ninja boost openssl msgpack```
+```brew install cmake ninja boost openssl```
 
 Once the dependencies have been installed, you should be good to go. 
 
