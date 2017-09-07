@@ -8,11 +8,12 @@ namespace dsa {
 class Logger {
  public:
   enum : uint8_t {
-    DEBUG = 0,
-    INFO = 0x10,
-    WARNING = 0x20,
-    ERROR = 0x30,
-    CRITICAL = 0x40,
+    TRACE = 0x10,
+    DEBUG = 0x20,
+    INFO = 0x30,
+    WARN = 0x40,
+    ERROR = 0x50,
+    FATAL = 0x60,
     NONE = 0xFF,
   };
 
@@ -25,45 +26,35 @@ class Logger {
 };
 }
 
-#define LOG_CRITICAL(logger, stream_exp)    \
-  if ((logger).level <= Logger::CRITICAL) { \
-    std::stringstream LOG;                  \
-    (logger).write_meta(LOG, "CRITICAL");   \
-    stream_exp;                             \
-    LOG << std::endl;                       \
-    (logger).log(LOG.str());                \
-  }
-#define LOG_ERROR(logger, stream_exp)    \
-  if ((logger).level <= Logger::ERROR) { \
-    std::stringstream LOG;               \
-    (logger).write_meta(LOG, "ERROR");   \
-    stream_exp;                          \
-    LOG << std::endl;                    \
-    (logger).log(LOG.str());             \
-  }
-#define LOG_WARNING(logger, stream_exp)    \
-  if ((logger).level <= Logger::WARNING) { \
+#define DSA_LOG(LEVEL, logger, stream_exp) \
+  if ((logger).level <= Logger::LEVEL) {   \
     std::stringstream LOG;                 \
-    (logger).write_meta(LOG, "WARNING");   \
+    (logger).write_meta(LOG, "LEVEL");     \
     stream_exp;                            \
     LOG << std::endl;                      \
     (logger).log(LOG.str());               \
   }
-#define LOG_INFO(logger, stream_exp)    \
-  if ((logger).level <= Logger::INFO) { \
-    std::stringstream LOG;              \
-    (logger).write_meta(LOG, "INFO");   \
-    stream_exp;                         \
-    LOG << std::endl;                   \
-    (logger).log(LOG.str());            \
-  }
-#define LOG_DEBUG(logger, stream_exp)    \
-  if ((logger).level <= Logger::DEBUG) { \
-    std::stringstream LOG;               \
-    (logger).write_meta(LOG, "DEBUG");   \
-    stream_exp;                          \
-    LOG << std::endl;                    \
-    (logger).log(LOG.str());             \
+
+#define LOG_ERROR(logger, stream_exp) DSA_LOG(ERROR, logger, stream_exp)
+
+#define LOG_WARN(logger, stream_exp) DSA_LOG(WARN, logger, stream_exp)
+
+#define LOG_INFO(logger, stream_exp) DSA_LOG(INFO, logger, stream_exp)
+
+#define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG, logger, stream_exp)
+
+#define LOG_TRACE(logger, stream_exp) DSA_LOG(TRACE, logger, stream_exp)
+
+#define LOG_FATAL(logger, stream_exp) \
+  {                                          \
+    std::stringstream LOG;                   \
+    (logger).write_meta(LOG, "FATAL");       \
+    stream_exp;                              \
+    LOG << std::endl;                        \
+    if ((logger).level <= Logger::FATAL) {   \
+      (logger).log(LOG.str());               \
+    }                                        \
+    throw std::runtime_error(LOG.str());      \
   }
 
 #endif  // DSA_SDK_MODULE__LOGGER_H

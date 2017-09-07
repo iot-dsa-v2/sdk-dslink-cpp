@@ -42,7 +42,7 @@ TEST(RequesterTest, Subscribe) {
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8090;
   server_config.strand = std::move(modules);
-  server_config.strand->logger().level = Logger::WARNING;
+  server_config.strand->logger().level = Logger::WARN;
 
   app.async_start(10);
 
@@ -54,7 +54,7 @@ TEST(RequesterTest, Subscribe) {
   client_config.tcp_host = "127.0.0.1";
   client_config.tcp_port = 8090;
   client_config.strand = make_ref_<DefaultModules>(app);
-  client_config.strand->logger().level = Logger::WARNING;
+  client_config.strand->logger().level = Logger::WARN;
 
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();

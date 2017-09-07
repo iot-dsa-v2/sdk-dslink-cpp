@@ -19,7 +19,7 @@ TEST(TcpServerTest, SingleStrand) {
   config.tcp_host = "127.0.0.1";
   config.tcp_port = 8092;
   config.strand = make_ref_<DefaultModules>(app);
-  config.strand->logger().level = Logger::WARNING;
+  config.strand->logger().level = Logger::WARN;
 
   app.async_start(10);
 
@@ -68,7 +68,7 @@ TEST(TcpServerTest, MultiStrand) {
   server_config.tcp_host = "127.0.0.1";
   server_config.tcp_port = 8092;
   server_config.strand = make_ref_<DefaultModules>(app);
-  server_config.strand->logger().level = Logger::WARNING;
+  server_config.strand->logger().level = Logger::WARN;
 
   app.async_start(10);
 
@@ -80,7 +80,7 @@ TEST(TcpServerTest, MultiStrand) {
   client_config.tcp_host = "127.0.0.1";
   client_config.tcp_port = 8092;
   client_config.strand = make_ref_<DefaultModules>(app);
-  client_config.strand->logger().level = Logger::WARNING;
+  client_config.strand->logger().level = Logger::WARN;
 
   const uint32_t NUM_CLIENT = 2;
 
