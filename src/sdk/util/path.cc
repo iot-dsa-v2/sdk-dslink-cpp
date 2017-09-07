@@ -24,6 +24,7 @@ static bool invalid_name(const std::string &name, bool is_last) {
 namespace dsa {
 
 PathData::PathData(const std::string &path) : str(path) {
+  type = INVALID;
   if (path.empty()) {
     type = ROOT;
     return;

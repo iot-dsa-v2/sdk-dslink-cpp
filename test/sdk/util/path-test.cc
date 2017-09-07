@@ -87,6 +87,10 @@ TEST(PathTest, Path__is_invalid) {
     Path p(data);
     EXPECT_TRUE(p.is_invalid());
   }
+  {
+    Path p("/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/");
+    EXPECT_TRUE(p.is_invalid());
+  }
 }
 
 TEST(PathTest, Path__is_root) {
@@ -132,10 +136,6 @@ TEST(PathTest, Path__is_node) {
   }
   {
     Path p("/path/ /to");
-    EXPECT_TRUE(p.is_node());
-  }
-  {
-    Path p("/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/");
     EXPECT_TRUE(p.is_node());
   }
   {
