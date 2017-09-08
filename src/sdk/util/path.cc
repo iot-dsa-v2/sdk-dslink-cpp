@@ -5,7 +5,7 @@
 static bool invalid_name(const std::string &name, bool is_last) {
   if (name.empty()) return true;
   if (!is_last && (name[0] == '@' || name[0] == '$')) {
-    // attribute and config name can not show up in parent node
+    // attribute and metadata name can not show up in parent node
     return true;
   }
   if (name[0] == '.' && (name.size() == 1 || name[1] == '.')) {
@@ -16,7 +16,7 @@ static bool invalid_name(const std::string &name, bool is_last) {
   for (const char &c : name) {  // invalid characters
     if (check_escape > 0) {
       // % must be followed by 2 upper case hex bytes
-      if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')) {
+      if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
         check_escape--;
         continue;
       }
@@ -57,7 +57,7 @@ PathData::PathData(const std::string &path) : str(path) {
     names.emplace_back(std::move(name));
     if (is_last) {
       if (first_char == '$') {
-        type = CONFIG;
+        type = METADATA;
       } else if (first_char == '@') {
         type = ATTRIBUTE;
       } else {

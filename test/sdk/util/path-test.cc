@@ -136,26 +136,26 @@ TEST(PathTest, Path__is_node) {
   }
 }
 
-TEST(PathTest, Path__is_config) {
+TEST(PathTest, Path__is_metadata) {
   {
     Path p("$");
-    EXPECT_TRUE(p.is_config());
+    EXPECT_TRUE(p.is_metadata());
   }
   {
     Path p("$$");
-    EXPECT_TRUE(p.is_config());
+    EXPECT_TRUE(p.is_metadata());
   }
   {
     Path p("$c$o$n$f$i$g$");
-    EXPECT_TRUE(p.is_config());
+    EXPECT_TRUE(p.is_metadata());
   }
   {
-    Path p("$config");
-    EXPECT_TRUE(p.is_config());
+    Path p("$metadata");
+    EXPECT_TRUE(p.is_metadata());
   }
   {
-    Path p("path/to/dsa/$config");
-    EXPECT_TRUE(p.is_config());
+    Path p("path/to/dsa/$metadata");
+    EXPECT_TRUE(p.is_metadata());
   }
 }
 
@@ -178,13 +178,13 @@ TEST(PathTest, Path__is_attribute) {
     EXPECT_TRUE(p.is_attribute());
   }
   {
-    Path p("path/to/dsa/@config");
+    Path p("path/to/dsa/@att");
     EXPECT_TRUE(p.is_attribute());
   }
 }
 
 TEST(PathTest, Path__current__next__last) {
-  Path path("path/to/dsa/@config");
+  Path path("path/to/dsa/@att");
 
   EXPECT_EQ("path", path.current());
 
@@ -197,7 +197,7 @@ TEST(PathTest, Path__current__next__last) {
   EXPECT_TRUE(p2.is_last_node());
 
   auto p3 = p2.next();
-  EXPECT_EQ("@config", p3.current());
+  EXPECT_EQ("@att", p3.current());
 
   EXPECT_TRUE(p3.is_last());
 }

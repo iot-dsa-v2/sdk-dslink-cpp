@@ -9,7 +9,7 @@ namespace dsa {
 
 class PathData : public EnableRef<PathData> {
  public:
-  enum Type : uint8_t { INVALID, ROOT, NODE, CONFIG, ATTRIBUTE };
+  enum Type : uint8_t { INVALID, ROOT, NODE, METADATA, ATTRIBUTE };
 
   std::string str;
   std::vector<std::string> names;
@@ -32,7 +32,7 @@ class Path {
   bool is_invalid() const { return data->type == PathData::INVALID; }
   bool is_root() const { return data->type == PathData::ROOT; }
   bool is_node() const { return data->type == PathData::NODE; }
-  bool is_config() const { return data->type == PathData::CONFIG; }
+  bool is_metadata() const { return data->type == PathData::METADATA; }
   bool is_attribute() const { return data->type == PathData::ATTRIBUTE; }
 
   const std::string &current() const { return data->names[_current]; }
