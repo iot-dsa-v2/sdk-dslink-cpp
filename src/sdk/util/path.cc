@@ -12,19 +12,32 @@ static bool invalid_name(const std::string &name, bool is_last) {
     // name can not be '.' or start with '..'
     return true;
   }
+  int check_escape = 0;
   for (const char &c : name) {  // invalid characters
+    if (check_escape > 0) {
+      // % must be followed by 2 upper case hex bytes
+      if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')) {
+        check_escape--;
+        continue;
+      }
+      return true;  // invalid hex
+    }
+
+    // invalid characters
     if (c < ' ' || c == '\\' || c == '\'' || c == '\"' || c == '/' ||
-        c == '%' || c == '?' || c == '*' || c == ':' || c == '>' || c == '<') {
+        c == '?' || c == '*') {
       return true;
     }
+    if (c == '%') {
+      check_escape = 2;
+    }
   }
-  return false;
+  return check_escape != 0;
 }
 
 namespace dsa {
 
 PathData::PathData(const std::string &path) : str(path) {
-  type = INVALID;
   if (path.empty()) {
     type = ROOT;
     return;
@@ -32,15 +45,7 @@ PathData::PathData(const std::string &path) : str(path) {
   auto current = path.begin();
   auto end = path.end();
 
-  if (*current == '/') {
-    ++current;
-    if (current == end) {
-      type = ROOT;
-      return;
-    }
-  }
-
-  while (current < end) {
+  while (true) {
     auto next = std::find(current, end, '/');
     std::string name = std::string(current, next);
     bool is_last = (next == end);
@@ -61,6 +66,10 @@ PathData::PathData(const std::string &path) : str(path) {
       return;
     }
     current = next + 1;
+    if (current == end) {
+      type = INVALID;
+      return;
+    }
   }
 }
 

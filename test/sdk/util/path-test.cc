@@ -7,15 +7,23 @@ TEST(PathTest, Path__invalid_name) {}
 
 TEST(PathTest, Path__is_invalid) {
   {
-    Path p("//");
+    Path p("/");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/$/");
+    Path p("a/");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/@/");
+    Path p("/a");
+    EXPECT_TRUE(p.is_invalid());
+  }
+  {
+    Path p("$/");
+    EXPECT_TRUE(p.is_invalid());
+  }
+  {
+    Path p("@/");
     EXPECT_TRUE(p.is_invalid());
   }
   {
@@ -23,59 +31,43 @@ TEST(PathTest, Path__is_invalid) {
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/./to");
+    Path p("path/./to");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/../to");
+    Path p("path/../to");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/.");
+    Path p("path/.");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/..");
+    Path p("path/..");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/\to");
+    Path p("path/\to");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/\\to");
+    Path p("path/\\to");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/\"to");
+    Path p("path/\"to");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/%");
+    Path p("path/%");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/?");
+    Path p("path/?");
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/path/*");
-    EXPECT_TRUE(p.is_invalid());
-  }
-  {
-    Path p("/path/:");
-    EXPECT_TRUE(p.is_invalid());
-  }
-  {
-    Path p("/path/>");
-    EXPECT_TRUE(p.is_invalid());
-  }
-  {
-    Path p("/path/<");
-    EXPECT_TRUE(p.is_invalid());
-  }
-  {
-    Path p("<");
+    Path p("path/*");
     EXPECT_TRUE(p.is_invalid());
   }
   {
@@ -88,7 +80,7 @@ TEST(PathTest, Path__is_invalid) {
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    Path p("/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/");
+    Path p("0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/");
     EXPECT_TRUE(p.is_invalid());
   }
 }
@@ -100,46 +92,46 @@ TEST(PathTest, Path__is_root) {
     EXPECT_TRUE(p.is_root());
   }
   {
-    Path p("/");
+    Path p("");
     EXPECT_TRUE(p.is_root());
   }
 }
 
 TEST(PathTest, Path__is_node) {
   {
-    Path p("/path/to/dsa$conf");
+    Path p("path/to/dsa$conf");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/path/to/dsa@conf");
+    Path p("path/to/dsa@conf");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/a/b/path.");
+    Path p("a/b/path.");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/a/b/path..");
+    Path p("a/b/path..");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/a/b/path.name");
+    Path p("a/b/path.name");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/a/b/path..name");
+    Path p("a/b/path..name");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/path/ ");
+    Path p("path/ ");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/path/ /to");
+    Path p("path/ /to");
     EXPECT_TRUE(p.is_node());
   }
   {
-    Path p("/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789");
+    Path p("0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789");
     EXPECT_TRUE(p.is_node());
   }
 }
@@ -150,15 +142,11 @@ TEST(PathTest, Path__is_config) {
     EXPECT_TRUE(p.is_config());
   }
   {
-    Path p("/$");
+    Path p("$$");
     EXPECT_TRUE(p.is_config());
   }
   {
-    Path p("/$$");
-    EXPECT_TRUE(p.is_config());
-  }
-  {
-    Path p("/$c$o$n$f$i$g$");
+    Path p("$c$o$n$f$i$g$");
     EXPECT_TRUE(p.is_config());
   }
   {
@@ -166,7 +154,7 @@ TEST(PathTest, Path__is_config) {
     EXPECT_TRUE(p.is_config());
   }
   {
-    Path p("/path/to/dsa/$config");
+    Path p("path/to/dsa/$config");
     EXPECT_TRUE(p.is_config());
   }
 }
@@ -176,16 +164,13 @@ TEST(PathTest, Path__is_attribute) {
     Path p("@");
     EXPECT_TRUE(p.is_attribute());
   }
+
   {
-    Path p("/@");
+    Path p("@@");
     EXPECT_TRUE(p.is_attribute());
   }
   {
-    Path p("/@@");
-    EXPECT_TRUE(p.is_attribute());
-  }
-  {
-    Path p("/@a@t@t@r");
+    Path p("@a@t@t@r");
     EXPECT_TRUE(p.is_attribute());
   }
   {
@@ -193,13 +178,13 @@ TEST(PathTest, Path__is_attribute) {
     EXPECT_TRUE(p.is_attribute());
   }
   {
-    Path p("/path/to/dsa/@config");
+    Path p("path/to/dsa/@config");
     EXPECT_TRUE(p.is_attribute());
   }
 }
 
 TEST(PathTest, Path__current__next__last) {
-  Path path("/path/to/dsa/@config");
+  Path path("path/to/dsa/@config");
 
   EXPECT_EQ("path", path.current());
 
