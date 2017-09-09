@@ -17,8 +17,7 @@ class Config;
 
 class SessionManager {
  public:
-  typedef std::function<void(const ref_<Session> &session)>
-      GetSessionCallback;
+  typedef std::function<void(const ref_<Session> &session)> GetSessionCallback;
 
  private:
   uint64_t _session_id_seed;
@@ -26,10 +25,10 @@ class SessionManager {
 
   std::map<std::string, ref_<Session>> _sessions;
 
-  LinkStrandRef _strand;
+  LinkStrand *_strand;
 
-public:
-  SessionManager(LinkStrandRef & strand);
+ public:
+  SessionManager(LinkStrand *strand);
   void get_session(const std::string &dsid, const std::string &auth_token,
                    const std::string &session_id,
                    GetSessionCallback &&callback);

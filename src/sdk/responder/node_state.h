@@ -32,9 +32,15 @@ class MessageStreamKeyCmp {
 
 // maintain streams of a node
 class NodeState : public EnableRef<NodeState> {
+  friend class NodeStateManager;
+
  private:
   LinkStrandRef strand;
   std::string _path;
+
+  // registered in NodeStateManager's global map for quick search
+  bool _registered = false;
+
   ModelRef _model;
   std::unordered_set<ref_<OutgoingSubscribeStream>, MessageStreamHashFunc,
                      MessageStreamKeyCmp>

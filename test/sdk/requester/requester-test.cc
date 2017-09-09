@@ -32,11 +32,9 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 TEST(RequesterTest, Subscribe) {
   App app;
 
-  // capture and log request
-  auto mock_stream_acceptor = make_shared_<MockStreamAcceptor>();
-
   auto modules = make_ref_<DefaultModules>(app);
-  modules->set_stream_acceptor(mock_stream_acceptor);
+  MockStreamAcceptor * mock_stream_acceptor = new MockStreamAcceptor();
+  modules->set_stream_acceptor(std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
 
   WrapperConfig server_config;
   server_config.tcp_host = "127.0.0.1";

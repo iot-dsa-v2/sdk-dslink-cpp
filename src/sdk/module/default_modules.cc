@@ -10,17 +10,15 @@ namespace dsa {
 
 DefaultModules::DefaultModules(App &app, bool async)
     : LinkConfig(app.new_strand(), new ECDH()) {
-  LinkStrandRef strand = get_ref();
-  set_session_manager(make_shared_<SessionManager>(strand));
-  set_stream_acceptor(make_shared_<NodeStateManager>(strand));
-
+  set_session_manager(std::make_unique<SessionManager>(this));
+  set_stream_acceptor(std::make_unique<NodeStateManager>());
   if (async) {
-    set_security_manager(make_shared_<AsyncSimpleSecurityManager>(__strand));
+    set_security_manager(std::make_unique<AsyncSimpleSecurityManager>(__strand));
   } else {
-    set_security_manager(make_shared_<SimpleSecurityManager>());
+    set_security_manager(std::make_unique<SimpleSecurityManager>());
   }
 
-  set_logger(make_shared_<ConsoleLogger>());
+  set_logger(std::make_unique<ConsoleLogger>());
 }
 
 }  // namespace dsa

@@ -9,8 +9,8 @@
 
 namespace dsa {
 
-Session::Session(LinkStrandRef &strand, const std::string &session_id)
-    : _strand(strand),
+Session::Session(LinkStrandRef strand, const std::string &session_id)
+    : _strand(std::move(strand)),
       _session_id(session_id),
       requester(*this),
       responder(*this) {}

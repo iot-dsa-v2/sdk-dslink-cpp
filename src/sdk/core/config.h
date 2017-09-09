@@ -12,28 +12,28 @@ namespace dsa {
 class LinkConfig : public LinkStrand {
  protected:
   // modules
-  shared_ptr_<SecurityManager> _security_manager = nullptr;
-  shared_ptr_<OutgoingStreamAcceptor> _stream_acceptor = nullptr;
-  shared_ptr_<SessionManager> _session_manager = nullptr;
-  shared_ptr_<Logger> _logger = nullptr;
+  std::unique_ptr<SecurityManager> _security_manager = nullptr;
+  std::unique_ptr<OutgoingStreamAcceptor> _stream_acceptor = nullptr;
+  std::unique_ptr<SessionManager> _session_manager = nullptr;
+  std::unique_ptr<Logger> _logger = nullptr;
 
  public:
   explicit LinkConfig(AsioStrand* strand, ECDH* ecdh);
 
-  void set_security_manager(shared_ptr_<SecurityManager> p) {
+  void set_security_manager(std::unique_ptr<SecurityManager> p) {
     __security_manager = p.get();
     _security_manager = std::move(p);
   };
-  void set_stream_acceptor(shared_ptr_<OutgoingStreamAcceptor> p) {
+  void set_stream_acceptor(std::unique_ptr<OutgoingStreamAcceptor> p) {
     __stream_acceptor = p.get();
     _stream_acceptor = std::move(p);
   };
-  void set_session_manager(shared_ptr_<SessionManager> p) {
+  void set_session_manager(std::unique_ptr<SessionManager> p) {
     __session_manager = p.get();
     _session_manager = std::move(p);
   };
 
-  void set_logger(shared_ptr_<Logger> p) {
+  void set_logger(std::unique_ptr<Logger> p) {
     __logger = p.get();
     _logger = std::move(p);
   };

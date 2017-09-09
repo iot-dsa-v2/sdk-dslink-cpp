@@ -8,13 +8,24 @@
 
 namespace dsa {
 
-NodeStateManager::NodeStateManager(LinkStrandRef &strand) : strand(strand) {}
+NodeStateManager::NodeStateManager() {}
 
 ref_<NodeState> &NodeStateManager::get_node(const Path &path) {
   if (path.is_root()) {
     return _root;
   }
-  return _root->get_child(path);
+  auto result = _states.find(path.data->str);
+  if (result != _states.end()) {
+    return result->second;
+  }
+
+  // register it in global map for quick access
+  auto &state = _root->get_child(path);
+  if (!state->_registered) {
+    state->_registered = true;
+    _states[path.data->str] = state;
+  }
+  return state;
 }
 
 void NodeStateManager::add(ref_<OutgoingSubscribeStream> &stream) {}

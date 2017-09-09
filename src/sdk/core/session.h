@@ -47,7 +47,7 @@ class Session final : public ClosableRef<Session> {
   Requester requester;
   Responder responder;
 
-  Session(LinkStrandRef &strand, const std::string &session_id);
+  Session(LinkStrandRef strand, const std::string &session_id);
 
   const std::string &dsid() const { return _dsid; }
   const std::string &session_id() const { return _session_id; }
