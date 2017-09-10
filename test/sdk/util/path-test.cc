@@ -208,9 +208,9 @@ TEST(PathTest, Path__copy) {
     Path des_path = src_path.copy();
 
     EXPECT_TRUE(des_path.is_attribute());
-    EXPECT_EQ(des_path.data->str, src_path.data->str);
+    EXPECT_EQ(des_path.full_str(), src_path.full_str());
     EXPECT_EQ(des_path.current(), src_path.current());
-    EXPECT_NE(des_path.data.get(), src_path.data.get());
+    EXPECT_NE(des_path.data().get(), src_path.data().get());
   }
 
   {

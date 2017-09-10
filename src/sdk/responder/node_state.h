@@ -2,6 +2,7 @@
 #define DSA_SDK_NODE_STATE_H_
 
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 
 #include "core/link_strand.h"
@@ -13,6 +14,7 @@
 namespace dsa {
 class OutgoingListStream;
 class NodeModel;
+
 typedef ref_<NodeModel> ModelRef;
 
 class MessageStreamHashFunc {
@@ -30,16 +32,20 @@ class MessageStreamKeyCmp {
   }
 };
 
+class NodeStateOwner {
+ public:
+  virtual void remove_node(const std::string &path) = 0;
+};
+
 // maintain streams of a node
 class NodeState : public EnableRef<NodeState> {
   friend class NodeStateManager;
 
- private:
-  LinkStrandRef strand;
-  std::string _path;
-
-  // registered in NodeStateManager's global map for quick search
-  bool _registered = false;
+ protected:
+  NodeStateOwner &_owner;
+  Path _path;
+  ref_<NodeState> _parent;
+  std::unordered_map<std::string, NodeState *> _children;
 
   ModelRef _model;
   std::unordered_set<ref_<OutgoingSubscribeStream>, MessageStreamHashFunc,
@@ -51,14 +57,16 @@ class NodeState : public EnableRef<NodeState> {
   ref_<SubscribeResponseMessage> _last_value;
 
  public:
-  explicit NodeState(LinkStrandRef &strand, const std::string &path);
+  explicit NodeState(NodeStateOwner &owner);
+  virtual ~NodeState() = default;
 
-  ref_<NodeState> &get_child(const Path &path);
+  ref_<NodeState> get_child(const Path &path);
+  void remove_child(const std::string &path);
 
   //////////////////////////
   // Getters
   //////////////////////////
-  const std::string &path() { return _path; }
+  const std::string &path() { return _path.full_str(); }
   bool has_model() { return _model != nullptr; }
 
   //////////////////////////
@@ -76,6 +84,22 @@ class NodeState : public EnableRef<NodeState> {
 
   void remove_stream(ref_<OutgoingSubscribeStream> &p);
   void remove_stream(ref_<OutgoingListStream> &p);
+};
+
+class NodeStateChild : public NodeState {
+  ref_<NodeState> _parent;
+
+ public:
+  const std::string name;
+
+  NodeStateChild(NodeStateOwner &owner, ref_<NodeState> parent,
+                 const std::string &name);
+  ~NodeStateChild() override;
+};
+
+class NodeStateRoot : public NodeState {
+ public:
+  explicit NodeStateRoot(NodeStateOwner &owner);
 };
 
 }  // namespace dsa

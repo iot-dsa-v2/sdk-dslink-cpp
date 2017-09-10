@@ -5,8 +5,8 @@
 
 #include <map>
 #include <string>
-#include <utility>
 #include <unordered_map>
+#include <utility>
 
 #include "core/link_strand.h"
 
@@ -14,16 +14,17 @@
 
 namespace dsa {
 
-class NodeStateManager : public OutgoingStreamAcceptor {
+class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
  private:
+  NodeStateRoot _root;
+  std::unordered_map<std::string, NodeState *> _states;
 
-  ref_<NodeState> _root;
-  std::unordered_map<std::string, ref_<NodeState>> _states;
-
-  ref_<NodeState> &get_node(const Path &path);
+  ref_<NodeState> get_node(const Path &path);
 
  public:
   explicit NodeStateManager();
+
+  void remove_node(const std::string &path) override;
 
   void add(ref_<OutgoingSubscribeStream> &stream) override;
   void add(ref_<OutgoingListStream> &stream) override;

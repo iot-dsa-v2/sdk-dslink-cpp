@@ -20,35 +20,42 @@ class PathData : public EnableRef<PathData> {
 
 class Path {
  private:
-  size_t _current;
-
+  size_t _current = 0;
+  ref_<const PathData> _data;
   Path(const ref_<const PathData> &data, size_t idx);
 
  public:
-  const ref_<const PathData> data;
-
+  Path() = default;
   explicit Path(const std::string &path);
 
-  bool is_invalid() const { return data->type == PathData::INVALID; }
-  bool is_root() const { return data->type == PathData::ROOT; }
-  bool is_node() const { return data->type == PathData::NODE; }
-  bool is_metadata() const { return data->type == PathData::METADATA; }
-  bool is_attribute() const { return data->type == PathData::ATTRIBUTE; }
+  const ref_<const PathData> &data() { return _data; }
 
-  const std::string &current() const { return data->names[_current]; }
+  bool is_invalid() const {
+    return _data != nullptr && _data->type == PathData::INVALID;
+  }
+  bool is_root() const { return _data->type == PathData::ROOT; }
+  bool is_node() const { return _data->type == PathData::NODE; }
+  bool is_metadata() const { return _data->type == PathData::METADATA; }
+  bool is_attribute() const { return _data->type == PathData::ATTRIBUTE; }
+
+  const std::string &current() const { return _data->names[_current]; }
+
+  const std::string &full_str() const { return _data->str; }
 
   // last part of the path
-  bool is_last() const { return _current + 1 == data->names.size(); }
+  bool is_last() const { return _current + 1 == _data->names.size(); }
+
+  bool is_end() const { return _current == _data->names.size(); }
 
   // last part of node name of the path, exclude config name or attribute name
   bool is_last_node() const {
     if (is_node()) {
-      return _current + 1 == data->names.size();
+      return _current + 1 == _data->names.size();
     }
-    return _current + 2 == data->names.size();
+    return _current + 2 == _data->names.size();
   }
 
-  const Path next() const { return Path(data, _current + 1); }
+  const Path next() const { return Path(_data, _current + 1); }
 
   // deep copy the path to share with other thread
   const Path copy();

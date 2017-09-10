@@ -16,7 +16,8 @@ static bool invalid_name(const std::string &name, bool is_last) {
   for (const char &c : name) {  // invalid characters
     if (check_escape > 0) {
       // % must be followed by 2 upper case hex bytes
-      if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+      if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') ||
+          (c >= 'a' && c <= 'f')) {
         check_escape--;
         continue;
       }
@@ -73,12 +74,12 @@ PathData::PathData(const std::string &path) : str(path) {
   }
 }
 
-Path::Path(const std::string &path)
-    : data(make_ref_<PathData>(path)), _current(0) {}
+Path::Path(const std::string &path) : _data(make_ref_<PathData>(path)) {}
 Path::Path(const ref_<const PathData> &data, size_t idx)
-    : data(data), _current(idx) {}
+    : _data(data), _current(idx) {}
+
 
 const Path Path::copy() {
-  return Path(ref_<PathData>(new PathData(*data)), _current);
+  return Path(ref_<PathData>(new PathData(*_data)), _current);
 }
 }

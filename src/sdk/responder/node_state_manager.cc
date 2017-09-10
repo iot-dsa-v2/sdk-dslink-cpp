@@ -8,24 +8,28 @@
 
 namespace dsa {
 
-NodeStateManager::NodeStateManager() {}
+NodeStateManager::NodeStateManager() : _root(*this) {}
 
-ref_<NodeState> &NodeStateManager::get_node(const Path &path) {
+void NodeStateManager::remove_node(const std::string &path) {
+  _states.erase(path);
+}
+
+ref_<NodeState> NodeStateManager::get_node(const Path &path) {
   if (path.is_root()) {
-    return _root;
+    return _root.get_ref();
   }
-  auto result = _states.find(path.data->str);
+  auto result = _states.find(path.full_str());
   if (result != _states.end()) {
-    return result->second;
+    return result->second->get_ref();
   }
 
   // register it in global map for quick access
-  auto &state = _root->get_child(path);
-  if (!state->_registered) {
-    state->_registered = true;
-    _states[path.data->str] = state;
+  ref_<NodeState> state = _root.get_child(path);
+  if (state->_path.data() == nullptr) {
+    state->_path = path;
+    _states[path.full_str()] = state.get();
   }
-  return state;
+  return std::move(state);
 }
 
 void NodeStateManager::add(ref_<OutgoingSubscribeStream> &stream) {}

@@ -41,7 +41,7 @@ TEST(MessageTest, InvokeRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_rid());
 
   EXPECT_FALSE(request.get_priority());
-  EXPECT_EQ("", request.get_target_path().data->str);
+  EXPECT_EQ("", request.get_target_path().full_str());
   EXPECT_EQ("", request.get_permission_token());
   EXPECT_FALSE(request.get_no_stream());
   EXPECT_EQ(0, request.get_alias_count());
@@ -61,7 +61,7 @@ TEST(MessageTest, InvokeRequest__Constructor_02) {
   EXPECT_EQ(0, target__request.get_rid());
 
   EXPECT_FALSE(target__request.get_priority());
-  EXPECT_EQ("", target__request.get_target_path().data->str);
+  EXPECT_EQ("", target__request.get_target_path().full_str());
   EXPECT_EQ("", target__request.get_permission_token());
   EXPECT_FALSE(target__request.get_no_stream());
   EXPECT_EQ(0, target__request.get_alias_count());
@@ -69,8 +69,8 @@ TEST(MessageTest, InvokeRequest__Constructor_02) {
   std::string target_path("path/to/abc");
   target__request.set_target_path(target_path);
 
-  EXPECT_EQ("", src__request.get_target_path().data->str);
-  EXPECT_EQ(target_path, target__request.get_target_path().data->str);
+  EXPECT_EQ("", src__request.get_target_path().full_str());
+  EXPECT_EQ(target_path, target__request.get_target_path().full_str());
 }
 
 TEST(MessageTest, InvokeRequest__Constructor_03) {
@@ -90,7 +90,7 @@ TEST(MessageTest, InvokeRequest__Constructor_03) {
   EXPECT_EQ(0, request.get_rid());
 
   EXPECT_FALSE(request.get_priority());
-  EXPECT_EQ("", request.get_target_path().data->str);
+  EXPECT_EQ("", request.get_target_path().full_str());
   EXPECT_EQ("", request.get_permission_token());
   EXPECT_FALSE(request.get_no_stream());
   EXPECT_EQ(0, request.get_alias_count());
@@ -106,10 +106,10 @@ TEST(MessageTest, InvokeRequest__Constructor_04) {
   InvokeRequestMessage request;
   request.set_target_path("/request");
   InvokeRequestMessage other = request;
-  EXPECT_EQ("/request", other.get_target_path().data->str);
+  EXPECT_EQ("/request", other.get_target_path().full_str());
   other.set_target_path("/other");
-  EXPECT_EQ("/request", request.get_target_path().data->str);
-  EXPECT_EQ("/other", other.get_target_path().data->str);
+  EXPECT_EQ("/request", request.get_target_path().full_str());
+  EXPECT_EQ("/other", other.get_target_path().full_str());
 
   EXPECT_EQ(24, other.size());
   EXPECT_EQ(0, other.get_sequence_id());
@@ -119,7 +119,7 @@ TEST(MessageTest, InvokeRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_rid());
 
   EXPECT_FALSE(other.get_priority());
-  EXPECT_EQ("/other", other.get_target_path().data->str);
+  EXPECT_EQ("/other", other.get_target_path().full_str());
   EXPECT_EQ("", other.get_permission_token());
   EXPECT_FALSE(other.get_no_stream());
   EXPECT_EQ(0, other.get_alias_count());
@@ -155,9 +155,9 @@ TEST(MessageTest, InvokeRequest__priority) {
 TEST(MessageTest, InvokeRequest__target_path) {
   InvokeRequestMessage request;
 
-  EXPECT_EQ("", request.get_target_path().data->str);
+  EXPECT_EQ("", request.get_target_path().full_str());
   request.set_target_path("path/to/node");
-  EXPECT_EQ("path/to/node", request.get_target_path().data->str);
+  EXPECT_EQ("path/to/node", request.get_target_path().full_str());
 }
 
 TEST(MessageTest, InvokeRequest__permission_token) {
