@@ -25,6 +25,8 @@ class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
                           size_t body_size) throw(const MessageParsingError&);
 };
 
+typedef ref_<const InvokeRequestMessage> InvokeRequestMessageCRef;
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_INVOKE_REQUEST_MESSAGE_H_

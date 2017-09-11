@@ -39,6 +39,8 @@ class SubscribeRequestMessage : public RequestMessage {
   void set_subscribe_option(const SubscribeOptions& option);
 };
 
+typedef ref_<const SubscribeRequestMessage> SubscribeRequestMessageCRef;
+
 }  // namespace dsa
 
 #endif  // DSA_SUBSCRIBE_REQUEST_MESSAGE_H_

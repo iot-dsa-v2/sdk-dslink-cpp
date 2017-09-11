@@ -46,17 +46,16 @@ void NodeState::set_model(ref_<NodeModel> &model) {
       _model_status = MODEL_INVALID;
     }
   } else {
-    _model = model;
+    _model = std::move(model);
     _model_status = MODEL_CONNECTED;
   }
 }
 void NodeState::delete_model() {}
 
-void NodeState::new_message(ref_<SubscribeResponseMessage> &&message) {
+void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
   _last_subscribe_response = message;
   for (auto &it : _subscription_streams) {
-    auto &stream = dynamic_cast<ref_<OutgoingSubscribeStream> &>(*it.first);
-    stream->send_message(ref_<SubscribeResponseMessage>(message));
+    it.first->send_message(SubscribeResponseMessageCRef(message));
   }
 }
 
@@ -65,8 +64,15 @@ void NodeState::check_subscribe_options() {
   for (auto &stream : _subscription_streams) {
     new_options.mergeFrom(stream.first->options());
   }
-  if (new_options != _merged_subscribe_options) {
-    // TODO update model;
+  if (new_options != _merged_subscribe_options && _model != nullptr) {
+    if (new_options.is_empty()) {
+      _model->subscribe(new_options, nullptr);
+    } else {
+      _model->subscribe(new_options, [ this, keep_ref = get_ref() ](
+                                         SubscribeResponseMessageCRef && msg) {
+        new_subscribe_response(std::move(msg));
+      });
+    }
   }
 }
 
@@ -89,7 +95,7 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
       }
     }
   });
-  if (_last_subscribe_response) {
+  if (_last_subscribe_response != nullptr) {
     stream->send_message(_last_subscribe_response->get_ref());
   }
 }

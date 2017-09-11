@@ -19,15 +19,16 @@ typedef ref_<NodeModel> ModelRef;
 class NodeStateOwner {
  public:
   virtual void remove_state(const std::string &path) = 0;
+  //virtual NodeModelManager & model_manager() = 0;
 };
 
 // maintain streams of a node
 class NodeState : public EnableRef<NodeState> {
   enum ModelStatus : uint8_t {
     MODEL_UNKNOWN,
-    MODEL_UNAVAILABLE, // currently not available, but might be created later
-    MODEL_WAITING,
     MODEL_CONNECTED,
+    MODEL_WAITING,
+    MODEL_UNAVAILABLE, // currently not available, but might be created later
     MODEL_INVALID
   };
 
@@ -45,7 +46,7 @@ class NodeState : public EnableRef<NodeState> {
   // subscription related properties
   std::unordered_map<OutgoingSubscribeStream *, ref_<OutgoingSubscribeStream>>
       _subscription_streams;
-  ref_<SubscribeResponseMessage> _last_subscribe_response;
+  SubscribeResponseMessageCRef _last_subscribe_response;
   SubscribeOptions _merged_subscribe_options;
   void check_subscribe_options();
 
@@ -70,7 +71,7 @@ class NodeState : public EnableRef<NodeState> {
   /////////////////////////
   // Other
   /////////////////////////
-  void new_message(ref_<SubscribeResponseMessage> &&message);
+  void new_subscribe_response(SubscribeResponseMessageCRef &&message);
 
   void subscribe(ref_<OutgoingSubscribeStream> &&stream);
   void list(ref_<OutgoingListStream> &&stream);

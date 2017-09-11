@@ -27,8 +27,11 @@ ref_<NodeState> NodeStateManager::get_state(const Path &path) {
   // register it in global map for quick access
   ref_<NodeState> state = _root.get_child(path, true);
   if (!state->in_use()) {
-    state->_path = path;
     _states[path.full_str()] = state.get();
+    state->_path = path;
+    if (state->_model_status == NodeState::MODEL_UNKNOWN) {
+      state->set_model(_model_manager->get_model(path));
+    }
   }
   return std::move(state);
 }
@@ -46,7 +49,6 @@ ref_<NodeState> NodeStateManager::check_state(const Path &path) {
 void NodeStateManager::model_added(const Path &path, ref_<NodeModel> &model) {
   ref_<NodeState> state = check_state(path);
   if (state != nullptr) {
-
   }
 }
 void NodeStateManager::model_deleted(const Path &path) {}

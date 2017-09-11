@@ -24,6 +24,8 @@ class SetRequestMessage : public RequestMessage, PagedMessageMixin {
                           size_t body_size) throw(const MessageParsingError&);
 };
 
+typedef ref_<const SetRequestMessage> SetRequestMessageCRef;
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_SET_REQUEST_MESSAGE_H_

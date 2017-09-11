@@ -26,14 +26,13 @@ class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
   ref_<NodeState> get_state(const Path &path);
   ref_<NodeState> check_state(const Path &path);
 
-
  public:
   explicit NodeStateManager();
 
   void remove_state(const std::string &path) override;
 
-  void model_added(const Path & path, ref_<NodeModel> & model);
-  void model_deleted(const Path & path);
+  void model_added(const Path &path, ref_<NodeModel> &model);
+  void model_deleted(const Path &path);
 
   void add(ref_<OutgoingSubscribeStream> &&stream) override;
   void add(ref_<OutgoingListStream> &&stream) override;

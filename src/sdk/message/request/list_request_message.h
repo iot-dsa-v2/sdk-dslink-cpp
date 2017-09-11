@@ -24,6 +24,8 @@ class ListRequestMessage : public RequestMessage {
                           size_t body_size) throw(const MessageParsingError&);
 };
 
+typedef ref_<const ListRequestMessage> ListRequestMessageCRef;
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_LIST_REQUEST_MESSAGE_H_

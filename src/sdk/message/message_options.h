@@ -22,7 +22,8 @@ struct BaseRequestOptions {
 
   bool needUpdateOnRemoval(const BaseRequestOptions& other) const;
 
-  bool needUpdateOnChange(const BaseRequestOptions &oldopt, const BaseRequestOptions &newopt) const;
+  bool needUpdateOnChange(const BaseRequestOptions& oldopt,
+                          const BaseRequestOptions& newopt) const;
 
   // merge from an other option and update self values
   // return true if value is updated;
@@ -41,6 +42,8 @@ struct SubscribeOptions : BaseRequestOptions {
   SubscribeOptions(QosLevel qos, int32_t queue_size = 0, int32_t queue_time = 0,
                    bool priority = false);
 
+  bool is_empty() const { return queue_size == -1; }
+
   bool operator==(const SubscribeOptions& other) const;
 
   bool operator!=(const SubscribeOptions& other) const {
@@ -49,7 +52,8 @@ struct SubscribeOptions : BaseRequestOptions {
 
   bool needUpdateOnRemoval(const SubscribeOptions& other) const;
 
-  bool needUpdateOnChange(const SubscribeOptions &oldopt, const SubscribeOptions &newopt) const;
+  bool needUpdateOnChange(const SubscribeOptions& oldopt,
+                          const SubscribeOptions& newopt) const;
 
   // merge from an other option and update self values
   // return true if value is updated;

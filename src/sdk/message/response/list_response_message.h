@@ -32,6 +32,8 @@ class ListResponseMessage : public ResponseMessage {
   const VariantMap& get_map();
 };
 
+typedef ref_<const ListResponseMessage> ListResponseMessageCRef;
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_LIST_RESPONSE_MESSAGE_H_

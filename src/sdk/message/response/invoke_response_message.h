@@ -23,6 +23,8 @@ class InvokeResponseMessage : public ResponseMessage, PagedMessageMixin {
                           size_t body_size) throw(const MessageParsingError&);
 };
 
+typedef ref_<const InvokeResponseMessage> InvokeResponseMessageCRef;
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_INVOKE_RESPONSE_MESSAGE_H_

@@ -21,6 +21,8 @@ class SetResponseMessage : public ResponseMessage {
                           size_t body_size) throw(const MessageParsingError&);
 };
 
+typedef ref_<const SetResponseMessage> SetResponseMessageCRef;
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_SET_RESPONSE_MESSAGE_H_
