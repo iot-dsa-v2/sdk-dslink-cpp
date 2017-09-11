@@ -11,7 +11,7 @@ namespace dsa {
 
 NodeState::NodeState(NodeStateOwner &owner) : _owner(owner) {}
 
-ref_<NodeState> NodeState::get_child(const Path &path) {
+ref_<NodeState> NodeState::get_child(const Path &path, bool create) {
   const std::string &name = path.current();
 
   // find existing node
@@ -20,41 +20,81 @@ ref_<NodeState> NodeState::get_child(const Path &path) {
     if (path.is_last()) {
       return result->second->get_ref();
     }
-    return result->second->get_child(path.next());
+    return result->second->get_child(path.next(), create);
+  } else if (create) {
+    // create new node
+    _children[name] = new NodeStateChild(_owner, get_ref(), path.current());
+    if (path.is_last()) {
+      return _children[name]->get_ref();
+    }
+    return _children[name]->get_child(path.next(), true);
   }
-
-  // create new node
-  _children[name] = new NodeStateChild(_owner, get_ref(), path.current());
-  if (path.is_last()) {
-    return _children[name]->get_ref();
-  }
-  return _children[name]->get_child(path.next());
+  // not found, return a nullptr
+  return ref_<NodeState>();
 }
 
-void NodeState::remove_child(const std::string &path) { _children.erase(path); }
+void NodeState::remove_child(const std::string &name) { _children.erase(name); }
 
-void NodeState::set_model(ModelRef model) { _model = std::move(model); }
+void NodeState::set_model(ref_<NodeModel> &model) {
+  if (model == nullptr) {
+    _model.reset();
+    if (model == NodeModel::WAITING_REF) {
+      _model_status = MODEL_WAITING;
+    } else if (model == NodeModel::UNAVAILIBLE_REF) {
+      _model_status = MODEL_UNAVAILABLE;
+    } else {
+      _model_status = MODEL_INVALID;
+    }
+  } else {
+    _model = model;
+    _model_status = MODEL_CONNECTED;
+  }
+}
+void NodeState::delete_model() {}
 
 void NodeState::new_message(ref_<SubscribeResponseMessage> &&message) {
-  _last_value = message;
+  _last_subscribe_response = message;
   for (auto &it : _subscription_streams) {
-    auto &stream = dynamic_cast<ref_<OutgoingSubscribeStream> &>(*it);
+    auto &stream = dynamic_cast<ref_<OutgoingSubscribeStream> &>(*it.first);
     stream->send_message(ref_<SubscribeResponseMessage>(message));
   }
 }
 
-void NodeState::add_stream(ref_<OutgoingSubscribeStream> p) {
-  _subscription_streams.insert(std::move(p));
-}
-void NodeState::add_stream(ref_<OutgoingListStream> p) {
-  //_list_streams.insert(std::move(p));
+void NodeState::check_subscribe_options() {
+  SubscribeOptions new_options;
+  for (auto &stream : _subscription_streams) {
+    new_options.mergeFrom(stream.first->options());
+  }
+  if (new_options != _merged_subscribe_options) {
+    // TODO update model;
+  }
 }
 
-void NodeState::remove_stream(ref_<OutgoingSubscribeStream> &p) {
-  _subscription_streams.erase(std::move(p));
+void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
+  _subscription_streams[stream.get()] = stream;
+  if (_merged_subscribe_options.mergeFrom(stream->options())) {
+    // TODO update model;
+  }
+  stream->on_option_change([ this, keep_ref = get_ref() ](
+      OutgoingSubscribeStream & stream, const SubscribeOptions &old_options) {
+    if (stream.is_closed()) {
+      _subscription_streams.erase(&stream);
+      if (_merged_subscribe_options.needUpdateOnRemoval(stream.options())) {
+        check_subscribe_options();
+      }
+    } else {
+      if (_merged_subscribe_options.needUpdateOnChange(old_options,
+                                                       stream.options())) {
+        check_subscribe_options();
+      }
+    }
+  });
+  if (_last_subscribe_response) {
+    stream->send_message(_last_subscribe_response->get_ref());
+  }
 }
-void NodeState::remove_stream(ref_<OutgoingListStream> &p) {
-  //_list_streams.erase(std::move(p));
+void NodeState::list(ref_<OutgoingListStream> &&stream) {
+  //_list_streams.insert(std::move(p));
 }
 
 NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> parent,
@@ -62,10 +102,9 @@ NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> parent,
     : NodeState(owner), _parent(std::move(parent)), name(name) {}
 NodeStateChild::~NodeStateChild() {
   if (_path.data() != nullptr) {
-    _owner.remove_node(_path.full_str());
+    _owner.remove_state(_path.full_str());
   }
   _parent->remove_child(name);
-  _parent.reset();
 }
 
 NodeStateRoot::NodeStateRoot(NodeStateOwner &owner) : NodeState(owner) {

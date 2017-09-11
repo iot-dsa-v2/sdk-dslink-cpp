@@ -10,10 +10,12 @@ namespace dsa {
 
 class OutgoingSubscribeStream : public MessageQueueStream {
  public:
-  typedef std::function<void(OutgoingSubscribeStream &)> Callback;
+  typedef std::function<void(OutgoingSubscribeStream &,
+                             const SubscribeOptions &)>
+      Callback;
 
  protected:
-  Callback _callback;
+  Callback _option_callback;
   SubscribeOptions _options;
 
   void close_impl() override;
@@ -24,7 +26,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
   OutgoingSubscribeStream(ref_<Session> &&session, const Path &path,
                           uint32_t rid, SubscribeOptions &&options);
 
-  void on_update(Callback &&callback);
+  void on_option_change(Callback &&callback);
 
   void receive_message(MessageCRef &&mesage) override;
 

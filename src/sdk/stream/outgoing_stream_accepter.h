@@ -11,10 +11,10 @@ class OutgoingSetStream;
 
 class OutgoingStreamAcceptor {
  public:
-  virtual void add(ref_<OutgoingSubscribeStream> &stream) = 0;
-  virtual void add(ref_<OutgoingListStream> &stream) = 0;
-  virtual void add(ref_<OutgoingInvokeStream> &stream) = 0;
-  virtual void add(ref_<OutgoingSetStream> &stream) = 0;
+  virtual void add(ref_<OutgoingSubscribeStream> &&stream) = 0;
+  virtual void add(ref_<OutgoingListStream> &&stream) = 0;
+  virtual void add(ref_<OutgoingInvokeStream> &&stream) = 0;
+  virtual void add(ref_<OutgoingSetStream> &&stream) = 0;
 };
 }
 

@@ -18,6 +18,13 @@ bool BaseRequestOptions::needUpdateOnRemoval(
 
   return false;
 }
+bool BaseRequestOptions::needUpdateOnChange(
+  const BaseRequestOptions &oldopt, const BaseRequestOptions &newopt) const {
+  if (oldopt.priority == priority && newopt.priority != priority) return true;
+
+  return false;
+}
+
 bool BaseRequestOptions::mergeFrom(const BaseRequestOptions& other) {
   bool changed = false;
   if (other.priority && !priority) {
@@ -51,6 +58,17 @@ bool SubscribeOptions::needUpdateOnRemoval(
   if (other.queue_size == queue_size && queue_size != 0) return true;
   if (other.queue_time == queue_time && queue_time != 0) return true;
 
+  return false;
+}
+bool SubscribeOptions::needUpdateOnChange(
+  const SubscribeOptions &oldopt, const SubscribeOptions &newopt) const {
+  if (BaseRequestOptions::needUpdateOnChange(oldopt, newopt)) return true;
+
+  if (oldopt.qos == qos && newopt.qos != qos) return true;
+  if (oldopt.queue_size == queue_size && newopt.queue_size != queue_size)
+    return true;
+  if (oldopt.queue_time == queue_time && newopt.queue_time != queue_time)
+    return true;
   return false;
 }
 

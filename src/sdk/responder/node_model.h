@@ -1,31 +1,31 @@
-#ifndef DSA_SDK_NODE_MODEL_H_
-#define DSA_SDK_NODE_MODEL_H_
+#ifndef DSA_SDK_NODE_MODEL_MANAGER_H_
+#define DSA_SDK_NODE_MODEL_MANAGER_H_
 
 #include <map>
-#include <queue>
+#include <memory>
+#include <string>
 
-#include "message/base_message.h"
 #include "util/enable_intrusive.h"
-#include "node_state.h"
+#include "util/path.h"
 
 namespace dsa {
-class NodeState;
 
-// interface of the real model logic
-class NodeModel : public EnableRef<NodeModel>  {
- private:
-
-  ref_<NodeState> _state;
-  std::map< size_t, ref_<MessageStream> > _invoke_streams;
-  std::map< size_t, ref_<MessageStream> > _set_streams;
-
-
+class NodeModel : public EnableRef<NodeModel> {
  public:
-
-  void update_value(MessageValue new_value);
-  void update_value(Variant new_value);
+  static const ref_<NodeModel> WAITING_REF;
+  static const ref_<NodeModel> INVALID_REF;
+  static const ref_<NodeModel> UNAVAILIBLE_REF;
 };
 
+class NodeModelManager {
+ private:
+  std::map<std::string, ref_<NodeModel>> _models;
+
+ public:
+  // should immediately return the node model if it exists
+  // return nullptr is model doesn't exist
+  ref_<NodeModel> &get_model(const Path &path);
+};
 }  // namespace dsa
 
-#endif  // DSA_SDK_NODE_MODEL_H_
+#endif  // DSA_SDK_NODE_MODEL_MANAGER_H_

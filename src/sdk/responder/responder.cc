@@ -70,7 +70,7 @@ void Responder::on_subscribe_request(ref_<SubscribeRequestMessage> &&message) {
 
   _outgoing_streams[stream->rid] = stream;
 
-  _session._strand->stream_acceptor().add(stream);
+  _session._strand->stream_acceptor().add(std::move(stream));
 }
 
 void Responder::on_list_request(ref_<ListRequestMessage> &&message) {

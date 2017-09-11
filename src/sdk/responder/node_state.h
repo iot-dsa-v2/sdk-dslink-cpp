@@ -3,7 +3,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "core/link_strand.h"
 
@@ -17,28 +16,21 @@ class NodeModel;
 
 typedef ref_<NodeModel> ModelRef;
 
-class MessageStreamHashFunc {
- public:
-  size_t operator()(const ref_<MessageStream> &key) const {
-    return reinterpret_cast<size_t>(key.get());
-  }
-};
-
-class MessageStreamKeyCmp {
- public:
-  bool operator()(const ref_<MessageStream> &t1,
-                  const ref_<MessageStream> &t2) const {
-    return t1.get() == t2.get();
-  }
-};
-
 class NodeStateOwner {
  public:
-  virtual void remove_node(const std::string &path) = 0;
+  virtual void remove_state(const std::string &path) = 0;
 };
 
 // maintain streams of a node
 class NodeState : public EnableRef<NodeState> {
+  enum ModelStatus : uint8_t {
+    MODEL_UNKNOWN,
+    MODEL_UNAVAILABLE, // currently not available, but might be created later
+    MODEL_WAITING,
+    MODEL_CONNECTED,
+    MODEL_INVALID
+  };
+
   friend class NodeStateManager;
 
  protected:
@@ -48,42 +40,40 @@ class NodeState : public EnableRef<NodeState> {
   std::unordered_map<std::string, NodeState *> _children;
 
   ModelRef _model;
-  std::unordered_set<ref_<OutgoingSubscribeStream>, MessageStreamHashFunc,
-                     MessageStreamKeyCmp>
+  ModelStatus _model_status = MODEL_UNKNOWN;
+
+  // subscription related properties
+  std::unordered_map<OutgoingSubscribeStream *, ref_<OutgoingSubscribeStream>>
       _subscription_streams;
-  //  std::unordered_set<ref_<OutgoingListStream>, MessageStreamHashFunc,
-  //                     MessageStreamKeyCmp>
-  //      _list_streams;
-  ref_<SubscribeResponseMessage> _last_value;
+  ref_<SubscribeResponseMessage> _last_subscribe_response;
+  SubscribeOptions _merged_subscribe_options;
+  void check_subscribe_options();
 
  public:
   explicit NodeState(NodeStateOwner &owner);
   virtual ~NodeState() = default;
 
-  ref_<NodeState> get_child(const Path &path);
-  void remove_child(const std::string &path);
+  bool in_use() { return _path.data() != nullptr; }
 
+  ref_<NodeState> get_child(const Path &path, bool create);
+
+  void remove_child(const std::string &name);
+
+  void set_model(ref_<NodeModel> &model);
+  void delete_model();
   //////////////////////////
   // Getters
   //////////////////////////
   const std::string &path() { return _path.full_str(); }
   bool has_model() { return _model != nullptr; }
 
-  //////////////////////////
-  // Setters
-  //////////////////////////
-  void set_model(ModelRef model);
-
   /////////////////////////
   // Other
   /////////////////////////
   void new_message(ref_<SubscribeResponseMessage> &&message);
 
-  void add_stream(ref_<OutgoingSubscribeStream> p);
-  void add_stream(ref_<OutgoingListStream> p);
-
-  void remove_stream(ref_<OutgoingSubscribeStream> &p);
-  void remove_stream(ref_<OutgoingListStream> &p);
+  void subscribe(ref_<OutgoingSubscribeStream> &&stream);
+  void list(ref_<OutgoingListStream> &&stream);
 };
 
 class NodeStateChild : public NodeState {

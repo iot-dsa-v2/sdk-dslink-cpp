@@ -15,26 +15,28 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
  public:
   ref_<OutgoingSubscribeStream> last_subscribe_stream;
   std::unique_ptr<SubscribeOptions> last_subscribe_options;
-  void add(ref_<OutgoingSubscribeStream> &stream) {
+  void add(ref_<OutgoingSubscribeStream> &&stream) {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
     stream->send_value(Variant("hello"));
-    stream->on_update([=](OutgoingSubscribeStream &stream) {
+    stream->on_option_change([=](OutgoingSubscribeStream &stream,
+                                 const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
     });
   }
-  void add(ref_<OutgoingListStream> &stream) {}
-  void add(ref_<OutgoingInvokeStream> &stream) {}
-  void add(ref_<OutgoingSetStream> &stream) {}
+  void add(ref_<OutgoingListStream> &&stream) {}
+  void add(ref_<OutgoingInvokeStream> &&stream) {}
+  void add(ref_<OutgoingSetStream> &&stream) {}
 };
 
 TEST(RequesterTest, Subscribe) {
   App app;
 
   auto modules = make_ref_<DefaultModules>(app);
-  MockStreamAcceptor * mock_stream_acceptor = new MockStreamAcceptor();
-  modules->set_stream_acceptor(std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
+  MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
+  modules->set_stream_acceptor(
+      std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
 
   WrapperConfig server_config;
   server_config.tcp_host = "127.0.0.1";
