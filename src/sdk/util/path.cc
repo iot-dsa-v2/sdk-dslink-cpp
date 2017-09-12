@@ -98,7 +98,17 @@ Path::Path(const std::string &path) : _data(make_ref_<PathData>(path)) {}
 Path::Path(const ref_<const PathData> &data, size_t idx)
     : _data(data), _current(idx) {}
 
-const Path Path::get_child_path(const std::string& name) {
+const std::string &Path::remain_str() const {
+  std::string result = current_name();
+  size_t size = _data->names.size();
+  for (size_t i = _current + 1; i < size; ++i) {
+    result.insert(result.size(), "/");
+    result.insert(result.size(), _data->names[i]);
+  }
+  return std::move(result);
+}
+
+const Path Path::get_child_path(const std::string &name) {
   if (is_node() && !invalid_name(name, true)) {
     std::vector<std::string> new_names = _data->names;
     new_names.push_back(name);

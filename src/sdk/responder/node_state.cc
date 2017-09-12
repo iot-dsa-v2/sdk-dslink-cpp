@@ -11,11 +11,25 @@ namespace dsa {
 
 NodeState::NodeState(NodeStateOwner &owner) : _owner(owner) {}
 
+ref_<NodeState> NodeState::get_child(const std::string &name, bool create){
+  // find existing node
+  auto result = _children.find(name);
+  if (result != _children.end()) {
+      return result->second->get_ref();
+  } else if (create) {
+    // create new node
+    _children[name] =
+      new NodeStateChild(_owner, get_ref(), name);
+      return _children[name]->get_ref();
+  }
+  // not found, return a nullptr
+  return ref_<NodeState>();
+}
 ref_<NodeState> NodeState::get_child(const Path &path, bool create) {
-  const std::string &name = path.current();
+  const std::string &name = path.current_name();
 
   // find existing node
-  auto result = _children.find(path.full_str());
+  auto result = _children.find(name);
   if (result != _children.end()) {
     if (path.is_last()) {
       return result->second->get_ref();
@@ -23,7 +37,8 @@ ref_<NodeState> NodeState::get_child(const Path &path, bool create) {
     return result->second->get_child(path.next(), create);
   } else if (create) {
     // create new node
-    _children[name] = new NodeStateChild(_owner, get_ref(), path.current());
+    _children[name] =
+        new NodeStateChild(_owner, get_ref(), name);
     if (path.is_last()) {
       return _children[name]->get_ref();
     }
@@ -32,6 +47,8 @@ ref_<NodeState> NodeState::get_child(const Path &path, bool create) {
   // not found, return a nullptr
   return ref_<NodeState>();
 }
+
+
 
 void NodeState::remove_child(const std::string &name) { _children.erase(name); }
 
@@ -49,8 +66,8 @@ void NodeState::set_model(ref_<NodeModel> &model) {
     _model = std::move(model);
     _model_status = MODEL_CONNECTED;
   }
+  // TODO send request to model
 }
-void NodeState::delete_model() {}
 
 void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
   _last_subscribe_response = message;
@@ -113,7 +130,9 @@ NodeStateChild::~NodeStateChild() {
   _parent->remove_child(name);
 }
 
-NodeStateRoot::NodeStateRoot(NodeStateOwner &owner) : NodeState(owner) {
+NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ref_<NodeModel> &&model)
+    : NodeState(owner) {
+  _model = std::move(model);
   // keep a ref so it won't be deleted by smart pointer
   // the instance will always be non-pointer member in NodeStateManager
   intrusive_ptr_add_ref(this);

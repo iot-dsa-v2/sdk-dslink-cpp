@@ -10,7 +10,6 @@ namespace dsa {
 class Session;
 class SecurityManager;
 class NodeStateManager;
-class NodeModelManager;
 class SubscribeRequestMessage;
 class InvokeRequestMessage;
 class SetRequestMessage;

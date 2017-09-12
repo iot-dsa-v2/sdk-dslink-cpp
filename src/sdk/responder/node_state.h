@@ -14,12 +14,9 @@ namespace dsa {
 class OutgoingListStream;
 class NodeModel;
 
-typedef ref_<NodeModel> ModelRef;
-
 class NodeStateOwner {
  public:
   virtual void remove_state(const std::string &path) = 0;
-  //virtual NodeModelManager & model_manager() = 0;
 };
 
 // maintain streams of a node
@@ -28,7 +25,7 @@ class NodeState : public EnableRef<NodeState> {
     MODEL_UNKNOWN,
     MODEL_CONNECTED,
     MODEL_WAITING,
-    MODEL_UNAVAILABLE, // currently not available, but might be created later
+    MODEL_UNAVAILABLE,  // currently not available, but might be created later
     MODEL_INVALID
   };
 
@@ -40,7 +37,7 @@ class NodeState : public EnableRef<NodeState> {
   ref_<NodeState> _parent;
   std::unordered_map<std::string, NodeState *> _children;
 
-  ModelRef _model;
+  ref_<NodeModel> _model;
   ModelStatus _model_status = MODEL_UNKNOWN;
 
   // subscription related properties
@@ -56,17 +53,18 @@ class NodeState : public EnableRef<NodeState> {
 
   bool in_use() { return _path.data() != nullptr; }
 
+  ref_<NodeState> get_child(const std::string &name, bool create);
   ref_<NodeState> get_child(const Path &path, bool create);
 
   void remove_child(const std::string &name);
 
   void set_model(ref_<NodeModel> &model);
-  void delete_model();
+  ref_<NodeModel> &get_model() { return _model; }
+
   //////////////////////////
   // Getters
   //////////////////////////
   const std::string &path() { return _path.full_str(); }
-  bool has_model() { return _model != nullptr; }
 
   /////////////////////////
   // Other
@@ -90,7 +88,7 @@ class NodeStateChild : public NodeState {
 
 class NodeStateRoot : public NodeState {
  public:
-  explicit NodeStateRoot(NodeStateOwner &owner);
+  explicit NodeStateRoot(NodeStateOwner &owner, ref_<NodeModel> &&model);
 };
 
 }  // namespace dsa

@@ -14,20 +14,16 @@
 
 namespace dsa {
 
-class NodeModelManager;
-
 class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
  private:
   NodeStateRoot _root;
   std::unordered_map<std::string, NodeState *> _states;
 
-  std::unique_ptr<NodeModelManager> _model_manager;
-
   ref_<NodeState> get_state(const Path &path);
   ref_<NodeState> check_state(const Path &path);
 
  public:
-  explicit NodeStateManager();
+  explicit NodeStateManager(ref_<NodeModel> &&root_model);
 
   void remove_state(const std::string &path) override;
 

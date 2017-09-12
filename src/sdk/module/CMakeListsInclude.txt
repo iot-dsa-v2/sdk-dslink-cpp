@@ -1,5 +1,4 @@
 list(APPEND ModulekSourceFiles
-		default_modules.cc
         default/simple_security_manager.cc
         default/console_logger.cc)
 

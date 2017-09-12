@@ -9,7 +9,8 @@
 
 namespace dsa {
 
-NodeStateManager::NodeStateManager() : _root(*this) {}
+NodeStateManager::NodeStateManager(ref_<NodeModel> &&root_model)
+    : _root(*this, std::move(root_model)) {}
 
 void NodeStateManager::remove_state(const std::string &path) {
   _states.erase(path);
@@ -30,7 +31,7 @@ ref_<NodeState> NodeStateManager::get_state(const Path &path) {
     _states[path.full_str()] = state.get();
     state->_path = path;
     if (state->_model_status == NodeState::MODEL_UNKNOWN) {
-      state->set_model(_model_manager->get_model(path));
+      // TODO:state->set_model(_model_manager->get_model(path));
     }
   }
   return std::move(state);

@@ -44,9 +44,11 @@ class Path {
   bool is_metadata() const { return _data->type == PathData::METADATA; }
   bool is_attribute() const { return _data->type == PathData::ATTRIBUTE; }
 
-  const std::string &current() const { return _data->names[_current]; }
+  const std::string &current_name() const { return _data->names[_current]; }
 
   const std::string &full_str() const { return _data->str; }
+
+  const std::string &remain_str() const;
 
   // last part of the path
   bool is_last() const { return _current + 1 == _data->names.size(); }

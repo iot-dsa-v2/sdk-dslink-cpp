@@ -12,12 +12,16 @@
 
 namespace dsa {
 
+class NodeState;
+
 class NodeModel : public EnableRef<NodeModel> {
  public:
   typedef std::function<void(SubscribeResponseMessageCRef &&)>
       SubscribeCallback;
 
  protected:
+  ref_<NodeState> _state;
+
   SubscribeCallback _subscribe_callback;
 
  public:
@@ -25,19 +29,18 @@ class NodeModel : public EnableRef<NodeModel> {
   static const ref_<NodeModel> INVALID_REF;
   static const ref_<NodeModel> UNAVAILIBLE_REF;
 
-  virtual ~NodeModel() = default;
+  virtual ~NodeModel();
+
+  ref_<NodeModel> get_child(const std::string &name);
+
+  virtual ref_<NodeModel> on_demand_create_child(const std::string &name) {
+    return INVALID_REF;
+  }
 
   virtual void subscribe(const SubscribeOptions &options,
                          SubscribeCallback &&callback);
 };
 
-class NodeModelManager {
- public:
-  virtual ~NodeModelManager() = default;
-  // should immediately return the node model if it exists
-  // return nullptr is model doesn't exist
-  ref_<NodeModel> &get_model(const Path &path);
-};
 }  // namespace dsa
 
 #endif  // DSA_SDK_NODE_MODEL_MANAGER_H_
