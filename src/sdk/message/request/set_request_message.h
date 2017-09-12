@@ -13,6 +13,8 @@ class SetRequestMessage : public RequestMessage, PagedMessageMixin {
   SetRequestMessage();
   SetRequestMessage(const SetRequestMessage&);
 
+  std::unique_ptr<DynamicStringHeader> attribute_field;
+
   SetOptions get_set_options() const;
 
  protected:

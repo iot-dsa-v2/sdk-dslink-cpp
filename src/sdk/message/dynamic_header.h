@@ -23,6 +23,7 @@ class DynamicHeader {
     BASE_PATH = 0x21,
     SKIPPABLE = 0x30,
     MAX_PERMISSION = 0x32,
+    ATTRIBUTE_FIELD = 0x41,
     PERMISSION_TOKEN = 0x60,
     TARGET_PATH = 0x80,
     SOURCE_PATH = 0x81

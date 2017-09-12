@@ -151,6 +151,7 @@ const messages = {
             new TargetPathHeader('TargetPath'),
             new StringHeader('PermissionToken'),
             new BoolHeader('NoStream'),
+            new StringHeader('AttributeField'),
             new BodyHeader('Body'),
         ],
         Subscribe: [

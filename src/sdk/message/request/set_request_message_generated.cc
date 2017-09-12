@@ -18,6 +18,8 @@ SetRequestMessage::SetRequestMessage(const SetRequestMessage& from)
     permission_token.reset(new DynamicStringHeader(DynamicHeader::PERMISSION_TOKEN, from.permission_token->value()));
   if (from.no_stream != nullptr)
     no_stream.reset(new DynamicBoolHeader(DynamicHeader::NO_STREAM));
+  if (from.attribute_field != nullptr)
+    attribute_field.reset(new DynamicStringHeader(DynamicHeader::ATTRIBUTE_FIELD, from.attribute_field->value()));
   if (from.body != nullptr)
     body.reset(from.body.get());
 }
@@ -42,6 +44,8 @@ void SetRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_h
       case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
       case DynamicHeader::NO_STREAM:no_stream.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+        break;
+      case DynamicHeader::ATTRIBUTE_FIELD:attribute_field.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }
@@ -76,6 +80,10 @@ void SetRequestMessage::write_dynamic_data(uint8_t *data) const {
     no_stream->write(data);
     data += no_stream->size();
   }
+  if (attribute_field != nullptr) {
+    attribute_field->write(data);
+    data += attribute_field->size();
+  }
   if (body != nullptr) {
     std::copy(body->begin(), body->end(), data);
   }
@@ -100,6 +108,9 @@ void SetRequestMessage::update_static_header() {
   }
   if (no_stream != nullptr) {
     header_size += no_stream->size();
+  }
+  if (attribute_field != nullptr) {
+    header_size += attribute_field->size();
   }
 
   uint32_t message_size = header_size; 
