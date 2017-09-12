@@ -25,7 +25,7 @@ class NodeState : public EnableRef<NodeState> {
     MODEL_UNKNOWN,
     MODEL_CONNECTED,
     MODEL_WAITING,
-    MODEL_UNAVAILABLE,  // currently not available, but might be created later
+    MODEL_UNAVAILABLE,  // model currently not available, but might be created later
     MODEL_INVALID
   };
 
@@ -58,8 +58,9 @@ class NodeState : public EnableRef<NodeState> {
 
   void remove_child(const std::string &name);
 
-  void set_model(ref_<NodeModel> &model);
+  void set_model(ref_<NodeModel> &&model);
   ref_<NodeModel> &get_model() { return _model; }
+  void check_model(const Path &path);
 
   //////////////////////////
   // Getters

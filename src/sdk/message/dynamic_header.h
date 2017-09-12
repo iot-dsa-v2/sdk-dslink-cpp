@@ -134,7 +134,7 @@ class DynamicIntHeader : public DynamicHeader {
         return true;
       }
     } else {
-      if (header != nullptr) {
+      if (header == nullptr) {
         header.reset(new DynamicIntHeader(key, value));
         return true;
       }

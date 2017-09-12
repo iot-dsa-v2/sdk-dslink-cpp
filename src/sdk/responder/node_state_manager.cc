@@ -29,10 +29,7 @@ ref_<NodeState> NodeStateManager::get_state(const Path &path) {
   ref_<NodeState> state = _root.get_child(path, true);
   if (!state->in_use()) {
     _states[path.full_str()] = state.get();
-    state->_path = path;
-    if (state->_model_status == NodeState::MODEL_UNKNOWN) {
-      // TODO:state->set_model(_model_manager->get_model(path));
-    }
+    state->check_model(path);
   }
   return std::move(state);
 }
