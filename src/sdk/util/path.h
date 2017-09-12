@@ -13,11 +13,11 @@ class PathData : public EnableRef<PathData> {
   friend class Path;
 
  public:
-  enum Type : uint8_t { INVALID, ROOT, NODE, METADATA, ATTRIBUTE };
 
   std::string str;
   std::vector<std::string> names;
-  Type type;
+  bool is_root = false;
+  bool invalid = false;
 
   explicit PathData(const std::string &path);
 
@@ -37,14 +37,15 @@ class Path {
   const ref_<const PathData> &data() { return _data; }
 
   bool is_invalid() const {
-    return _data != nullptr && _data->type == PathData::INVALID;
+    return _data == nullptr || _data->invalid;
   }
-  bool is_root() const { return _data->type == PathData::ROOT; }
-  bool is_node() const { return _data->type == PathData::NODE; }
-  bool is_metadata() const { return _data->type == PathData::METADATA; }
-  bool is_attribute() const { return _data->type == PathData::ATTRIBUTE; }
+  bool is_root() const { return _data->is_root; }
 
   const std::string &current_name() const { return _data->names[_current]; }
+
+  const std::string &last_name() const {
+    return _data->names[_data->names.size() - 1];
+  }
 
   const std::string &full_str() const { return _data->str; }
 
@@ -55,15 +56,8 @@ class Path {
 
   bool is_end() const { return _current == _data->names.size(); }
 
-  // last part of node name of the path, exclude config name or attribute name
-  bool is_last_node() const {
-    if (is_node()) {
-      return _current + 1 == _data->names.size();
-    }
-    return _current + 2 == _data->names.size();
-  }
-
   const Path next() const { return Path(_data, _current + 1); }
+  const Path previous() const { return Path(_data, _current - 1); }
 
   const Path get_child_path(const std::string &name);
 

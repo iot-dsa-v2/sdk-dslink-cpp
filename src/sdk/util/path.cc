@@ -4,9 +4,9 @@
 
 #include <boost/algorithm/string/join.hpp>
 
-static bool invalid_name(const std::string &name, bool is_last) {
+static bool invalid_name(const std::string &name, bool is_meta) {
   if (name.empty()) return true;
-  if (!is_last && (name[0] == '@' || name[0] == '$')) {
+  if (!is_meta && (name[0] == '@' || name[0] == '$')) {
     // attribute and metadata name can not show up in parent node
     return true;
   }
@@ -27,8 +27,8 @@ static bool invalid_name(const std::string &name, bool is_last) {
     }
 
     // invalid characters
-    if (c < ' ' || c == '\\' || c == '\'' || c == '\"' || c == '/' ||
-        c == '?' || c == '*' || c == '|') {
+    if (c < ' ' || (c >= ':' && c <= '?') || c == '\\' || c == '\'' ||
+        c == '\"' || c == '/' || c == '*' || c == '|') {
       return true;
     }
     if (c == '%') {
@@ -42,7 +42,7 @@ namespace dsa {
 
 PathData::PathData(const std::string &path) : str(path) {
   if (path.empty()) {
-    type = ROOT;
+    is_root = true;
     return;
   }
   auto current = path.begin();
@@ -51,26 +51,19 @@ PathData::PathData(const std::string &path) : str(path) {
   while (true) {
     auto next = std::find(current, end, '/');
     std::string name = std::string(current, next);
-    bool is_last = (next == end);
-    if (invalid_name(name, is_last)) {
-      type = INVALID;
+    if (invalid_name(name, false)) {
+      invalid = true;
       return;
     }
-    const char first_char = name[0];
     names.emplace_back(std::move(name));
-    if (is_last) {
-      if (first_char == '$') {
-        type = METADATA;
-      } else if (first_char == '@') {
-        type = ATTRIBUTE;
-      } else {
-        type = NODE;
-      }
+    if (next == end) {
+      // valid node
       return;
     }
     current = next + 1;
     if (current == end) {
-      type = INVALID;
+      // end with /
+      invalid = true;
       return;
     }
   }
@@ -79,17 +72,8 @@ PathData::PathData(const std::string &path) : str(path) {
 PathData::PathData(std::vector<std::string> &&strs) {
   names = std::move(strs);
   if (names.empty()) {
-    type = ROOT;
+    is_root = true;
     return;
-  }
-  std::string &last = names[names.size() - 1];
-  const char first_char = last[0];
-  if (first_char == '$') {
-    type = METADATA;
-  } else if (first_char == '@') {
-    type = ATTRIBUTE;
-  } else {
-    type = NODE;
   }
   str = boost::algorithm::join(names, "/");
 }
@@ -109,7 +93,7 @@ const std::string &Path::remain_str() const {
 }
 
 const Path Path::get_child_path(const std::string &name) {
-  if (is_node() && !invalid_name(name, true)) {
+  if (!invalid_name(name, false)) {
     std::vector<std::string> new_names = _data->names;
     new_names.push_back(name);
     return Path(ref_<PathData>(new PathData(std::move(new_names))), 0);
