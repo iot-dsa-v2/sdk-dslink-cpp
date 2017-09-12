@@ -7,7 +7,11 @@
 
 namespace dsa {
 
+class Path;
+
 class PathData : public EnableRef<PathData> {
+  friend class Path;
+
  public:
   enum Type : uint8_t { INVALID, ROOT, NODE, METADATA, ATTRIBUTE };
 
@@ -16,6 +20,8 @@ class PathData : public EnableRef<PathData> {
   Type type;
 
   explicit PathData(const std::string &path);
+
+  explicit PathData(std::vector<std::string> &&names);
 };
 
 class Path {
@@ -56,6 +62,10 @@ class Path {
   }
 
   const Path next() const { return Path(_data, _current + 1); }
+
+  const Path get_child_path(const std::string &name);
+
+  const Path get_parent_path();
 
   // deep copy the path to share with other thread
   const Path copy();

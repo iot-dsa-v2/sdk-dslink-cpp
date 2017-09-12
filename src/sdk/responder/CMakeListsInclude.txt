@@ -2,7 +2,9 @@ list(APPEND ResponderSourceFiles
         responder.cc
         node_model.cc
         node_state_manager.cc
-        node_state.cc)
+        node_state.cc
+        local/local_node.cc
+        local/local_node_manager.cc)
 
 foreach(file ${ResponderSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_RESPONDER}/${file})

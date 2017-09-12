@@ -26,7 +26,7 @@ class MessageValue {
 
   BytesRef to_msgpack();
 
-  bool empty() const { return meta.is_null() && value.is_null(); }
+  bool is_empty() const { return meta.is_null() && value.is_null(); }
   bool has_value() const { return !(value.is_null()); }
 };
 

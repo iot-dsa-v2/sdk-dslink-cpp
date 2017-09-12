@@ -2,6 +2,8 @@
 
 #include "path.h"
 
+#include <boost/algorithm/string/join.hpp>
+
 static bool invalid_name(const std::string &name, bool is_last) {
   if (name.empty()) return true;
   if (!is_last && (name[0] == '@' || name[0] == '$')) {
@@ -74,11 +76,46 @@ PathData::PathData(const std::string &path) : str(path) {
   }
 }
 
+PathData::PathData(std::vector<std::string> &&strs) {
+  names = std::move(strs);
+  if (names.empty()) {
+    type = ROOT;
+    return;
+  }
+  std::string &last = names[names.size() - 1];
+  const char first_char = last[0];
+  if (first_char == '$') {
+    type = METADATA;
+  } else if (first_char == '@') {
+    type = ATTRIBUTE;
+  } else {
+    type = NODE;
+  }
+  str = boost::algorithm::join(names, "/");
+}
+
 Path::Path(const std::string &path) : _data(make_ref_<PathData>(path)) {}
 Path::Path(const ref_<const PathData> &data, size_t idx)
     : _data(data), _current(idx) {}
 
-
+const Path Path::get_child_path(const std::string& name) {
+  if (is_node() && !invalid_name(name, true)) {
+    std::vector<std::string> new_names = _data->names;
+    new_names.push_back(name);
+    return Path(ref_<PathData>(new PathData(std::move(new_names))), 0);
+  } else {
+    return Path();
+  }
+}
+const Path Path::get_parent_path() {
+  if (!is_invalid() && !is_root()) {
+    std::vector<std::string> new_names = _data->names;
+    new_names.pop_back();
+    return Path(ref_<PathData>(new PathData(std::move(new_names))), 0);
+  } else {
+    return Path();
+  }
+}
 const Path Path::copy() {
   return Path(ref_<PathData>(new PathData(*_data)), _current);
 }
