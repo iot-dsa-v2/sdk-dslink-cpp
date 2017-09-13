@@ -13,3 +13,6 @@ add_library(${TARGET_NAME} OBJECT
         set_message-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)
+
+include_directories(${CMAKE_SOURCE_DIR}/deps/msgpack/include)
+

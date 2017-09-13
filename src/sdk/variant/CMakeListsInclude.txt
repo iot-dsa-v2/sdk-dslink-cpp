@@ -5,3 +5,5 @@ list(APPEND VariantSourceFiles
 foreach(file ${VariantSourceFiles})
   list(APPEND ProjectSourceFiles ${LIB_VARIANT}/${file})
 endforeach()
+
+include_directories(${CMAKE_SOURCE_DIR}/deps/msgpack/include)
