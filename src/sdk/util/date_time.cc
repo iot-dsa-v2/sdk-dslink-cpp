@@ -17,13 +17,13 @@ thread_local std::string _last_ts;
 
 static void update_ts(std::chrono::system_clock::time_point now) {
   std::time_t t = std::chrono::system_clock::to_time_t(now);
-  std::stringstream ss;
 
   tm localt;
   localtime_r(&t, &localt);
-  ss << std::put_time(&localt, "%FT%T.000%z0");
 
-  std::string str = ss.str();
+  char buf[32];
+  size_t str_size = std::strftime(buf, sizeof(buf), "%FT%T.000%z0", &localt);
+  std::string str(buf, str_size);
 
   // set milli second;
   auto ms = _last_ms.count() % 1000;
