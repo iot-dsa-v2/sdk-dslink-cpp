@@ -49,8 +49,13 @@ class NodeModel : public EnableRef<NodeModel> {
     return INVALID;
   }
 
-  virtual void subscribe(const SubscribeOptions &options,
+  void subscribe(const SubscribeOptions &options,
                          SubscribeCallback &&callback);
+  void unsubscribe();
+
+  virtual void on_subscribe(const SubscribeOptions &options){};
+  virtual void on_subscribe_option_change(const SubscribeOptions &options){};
+  virtual void on_unsubscribe(){};
 };
 
 }  // namespace dsa

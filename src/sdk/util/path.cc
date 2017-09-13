@@ -13,7 +13,7 @@ static bool invalid_name(const std::string &name, bool is_meta) {
   if (name == "." || name == "..") {
     return true;
   }
-  
+
   int check_escape = 0;
   for (const char &c : name) {  // invalid characters
     if (check_escape > 0) {

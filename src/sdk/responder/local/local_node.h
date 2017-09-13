@@ -19,8 +19,7 @@ class LocalNode : public NodeModel {
 
   void set_value(MessageValue &&value);
 
-  void subscribe(const SubscribeOptions &options,
-                 SubscribeCallback &&callback) override;
+  void on_subscribe(const SubscribeOptions &options) override;
 };
 }
 

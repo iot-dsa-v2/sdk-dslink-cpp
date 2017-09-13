@@ -11,6 +11,7 @@ class InvalidNodeModel : public NodeModel {
   InvalidNodeModel() : NodeModel(nullptr){};
 };
 
+// 3 fixed model pointer for special model ref
 static InvalidNodeModel waiting_model;
 static InvalidNodeModel invalid_model;
 static InvalidNodeModel unavailable_model;
@@ -42,7 +43,16 @@ ref_<NodeModel> NodeModel::add_child(const std::string &name,
 }
 void NodeModel::subscribe(const SubscribeOptions &options,
                           SubscribeCallback &&callback) {
-  _subscribe_callback = std::move(callback);
+  if (callback != nullptr) {
+    _subscribe_callback = callback;
+    on_subscribe(options);
+  } else {
+    on_subscribe_option_change(options);
+  }
+}
+void NodeModel::unsubscribe() {
+  _subscribe_callback = nullptr;
+  on_unsubscribe();
 }
 
 }  // namespace dsa
