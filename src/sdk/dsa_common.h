@@ -37,6 +37,11 @@ using shared_ptr_ = std::shared_ptr<T>;
 template <typename T>
 using ref_ = boost::intrusive_ptr<T>;
 
+template <typename T, typename... Args>
+std::unique_ptr<T> make_unique_(Args&&... args) {
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+
 }  // namespace dsa
 
 #endif  // DSA_DSA_COMMON_H_

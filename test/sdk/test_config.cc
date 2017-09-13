@@ -20,17 +20,17 @@ uint16_t TestConfig::_port = 4120;
 static LinkConfig *make_config(App &app, bool async) {
   auto *config = new LinkConfig(app.new_strand(), new ECDH());
 
-  config->set_session_manager(std::make_unique<SessionManager>(config));
+  config->set_session_manager(make_unique_<SessionManager>(config));
   config->set_stream_acceptor(
-      std::make_unique<NodeStateManager>(make_ref_<TestModel>(config->get_ref())));
+      make_unique_<NodeStateManager>(make_ref_<TestModel>(config->get_ref())));
   if (async) {
     config->set_security_manager(
-        std::make_unique<AsyncSimpleSecurityManager>((*config)()));
+        make_unique_<AsyncSimpleSecurityManager>((*config)()));
   } else {
-    config->set_security_manager(std::make_unique<SimpleSecurityManager>());
+    config->set_security_manager(make_unique_<SimpleSecurityManager>());
   }
 
-  config->set_logger(std::make_unique<ConsoleLogger>());
+  config->set_logger(make_unique_<ConsoleLogger>());
   config->logger().level = Logger::WARN;
 
   return config;
