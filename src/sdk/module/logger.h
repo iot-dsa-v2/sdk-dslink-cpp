@@ -29,7 +29,7 @@ class Logger {
 #define DSA_LOG(LEVEL, logger, stream_exp) \
   if ((logger).level <= Logger::LEVEL) {   \
     std::stringstream LOG;                 \
-    (logger).write_meta(LOG, "LEVEL");     \
+    (logger).write_meta(LOG, #LEVEL);     \
     stream_exp;                            \
     LOG << std::endl;                      \
     (logger).log(LOG.str());               \
