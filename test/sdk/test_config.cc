@@ -41,7 +41,6 @@ TestConfig::TestConfig(App &app, bool async) : WrapperConfig() {
 
   tcp_host = "127.0.0.1";
   tcp_port = _port++;
-  tcp_port = 8090;
 }
 
 WrapperConfig TestConfig::get_client_config(App &app, bool async) {
