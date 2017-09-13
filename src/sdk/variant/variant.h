@@ -100,9 +100,9 @@ class Variant : public BaseVariant {
   }
 
   Variant(const Variant &other) = default;
-  Variant(Variant &&other) noexcept = default;
+  Variant(Variant &&other) = default;
   Variant &operator=(const Variant &other) = default;
-  Variant &operator=(Variant &&other) noexcept = default;
+  Variant &operator=(Variant &&other) = default;
   ~Variant() = default;
 
  protected:
