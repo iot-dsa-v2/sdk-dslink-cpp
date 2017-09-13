@@ -2,12 +2,11 @@
 #include "dsa/network.h"
 
 #include "../async_test.h"
+#include "../test_config.h"
 #include "gtest/gtest.h"
 
 #include "network/tcp/tcp_client.h"
 #include "network/tcp/tcp_server.h"
-
-#include "module/default_modules.h"
 
 using namespace dsa;
 
@@ -33,28 +32,19 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 TEST(RequesterTest, Subscribe) {
   App app;
 
-  auto modules = make_ref_<DefaultModules>(app);
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
-  modules->set_stream_acceptor(
+
+  TestConfig server_config(app);
+  server_config.get_link_config()->set_stream_acceptor(
       std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperConfig server_config;
-  server_config.tcp_host = "127.0.0.1";
-  server_config.tcp_port = 8090;
-  server_config.strand = std::move(modules);
-  server_config.strand->logger().level = Logger::WARN;
+  WrapperConfig client_config = server_config.get_client_config(app);
 
   app.async_start(10);
 
   //  auto tcp_server(new TcpServer(server_config));
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
-
-  WrapperConfig client_config;
-  client_config.tcp_host = "127.0.0.1";
-  client_config.tcp_port = 8090;
-  client_config.strand = make_ref_<DefaultModules>(app);
-  client_config.strand->logger().level = Logger::WARN;
 
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();

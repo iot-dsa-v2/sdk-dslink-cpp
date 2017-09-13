@@ -15,10 +15,11 @@ foreach(dir
 endforeach()
 
 
-add_library(dsa_async_test OBJECT
+add_library(dsa_test_util OBJECT
 		async_test.cc
+		test_config.cc
 		)
-set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_async_test>)
+set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_test_util>)
 
 #
 set(SOURCES ${SOURCES} PARENT_SCOPE)

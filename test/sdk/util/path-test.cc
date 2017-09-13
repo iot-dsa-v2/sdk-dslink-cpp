@@ -186,18 +186,18 @@ TEST(PathTest, Path__is_attribute) {
 TEST(PathTest, Path__current__next__last) {
   Path path("path/to/dsa/@att");
 
-  EXPECT_EQ("path", path.current());
+  EXPECT_EQ("path", path.current_name());
 
   auto p1 = path.next();
-  EXPECT_EQ("to", p1.current());
+  EXPECT_EQ("to", p1.current_name());
 
   auto p2 = p1.next();
-  EXPECT_EQ("dsa", p2.current());
+  EXPECT_EQ("dsa", p2.current_name());
 
   EXPECT_TRUE(p2.is_last_node());
 
   auto p3 = p2.next();
-  EXPECT_EQ("@att", p3.current());
+  EXPECT_EQ("@att", p3.current_name());
 
   EXPECT_TRUE(p3.is_last());
 }
@@ -209,7 +209,7 @@ TEST(PathTest, Path__copy) {
 
     EXPECT_TRUE(des_path.is_attribute());
     EXPECT_EQ(des_path.full_str(), src_path.full_str());
-    EXPECT_EQ(des_path.current(), src_path.current());
+    EXPECT_EQ(des_path.current_name(), src_path.current_name());
     EXPECT_NE(des_path.data().get(), src_path.data().get());
   }
 
