@@ -10,10 +10,10 @@ static bool invalid_name(const std::string &name, bool is_meta) {
     // attribute and metadata name can not show up in parent node
     return true;
   }
-  if (name[0] == '.' && (name.size() == 1 || name[1] == '.')) {
-    // name can not be '.' or start with '..'
+  if (name == "." || name == "..") {
     return true;
   }
+  
   int check_escape = 0;
   for (const char &c : name) {  // invalid characters
     if (check_escape > 0) {
