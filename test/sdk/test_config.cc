@@ -9,7 +9,11 @@
 
 namespace dsa {
 
-class TestModel : public NodeModel {};
+class TestModel : public NodeModel {
+public :
+  TestModel(LinkStrandRef strand):NodeModel(std::move(strand)) {}
+
+};
 
 uint16_t TestConfig::_port = 4120;
 
@@ -18,7 +22,7 @@ static LinkConfig *make_config(App &app, bool async) {
 
   config->set_session_manager(std::make_unique<SessionManager>(config));
   config->set_stream_acceptor(
-      std::make_unique<NodeStateManager>(make_ref_<TestModel>()));
+      std::make_unique<NodeStateManager>(make_ref_<TestModel>(config->get_ref())));
   if (async) {
     config->set_security_manager(
         std::make_unique<AsyncSimpleSecurityManager>((*config)()));
