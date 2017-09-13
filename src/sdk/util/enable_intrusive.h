@@ -69,6 +69,12 @@ ref_<_Ty> make_ref_(_Types&&... _Args) {
   return ref_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
 };
 
+template <class T>
+ref_<T> copy_ref_(ref_<T> ref){
+  return ref_<T>(ref.get());
+}
+
+
 template <typename T, typename TBase>
 ref_<T> ref_cast_(ref_<TBase>& ref) {
   return ref_<T>(DOWN_CAST<T*>(ref.get()));

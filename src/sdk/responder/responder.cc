@@ -28,6 +28,14 @@ void Responder::receive_message(ref_<Message> &&message) {
     }
     return;
   }
+  if (request->type() == MessageType::CLOSE) {
+    // no need to close a stream that doesn't exist
+    return;
+  }
+  if (request->get_target_path().is_invalid()) {
+    // TODO return error message
+    return;
+  }
 
   auto callback = [ message = std::move(message),
                     this ](PermissionLevel permission) mutable {

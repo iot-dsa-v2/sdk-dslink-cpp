@@ -91,9 +91,8 @@ void NodeState::check_model(const Path &path) {
 }
 
 void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
-  _last_subscribe_response = message;
   for (auto &it : _subscription_streams) {
-    it.first->send_message(SubscribeResponseMessageCRef(message));
+    it.first->send_message(copy_ref_(message));
   }
 }
 
@@ -104,12 +103,10 @@ void NodeState::check_subscribe_options() {
   }
   if (new_options != _merged_subscribe_options && _model != nullptr) {
     if (new_options.is_empty()) {
-      _model->subscribe(new_options, nullptr);
+      _model->unsubscribe();
     } else {
-      _model->subscribe(new_options, [ this, keep_ref = get_ref() ](
-                                         SubscribeResponseMessageCRef && msg) {
-        new_subscribe_response(std::move(msg));
-      });
+      // update options only
+      _model->subscribe(new_options, nullptr);
     }
   }
 }
@@ -117,6 +114,13 @@ void NodeState::check_subscribe_options() {
 void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
   _subscription_streams[stream.get()] = stream;
   if (_merged_subscribe_options.mergeFrom(stream->options())) {
+    if (_model_status == MODEL_CONNECTED) {
+      _model->subscribe(
+          _merged_subscribe_options,
+          [ this, keep_ref = get_ref() ](SubscribeResponseMessageCRef && msg) {
+            new_subscribe_response(std::move(msg));
+          });
+    }
     // TODO update model;
   }
   stream->on_option_change([ this, keep_ref = get_ref() ](
@@ -133,8 +137,8 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
       }
     }
   });
-  if (_last_subscribe_response != nullptr) {
-    stream->send_message(_last_subscribe_response->get_ref());
+  if (_model != nullptr && _model->_cached_value != nullptr) {
+    stream->send_message(copy_ref_(_model->_cached_value));
   }
 }
 void NodeState::list(ref_<OutgoingListStream> &&stream) {

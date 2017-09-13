@@ -3,6 +3,7 @@
 #include "node_model.h"
 
 #include "node_state.h"
+#include "util/date_time.h"
 
 namespace dsa {
 
@@ -53,6 +54,21 @@ void NodeModel::subscribe(const SubscribeOptions &options,
 void NodeModel::unsubscribe() {
   _subscribe_callback = nullptr;
   on_unsubscribe();
+}
+
+void NodeModel::set_value(Variant &&value) {
+  _cached_value = make_ref_<SubscribeResponseMessage>(std::move(value));
+  if (_subscribe_callback) {
+    _subscribe_callback(copy_ref_(_cached_value));
+  }
+}
+void NodeModel::set_value(MessageValue &&value) {
+  auto response = make_ref_<SubscribeResponseMessage>();
+  response->set_value(std::move(value));
+  _cached_value = response;
+  if (_subscribe_callback) {
+    _subscribe_callback(copy_ref_(_cached_value));
+  }
 }
 
 }  // namespace dsa

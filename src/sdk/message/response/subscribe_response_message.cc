@@ -2,6 +2,8 @@
 
 #include "subscribe_response_message.h"
 
+#include "util/date_time.h"
+
 namespace dsa {
 SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data,
                                                    size_t size)
@@ -13,6 +15,10 @@ SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data,
 
 SubscribeResponseMessage::SubscribeResponseMessage()
     : ResponseMessage(MessageType::SUBSCRIBE_RESPONSE) {}
+
+SubscribeResponseMessage::SubscribeResponseMessage(Variant&& value): ResponseMessage(MessageType::SUBSCRIBE_RESPONSE) {
+  set_value(MessageValue(std::move(value), DateTime::get_ts()));
+}
 
 const MessageValue& SubscribeResponseMessage::get_value() const {
   if (!_parsed && body != nullptr) {

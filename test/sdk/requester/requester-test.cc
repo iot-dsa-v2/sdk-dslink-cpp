@@ -18,7 +18,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_value(Variant("hello"));
+    stream->send_message(make_ref_<SubscribeResponseMessage>(Variant("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
@@ -62,7 +62,7 @@ TEST(RequesterTest, Subscribe) {
 
   ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "/path",
+      "path",
       [&](ref_<const SubscribeResponseMessage> &&msg,
           IncomingSubscribeStream &stream) {
         last_response = std::move(msg);  // store response

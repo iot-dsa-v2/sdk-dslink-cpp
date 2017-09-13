@@ -28,6 +28,7 @@ class NodeModel : public EnableRef<NodeModel> {
   ref_<NodeState> _state;
 
   SubscribeCallback _subscribe_callback;
+  SubscribeResponseMessageCRef _cached_value;
 
  public:
   static NodeModel *WAITING;
@@ -52,6 +53,10 @@ class NodeModel : public EnableRef<NodeModel> {
   void subscribe(const SubscribeOptions &options,
                          SubscribeCallback &&callback);
   void unsubscribe();
+
+  void set_value(Variant &&value);
+  void set_value(MessageValue &&value);
+
 
   virtual void on_subscribe(const SubscribeOptions &options){};
   virtual void on_subscribe_option_change(const SubscribeOptions &options){};

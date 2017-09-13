@@ -43,7 +43,6 @@ class NodeState : public EnableRef<NodeState> {
   // subscription related properties
   std::unordered_map<OutgoingSubscribeStream *, ref_<OutgoingSubscribeStream>>
       _subscription_streams;
-  SubscribeResponseMessageCRef _last_subscribe_response;
   SubscribeOptions _merged_subscribe_options;
   void check_subscribe_options();
 

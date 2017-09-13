@@ -32,15 +32,4 @@ void OutgoingSubscribeStream::receive_message(MessageCRef &&message) {
     _option_callback(*this, old_options);
   }
 }
-
-void OutgoingSubscribeStream::send_value(Variant &&value) {
-  auto response = make_ref_<SubscribeResponseMessage>();
-  response->set_value(MessageValue(std::move(value), DateTime::get_ts()));
-  send_message(std::move(response));
-}
-void OutgoingSubscribeStream::send_value(MessageValue &&value) {
-  auto response = make_ref_<SubscribeResponseMessage>();
-  response->set_value(std::move(value));
-  send_message(std::move(response));
-}
 }

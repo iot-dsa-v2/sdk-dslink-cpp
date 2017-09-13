@@ -30,8 +30,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
 
   void receive_message(MessageCRef &&mesage) override;
 
-  void send_value(Variant &&value);
-  void send_value(MessageValue &&value);
+
 };
 }
 
