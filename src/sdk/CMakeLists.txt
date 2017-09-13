@@ -5,8 +5,10 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../cmake")
 
 # DEPENDENCIES
 ## OpenSSL v1.0.2l
-if (UNIX)
+if (MACOSX)
     set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
+elseif (UNIX)
+    set(OPENSSL_ROOT_DIR "/usr/local/ssl")
 endif ()
 find_package(OpenSSL REQUIRED)
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
