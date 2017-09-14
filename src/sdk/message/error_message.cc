@@ -1,17 +1,18 @@
 #include "dsa_common.h"
+
 #include "error_message.h"
 
 namespace dsa {
-ErrorMessage::ErrorMessage(MessageType type, MessageStatus s, uint32_t rid)
+ErrorMessage::ErrorMessage(MessageType type, MessageStatus s)
     : ResponseMessage(type) {
-  status.reset(new DynamicByteHeader(DynamicHeader::STATUS, static_cast<uint8_t>(s)));
-  static_headers.rid = rid;
+  status.reset(
+      new DynamicByteHeader(DynamicHeader::STATUS, static_cast<uint8_t>(s)));
 }
 
 void ErrorMessage::write_dynamic_data(uint8_t *data) const {
   if (status != nullptr) {
     status->write(data);
-//    data += status->size();
+    //    data += status->size();
   }
 }
 

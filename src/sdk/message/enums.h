@@ -10,6 +10,7 @@ enum class MessageType : uint8_t {
   LIST_REQUEST = 0x02,
   INVOKE_REQUEST = 0x03,
   SET_REQUEST = 0x04,
+  UNKNOWN_CLOSE = 0x80, // close a request that has unknown request type
   SUBSCRIBE_RESPONSE = 0x81,
   LIST_RESPONSE = 0x82,
   INVOKE_RESPONSE = 0x83,

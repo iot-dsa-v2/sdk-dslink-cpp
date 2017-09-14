@@ -52,7 +52,7 @@ TEST(ResponderTest, Subscribe) {
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500000, (*client_config.strand)(),
+  ASYNC_EXPECT_TRUE(500, (*client_config.strand)(),
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -73,32 +73,32 @@ TEST(ResponderTest, Subscribe) {
       initial_options);
 
   // wait for root_node to receive the request
-  WAIT_EXPECT_TRUE(500000, [&]() -> bool {
+  WAIT_EXPECT_TRUE(500, [&]() -> bool {
     return root_node->first_subscribe_options != nullptr;
   });
 
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options == *root_node->first_subscribe_options);
 
-  WAIT_EXPECT_TRUE(500000, [&]() -> bool { return last_response != nullptr; });
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
               last_response->get_value().value.is_string() &&
               last_response->get_value().value.get_string() == "hello");
 
-  // send an new request to udpate the option of the same stream
+  // send an new request to update the option of the same stream
   auto second_request = make_ref_<SubscribeRequestMessage>();
   second_request->set_subscribe_option(update_options);
   subscribe_stream->send_message(
       std::move(second_request));  // send update options
 
-  WAIT_EXPECT_TRUE(500000, [&]() -> bool {
+  WAIT_EXPECT_TRUE(500, [&]() -> bool {
     return root_node->second_subscribe_options != nullptr;
   });
   // request option should be same as the second one
   EXPECT_TRUE(update_options == *root_node->second_subscribe_options);
 
-  WAIT_EXPECT_TRUE(500000, [&]() -> bool {
+  WAIT_EXPECT_TRUE(500, [&]() -> bool {
     return last_response->get_value().value.get_string() == "world";
   });
 
@@ -108,7 +108,7 @@ TEST(ResponderTest, Subscribe) {
 
   app.close();
 
-  WAIT_EXPECT_TRUE(500000, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();

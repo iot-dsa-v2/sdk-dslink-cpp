@@ -10,7 +10,7 @@
 #include "message/request/list_request_message.h"
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
-
+#include "stream/error_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
 
 namespace dsa {
@@ -33,7 +33,11 @@ void Responder::receive_message(ref_<Message> &&message) {
     return;
   }
   if (request->get_target_path().is_invalid()) {
-    // TODO return error message
+    MessageType response_type = Message::get_response_type(request->type());
+    if (response_type != MessageType::UNKNOWN_CLOSE) {
+      _session.write_stream(make_ref_<ErrorStream>(
+          request->get_rid(), response_type, MessageStatus::INVALID_MESSAGE));
+    }
     return;
   }
 
@@ -52,13 +56,13 @@ void Responder::receive_message(ref_<Message> &&message) {
 
         break;
       case MessageType::SET_REQUEST:
-        on_set_request(ref_<SetRequestMessage>(
-            ref_cast_<SetRequestMessage>(message)));
+        on_set_request(
+            ref_<SetRequestMessage>(ref_cast_<SetRequestMessage>(message)));
 
         break;
       case MessageType::LIST_REQUEST:
-        on_list_request(ref_<ListRequestMessage>(
-            ref_cast_<ListRequestMessage>(message)));
+        on_list_request(
+            ref_<ListRequestMessage>(ref_cast_<ListRequestMessage>(message)));
 
         break;
       default:

@@ -17,6 +17,15 @@ class Message : public EnableRef<Message> {
  public:
   enum : size_t { MAX_MESSAGE_SIZE = 65536 };
 
+  static MessageType get_response_type(MessageType request_type) {
+    if (static_cast<uint8_t>(request_type) > 0 &&
+        static_cast<uint8_t>(request_type) < 0x10) {
+      return static_cast<MessageType>(static_cast<uint8_t>(request_type) |
+                                      0x80);
+    }
+    return MessageType::UNKNOWN_CLOSE;
+  }
+
   static const uint8_t PUBLIC_KEY_LENGTH = 65;
   static const uint8_t SALT_LENGTH = 32;
   static const uint8_t AUTH_LENGTH = 32;
