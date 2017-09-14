@@ -70,7 +70,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
     (*_strand)()->post([ msg, this, sthis = shared_from_this() ]() mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
-          _handshake_context.remote_dsid(), f2->token, f2->session_id,
+          _handshake_context.remote_dsid(), f2->token, f2->previous_session_id,
           [ this,
             sthis = std::move(sthis) ](const ref_<Session> &session) {
             if (session != nullptr) {
