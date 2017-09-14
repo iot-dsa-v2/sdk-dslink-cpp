@@ -34,7 +34,7 @@ void Responder::receive_message(ref_<Message> &&message) {
   }
   if (request->get_target_path().is_invalid()) {
     MessageType response_type = Message::get_response_type(request->type());
-    if (response_type != MessageType::UNKNOWN_CLOSE) {
+    if (response_type != MessageType::INVALID) {
       _session.write_stream(make_ref_<ErrorStream>(
           request->get_rid(), response_type, MessageStatus::INVALID_MESSAGE));
     }

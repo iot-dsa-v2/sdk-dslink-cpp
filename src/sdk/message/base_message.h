@@ -23,7 +23,7 @@ class Message : public EnableRef<Message> {
       return static_cast<MessageType>(static_cast<uint8_t>(request_type) |
                                       0x80);
     }
-    return MessageType::UNKNOWN_CLOSE;
+    return MessageType::INVALID;
   }
 
   static const uint8_t PUBLIC_KEY_LENGTH = 65;
