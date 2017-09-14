@@ -12,6 +12,7 @@
 
 namespace dsa {
 class MessageStream;
+class AckStream;
 class IncomingMessageStream;
 class OutgoingMessageStream;
 class Connection;
@@ -30,6 +31,7 @@ class Session final : public ClosableRef<Session> {
   std::string _session_id;
   shared_ptr_<Connection> _connection;
 
+  ref_<AckStream> _ack_stream;
   std::deque<ref_<MessageStream> > _write_streams;
   bool _is_writing = false;
 
@@ -48,7 +50,7 @@ class Session final : public ClosableRef<Session> {
   Responder responder;
 
   Session(LinkStrandRef strand, const std::string &session_id);
-
+  ~Session();
   const std::string &dsid() const { return _dsid; }
   const std::string &session_id() const { return _session_id; }
   bool is_connected() const { return _connection != nullptr; }

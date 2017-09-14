@@ -7,20 +7,17 @@ Message::Message(const uint8_t* data, size_t size) : static_headers(data){};
 Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
 Message::Message(const StaticHeaders& headers) : static_headers(headers){};
 
-uint32_t Message::size() const {
+int32_t Message::size() const {
   if (!static_headers.message_size) {
     const_cast<Message*>(this)->update_static_header();
   }
   return static_headers.message_size;
 }
-// void Message::write(uint8_t* data) const throw(const MessageParsingError&) {
-//  if (static_headers.message_size == 0) {
-//    // message_size shouldn't be 0
-//    throw MessageParsingError("invalid message size");
-//  }
-//  static_headers.write(data);
-//  write_dynamic_data(data + StaticHeaders::TOTAL_SIZE);
-//}
+
+void Message::update_static_header() {
+  static_headers.message_size = StaticHeaders::TOTAL_SIZE;
+  static_headers.header_size = StaticHeaders::TOTAL_SIZE;
+}
 
 void Message::write(uint8_t* data, int32_t rid, int32_t ack_id) const
     throw(const MessageParsingError&) {
@@ -71,7 +68,8 @@ void RequestMessage::set_priority(bool value) {
 
 const Path& RequestMessage::get_target_path() const {
   if (_parsed_target_path == nullptr) {
-    _parsed_target_path.reset(new Path(DynamicStringHeader::read_value(target_path)));
+    _parsed_target_path.reset(
+        new Path(DynamicStringHeader::read_value(target_path)));
   }
   return *_parsed_target_path;
 }

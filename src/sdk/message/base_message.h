@@ -40,7 +40,7 @@ class Message : public EnableRef<Message> {
   Message(const StaticHeaders& headers);
   virtual ~Message() = default;
 
-  uint32_t size() const;
+  int32_t size() const;
 
   // update_static_header must be called before write
   // void write(uint8_t* data) const throw(const MessageParsingError&);
@@ -57,6 +57,9 @@ class Message : public EnableRef<Message> {
   bool is_request() const {
     return static_cast<uint8_t>(static_headers.type) < 0x80;
   }
+  bool need_ack() {
+    return static_cast<uint8_t>(static_headers.type) < 0xF0;
+  }
 
   int32_t get_rid() { return static_headers.rid; }
   void set_rid(int32_t rid) { static_headers.rid = rid; }
@@ -66,9 +69,9 @@ class Message : public EnableRef<Message> {
 
  protected:
   // measure the size and header size
-  virtual void update_static_header() = 0;
+  virtual void update_static_header();
   // write dynamic header and body
-  virtual void write_dynamic_data(uint8_t* data) const = 0;
+  virtual void write_dynamic_data(uint8_t* data) const {};
 
   StaticHeaders static_headers;
 

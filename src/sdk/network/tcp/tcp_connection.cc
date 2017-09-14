@@ -70,7 +70,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
           return;
         }
         // TODO: check if message_size is valid;
-        uint32_t message_size = read_32_t(&buffer[cur]);
+        int32_t message_size = read_32_t(&buffer[cur]);
         if (message_size > MAX_BUFFER_SIZE) {
           LOG_DEBUG(connection->_strand->logger(),
                     LOG << "message is bigger than maxed buffer size");
@@ -102,7 +102,8 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
           }
 
         } else {
-          throw std::runtime_error("on_read_message is null");
+          LOG_FATAL(connection->_strand->logger(),
+                    LOG << "on_read_message is null");
         }
 
         cur += message_size;

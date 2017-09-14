@@ -10,6 +10,8 @@ namespace dsa {
 
 Requester::Requester(Session &session) : _session(session) {}
 
+void Requester::close_impl() { _incoming_streams.clear(); }
+
 uint32_t Requester::next_rid() {
   while (_incoming_streams.find(++_next_rid) != _incoming_streams.end()) {
     // find next available get_rid;
@@ -32,8 +34,8 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
     const std::string &path, IncomingSubscribeStream::Callback &&callback,
     const SubscribeOptions &options) {
   uint32_t rid = next_rid();
-  auto stream = make_ref_<IncomingSubscribeStream>(_session.get_ref(), Path(path),
-                                                   rid, std::move(callback));
+  auto stream = make_ref_<IncomingSubscribeStream>(
+      _session.get_ref(), Path(path), rid, std::move(callback));
   _incoming_streams[rid] = stream;
 
   auto msg = make_ref_<SubscribeRequestMessage>();

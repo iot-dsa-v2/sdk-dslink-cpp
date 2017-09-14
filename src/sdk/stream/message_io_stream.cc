@@ -30,13 +30,14 @@ void MessageCacheStream::send_message(MessageCRef &&msg) {
 }
 
 size_t MessageCacheStream::peek_next_message_size(size_t available) {
-  _writing = false;
   if (is_closed() || _cache == nullptr) {
+    _writing = false;
     return 0;
   }
   return _cache->size();
 }
 MessageCRef MessageCacheStream::get_next_message(int32_t ack_id) {
+  _writing = false;
   if (is_closed() || _cache == nullptr) {
     return nullptr;
   }
@@ -62,13 +63,14 @@ void MessageQueueStream::send_message(MessageCRef &&msg) {
 }
 
 size_t MessageQueueStream::peek_next_message_size(size_t available) {
-  _writing = false;
   if (is_closed() || _queue.empty()) {
+    _writing = false;
     return 0;
   }
   return _queue.front()->size();
 }
 MessageCRef MessageQueueStream::get_next_message(int32_t ack_id) {
+  _writing = false;
   if (is_closed() || _queue.empty()) {
     return nullptr;
   }

@@ -1,5 +1,7 @@
 #include "dsa_common.h"
 
+#include "ack_message.h"
+
 #include "request/invoke_request_message.h"
 #include "request/list_request_message.h"
 #include "request/set_request_message.h"
@@ -26,14 +28,6 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
   auto type = MessageType(data[StaticHeaders::TYPE_OFFSET]);
 
   switch (type) {
-    case MessageType::SUBSCRIBE_REQUEST:
-      return new SubscribeRequestMessage(data, size);
-    case MessageType::LIST_REQUEST:
-      return new ListRequestMessage(data, size);
-    case MessageType::INVOKE_REQUEST:
-      return new InvokeRequestMessage(data, size);
-    case MessageType::SET_REQUEST:
-      return new SetRequestMessage(data, size);
     case MessageType::SUBSCRIBE_RESPONSE:
       return new SubscribeResponseMessage(data, size);
     case MessageType::LIST_RESPONSE:
@@ -42,6 +36,18 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
       return new InvokeResponseMessage(data, size);
     case MessageType::SET_RESPONSE:
       return new SetResponseMessage(data, size);
+    case MessageType::ACK:
+      return new AckMessage(data, size);
+    case MessageType::CLOSE:
+      return new Message(MessageType::CLOSE);
+    case MessageType::SUBSCRIBE_REQUEST:
+      return new SubscribeRequestMessage(data, size);
+    case MessageType::LIST_REQUEST:
+      return new ListRequestMessage(data, size);
+    case MessageType::INVOKE_REQUEST:
+      return new InvokeRequestMessage(data, size);
+    case MessageType::SET_REQUEST:
+      return new SetRequestMessage(data, size);
     case MessageType::HANDSHAKE0:
       return new HandshakeF0Message(data, size);
     case MessageType::HANDSHAKE1:
@@ -50,9 +56,10 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
       return new HandshakeF2Message(data, size);
     case MessageType::HANDSHAKE3:
       return new HandshakeF3Message(data, size);
-    default:
-      throw MessageParsingError("invalid message type");
+    case MessageType::INVALID:
+      break;
   }
+  throw MessageParsingError("invalid message type");
 }
 
 }  // namespace dsa

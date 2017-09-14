@@ -1,6 +1,8 @@
 #ifndef DSA_SDK_MESSAGE_ENUMS_H
 #define DSA_SDK_MESSAGE_ENUMS_H
 
+#include <iostream>
+
 namespace dsa {
 
 enum class MessageType : uint8_t {
@@ -10,14 +12,18 @@ enum class MessageType : uint8_t {
   LIST_REQUEST = 0x02,
   INVOKE_REQUEST = 0x03,
   SET_REQUEST = 0x04,
+
   SUBSCRIBE_RESPONSE = 0x81,
   LIST_RESPONSE = 0x82,
   INVOKE_RESPONSE = 0x83,
   SET_RESPONSE = 0x84,
+
   HANDSHAKE0 = 0xF0,
   HANDSHAKE1 = 0xF1,
   HANDSHAKE2 = 0xF2,
   HANDSHAKE3 = 0xF3,
+
+  ACK = 0xFE,
   INVALID = 0xFF
 };
 
@@ -49,5 +55,7 @@ enum class PermissionLevel : uint8_t {
 };
 
 }  // namespace dsa
+
+std::ostream &operator<<(std::ostream &os, dsa::MessageType type);
 
 #endif  // DSA_SDK_MESSAGE_ENUMS_H

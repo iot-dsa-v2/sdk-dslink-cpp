@@ -17,6 +17,8 @@ namespace dsa {
 
 Responder::Responder(Session &session) : _session(session) {}
 
+void Responder::close_impl() { _outgoing_streams.clear(); }
+
 void Responder::receive_message(ref_<Message> &&message) {
   auto request = DOWN_CAST<RequestMessage *>(message.get());
   auto find_stream = _outgoing_streams.find(request->get_rid());

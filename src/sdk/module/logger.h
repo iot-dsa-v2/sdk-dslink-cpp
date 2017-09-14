@@ -29,9 +29,9 @@ class Logger {
 #define DSA_LOG(LEVEL, logger, stream_exp) \
   if ((logger).level <= Logger::LEVEL) {   \
     std::stringstream LOG;                 \
-    (logger).write_meta(LOG, #LEVEL);     \
-    stream_exp;                            \
     LOG << std::endl;                      \
+    (logger).write_meta(LOG, #LEVEL);      \
+    stream_exp;                            \
     (logger).log(LOG.str());               \
   }
 
@@ -45,16 +45,16 @@ class Logger {
 
 #define LOG_TRACE(logger, stream_exp) DSA_LOG(TRACE, logger, stream_exp)
 
-#define LOG_FATAL(logger, stream_exp) \
-  {                                          \
-    std::stringstream LOG;                   \
-    (logger).write_meta(LOG, "FATAL");       \
-    stream_exp;                              \
-    LOG << std::endl;                        \
-    if ((logger).level <= Logger::FATAL) {   \
-      (logger).log(LOG.str());               \
-    }                                        \
-    throw std::runtime_error(LOG.str());      \
+#define LOG_FATAL(logger, stream_exp)      \
+  {                                        \
+    std::stringstream LOG;                 \
+    LOG << std::endl;                      \
+    (logger).write_meta(LOG, "FATAL");     \
+    stream_exp;                            \
+    if ((logger).level <= Logger::FATAL) { \
+      (logger).log(LOG.str());             \
+    }                                      \
+    throw std::runtime_error(LOG.str());   \
   }
 
 #endif  // DSA_SDK_MODULE__LOGGER_H

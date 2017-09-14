@@ -2,10 +2,10 @@
 
 #include "session.h"
 
-#include <boost/bind.hpp>
-
 #include "client.h"
 #include "server.h"
+
+#include "stream/ack_stream.h"
 
 namespace dsa {
 
@@ -13,7 +13,10 @@ Session::Session(LinkStrandRef strand, const std::string &session_id)
     : _strand(std::move(strand)),
       _session_id(session_id),
       requester(*this),
-      responder(*this) {}
+      responder(*this),
+      _ack_stream(new AckStream(get_ref())) {}
+
+Session::~Session() = default;
 
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {
@@ -23,9 +26,12 @@ void Session::connected(shared_ptr_<Connection> connection) {
 }
 
 void Session::close_impl() {
+  requester.close_impl();
+  responder.close_impl();
   if (_connection != nullptr) {
     _connection->close();
   }
+  _ack_stream.reset();
 }
 
 void Session::disconnected(const shared_ptr_<Connection> &connection) {
@@ -35,6 +41,10 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
 }
 
 void Session::receive_message(MessageRef &&message) {
+  LOG_TRACE(_strand->logger(), LOG<< "receive message: " << message->type());
+  if (message->need_ack()) {
+    _ack_stream->add_ack(message->get_ack_id());
+  }
   if (message->is_request()) {
     // responder receive request and send response
     responder.receive_message(std::move(message));
@@ -95,6 +105,8 @@ void Session::write_loop(ref_<Session> sthis) {
         total_size + message->size() > buf.size()) {
       buf.resize(buf.size() * 4);
     }
+
+    LOG_TRACE(sthis->_strand->logger(), LOG<< "send message: " << message->type());
 
     message->write(&buf[total_size], stream->rid, sthis->_next_ack++);
     total_size += message->size();
