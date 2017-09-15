@@ -40,10 +40,28 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   }
 }
 
+void Session::check_pending_acks(int32_t ack) {
+  while (!_pending_acks.empty()) {
+    AckHolder &first = _pending_acks.front();
+    uint32_t d = static_cast<uint32_t>(ack - first.ack);
+    if (d < 0x10000000) {
+      first.callback(true);
+      _pending_acks.pop_front();
+    } else {
+      return;
+    }
+  }
+}
+
 void Session::receive_message(MessageRef &&message) {
   LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
+
   if (message->need_ack()) {
     _ack_stream->add_ack(message->get_ack_id());
+  }
+  if (message->type() == MessageType::ACK) {
+    check_pending_acks(DOWN_CAST<AckMessage *>(message.get())->get_ack_id());
+    return;
   }
   if (message->is_request()) {
     // responder receive request and send response

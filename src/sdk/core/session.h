@@ -35,6 +35,7 @@ class Session final : public ClosableRef<Session> {
  private:
   int32_t _waiting_ack = 0;
   std::deque<AckHolder> _pending_acks;
+  void check_pending_acks(int32_t ack);
 
   std::string _dsid;
   std::string _session_id;
