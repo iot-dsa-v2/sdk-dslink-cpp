@@ -18,5 +18,6 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/deps/msgpack-build")
 
 add_subdirectory("./src")
 add_subdirectory("./test")
+add_subdirectory("./benchmark")
 #add_subdirectory("./example")
 include_directories("./include")
