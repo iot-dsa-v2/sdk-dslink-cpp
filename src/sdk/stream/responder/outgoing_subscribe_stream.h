@@ -17,6 +17,16 @@ class OutgoingSubscribeStream : public MessageQueueStream {
  protected:
   Callback _option_callback;
   SubscribeOptions _options;
+  void set_options(SubscribeOptions && options);
+
+  int32_t _max_queue_size = 0;
+  int32_t _current_queue_size = 0;
+
+  int32_t _max_queue_time = 0;
+  int32_t _current_queue_time = 0;
+
+  void check_queue_time();
+  void check_queue_size();
 
   void close_impl() override;
 
@@ -30,6 +40,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
 
   void receive_message(MessageCRef &&mesage) override;
 
+  void send_response(SubscribeResponseMessageCRef &&message);
 
 };
 }

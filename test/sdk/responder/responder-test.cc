@@ -87,10 +87,7 @@ TEST(ResponderTest, Subscribe) {
               last_response->get_value().value.get_string() == "hello");
 
   // send an new request to update the option of the same stream
-  auto second_request = make_ref_<SubscribeRequestMessage>();
-  second_request->set_subscribe_option(update_options);
-  subscribe_stream->send_message(
-      std::move(second_request));  // send update options
+  subscribe_stream->subscribe(update_options);
 
   WAIT_EXPECT_TRUE(500, [&]() -> bool {
     return root_node->second_subscribe_options != nullptr;

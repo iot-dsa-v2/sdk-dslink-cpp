@@ -34,13 +34,13 @@ class MessageCacheStream : public MessageRefedStream {
 
   void close_impl() override;
 
+  /// put message to writing cache
+  void send_message(MessageCRef &&msg);
+
  public:
   MessageCacheStream(ref_<Session> &&session, const Path &path,
                      uint32_t rid = 0);
   ~MessageCacheStream() override;
-
-  /// put message to writing cache
-  void send_message(MessageCRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
   MessageCRef get_next_message(AckCallback &callback) override;
@@ -53,13 +53,15 @@ class MessageQueueStream : public MessageRefedStream {
 
   void close_impl() override;
 
+  /// add message to the queue
+  void send_message(MessageCRef &&msg);
+
  public:
   explicit MessageQueueStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);
   ~MessageQueueStream() override;
 
-  /// add message to the queue
-  void send_message(MessageCRef &&msg);
+
 
   size_t peek_next_message_size(size_t available) override;
   MessageCRef get_next_message(AckCallback &callback) override;

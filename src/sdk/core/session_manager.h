@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 
+#include "client_info.h"
 #include "session.h"
 #include "util/enable_shared.h"
 

@@ -193,6 +193,13 @@ const messages = {
     }
 };
 
+function copyConstructorInitializer(className) {
+    if (className == "SubscribeResponseMessage") {
+        return ",created_ts(from.created_ts)";
+    }
+    return "";
+}
+
 function gen_source(path, typename, baseTypeName, header, configs) {
     let hasBody = false;
     let data = `#include "dsa_common.h"
@@ -205,7 +212,7 @@ namespace dsa {
 
     data += `
 ${typename}::${typename}(const ${typename}& from)
-    : ${baseTypeName}(from.static_headers) {`;
+    : ${baseTypeName}(from.static_headers)${copyConstructorInitializer(typename)} {`;
     configs.forEach(field => {
         data += `
   if (from.${field.underName} != nullptr)

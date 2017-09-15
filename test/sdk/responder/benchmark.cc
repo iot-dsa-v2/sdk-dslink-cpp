@@ -30,12 +30,7 @@ class MockNode : public NodeModel {
       set_value(Variant("hello"));
     }
   }
-  void on_subscribe_option_change(const SubscribeOptions &options) override {
-    second_subscribe_options.reset(new SubscribeOptions(options));
-    if (_subscribe_callback != nullptr) {
-      set_value(Variant("world"));
-    }
-  }
+
 };
 
 TEST(Benchmark, One) {

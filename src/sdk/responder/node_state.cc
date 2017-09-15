@@ -92,7 +92,7 @@ void NodeState::check_model(const Path &path) {
 
 void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
   for (auto &it : _subscription_streams) {
-    it.first->send_message(copy_ref_(message));
+    it.first->send_response(copy_ref_(message));
   }
 }
 
@@ -138,7 +138,7 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
     }
   });
   if (_model != nullptr && _model->_cached_value != nullptr) {
-    stream->send_message(copy_ref_(_model->_cached_value));
+    stream->send_response(copy_ref_(_model->_cached_value));
   }
 }
 void NodeState::list(ref_<OutgoingListStream> &&stream) {

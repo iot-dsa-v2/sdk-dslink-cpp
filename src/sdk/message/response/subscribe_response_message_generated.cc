@@ -5,7 +5,7 @@
 namespace dsa {
 
 SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessage& from)
-    : ResponseMessage(from.static_headers) {
+    : ResponseMessage(from.static_headers),created_ts(from.created_ts) {
   if (from.status != nullptr)
     status.reset(new DynamicByteHeader(DynamicHeader::STATUS, from.status->value()));
   if (from.sequence_id != nullptr)

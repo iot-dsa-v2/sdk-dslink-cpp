@@ -18,7 +18,8 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_message(make_ref_<SubscribeResponseMessage>(Variant("hello")));
+    stream->send_response(
+        make_ref_<SubscribeResponseMessage>(Variant("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
@@ -84,10 +85,7 @@ TEST(RequesterTest, Subscribe) {
               last_response->get_value().value.get_string() == "hello");
 
   // send an new request to udpate the option of the same stream
-  auto second_request = make_ref_<SubscribeRequestMessage>();
-  second_request->set_subscribe_option(update_options);
-  subscribe_stream->send_message(
-      std::move(second_request));  // send update options
+  subscribe_stream->subscribe(update_options);
 
   WAIT_EXPECT_TRUE(500, [&]() -> bool {
     return mock_stream_acceptor->last_subscribe_options != nullptr;
