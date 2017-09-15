@@ -5,7 +5,7 @@
 #ifndef DSA_SDK_NETWORK_SESSION_MANAGER_H
 #define DSA_SDK_NETWORK_SESSION_MANAGER_H
 
-#include <map>
+#include <unordered_map>
 
 #include "session.h"
 #include "util/enable_shared.h"
@@ -15,6 +15,14 @@ namespace dsa {
 class SecurityManager;
 class Config;
 
+class ClientSessions {
+ private:
+  ClientInfo _info;
+  std::unordered_map<std::string, ref_<Session>> _sessions;
+ public:
+  const ClientInfo &info() const { return _info; };
+};
+
 class SessionManager {
  public:
   typedef std::function<void(const ref_<Session> &session)> GetSessionCallback;
@@ -23,7 +31,7 @@ class SessionManager {
   uint64_t _session_id_seed;
   uint64_t _session_id_count = 0;
 
-  std::map<std::string, ref_<Session>> _sessions;
+  std::unordered_map<std::string, ref_<Session>> _sessions;
 
   LinkStrand *_strand;
 

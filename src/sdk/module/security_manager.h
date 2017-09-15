@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 
+#include "core/client_info.h"
 #include "message/enums.h"
 #include "util/enable_intrusive.h"
 
@@ -11,17 +12,6 @@ namespace dsa {
 
 class Path;
 
-struct ClientInfo {
-  const std::string dsid;
-  const std::string permission_token;
-  const bool multi_session;
-
-  ClientInfo(const std::string dsid, const std::string permission_token,
-             const bool multi_session = false)
-      : dsid(dsid),
-        permission_token(permission_token),
-        multi_session(multi_session) {}
-};
 
 class SecurityManager {
  public:
