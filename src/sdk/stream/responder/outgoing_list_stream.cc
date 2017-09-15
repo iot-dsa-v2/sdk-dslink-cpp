@@ -3,6 +3,7 @@
 #include "outgoing_list_stream.h"
 
 #include "core/session.h"
+#include "module/logger.h"
 
 namespace dsa {
 OutgoingListStream::OutgoingListStream(ref_<Session> &&session,

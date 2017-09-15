@@ -8,13 +8,13 @@ namespace dsa {
 class Logger {
  public:
   enum : uint8_t {
-    TRACE = 0x10,
-    DEBUG = 0x20,
-    INFO = 0x30,
-    WARN = 0x40,
-    ERROR = 0x50,
-    FATAL = 0x60,
-    NONE = 0xFF,
+    TRACE_ = 0x10,
+    DEBUG_ = 0x20,
+    INFO_ = 0x30,
+    WARN_ = 0x40,
+    ERROR_ = 0x50,
+    FATAL_ = 0x60,
+    NONE_ = 0xFF,
   };
 
  public:
@@ -35,26 +35,26 @@ class Logger {
     (logger).log(LOG.str());               \
   }
 
-#define LOG_ERROR(logger, stream_exp) DSA_LOG(ERROR, logger, stream_exp)
+#define LOG_ERROR(logger, stream_exp) DSA_LOG(ERROR_, logger, stream_exp)
 
-#define LOG_WARN(logger, stream_exp) DSA_LOG(WARN, logger, stream_exp)
+#define LOG_WARN(logger, stream_exp) DSA_LOG(_WARN_, logger, stream_exp)
 
-#define LOG_INFO(logger, stream_exp) DSA_LOG(INFO, logger, stream_exp)
+#define LOG_INFO(logger, stream_exp) DSA_LOG(INFO_, logger, stream_exp)
 
-#define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG, logger, stream_exp)
+#define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG_, logger, stream_exp)
 
-#define LOG_TRACE(logger, stream_exp) DSA_LOG(TRACE, logger, stream_exp)
+#define LOG_TRACE(logger, stream_exp) DSA_LOG(TRACE_, logger, stream_exp)
 
-#define LOG_FATAL(logger, stream_exp)      \
-  {                                        \
-    std::stringstream LOG;                 \
-    LOG << std::endl;                      \
-    (logger).write_meta(LOG, "FATAL");     \
-    stream_exp;                            \
-    if ((logger).level <= Logger::FATAL) { \
-      (logger).log(LOG.str());             \
-    }                                      \
-    throw std::runtime_error(LOG.str());   \
+#define LOG_FATAL(logger, stream_exp)       \
+  {                                         \
+    std::stringstream LOG;                  \
+    LOG << std::endl;                       \
+    (logger).write_meta(LOG, "FATAL_");     \
+    stream_exp;                             \
+    if ((logger).level <= Logger::FATAL_) { \
+      (logger).log(LOG.str());              \
+    }                                       \
+    throw std::runtime_error(LOG.str());    \
   }
 
 #endif  // DSA_SDK_MODULE__LOGGER_H
