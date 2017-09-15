@@ -36,7 +36,7 @@ size_t MessageCacheStream::peek_next_message_size(size_t available) {
   }
   return _cache->size();
 }
-MessageCRef MessageCacheStream::get_next_message(int32_t ack_id) {
+MessageCRef MessageCacheStream::get_next_message(AckCallback &callback) {
   _writing = false;
   if (is_closed() || _cache == nullptr) {
     return nullptr;
@@ -69,7 +69,7 @@ size_t MessageQueueStream::peek_next_message_size(size_t available) {
   }
   return _queue.front()->size();
 }
-MessageCRef MessageQueueStream::get_next_message(int32_t ack_id) {
+MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
   _writing = false;
   if (is_closed() || _queue.empty()) {
     return nullptr;

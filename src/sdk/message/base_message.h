@@ -57,9 +57,7 @@ class Message : public EnableRef<Message> {
   bool is_request() const {
     return static_cast<uint8_t>(static_headers.type) < 0x80;
   }
-  bool need_ack() {
-    return static_cast<uint8_t>(static_headers.type) < 0xF0;
-  }
+  bool need_ack() { return static_cast<uint8_t>(static_headers.type) < 0xF0; }
 
   int32_t get_rid() { return static_headers.rid; }
   void set_rid(int32_t rid) { static_headers.rid = rid; }
@@ -140,6 +138,8 @@ class ResponseMessage : public Message {
   void set_status(MessageStatus value);
 };
 
+typedef std::function<void(bool)> AckCallback;
+
 class MessageStream : public ClosableRef<MessageStream> {
  public:
   const int32_t rid;
@@ -149,7 +149,7 @@ class MessageStream : public ClosableRef<MessageStream> {
 
   // write message to remote
   virtual size_t peek_next_message_size(size_t available) = 0;
-  virtual MessageCRef get_next_message(int32_t ack_id) = 0;
+  virtual MessageCRef get_next_message(AckCallback&) = 0;
 
   // read message from remote
   virtual void receive_message(MessageCRef&& msg) = 0;

@@ -17,6 +17,13 @@ class IncomingMessageStream;
 class OutgoingMessageStream;
 class Connection;
 
+struct AckHolder {
+  int32_t ack;
+  AckCallback callback;
+  AckHolder(int32_t ack, AckCallback &&callback)
+      : ack(ack), callback(std::move(callback)){};
+};
+
 //////////////////////////////////////////
 // maintain request and response streams
 //////////////////////////////////////////
@@ -26,7 +33,9 @@ class Session final : public ClosableRef<Session> {
   friend class MessageStream;
 
  private:
-  int32_t  _next_ack = 0;
+  int32_t _waiting_ack = 0;
+  std::deque<AckHolder> _pending_acks;
+
   std::string _dsid;
   std::string _session_id;
   shared_ptr_<Connection> _connection;

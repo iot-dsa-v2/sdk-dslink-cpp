@@ -15,14 +15,13 @@ class MessageRefedStream : public MessageStream {
   bool _writing = false;
 
  public:
-
   const Path path;
 
   explicit MessageRefedStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);
 
   MessageRefedStream(const MessageRefedStream &other) = delete;
-  MessageRefedStream(MessageRefedStream &&other) noexcept= delete;
+  MessageRefedStream(MessageRefedStream &&other) noexcept = delete;
   MessageRefedStream &operator=(const MessageRefedStream &other) = delete;
   MessageRefedStream &operator=(MessageRefedStream &&other) noexcept = delete;
   ~MessageRefedStream() override;
@@ -44,7 +43,7 @@ class MessageCacheStream : public MessageRefedStream {
   void send_message(MessageCRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
-  MessageCRef get_next_message(int32_t ack_id) override;
+  MessageCRef get_next_message(AckCallback &callback) override;
 };
 
 /// message stream with a queue to write
@@ -63,7 +62,7 @@ class MessageQueueStream : public MessageRefedStream {
   void send_message(MessageCRef &&msg);
 
   size_t peek_next_message_size(size_t available) override;
-  MessageCRef get_next_message(int32_t ack_id) override;
+  MessageCRef get_next_message(AckCallback &callback) override;
 };
 }
 

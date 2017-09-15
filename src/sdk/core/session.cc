@@ -41,7 +41,7 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE(_strand->logger(), LOG<< "receive message: " << message->type());
+  LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
   if (message->need_ack()) {
     _ack_stream->add_ack(message->get_ack_id());
   }
@@ -99,16 +99,24 @@ void Session::write_loop(ref_<Session> sthis) {
          total_size < connection->preferred_buffer_size() &&
          total_size + next_message_size < connection->max_buffer_size()) {
     auto stream = sthis->get_next_ready_stream();
-    MessageCRef message = stream->get_next_message(sthis->_next_ack);
+    AckCallback ack_callback;
+    MessageCRef message = stream->get_next_message(ack_callback);
 
     if (buf.size() < connection->max_buffer_size() &&
         total_size + message->size() > buf.size()) {
       buf.resize(buf.size() * 4);
     }
 
-    LOG_TRACE(sthis->_strand->logger(), LOG<< "send message: " << message->type());
+    ++sthis->_waiting_ack;
+    if (ack_callback != nullptr) {
+      sthis->_pending_acks.push_back(
+          AckHolder(sthis->_waiting_ack, std::move(ack_callback)));
+    }
 
-    message->write(&buf[total_size], stream->rid, sthis->_next_ack++);
+    LOG_TRACE(sthis->_strand->logger(),
+              LOG << "send message: " << message->type());
+
+    message->write(&buf[total_size], stream->rid, sthis->_waiting_ack);
     total_size += message->size();
 
     next_message_size =

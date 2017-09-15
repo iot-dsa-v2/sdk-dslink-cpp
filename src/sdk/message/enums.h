@@ -23,7 +23,8 @@ enum class MessageType : uint8_t {
   HANDSHAKE2 = 0xF2,
   HANDSHAKE3 = 0xF3,
 
-  ACK = 0xFE,
+  ACK = 0xF8,
+  PING = 0xF9,
   INVALID = 0xFF
 };
 
