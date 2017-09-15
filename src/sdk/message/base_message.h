@@ -15,7 +15,7 @@ namespace dsa {
 
 class Message : public EnableRef<Message> {
  public:
-  enum : size_t { MAX_MESSAGE_SIZE = 65536 };
+  enum : size_t { MAX_MESSAGE_SIZE = 65491 };  //65535 - 8 (UTP header) - 36 (IPV6 header)
 
   static MessageType get_response_type(MessageType request_type) {
     if (static_cast<uint8_t>(request_type) > 0 &&
