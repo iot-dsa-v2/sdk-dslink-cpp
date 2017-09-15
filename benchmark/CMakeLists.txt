@@ -11,13 +11,13 @@ include_directories("../include")
 
 #
 if (UNIX)
-    set(BECHMARK_LIBS dsa_sdk ${BENCHMARK_LIBS} dl)
+    set(BENCHMARK_LIBS dsa_sdk ${BENCHMARK_LIBS} dl)
 else ()
     set(BENCHMARK_LIBS dsa_sdk ${BENCHMARK_LIBS})
 endif ()
 
 set(TARGET_NAME "dsa-benchmark")
-set(SOURCES "benchmark.cc")
+set(SOURCES "benchmark.cc" $<TARGET_OBJECTS:dsa_test_util>)
 
 add_executable(${TARGET_NAME} ${SOURCES})
 target_link_libraries(${TARGET_NAME} ${BENCHMARK_LIBS})

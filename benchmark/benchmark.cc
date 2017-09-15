@@ -1,15 +1,18 @@
 #include "dsa/message.h"
 #include "dsa/network.h"
 
-#include "../async_test.h"
-#include "../test_config.h"
-#include "gtest/gtest.h"
+#include "../test/sdk/async_test.h"
+#include "../test/sdk/test_config.h"
 
 #include "network/tcp/tcp_client.h"
 #include "network/tcp/tcp_server.h"
 
 #include <chrono>
 #include <ctime>
+
+#define WAIT(wait_time, callback) wait_for_bool((wait_time), (callback))
+#define ASYNC(wait_time, strand, callback) \
+  wait_for_bool((wait_time), (strand), (callback))
 
 using namespace dsa;
 
@@ -30,10 +33,9 @@ class MockNode : public NodeModel {
       set_value(Variant("hello"));
     }
   }
-
 };
 
-TEST(Benchmark, One) {
+int main() {
   App app;
 
   TestConfig server_config(app);
@@ -54,8 +56,8 @@ TEST(Benchmark, One) {
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, (*client_config.strand)(),
-                    [&]() { return tcp_client->get_session().is_connected(); });
+  ASYNC(500, (*client_config.strand)(),
+        [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
   initial_options.queue_time = 0x1234;
@@ -86,7 +88,7 @@ TEST(Benchmark, One) {
         if (last_response != nullptr) {
           end_time_point = high_resolution_clock::now();
           break;
-	}
+        }
 
         boost::this_thread::sleep(
             boost::posix_time::milliseconds(SLEEP_INTERVAL));
@@ -97,11 +99,8 @@ TEST(Benchmark, One) {
     idx++;
   }
 
-
-
-  std::cout << std::chrono::system_clock::to_time_t(start_time_point)
-            << ", " << std::chrono::system_clock::to_time_t(end_time_point)
-            << std::endl
+  std::cout << std::chrono::system_clock::to_time_t(start_time_point) << ", "
+            << std::chrono::system_clock::to_time_t(end_time_point) << std::endl
             << std::chrono::duration_cast<std::chrono::milliseconds>(
                    end_time_point - start_time_point)
                    .count()
@@ -112,7 +111,7 @@ TEST(Benchmark, One) {
 
   app.close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT(500, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();
