@@ -3,6 +3,7 @@ list(APPEND StreamSourceFiles
         error_stream.cc
         ack_stream.cc
         requester/incoming_subscribe_stream.cc
+        requester/incoming_list_stream.cc
         responder/outgoing_subscribe_stream.cc
         responder/outgoing_list_stream.cc)
 

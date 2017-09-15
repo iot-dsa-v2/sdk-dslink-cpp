@@ -61,6 +61,9 @@ class Session final : public ClosableRef<Session> {
 
   Session(LinkStrandRef strand, const std::string &session_id);
   ~Session();
+
+  LinkStrandRef &get_strand() { return _strand; };
+
   const std::string &dsid() const { return _dsid; }
   const std::string &session_id() const { return _session_id; }
   bool is_connected() const { return _connection != nullptr; }

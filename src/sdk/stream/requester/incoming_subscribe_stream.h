@@ -26,6 +26,8 @@ class IncomingSubscribeStream : public MessageCacheStream {
                                    Callback&& callback);
 
   void receive_message(MessageCRef&& msg) override;
+
+  void subscribe(const SubscribeOptions &options);
 };
 }
 

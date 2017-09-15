@@ -4,8 +4,6 @@
 
 #include "core/session.h"
 
-#include "message/request/subscribe_request_message.h"
-
 namespace dsa {
 
 Requester::Requester(Session &session) : _session(session) {}
@@ -38,10 +36,7 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
       _session.get_ref(), Path(path), rid, std::move(callback));
   _incoming_streams[rid] = stream;
 
-  auto msg = make_ref_<SubscribeRequestMessage>();
-  msg->set_subscribe_option(options);
-  msg->set_target_path(path);
-  stream->send_message(std::move(msg));
+  stream->subscribe(options);
 
   return stream;
 }

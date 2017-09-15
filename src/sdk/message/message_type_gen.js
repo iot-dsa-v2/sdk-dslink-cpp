@@ -233,11 +233,21 @@ void ${typename}::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_
     }
   }`;
     if (hasBody) {
-        data+=`
+        if (typename == 'ListResponseMessage') {
+            data+=`
+  if ( body_size > 0) {
+      body.reset(new IntrusiveBytes(data, data + body_size));
+      get_map(); // parse the map right after decoding
+  }`;
+        } else {
+            data+=`
   if ( body_size > 0) {
       body.reset(new IntrusiveBytes(data, data + body_size));
   }`;
+        }
+
     }
+
     data+=`
 }
 

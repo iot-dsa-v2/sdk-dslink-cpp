@@ -7,17 +7,21 @@
 
 namespace dsa {
 class OutgoingListStream : public MessageRefedStream {
-protected:
-  ListOptions _option;
+ public:
+  typedef std::function<void(OutgoingListStream &)> CancelCallback;
 
-public:
-  OutgoingListStream(ref_<Session> &&session, const Path &path,
-    uint32_t rid, ListOptions &&options);
+ protected:
+  CancelCallback _cancel_callback;
 
+  void close_impl() override;
+
+ public:
+  OutgoingListStream(ref_<Session> &&session, const Path &path, uint32_t rid,
+                     ListOptions &&options);
+
+
+  void receive_message(MessageCRef &&mesage) override;
 };
 }
 
-
-
-
-#endif //DSA_SDK_OUTGOING_LIST_STREAM_H
+#endif  // DSA_SDK_OUTGOING_LIST_STREAM_H
