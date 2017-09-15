@@ -99,10 +99,8 @@ int main() {
     idx++;
   }
 
-  std::cout << std::chrono::system_clock::to_time_t(start_time_point) << ", "
-            << std::chrono::system_clock::to_time_t(end_time_point) << std::endl
-            << std::chrono::duration_cast<std::chrono::milliseconds>(
-                   end_time_point - start_time_point)
+  std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                    end_time_point - start_time_point)
                    .count()
             << std::endl;
 
