@@ -49,12 +49,14 @@ const std::vector<uint8_t> ECDH::get_private_key() const
     throw(const std::runtime_error &) {
   const BIGNUM *priv = EC_KEY_get0_private_key(key);
   if (priv == nullptr) throw std::runtime_error("private key not set");
-  int size = BN_num_bytes(priv);
+  size_t size = BN_num_bytes(priv);
 
-  std::vector<uint8_t> out;
-  out.resize(size);
+  std::vector<uint8_t> out = {0};
+  out.resize(32);
 
-  if (size != BN_bn2bin(priv, &out[0])) {
+  size_t start_pos = 32 - size;
+
+  if (size != BN_bn2bin(priv, &out[start_pos])) {
     throw std::runtime_error("private key couldn't be retrieved");
   }
 
