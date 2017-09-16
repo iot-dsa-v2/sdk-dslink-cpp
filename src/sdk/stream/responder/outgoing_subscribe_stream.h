@@ -42,6 +42,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
 
   void send_response(SubscribeResponseMessageCRef &&message);
 
+  MessageCRef get_next_message(AckCallback &callback) override;
 };
 }
 

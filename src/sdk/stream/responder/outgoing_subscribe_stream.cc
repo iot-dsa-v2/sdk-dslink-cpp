@@ -23,16 +23,14 @@ void OutgoingSubscribeStream::close_impl() {
 
 void OutgoingSubscribeStream::check_queue_time() {}
 void OutgoingSubscribeStream::check_queue_size() {
-  int32_t size = 0;
-  for (auto it = _queue.rbegin(); it != _queue.rend(); ++it) {
-    int32_t nextsize = size + (*it)->size();
-    if (nextsize > _max_queue_size) {
+  for (auto it = _queue.begin(); it != _queue.end(); ++it) {
+    _current_queue_size -= (*it)->size();
+    if (_current_queue_size <= _max_queue_size) {
       // clear all the data from the begin of the queue
-      _queue.erase(_queue.begin(), it.base());
+      _queue.erase(_queue.begin(), ++it);
       break;
     }
   }
-  _current_queue_size = size;
 }
 
 void OutgoingSubscribeStream::set_options(SubscribeOptions &&options) {
@@ -69,4 +67,11 @@ void OutgoingSubscribeStream::send_response(
     check_queue_size();
   }
 }
+
+MessageCRef OutgoingSubscribeStream::get_next_message(AckCallback &callback) {
+  MessageCRef rslt = MessageQueueStream::get_next_message(callback);
+  _current_queue_size -= rslt->size();
+  return std::move(rslt);
+}
+
 }
