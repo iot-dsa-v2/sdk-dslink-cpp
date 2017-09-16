@@ -16,8 +16,11 @@ else ()
     set(BENCHMARK_LIBS dsa_sdk ${BENCHMARK_LIBS})
 endif ()
 
-set(TARGET_NAME "dsa-benchmark")
-set(SOURCES "benchmark.cc" $<TARGET_OBJECTS:dsa_test_util>)
 
-add_executable(${TARGET_NAME} ${SOURCES})
-target_link_libraries(${TARGET_NAME} ${BENCHMARK_LIBS})
+set(SOURCES_benchmark "benchmark.cc" $<TARGET_OBJECTS:dsa_test_util>)
+add_executable("dsa-benchmark" ${SOURCES_benchmark})
+target_link_libraries("dsa-benchmark" ${BENCHMARK_LIBS})
+
+set(SOURCES_throughput "throughput.cc" $<TARGET_OBJECTS:dsa_test_util>)
+add_executable("dsa_throughput" ${SOURCES_throughput})
+target_link_libraries("dsa_throughput" ${BENCHMARK_LIBS})

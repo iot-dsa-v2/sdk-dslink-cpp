@@ -8,19 +8,19 @@
 
 const int SLEEP_INTERVAL = 25;
 
-bool wait_for_bool(int wait_time, const std::function<bool()>& callback) {
+int wait_for_bool(int wait_time, const std::function<bool()>& callback) {
   int waited = 0;
   while (waited < wait_time) {
     if (callback()) {
-      return true;
+      return waited;
     }
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_INTERVAL));
     waited += SLEEP_INTERVAL;
   }
-  return false;
+  return -1;
 }
 
-bool wait_for_bool(int wait_time, boost::asio::io_service::strand* strand,
+int wait_for_bool(int wait_time, boost::asio::io_service::strand* strand,
                    const std::function<bool()>& callback) {
   std::atomic_bool succeed{false};
   int waited = 0;
@@ -33,8 +33,11 @@ bool wait_for_bool(int wait_time, boost::asio::io_service::strand* strand,
     boost::this_thread::sleep(boost::posix_time::milliseconds(SLEEP_INTERVAL));
     waited += SLEEP_INTERVAL;
     if (succeed) {
-      return true;
+      return waited;
     }
   }
-  return succeed;
+  if (succeed) {
+    return waited;
+  }
+  return -1;
 }
