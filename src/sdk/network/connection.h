@@ -27,8 +27,8 @@ class Connection : public SharedClosable<Connection> {
 
  public:
   enum : size_t {
-    DEFAULT_BUFFER_SIZE = 1024,
-    MAX_BUFFER_SIZE = 65536
+    DEFAULT_BUFFER_SIZE = 32768,
+    MAX_BUFFER_SIZE = 65491 //  //65535 - 8 (UTP header) - 36 (IPV6 header)
 
   };
 
