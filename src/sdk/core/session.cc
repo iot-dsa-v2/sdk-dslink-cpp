@@ -114,7 +114,6 @@ void Session::write_loop(ref_<Session> sthis) {
 
   size_t total_size = 0;
   while (next_message_size > 0 &&
-         total_size < connection->preferred_buffer_size() &&
          total_size + next_message_size < connection->max_buffer_size()) {
     auto stream = sthis->get_next_ready_stream();
     AckCallback ack_callback;
