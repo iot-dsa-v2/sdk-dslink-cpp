@@ -29,7 +29,7 @@ int main(int argc, const char *argv[]) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")(
       "client,c", opts::value<int>()->default_value(2), "Number of Clients")(
-      "time,t", opts::value<int>()->default_value(60), "Time (seconds)");
+      "time,t", opts::value<int>()->default_value(20), "Time (seconds)");
 
   opts::variables_map variables;
   opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -40,7 +40,7 @@ int main(int argc, const char *argv[]) {
     return 0;
   }
 
-  int run_time = 60;
+  int run_time = 20;
   int client_count = 2;
   const int MAX_CLIENT_COUNT = 256;
 
