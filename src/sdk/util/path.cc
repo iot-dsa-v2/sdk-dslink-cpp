@@ -82,7 +82,7 @@ Path::Path(const std::string &path) : _data(make_ref_<PathData>(path)) {}
 Path::Path(const ref_<const PathData> &data, size_t idx)
     : _data(data), _current(idx) {}
 
-const std::string &Path::remain_str() const {
+const std::string Path::remain_str() const {
   std::string result = current_name();
   size_t size = _data->names.size();
   for (size_t i = _current + 1; i < size; ++i) {

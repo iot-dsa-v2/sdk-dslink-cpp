@@ -49,7 +49,7 @@ class Path {
 
   const std::string &full_str() const { return _data->str; }
 
-  const std::string &remain_str() const;
+  const std::string remain_str() const;
 
   // last part of the path
   bool is_last() const { return _current + 1 == _data->names.size(); }
