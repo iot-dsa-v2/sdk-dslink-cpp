@@ -143,7 +143,7 @@ int main(int argc, const char *argv[]) {
 
   timer.async_wait(tick);
 
-  std::cout << std::endl << "run benchmark for 60 seconds";
+  std::cout << std::endl << "run benchmark for " << run_time <<" seconds";
   boost::this_thread::sleep(boost::posix_time::seconds(run_time));
   std::cout << std::endl << "end benchmark";
   timer.cancel();
