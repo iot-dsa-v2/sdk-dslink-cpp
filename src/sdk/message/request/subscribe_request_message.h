@@ -1,6 +1,10 @@
 #ifndef DSA_SUBSCRIBE_REQUEST_MESSAGE_H_
 #define DSA_SUBSCRIBE_REQUEST_MESSAGE_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "../../util/buffer.h"
 #include "../base_message.h"
 #include "message/message_options.h"

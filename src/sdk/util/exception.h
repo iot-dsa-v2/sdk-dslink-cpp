@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_MESSAGE_EXCEPTION_H
 #define DSA_SDK_MESSAGE_EXCEPTION_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <string>
 #include <stdexcept>
 

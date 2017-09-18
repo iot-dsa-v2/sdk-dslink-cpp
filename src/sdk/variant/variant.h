@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_VARIANT_H
 #define DSA_SDK_VARIANT_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <boost/variant.hpp>
 #include <map>
 #include <string>

@@ -1,9 +1,9 @@
-//
-// Created by Ben Richards on 8/9/17.
-//
-
 #ifndef DSA_SDK_NETWORK_CONNECTION_TCP_CLIENT_CONNECTION_H_
 #define DSA_SDK_NETWORK_CONNECTION_TCP_CLIENT_CONNECTION_H_
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include "../connection.h"
 #include "tcp_connection.h"

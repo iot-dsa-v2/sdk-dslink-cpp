@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_CONFIG_H_
 #define DSA_SDK_CONFIG_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "link_strand.h"
 #include "module/logger.h"
 #include "module/security_manager.h"

@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_MESSAGE_IO_STREAM_H
 #define DSA_SDK_MESSAGE_IO_STREAM_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "message/base_message.h"
 
 #include <deque>

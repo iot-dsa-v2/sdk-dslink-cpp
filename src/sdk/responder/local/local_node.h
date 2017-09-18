@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_LOCAL_NODE_H
 #define DSA_SDK_LOCAL_NODE_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <unordered_map>
 
 #include "../node_model.h"

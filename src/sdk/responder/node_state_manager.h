@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_NODE_STATE_MANAGER_H_
 #define DSA_SDK_NODE_STATE_MANAGER_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "stream/outgoing_stream_accepter.h"
 
 #include <map>

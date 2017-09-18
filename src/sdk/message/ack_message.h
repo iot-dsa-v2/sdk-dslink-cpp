@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_ACK_MESSAGE_H
 #define DSA_SDK_ACK_MESSAGE_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "base_message.h"
 
 namespace dsa {

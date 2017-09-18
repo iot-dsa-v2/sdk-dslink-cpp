@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_LITTLE_ENDIAN_H
 #define DSA_SDK_LITTLE_ENDIAN_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <cstring>
 
 namespace dsa {

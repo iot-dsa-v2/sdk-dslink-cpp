@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_RESPONDER_RESPONDER_H
 #define DSA_SDK_RESPONDER_RESPONDER_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <map>
 #include <string>
 

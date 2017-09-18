@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_REQUESTER_H_
 #define DSA_SDK_REQUESTER_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <map>
 
 #include "stream/requester/incoming_subscribe_stream.h"

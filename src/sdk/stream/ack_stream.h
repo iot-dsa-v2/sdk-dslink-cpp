@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_ACK_STREAM_H
 #define DSA_SDK_ACK_STREAM_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "message_io_stream.h"
 
 #include "message/ack_message.h"

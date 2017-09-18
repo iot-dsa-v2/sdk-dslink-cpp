@@ -1,9 +1,9 @@
-//
-// Created by Ben Richards on 7/17/17.
-//
-
 #ifndef DSA_SDK_NETWORK_APP_H_
 #define DSA_SDK_NETWORK_APP_H_
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <atomic>
 #include <mutex>

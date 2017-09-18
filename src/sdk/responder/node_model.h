@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_NODE_MODEL_MANAGER_H_
 #define DSA_SDK_NODE_MODEL_MANAGER_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <map>
 #include <memory>
 #include <string>

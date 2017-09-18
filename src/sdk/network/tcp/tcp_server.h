@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_TCP_SERVER_H_
 #define DSA_SDK_TCP_SERVER_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <boost/asio/ip/tcp.hpp>
 
 

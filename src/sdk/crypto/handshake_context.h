@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_HANDSHAKR_CONTEXT_H
 #define DSA_SDK_HANDSHAKR_CONTEXT_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <string>
 
 #include "ecdh.h"

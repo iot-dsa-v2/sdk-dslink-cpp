@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_CRYPTO_ECDH_H_
 #define DSA_SDK_CRYPTO_ECDH_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <vector>
 
 #include <openssl/ec.h>

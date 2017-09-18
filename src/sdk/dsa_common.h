@@ -1,6 +1,10 @@
 #ifndef DSA_DSA_COMMON_H_
 #define DSA_DSA_COMMON_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #if _MSC_VER
 
 // disable VC warning on throw error

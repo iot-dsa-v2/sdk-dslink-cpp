@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_NODE_STATE_H_
 #define DSA_SDK_NODE_STATE_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <string>
 #include <unordered_map>
 

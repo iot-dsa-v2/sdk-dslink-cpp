@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_NETWORK_SERVER_H
 #define DSA_SDK_NETWORK_SERVER_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <atomic>
 #include <functional>
 #include <iostream>

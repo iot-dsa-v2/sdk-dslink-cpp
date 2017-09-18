@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_OUTGOING_STREAM_ACCEPTER_H
 #define DSA_SDK_OUTGOING_STREAM_ACCEPTER_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "util/enable_intrusive.h"
 
 namespace dsa {

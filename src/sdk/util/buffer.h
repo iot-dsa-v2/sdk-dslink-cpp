@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_UTIL_BUFFER_H_
 #define DSA_SDK_UTIL_BUFFER_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <iostream>
 #include <cstring>
 #include <sstream>

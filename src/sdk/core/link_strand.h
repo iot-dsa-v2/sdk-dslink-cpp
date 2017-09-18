@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_LINK_STRAND_H
 #define DSA_SDK_LINK_STRAND_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "util/enable_intrusive.h"
 
 #include <boost/asio/strand.hpp>

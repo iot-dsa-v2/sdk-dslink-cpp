@@ -1,6 +1,10 @@
 #ifndef PROJECT_CLIENT_INFO_H
 #define PROJECT_CLIENT_INFO_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 namespace dsa {
 
 struct ClientInfo {

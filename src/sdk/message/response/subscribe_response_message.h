@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_SUBSCRIBE_RESPONSE_MESSAGE_H_
 #define DSA_SDK_SUBSCRIBE_RESPONSE_MESSAGE_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "../../util/buffer.h"
 #include "../base_message.h"
 #include "message/message_value.h"

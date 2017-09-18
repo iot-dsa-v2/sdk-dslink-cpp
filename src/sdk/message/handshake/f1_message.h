@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_F1_MESSAGE_H
 #define DSA_SDK_F1_MESSAGE_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <stdexcept>
 #include "../base_message.h"
 

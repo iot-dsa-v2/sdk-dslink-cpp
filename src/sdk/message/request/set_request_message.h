@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_SET_REQUEST_MESSAGE_H_
 #define DSA_SDK_SET_REQUEST_MESSAGE_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <message/message_options.h>
 #include "../../util/buffer.h"
 #include "../base_message.h"

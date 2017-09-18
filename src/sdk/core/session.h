@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_SESSION_H_
 #define DSA_SDK_SESSION_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <deque>
 #include <map>
 

@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_MESSAGE_VALUE_H_
 #define DSA_SDK_MESSAGE_VALUE_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "../variant/variant.h"
 
 namespace dsa {

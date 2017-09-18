@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_SUBSCRIBE_OPTION_H
 #define DSA_SDK_SUBSCRIBE_OPTION_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <cstddef>
 
 namespace dsa {

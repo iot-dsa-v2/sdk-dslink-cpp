@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_CORE_CLIENT_H_
 #define DSA_SDK_CORE_CLIENT_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "config.h"
 #include "session.h"
 #include "util/enable_shared.h"

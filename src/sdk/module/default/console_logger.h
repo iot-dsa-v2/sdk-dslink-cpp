@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_MODULE_CONSOLE_LOGGER_H
 #define DSA_SDK_MODULE_CONSOLE_LOGGER_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "../logger.h"
 
 namespace dsa {

@@ -1,9 +1,9 @@
-//
-// Created by Ben Richards on 7/24/17.
-//
-
 #ifndef DSA_SDK_NETWORK_SESSION_MANAGER_H
 #define DSA_SDK_NETWORK_SESSION_MANAGER_H
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <unordered_map>
 

@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_CRYPTO_HMAC_H_
 #define DSA_SDK_CRYPTO_HMAC_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <vector>
 
 #include <openssl/hmac.h>

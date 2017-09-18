@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_LIST_RESPONSE_MESSAGE_H_
 #define DSA_SDK_LIST_RESPONSE_MESSAGE_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "../../util/buffer.h"
 #include "../../variant/variant.h"
 #include "../base_message.h"

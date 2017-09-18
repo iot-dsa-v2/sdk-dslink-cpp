@@ -1,6 +1,10 @@
 #ifndef DSA_SDK_UTIL_ENABLE_INTRUSIVE_H_
 #define DSA_SDK_UTIL_ENABLE_INTRUSIVE_H_
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <atomic>
 
 #include <dsa_common.h>

@@ -1,6 +1,10 @@
 #ifndef DSA_UTIL_PATH_H
 #define DSA_UTIL_PATH_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include <vector>
 #include "enable_intrusive.h"
 #include "exception.h"
