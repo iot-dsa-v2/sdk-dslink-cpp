@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include <boost/asio/io_service.hpp>
+#include "core/link_strand.h"
 
 #include "../security_manager.h"
 
@@ -24,10 +24,10 @@ class SimpleSecurityManager : public SecurityManager {
 
 class AsyncSimpleSecurityManager : public SecurityManager {
  protected:
-  std::unique_ptr<boost::asio::io_service::strand> _strand;
+  LinkStrandRef _strand;
 
  public:
-  explicit AsyncSimpleSecurityManager(boost::asio::io_service::strand* strand);
+  explicit AsyncSimpleSecurityManager(LinkStrandRef strand);
 
   void get_client(const std::string& dsid, const std::string& auth_token,
                   GetClientCallback&& callback) override;

@@ -44,7 +44,11 @@ class Connection : public SharedClosable<Connection> {
   size_t _max_buffer_size = MAX_BUFFER_SIZE;
 
  public:
-  size_t preferred_buffer_size() const { return _preferred_buffer_size; };
+
+  void dispatch_in_strand(std::function<void()> &&callback) override {
+    return _strand->dispatch(std::move(callback));
+  }
+
   size_t max_buffer_size() const { return _max_buffer_size; };
 
   virtual void write(const uint8_t *data, size_t size,
@@ -62,8 +66,6 @@ class Connection : public SharedClosable<Connection> {
   const std::string &dsid() { return _handshake_context.dsid(); }
 
   void set_session(const ref_<Session> &session);
-
-  boost::asio::strand *asio_strand() { return (*_strand)(); }
 
   Session *session() { return _session.get(); }
 

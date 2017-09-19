@@ -145,7 +145,7 @@ void Session::write_loop(ref_<Session> sthis) {
       total_size, [sthis = std::move(sthis)](
                       const boost::system::error_code &error) mutable {
         LinkStrandRef strand = sthis->_strand;
-        (*strand)()->dispatch([sthis = std::move(sthis)]() mutable {
+        strand->dispatch([sthis = std::move(sthis)]() mutable {
           Session::write_loop(std::move(sthis));
         });
       });

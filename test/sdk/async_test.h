@@ -3,11 +3,11 @@
 
 #include <functional>
 
-#include <boost/asio/io_service.hpp>
+#include "core/link_strand.h"
 
 int wait_for_bool(int wait_time, const std::function<bool()>& callback);
 
-int wait_for_bool(int wait_time, boost::asio::io_service::strand* strand,
+int wait_for_bool(int wait_time, dsa::LinkStrand & strand,
                   const std::function<bool()>& callback);
 
 #define WAIT_EXPECT_TRUE(wait_time, callback) \

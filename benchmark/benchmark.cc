@@ -56,7 +56,7 @@ int main() {
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();
 
-  ASYNC(500, (*client_config.strand)(),
+  ASYNC(500, *client_config.strand,
         [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;

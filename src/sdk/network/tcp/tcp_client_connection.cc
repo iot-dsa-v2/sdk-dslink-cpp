@@ -2,15 +2,9 @@
 
 #include "tcp_client_connection.h"
 
-// TODO: remove this
-#include <boost/asio.hpp>
-
-#include <boost/bind.hpp>
+#include <boost/asio/strand.hpp>
 
 #include "core/session.h"
-
-#include "message/handshake/f0_message.h"
-
 
 namespace dsa {
 TcpClientConnection::TcpClientConnection(LinkStrandRef &strand,
@@ -26,16 +20,19 @@ TcpClientConnection::TcpClientConnection(LinkStrandRef &strand,
 void TcpClientConnection::connect() {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver((*_strand)()->get_io_service());
+  tcp::resolver resolver(
+      static_cast<boost::asio::strand *>(_strand->asio_strand())
+          ->get_io_service());
   // TODO: timeout
   _socket.async_connect(
       *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
       // capture shared_ptr to keep the instance
       // capture this to access protected member
-      [connection = share_this<TcpConnection>(), this](const boost::system::error_code &error) mutable {
+      [ connection = share_this<TcpConnection>(),
+        this ](const boost::system::error_code &error) mutable {
         if (error != boost::system::errc::success) {
           TcpConnection::close_in_strand(std::move(connection));
-          //TODO: log or return the error?
+          // TODO: log or return the error?
           return;
         }
 
@@ -45,8 +42,9 @@ void TcpClientConnection::connect() {
       });
 }
 
-//void TcpClientConnection::start_handshake(
-//    const boost::system::error_code &error) throw(const std::runtime_error &) {
+// void TcpClientConnection::start_handshake(
+//    const boost::system::error_code &error) throw(const std::runtime_error &)
+//    {
 //  if (error != boost::system::errc::errc_t::success) {
 //    close();
 //    throw std::runtime_error("Couldn't connect to specified host");
@@ -79,7 +77,7 @@ void TcpClientConnection::connect() {
 //                  Connection::share_this<TcpClientConnection>(),
 //                  boost::asio::placeholders::error));
 //}
-//void TcpClientConnection::f3_received(const boost::system::error_code &error,
+// void TcpClientConnection::f3_received(const boost::system::error_code &error,
 //                                      size_t bytes_transferred) {
 //  // start standard dsa 1 minute timeout
 //  reset_standard_deadline_timer();
@@ -90,7 +88,8 @@ void TcpClientConnection::connect() {
 //    } catch (const std::runtime_error &error) {
 //#if DEBUG
 //      std::stringstream ss;
-//      ss << "[TcpClientConnection::f3_received] Error: " << error << std::endl;
+//      ss << "[TcpClientConnection::f3_received] Error: " << error <<
+//      std::endl;
 //      std::cerr << ss.str();
 //#endif
 //      close();

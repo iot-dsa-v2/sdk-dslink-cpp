@@ -49,7 +49,7 @@ class App {
   // sleep current thread in milliseconds
   void sleep(unsigned int milliseconds);
 
-  boost::asio::strand *new_strand();
+  boost::asio::io_service::strand *new_strand();
 };
 }  // namespace dsa
 

@@ -3,7 +3,7 @@
 #include "config.h"
 
 namespace dsa {
-LinkConfig::LinkConfig(AsioStrand* strand, ECDH* ecdh)
+LinkConfig::LinkConfig(boost::asio::io_service::strand* strand, ECDH* ecdh)
     : LinkStrand(strand, ecdh){
 
       };

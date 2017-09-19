@@ -11,6 +11,8 @@
 #include "responder/node_state_manager.h"
 #include "session_manager.h"
 
+#include <boost/asio/io_service.hpp>
+
 namespace dsa {
 
 class LinkConfig : public LinkStrand {
@@ -22,7 +24,7 @@ class LinkConfig : public LinkStrand {
   std::unique_ptr<Logger> _logger = nullptr;
 
  public:
-  explicit LinkConfig(AsioStrand* strand, ECDH* ecdh);
+  explicit LinkConfig(boost::asio::io_service::strand* strand, ECDH* ecdh);
 
   void set_security_manager(std::unique_ptr<SecurityManager> p) {
     __security_manager = p.get();

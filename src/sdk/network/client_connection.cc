@@ -86,7 +86,7 @@ void Connection::on_receive_f3(MessageRef &&msg) {
 
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f3->auth.begin())) {
-    (*_strand)()->post([sthis = shared_from_this()]() mutable {
+    _strand->post([sthis = shared_from_this()]() mutable {
       on_client_connect(std::move(sthis));
     });
   }

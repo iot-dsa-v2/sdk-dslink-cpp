@@ -81,7 +81,7 @@ int main(int argc, const char *argv[]) {
     clients.emplace_back(make_shared_<TcpClient>(client_configs[i]));
     clients[i]->connect();
 
-    wait_for_bool(500, (*client_configs[i].strand)(),
+    wait_for_bool(500, *client_configs[i].strand,
                   [&]() { return clients[i]->get_session().is_connected(); });
 
     receive_count[i] = 0;
@@ -104,46 +104,49 @@ int main(int argc, const char *argv[]) {
   auto ts = high_resolution_clock::now();
 
   std::function<void(const boost::system::error_code &)> tick;
-  tick = (*server_config.strand)()->wrap([&](
-      const boost::system::error_code &error) {
+  tick = [&](const boost::system::error_code &error) {
 
     if (!error) {
-      auto ts2 = high_resolution_clock::now();
+      server_config.strand->dispatch([&]() {
+        auto ts2 = high_resolution_clock::now();
 
-      auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(ts2 - ts)
-                    .count();
-      ts = ts2;
-      if (ms > 0) {
-        int count = 0;
-        for (int i = 0; i < client_count; ++i) {
-          count += receive_count[i];
-          receive_count[i] = 0;
-        }
-        count /= client_count;
+        auto ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(ts2 - ts)
+                .count();
+        ts = ts2;
+        if (ms > 0) {
+          int count = 0;
+          for (int i = 0; i < client_count; ++i) {
+            count += receive_count[i];
+            receive_count[i] = 0;
+          }
+          count /= client_count;
 
-        print_count += ms;
-        if (print_count > 2000) {
-          print_count = 0;
-          std::cout << std::endl
-                    << "message per second: " << (msg_per_second * client_count)
-                    << "  current: " << count * 1000 / ms << " x "
-                    << client_count << ", interval " << ms;
-        }
+          print_count += ms;
+          if (print_count > 2000) {
+            print_count = 0;
+            std::cout << std::endl
+                      << "message per second: "
+                      << (msg_per_second * client_count)
+                      << "  current: " << count * 1000 / ms << " x "
+                      << client_count << ", interval " << ms;
+          }
 
-        msg_per_second = (count * 1000 / ms + msg_per_second * 9) / 10;
-        if (msg_per_second < 1000) msg_per_second = 1000;
-        int num_message = msg_per_second * ms / 800;
-        for (int i = 0; i < num_message; ++i) {
-          root_node->set_value(Variant(i));
+          msg_per_second = (count * 1000 / ms + msg_per_second * 9) / 10;
+          if (msg_per_second < 1000) msg_per_second = 1000;
+          int num_message = msg_per_second * ms / 800;
+          for (int i = 0; i < num_message; ++i) {
+            root_node->set_value(Variant(i));
+          }
         }
-      }
-      timer.async_wait(tick);
+        timer.async_wait(tick);
+      });
     }
-  });
+  };
 
   timer.async_wait(tick);
 
-  std::cout << std::endl << "run benchmark for " << run_time <<" seconds";
+  std::cout << std::endl << "run benchmark for " << run_time << " seconds";
   boost::this_thread::sleep(boost::posix_time::seconds(run_time));
   std::cout << std::endl << "end benchmark";
   timer.cancel();

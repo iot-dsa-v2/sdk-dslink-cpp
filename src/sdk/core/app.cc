@@ -2,6 +2,8 @@
 
 #include "app.h"
 
+#include <boost/asio/strand.hpp>
+
 namespace dsa {
 
 //////////////
@@ -54,8 +56,8 @@ void App::sleep(unsigned int milliseconds) {
 
 void App::close() { _work.reset(); }
 
-boost::asio::strand *App::new_strand() {
-  return new boost::asio::strand(*_io_service);
+boost::asio::io_service::strand *App::new_strand() {
+  return new boost::asio::io_service::strand(*_io_service);
 }
 
 void App::force_stop() {

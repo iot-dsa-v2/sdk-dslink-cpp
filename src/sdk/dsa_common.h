@@ -3,9 +3,7 @@
 
 #if defined(_MSC_VER)
 #pragma once
-#endif
 
-#if _MSC_VER
 
 // disable VC warning on throw error
 #pragma warning(disable : 4290)

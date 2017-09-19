@@ -18,7 +18,7 @@ void SimpleSecurityManager::check_permission(
 }
 
 AsyncSimpleSecurityManager::AsyncSimpleSecurityManager(
-    boost::asio::strand* strand)
+  LinkStrandRef strand)
     : _strand(strand){};
 
 void AsyncSimpleSecurityManager::get_client(const std::string& dsid,

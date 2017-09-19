@@ -7,8 +7,6 @@
 
 #include "util/enable_intrusive.h"
 
-#include <boost/asio/strand.hpp>
-
 namespace dsa {
 
 class SecurityManager;
@@ -17,12 +15,10 @@ class OutgoingStreamAcceptor;
 class ECDH;
 class Logger;
 
-typedef boost::asio::io_service::strand AsioStrand;
-
 class LinkStrand : public EnableRef<LinkStrand> {
  protected:
   // managed pointer by LinkStrand
-  AsioStrand *__strand = nullptr;
+  void *__strand = nullptr;
   ECDH *__ecdh = nullptr;
 
   SecurityManager *__security_manager = nullptr;
@@ -31,11 +27,13 @@ class LinkStrand : public EnableRef<LinkStrand> {
   Logger *__logger = nullptr;
 
  public:
-  explicit LinkStrand(AsioStrand *strand, ECDH *ecdh);
+  explicit LinkStrand(void *strand, ECDH *ecdh);
 
   virtual ~LinkStrand();
 
-  AsioStrand * operator()() { return __strand; }
+  void *asio_strand() { return __strand; }
+  void post(std::function<void()> &&);
+  void dispatch(std::function<void()> &&);
 
   SecurityManager &security_manager() { return *__security_manager; };
 

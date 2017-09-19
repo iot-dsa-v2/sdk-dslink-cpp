@@ -2,8 +2,7 @@
 
 #include "tcp_server.h"
 
-// TODO: remove this
-#include <boost/asio.hpp>
+#include <boost/asio/strand.hpp>
 
 #include "tcp_server_connection.h"
 
@@ -15,8 +14,10 @@ TcpServer::TcpServer(WrapperConfig &config)
       _hostname(config.tcp_host),
       _port(config.tcp_port),
       _handshake_timeout_ms(config.handshake_timeout_ms),
-      _acceptor(new tcp::acceptor((*_strand)()->get_io_service(),
-                                  tcp::endpoint(tcp::v4(), config.tcp_port))) {}
+      _acceptor(new tcp::acceptor(
+          static_cast<boost::asio::strand *>(_strand->asio_strand())
+              ->get_io_service(),
+          tcp::endpoint(tcp::v4(), config.tcp_port))) {}
 TcpServer::~TcpServer() {
   if (!is_closed()) {
     close();
@@ -27,10 +28,9 @@ void TcpServer::start() {
   _next_connection =
       make_shared_<TcpServerConnection>(_strand, _handshake_timeout_ms);
 
-  _acceptor->async_accept(
-      _next_connection->socket(),
-      boost::bind(&TcpServer::accept_loop, share_this<TcpServer>(),
-                  boost::asio::placeholders::error));
+  _acceptor->async_accept(_next_connection->socket(), [
+    this, sthis = shared_from_this()
+  ](const boost::system::error_code &error) { accept_loop(error); });
 }
 
 void TcpServer::close_impl() {
@@ -45,10 +45,9 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
     _next_connection->accept();
     _next_connection =
         make_shared_<TcpServerConnection>(_strand, _handshake_timeout_ms);
-    _acceptor->async_accept(
-        _next_connection->socket(),
-        boost::bind(&TcpServer::accept_loop, share_this<TcpServer>(),
-                    boost::asio::placeholders::error));
+    _acceptor->async_accept(_next_connection->socket(), [
+      this, sthis = shared_from_this()
+    ](const boost::system::error_code &err) { accept_loop(err); });
   } else {
     close();
   }

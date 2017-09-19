@@ -2,16 +2,24 @@
 
 #include "link_strand.h"
 
-
+#include <boost/asio/strand.hpp>
 
 #include "crypto/ecdh.h"
 
 namespace dsa {
-LinkStrand::LinkStrand(AsioStrand* strand, ECDH* ecdh)
-  : __strand(strand), __ecdh(ecdh) {}
+LinkStrand::LinkStrand(void* strand, ECDH* ecdh)
+    : __strand(strand), __ecdh(ecdh) {}
 LinkStrand::~LinkStrand() {
-  delete __strand;
+  delete static_cast<boost::asio::io_service::strand*>(__strand);
   delete __ecdh;
+}
+
+void LinkStrand::post(std::function<void()>&& callback) {
+  static_cast<boost::asio::io_service::strand*>(__strand)->post(callback);
+}
+
+void LinkStrand::dispatch(std::function<void()>&& callback) {
+  static_cast<boost::asio::io_service::strand*>(__strand)->dispatch(callback);
 }
 
 }

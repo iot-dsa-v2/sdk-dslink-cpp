@@ -20,12 +20,12 @@ int wait_for_bool(int wait_time, const std::function<bool()>& callback) {
   return -1;
 }
 
-int wait_for_bool(int wait_time, boost::asio::io_service::strand* strand,
-                   const std::function<bool()>& callback) {
+int wait_for_bool(int wait_time, dsa::LinkStrand& strand,
+                  const std::function<bool()>& callback) {
   std::atomic_bool succeed{false};
   int waited = 0;
   while (waited < wait_time) {
-    strand->dispatch([&, callback]() {
+    strand.dispatch([&, callback]() {
       if (callback()) {
         succeed = true;
       }

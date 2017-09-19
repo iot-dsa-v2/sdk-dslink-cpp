@@ -25,7 +25,7 @@ static LinkConfig *make_config(App &app, bool async) {
       make_unique_<NodeStateManager>(make_ref_<TestModel>(config->get_ref())));
   if (async) {
     config->set_security_manager(
-        make_unique_<AsyncSimpleSecurityManager>((*config)()));
+        make_unique_<AsyncSimpleSecurityManager>(config->get_ref()));
   } else {
     config->set_security_manager(make_unique_<SimpleSecurityManager>());
   }

@@ -67,7 +67,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
 
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f2->auth.begin())) {
-    (*_strand)()->post([ msg, this, sthis = shared_from_this() ]() mutable {
+    _strand->post([ msg, this, sthis = shared_from_this() ]() mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token, f2->previous_session_id,

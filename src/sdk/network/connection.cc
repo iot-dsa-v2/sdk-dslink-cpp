@@ -6,7 +6,7 @@
 #include "core/session.h"
 #include "crypto/hmac.h"
 
-#define DEBUG 0
+#include <boost/asio/strand.hpp>
 
 namespace dsa {
 Connection::Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
@@ -15,7 +15,8 @@ Connection::Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
       _handshake_timeout_ms(handshake_timeout_ms),
       _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE),
-      _deadline((*strand)()->get_io_service()),
+      _deadline(static_cast<boost::asio::strand *>(strand->asio_strand())
+                    ->get_io_service()),
       _strand(strand),
       _path(path) {}
 
@@ -48,18 +49,18 @@ bool Connection::valid_handshake_header(StaticHeaders &header,
 }
 
 void Connection::reset_standard_deadline_timer() {
-  _deadline.expires_from_now(boost::posix_time::minutes(1));
-  _deadline.async_wait((*_strand)()->wrap([sthis = shared_from_this()](
-      const boost::system::error_code &error) {
-    if (error != boost::asio::error::operation_aborted) {
-      sthis->close();
-    }
-  }));
+  //  _deadline.expires_from_now(boost::posix_time::minutes(1));
+  //  _deadline.async_wait((*_strand)()->wrap([sthis = shared_from_this()](
+  //      const boost::system::error_code &error) {
+  //    if (error != boost::asio::error::operation_aborted) {
+  //      sthis->close();
+  //    }
+  //  }));
 }
 
 void Connection::post_message(MessageRef &&message) {
   if (_session != nullptr) {
-    asio_strand()->post(
+    _strand->post(
         [ sthis = shared_from_this(), message = std::move(message) ]() mutable {
           if (sthis->session() != nullptr) {
             sthis->session()->receive_message(std::move(message));

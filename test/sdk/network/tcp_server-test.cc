@@ -31,7 +31,7 @@ TEST(TcpServerTest, SingleStrand) {
     clients.push_back(std::move(tcp_client));
   }
 
-  ASYNC_EXPECT_TRUE(500, (*config.strand)(), [&]() {
+  ASYNC_EXPECT_TRUE(500, *config.strand, [&]() {
     for (auto& client : clients) {
       if (!client->get_session().is_connected()) {
         return false;
@@ -78,7 +78,7 @@ TEST(TcpServerTest, MultiStrand) {
     clients.push_back(std::move(tcp_client));
   }
 
-  ASYNC_EXPECT_TRUE(500, (*client_config.strand)(), [&]() {
+  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() {
     for (auto& client : clients) {
       if (!client->get_session().is_connected()) {
         return false;

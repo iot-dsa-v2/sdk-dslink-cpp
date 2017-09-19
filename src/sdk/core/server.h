@@ -39,7 +39,9 @@ class Server : public SharedClosable<Server> {
   explicit Server(WrapperConfig &config);
   virtual ~Server() = default;
 
-  boost::asio::strand *asio_strand() { return (*_strand)(); }
+  void dispatch_in_strand(std::function<void()> &&callback) override {
+    return _strand->dispatch(std::move(callback));
+  }
 
   LinkStrand &get_strand() const { return *_strand; }
   uint32_t get_handshake_timeout_ms() const { return _handshake_timeout_ms; }

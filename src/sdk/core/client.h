@@ -31,7 +31,9 @@ class Client : public SharedClosable<Client> {
  public:
   Client(WrapperConfig &config);
 
-  boost::asio::strand *asio_strand() { return (*_strand)(); }
+  void dispatch_in_strand(std::function<void()> &&callback) override {
+    return _strand->dispatch(std::move(callback));
+  }
 
   Session &get_session() { return *_session; };
 

@@ -50,7 +50,7 @@ TEST(RequesterTest, Subscribe) {
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, (*client_config.strand)(),
+  ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;

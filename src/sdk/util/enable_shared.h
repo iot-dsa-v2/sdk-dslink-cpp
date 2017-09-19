@@ -9,7 +9,6 @@
 
 #include <valarray>
 
-#include <boost/asio/strand.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
@@ -41,7 +40,7 @@ class SharedClosable : public EnableShared<T> {
 
  protected:
   virtual void close_impl(){};
-  virtual boost::asio::strand * asio_strand() = 0;
+  virtual void dispatch_in_strand(std::function<void()> &&) = 0;
 
  public:
   boost::shared_mutex mutex;
@@ -63,7 +62,7 @@ class SharedClosable : public EnableShared<T> {
     SharedClosable<T> *raw_ptr = closable.get();
     // obtain the lock before dispatch to strand to reduce the load on main
     // strand
-    raw_ptr->asio_strand()->dispatch([
+    raw_ptr->dispatch_in_strand([
       closable = std::move(closable)
     ]() mutable { closable->close(); });
   }
