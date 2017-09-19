@@ -7,8 +7,6 @@
 
 #include <stdexcept>
 
-#include <valarray>
-
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
 

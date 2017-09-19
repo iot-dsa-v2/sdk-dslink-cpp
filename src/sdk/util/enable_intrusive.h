@@ -5,13 +5,8 @@
 #pragma once
 #endif
 
-#include <atomic>
 
-#include <dsa_common.h>
-
-#include <stdexcept>
-
-#include <valarray>
+#include <boost/intrusive_ptr.hpp>
 
 namespace dsa {
 

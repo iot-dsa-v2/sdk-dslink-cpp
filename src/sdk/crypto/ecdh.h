@@ -5,6 +5,7 @@
 #pragma once
 #endif
 
+#include <stdexcept>
 #include <vector>
 
 #include <openssl/ec.h>

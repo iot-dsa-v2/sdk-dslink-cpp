@@ -11,6 +11,11 @@
 
 namespace dsa {
 
+template <typename T, typename... Args>
+std::unique_ptr<T> make_unique_(Args&&... args) {
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+
 class LinkConfig : public LinkStrand {
  protected:
   // modules

@@ -75,7 +75,8 @@ void ECDH::cache_public_key() {
 
   _public_key_cache.resize(size);
 
-  size_t r = EC_POINT_point2oct(group, pub, form, &_public_key_cache[0], size, nullptr);
+  size_t r = EC_POINT_point2oct(group, pub, form, &_public_key_cache[0], size,
+                                nullptr);
   if (r != size) {
     throw std::runtime_error("Couldn't get public key");
   }

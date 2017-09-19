@@ -5,8 +5,7 @@
 #pragma once
 #endif
 
-#include <memory>
-#include <string>
+#include <bits/unique_ptr.h>
 
 #include "../util/exception.h"
 

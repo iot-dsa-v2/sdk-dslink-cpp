@@ -5,8 +5,6 @@
 #pragma once
 #endif
 
-#include <map>
-#include <memory>
 #include <string>
 
 #include "core/link_strand.h"

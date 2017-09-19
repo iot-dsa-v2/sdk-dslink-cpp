@@ -4,7 +4,6 @@
 #if defined(_MSC_VER)
 #pragma once
 
-
 // disable VC warning on throw error
 #pragma warning(disable : 4290)
 
@@ -22,10 +21,19 @@
 
 #endif  // DSA_DEBUG
 
-#include <boost/intrusive_ptr.hpp>
 #include <cstdint>
-#include <memory>
 #include <string>
+
+namespace std {
+template <typename T>
+class shared_ptr;
+class runtime_error;
+}
+
+namespace boost {
+template <typename T>
+class intrusive_ptr;
+}
 
 namespace dsa {
 
@@ -34,11 +42,6 @@ using shared_ptr_ = std::shared_ptr<T>;
 
 template <typename T>
 using ref_ = boost::intrusive_ptr<T>;
-
-template <typename T, typename... Args>
-std::unique_ptr<T> make_unique_(Args&&... args) {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
 
 }  // namespace dsa
 
