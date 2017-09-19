@@ -34,7 +34,7 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
   std::vector<uint8_t> &buffer = connection->_read_buffer;
   size_t partial_size = next - cur;
   if (cur > 0) {
-    std::copy(&buffer[cur], &buffer[next], &buffer[0]);
+    std::copy(buffer.data() + cur, buffer.data() + next, buffer.data());
   } else if (partial_size * 2 > buffer.size() &&
              buffer.size() < MAX_BUFFER_SIZE) {
     // resize the buffer on demand
