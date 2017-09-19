@@ -94,7 +94,7 @@ int main(int argc, const char *argv[]) {
         initial_options);
   }
 
-  int msg_per_second = 100000;
+  int msg_per_second = 300000;
 
   boost::posix_time::milliseconds interval(10);
   boost::asio::deadline_timer timer(app.io_service(), interval);
@@ -113,8 +113,9 @@ int main(int argc, const char *argv[]) {
         auto ms =
             std::chrono::duration_cast<std::chrono::milliseconds>(ts2 - ts)
                 .count();
-        ts = ts2;
+        
         if (ms > 0) {
+          ts = ts2;
           int count = 0;
           for (int i = 0; i < client_count; ++i) {
             count += receive_count[i];
@@ -132,7 +133,7 @@ int main(int argc, const char *argv[]) {
                       << client_count << ", interval " << ms;
           }
 
-          msg_per_second = (count * 1000 / ms + msg_per_second * 9) / 10;
+          msg_per_second = (count * 1000 + msg_per_second * 3000) / (3000 + ms);
           if (msg_per_second < 1000) msg_per_second = 1000;
           int num_message = msg_per_second * ms / 800;
           for (int i = 0; i < num_message; ++i) {
