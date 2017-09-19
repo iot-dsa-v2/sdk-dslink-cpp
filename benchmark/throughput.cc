@@ -94,7 +94,7 @@ int main(int argc, const char *argv[]) {
         initial_options);
   }
 
-  int msg_per_second = 300000;
+  int64_t msg_per_second = 300000;
 
   boost::posix_time::milliseconds interval(10);
   boost::asio::deadline_timer timer(app.io_service(), interval);
@@ -102,6 +102,9 @@ int main(int argc, const char *argv[]) {
   int print_count = 0;  // print every 100 timer visit;
 
   auto ts = high_resolution_clock::now();
+  int total_ms = 0;
+
+  int total_message = 0;
 
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {
@@ -121,8 +124,10 @@ int main(int argc, const char *argv[]) {
             count += receive_count[i];
             receive_count[i] = 0;
           }
-          count /= client_count;
+          total_message += count;
 
+          count /= client_count;
+          
           print_count += ms;
           if (print_count > 2000) {
             print_count = 0;
@@ -133,9 +138,13 @@ int main(int argc, const char *argv[]) {
                       << client_count << ", interval " << ms;
           }
 
-          msg_per_second = (count * 1000 + msg_per_second * 3000) / (3000 + ms);
-          if (msg_per_second < 1000) msg_per_second = 1000;
-          int num_message = msg_per_second * ms / 800;
+          msg_per_second = (count * 1000 + msg_per_second * total_ms)/ (total_ms + ms);
+          total_ms += ms;
+          if (total_ms > 5000) total_ms = 5000;
+
+          int tosend_per_second = msg_per_second;
+          if (tosend_per_second < 100000) tosend_per_second = 100000;
+          int num_message = tosend_per_second * ms / 800;
           for (int i = 0; i < num_message; ++i) {
             root_node->set_value(Variant(i));
           }
@@ -151,6 +160,7 @@ int main(int argc, const char *argv[]) {
   boost::this_thread::sleep(boost::posix_time::seconds(run_time));
   std::cout << std::endl << "end benchmark";
   timer.cancel();
+  std::cout << std::endl << "total message: " << total_message;
 
   Server::close_in_strand(tcp_server);
   for (int i = 0; i < client_count; ++i) {
