@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "core/link_strand.h"
+#include "core/session.h"
 #include "crypto/handshake_context.h"
 #include "message/base_message.h"
 #include "util/enable_shared.h"

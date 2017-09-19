@@ -5,6 +5,7 @@
 #include "crypto/hash.h"
 #include "crypto/misc.h"
 #include "server.h"
+#include "module/security_manager.h"
 
 namespace dsa {
 SessionManager::SessionManager(LinkStrand *strand) : _strand(strand) {

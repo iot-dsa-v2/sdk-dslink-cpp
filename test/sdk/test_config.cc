@@ -3,16 +3,18 @@
 #include "test_config.h"
 
 #include "core/app.h"
+#include "core/session_manager.h"
+#include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
 #include "responder/node_model.h"
+#include "responder/node_state_manager.h"
 
 namespace dsa {
 
 class TestModel : public NodeModel {
-public :
-  TestModel(LinkStrandRef strand):NodeModel(std::move(strand)) {}
-
+ public:
+  TestModel(LinkStrandRef strand) : NodeModel(std::move(strand)) {}
 };
 
 uint16_t TestConfig::_port = 4120;

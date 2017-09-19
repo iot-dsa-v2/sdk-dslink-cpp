@@ -5,22 +5,12 @@
 #pragma once
 #endif
 
-#include <atomic>
-#include <functional>
-#include <iostream>
-#include <map>
-#include <string>
-#include <utility>
-
 #include "config.h"
-#include "session.h"
-#include "session_manager.h"
-#include "util/buffer.h"
+
 #include "util/enable_shared.h"
 
 namespace dsa {
 class Connection;
-class SessionManager;
 
 class Server : public SharedClosable<Server> {
  protected:

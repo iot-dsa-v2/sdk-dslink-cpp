@@ -22,14 +22,10 @@
 
 #endif  // DSA_DEBUG
 
-#include <algorithm>
 #include <boost/intrusive_ptr.hpp>
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <string>
-
-#include "module/logger.h"
 
 namespace dsa {
 

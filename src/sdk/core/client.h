@@ -6,12 +6,13 @@
 #endif
 
 #include "config.h"
-#include "session.h"
 #include "util/enable_shared.h"
+#include "util/enable_intrusive.h"
 
 namespace dsa {
 
 class Connection;
+class Session;
 
 class Client : public SharedClosable<Client> {
  protected:
@@ -30,6 +31,8 @@ class Client : public SharedClosable<Client> {
 
  public:
   Client(WrapperConfig &config);
+
+  virtual ~Client();
 
   void dispatch_in_strand(std::function<void()> &&callback) override {
     return _strand->dispatch(std::move(callback));

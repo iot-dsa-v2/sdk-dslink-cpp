@@ -2,7 +2,9 @@
 
 #include "connection.h"
 
+#include "module/logger.h"
 #include "core/client.h"
+#include "core/session.h"
 #include "message/handshake/f0_message.h"
 #include "message/handshake/f1_message.h"
 #include "message/handshake/f2_message.h"

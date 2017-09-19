@@ -6,6 +6,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/asio/strand.hpp>
 
+#include "module/logger.h"
 #include "tcp_client.h"
 #include "tcp_server.h"
 

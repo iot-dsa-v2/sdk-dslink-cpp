@@ -3,8 +3,8 @@
 #include "session.h"
 
 #include "client.h"
+#include "module/logger.h"
 #include "server.h"
-
 #include "stream/ack_stream.h"
 
 namespace dsa {

@@ -1,6 +1,8 @@
 #include "dsa/message.h"
 #include "dsa/network.h"
 
+#include <chrono>
+
 #include "../async_test.h"
 #include "../test_config.h"
 #include "gtest/gtest.h"

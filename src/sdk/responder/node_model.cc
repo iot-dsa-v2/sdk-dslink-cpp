@@ -3,6 +3,7 @@
 #include "node_model.h"
 
 #include "node_state.h"
+#include "module/logger.h"
 #include "util/date_time.h"
 
 namespace dsa {

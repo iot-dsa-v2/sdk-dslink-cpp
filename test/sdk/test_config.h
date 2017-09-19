@@ -5,6 +5,8 @@
 
 namespace dsa {
 
+class App;
+
 class TestConfig : public WrapperConfig {
 private:
   static uint16_t _port;

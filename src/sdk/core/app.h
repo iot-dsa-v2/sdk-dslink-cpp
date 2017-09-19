@@ -5,11 +5,6 @@
 #pragma once
 #endif
 
-#include <atomic>
-#include <mutex>
-#include <string>
-#include <unordered_map>
-
 #include <boost/asio/io_service.hpp>
 #include <boost/thread.hpp>
 

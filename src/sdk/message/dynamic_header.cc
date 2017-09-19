@@ -3,6 +3,7 @@
 #include "dynamic_header.h"
 
 #include <cstring>
+#include <algorithm>
 
 #include "util/little_endian.h"
 
