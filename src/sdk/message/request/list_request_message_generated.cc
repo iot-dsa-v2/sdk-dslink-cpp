@@ -6,8 +6,6 @@ namespace dsa {
 
 ListRequestMessage::ListRequestMessage(const ListRequestMessage& from)
     : RequestMessage(from.static_headers) {
-  if (from.priority != nullptr)
-    priority.reset(new DynamicBoolHeader(DynamicHeader::PRIORITY));
   if (from.alias_count != nullptr)
     alias_count.reset(new DynamicByteHeader(DynamicHeader::ALIAS_COUNT, from.alias_count->value()));
   if (from.target_path != nullptr)
@@ -24,8 +22,6 @@ void ListRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::PRIORITY:priority.reset(DOWN_CAST<DynamicBoolHeader *>(header));
-        break;
       case DynamicHeader::ALIAS_COUNT:alias_count.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
       case DynamicHeader::TARGET_PATH: {
@@ -43,10 +39,6 @@ void ListRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_
 }
 
 void ListRequestMessage::write_dynamic_data(uint8_t *data) const {
-  if (priority != nullptr) {
-    priority->write(data);
-    data += priority->size();
-  }
   if (alias_count != nullptr) {
     alias_count->write(data);
     data += alias_count->size();
@@ -67,9 +59,6 @@ void ListRequestMessage::write_dynamic_data(uint8_t *data) const {
 
 void ListRequestMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TOTAL_SIZE;
-  if (priority != nullptr) {
-    header_size += priority->size();
-  }
   if (alias_count != nullptr) {
     header_size += alias_count->size();
   }

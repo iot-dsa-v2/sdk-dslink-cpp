@@ -138,7 +138,6 @@ const messages = {
             new BodyHeader('Body'),
         ],
         List: [
-            new BoolHeader('Priority'),
             new ByteHeader('AliasCount'),
             new TargetPathHeader('TargetPath'),
             new StringHeader('PermissionToken'),
