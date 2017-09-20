@@ -165,7 +165,7 @@ int main(int argc, const char *argv[]) {
             tosend_per_second = min_send_num;
           // send a little bit more than the current speed,
           // limited message queue size should handle the extra messages
-          long num_message = tosend_per_second * ms / 800;
+          long num_message = tosend_per_second * ms / (800 + total_ms / 50);
           if (encode_value) {
             for (int i = 0; i < num_message; ++i) {
               root_node->set_value(Variant(i));
