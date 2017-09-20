@@ -2,8 +2,8 @@
 
 #include "node_model.h"
 
-#include "node_state.h"
 #include "module/logger.h"
+#include "node_state.h"
 #include "util/date_time.h"
 
 namespace dsa {
@@ -67,6 +67,12 @@ void NodeModel::set_value(MessageValue &&value) {
   auto response = make_ref_<SubscribeResponseMessage>();
   response->set_value(std::move(value));
   _cached_value = response;
+  if (_subscribe_callback) {
+    _subscribe_callback(copy_ref_(_cached_value));
+  }
+}
+void NodeModel::set_message(SubscribeResponseMessageCRef &&message) {
+  _cached_value = std::move(message);
   if (_subscribe_callback) {
     _subscribe_callback(copy_ref_(_cached_value));
   }

@@ -29,7 +29,11 @@ int main(int argc, const char *argv[]) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")(
       "client,c", opts::value<int>()->default_value(2), "Number of Clients")(
-      "time,t", opts::value<int>()->default_value(20), "Time (seconds)");
+      "time,t", opts::value<int>()->default_value(20), "Time (seconds)")(
+      "encode-value,e", opts::bool_switch(), "Encode value before sending")(
+      "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
+      "num-message,n", opts::value<int>()->default_value(100000),
+      "Minimal number of messages to send in each iteration");
 
   opts::variables_map variables;
   opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -51,6 +55,10 @@ int main(int argc, const char *argv[]) {
     std::cout << "invalid Number of Clients, ( 1 ~ 255 )";
     return 0;
   }
+  bool encode_value = variables["encode-value"].as<bool>();
+  bool decode_value = variables["decode-value"].as<bool>();
+  int min_send_num = variables["num-message"].as<int>();
+  ;
   std::cout << std::endl << "benchmark with " << client_count << " clients";
 
   App app;
@@ -89,8 +97,14 @@ int main(int argc, const char *argv[]) {
     std::atomic_int &count = receive_count[i];
 
     clients[i]->get_session().requester.subscribe(
-        "", [&](ref_<const SubscribeResponseMessage> &&msg,
-                IncomingSubscribeStream &stream) { count.fetch_add(1); },
+        "",
+        [&](ref_<const SubscribeResponseMessage> &&msg,
+            IncomingSubscribeStream &stream) {
+          count.fetch_add(1);
+          if (decode_value) {
+            msg->get_value();
+          }
+        },
         initial_options);
   }
 
@@ -106,6 +120,9 @@ int main(int argc, const char *argv[]) {
 
   int total_message = 0;
 
+  SubscribeResponseMessageCRef cached_message =
+      make_ref_<SubscribeResponseMessage>(Variant(0));
+
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {
 
@@ -116,7 +133,7 @@ int main(int argc, const char *argv[]) {
         auto ms =
             std::chrono::duration_cast<std::chrono::milliseconds>(ts2 - ts)
                 .count();
-        
+
         if (ms > 0) {
           ts = ts2;
           int count = 0;
@@ -127,7 +144,7 @@ int main(int argc, const char *argv[]) {
           total_message += count;
 
           count /= client_count;
-          
+
           print_count += ms;
           if (print_count > 2000) {
             print_count = 0;
@@ -138,15 +155,25 @@ int main(int argc, const char *argv[]) {
                       << client_count << ", interval " << ms;
           }
 
-          msg_per_second = (count * 1000 + msg_per_second * total_ms)/ (total_ms + ms);
-          total_ms += ms;
+          msg_per_second =
+              (count * 1000 + msg_per_second * total_ms) / (total_ms + ms);
+          total_ms += ms/2;
           if (total_ms > 5000) total_ms = 5000;
 
-          int tosend_per_second = msg_per_second;
-          if (tosend_per_second < 100000) tosend_per_second = 100000;
-          int num_message = tosend_per_second * ms / 800;
-          for (int i = 0; i < num_message; ++i) {
-            root_node->set_value(Variant(i));
+          long tosend_per_second = msg_per_second;
+          if (tosend_per_second < min_send_num)
+            tosend_per_second = min_send_num;
+          // send a little bit more than the current speed,
+          // limited message queue size should handle the extra messages
+          long num_message = tosend_per_second * ms / 800;
+          if (encode_value) {
+            for (int i = 0; i < num_message; ++i) {
+              root_node->set_value(Variant(i));
+            }
+          } else {
+            for (int i = 0; i < num_message; ++i) {
+              root_node->set_message(copy_ref_(cached_message));
+            }
           }
         }
         timer.async_wait(tick);

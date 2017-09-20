@@ -58,7 +58,7 @@ class NodeModel : public EnableRef<NodeModel> {
 
   void set_value(Variant &&value);
   void set_value(MessageValue &&value);
-
+  void set_message(SubscribeResponseMessageCRef &&message);
 
   virtual void on_subscribe(const SubscribeOptions &options){};
   virtual void on_subscribe_option_change(const SubscribeOptions &options){};
