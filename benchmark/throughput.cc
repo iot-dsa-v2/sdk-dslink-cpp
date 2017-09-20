@@ -58,7 +58,7 @@ int main(int argc, const char *argv[]) {
   bool encode_value = variables["encode-value"].as<bool>();
   bool decode_value = variables["decode-value"].as<bool>();
   int min_send_num = variables["num-message"].as<int>();
-  ;
+
   std::cout << std::endl << "benchmark with " << client_count << " clients";
 
   App app;
