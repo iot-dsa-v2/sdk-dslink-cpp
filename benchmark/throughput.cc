@@ -32,7 +32,7 @@ int main(int argc, const char *argv[]) {
       "time,t", opts::value<int>()->default_value(20), "Time (seconds)")(
       "encode-value,e", opts::bool_switch(), "Encode value before sending")(
       "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
-      "num-message,n", opts::value<int>()->default_value(100000),
+      "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration");
 
   opts::variables_map variables;
