@@ -20,7 +20,7 @@ namespace dsa {
 
 class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
  private:
-  NodeStateRoot _root;
+  ref_<NodeStateRoot> _root;
   std::unordered_map<std::string, NodeState *> _states;
 
   ref_<NodeState> get_state(const Path &path);

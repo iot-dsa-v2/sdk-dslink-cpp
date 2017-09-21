@@ -12,7 +12,7 @@
 namespace dsa {
 
 class AckStream : public MessageRefedStream {
-  AckMessage _message;
+  ref_<AckMessage> _message;
 
  public:
   explicit AckStream(ref_<Session>&& session);

@@ -158,9 +158,6 @@ NodeStateChild::~NodeStateChild() {
 NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ref_<NodeModel> &&model)
     : NodeState(owner) {
   set_model(std::move(model));
-  // keep a ref so it won't be deleted by smart pointer
-  // the instance will always be non-pointer member in NodeStateManager
-  intrusive_ptr_add_ref(this);
 };
 
 }  // namespace dsa

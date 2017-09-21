@@ -12,7 +12,7 @@
 namespace dsa {
 
 class ErrorStream : public MessageStream {
-  ErrorMessage _message;
+  ref_<ErrorMessage> _message;
 
  public:
   explicit ErrorStream(int32_t rid, MessageType type, MessageStatus status);

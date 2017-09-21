@@ -10,7 +10,7 @@
 namespace dsa {
 
 NodeStateManager::NodeStateManager(ref_<NodeModel> &&root_model)
-    : _root(*this, std::move(root_model)) {}
+    : _root(new NodeStateRoot(*this, std::move(root_model))) {}
 
 void NodeStateManager::remove_state(const std::string &path) {
   _states.erase(path);
@@ -18,7 +18,7 @@ void NodeStateManager::remove_state(const std::string &path) {
 
 ref_<NodeState> NodeStateManager::get_state(const Path &path) {
   if (path.is_root()) {
-    return _root.get_ref();
+    return _root;
   }
   auto result = _states.find(path.full_str());
   if (result != _states.end()) {
@@ -26,7 +26,7 @@ ref_<NodeState> NodeStateManager::get_state(const Path &path) {
   }
 
   // register it in global map for quick access
-  ref_<NodeState> state = _root.get_child(path, true);
+  ref_<NodeState> state = _root->get_child(path, true);
   if (!state->in_use()) {
     _states[path.full_str()] = state.get();
     state->check_model(path);
@@ -35,13 +35,13 @@ ref_<NodeState> NodeStateManager::get_state(const Path &path) {
 }
 ref_<NodeState> NodeStateManager::check_state(const Path &path) {
   if (path.is_root()) {
-    return _root.get_ref();
+    return _root->get_ref();
   }
   auto result = _states.find(path.full_str());
   if (result != _states.end()) {
     return result->second->get_ref();
   }
-  return _root.get_child(path, false);
+  return _root->get_child(path, false);
 }
 
 void NodeStateManager::model_added(const Path &path, ref_<NodeModel> &model) {
