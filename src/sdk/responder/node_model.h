@@ -44,7 +44,7 @@ class NodeModel : public EnableRef<NodeModel> {
 
   ref_<NodeModel> add_child(const std::string &name, ref_<NodeModel> model);
 
-  virtual bool allows_on_demand_child() { return false; }
+  virtual bool allows_runtime_child_change() { return false; }
 //  virtual ref_<NodeModel> on_demand_create_child(const std::string &name) {
 //    return INVALID;
 //  }

@@ -15,34 +15,62 @@ ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
   // find existing node
   auto result = _children.find(name);
   if (result != _children.end()) {
-    return result->second->get_ref();
+    return result->second;
   } else if (create) {
     // create new node
     _children[name] = new NodeStateChild(_owner, get_ref(), name);
-    return _children[name]->get_ref();
+    return _children[name];
   }
   // not found, return a nullptr
   return ref_<NodeState>();
 }
-ref_<NodeState> NodeState::get_child(const Path &path, bool create) {
+ref_<NodeState> NodeState::create_child(const Path &path,
+                                        NodeState &last_modeled_state) {
   const std::string &name = path.current_name();
 
   // find existing node
   auto result = _children.find(name);
   if (result != _children.end()) {
     if (path.is_last()) {
-      return result->second->get_ref();
+      return result->second;
     }
-    return result->second->get_child(path.next(), create);
-  } else if (create) {
+    NodeState &modeled_state = result->second->_model != nullptr
+                                   ? *result->second
+                                   : last_modeled_state;
+    return result->second->create_child(path.next(), modeled_state);
+  } else if (last_modeled_state._model->allows_runtime_child_change()) {
     // create new node
-    _children[name] = new NodeStateChild(_owner, get_ref(), name);
+    ref_<NodeState> new_state = new NodeStateChild(_owner, get_ref(), name);
+    _children[name] = new_state;
     if (path.is_last()) {
-      return _children[name]->get_ref();
+      new_state->_path = path;
+      if (_model_status == MODEL_UNKNOWN) {
+        set_model(last_modeled_state._model->on_demand_create_child(
+            path.move_pos(last_modeled_state._path.current_pos() + 1)));
+      } else if (_model_status == MODEL_CONNECTED) {
+        set_model(_model->on_demand_create_child(path));
+      } else {
+        new_state->_model_status = _model_status;
+      }
+      return new_state;
     }
-    return _children[name]->get_child(path.next(), true);
+    return _children[name]->create_child(path.next(), last_modeled_state);
   }
   // not found, return a nullptr
+  return ref_<NodeState>();
+}
+
+ref_<NodeState> NodeState::find_child(const Path &path) {
+  const std::string &name = path.current_name();
+
+  auto result = _children.find(name);
+  if (result != _children.end()) {
+    if (path.is_last()) {
+      return result->second;
+    }
+
+    return result->second->find_child(path.next());
+  }
   return ref_<NodeState>();
 }
 
@@ -64,30 +92,6 @@ void NodeState::set_model(ref_<NodeModel> &&model) {
     _model_status = MODEL_CONNECTED;
   }
   // TODO send request to model
-}
-
-void NodeState::check_model(const Path &path) {
-  _path = path;
-  if (_model == nullptr && _model_status == NodeState::MODEL_UNKNOWN) {
-    if (_parent->_model_status > MODEL_CONNECTED) {
-      _model_status = _parent->_model_status;
-    } else {
-      ref_<NodeState> &parent = _parent;
-      Path p = path;
-      while (parent->_model_status == MODEL_UNKNOWN) {
-        parent = parent->_parent;
-        p = p.previous();
-      }
-      if (parent->_model_status == MODEL_CONNECTED) {
-        if (parent->_model->allows_on_demand_child()) {
-          set_model(parent->_model->on_demand_create_child(p));
-        }
-      } else {
-        // if parent status is  not valid, use same status
-        _model_status = parent->_model_status;
-      }
-    }
-  }
 }
 
 void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
@@ -148,12 +152,6 @@ void NodeState::list(ref_<OutgoingListStream> &&stream) {
 NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> parent,
                                const std::string &name)
     : NodeState(owner), _parent(std::move(parent)), name(name) {}
-NodeStateChild::~NodeStateChild() {
-  if (_path.data() != nullptr) {
-    _owner.remove_state(_path.full_str());
-  }
-  _parent->remove_child(name);
-}
 
 NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ref_<NodeModel> &&model)
     : NodeState(owner) {

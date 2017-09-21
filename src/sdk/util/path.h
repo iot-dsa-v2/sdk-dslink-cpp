@@ -17,7 +17,6 @@ class PathData : public EnableRef<PathData> {
   friend class Path;
 
  public:
-
   std::string str;
   std::vector<std::string> names;
   bool is_root = false;
@@ -40,11 +39,10 @@ class Path {
 
   const ref_<const PathData> &data() { return _data; }
 
-  bool is_invalid() const {
-    return _data == nullptr || _data->invalid;
-  }
+  bool is_invalid() const { return _data == nullptr || _data->invalid; }
   bool is_root() const { return _data->is_root; }
 
+  const size_t &current_pos() const { return _current; }
   const std::string &current_name() const { return _data->names[_current]; }
 
   const std::string &last_name() const {
@@ -62,6 +60,7 @@ class Path {
 
   const Path next() const { return Path(_data, _current + 1); }
   const Path previous() const { return Path(_data, _current - 1); }
+  const Path move_pos(size_t pos) const { return Path(_data, pos); }
 
   const Path get_child_path(const std::string &name);
 

@@ -29,7 +29,8 @@ class NodeState : public EnableRef<NodeState> {
     MODEL_UNKNOWN,
     MODEL_CONNECTED,
     MODEL_WAITING,
-    MODEL_UNAVAILABLE,  // model currently not available, but might be created later
+    MODEL_UNAVAILABLE,  // model currently not available, but might be created
+                        // later
     MODEL_INVALID
   };
 
@@ -39,7 +40,7 @@ class NodeState : public EnableRef<NodeState> {
   NodeStateOwner &_owner;
   Path _path;
   ref_<NodeState> _parent;
-  std::unordered_map<std::string, NodeState *> _children;
+  std::unordered_map<std::string, ref_<NodeState>> _children;
 
   ref_<NodeModel> _model;
   ModelStatus _model_status = MODEL_UNKNOWN;
@@ -54,16 +55,16 @@ class NodeState : public EnableRef<NodeState> {
   explicit NodeState(NodeStateOwner &owner);
   virtual ~NodeState() = default;
 
-  bool in_use() { return _path.data() != nullptr; }
+  bool registered() { return _path.data() != nullptr; }
 
   ref_<NodeState> get_child(const std::string &name, bool create);
-  ref_<NodeState> get_child(const Path &path, bool create);
+  ref_<NodeState> create_child(const Path &path, NodeState &last_modeled_state);
+  ref_<NodeState> find_child(const Path &path);
 
   void remove_child(const std::string &name);
 
   void set_model(ref_<NodeModel> &&model);
   ref_<NodeModel> &get_model() { return _model; }
-  void check_model(const Path &path);
 
   //////////////////////////
   // Getters
@@ -87,7 +88,6 @@ class NodeStateChild : public NodeState {
 
   NodeStateChild(NodeStateOwner &owner, ref_<NodeState> parent,
                  const std::string &name);
-  ~NodeStateChild() override;
 };
 
 class NodeStateRoot : public NodeState {
