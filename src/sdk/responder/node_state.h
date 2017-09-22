@@ -51,14 +51,17 @@ class NodeState : public EnableRef<NodeState> {
   SubscribeOptions _merged_subscribe_options;
   void check_subscribe_options();
 
+  void close_impl();
+
  public:
-  explicit NodeState(NodeStateOwner &owner);
+  NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent);
   virtual ~NodeState() = default;
 
   bool registered() { return _path.data() != nullptr; }
 
   ref_<NodeState> get_child(const std::string &name, bool create);
-  ref_<NodeState> create_child(const Path &path, NodeState &last_modeled_state, bool allows_runtime_change);
+  ref_<NodeState> create_child(const Path &path, NodeState &last_modeled_state,
+                               bool allows_runtime_change);
   ref_<NodeState> find_child(const Path &path);
 
   void remove_child(const std::string &name);
@@ -71,6 +74,7 @@ class NodeState : public EnableRef<NodeState> {
   //////////////////////////
   const std::string &path() { return _path.full_str(); }
 
+  bool periodic_check(size_t ts);
   /////////////////////////
   // Other
   /////////////////////////
@@ -81,12 +85,10 @@ class NodeState : public EnableRef<NodeState> {
 };
 
 class NodeStateChild : public NodeState {
-  ref_<NodeState> _parent;
-
  public:
   const std::string name;
 
-  NodeStateChild(NodeStateOwner &owner, ref_<NodeState> parent,
+  NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
                  const std::string &name);
 };
 

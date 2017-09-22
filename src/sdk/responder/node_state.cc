@@ -9,7 +9,8 @@
 
 namespace dsa {
 
-NodeState::NodeState(NodeStateOwner &owner) : _owner(owner) {}
+NodeState::NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent)
+    : _owner(owner), _parent(std::move(parent)) {}
 
 ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
   // find existing node
@@ -102,6 +103,23 @@ void NodeState::set_model(ref_<NodeModel> &&model) {
   }
   // TODO send request to model
 }
+bool NodeState::periodic_check(size_t ts) {
+  for (auto it = _children.begin(); it != _children.end();) {
+    if (it->second->periodic_check(ts)) {
+      it = _children.erase(it);
+    } else {
+      it++;
+    }
+  }
+
+  if ((_model == nullptr ||
+       _model->periodic_check(ts))  // check if model is still in use
+      && _children.empty() && _subscription_streams.empty()) {
+    close_impl();
+    return true;
+  }
+  return false;
+}
 
 void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
   for (auto &it : _subscription_streams) {
@@ -158,12 +176,20 @@ void NodeState::list(ref_<OutgoingListStream> &&stream) {
   //_list_streams.insert(std::move(p));
 }
 
-NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> parent,
+void NodeState::close_impl() {
+  if (_model != nullptr) {
+    _model->close();
+    _model.reset();
+    _model_status = MODEL_UNKNOWN;
+  }
+}
+
+NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
                                const std::string &name)
-    : NodeState(owner), _parent(std::move(parent)), name(name) {}
+    : NodeState(owner, std::move(parent)), name(name) {}
 
 NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ref_<NodeModel> &&model)
-    : NodeState(owner) {
+    : NodeState(owner, ref_<NodeState>()) {
   set_model(std::move(model));
 };
 

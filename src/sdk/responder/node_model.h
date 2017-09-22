@@ -17,7 +17,7 @@ namespace dsa {
 
 class NodeState;
 
-class NodeModel : public EnableRef<NodeModel> {
+class NodeModel : public ClosableRef<NodeModel> {
   friend class NodeState;
 
  public:
@@ -44,16 +44,14 @@ class NodeModel : public EnableRef<NodeModel> {
 
   ref_<NodeModel> add_child(const std::string &name, ref_<NodeModel> model);
 
+  // when return true, model will be removed
+  virtual bool periodic_check(size_t ts) { return true; }
   virtual bool allows_runtime_child_change() { return false; }
-//  virtual ref_<NodeModel> on_demand_create_child(const std::string &name) {
-//    return INVALID;
-//  }
   virtual ref_<NodeModel> on_demand_create_child(const Path &path) {
     return INVALID;
   }
 
-  void subscribe(const SubscribeOptions &options,
-                         SubscribeCallback &&callback);
+  void subscribe(const SubscribeOptions &options, SubscribeCallback &&callback);
   void unsubscribe();
 
   void set_value(Variant &&value);
