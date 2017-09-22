@@ -6,16 +6,14 @@
 
 namespace dsa {
 
+thread_local msgpack_sbuffer sbuf = {0, nullptr, 0};
+thread_local msgpack_packer pk = {.data = &sbuf, .callback = msgpack_sbuffer_write};
+
 struct MsgpackMemPool {
   msgpack_zone zone;
 
   MsgpackMemPool() { msgpack_zone_init(&zone, 2048); }
   ~MsgpackMemPool() { msgpack_zone_destroy(&zone); }
-};
-
-struct MsgpackSbuffer : public msgpack_sbuffer {
-  MsgpackSbuffer() { msgpack_sbuffer_init(this); }
-  ~MsgpackSbuffer() { msgpack_sbuffer_destroy(this); }
 };
 
 Variant Variant::to_variant(const msgpack_object &obj) {
@@ -122,13 +120,17 @@ bool msgpack_pack(msgpack_packer *pk, Variant &v) {
 }
 
 std::vector<uint8_t> Variant::to_msgpack() throw(const EncodingError &) {
-  MsgpackSbuffer sbuf;
-  msgpack_packer pk;
-
-  msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
-
   if (msgpack_pack(&pk, *this)) {
-    return std::vector<uint8_t>(&sbuf.data[0], &sbuf.data[sbuf.size]);
+    size_t sbuf_size = sbuf.size;
+
+    sbuf.size = 0;
+    if (sbuf.alloc >= 0x100000) {
+      free(sbuf.data);
+      sbuf.data = nullptr;
+      sbuf.alloc = 0;
+    }
+
+    return std::vector<uint8_t>(&sbuf.data[0], &sbuf.data[sbuf_size]);
   }
 
   throw EncodingError("Failed to pack Variant to msgpack");
