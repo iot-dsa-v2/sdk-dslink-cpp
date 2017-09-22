@@ -25,7 +25,7 @@ ref_<NodeState> NodeStateManager::get_state(const Path &path) {
     return result->second->get_ref();
   }
 
-  ref_<NodeState> state = _root->create_child(path, *_root);
+  ref_<NodeState> state = _root->create_child(path, *_root, false);
   // register it in global map for quick access
   _states[path.full_str()] = state;
   return std::move(state);

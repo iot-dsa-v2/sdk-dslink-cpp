@@ -25,7 +25,8 @@ ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
   return ref_<NodeState>();
 }
 ref_<NodeState> NodeState::create_child(const Path &path,
-                                        NodeState &last_modeled_state) {
+                                        NodeState &last_modeled_state,
+                                        bool allows_runtime_change) {
   const std::string &name = path.current_name();
 
   // find existing node
@@ -34,11 +35,19 @@ ref_<NodeState> NodeState::create_child(const Path &path,
     if (path.is_last()) {
       return result->second;
     }
-    NodeState &modeled_state = result->second->_model != nullptr
-                                   ? *result->second
-                                   : last_modeled_state;
-    return result->second->create_child(path.next(), modeled_state);
-  } else if (last_modeled_state._model->allows_runtime_child_change()) {
+    if (result->second->_model != nullptr) {
+      if (!allows_runtime_change &&
+          result->second->_model->allows_runtime_child_change()) {
+        allows_runtime_change = true;
+      }
+      return result->second->create_child(path.next(), *result->second,
+                                          allows_runtime_change);
+    } else {
+      return result->second->create_child(path.next(), last_modeled_state,
+                                          allows_runtime_change);
+    }
+  }
+  if (allows_runtime_change) {
     // create new node
     ref_<NodeState> new_state = new NodeStateChild(_owner, get_ref(), name);
     _children[name] = new_state;
@@ -54,7 +63,7 @@ ref_<NodeState> NodeState::create_child(const Path &path,
       }
       return new_state;
     }
-    return _children[name]->create_child(path.next(), last_modeled_state);
+    return _children[name]->create_child(path.next(), last_modeled_state, true);
   }
   // not found, return a nullptr
   return ref_<NodeState>();

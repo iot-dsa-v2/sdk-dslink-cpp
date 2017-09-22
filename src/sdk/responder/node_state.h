@@ -58,7 +58,7 @@ class NodeState : public EnableRef<NodeState> {
   bool registered() { return _path.data() != nullptr; }
 
   ref_<NodeState> get_child(const std::string &name, bool create);
-  ref_<NodeState> create_child(const Path &path, NodeState &last_modeled_state);
+  ref_<NodeState> create_child(const Path &path, NodeState &last_modeled_state, bool allows_runtime_change);
   ref_<NodeState> find_child(const Path &path);
 
   void remove_child(const std::string &name);
