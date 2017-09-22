@@ -6,21 +6,24 @@
 
 namespace dsa {
 
-#ifdef _MSC_VER
-thread_local msgpack_sbuffer sbuf = {0, nullptr, 0};
-thread_local msgpack_packer pk = {nullptr, nullptr};
-#else
-thread_local msgpack_sbuffer sbuf = {0, nullptr, 0};
-thread_local msgpack_packer pk = {.data = &sbuf,
-                                  .callback = msgpack_sbuffer_write};
-#endif
-
 struct MsgpackMemPool {
   msgpack_zone zone;
 
   MsgpackMemPool() { msgpack_zone_init(&zone, 2048); }
   ~MsgpackMemPool() { msgpack_zone_destroy(&zone); }
 };
+
+thread_local msgpack_packer pk;
+
+struct MsgpackSbuffer : public msgpack_sbuffer {
+  MsgpackSbuffer() {
+    msgpack_sbuffer_init(this);
+    msgpack_packer_init(&pk, this, msgpack_sbuffer_write);
+  }
+  ~MsgpackSbuffer() { msgpack_sbuffer_destroy(this); }
+};
+
+thread_local MsgpackSbuffer sbuf;
 
 Variant Variant::to_variant(const msgpack_object &obj) {
   switch (obj.type) {
@@ -126,13 +129,7 @@ bool msgpack_pack(msgpack_packer *pk, Variant &v) {
 }
 
 std::vector<uint8_t> Variant::to_msgpack() throw(const EncodingError &) {
-#if _MSC_VER
-  if (pk.callback == nullptr) {
-    pk.data = &sbuf;
-    pk.callback = msgpack_sbuffer_write;
-  }
-#endif
-
+  sbuf;
   if (msgpack_pack(&pk, *this)) {
     size_t sbuf_size = sbuf.size;
 
