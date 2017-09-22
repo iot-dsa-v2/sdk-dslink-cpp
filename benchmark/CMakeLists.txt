@@ -17,14 +17,14 @@ else ()
 endif ()
 
 
-set(SOURCES_benchmark "benchmark.cc" $<TARGET_OBJECTS:dsa_test_util>)
-add_executable("dsa-benchmark" ${SOURCES_benchmark})
-target_link_libraries("dsa-benchmark" ${BENCHMARK_LIBS})
-
-set(SOURCES_throughput "throughput.cc" $<TARGET_OBJECTS:dsa_test_util>)
-add_executable("throughput" ${SOURCES_throughput})
-target_link_libraries("throughput" ${BENCHMARK_LIBS})
-
-set(SOURCES_throughput "message_queue.cc" $<TARGET_OBJECTS:dsa_test_util>)
-add_executable("message_queue" ${SOURCES_throughput})
-target_link_libraries("message_queue" ${BENCHMARK_LIBS})
+#
+foreach (name "benchmark"
+              "throughput"
+#              "throughput_server"
+#              "throughput_client"
+              "message_queue"
+)
+    set(SOURCES "${name}.cc" $<TARGET_OBJECTS:dsa_test_util>)
+    add_executable(${name} ${SOURCES})
+    target_link_libraries(${name} ${BENCHMARK_LIBS})
+endforeach()
