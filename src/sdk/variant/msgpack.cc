@@ -138,9 +138,13 @@ std::vector<uint8_t> Variant::to_msgpack() throw(const EncodingError &) {
 
     sbuf.size = 0;
     if (sbuf.alloc >= 0x100000) {
+      std::vector<uint8_t> v(&sbuf.data[0], &sbuf.data[sbuf_size]);
+
       free(sbuf.data);
       sbuf.data = nullptr;
       sbuf.alloc = 0;
+
+      return v;
     }
 
     return std::vector<uint8_t>(&sbuf.data[0], &sbuf.data[sbuf_size]);
