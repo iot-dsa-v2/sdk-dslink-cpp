@@ -14,7 +14,7 @@ LinkStrand::~LinkStrand() {
   delete __ecdh;
 }
 boost::asio::io_service &LinkStrand::get_io_service(){
-  static_cast<boost::asio::io_service::strand*>(__strand)->get_io_service();
+  return static_cast<boost::asio::io_service::strand*>(__strand)->get_io_service();
 }
 void LinkStrand::post(std::function<void()>&& callback) {
   static_cast<boost::asio::io_service::strand*>(__strand)->post(callback);
