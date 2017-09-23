@@ -6,8 +6,6 @@
 #include "core/session.h"
 #include "crypto/hmac.h"
 
-#include <boost/asio/strand.hpp>
-
 namespace dsa {
 Connection::Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
                        const std::string &dsid_prefix, const std::string &path)
@@ -15,8 +13,7 @@ Connection::Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
       _handshake_timeout_ms(handshake_timeout_ms),
       _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE),
-      _deadline(static_cast<boost::asio::strand *>(strand->asio_strand())
-                    ->get_io_service()),
+      _deadline(strand->get_io_service()),
       _strand(strand),
       _path(path) {}
 

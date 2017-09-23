@@ -69,8 +69,8 @@ int main(int argc, const char *argv[]) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_stream_acceptor(
-      make_unique_<NodeStateManager>(ref_<MockNode>(root_node)));
+  server_config.get_link_config()->set_responder_model(
+      ref_<MockNode>(root_node));
 
   //  auto tcp_server(new TcpServer(server_config));
   auto tcp_server = make_shared_<TcpServer>(server_config);
@@ -157,7 +157,7 @@ int main(int argc, const char *argv[]) {
 
           msg_per_second =
               (count * 1000 + msg_per_second * total_ms) / (total_ms + ms);
-          total_ms += ms/2;
+          total_ms += ms / 2;
           if (total_ms > 5000) total_ms = 5000;
 
           long tosend_per_second = msg_per_second;

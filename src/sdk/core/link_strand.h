@@ -7,6 +7,12 @@
 
 #include "util/enable_intrusive.h"
 
+namespace boost {
+namespace asio {
+class io_service;
+}
+}
+
 namespace dsa {
 
 class SecurityManager;
@@ -32,6 +38,7 @@ class LinkStrand : public EnableRef<LinkStrand> {
   virtual ~LinkStrand();
 
   void *asio_strand() { return __strand; }
+  boost::asio::io_service &get_io_service();
   void post(std::function<void()> &&);
   void dispatch(std::function<void()> &&);
 

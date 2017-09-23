@@ -2,8 +2,6 @@
 
 #include "tcp_client_connection.h"
 
-#include <boost/asio/strand.hpp>
-
 #include "core/session.h"
 
 namespace dsa {
@@ -20,9 +18,7 @@ TcpClientConnection::TcpClientConnection(LinkStrandRef &strand,
 void TcpClientConnection::connect() {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(
-      static_cast<boost::asio::strand *>(_strand->asio_strand())
-          ->get_io_service());
+  tcp::resolver resolver(_strand->get_io_service());
   // TODO: timeout
   _socket.async_connect(
       *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),

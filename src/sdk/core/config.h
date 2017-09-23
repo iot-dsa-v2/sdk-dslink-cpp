@@ -11,6 +11,8 @@
 
 namespace dsa {
 
+class NodeModel;
+
 template <typename T, typename... Args>
 std::unique_ptr<T> make_unique_(Args&&... args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
@@ -32,6 +34,8 @@ class LinkConfig : public LinkStrand {
   void set_stream_acceptor(std::unique_ptr<OutgoingStreamAcceptor> p);
   void set_session_manager(std::unique_ptr<SessionManager> p);
   void set_logger(std::unique_ptr<Logger> p);
+
+  void set_responder_model(ref_<NodeModel>&& root_model, size_t timer_interval = 60);
 };
 
 class WrapperConfig {

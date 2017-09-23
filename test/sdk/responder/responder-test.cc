@@ -38,8 +38,8 @@ TEST(ResponderTest, Subscribe) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_stream_acceptor(
-      make_unique_<NodeStateManager>(ref_<MockNode>(root_node)));
+  server_config.get_link_config()->set_responder_model(
+      ref_<MockNode>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -52,7 +52,7 @@ TEST(ResponderTest, Subscribe) {
   auto tcp_client = make_shared_<TcpClient>(client_config);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, (*client_config.strand)(),
+  ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -98,7 +98,6 @@ TEST(ResponderTest, Subscribe) {
   WAIT_EXPECT_TRUE(500, [&]() -> bool {
     return last_response->get_value().value.get_string() == "world";
   });
-
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);

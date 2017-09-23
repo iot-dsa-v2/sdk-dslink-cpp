@@ -23,8 +23,7 @@ static LinkConfig *make_config(App &app, bool async) {
   auto *config = new LinkConfig(app.new_strand(), new ECDH());
 
   config->set_session_manager(make_unique_<SessionManager>(config));
-  config->set_stream_acceptor(
-      make_unique_<NodeStateManager>(make_ref_<TestModel>(config->get_ref())));
+  config->set_responder_model(make_ref_<TestModel>(config->get_ref()));
   if (async) {
     config->set_security_manager(
         make_unique_<AsyncSimpleSecurityManager>(config->get_ref()));

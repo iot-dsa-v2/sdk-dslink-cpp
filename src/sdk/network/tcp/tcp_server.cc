@@ -2,8 +2,6 @@
 
 #include "tcp_server.h"
 
-#include <boost/asio/strand.hpp>
-
 #include "tcp_server_connection.h"
 
 namespace dsa {
@@ -14,9 +12,7 @@ TcpServer::TcpServer(WrapperConfig &config)
       _hostname(config.tcp_host),
       _port(config.tcp_port),
       _handshake_timeout_ms(config.handshake_timeout_ms),
-      _acceptor(new tcp::acceptor(
-          static_cast<boost::asio::strand *>(_strand->asio_strand())
-              ->get_io_service(),
+      _acceptor(new tcp::acceptor(_strand->get_io_service(),
           tcp::endpoint(tcp::v4(), config.tcp_port))) {}
 TcpServer::~TcpServer() {
   if (!is_closed()) {

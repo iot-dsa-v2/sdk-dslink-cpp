@@ -53,8 +53,7 @@ int main(int argc, const char *argv[]) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_stream_acceptor(
-      make_unique_<NodeStateManager>(ref_<MockNode>(root_node)));
+  server_config.get_link_config()->set_responder_model(ref_<MockNode>(root_node));
 
   //  auto tcp_server(new TcpServer(server_config));
   auto tcp_server = make_shared_<TcpServer>(server_config);

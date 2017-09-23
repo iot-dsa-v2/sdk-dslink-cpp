@@ -42,8 +42,7 @@ int main() {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_stream_acceptor(
-      make_unique_<NodeStateManager>(ref_<MockNode>(root_node)));
+  server_config.get_link_config()->set_responder_model(ref_<MockNode>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 

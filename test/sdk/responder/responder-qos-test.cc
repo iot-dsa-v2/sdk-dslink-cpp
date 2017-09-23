@@ -15,9 +15,9 @@ using time_point = std::chrono::high_resolution_clock::time_point;
 
 using namespace dsa;
 
-class MockNode : public NodeModel {
+class MockNodeQos : public NodeModel {
  public:
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNodeQos(LinkStrandRef strand) : NodeModel(std::move(strand)){};
 
   void on_subscribe(const SubscribeOptions &options) override {
     if (_subscribe_callback != nullptr) {
@@ -33,10 +33,10 @@ TEST(ResponderQosTest, QueueSizeTest) {
 
   TestConfig server_config(app);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNodeQos *root_node = new MockNodeQos(server_config.strand);
 
-  server_config.get_link_config()->set_stream_acceptor(
-      make_unique_<NodeStateManager>(ref_<MockNode>(root_node)));
+  server_config.get_link_config()->set_responder_model(
+      ref_<MockNodeQos>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -68,7 +68,7 @@ TEST(ResponderQosTest, QueueSizeTest) {
       initial_options);
 
   // wait for root_node to receive the request
-  WAIT_EXPECT_TRUE(500, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
     return last_response != nullptr && last_response->get_value().has_value() &&
            last_response->get_value().value.is_int() &&
            last_response->get_value().value.get_int() == 9;

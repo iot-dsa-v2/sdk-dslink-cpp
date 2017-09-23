@@ -4,7 +4,6 @@
 
 #include <boost/asio/write.hpp>
 #include <boost/thread/locks.hpp>
-#include <boost/asio/strand.hpp>
 
 #include "module/logger.h"
 #include "tcp_client.h"
@@ -19,7 +18,7 @@ TcpConnection::TcpConnection(LinkStrandRef &strand,
                              const std::string &dsid_prefix,
                              const std::string &path)
     : Connection(strand, handshake_timeout_ms, dsid_prefix, path),
-      _socket(static_cast<boost::asio::strand *>(strand->asio_strand())->get_io_service()) {}
+      _socket(strand->get_io_service()) {}
 
 void TcpConnection::close_impl() {
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");

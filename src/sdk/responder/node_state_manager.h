@@ -5,16 +5,14 @@
 #pragma once
 #endif
 
-#include "stream/outgoing_stream_accepter.h"
-
-#include <map>
 #include <string>
 #include <unordered_map>
-#include <utility>
+
+#include <boost/asio/deadline_timer.hpp>
 
 #include "core/link_strand.h"
-
 #include "node_state.h"
+#include "stream/outgoing_stream_accepter.h"
 
 namespace dsa {
 
@@ -26,8 +24,11 @@ class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
   ref_<NodeState> get_state(const Path &path);
   ref_<NodeState> check_state(const Path &path);
 
+  boost::asio::deadline_timer _timer;
+
  public:
-  explicit NodeStateManager(ref_<NodeModel> &&root_model);
+  explicit NodeStateManager(LinkStrand &strand, ref_<NodeModel> &&root_model,
+                            size_t timer_interval = 60);
 
   void remove_state(const std::string &path) override;
 

@@ -9,8 +9,12 @@
 
 namespace dsa {
 
-NodeStateManager::NodeStateManager(ref_<NodeModel> &&root_model)
-    : _root(new NodeStateRoot(*this, std::move(root_model))) {}
+NodeStateManager::NodeStateManager(LinkStrand &strand,
+                                   ref_<NodeModel> &&root_model,
+                                   size_t timer_interval)
+    : _root(new NodeStateRoot(*this, std::move(root_model))),
+      _timer(strand.get_io_service(),
+             boost::posix_time::seconds(timer_interval)) {}
 
 void NodeStateManager::remove_state(const std::string &path) {
   _states.erase(path);
