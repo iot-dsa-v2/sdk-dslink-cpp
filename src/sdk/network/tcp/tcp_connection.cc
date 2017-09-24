@@ -6,9 +6,7 @@
 #include <boost/thread/locks.hpp>
 
 #include "module/logger.h"
-#include "tcp_client.h"
 #include "tcp_server.h"
-
 #include "util/little_endian.h"
 
 namespace dsa {

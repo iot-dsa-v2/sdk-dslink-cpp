@@ -38,6 +38,7 @@ class Session final : public ClosableRef<Session> {
 
  private:
   int32_t _waiting_ack = 0;
+
   std::deque<AckHolder> _pending_acks;
   void check_pending_acks(int32_t ack);
 
@@ -71,6 +72,8 @@ class Session final : public ClosableRef<Session> {
   const std::string &dsid() const { return _dsid; }
   const std::string &session_id() const { return _session_id; }
   bool is_connected() const { return _connection != nullptr; }
+
+  int32_t last_sent_ack();
 
   void connected(shared_ptr_<Connection> connection);
   void disconnected(const shared_ptr_<Connection> &connection);

@@ -10,15 +10,12 @@
 #include "util/enable_shared.h"
 
 namespace dsa {
-class TcpClient;
+class Client;
 
 // TCP client side connection.
 // Handles client side of DSA handshake and starts read loop.
-class TcpClientConnection : public TcpConnection {
+class ClientConnection : public TcpConnection {
  private:
-
-  void f3_received(const boost::system::error_code &error,
-                   size_t bytes_transferred);
 
  protected:
   std::string _hostname;
@@ -26,16 +23,15 @@ class TcpClientConnection : public TcpConnection {
 
 
  public:
-  TcpClientConnection(LinkStrandRef & strand, uint32_t handshake_timeout_ms,
+  ClientConnection(LinkStrandRef & strand,
                       const std::string &dsid_prefix,
                       const std::string &tcp_host, uint16_t tcp_port,
-                      const std::string &path = "");
+                      uint32_t handshake_timeout_ms = 5000);
 
-  std::string name() override { return "TcpClientConnection"; }
+  std::string name() override { return "ClientConnection"; }
 
   void connect() override;
 
-  ref_<Session> session() { return _session; }
 };
 
 }  // namespace dsa

@@ -8,10 +8,12 @@
 #include "link_strand.h"
 
 #include <boost/asio/io_service.hpp>
+#include <memory>
 
 namespace dsa {
 
 class NodeModel;
+class Connection;
 
 template <typename T, typename... Args>
 std::unique_ptr<T> make_unique_(Args&&... args) {
@@ -35,8 +37,14 @@ class LinkConfig : public LinkStrand {
   void set_session_manager(std::unique_ptr<SessionManager> p);
   void set_logger(std::unique_ptr<Logger> p);
 
-  void set_responder_model(ref_<NodeModel>&& root_model, size_t timer_interval = 60);
+  void set_responder_model(ref_<NodeModel>&& root_model,
+                           size_t timer_interval = 60);
 };
+
+typedef std::function<shared_ptr_<Connection>(
+    LinkStrandRef& strand, const std::string& previous_session_id,
+    int32_t last_ack_id)>
+    ClientConnectionMaker;
 
 class WrapperConfig {
  public:
@@ -49,6 +57,8 @@ class WrapperConfig {
 
   // client configs
   std::string client_token;
+
+  ClientConnectionMaker client_connection_maker;
 };
 
 }  // namespace dsa

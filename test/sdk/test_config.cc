@@ -7,15 +7,11 @@
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
+#include "network/tcp/tcp_client_connection.h"
 #include "responder/node_model.h"
 #include "responder/node_state_manager.h"
 
 namespace dsa {
-
-class TestModel : public NodeModel {
- public:
-  TestModel(LinkStrandRef strand) : NodeModel(std::move(strand)) {}
-};
 
 uint16_t TestConfig::_port = 4120;
 
@@ -23,7 +19,7 @@ static LinkConfig *make_config(App &app, bool async) {
   auto *config = new LinkConfig(app.new_strand(), new ECDH());
 
   config->set_session_manager(make_unique_<SessionManager>(config));
-  config->set_responder_model(make_ref_<TestModel>(config->get_ref()));
+
   if (async) {
     config->set_security_manager(
         make_unique_<AsyncSimpleSecurityManager>(config->get_ref()));
@@ -47,6 +43,17 @@ TestConfig::TestConfig(App &app, bool async) : WrapperConfig() {
 WrapperConfig TestConfig::get_client_config(App &app, bool async) {
   WrapperConfig copy(*this);
   copy.strand.reset(make_config(app, async));
+
+  copy.client_connection_maker =
+      [
+        dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port,
+        handshake_timeout_ms = handshake_timeout_ms
+      ](LinkStrandRef & strand, const std::string &previous_session_id,
+        int32_t last_ack_id) {
+    return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
+                                          tcp_port, handshake_timeout_ms);
+  };
+
   return std::move(copy);
 }
 

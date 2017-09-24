@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-#include "network/tcp/tcp_client.h"
+#include "core/client.h"
 #include "network/tcp/tcp_server.h"
 
 #include "../async_test.h"
@@ -15,7 +15,7 @@ using namespace dsa;
 TEST(TcpServerTest, SingleStrand) {
   App app;
 
-  TestConfig config(app);
+  WrapperConfig config = TestConfig(app).get_client_config(app);
 
   app.async_start(10);
 
@@ -24,9 +24,9 @@ TEST(TcpServerTest, SingleStrand) {
 
   const uint32_t NUM_CLIENT = 2;
 
-  std::vector<shared_ptr_<TcpClient>> clients;
+  std::vector<shared_ptr_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    shared_ptr_<TcpClient> tcp_client(new TcpClient(config));
+    shared_ptr_<Client> tcp_client(new Client(config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
@@ -71,9 +71,9 @@ TEST(TcpServerTest, MultiStrand) {
 
   const uint32_t NUM_CLIENT = 2;
 
-  std::vector<shared_ptr_<TcpClient>> clients;
+  std::vector<shared_ptr_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    shared_ptr_<TcpClient> tcp_client(new TcpClient(client_config));
+    shared_ptr_<Client> tcp_client(new Client(client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }

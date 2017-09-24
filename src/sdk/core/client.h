@@ -24,15 +24,17 @@ class Client : public SharedClosable<Client> {
   std::string _dsid_prefix;
   std::string _client_token;
 
+  ClientConnectionMaker _client_connection_maker;
+
   shared_ptr_<Connection> _connection;
   ref_<Session> _session;
 
   void close_impl() override;
 
  public:
-  Client(WrapperConfig &config);
+  explicit Client(WrapperConfig &config);
 
-  virtual ~Client();
+  ~Client();
 
   void dispatch_in_strand(std::function<void()> &&callback) override {
     return _strand->dispatch(std::move(callback));
@@ -45,7 +47,7 @@ class Client : public SharedClosable<Client> {
   const std::string &get_dsid_prefix() const { return _dsid_prefix; }
   const std::string &get_client_token() const { return _client_token; }
 
-  virtual void connect() = 0;
+  void connect();
 };
 
 }  // namespace dsa

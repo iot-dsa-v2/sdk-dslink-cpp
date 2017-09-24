@@ -14,6 +14,7 @@ class AckMessage : public Message {
   AckMessage();
 
   void set_ack(int32_t ack) { _ack = ack; };
+  int32_t get_ack() const { return _ack; }
 
  protected:
   int32_t _ack;

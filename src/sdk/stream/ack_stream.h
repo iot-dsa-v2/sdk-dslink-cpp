@@ -22,6 +22,7 @@ class AckStream : public MessageRefedStream {
   void receive_message(MessageCRef&& msg) override {}
 
   void add_ack(int32_t ack);
+  int32_t get_ack() const { return _message->get_ack(); };
 };
 }
 

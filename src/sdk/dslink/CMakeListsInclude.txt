@@ -1,0 +1,7 @@
+list(APPEND DsLinkSourceFiles
+        dslink.cc
+       )
+
+foreach (file ${DsLinkSourceFiles})
+    list(APPEND ProjectSourceFiles ${LIB_DSLINK}/${file})
+endforeach ()

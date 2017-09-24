@@ -38,6 +38,7 @@ set(LIB_REQUESTER "./requester")
 set(LIB_RESPONDER "./responder")
 set(LIB_CORE "./core")
 set(LIB_MODULE "./module")
+set(LIB_DSLINK "./dslink")
 
 # SOURCE FILES
 set(ProjectSourceFiles core/link_strand.cc core/link_strand.h)
@@ -55,6 +56,7 @@ include(${LIB_REQUESTER}/CMakeListsInclude.txt)
 include(${LIB_RESPONDER}/CMakeListsInclude.txt)
 include(${LIB_CORE}/CMakeListsInclude.txt)
 include(${LIB_MODULE}/CMakeListsInclude.txt)
+include(${LIB_DSLINK}/CMakeListsInclude.txt)
 
 add_library(dsa_sdk STATIC ${ProjectSourceFiles} dsa_common.cc dsa_common.h
         $<TARGET_OBJECTS:msgpackc-object>)

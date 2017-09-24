@@ -7,7 +7,7 @@
 #include "../test_config.h"
 #include "gtest/gtest.h"
 
-#include "network/tcp/tcp_client.h"
+#include "core/client.h"
 #include "network/tcp/tcp_server.h"
 
 using high_resolution_clock = std::chrono::high_resolution_clock;
@@ -46,7 +46,7 @@ TEST(ResponderQosTest, QueueSizeTest) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<TcpClient>(client_config);
+  auto tcp_client = make_shared_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,

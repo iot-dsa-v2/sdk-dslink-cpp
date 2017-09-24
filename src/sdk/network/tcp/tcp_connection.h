@@ -14,7 +14,7 @@
 
 namespace dsa {
 class TcpServer;
-class TcpClient;
+class Client;
 
 typedef boost::asio::ip::tcp::socket tcp_socket;
 

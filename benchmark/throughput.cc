@@ -4,7 +4,7 @@
 #include "../test/sdk/async_test.h"
 #include "../test/sdk/test_config.h"
 
-#include "network/tcp/tcp_client.h"
+#include "core/client.h"
 #include "network/tcp/tcp_server.h"
 
 #include <chrono>
@@ -77,7 +77,7 @@ int main(int argc, const char *argv[]) {
   tcp_server->start();
 
   std::vector<WrapperConfig> client_configs;
-  std::vector<shared_ptr_<TcpClient>> clients;
+  std::vector<shared_ptr_<Client>> clients;
   std::atomic_int receive_count[MAX_CLIENT_COUNT];
 
   SubscribeOptions initial_options;
@@ -86,7 +86,7 @@ int main(int argc, const char *argv[]) {
 
   for (int i = 0; i < client_count; ++i) {
     client_configs.emplace_back(server_config.get_client_config(app));
-    clients.emplace_back(make_shared_<TcpClient>(client_configs[i]));
+    clients.emplace_back(make_shared_<Client>(client_configs[i]));
     clients[i]->connect();
 
     wait_for_bool(500, *client_configs[i].strand,

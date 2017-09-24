@@ -40,6 +40,10 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   }
 }
 
+int32_t Session::last_sent_ack(){
+  return _ack_stream->get_ack();
+}
+
 void Session::check_pending_acks(int32_t ack) {
   while (!_pending_acks.empty()) {
     AckHolder &first = _pending_acks.front();

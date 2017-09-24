@@ -4,7 +4,7 @@
 #include "../test/sdk/async_test.h"
 #include "../test/sdk/test_config.h"
 
-#include "network/tcp/tcp_client.h"
+#include "core/client.h"
 #include "network/tcp/tcp_server.h"
 
 #include <chrono>
@@ -52,7 +52,7 @@ int main() {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<TcpClient>(client_config);
+  auto tcp_client = make_shared_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC(500, *client_config.strand,
