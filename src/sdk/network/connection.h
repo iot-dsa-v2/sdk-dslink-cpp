@@ -13,7 +13,8 @@
 #include "core/link_strand.h"
 #include "core/session.h"
 #include "crypto/handshake_context.h"
-#include "message/base_message.h"
+#include "message/enums.h"
+
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -22,41 +23,39 @@ class Session;
 class Server;
 class Client;
 
+class StaticHeaders;
+
 class Message;
+typedef ref_<Message> MessageRef;
 
 typedef std::function<void(const boost::system::error_code &error)>
     WriteHandler;
+
+class ConnectionWriteBuffer {
+ public:
+  virtual size_t max_next_size() const = 0;
+  virtual void add(const Message &msg, int32_t rid, int32_t ack_id) = 0;
+  virtual void write(WriteHandler &&callback) = 0;
+};
 
 class Connection : public SharedClosable<Connection> {
   friend class Session;
 
  public:
-  enum : size_t {
-    DEFAULT_BUFFER_SIZE = 32768,
-    MAX_BUFFER_SIZE = 65491 //  //65535 - 8 (UTP header) - 36 (IPV6 header)
-
-  };
-
- public:
   virtual std::string name() = 0;
 
- protected:
-  size_t _preferred_buffer_size = DEFAULT_BUFFER_SIZE;
-  size_t _max_buffer_size = MAX_BUFFER_SIZE;
-
  public:
-
   void dispatch_in_strand(std::function<void()> &&callback) override {
     return _strand->dispatch(std::move(callback));
   }
 
-  size_t max_buffer_size() const { return _max_buffer_size; };
+  //  virtual void write(const uint8_t *data, size_t size,
+  //                     WriteHandler &&callback) = 0;
 
-  virtual void write(const uint8_t *data, size_t size,
-                     WriteHandler &&callback) = 0;
+  virtual std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() = 0;
 
   std::function<void(MessageRef)> on_read_message;
-  std::function<void()> on_read_message_error;
+
   boost::mutex read_loop_mutex;
 
   // as client
@@ -81,21 +80,10 @@ class Connection : public SharedClosable<Connection> {
   // this should rarely be touched
   ref_<Session> _session;
 
-  std::vector<uint8_t> _read_buffer;
-  std::vector<uint8_t> _write_buffer;
-
   void close_impl() override;
 
-  std::string _session_id;
   std::string _path;
-  std::string _token;
-  std::string _other_token;
-  std::string _previous_session_id;
 
-  bool _is_requester;
-  bool _is_responder;
-  bool _security_preference;
-  uint32_t _pending_messages{0};
   boost::asio::deadline_timer _deadline;
   uint32_t _handshake_timeout_ms{1000};
 
