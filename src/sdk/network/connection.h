@@ -13,7 +13,8 @@
 #include "core/link_strand.h"
 #include "core/session.h"
 #include "crypto/handshake_context.h"
-#include "message/base_message.h"
+#include "message/enums.h"
+
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -22,19 +23,32 @@ class Session;
 class Server;
 class Client;
 
+class StaticHeaders;
+
 class Message;
+typedef ref_<Message> MessageRef;
 
 typedef std::function<void(const boost::system::error_code &error)>
     WriteHandler;
+
+class ConnectionWriteBuffer {
+ public:
+//<<<<<<< HEAD
+//  static const size_t DEFAULT_BUFFER_SIZE = 8192;
+//  // write buffer will have 1/16 unusable part by default
+//  // which seems to improve the performance on windows
+//  static const size_t MAX_BUFFER_SIZE = 8192 * 15;
+//
+//=======
+  virtual size_t max_next_size() const = 0;
+  virtual void add(const Message &msg, int32_t rid, int32_t ack_id) = 0;
+  virtual void write(WriteHandler &&callback) = 0;
+};
 
 class Connection : public SharedClosable<Connection> {
   friend class Session;
 
  public:
-  static const size_t DEFAULT_BUFFER_SIZE = 8192;
-  // write buffer will have 1/16 unusable part by default
-  // which seems to improve the performance on windows
-  static const size_t MAX_BUFFER_SIZE = 8192 * 15;
 
   virtual std::string name() = 0;
 
@@ -43,10 +57,12 @@ class Connection : public SharedClosable<Connection> {
     return _strand->dispatch(std::move(callback));
   }
 
-  virtual void write(const uint8_t *data, size_t size,
-                     WriteHandler &&callback) = 0;
-
   std::function<bool(MessageRef)> on_read_message;
+
+  //  virtual void write(const uint8_t *data, size_t size,
+  //                     WriteHandler &&callback) = 0;
+
+  virtual std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() = 0;
 
   boost::mutex read_loop_mutex;
 
@@ -72,11 +88,6 @@ class Connection : public SharedClosable<Connection> {
   // this should rarely be touched
   ref_<Session> _session;
 
-  size_t _max_read_buffer_size = MAX_BUFFER_SIZE;
-  size_t _max_write_buffer_size = MAX_BUFFER_SIZE;
-
-  std::vector<uint8_t> _read_buffer;
-  std::vector<uint8_t> _write_buffer;
 
   void close_impl() override;
 

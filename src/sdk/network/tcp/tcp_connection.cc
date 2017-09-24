@@ -16,7 +16,9 @@ TcpConnection::TcpConnection(LinkStrandRef &strand,
                              const std::string &dsid_prefix,
                              const std::string &path)
     : Connection(strand, handshake_timeout_ms, dsid_prefix, path),
-      _socket(strand->get_io_service()) {}
+      _socket(strand->get_io_service()),
+      _read_buffer(DEFAULT_BUFFER_SIZE),
+      _write_buffer(DEFAULT_BUFFER_SIZE) {}
 
 void TcpConnection::close_impl() {
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");
@@ -34,7 +36,7 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
     std::copy(buffer.data() + cur, buffer.data() + next, buffer.data());
   }
   if (next * 2 > buffer.size() &&
-      buffer.size() < connection->_max_read_buffer_size) {
+      buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
   tcp_socket &socket = connection->_socket;
@@ -121,14 +123,35 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
   }
 }
 
-void TcpConnection::write(const uint8_t *data, size_t size,
-                          WriteHandler &&callback) {
+std::unique_ptr<ConnectionWriteBuffer> TcpConnection::get_write_buffer() {
+  return std::unique_ptr<ConnectionWriteBuffer>(new WriteBuffer(*this));
+}
+
+size_t TcpConnection::WriteBuffer::max_next_size() const {
+  return MAX_BUFFER_SIZE - size;
+};
+
+void TcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
+                                     int32_t ack_id) {
+  size_t total_size = size + message.size();
+  if (total_size > connection._write_buffer.size()) {
+    if (total_size <= MAX_BUFFER_SIZE) {
+      connection._write_buffer.resize(connection._write_buffer.size() * 4);
+    } else {
+      LOG_FATAL(
+          connection._strand->logger(),
+          LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
+    }
+  }
+  message.write(&connection._write_buffer[size], rid, ack_id);
+  size += message.size();
+}
+void TcpConnection::WriteBuffer::write(WriteHandler &&callback) {
   boost::asio::async_write(
-      _socket,
-      boost::asio::buffer(data, size), [callback = std::move(callback)](
-                                           const boost::system::error_code
-                                               &error,
-                                           size_t bytes_transferred) {
+      connection._socket,
+      boost::asio::buffer(connection._write_buffer.data(), size),
+      [callback = std::move(callback)](const boost::system::error_code &error,
+                                       size_t bytes_transferred) {
         callback(error);
       });
 }

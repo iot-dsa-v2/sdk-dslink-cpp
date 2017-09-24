@@ -104,27 +104,23 @@ void Session::write_loop(ref_<Session> sthis) {
     return;
   }
 
+  auto write_buffer = connection->get_write_buffer();
   size_t next_message_size =
       sthis->peek_next_message(Message::MAX_MESSAGE_SIZE);
+
   if (next_message_size == 0) {
     sthis->_is_writing = false;
     return;
   }
 
   sthis->_is_writing = true;
-  std::vector<uint8_t> &buf = connection->_write_buffer;
 
   size_t total_size = 0;
   while (next_message_size > 0 &&
-         total_size + next_message_size < connection->_max_write_buffer_size) {
+         next_message_size < write_buffer->max_next_size()) {
     auto stream = sthis->get_next_ready_stream();
     AckCallback ack_callback;
     MessageCRef message = stream->get_next_message(ack_callback);
-
-    if (buf.size() < connection->_max_write_buffer_size &&
-        total_size + message->size() > buf.size()) {
-      buf.resize(buf.size() * 4);
-    }
 
     ++sthis->_waiting_ack;
     if (ack_callback != nullptr) {
@@ -135,22 +131,19 @@ void Session::write_loop(ref_<Session> sthis) {
     LOG_TRACE(sthis->_strand->logger(),
               LOG << "send message: " << message->type());
 
-    message->write(&buf[total_size], stream->rid, sthis->_waiting_ack);
-    total_size += message->size();
+    write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
 
-    next_message_size =
-        sthis->peek_next_message(Message::MAX_MESSAGE_SIZE - total_size);
+    next_message_size = sthis->peek_next_message(write_buffer->max_next_size());
+
   }
 
-  connection->write(
-      buf.data(),
-      total_size, [sthis = std::move(sthis)](
-                      const boost::system::error_code &error) mutable {
-        LinkStrandRef strand = sthis->_strand;
-        strand->dispatch([sthis = std::move(sthis)]() mutable {
-          Session::write_loop(std::move(sthis));
-        });
-      });
+  write_buffer->write([sthis = std::move(sthis)](
+      const boost::system::error_code &error) mutable {
+    LinkStrandRef strand = sthis->_strand;
+    strand->dispatch([sthis = std::move(sthis)]() mutable {
+      Session::write_loop(std::move(sthis));
+    });
+  });
 }
 
 void Session::write_stream(ref_<MessageStream> &&stream) {

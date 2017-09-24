@@ -3,11 +3,11 @@
 #include "connection.h"
 
 #include "core/server.h"
-#include "module/logger.h"
 #include "message/handshake/f0_message.h"
 #include "message/handshake/f1_message.h"
 #include "message/handshake/f2_message.h"
 #include "message/handshake/f3_message.h"
+#include "module/logger.h"
 
 #include "core/session_manager.h"
 
@@ -43,15 +43,15 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
   f1.public_key = _handshake_context.public_key();
   f1.salt = _handshake_context.salt();
   f1.size();  // calculate size
-  f1.write(_write_buffer.data());
+  auto write_buffer = get_write_buffer();
+  write_buffer->add(f1, 0, 0);
 
-  write(_write_buffer.data(),
-        f1.size(), [sthis = shared_from_this()](
-                       const boost::system::error_code &err) mutable {
-          if (err != boost::system::errc::success) {
-            Connection::close_in_strand(std::move(sthis));
-          }
-        });
+  write_buffer->write([sthis = shared_from_this()](
+      const boost::system::error_code &err) mutable {
+    if (err != boost::system::errc::success) {
+      Connection::close_in_strand(std::move(sthis));
+    }
+  });
 
   on_read_message = [this](MessageRef message) {
     return on_receive_f2(std::move(message));
@@ -74,32 +74,29 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token, f2->previous_session_id,
-          [ this,
-            sthis = std::move(sthis) ](const ref_<Session> &session) {
+          [ this, sthis = std::move(sthis) ](const ref_<Session> &session) {
             if (session != nullptr) {
               _session = session;
               _session->connected(shared_from_this());
               on_read_message = [this](MessageRef message) {
                 return post_message(std::move(message));
               };
-              
+
               HandshakeF3Message f3;
               f3.auth = _handshake_context.auth();
               f3.session_id = _session->session_id();
 
               f3.size();  // calculate size
-              f3.write(_write_buffer.data());
+              auto write_buffer = get_write_buffer();
+              write_buffer->add(f3, 0, 0);
 
-              write(
-                  _write_buffer.data(),
-                  f3.size(), [sthis = shared_from_this()](
-                                 const boost::system::error_code &err) mutable {
-                    if (err != boost::system::errc::success) {
-                      Connection::close_in_strand(std::move(sthis));
-                    }
-                  });
+              write_buffer->write([sthis = shared_from_this()](
+                  const boost::system::error_code &err) mutable {
+                if (err != boost::system::errc::success) {
+                  Connection::close_in_strand(std::move(sthis));
+                }
+              });
               boost::lock_guard<boost::mutex> read_loop_lock(read_loop_mutex);
-
 
             } else {
               close();
