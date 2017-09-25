@@ -21,6 +21,9 @@ class Logger {
     NONE_ = 0xFF,
   };
 
+  // default logger, implemented in console_logger.cc
+  static Logger& _();
+
  public:
   uint8_t level = 0;
 
