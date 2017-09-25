@@ -1,7 +1,26 @@
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time program_options)
+include_directories(${Boost_INCLUDE_DIRS})
+set(EXAMPLE_LIBS ${EXAMPLE_LIBS} ${Boost_LIBRARIES})
+
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+set(EXAMPLE_LIBS ${EXAMPLE_LIBS} ${OPENSSL_LIBRARIES})
 
 include_directories("../src/sdk")
 include_directories("../include")
 
+#
+if (UNIX)
+    set(EXAMPLE_LIBS dsa_sdk ${EXAMPLE_LIBS} dl)
+else ()
+    set(EXAMPLE_LIBS dsa_sdk ${EXAMPLE_LIBS})
+endif ()
 
-add_executable(requester requester/requester.cc)
-add_executable(responder responder/responder.cc)
+
+#
+foreach (name "single_thread"
+        )
+    set(SOURCES "dslink/${name}.cc" $<TARGET_OBJECTS:dsa_test_util>)
+    add_executable(${name} ${SOURCES})
+    target_link_libraries(${name} ${EXAMPLE_LIBS})
+endforeach()

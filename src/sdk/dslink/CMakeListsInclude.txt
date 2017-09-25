@@ -1,5 +1,6 @@
 list(APPEND DsLinkSourceFiles
-        dslink.cc
+        link.cc
+        config_loader.cc
        )
 
 foreach (file ${DsLinkSourceFiles})
