@@ -47,8 +47,6 @@ int main(int argc, const char *argv[]) {
 
   App app;
 
-  app.async_start(4);  // client_count * 2 + 2);
-
   TestConfig server_config(app);
 
   MockNode *root_node = new MockNode(server_config.strand);

@@ -6,17 +6,8 @@
 
 namespace dsa {
 
-//////////////
-// App
-//////////////
-App::App()
-    : _io_service(new boost::asio::io_service),
-      _threads(new boost::thread_group) {}
-
-App::App(shared_ptr_<boost::asio::io_service> io_service)
-    : _io_service(std::move(io_service)), _threads(new boost::thread_group) {}
-
-void run_worker_thread(const shared_ptr_<boost::asio::io_service> &io_service) {
+static void run_worker_thread(
+    const shared_ptr_<boost::asio::io_service> &io_service) {
   while (true) {
     try {
       boost::system::error_code err;
@@ -34,20 +25,32 @@ void run_worker_thread(const shared_ptr_<boost::asio::io_service> &io_service) {
   }
 }
 
-void App::async_start(unsigned int thread_count) {
-  if (thread_count == 0u) return;
-
-  _work.reset(new boost::asio::io_service::work(*_io_service));
-
-  for (size_t i = 0; i < thread_count; ++i)
-    _threads->create_thread(boost::bind(run_worker_thread, _io_service));
+//////////////
+// App
+//////////////
+App::App(unsigned int thread_count)
+    : _io_service(new boost::asio::io_service(thread_count)),
+      _threads(new boost::thread_group),
+      _work(new boost::asio::io_service::work(*_io_service)) {
+  if (thread_count == 0) {
+    // TODO LOG_FATAL
+  }
+  if (thread_count > 1) {
+    for (size_t i = 0; i < thread_count; ++i)
+      _threads->create_thread(boost::bind(run_worker_thread, _io_service));
+  }
 }
 
-void App::wait() { _threads->join_all(); }
+App::App(shared_ptr_<boost::asio::io_service> io_service,
+         unsigned int thread_count)
+    : _io_service(std::move(io_service)), _threads(new boost::thread_group) {}
 
-void App::run(unsigned int thread_count) {
-  async_start(thread_count);
-  wait();
+void App::wait() {
+  if (_threads.use_count() == 0) {
+    run_worker_thread(_io_service);
+  } else {
+    _threads->join_all();
+  }
 }
 
 void App::sleep(unsigned int milliseconds) {

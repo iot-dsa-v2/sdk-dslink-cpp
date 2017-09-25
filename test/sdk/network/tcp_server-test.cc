@@ -17,8 +17,6 @@ TEST(TcpServerTest, SingleStrand) {
 
   WrapperConfig config = TestConfig(app).get_client_config(app);
 
-  app.async_start(10);
-
   auto tcp_server = make_shared_<TcpServer>(config);
   tcp_server->start();
 
@@ -62,8 +60,6 @@ TEST(TcpServerTest, MultiStrand) {
 
   TestConfig server_config(app);
   WrapperConfig client_config = server_config.get_client_config(app);
-
-  app.async_start(10);
 
   //  auto tcp_server(new TcpServer(server_config));
   auto tcp_server = make_shared_<TcpServer>(server_config);
