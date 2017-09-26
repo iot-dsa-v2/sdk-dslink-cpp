@@ -20,8 +20,8 @@ endif ()
 #
 foreach (name "benchmark"
               "throughput"
-#              "throughput_server"
-#              "throughput_client"
+              "throughput_server"
+              "throughput_client"
               "message_queue"
 )
     set(SOURCES "${name}.cc" $<TARGET_OBJECTS:dsa_test_util>)
