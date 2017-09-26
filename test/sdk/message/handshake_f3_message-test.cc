@@ -17,6 +17,9 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
 
   uint8_t auth[] = "auth5678901234567890123456789012";
   message.auth = std::vector<uint8_t>(auth, auth + Message::AUTH_LENGTH);
+  // TODO
+  message.last_ack_id = 0;
+  message.allow_requester = 0;
 
   message.size();
 
