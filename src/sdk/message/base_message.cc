@@ -2,6 +2,8 @@
 
 #include "base_message.h"
 
+#include "util/path.h"
+
 namespace dsa {
 Message::Message(const uint8_t* data, size_t size) : static_headers(data){};
 Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};

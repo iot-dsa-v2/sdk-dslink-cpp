@@ -5,17 +5,22 @@
 #pragma once
 #endif
 
+#include <map>
+
 #include "../../util/buffer.h"
-#include "../../variant/variant.h"
 #include "../base_message.h"
 
 namespace dsa {
+
+class VariantMap;
 
 class ListResponseMessage : public ResponseMessage {
  public:
   ListResponseMessage(const uint8_t* data, size_t size);
   ListResponseMessage();
   ListResponseMessage(const ListResponseMessage&);
+
+  ~ListResponseMessage();
 
  protected:
   // measure the size and header size
@@ -27,13 +32,15 @@ class ListResponseMessage : public ResponseMessage {
 
   std::unique_ptr<DynamicStringHeader> base_path;
 
-  std::unique_ptr<VariantMap> _parsed_map;
+  std::map<std::string, std::vector<uint8_t>> _raw_map;
+
+  void parse();
 
  public:
   const std::string& get_base_path() const;
   void set_base_path(const std::string& value);
 
-  const VariantMap& get_map();
+  ref_<VariantMap> get_map() const;
 };
 
 typedef ref_<const ListResponseMessage> ListResponseMessageCRef;

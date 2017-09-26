@@ -5,9 +5,8 @@
 #pragma once
 #endif
 
-#include "message/base_message.h"
-
 #include <deque>
+#include "message/base_message.h"
 
 namespace dsa {
 
@@ -64,8 +63,6 @@ class MessageQueueStream : public MessageRefedStream {
   explicit MessageQueueStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);
   ~MessageQueueStream() override;
-
-
 
   size_t peek_next_message_size(size_t available) override;
   MessageCRef get_next_message(AckCallback &callback) override;

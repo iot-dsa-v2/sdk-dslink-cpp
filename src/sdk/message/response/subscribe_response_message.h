@@ -12,10 +12,6 @@
 namespace dsa {
 
 class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
- private:
-  mutable MessageValue _parsed_value;
-  mutable bool _parsed = false;
-
  public:
   explicit SubscribeResponseMessage(const uint8_t* data, size_t size);
   SubscribeResponseMessage(const SubscribeResponseMessage&);
@@ -25,7 +21,7 @@ class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
  public:
   const int32_t created_ts;
 
-  const MessageValue& get_value() const;
+  MessageValue get_value() const;
   void set_value(MessageValue&& value);
 
  protected:

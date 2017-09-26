@@ -159,7 +159,7 @@ class Variant : public BaseVariant {
   // msgpack encoding and decoding
  public:
   static Variant from_msgpack(const uint8_t *data, size_t size);
-  std::vector<uint8_t> to_msgpack() throw(const EncodingError &);
+  std::vector<uint8_t> to_msgpack() const throw(const EncodingError &);
 
  protected:
   static Variant to_variant(const msgpack_object &obj);

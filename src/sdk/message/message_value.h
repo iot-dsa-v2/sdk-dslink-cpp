@@ -28,7 +28,7 @@ class MessageValue {
 
   void parse(const uint8_t* data, size_t size);
 
-  BytesRef to_msgpack();
+  BytesRef to_msgpack() const;
 
   bool is_empty() const { return meta.is_null() && value.is_null(); }
   bool has_value() const { return !(value.is_null()); }

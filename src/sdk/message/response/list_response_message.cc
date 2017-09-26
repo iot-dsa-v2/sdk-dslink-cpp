@@ -1,6 +1,8 @@
 #include "dsa_common.h"
 
 #include "list_response_message.h"
+#include "util/little_endian.h"
+#include "variant/variant.h"
 
 namespace dsa {
 ListResponseMessage::ListResponseMessage(const uint8_t* data, size_t size)
@@ -23,35 +25,41 @@ void ListResponseMessage::set_base_path(const std::string& value) {
   }
 }
 
-const VariantMap& ListResponseMessage::get_map() {
-  if (_parsed_map == nullptr) {
-    VariantMap* map = new VariantMap();
-    _parsed_map.reset(map);
-    if (body != nullptr) {
-      const uint8_t* data = body->data();
-      size_t size = body->size();
-      while (size > 4) {
-        uint16_t key_size;
-        uint16_t value_size;
-        memcpy(&key_size, data, sizeof(uint16_t));
-        data += sizeof(uint16_t);
-        size -= sizeof(uint16_t);
-        if (size < key_size) return *map;
-        std::string key(reinterpret_cast<const char*>(data), key_size);
-        data += key_size;
-        size -= key_size;
-        memcpy(&value_size, data, sizeof(uint16_t));
-        data += sizeof(uint16_t);
-        size -= sizeof(uint16_t);
-        if (size < value_size) return *map;
-        (*map)[key] = std::move(Variant::from_msgpack(data, size));
-        data += value_size;
-        size -= value_size;
-      }
+ListResponseMessage::~ListResponseMessage() = default;
+
+void ListResponseMessage::parse() {
+  if (body != nullptr) {
+    const uint8_t* data = body->data();
+    size_t size = body->size();
+    while (size > 4) {
+      // read key
+      uint16_t key_size = read_16_t(data);
+      data += sizeof(uint16_t);
+      size -= sizeof(uint16_t);
+      if (size < key_size) return;
+      std::string key(reinterpret_cast<const char*>(data), key_size);
+      data += key_size;
+      size -= key_size;
+      // read value
+      uint16_t value_size = read_16_t(data);
+      data += sizeof(uint16_t);
+      size -= sizeof(uint16_t);
+      if (size < value_size) return;
+      _raw_map[key] = std::move(std::vector<uint8_t>(data, data + value_size));
+      data += value_size;
+      size -= value_size;
     }
-    return *map;
   }
-  return *_parsed_map;
+}
+ref_<VariantMap> ListResponseMessage::get_map() const {
+  VariantMap* map = new VariantMap();
+
+  for (auto& it : _raw_map) {
+    (*map)[it.first] =
+        Variant::from_msgpack(it.second.data(), it.second.size());
+  }
+
+  return map->get_ref();
 }
 
 }  // namespace dsa

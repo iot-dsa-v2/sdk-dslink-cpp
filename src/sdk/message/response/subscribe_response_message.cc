@@ -24,17 +24,11 @@ SubscribeResponseMessage::SubscribeResponseMessage(Variant&& value)
   set_value(MessageValue(std::move(value), DateTime::get_ts()));
 }
 
-const MessageValue& SubscribeResponseMessage::get_value() const {
-  if (!_parsed && body != nullptr) {
-    _parsed_value.parse(body->data(), body->size());
-    _parsed = true;
-  }
-  return _parsed_value;
+MessageValue SubscribeResponseMessage::get_value() const {
+  return MessageValue(body->data(), body->size());
 }
 void SubscribeResponseMessage::set_value(MessageValue&& value) {
-  _parsed_value = std::move(value);
-
-  body = _parsed_value.to_msgpack();
+  body = value.to_msgpack();
 
   // invalidate message_size
   static_headers.message_size = 0;

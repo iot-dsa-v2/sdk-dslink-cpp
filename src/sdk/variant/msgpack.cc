@@ -78,7 +78,7 @@ Variant Variant::from_msgpack(const uint8_t *data, size_t size) {
   return Variant(to_variant(obj));
 }
 
-bool msgpack_pack(msgpack_packer *pk, Variant &v) {
+bool msgpack_pack(msgpack_packer *pk, const Variant &v) {
   bool rc = true;
 
   if (v.is_double()) {
@@ -128,7 +128,7 @@ bool msgpack_pack(msgpack_packer *pk, Variant &v) {
   return rc;
 }
 
-std::vector<uint8_t> Variant::to_msgpack() throw(const EncodingError &) {
+std::vector<uint8_t> Variant::to_msgpack() const throw(const EncodingError &) {
   sbuf;
   if (msgpack_pack(&pk, *this)) {
     size_t sbuf_size = sbuf.size;

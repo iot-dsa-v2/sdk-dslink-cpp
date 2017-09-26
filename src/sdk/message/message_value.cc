@@ -37,7 +37,7 @@ void MessageValue::parse(const uint8_t* data, size_t size) {
   }
 }
 
-BytesRef MessageValue::to_msgpack() {
+BytesRef MessageValue::to_msgpack() const {
   std::vector<uint8_t> meta_bytes;
   std::vector<uint8_t> value_bytes;
 

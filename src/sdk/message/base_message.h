@@ -13,13 +13,14 @@
 #include "util/buffer.h"
 #include "util/enable_intrusive.h"
 #include "util/path.h"
-#include "variant/variant.h"
 
 namespace dsa {
 
 class Message : public EnableRef<Message> {
  public:
-  enum : size_t { MAX_MESSAGE_SIZE = 65491 };  //65535 - 8 (UTP header) - 36 (IPV6 header)
+  enum : size_t {
+    MAX_MESSAGE_SIZE = 65491
+  };  // 65535 - 8 (UTP header) - 36 (IPV6 header)
 
   static MessageType get_response_type(MessageType request_type) {
     if (static_cast<uint8_t>(request_type) > 0 &&
@@ -68,6 +69,8 @@ class Message : public EnableRef<Message> {
 
   int32_t get_ack_id() const { return static_headers.ack_id; }
   void set_ack_rid(int32_t ack_id) { static_headers.ack_id = ack_id; }
+
+  void set_body(IntrusiveBytes* b) { body.reset(b); }
 
  protected:
   // measure the size and header size
