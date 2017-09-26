@@ -131,7 +131,6 @@ TEST(MessageTest, HandshakeF2) {
   HandshakeF2Message message;
 
   message.token = client_token;
-  message.is_requester = true;
   message.is_responder = true;
 
   ECDH client_ecdh, broker_ecdh;
@@ -147,6 +146,8 @@ TEST(MessageTest, HandshakeF2) {
   hmac.update(salt_buffer);
 
   message.auth = hmac.digest();
+  // TODO
+  message.last_ack_id = 0;
 
   // Update header_size and message_size
   message.size();
@@ -156,8 +157,9 @@ TEST(MessageTest, HandshakeF2) {
   message.write(buf);
 
   std::string expected_values(
-      "480000000f00f20000000000000000130073616d706c655f746f6b656e5f737472696e67"
-      "01010000f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fac8b2b"
+      "4b0000000f00f20000000000000000130073616d706c655f746f6b656e5f737472696e67"
+      "01000000000000f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fa"
+      "c8b2b"
       "a");
   size_t length = expected_values.length();
 
@@ -193,6 +195,10 @@ TEST(MessageTest, HandshakeF3) {
 
   message.auth = hmac.digest();
 
+  // TODO
+  message.allow_requester = true;
+  message.last_ack_id = 0;
+
   // Update header_size and message_size
   message.size();
 
@@ -201,7 +207,8 @@ TEST(MessageTest, HandshakeF3) {
   message.write(buf);
 
   std::string expected_values(
-      "560000000f00f30000000000000000110073616d70652d73657373696f6e2d3030311200"
+      "5b0000000f00f3000000000000000001110073616d70652d73657373696f6e2d30303100"
+      "0000001200"
       "2f646f776e73747265616d2f6d6c696e6b31e709059f1ebb84cfb8c34d53fdba7fbf20b1"
       "fe3dff8c343050d2b5c7c62be85a");
   size_t length = expected_values.length();

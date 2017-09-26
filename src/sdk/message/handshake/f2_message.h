@@ -12,7 +12,6 @@ namespace dsa {
 
 class HandshakeF2Message : public Message {
  public:
-  bool is_requester; // TODO remove
   bool is_responder;
 
   std::string token;
@@ -22,7 +21,6 @@ class HandshakeF2Message : public Message {
 
   HandshakeF2Message(const uint8_t* data, size_t size);
   HandshakeF2Message();
-
 
  protected:
   // measure the size and header size

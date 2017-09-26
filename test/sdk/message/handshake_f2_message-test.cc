@@ -10,7 +10,6 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
       "token6789012345678901234567890123456789012345678901234567890123456789012"
       "34567890123456789012345678901234567890123456789012345678");
   message.token = token;
-  message.is_requester = true;
   message.is_responder = false;
   std::string previous_session_id(
       "session-id123456789012345678901234567890123456789012345678901234");
@@ -23,10 +22,10 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   uint8_t buf[1024];
   message.write(buf);
 
-  // 15 + 2 + 128 + 1 + 1 + 2 + 64 + 32 = 245
-  uint8_t expected_values[245];
+  // 15 + 2 + 128 + 1 + 2 + 64 + 4 + 32 = 248
+  uint8_t expected_values[248];
 
-  uint32_t message_size = 245;
+  uint32_t message_size = 248;
   uint16_t header_size = StaticHeaders::TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE2;
   uint32_t request_id = 0;
@@ -47,24 +46,26 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   uint16_t session_id_length = 64;
   uint8_t TokenLengthOffset = StaticHeaders::TOTAL_SIZE;
   uint8_t TokenOffset = TokenLengthOffset + sizeof(token_length);
-  uint8_t IsRequesterOffset = TokenOffset + token_length;
-  uint8_t IsResponderOffset = IsRequesterOffset + sizeof(bool);
-  uint8_t SessionIdLengthOffset = IsResponderOffset + sizeof(bool);
-  uint8_t SessionIdOffset = SessionIdLengthOffset + sizeof(uint16_t);
-  uint8_t AuthOffset = SessionIdOffset + session_id_length;
+  uint8_t IsResponderOffset = TokenOffset + token_length;
+  uint8_t PreviousSessionIdLengthOffset = IsResponderOffset + sizeof(bool);
+  uint8_t PreviousSessionIdOffset =
+      PreviousSessionIdLengthOffset + sizeof(session_id_length);
+  uint8_t LastAckIdOffset = PreviousSessionIdOffset + session_id_length;
+  uint8_t AuthOffset = LastAckIdOffset + sizeof(uint32_t);
 
   std::memcpy(&expected_values[TokenLengthOffset], &token_length,
               sizeof(token_length));
   std::memcpy(&expected_values[TokenOffset], message.token.data(),
               message.token.size());
-  std::memcpy(&expected_values[IsRequesterOffset], &message.is_requester,
-              sizeof(bool));
   std::memcpy(&expected_values[IsResponderOffset], &message.is_responder,
               sizeof(bool));
-  std::memcpy(&expected_values[SessionIdLengthOffset], &session_id_length,
-              sizeof(session_id_length));
-  std::memcpy(&expected_values[SessionIdOffset], message.previous_session_id.data(),
+  std::memcpy(&expected_values[PreviousSessionIdLengthOffset],
+              &session_id_length, sizeof(session_id_length));
+  std::memcpy(&expected_values[PreviousSessionIdOffset],
+              message.previous_session_id.data(),
               message.previous_session_id.size());
+  std::memcpy(&expected_values[LastAckIdOffset], &message.last_ack_id,
+              sizeof(uint32_t));
   std::memcpy(&expected_values[AuthOffset], message.auth.data(),
               Message::AUTH_LENGTH);
 
