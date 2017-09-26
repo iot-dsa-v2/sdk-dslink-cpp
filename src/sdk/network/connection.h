@@ -13,8 +13,7 @@
 #include "core/link_strand.h"
 #include "core/session.h"
 #include "crypto/handshake_context.h"
-#include "message/enums.h"
-
+#include "message/base_message.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -23,25 +22,17 @@ class Session;
 class Server;
 class Client;
 
-class StaticHeaders;
-
 class Message;
-typedef ref_<Message> MessageRef;
 
 typedef std::function<void(const boost::system::error_code &error)>
     WriteHandler;
-
-class ConnectionWriteBuffer {
- public:
-  virtual size_t max_next_size() const = 0;
-  virtual void add(const Message &msg, int32_t rid, int32_t ack_id) = 0;
-  virtual void write(WriteHandler &&callback) = 0;
-};
 
 class Connection : public SharedClosable<Connection> {
   friend class Session;
 
  public:
+  static const size_t DEFAULT_BUFFER_SIZE = 4096;
+
   virtual std::string name() = 0;
 
  public:
@@ -49,10 +40,8 @@ class Connection : public SharedClosable<Connection> {
     return _strand->dispatch(std::move(callback));
   }
 
-  //  virtual void write(const uint8_t *data, size_t size,
-  //                     WriteHandler &&callback) = 0;
-
-  virtual std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() = 0;
+  virtual void write(const uint8_t *data, size_t size,
+                     WriteHandler &&callback) = 0;
 
   std::function<void(MessageRef)> on_read_message;
 
@@ -79,6 +68,9 @@ class Connection : public SharedClosable<Connection> {
 
   // this should rarely be touched
   ref_<Session> _session;
+
+  std::vector<uint8_t> _read_buffer;
+  std::vector<uint8_t> _write_buffer;
 
   void close_impl() override;
 

@@ -40,9 +40,7 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   }
 }
 
-int32_t Session::last_sent_ack(){
-  return _ack_stream->get_ack();
-}
+int32_t Session::last_sent_ack() { return _ack_stream->get_ack(); }
 
 void Session::check_pending_acks(int32_t ack) {
   while (!_pending_acks.empty()) {
@@ -106,22 +104,27 @@ void Session::write_loop(ref_<Session> sthis) {
     return;
   }
 
-  auto write_buffer = connection->get_write_buffer();
   size_t next_message_size =
-      sthis->peek_next_message(write_buffer->max_next_size());
+      sthis->peek_next_message(Message::MAX_MESSAGE_SIZE);
   if (next_message_size == 0) {
     sthis->_is_writing = false;
     return;
   }
 
   sthis->_is_writing = true;
+  std::vector<uint8_t> &buf = connection->_write_buffer;
 
   size_t total_size = 0;
   while (next_message_size > 0 &&
-         next_message_size < write_buffer->max_next_size()) {
+         total_size + next_message_size < Message::MAX_MESSAGE_SIZE) {
     auto stream = sthis->get_next_ready_stream();
     AckCallback ack_callback;
     MessageCRef message = stream->get_next_message(ack_callback);
+
+    if (buf.size() < Message::MAX_MESSAGE_SIZE &&
+        total_size + message->size() > buf.size()) {
+      buf.resize(buf.size() * 4);
+    }
 
     ++sthis->_waiting_ack;
     if (ack_callback != nullptr) {
@@ -132,18 +135,22 @@ void Session::write_loop(ref_<Session> sthis) {
     LOG_TRACE(sthis->_strand->logger(),
               LOG << "send message: " << message->type());
 
-    write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
+    message->write(&buf[total_size], stream->rid, sthis->_waiting_ack);
+    total_size += message->size();
 
-    next_message_size = sthis->peek_next_message(write_buffer->max_next_size());
+    next_message_size =
+        sthis->peek_next_message(Message::MAX_MESSAGE_SIZE - total_size);
   }
 
-  write_buffer->write([sthis = std::move(sthis)](
-      const boost::system::error_code &error) mutable {
-    LinkStrandRef strand = sthis->_strand;
-    strand->dispatch([sthis = std::move(sthis)]() mutable {
-      Session::write_loop(std::move(sthis));
-    });
-  });
+  connection->write(
+      buf.data(),
+      total_size, [sthis = std::move(sthis)](
+                      const boost::system::error_code &error) mutable {
+        LinkStrandRef strand = sthis->_strand;
+        strand->dispatch([sthis = std::move(sthis)]() mutable {
+          Session::write_loop(std::move(sthis));
+        });
+      });
 }
 
 void Session::write_stream(ref_<MessageStream> &&stream) {

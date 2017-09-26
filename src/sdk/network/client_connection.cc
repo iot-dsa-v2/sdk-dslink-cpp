@@ -2,13 +2,13 @@
 
 #include "connection.h"
 
+#include "module/logger.h"
 #include "core/client.h"
 #include "core/session.h"
 #include "message/handshake/f0_message.h"
 #include "message/handshake/f1_message.h"
 #include "message/handshake/f2_message.h"
 #include "message/handshake/f3_message.h"
-#include "module/logger.h"
 
 namespace dsa {
 
@@ -16,7 +16,7 @@ void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
     const std::runtime_error &) {
   if (connection->_session == nullptr) {
     LOG_FATAL(connection->_strand->logger(),
-              LOG << "no session attached to client connection");
+                 LOG<<"no session attached to client connection");
   }
   Connection *raw_ptr = connection.get();
   raw_ptr->_session->connected(std::move(connection));
@@ -30,15 +30,15 @@ void Connection::start_client_f0() {
   f0.public_key = _handshake_context.public_key();
   f0.salt = _handshake_context.salt();
   f0.size();  // calculate size
-  auto write_buffer = get_write_buffer();
-  write_buffer->add(f0, 0, 0);
+  f0.write(_write_buffer.data());
 
-  write_buffer->write([sthis = shared_from_this()](
-      const boost::system::error_code &err) mutable {
-    if (err != boost::system::errc::success) {
-      Connection::close_in_strand(std::move(sthis));
-    }
-  });
+  write(_write_buffer.data(),
+        f0.size(), [sthis = shared_from_this()](
+                       const boost::system::error_code &err) mutable {
+          if (err != boost::system::errc::success) {
+            Connection::close_in_strand(std::move(sthis));
+          }
+        });
   boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
   on_read_message = [this](MessageRef message) {
     on_receive_f1(std::move(message));
@@ -62,10 +62,11 @@ void Connection::on_receive_f1(MessageRef &&msg) {
   // f2.session_id =
   // f2.token =
 
-  auto write_buffer = get_write_buffer();
-  write_buffer->add(f2, 0, 0);
+  f2.size();  // calculate size
+  f2.write(_write_buffer.data());
 
-  write_buffer->write([sthis = shared_from_this()](
+  write(_write_buffer.data(),
+        f2.size(), [sthis = shared_from_this()](
                        const boost::system::error_code &err) mutable {
           if (err != boost::system::errc::success) {
             Connection::close_in_strand(std::move(sthis));

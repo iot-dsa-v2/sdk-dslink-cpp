@@ -9,7 +9,6 @@
 
 #include "../connection.h"
 #include "crypto/handshake_context.h"
-#include "message/base_message.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -22,29 +21,13 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
 class TcpConnection : public Connection {
-  static const size_t DEFAULT_BUFFER_SIZE = 4096;
-  static const size_t MAX_BUFFER_SIZE = Message::MAX_MESSAGE_SIZE;
-
-  class WriteBuffer : public ConnectionWriteBuffer {
-    TcpConnection &connection;
-    size_t size = 0;
-
-   public:
-    explicit WriteBuffer(TcpConnection &connection) : connection(connection){};
-
-    size_t max_next_size() const override;
-    void add(const Message &msg, int32_t rid, int32_t ack_id) override;
-    void write(WriteHandler &&callback) override;
-  };
+  static const uint32_t MAX_PENDING_MESSAGE = 2;
 
  protected:
   static void read_loop(shared_ptr_<TcpConnection> &&connection,
                         size_t from_prev,
                         const boost::system::error_code &error,
                         size_t bytes_transferred);
-
-  std::vector<uint8_t> _read_buffer;
-  std::vector<uint8_t> _write_buffer;
   tcp_socket _socket;
   std::atomic_bool _socket_open{true};
 
@@ -57,7 +40,10 @@ class TcpConnection : public Connection {
   static void start_read(shared_ptr_<TcpConnection> &&connection,
                          size_t cur = 0, size_t next = 0);
 
-  std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
+  ~TcpConnection() {}
+
+  void write(const uint8_t *data, size_t size,
+             WriteHandler &&callback) override;
 
   tcp_socket &socket();
 };

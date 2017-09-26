@@ -11,6 +11,8 @@ Connection::Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
                        const std::string &dsid_prefix, const std::string &path)
     : _handshake_context(dsid_prefix, strand->ecdh()),
       _handshake_timeout_ms(handshake_timeout_ms),
+      _read_buffer(DEFAULT_BUFFER_SIZE),
+      _write_buffer(DEFAULT_BUFFER_SIZE),
       _deadline(strand->get_io_service()),
       _strand(strand),
       _path(path) {}
