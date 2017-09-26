@@ -16,8 +16,9 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   message.previous_session_id = previous_session_id;
   uint8_t auth[] = "auth5678901234567890123456789012";
   message.auth = std::vector<uint8_t>(auth, auth + Message::AUTH_LENGTH);
-  // TODO
-  message.last_ack_id = 0;
+
+  // last_ack_id = 0xa1b2c3d4
+  message.last_ack_id = 2712847316;
 
   message.size();
 
