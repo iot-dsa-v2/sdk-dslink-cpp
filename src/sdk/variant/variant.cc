@@ -3,7 +3,7 @@
 #include "variant.h"
 
 namespace dsa {
-const size_t MAX_SIZE_UNSHARED = 64;
+const size_t MAX_SIZE_UNSHARED = 256;
 
 VariantMap::VariantMap(
     std::initializer_list<std::map<std::string, Variant>::value_type> init)
