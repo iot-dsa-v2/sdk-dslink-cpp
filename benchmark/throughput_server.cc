@@ -50,7 +50,9 @@ int main(int argc, const char *argv[]) {
       "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
       "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration")(
-      "host,h", opts::value<std::string>()->default_value("52.175.218.119"),
+      "host,i", opts::value<std::string>()->default_value("52.175.218.119"),
+      "Host's ip address")(
+"num-thread,p", opts::value<int>()->default_value(4),
       "Host's ip address");
 
   opts::variables_map variables;
@@ -62,13 +64,10 @@ int main(int argc, const char *argv[]) {
     return 0;
   }
 
-  int run_time = 20;
-  int client_count = 2;
   const int MAX_CLIENT_COUNT = 256;
 
-  client_count = variables["client"].as<int>();
-  run_time = variables["time"].as<int>();
-
+  int client_count = variables["client"].as<int>();
+  int run_time = variables["time"].as<int>();
   std::string host_ip_address = variables["host"].as<std::string>();
 
   if (client_count > MAX_CLIENT_COUNT || client_count < 1) {
@@ -78,11 +77,12 @@ int main(int argc, const char *argv[]) {
   bool encode_value = variables["encode-value"].as<bool>();
   bool decode_value = variables["decode-value"].as<bool>();
   int min_send_num = variables["num-message"].as<int>();
+  int num_thread = variables["num-thread"].as<int>();
 
-  std::cout << std::endl
-            << "benchmark with " << client_count << " clients" << std::endl;
+  std::cout << std::endl << "host ip address: " << host_ip_address << std::endl;
+  std::cout << "benchmark with " << client_count << " clients (" << num_thread << " threads)" << std::endl;
 
-  App app;
+  App app(num_thread);
 
   TestConfigExt server_config(app, host_ip_address);
 
@@ -98,18 +98,16 @@ int main(int argc, const char *argv[]) {
   wait_for_bool(5000,
                 [&]() { return root_node->first_client_subscribed == true; });
   if (!root_node->first_client_subscribed) {
-    std::cout << "No subscribe request!" << std::endl;
+    std::cout << "no subscribe request!" << std::endl;
     return 1;
   }
 
-  std::cout << "Received first subscribe request!" << std::endl;
+  std::cout << "received first subscribe request" << std::endl;
 
   int64_t msg_per_second = 300000;
 
   boost::posix_time::milliseconds interval(10);
   boost::asio::deadline_timer timer(app.io_service(), interval);
-
-  int print_count = 0;  // print every 100 timer visit;
 
   auto ts = high_resolution_clock::now();
   int total_ms = 0;
@@ -133,13 +131,8 @@ int main(int argc, const char *argv[]) {
         if (ms > 0) {
           ts = ts2;
 
-          print_count += ms;
-          if (print_count > 2000) {
-            print_count = 0;
-            std::cout << ".";
-          }
-
-          long num_message = 0xffffffff;
+          // TODO: adjust dynamically
+          long num_message = 6000;
 
           if (encode_value) {
             for (int i = 0; i < num_message; ++i) {
@@ -154,7 +147,7 @@ int main(int argc, const char *argv[]) {
         timer.async_wait(tick);
       });
     } else {
-      std::cout << "error" << std::endl;
+      std::cout << "tick: error!" << std::endl;
     }
   };
 
@@ -174,8 +167,6 @@ int main(int argc, const char *argv[]) {
   }
 
   //  app.wait();
-
-  std::cout << "App is stopped!" << std::endl;
 
   return 0;
 }

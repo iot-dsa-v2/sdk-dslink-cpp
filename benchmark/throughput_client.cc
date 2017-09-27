@@ -42,7 +42,9 @@ int main(int argc, const char *argv[]) {
       "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
       "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration")(
-      "host,h", opts::value<std::string>()->default_value("52.175.218.119"),
+      "host,i", opts::value<std::string>()->default_value("52.175.218.119"),
+      "Host's ip address")(
+"num-thread,p", opts::value<int>()->default_value(4),
       "Host's ip address");
 
   opts::variables_map variables;
@@ -54,14 +56,11 @@ int main(int argc, const char *argv[]) {
     return 0;
   }
 
-  int run_time = 20;
-  int client_count = 2;
   const int MAX_CLIENT_COUNT = 256;
 
+  int client_count = variables["client"].as<int>();
+  int run_time = variables["time"].as<int>();
   std::string host_ip_address = variables["host"].as<std::string>();
-
-  client_count = variables["client"].as<int>();
-  run_time = variables["time"].as<int>();
 
   if (client_count > MAX_CLIENT_COUNT || client_count < 1) {
     std::cout << "invalid Number of Clients, ( 1 ~ 255 )";
@@ -70,10 +69,12 @@ int main(int argc, const char *argv[]) {
   bool encode_value = variables["encode-value"].as<bool>();
   bool decode_value = variables["decode-value"].as<bool>();
   int min_send_num = variables["num-message"].as<int>();
+  int num_thread = variables["num-thread"].as<int>();
 
-  std::cout << std::endl << "benchmark with " << client_count << " clients";
+  App app(num_thread);
 
-  App app;
+  std::cout << std::endl << "host ip address: " << host_ip_address;
+  std::cout << std::endl << "benchmark with " << client_count << " clients (" << num_thread << " threads)";
 
   TestConfigExt server_config(app, host_ip_address);
 
@@ -97,7 +98,7 @@ int main(int argc, const char *argv[]) {
     clients.emplace_back(make_shared_<Client>(client_configs[i]));
     clients[i]->connect();
 
-    wait_for_bool(5000, *client_configs[i].strand,
+    wait_for_bool(500, *client_configs[i].strand,
                   [&]() { return clients[i]->get_session().is_connected(); });
 
     if (!clients[i]->get_session().is_connected()) {
@@ -125,6 +126,7 @@ int main(int argc, const char *argv[]) {
 
     std::cout << "client " << i + 1 << " submitted a subscribe request"
               << std::endl;
+
   }
 
   int64_t msg_per_second = 300000;
@@ -173,29 +175,6 @@ int main(int argc, const char *argv[]) {
                       << "  current: " << count * 1000 / ms << " x "
                       << client_count << ", interval " << ms;
           }
-
-#if 0
-          msg_per_second =
-              (count * 1000 + msg_per_second * total_ms) / (total_ms + ms);
-          total_ms += ms / 2;
-          if (total_ms > 5000) total_ms = 5000;
-
-          long tosend_per_second = msg_per_second;
-          if (tosend_per_second < min_send_num)
-            tosend_per_second = min_send_num;
-          // send a little bit more than the current speed,
-          // limited message queue size should handle the extra messages
-          long num_message = tosend_per_second * ms / (800 + total_ms / 50);
-          if (encode_value) {
-            for (int i = 0; i < num_message; ++i) {
-              root_node->set_value(Variant(i));
-            }
-          } else {
-            for (int i = 0; i < num_message; ++i) {
-              root_node->set_message(copy_ref_(cached_message));
-            }
-          }
-#endif
         }
         timer.async_wait(tick);
       });
@@ -204,8 +183,11 @@ int main(int argc, const char *argv[]) {
 
   timer.async_wait(tick);
 
+  std::cout << std::endl << "run benchmark for " << run_time << " seconds";
   boost::this_thread::sleep(boost::posix_time::seconds(run_time));
+  std::cout << std::endl << "end benchmark";
   timer.cancel();
+  std::cout << std::endl << "total message: " << total_message;
 
   for (int i = 0; i < client_count; ++i) {
     Client::close_in_strand(clients[i]);
