@@ -50,10 +50,9 @@ int main(int argc, const char *argv[]) {
       "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
       "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration")(
-      "host,i", opts::value<std::string>()->default_value("52.175.218.119"),
-      "Host's ip address")(
-"num-thread,p", opts::value<int>()->default_value(4),
-      "Host's ip address");
+      "host,i", opts::value<std::string>()->default_value("10.0.1.101"),
+      "Host's ip address")("num-thread,p", opts::value<int>()->default_value(4),
+                           "Number of threads");
 
   opts::variables_map variables;
   opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -80,7 +79,8 @@ int main(int argc, const char *argv[]) {
   int num_thread = variables["num-thread"].as<int>();
 
   std::cout << std::endl << "host ip address: " << host_ip_address << std::endl;
-  std::cout << "benchmark with " << client_count << " clients (" << num_thread << " threads)" << std::endl;
+  std::cout << "benchmark with " << client_count << " clients (" << num_thread
+            << " threads)" << std::endl;
 
   App app(num_thread);
 
