@@ -55,14 +55,25 @@ void Connection::reset_standard_deadline_timer() {
   //  }));
 }
 
-void Connection::post_message(MessageRef &&message) {
-  if (_session != nullptr) {
-    _strand->post(
-        [ sthis = shared_from_this(), message = std::move(message) ]() mutable {
+bool Connection::post_message(MessageRef &&message) {
+  if (message == nullptr) {
+    if (_session != nullptr && !_batch_post.empty()) {
+      std::vector<MessageRef> copy;
+      _batch_post.swap(copy);
+      _strand->post(
+        [ sthis = shared_from_this(), messages = std::move(copy) ]() mutable {
           if (sthis->session() != nullptr) {
-            sthis->session()->receive_message(std::move(message));
+            auto session = sthis->session();
+            for (auto & it : messages) {
+              session->receive_message(std::move(it));
+            }
           }
         });
+    }
+    return false;
+  } else {
+    _batch_post.emplace_back(std::move(message));
+    return true;
   }
 }
 }  // namespace dsa

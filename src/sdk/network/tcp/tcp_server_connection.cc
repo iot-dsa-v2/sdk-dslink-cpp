@@ -33,7 +33,7 @@ void TcpServerConnection::accept() {
   {
     boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
     on_read_message = [this](MessageRef message) {
-      on_receive_f0(std::move(message));
+      return on_receive_f0(std::move(message));
     };
   }
   TcpConnection::start_read(share_this<TcpServerConnection>(), 0, 0);

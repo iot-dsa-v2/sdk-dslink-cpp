@@ -21,7 +21,7 @@ void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
   Connection *raw_ptr = connection.get();
   raw_ptr->_session->connected(std::move(connection));
   raw_ptr->on_read_message = [raw_ptr](MessageRef message) {
-    raw_ptr->post_message(std::move(message));
+    return raw_ptr->post_message(std::move(message));
   };
 }
 void Connection::start_client_f0() {
@@ -41,10 +41,10 @@ void Connection::start_client_f0() {
         });
   boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
   on_read_message = [this](MessageRef message) {
-    on_receive_f1(std::move(message));
+    return on_receive_f1(std::move(message));
   };
 }
-void Connection::on_receive_f1(MessageRef &&msg) {
+bool Connection::on_receive_f1(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE1) {
     throw MessageParsingError("invalid handshake message, expect f1");
   }
@@ -74,11 +74,12 @@ void Connection::on_receive_f1(MessageRef &&msg) {
         });
 
   on_read_message = [this](MessageRef message) {
-    on_receive_f3(std::move(message));
+    return on_receive_f3(std::move(message));
   };
+  return false;
 }
 
-void Connection::on_receive_f3(MessageRef &&msg) {
+bool Connection::on_receive_f3(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE3) {
     throw MessageParsingError("invalid handshake message, expect f3");
   }
@@ -92,6 +93,7 @@ void Connection::on_receive_f3(MessageRef &&msg) {
       on_client_connect(std::move(sthis));
     });
   }
+  return false;
 }
 
 /////////////////////////

@@ -62,6 +62,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
     {
       boost::lock_guard<boost::mutex> read_loop_lock(
           connection->read_loop_mutex);
+      bool need_null_end = false;
       while (cur < total_bytes) {
         if (total_bytes - cur < sizeof(uint32_t)) {
           // not enough data to check size
@@ -88,7 +89,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
 
         if (connection->on_read_message != nullptr) {
           try {
-            connection->on_read_message(
+            need_null_end = connection->on_read_message(
                 Message::parse_message(&buffer[cur], message_size));
           } catch (const MessageParsingError &err) {
             LOG_DEBUG(connection->_strand->logger(),
@@ -106,6 +107,10 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
         }
 
         cur += message_size;
+      }
+
+      if (need_null_end) {
+        connection->on_read_message(MessageRef());
       }
     }
     start_read(std::move(connection), 0, 0);

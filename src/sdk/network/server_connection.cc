@@ -29,7 +29,7 @@ namespace dsa {
 //      });
 //}
 
-void Connection::on_receive_f0(MessageRef &&msg) {
+bool Connection::on_receive_f0(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
@@ -54,10 +54,11 @@ void Connection::on_receive_f0(MessageRef &&msg) {
         });
 
   on_read_message = [this](MessageRef message) {
-    on_receive_f2(std::move(message));
+    return on_receive_f2(std::move(message));
   };
+  return false;
 }
-void Connection::on_receive_f2(MessageRef &&msg) {
+bool Connection::on_receive_f2(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
@@ -79,7 +80,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
               _session = session;
               _session->connected(shared_from_this());
               on_read_message = [this](MessageRef message) {
-                post_message(std::move(message));
+                return post_message(std::move(message));
               };
               
               HandshakeF3Message f3;
@@ -110,6 +111,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
   } else {
     Connection::close_in_strand(shared_from_this());
   }
+  return false;
 }
 
 /////////////////////////_write_buffer->data

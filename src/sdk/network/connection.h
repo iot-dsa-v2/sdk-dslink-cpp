@@ -46,7 +46,7 @@ class Connection : public SharedClosable<Connection> {
   virtual void write(const uint8_t *data, size_t size,
                      WriteHandler &&callback) = 0;
 
-  std::function<void(MessageRef)> on_read_message;
+  std::function<bool(MessageRef)> on_read_message;
 
   boost::mutex read_loop_mutex;
 
@@ -98,14 +98,15 @@ class Connection : public SharedClosable<Connection> {
 
   void reset_standard_deadline_timer();
 
-  void post_message(MessageRef &&msg);
+  std::vector<MessageRef> _batch_post;
+  bool post_message(MessageRef &&msg);
 
   // server connection
  protected:
   //  void on_server_connect() throw(const std::runtime_error &);
 
-  void on_receive_f0(MessageRef &&msg);
-  void on_receive_f2(MessageRef &&msg);
+  bool on_receive_f0(MessageRef &&msg);
+  bool on_receive_f2(MessageRef &&msg);
 
   // client connection
  protected:
@@ -115,8 +116,8 @@ class Connection : public SharedClosable<Connection> {
       const std::runtime_error &);
 
   void start_client_f0();
-  void on_receive_f1(MessageRef &&msg);
-  void on_receive_f3(MessageRef &&msg);
+  bool on_receive_f1(MessageRef &&msg);
+  bool on_receive_f3(MessageRef &&msg);
 };
 
 }  // namespace dsa
