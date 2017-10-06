@@ -13,6 +13,11 @@ TEST(VariantTest, BaseTest) {
     EXPECT_TRUE(v.is_string());
   }
   {
+    std::string s("hello");
+    Variant v(std::move(s));
+    EXPECT_TRUE(v.is_string());
+  }
+  {
     Variant v(123);
     EXPECT_TRUE(v.is_int());
     EXPECT_EQ(v.get_int(), 123);
@@ -26,6 +31,11 @@ TEST(VariantTest, BaseTest) {
     Variant v(true);
     EXPECT_TRUE(v.is_bool());
     EXPECT_EQ(v.get_bool(), true);
+  }
+  {
+    std::vector<uint8_t> vec = {0, 1, 2};
+    Variant v(std::move(vec));
+    EXPECT_TRUE(v.is_binary());
   }
 }
 
@@ -121,4 +131,57 @@ TEST(VariantTest, InitilizerList__NestedMap) {
 
   EXPECT_TRUE(nested_map["second"].is_string());
   EXPECT_EQ("two", nested_map["second"].get_string());
+}
+
+TEST(VariantTest, copy) {
+  {
+    Variant v{{"string", Variant("hello")},
+              {"int", Variant(123)},
+              {"map", {{"first", Variant("one")}, {"second", Variant("two")}}}};
+
+    Variant v1 = v.copy();
+
+    EXPECT_TRUE(v1.is_map());
+    EXPECT_EQ(123, v1.get_map()["int"].get_int());
+  }
+  {
+    Variant v{Variant("hello"), Variant(123), Variant(true)};
+    Variant v1 = v.copy();
+
+    EXPECT_TRUE(v1.is_array());
+
+    VariantArray& vec = v1.get_array();
+
+     EXPECT_EQ(3, vec.size());
+
+    EXPECT_TRUE(vec[0].is_string());
+    EXPECT_EQ("hello", vec[0].get_string());
+  }
+}
+
+TEST(VariantTest, deep_copy) {
+  // TODO: 'deep test' for deep_copy
+  {
+    Variant v{{"string", Variant("hello")},
+              {"int", Variant(123)},
+              {"map", {{"first", Variant("one")}, {"second", Variant("two")}}}};
+
+    Variant v1 = v.deep_copy();
+
+    EXPECT_TRUE(v1.is_map());
+    EXPECT_EQ(123, v1.get_map()["int"].get_int());
+  }
+  {
+    Variant v{Variant("hello"), Variant(123), Variant(true)};
+    Variant v1 = v.deep_copy();
+
+    EXPECT_TRUE(v1.is_array());
+
+    VariantArray& vec = v1.get_array();
+
+     EXPECT_EQ(3, vec.size());
+
+    EXPECT_TRUE(vec[0].is_string());
+    EXPECT_EQ("hello", vec[0].get_string());
+  }
 }

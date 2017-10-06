@@ -83,6 +83,18 @@ TEST(PathTest, Path__is_invalid) {
     Path p("0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/0123456789/");
     EXPECT_TRUE(p.is_invalid());
   }
+  {
+    Path p("%0");
+    EXPECT_TRUE(p.is_invalid());
+  }
+  {
+    Path p("%%00");
+    EXPECT_TRUE(p.is_invalid());
+  }
+  {
+    Path p("%%0z");
+    EXPECT_TRUE(p.is_invalid());
+  }
 }
 
 TEST(PathTest, Path__is_root) {

@@ -6,5 +6,6 @@ add_library(${TARGET_NAME} OBJECT
         enable_intrusive-test.cc
         little_endian_test.cc
         path-test.cc
+        buffer-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)
