@@ -3,23 +3,29 @@ set(SOURCES "")
 
 #
 foreach(dir
-		"./crypto"
+            "./crypto"
 	    "./message"
-	    "./util"
-        "./variant"
-		"./network"
-		"./requester"
+            "./util"
+            "./variant"
+            "./network"
+            "./requester"
 	    "./responder"
-		)
+       )
   add_subdirectory(${dir})
 endforeach()
 
-
+#
 add_library(dsa_test_util OBJECT
 		async_test.cc
 		test_config.cc
 		)
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_test_util>)
+
+#
+add_library(dsa_test_config OBJECT
+              config-test.cc
+           )
+set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_test_config>)
 
 #
 set(SOURCES ${SOURCES} PARENT_SCOPE)

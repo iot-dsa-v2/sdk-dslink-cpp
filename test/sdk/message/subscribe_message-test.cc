@@ -276,6 +276,7 @@ TEST(MessageTest, SubscribeResponse__Constructor) {
   EXPECT_EQ(MessageType::SUBSCRIBE_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
+  EXPECT_EQ(MessageType::SUBSCRIBE_RESPONSE, response.get_response_type(MessageType::SUBSCRIBE_REQUEST));
 }
 
 TEST(MessageTest, SubscribeResponse__source_path) {

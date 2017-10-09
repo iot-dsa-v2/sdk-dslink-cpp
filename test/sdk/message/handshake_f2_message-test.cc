@@ -74,3 +74,9 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
 
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
 }
+
+TEST(MessageTest, HandshakeF2__get_response_type) {
+  HandshakeF2Message message;
+
+  EXPECT_EQ(MessageType::INVALID, message.get_response_type(MessageType::HANDSHAKE2));
+}

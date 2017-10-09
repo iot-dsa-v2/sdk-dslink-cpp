@@ -239,6 +239,7 @@ TEST(MessageTest, SetResponse__Constructor) {
   EXPECT_EQ(MessageType::SET_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
+  EXPECT_EQ(MessageType::SET_RESPONSE, response.get_response_type(MessageType::SET_REQUEST));
 }
 
 TEST(MessageTest, SetResponse__source_path) {

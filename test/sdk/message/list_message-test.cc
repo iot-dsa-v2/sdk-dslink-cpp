@@ -230,6 +230,7 @@ TEST(MessageTest, ListResponse__Constructor) {
   EXPECT_EQ(MessageType::LIST_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
+  EXPECT_EQ(MessageType::LIST_RESPONSE, response.get_response_type(MessageType::LIST_REQUEST));
 }
 
 TEST(MessageTest, ListResponse__source_path) {

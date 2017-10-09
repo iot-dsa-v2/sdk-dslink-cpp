@@ -234,6 +234,7 @@ TEST(MessageTest, InvokeResponse__Constructor) {
   EXPECT_EQ(MessageType::INVOKE_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
+  EXPECT_EQ(MessageType::INVOKE_RESPONSE, response.get_response_type(MessageType::INVOKE_REQUEST));
 }
 
 TEST(MessageTest, InvokeResponse__source_path) {

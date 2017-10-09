@@ -12,6 +12,9 @@ endif ()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDSA_DEBUG")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+# set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} --coverage")
+
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/deps/msgpack-build")
