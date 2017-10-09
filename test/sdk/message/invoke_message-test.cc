@@ -225,7 +225,7 @@ TEST(MessageTest, InvokeRequest__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, InvokeResponse__Constructor) {
+TEST(MessageTest, InvokeResponse__Constructor_01) {
   InvokeResponseMessage response;
 
   EXPECT_EQ(15, response.size());
@@ -235,6 +235,31 @@ TEST(MessageTest, InvokeResponse__Constructor) {
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
   EXPECT_EQ(MessageType::INVOKE_RESPONSE, response.get_response_type(MessageType::INVOKE_REQUEST));
+}
+
+TEST(MessageTest, InvokeResponse__Constructor_02) {
+  InvokeResponseMessage source_response;
+
+  source_response.set_source_path("/source/path");
+  source_response.set_sequence_id(1234);
+  source_response.set_page_id(4321);
+  source_response.set_status(MessageStatus::BUSY);
+
+  source_response.size();
+
+  uint8_t src_buf[1024];
+  source_response.write(src_buf);
+
+  //
+  size_t buf_size = 27;
+  InvokeResponseMessage response(src_buf, buf_size);
+
+  response.size();
+
+  uint8_t buf[1024];
+  response.write(buf);
+
+  EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
 TEST(MessageTest, InvokeResponse__source_path) {
@@ -308,3 +333,27 @@ TEST(MessageTest, InvokeResponse__dynamic_structure) {
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
+
+TEST(MessageTest, InvokeResponse__copy) {
+  InvokeResponseMessage response;
+
+  response.set_source_path("source/path");  // no effect
+  response.set_sequence_id(1234);
+  response.set_page_id(4321);
+  response.set_status(MessageStatus::BUSY);
+
+  response.size();
+
+  InvokeResponseMessage dup_response(response);
+
+  uint8_t buf[1024];
+  dup_response.write(buf);
+
+  uint8_t expected_values[] = {0x1b, 0x0, 0x0, 0x0, 0x1b, 0x0, 0x83, 0x0, 0x0,
+                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x28};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
+}
+
+
