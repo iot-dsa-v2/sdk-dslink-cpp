@@ -230,7 +230,7 @@ TEST(MessageTest, SetRequest__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SetResponse__Constructor) {
+TEST(MessageTest, SetResponse__Constructor_01) {
   SetResponseMessage response;
 
   EXPECT_EQ(15, response.size());
@@ -240,6 +240,27 @@ TEST(MessageTest, SetResponse__Constructor) {
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
   EXPECT_EQ(MessageType::SET_RESPONSE, response.get_response_type(MessageType::SET_REQUEST));
+}
+
+TEST(MessageTest, SetResponse__Constructor_02) {
+  SetResponseMessage source_response;
+  source_response.set_status(MessageStatus::BUSY);
+
+  source_response.size();
+
+  uint8_t src_buf[1024];
+  source_response.write(src_buf);
+
+  //
+  size_t buf_size = 17;
+  SetResponseMessage response(src_buf, buf_size);
+
+  response.size();
+
+  uint8_t buf[1024];
+  response.write(buf);
+
+  EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
 TEST(MessageTest, SetResponse__source_path) {
@@ -321,3 +342,24 @@ TEST(MessageTest, SetResponse__dynamic_structure) {
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
+
+TEST(MessageTest, copy) {
+  SetResponseMessage response;
+
+  response.set_source_path("source/path");
+  response.set_status(MessageStatus::BUSY);
+
+  response.size();
+
+  SetResponseMessage dup_response(response);
+
+  uint8_t buf[1024];
+  dup_response.write(buf);
+
+  uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x84, 0x0, 0x0,
+                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x28};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
+}
+
