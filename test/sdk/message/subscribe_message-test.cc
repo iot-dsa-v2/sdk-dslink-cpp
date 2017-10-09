@@ -267,7 +267,7 @@ TEST(MessageTest, SubscribeRequest__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SubscribeResponse__Constructor) {
+TEST(MessageTest, SubscribeResponse__Constructor_01) {
   SubscribeResponseMessage response;
 
   EXPECT_EQ(15, response.size());
@@ -277,6 +277,31 @@ TEST(MessageTest, SubscribeResponse__Constructor) {
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
   EXPECT_EQ(MessageType::SUBSCRIBE_RESPONSE, response.get_response_type(MessageType::SUBSCRIBE_REQUEST));
+}
+
+TEST(MessageTest, SubscribeResponse__Constructor_02) {
+  SubscribeResponseMessage source_response;
+
+  source_response.set_status(MessageStatus::CLOSED);
+  source_response.set_sequence_id(1234);
+  source_response.set_page_id(4321);
+  source_response.set_source_path("/source/path");
+
+  source_response.size();
+
+  uint8_t src_buf[1024];
+  source_response.write(src_buf);
+
+  //
+  size_t buf_size = 42;
+  SubscribeResponseMessage response(src_buf, buf_size);
+
+  response.size();
+
+  uint8_t buf[1024];
+  response.write(buf);
+
+  EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
 TEST(MessageTest, SubscribeResponse__source_path) {
@@ -342,6 +367,31 @@ TEST(MessageTest, SubscribeResponse__dynamic_structure) {
 
   uint8_t buf[1024];
   response.write(buf);
+
+  uint8_t expected_values[] = {
+      0x2a, 0x0,  0x0,  0x0,  0x2a, 0x0,  0x81, 0x0,  0x0,  0x0,  0x0,
+      0x0,  0x0,  0x0,  0x0,  0x0,  0x10, 0x01, 0xd2, 0x04, 0x0,  0x0,
+      0x02, 0xe1, 0x10, 0x0,  0x0,  0x81, 0x0c, 0x0,  0x2f, 0x73, 0x6f,
+      0x75, 0x72, 0x63, 0x65, 0x2f, 0x70, 0x61, 0x74, 0x68};
+
+  EXPECT_EQ(0, memcmp(expected_values, buf,
+                      sizeof(expected_values) / sizeof(uint8_t)));
+}
+
+TEST(MessageTest, SubscribeResponse__copy) {
+  SubscribeResponseMessage response;
+
+  response.set_status(MessageStatus::CLOSED);
+  response.set_sequence_id(1234);
+  response.set_page_id(4321);
+  response.set_source_path("/source/path");
+
+  response.size();
+
+  SubscribeResponseMessage dup_response(response);
+
+  uint8_t buf[1024];
+  dup_response.write(buf);
 
   uint8_t expected_values[] = {
       0x2a, 0x0,  0x0,  0x0,  0x2a, 0x0,  0x81, 0x0,  0x0,  0x0,  0x0,
