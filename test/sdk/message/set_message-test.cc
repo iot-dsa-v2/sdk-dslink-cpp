@@ -151,7 +151,7 @@ TEST(MessageTest, SetResponse__Constructor_05) {
   uint8_t buf[1024];
   request.write(buf);
 
-  // EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
+  EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
 

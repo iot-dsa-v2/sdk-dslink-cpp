@@ -125,6 +125,38 @@ TEST(MessageTest, InvokeRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
+TEST(MessageTest, InvokeRequest__Constructor_05) {
+  InvokeRequestMessage source_request;
+
+  source_request.set_sequence_id(1234);
+  source_request.set_page_id(4321);
+  source_request.set_alias_count(11);
+  source_request.set_priority(true);
+  source_request.set_no_stream(true);
+  //  request.set_max_permission(); // TODO : TBI
+  source_request.set_permission_token("ptoken");
+  source_request.set_target_path("/target/path");
+
+  source_request.size();
+
+  InvokeRequestMessage dup_request(source_request);
+
+  uint8_t src_buf[1024];
+  dup_request.write(src_buf);
+
+  //
+  size_t buf_size = 53;
+  InvokeRequestMessage request(src_buf, buf_size);
+
+  request.size();
+
+  uint8_t buf[1024];
+  request.write(buf);
+
+  EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
+
+}
+
 TEST(MessageTest, InvokeRequest__get_invoke_options) {
   //   InvokeOptions get_invoke_options() const;
 
