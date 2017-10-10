@@ -32,9 +32,9 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
   size_t partial_size = next - cur;
   if (cur > 0) {
     std::copy(buffer.data() + cur, buffer.data() + next, buffer.data());
-  } else if (partial_size * 2 > buffer.size() &&
-             buffer.size() < Message::MAX_MESSAGE_SIZE) {
-    // resize the buffer on demand
+  }
+  if (next * 2 > buffer.size() &&
+      buffer.size() < connection->_max_read_buffer_size) {
     buffer.resize(buffer.size() * 4);
   }
   tcp_socket &socket = connection->_socket;

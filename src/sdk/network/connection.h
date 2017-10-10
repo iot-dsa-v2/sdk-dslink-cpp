@@ -31,7 +31,10 @@ class Connection : public SharedClosable<Connection> {
   friend class Session;
 
  public:
-  static const size_t DEFAULT_BUFFER_SIZE = 4096;
+  static const size_t DEFAULT_BUFFER_SIZE = 8192;
+  // write buffer will have 1/16 unusable part by default
+  // which seems to improve the performance on windows
+  static const size_t MAX_BUFFER_SIZE = 8192 * 15;
 
   virtual std::string name() = 0;
 
@@ -68,6 +71,9 @@ class Connection : public SharedClosable<Connection> {
 
   // this should rarely be touched
   ref_<Session> _session;
+
+  size_t _max_read_buffer_size = MAX_BUFFER_SIZE;
+  size_t _max_write_buffer_size = MAX_BUFFER_SIZE;
 
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
