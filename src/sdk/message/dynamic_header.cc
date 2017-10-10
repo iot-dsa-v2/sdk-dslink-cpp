@@ -20,7 +20,6 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
   switch (*data) {
     case STATUS:
     case ALIAS_COUNT:
-    case PRIORITY:
     case QOS:
     case MAX_PERMISSION: {
       if (size >= 2) {
@@ -39,6 +38,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     }
 
     case BASE_PATH:
+    case ATTRIBUTE_FIELD:
     case PERMISSION_TOKEN:
     case TARGET_PATH:
     case SOURCE_PATH: {
@@ -52,6 +52,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
       }
       throw MessageParsingError("invalid size for DynamicStringHeader");
     }
+    case PRIORITY:
     case NO_STREAM:
     case SKIPPABLE: {
       if (size >= 1) {
