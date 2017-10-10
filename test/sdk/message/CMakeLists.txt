@@ -12,6 +12,7 @@ add_library(${TARGET_NAME} OBJECT
         invoke_message-test.cc
         set_message-test.cc
         enum-test.cc
+        message_options-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)
 

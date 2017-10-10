@@ -124,6 +124,37 @@ TEST(MessageTest, SetRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
+TEST(MessageTest, SetResponse__Constructor_05) {
+  SetRequestMessage source_request;
+
+  source_request.set_sequence_id(1234);  // no effect
+  source_request.set_page_id(4321);
+  source_request.set_alias_count(11);
+  source_request.set_priority(true);
+  source_request.set_no_stream(true);
+  source_request.set_permission_token("ptoken");
+  source_request.set_target_path("/target/path");
+
+  source_request.size();
+
+  SetRequestMessage dup_request(source_request);
+
+  uint8_t src_buf[1024];
+  dup_request.write(src_buf);
+
+  //
+  size_t buf_size = 48;
+  SetRequestMessage request(src_buf, buf_size);
+
+  request.size();
+
+  uint8_t buf[1024];
+  request.write(buf);
+
+  // EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
+}
+
+
 TEST(MessageTest, SetRequest__get_set_options) {
   //   SetOptions get_set_options() const;
 
