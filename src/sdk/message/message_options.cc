@@ -19,7 +19,7 @@ bool BaseRequestOptions::needUpdateOnRemoval(
   return false;
 }
 bool BaseRequestOptions::needUpdateOnChange(
-  const BaseRequestOptions &oldopt, const BaseRequestOptions &newopt) const {
+    const BaseRequestOptions& oldopt, const BaseRequestOptions& newopt) const {
   if (oldopt.priority == priority && newopt.priority != priority) return true;
 
   return false;
@@ -61,7 +61,7 @@ bool SubscribeOptions::needUpdateOnRemoval(
   return false;
 }
 bool SubscribeOptions::needUpdateOnChange(
-  const SubscribeOptions &oldopt, const SubscribeOptions &newopt) const {
+    const SubscribeOptions& oldopt, const SubscribeOptions& newopt) const {
   if (BaseRequestOptions::needUpdateOnChange(oldopt, newopt)) return true;
 
   if (oldopt.qos == qos && newopt.qos != qos) return true;
@@ -91,4 +91,5 @@ bool SubscribeOptions::mergeFrom(const SubscribeOptions& other) {
   return changed;
 }
 
+ListOptions::ListOptions() : BaseRequestOptions(false) {}
 }  // namespace dsa

@@ -13,4 +13,6 @@ ListRequestMessage::ListRequestMessage()
     : RequestMessage(MessageType::LIST_REQUEST) {}
 
 ListOptions ListRequestMessage::get_list_options() const { return {}; }
+void ListRequestMessage::set_list_option(const ListOptions& option) {}
+
 }  // namespace dsa

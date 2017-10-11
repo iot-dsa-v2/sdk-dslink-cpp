@@ -73,6 +73,7 @@ struct SetOptions : BaseRequestOptions {
 };
 
 struct ListOptions : BaseRequestOptions {
+  ListOptions();
   // TODO: implement this
 };
 

@@ -19,6 +19,8 @@ class IncomingListStream : public MessageCacheStream {
                              IncomingListStream&)>
       Callback;
 
+  static const ListOptions default_options;
+
  protected:
   Callback _callback;
 
@@ -27,7 +29,8 @@ class IncomingListStream : public MessageCacheStream {
                               uint32_t rid, Callback&& callback);
   void receive_message(MessageCRef&& msg) override;
 
-  void list();
+  // send the list request
+  void list(const ListOptions &options);
 };
 }
 

@@ -7,6 +7,7 @@
 
 #include <map>
 
+#include "stream/requester/incoming_list_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
 
 namespace dsa {
@@ -28,12 +29,16 @@ class Requester {
   void close_impl();
 
  public:
-  Requester(Session &session);
+  explicit Requester(Session &session);
 
   ref_<IncomingSubscribeStream> subscribe(
-      const std::string& path, IncomingSubscribeStream::Callback &&callback,
+      const std::string &path, IncomingSubscribeStream::Callback &&callback,
       const SubscribeOptions &options =
           IncomingSubscribeStream::default_options);
+
+  ref_<IncomingListStream> list(
+      const std::string &path, IncomingListStream::Callback &&callback,
+      const ListOptions &options = IncomingListStream::default_options);
 };
 
 }  // namespace dsa

@@ -17,15 +17,16 @@ class ListRequestMessage : public RequestMessage {
   ListRequestMessage();
   ListRequestMessage(const ListRequestMessage&);
 
-  ListOptions get_list_options() const;
-
  protected:
   // measure the size and header size
-  void update_static_header();
+  void update_static_header() override;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const;
+  void write_dynamic_data(uint8_t* data) const override;
   void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,
                           size_t body_size) throw(const MessageParsingError&);
+public:
+  ListOptions get_list_options() const;
+  void set_list_option(const ListOptions& option);
 };
 
 typedef ref_<const ListRequestMessage> ListRequestMessageCRef;

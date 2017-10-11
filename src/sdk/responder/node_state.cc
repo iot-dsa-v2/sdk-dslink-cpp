@@ -100,6 +100,7 @@ void NodeState::set_model(ref_<NodeModel> &&model) {
     _model = std::move(model);
     _model->_state = get_ref();
     _model_status = MODEL_CONNECTED;
+    _model->initialize();
   }
   // TODO send request to model
 }

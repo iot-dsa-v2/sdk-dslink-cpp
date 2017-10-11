@@ -40,6 +40,8 @@ class NodeModel : public ClosableRef<NodeModel> {
   explicit NodeModel(LinkStrandRef strand);
   virtual ~NodeModel();
 
+  virtual void initialize() {}
+
   ref_<NodeModel> get_child(const std::string &name);
 
   ref_<NodeModel> add_child(const std::string &name, ref_<NodeModel> model);

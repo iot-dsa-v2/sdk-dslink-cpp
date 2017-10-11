@@ -31,6 +31,7 @@ class IncomingSubscribeStream : public MessageCacheStream {
 
   void receive_message(MessageCRef&& msg) override;
 
+  // send subscription request and update of subscription options
   void subscribe(const SubscribeOptions &options);
 };
 }
