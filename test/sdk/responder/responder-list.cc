@@ -10,14 +10,24 @@
 
 using namespace dsa;
 
-class MockNodeList : public NodeModel {
- public:
+class MockNodeListChild : public NodeModel {
+public:
+  explicit MockNodeListChild(LinkStrandRef strand)
+    : NodeModel(std::move(strand)){};
+};
+
+class MockNodeListRoot : public NodeModel {
+public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
-  explicit MockNodeList(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNodeListRoot(LinkStrandRef strand)
+    : NodeModel(std::move(strand)){};
 
-  void initialize() override {}
+  void initialize() override {
+    add_child("child_a", make_ref_<MockNodeListChild>(_strand));
+    add_child("child_b", make_ref_<MockNodeListChild>(_strand));
+  }
 };
 
 TEST(ResponderTest, List) {
@@ -25,10 +35,10 @@ TEST(ResponderTest, List) {
 
   TestConfig server_config(app);
 
-  MockNodeList *root_node = new MockNodeList(server_config.strand);
+  MockNodeListRoot *root_node = new MockNodeListRoot(server_config.strand);
 
   server_config.get_link_config()->set_responder_model(
-      ref_<MockNodeList>(root_node));
+    ref_<MockNodeListRoot>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -42,11 +52,13 @@ TEST(ResponderTest, List) {
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
+  ref_<const ListResponseMessage> last_response;
   tcp_client->get_session().requester.list(
-      "", [&](ref_<const ListResponseMessage> &&msg,
-              IncomingListStream &stream) {
+    "", [&](ref_<const ListResponseMessage> &&msg,
+            IncomingListStream &stream) { last_response = msg; });
 
-    });
+//  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+//                    [&]() { return last_response != nullptr; });
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);

@@ -5,6 +5,8 @@
 #include "module/logger.h"
 #include "node_state.h"
 #include "util/date_time.h"
+#include "stream/responder/outgoing_list_stream.h"
+#include "stream/responder/outgoing_subscribe_stream.h"
 
 namespace dsa {
 
@@ -13,16 +15,11 @@ class InvalidNodeModel : public NodeModel {
   InvalidNodeModel() : NodeModel(nullptr){};
 };
 
-// 3 fixed model pointer for special model ref
-static InvalidNodeModel waiting_model;
-static InvalidNodeModel invalid_model;
-static InvalidNodeModel unavailable_model;
+ref_<NodeModel> NodeModel::WAITING = make_ref_<InvalidNodeModel>();
+ref_<NodeModel> NodeModel::INVALID = make_ref_<InvalidNodeModel>();
+ref_<NodeModel> NodeModel::UNAVAILABLE = make_ref_<InvalidNodeModel>();
 
-NodeModel *NodeModel::WAITING = &waiting_model;
-NodeModel *NodeModel::INVALID = &invalid_model;
-NodeModel *NodeModel::UNAVAILABLE = &unavailable_model;
-
-NodeModel::NodeModel(LinkStrandRef strand) : _strand(std::move(strand)) {}
+NodeModel::NodeModel(LinkStrandRef &&strand) : _strand(std::move(strand)) {}
 
 NodeModel::~NodeModel() = default;
 
@@ -36,7 +33,7 @@ ref_<NodeModel> NodeModel::get_child(const std::string &name) {
 }
 
 ref_<NodeModel> NodeModel::add_child(const std::string &name,
-                                     ref_<NodeModel> model) {
+                                     ref_<NodeModel> &&model) {
   auto child_state = _state->get_child(name, true);
   if (child_state->get_model() != nullptr) {
     LOG_FATAL(_strand->logger(), LOG << "NodeModel already exists: " << name);
@@ -76,6 +73,10 @@ void NodeModel::set_message(SubscribeResponseMessageCRef &&message) {
   if (_subscribe_callback) {
     _subscribe_callback(copy_ref_(_cached_value));
   }
+}
+
+void NodeModel::init_list_stream(OutgoingListStream &stream) {
+
 }
 
 }  // namespace dsa

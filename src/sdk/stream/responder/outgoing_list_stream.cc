@@ -20,13 +20,12 @@ void OutgoingListStream::close_impl() {
   };
 }
 
-void OutgoingListStream::update_value(const std::string &key,
-                                      std::vector<uint8_t> &&value) {
-  _cached_map[key] = std::move(value);
+void OutgoingListStream::update_value(const std::string &key, BytesRef &value) {
+  _cached_map[key] = value;
 }
 void OutgoingListStream::update_value(const std::string &key,
                                       const Variant &v) {
-  _cached_map[key] = v.to_msgpack();
+  _cached_map[key] = make_ref_<IntrusiveBytes>(std::move(v.to_msgpack()));
 }
 
 size_t OutgoingListStream::peek_next_message_size(size_t available) {
@@ -36,11 +35,11 @@ size_t OutgoingListStream::peek_next_message_size(size_t available) {
   // TODO: dynamic headers; base_path;
 
   auto it = _cached_map.begin();
-  size += it->first.size() + it->second.size() + 4;
+  size += it->first.size() + it->second->size() + 4;
   if (size > available) return size;
 
   for (; it != _cached_map.end(); ++it) {
-    size_t this_size = it->first.size() + it->second.size() + 4;
+    size_t this_size = it->first.size() + it->second->size() + 4;
     if (this_size + size > available) {
       break;
     }
@@ -57,16 +56,16 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   IntrusiveBytes body{availible_size};
   size_t pos = 0;
   for (auto it = _cached_map.begin(); it != _cached_map.end();) {
-    size_t this_size = it->first.size() + it->second.size() + 4;
+    size_t this_size = it->first.size() + it->second->size() + 4;
     if (this_size <= availible_size) {
       availible_size -= this_size;
       // write key
       pos += write_str_with_len(body.data() + pos, it->first);
       // write value
-      pos += write_16_t(body.data() + pos, it->second.size());
+      pos += write_16_t(body.data() + pos, it->second->size());
 
-      std::copy(it->second.begin(), it->second.end(), body.data() + pos);
-      pos += it->second.size();
+      std::copy(it->second->begin(), it->second->end(), body.data() + pos);
+      pos += it->second->size();
 
       // remove and move to next iterator
       it = _cached_map.erase(it);

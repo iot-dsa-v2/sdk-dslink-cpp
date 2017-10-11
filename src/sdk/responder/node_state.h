@@ -12,9 +12,11 @@
 
 #include "message/response/subscribe_response_message.h"
 #include "node_model.h"
-#include "stream/responder/outgoing_subscribe_stream.h"
+//#include "stream/responder/outgoing_subscribe_stream.h"
+
 
 namespace dsa {
+class OutgoingSubscribeStream;
 class OutgoingListStream;
 class NodeModel;
 
@@ -48,6 +50,9 @@ class NodeState : public EnableRef<NodeState> {
   // subscription related properties
   std::unordered_map<OutgoingSubscribeStream *, ref_<OutgoingSubscribeStream>>
       _subscription_streams;
+  std::unordered_map<OutgoingListStream *, ref_<OutgoingListStream>>
+    _list_streams;
+
   SubscribeOptions _merged_subscribe_options;
   void check_subscribe_options();
 
@@ -55,7 +60,7 @@ class NodeState : public EnableRef<NodeState> {
 
  public:
   NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent);
-  virtual ~NodeState() = default;
+  virtual ~NodeState();
 
   bool registered() { return _path.data() != nullptr; }
 
@@ -81,6 +86,9 @@ class NodeState : public EnableRef<NodeState> {
   void new_subscribe_response(SubscribeResponseMessageCRef &&message);
 
   void subscribe(ref_<OutgoingSubscribeStream> &&stream);
+
+  void update_list_value(const std::string &key, BytesRef &value);
+
   void list(ref_<OutgoingListStream> &&stream);
 };
 

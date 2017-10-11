@@ -64,3 +64,10 @@ add_executable(${TARGET_NAME} ${SOURCES})
 target_link_libraries(${TARGET_NAME} ${TEST_LIBS})
 
 add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
+
+
+
+
+add_executable("test-playground" sdk/playground/test.cc sdk/async_test.cc sdk/test_config.cc)
+target_link_libraries("test-playground" ${TEST_LIBS})
+add_test(NAME "test-playground" COMMAND "test-playground")

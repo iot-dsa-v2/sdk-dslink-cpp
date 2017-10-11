@@ -11,6 +11,7 @@ namespace dsa {
 
 NodeState::NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent)
     : _owner(owner), _parent(std::move(parent)) {}
+NodeState::~NodeState() = default;
 
 ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
   // find existing node
@@ -144,8 +145,9 @@ void NodeState::check_subscribe_options() {
 }
 
 void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
-  _subscription_streams[stream.get()] = stream;
-  if (_merged_subscribe_options.mergeFrom(stream->options())) {
+  auto p = stream.get();
+  _subscription_streams[p] = std::move(stream);
+  if (_merged_subscribe_options.mergeFrom(p->options())) {
     if (_model_status == MODEL_CONNECTED) {
       _model->subscribe(
           _merged_subscribe_options,
@@ -155,7 +157,7 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
     }
     // TODO update model;
   }
-  stream->on_option_change([ this, keep_ref = get_ref() ](
+  p->on_option_change([ this, keep_ref = get_ref() ](
       OutgoingSubscribeStream & stream, const SubscribeOptions &old_options) {
     if (stream.is_closed()) {
       _subscription_streams.erase(&stream);
@@ -170,11 +172,22 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
     }
   });
   if (_model != nullptr && _model->_cached_value != nullptr) {
-    stream->send_response(copy_ref_(_model->_cached_value));
+    p->send_response(copy_ref_(_model->_cached_value));
   }
 }
+
+void NodeState::update_list_value(const std::string &key, BytesRef &value) {
+  for (auto &it : _list_streams) {
+    it.first->update_value(key, value);
+  }
+}
+
 void NodeState::list(ref_<OutgoingListStream> &&stream) {
-  //_list_streams.insert(std::move(p));
+  auto p = stream.get();
+  _list_streams[p] = std::move(stream);
+  if (_model != nullptr) {
+    _model->init_list_stream(*p);
+  }
 }
 
 void NodeState::close_impl() {

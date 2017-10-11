@@ -32,7 +32,7 @@ class ListResponseMessage : public ResponseMessage {
 
   std::unique_ptr<DynamicStringHeader> base_path;
 
-  std::map<std::string, std::vector<uint8_t>> _raw_map;
+  std::map<std::string, BytesRef> _raw_map;
 
   void parse();
 

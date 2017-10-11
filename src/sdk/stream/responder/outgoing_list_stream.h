@@ -23,14 +23,14 @@ class OutgoingListStream : public MessageRefedStream {
 
   void close_impl() override;
 
-  std::map<std::string, std::vector<uint8_t>> _cached_map;
+  std::map<std::string, BytesRef> _cached_map;
   size_t _next_size;
 
  public:
   OutgoingListStream(ref_<Session> &&session, const Path &path, uint32_t rid,
                      ListOptions &&options);
 
-  void update_value(const std::string &key, std::vector<uint8_t> &&value);
+  void update_value(const std::string &key, BytesRef &value);
   void update_value(const std::string &key, const Variant &v);
 
   size_t peek_next_message_size(size_t available) override;

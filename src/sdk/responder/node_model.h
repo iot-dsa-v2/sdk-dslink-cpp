@@ -14,7 +14,7 @@
 #include "util/path.h"
 
 namespace dsa {
-
+class OutgoingListStream;
 class NodeState;
 
 class NodeModel : public ClosableRef<NodeModel> {
@@ -33,18 +33,18 @@ class NodeModel : public ClosableRef<NodeModel> {
   SubscribeResponseMessageCRef _cached_value;
 
  public:
-  static NodeModel *WAITING;
-  static NodeModel *INVALID;
-  static NodeModel *UNAVAILABLE;
+  static ref_<NodeModel> WAITING;
+  static ref_<NodeModel> INVALID;
+  static ref_<NodeModel> UNAVAILABLE;
 
-  explicit NodeModel(LinkStrandRef strand);
+  explicit NodeModel(LinkStrandRef &&strand);
   virtual ~NodeModel();
 
   virtual void initialize() {}
 
   ref_<NodeModel> get_child(const std::string &name);
 
-  ref_<NodeModel> add_child(const std::string &name, ref_<NodeModel> model);
+  ref_<NodeModel> add_child(const std::string &name, ref_<NodeModel> &&model);
 
   // when return true, model will be removed
   virtual bool periodic_check(size_t ts) { return true; }
@@ -63,6 +63,9 @@ class NodeModel : public ClosableRef<NodeModel> {
   virtual void on_subscribe(const SubscribeOptions &options){};
   virtual void on_subscribe_option_change(const SubscribeOptions &options){};
   virtual void on_unsubscribe(){};
+
+
+  void init_list_stream(OutgoingListStream &stream);
 };
 
 }  // namespace dsa
