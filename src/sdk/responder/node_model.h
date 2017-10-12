@@ -17,7 +17,7 @@ namespace dsa {
 class OutgoingListStream;
 class NodeState;
 
-class NodeModel : public ClosableRef<NodeModel> {
+class NodeModelBase : public ClosableRef<NodeModelBase> {
   friend class NodeState;
 
  public:
@@ -33,23 +33,24 @@ class NodeModel : public ClosableRef<NodeModel> {
   SubscribeResponseMessageCRef _cached_value;
 
  public:
-  static ref_<NodeModel> WAITING;
-  static ref_<NodeModel> INVALID;
-  static ref_<NodeModel> UNAVAILABLE;
+  static ref_<NodeModelBase> WAITING;
+  static ref_<NodeModelBase> INVALID;
+  static ref_<NodeModelBase> UNAVAILABLE;
 
-  explicit NodeModel(LinkStrandRef &&strand);
-  virtual ~NodeModel();
+  explicit NodeModelBase(LinkStrandRef &&strand);
+  virtual ~NodeModelBase();
 
   virtual void initialize() {}
 
-  ref_<NodeModel> get_child(const std::string &name);
+  ref_<NodeModelBase> get_child(const std::string &name);
 
-  ref_<NodeModel> add_child(const std::string &name, ref_<NodeModel> &&model);
+  ref_<NodeModelBase> add_child(const std::string &name,
+                                ref_<NodeModelBase> &&model);
 
   // when return true, model will be removed
   virtual bool periodic_check(size_t ts) { return true; }
   virtual bool allows_runtime_child_change() { return false; }
-  virtual ref_<NodeModel> on_demand_create_child(const Path &path) {
+  virtual ref_<NodeModelBase> on_demand_create_child(const Path &path) {
     return INVALID;
   }
 
@@ -64,8 +65,16 @@ class NodeModel : public ClosableRef<NodeModel> {
   virtual void on_subscribe_option_change(const SubscribeOptions &options){};
   virtual void on_unsubscribe(){};
 
+  virtual void init_list_stream(OutgoingListStream &stream) {};
+};
 
-  void init_list_stream(OutgoingListStream &stream);
+
+
+class NodeModel : public NodeModelBase {
+  explicit NodeModel(LinkStrandRef &&strand)
+      : NodeModelBase(std::move(strand)){};
+
+  void init_list_stream(OutgoingListStream &stream) override;
 };
 
 }  // namespace dsa

@@ -12,7 +12,7 @@
 namespace dsa {
 
 NodeStateManager::NodeStateManager(LinkStrand &strand,
-                                   ref_<NodeModel> &&root_model,
+                                   ref_<NodeModelBase> &&root_model,
                                    size_t timer_interval)
     : _root(new NodeStateRoot(*this, std::move(root_model))),
       _timer(strand.get_io_service(),
@@ -47,7 +47,7 @@ ref_<NodeState> NodeStateManager::check_state(const Path &path) {
   return _root->find_child(path);
 }
 
-void NodeStateManager::model_added(const Path &path, ref_<NodeModel> &model) {
+void NodeStateManager::model_added(const Path &path, ref_<NodeModelBase> &model) {
   ref_<NodeState> state = check_state(path);
   if (state != nullptr) {
   }

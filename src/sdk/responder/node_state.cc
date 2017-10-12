@@ -19,9 +19,10 @@ ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
   if (result != _children.end()) {
     return result->second;
   } else if (create) {
-    // create new node
-    _children[name] = new NodeStateChild(_owner, get_ref(), name);
-    return _children[name];
+    auto child = new NodeStateChild(_owner, get_ref(), name);
+    child->_path = _path.get_child_path(name);
+    _children[name] = child;
+    return child->get_ref();
   }
   // not found, return a nullptr
   return ref_<NodeState>();
@@ -37,6 +38,7 @@ ref_<NodeState> NodeState::create_child(const Path &path,
     if (path.is_last()) {
       return result->second;
     }
+    // let child state decide
     if (result->second->_model != nullptr) {
       if (!allows_runtime_change &&
           result->second->_model->allows_runtime_child_change()) {
@@ -87,17 +89,20 @@ ref_<NodeState> NodeState::find_child(const Path &path) {
 
 void NodeState::remove_child(const std::string &name) { _children.erase(name); }
 
-void NodeState::set_model(ref_<NodeModel> &&model) {
+void NodeState::set_model(ref_<NodeModelBase> &&model) {
   if (model == nullptr) {
     _model.reset();
-    if (model == NodeModel::WAITING) {
+    _model_status = MODEL_INVALID;
+  } else if (model->_strand == nullptr){ // Other Invalid Models
+    _model.reset();
+    if (model == NodeModelBase::WAITING) {
       _model_status = MODEL_WAITING;
-    } else if (model == NodeModel::UNAVAILABLE) {
+    } else if (model == NodeModelBase::UNAVAILABLE) {
       _model_status = MODEL_UNAVAILABLE;
     } else {
       _model_status = MODEL_INVALID;
     }
-  } else {
+  }else {
     _model = std::move(model);
     _model->_state = get_ref();
     _model_status = MODEL_CONNECTED;
@@ -195,6 +200,7 @@ void NodeState::close_impl() {
     _model->close();
     _model.reset();
     _model_status = MODEL_UNKNOWN;
+    _owner.remove_state(_path.full_str());
   }
 }
 
@@ -202,8 +208,9 @@ NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
                                const std::string &name)
     : NodeState(owner, std::move(parent)), name(name) {}
 
-NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ref_<NodeModel> &&model)
+NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ref_<NodeModelBase> &&model)
     : NodeState(owner, ref_<NodeState>()) {
+  _path = Path("");
   set_model(std::move(model));
 };
 

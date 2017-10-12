@@ -15,9 +15,9 @@ using time_point = std::chrono::high_resolution_clock::time_point;
 
 using namespace dsa;
 
-class MockNodeQos : public NodeModel {
+class MockNodeQos : public NodeModelBase {
  public:
-  explicit MockNodeQos(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNodeQos(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
   void on_subscribe(const SubscribeOptions &options) override {
     if (_subscribe_callback != nullptr) {

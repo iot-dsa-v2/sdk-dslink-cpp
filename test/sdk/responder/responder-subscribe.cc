@@ -1,4 +1,4 @@
-#include "dsa/message.h"
+#include "dsa/stream.h"
 #include "dsa/network.h"
 
 #include "../async_test.h"
@@ -10,12 +10,12 @@
 
 using namespace dsa;
 
-class MockNode : public NodeModel {
+class MockNode : public NodeModelBase {
  public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
   void on_subscribe(const SubscribeOptions &options) override {
     first_subscribe_options.reset(new SubscribeOptions(options));

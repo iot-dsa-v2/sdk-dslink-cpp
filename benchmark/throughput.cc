@@ -20,9 +20,9 @@ using time_point = std::chrono::high_resolution_clock::time_point;
 using namespace dsa;
 namespace opts = boost::program_options;
 
-class MockNode : public NodeModel {
+class MockNode : public NodeModelBase {
  public:
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 };
 
 int main(int argc, const char *argv[]) {

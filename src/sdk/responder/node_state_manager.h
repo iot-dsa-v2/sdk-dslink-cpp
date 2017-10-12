@@ -27,12 +27,12 @@ class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
   boost::asio::deadline_timer _timer;
 
  public:
-  explicit NodeStateManager(LinkStrand &strand, ref_<NodeModel> &&root_model,
+  explicit NodeStateManager(LinkStrand &strand, ref_<NodeModelBase> &&root_model,
                             size_t timer_interval = 60);
 
   void remove_state(const std::string &path) override;
 
-  void model_added(const Path &path, ref_<NodeModel> &model);
+  void model_added(const Path &path, ref_<NodeModelBase> &model);
   void model_deleted(const Path &path);
 
   void add(ref_<OutgoingSubscribeStream> &&stream) override;

@@ -10,27 +10,27 @@
 
 using namespace dsa;
 
-class MockNodeListChild : public NodeModel {
+class MockNodeListChild : public NodeModelBase {
 public:
   explicit MockNodeListChild(LinkStrandRef strand)
-    : NodeModel(std::move(strand)){};
+    : NodeModelBase(std::move(strand)){};
 };
 
-class MockNodeListRoot : public NodeModel {
+class MockNodeListRoot : public NodeModelBase {
 public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
   explicit MockNodeListRoot(LinkStrandRef strand)
-    : NodeModel(std::move(strand)){};
+    : NodeModelBase(std::move(strand)){};
 
   void initialize() override {
-    add_child("child_a", make_ref_<MockNodeListChild>(_strand));
-    add_child("child_b", make_ref_<MockNodeListChild>(_strand));
+    ref_<NodeModelBase> m = new MockNodeListChild(_strand);
+    add_child("child_a", ref_<NodeModelBase>(m));
   }
 };
 
-TEST(ResponderTest, List) {
+TEST(ResponderTest, ListTest) {
   App app;
 
   TestConfig server_config(app);
@@ -49,7 +49,7 @@ TEST(ResponderTest, List) {
   auto tcp_client = make_shared_<Client>(client_config);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(50000000, *client_config.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   ref_<const ListResponseMessage> last_response;

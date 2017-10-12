@@ -20,12 +20,12 @@ const int SLEEP_INTERVAL = 25;
 using high_resolution_clock = std::chrono::high_resolution_clock;
 using time_point = std::chrono::high_resolution_clock::time_point;
 
-class MockNode : public NodeModel {
+class MockNode : public NodeModelBase {
  public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
   void on_subscribe(const SubscribeOptions &options) override {
     first_subscribe_options.reset(new SubscribeOptions(options));

@@ -30,11 +30,11 @@ class TestConfigExt : public TestConfig {
   }
 };
 
-class MockNode : public NodeModel {
+class MockNode : public NodeModelBase {
  public:
   bool first_client_subscribed = false;
 
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
   void on_subscribe(const SubscribeOptions &options) override {
     first_client_subscribed = true;
