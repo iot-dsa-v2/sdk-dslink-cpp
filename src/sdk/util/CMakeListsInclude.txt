@@ -1,7 +1,8 @@
 list(APPEND UtilSourceFiles
         date_time.cc
         boost_debug.cc
-        path.cc)
+        path.cc
+        buffer.cc)
 
 foreach (file ${UtilSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_UTIL}/${file})
