@@ -44,7 +44,7 @@ class NodeState : public EnableRef<NodeState> {
   ref_<NodeState> _parent;
   std::unordered_map<std::string, ref_<NodeState>> _children;
 
-  ref_<NodeModelBase> _model;
+  ModelRef _model;
   ModelStatus _model_status = MODEL_UNKNOWN;
 
   // subscription related properties
@@ -71,8 +71,8 @@ class NodeState : public EnableRef<NodeState> {
 
   void remove_child(const std::string &name);
 
-  void set_model(ref_<NodeModelBase> &&model);
-  ref_<NodeModelBase> &get_model() { return _model; }
+  void set_model(ModelRef &&model);
+  ModelRef &get_model() { return _model; }
 
   //////////////////////////
   // Getters
@@ -102,7 +102,7 @@ class NodeStateChild : public NodeState {
 
 class NodeStateRoot : public NodeState {
  public:
-  explicit NodeStateRoot(NodeStateOwner &owner, ref_<NodeModelBase> &&model);
+  explicit NodeStateRoot(NodeStateOwner &owner, ModelRef &&model);
 };
 
 }  // namespace dsa

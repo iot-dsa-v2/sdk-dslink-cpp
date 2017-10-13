@@ -17,6 +17,9 @@ namespace dsa {
 class OutgoingListStream;
 class NodeState;
 
+class NodeModelBase;
+typedef ref_<NodeModelBase> ModelRef;
+
 class NodeModelBase : public ClosableRef<NodeModelBase> {
   friend class NodeState;
 
@@ -33,24 +36,24 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
   SubscribeResponseMessageCRef _cached_value;
 
  public:
-  static ref_<NodeModelBase> WAITING;
-  static ref_<NodeModelBase> INVALID;
-  static ref_<NodeModelBase> UNAVAILABLE;
+  static ModelRef WAITING;
+  static ModelRef INVALID;
+  static ModelRef UNAVAILABLE;
 
   explicit NodeModelBase(LinkStrandRef &&strand);
   virtual ~NodeModelBase();
 
   virtual void initialize() {}
 
-  ref_<NodeModelBase> get_child(const std::string &name);
+  ModelRef get_child(const std::string &name);
 
-  ref_<NodeModelBase> add_child(const std::string &name,
-                                ref_<NodeModelBase> &&model);
+  ModelRef add_child(const std::string &name,
+                                ModelRef &&model);
 
   // when return true, model will be removed
   virtual bool periodic_check(size_t ts) { return true; }
   virtual bool allows_runtime_child_change() { return false; }
-  virtual ref_<NodeModelBase> on_demand_create_child(const Path &path) {
+  virtual ModelRef on_demand_create_child(const Path &path) {
     return INVALID;
   }
 

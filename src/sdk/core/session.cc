@@ -56,7 +56,7 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
+//  LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
 
   if (message->need_ack()) {
     _ack_stream->add_ack(message->get_ack_id());
@@ -82,7 +82,7 @@ ref_<MessageStream> Session::get_next_ready_stream() {
       return std::move(stream);
     }
   }
-  return nullptr;
+  return ref_<MessageStream>();
 }
 
 size_t Session::peek_next_message(size_t availible) {
@@ -128,8 +128,8 @@ void Session::write_loop(ref_<Session> sthis) {
           AckHolder(sthis->_waiting_ack, std::move(ack_callback)));
     }
 
-    LOG_TRACE(sthis->_strand->logger(),
-              LOG << "send message: " << message->type());
+//    LOG_TRACE(sthis->_strand->logger(),
+//              LOG << "send message: " << message->type());
 
     write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
 

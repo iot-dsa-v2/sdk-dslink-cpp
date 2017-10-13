@@ -53,7 +53,7 @@ ref_<NodeState> NodeState::create_child(const Path &path,
   }
   if (allows_runtime_change) {
     // create new node
-    ref_<NodeState> new_state = new NodeStateChild(_owner, get_ref(), name);
+    ref_<NodeState> new_state = ref_<NodeState>(static_cast<NodeState*>(new NodeStateChild(_owner, get_ref(), name)));
     _children[name] = new_state;
     if (path.is_last()) {
       new_state->_path = path;
@@ -89,7 +89,7 @@ ref_<NodeState> NodeState::find_child(const Path &path) {
 
 void NodeState::remove_child(const std::string &name) { _children.erase(name); }
 
-void NodeState::set_model(ref_<NodeModelBase> &&model) {
+void NodeState::set_model(ModelRef &&model) {
   if (model == nullptr) {
     _model.reset();
     _model_status = MODEL_INVALID;
@@ -208,7 +208,7 @@ NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
                                const std::string &name)
     : NodeState(owner, std::move(parent)), name(name) {}
 
-NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ref_<NodeModelBase> &&model)
+NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ModelRef &&model)
     : NodeState(owner, ref_<NodeState>()) {
   _path = Path("");
   set_model(std::move(model));

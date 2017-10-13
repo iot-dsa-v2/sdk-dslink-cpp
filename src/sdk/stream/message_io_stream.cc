@@ -39,7 +39,7 @@ size_t MessageCacheStream::peek_next_message_size(size_t available) {
 MessageCRef MessageCacheStream::get_next_message(AckCallback &callback) {
   _writing = false;
   if (is_closed() || _cache == nullptr) {
-    return nullptr;
+    return MessageCRef();
   }
   return std::move(_cache);
 }
@@ -72,7 +72,7 @@ size_t MessageQueueStream::peek_next_message_size(size_t available) {
 MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
   _writing = false;
   if (is_closed() || _queue.empty()) {
-    return nullptr;
+    return MessageCRef();
   }
   MessageCRef msg = std::move(_queue.front());
   _queue.pop_front();

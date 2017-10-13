@@ -12,28 +12,28 @@ namespace dsa {
 
 class InvalidNodeModel : public NodeModelBase {
  public:
-  InvalidNodeModel() : NodeModelBase(nullptr){};
+  InvalidNodeModel() : NodeModelBase(LinkStrandRef()){};
 };
 
-ref_<NodeModelBase> NodeModelBase::WAITING = make_ref_<InvalidNodeModel>();
-ref_<NodeModelBase> NodeModelBase::INVALID = make_ref_<InvalidNodeModel>();
-ref_<NodeModelBase> NodeModelBase::UNAVAILABLE = make_ref_<InvalidNodeModel>();
+ModelRef NodeModelBase::WAITING = make_ref_<InvalidNodeModel>();
+ModelRef NodeModelBase::INVALID = make_ref_<InvalidNodeModel>();
+ModelRef NodeModelBase::UNAVAILABLE = make_ref_<InvalidNodeModel>();
 
 NodeModelBase::NodeModelBase(LinkStrandRef &&strand) : _strand(std::move(strand)) {}
 
 NodeModelBase::~NodeModelBase() = default;
 
-ref_<NodeModelBase> NodeModelBase::get_child(const std::string &name) {
+ModelRef NodeModelBase::get_child(const std::string &name) {
   auto child_state = _state->get_child(name, false);
   if (child_state != nullptr) {
     return child_state->get_model();
   }
   // return nullptr
-  return ref_<NodeModelBase>();
+  return ModelRef();
 }
 
-ref_<NodeModelBase> NodeModelBase::add_child(const std::string &name,
-                                     ref_<NodeModelBase> &&model) {
+ModelRef NodeModelBase::add_child(const std::string &name,
+                                             ModelRef &&model) {
   auto child_state = _state->get_child(name, true);
   if (child_state->get_model() != nullptr) {
     LOG_FATAL(_strand->logger(), LOG << "NodeModel already exists: " << name);

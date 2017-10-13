@@ -37,7 +37,7 @@ class LinkConfig : public LinkStrand {
   void set_session_manager(std::unique_ptr<SessionManager> p);
   void set_logger(std::unique_ptr<Logger> p);
 
-  void set_responder_model(ref_<NodeModelBase>&& root_model,
+  void set_responder_model(ModelRef&& root_model,
                            size_t timer_interval = 60);
 };
 
