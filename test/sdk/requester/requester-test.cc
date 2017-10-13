@@ -1,4 +1,4 @@
-#include "dsa/message.h"
+#include "dsa/stream.h"
 #include "dsa/network.h"
 
 #include "../async_test.h"

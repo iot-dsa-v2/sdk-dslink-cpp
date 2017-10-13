@@ -30,18 +30,13 @@ class shared_ptr;
 class runtime_error;
 }
 
-namespace boost {
-template <typename T>
-class intrusive_ptr;
-}
-
 namespace dsa {
 
 template <typename T>
 using shared_ptr_ = std::shared_ptr<T>;
 
 template <typename T>
-using ref_ = boost::intrusive_ptr<T>;
+class ref_;
 
 }  // namespace dsa
 

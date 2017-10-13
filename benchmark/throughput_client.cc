@@ -28,9 +28,9 @@ class TestConfigExt : public TestConfig {
   }
 };
 
-class MockNode : public NodeModel {
+class MockNode : public NodeModelBase {
  public:
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 };
 
 int main(int argc, const char *argv[]) {

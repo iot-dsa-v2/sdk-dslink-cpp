@@ -33,7 +33,7 @@ void LinkConfig::set_logger(std::unique_ptr<Logger> p) {
   _logger = std::move(p);
 };
 
-void LinkConfig::set_responder_model(ref_<NodeModel>&& root_model,
+void LinkConfig::set_responder_model(ModelRef&& root_model,
                                      size_t timer_interval) {
   set_stream_acceptor(make_unique_<NodeStateManager>(
       *this, std::move(root_model), timer_interval));

@@ -22,42 +22,42 @@ namespace dsa {
 MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
     const MessageParsingError&) {
   if (size < StaticHeaders::TOTAL_SIZE) {
-    return nullptr;
+    return MessageRef();
   }
 
   auto type = MessageType(data[StaticHeaders::TYPE_OFFSET]);
 
   switch (type) {
     case MessageType::SUBSCRIBE_RESPONSE:
-      return new SubscribeResponseMessage(data, size);
+      return MessageRef(new SubscribeResponseMessage(data, size));
     case MessageType::LIST_RESPONSE:
-      return new ListResponseMessage(data, size);
+      return MessageRef(new ListResponseMessage(data, size));
     case MessageType::INVOKE_RESPONSE:
-      return new InvokeResponseMessage(data, size);
+      return MessageRef(new InvokeResponseMessage(data, size));
     case MessageType::SET_RESPONSE:
-      return new SetResponseMessage(data, size);
+      return MessageRef(new SetResponseMessage(data, size));
     case MessageType::ACK:
-      return new AckMessage(data, size);
+      return MessageRef(new AckMessage(data, size));
     case MessageType::CLOSE:
-      return new Message(MessageType::CLOSE);
+      return MessageRef(new Message(MessageType::CLOSE));
     case MessageType::PING:
-      return new Message(MessageType::PING);
+      return MessageRef(new Message(MessageType::PING));
     case MessageType::SUBSCRIBE_REQUEST:
-      return new SubscribeRequestMessage(data, size);
+      return MessageRef(new SubscribeRequestMessage(data, size));
     case MessageType::LIST_REQUEST:
-      return new ListRequestMessage(data, size);
+      return MessageRef(new ListRequestMessage(data, size));
     case MessageType::INVOKE_REQUEST:
-      return new InvokeRequestMessage(data, size);
+      return MessageRef(new InvokeRequestMessage(data, size));
     case MessageType::SET_REQUEST:
-      return new SetRequestMessage(data, size);
+      return MessageRef(new SetRequestMessage(data, size));
     case MessageType::HANDSHAKE0:
-      return new HandshakeF0Message(data, size);
+      return MessageRef(new HandshakeF0Message(data, size));
     case MessageType::HANDSHAKE1:
-      return new HandshakeF1Message(data, size);
+      return MessageRef(new HandshakeF1Message(data, size));
     case MessageType::HANDSHAKE2:
-      return new HandshakeF2Message(data, size);
+      return MessageRef(new HandshakeF2Message(data, size));
     case MessageType::HANDSHAKE3:
-      return new HandshakeF3Message(data, size);
+      return MessageRef(new HandshakeF3Message(data, size));
     case MessageType::INVALID:
       break;
   }
