@@ -186,4 +186,3 @@ TEST(ResponderTest, receive_message) {
 
   app.wait();
 }
-
