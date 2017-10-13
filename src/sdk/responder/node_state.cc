@@ -122,7 +122,7 @@ bool NodeState::periodic_check(size_t ts) {
   if ((_model == nullptr ||
        _model->periodic_check(ts))  // check if model is still in use
       && _children.empty() && _subscription_streams.empty()) {
-    close_impl();
+    close();
     return true;
   }
   return false;
@@ -201,6 +201,7 @@ void NodeState::close_impl() {
     _model.reset();
     _model_status = MODEL_UNKNOWN;
     _owner.remove_state(_path.full_str());
+    _parent.reset();
   }
 }
 

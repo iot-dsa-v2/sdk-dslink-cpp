@@ -24,6 +24,13 @@ NodeModelBase::NodeModelBase(LinkStrandRef &&strand)
 
 NodeModelBase::~NodeModelBase() = default;
 
+void NodeModelBase::close_impl() {
+  _subscribe_callback = nullptr;
+  _cached_value.reset();
+  _state.reset();
+  _strand.reset();
+}
+
 ModelRef NodeModelBase::get_child(const std::string &name) {
   auto child_state = _state->get_child(name, false);
   if (child_state != nullptr) {

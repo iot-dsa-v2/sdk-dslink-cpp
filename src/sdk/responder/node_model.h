@@ -17,22 +17,34 @@ class ModelProperty {
   mutable bool _value_ready;
 
  public:
+  ModelProperty();
   explicit ModelProperty(BytesRef &bytes);
-  explicit ModelProperty(Variant &&value);
+  ModelProperty(Variant &&value);
 
   BytesRef &get_bytes() const;
   const Variant &get_value() const;
 };
 
 class NodeModel : public NodeModelBase {
+ protected:
+  std::unordered_map<std::string, ModelProperty> _metas;
+  std::unordered_map<std::string, ModelProperty> _attributes;
+  std::unordered_map<std::string, ref_<NodeModel>> _list_children;
+
+  BytesRef _summary;
+
+  void close_impl() override;
+
  public:
   explicit NodeModel(LinkStrandRef &&strand)
       : NodeModelBase(std::move(strand)){};
 
-  std::unordered_map<std::string, ModelProperty> _metas;
-  std::unordered_map<std::string, ModelProperty> _attributes;
-
   void init_list_stream(OutgoingListStream &stream) override;
+
+  ref_<NodeModel> add_list_child(const std::string &name,
+                                 ref_<NodeModel> &&model);
+
+  BytesRef & get_summary();
 
  protected:
   void send_props_list(OutgoingListStream &stream);

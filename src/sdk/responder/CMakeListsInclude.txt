@@ -1,6 +1,7 @@
 list(APPEND ResponderSourceFiles
         responder.cc
         model_base.cc
+        node_model.cc
         node_state_manager.cc
         node_state.cc
         local/local_node.cc)

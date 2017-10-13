@@ -14,7 +14,6 @@
 
 #include <iosfwd>
 
-
 namespace dsa {
 
 template <class T>
@@ -250,6 +249,12 @@ class ClosableRef : public EnableRef<T> {
 template <class _Ty, class... _Types>
 ref_<_Ty> make_ref_(_Types &&... _Args) {
   return ref_<_Ty>(new _Ty(std::forward<_Types>(_Args)...));
+};
+
+template <class _Ty, class... _Types>
+auto make_base_ref_(_Types &&... _Args)
+    -> decltype((new _Ty(std::forward<_Types>(_Args)...))->get_ref()) {
+  return (new _Ty(std::forward<_Types>(_Args)...))->get_ref();
 };
 
 template <class T>

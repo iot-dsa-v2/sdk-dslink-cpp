@@ -23,6 +23,8 @@ class MessageRefedStream : public MessageStream {
   explicit MessageRefedStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);
 
+  void send_message();
+
   MessageRefedStream(const MessageRefedStream &other) = delete;
   MessageRefedStream(MessageRefedStream &&other) noexcept = delete;
   MessageRefedStream &operator=(const MessageRefedStream &other) = delete;

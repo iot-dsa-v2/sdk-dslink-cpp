@@ -12,7 +12,7 @@ const ListOptions IncomingListStream::default_options;
 IncomingListStream::IncomingListStream(ref_<Session>&& session,
                                        const Path& path, uint32_t rid,
                                        Callback&& callback)
-    : MessageCacheStream(std::move(session), path),
+    : MessageCacheStream(std::move(session), path, rid),
       _callback(std::move(callback)) {}
 void IncomingListStream::receive_message(MessageCRef&& msg) {
   if (msg->type() == MessageType::LIST_RESPONSE) {

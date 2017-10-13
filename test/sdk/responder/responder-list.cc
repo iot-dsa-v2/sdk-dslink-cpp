@@ -1,5 +1,7 @@
+#include <module/logger.h>
 #include "dsa/message.h"
 #include "dsa/network.h"
+#include "dsa/responder.h"
 
 #include "../async_test.h"
 #include "../test_config.h"
@@ -10,22 +12,25 @@
 
 using namespace dsa;
 
-class MockNodeListChild : public NodeModelBase {
+class MockNodeListChild : public NodeModel {
 public:
   explicit MockNodeListChild(LinkStrandRef strand)
-    : NodeModelBase(std::move(strand)){};
+    : NodeModel(std::move(strand)){
+    _metas["$is"] = Variant("test");
+  };
 };
 
-class MockNodeListRoot : public NodeModelBase {
+class MockNodeListRoot : public NodeModel {
 public:
-  std::unique_ptr<SubscribeOptions> first_subscribe_options;
-  std::unique_ptr<SubscribeOptions> second_subscribe_options;
+  std::unique_ptr<SubscribeOptions> first_subscribe_options = nullptr;
+  std::unique_ptr<SubscribeOptions> second_subscribe_options = nullptr;
 
   explicit MockNodeListRoot(LinkStrandRef strand)
-    : NodeModelBase(std::move(strand)){};
+    : NodeModel(std::move(strand)){};
 
   void initialize() override {
-    add_child("child_a", ModelRef(new MockNodeListChild(_strand)));
+    add_list_child("child_a", new MockNodeListChild(_strand));
+    add_list_child("child_b", new MockNodeListChild(_strand));
   }
 };
 
@@ -48,7 +53,7 @@ TEST(ResponderTest, ListTest) {
   auto tcp_client = make_shared_<Client>(client_config);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(50000000, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   ref_<const ListResponseMessage> last_response;
@@ -56,8 +61,8 @@ TEST(ResponderTest, ListTest) {
     "", [&](ref_<const ListResponseMessage> &&msg,
             IncomingListStream &stream) { last_response = msg; });
 
-//  ASYNC_EXPECT_TRUE(500, *client_config.strand,
-//                    [&]() { return last_response != nullptr; });
+  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+                    [&]() { return last_response != nullptr; });
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);

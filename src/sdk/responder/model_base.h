@@ -35,6 +35,8 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
   SubscribeCallback _subscribe_callback;
   SubscribeResponseMessageCRef _cached_value;
 
+  void close_impl() override;
+
  public:
   static ModelRef WAITING;
   static ModelRef INVALID;
@@ -49,8 +51,10 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
 
   ModelRef add_child(const std::string &name, ModelRef &&model);
 
-  // when return true, model will be removed
-  virtual bool periodic_check(size_t ts) { return true; }
+  // when return true, close() will be called by NodeState
+  // and model will be removed from the node tree
+  virtual bool periodic_check(size_t ts) { return false; }
+
   virtual bool allows_runtime_child_change() { return false; }
   virtual ModelRef on_demand_create_child(const Path &path) { return INVALID; }
 

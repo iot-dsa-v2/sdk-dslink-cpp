@@ -14,7 +14,6 @@
 #include "model_base.h"
 //#include "stream/responder/outgoing_subscribe_stream.h"
 
-
 namespace dsa {
 class OutgoingSubscribeStream;
 class OutgoingListStream;
@@ -26,7 +25,7 @@ class NodeStateOwner {
 };
 
 // maintain streams of a node
-class NodeState : public EnableRef<NodeState> {
+class NodeState : public ClosableRef<NodeState> {
   enum ModelStatus : uint8_t {
     MODEL_UNKNOWN,
     MODEL_CONNECTED,
@@ -51,12 +50,12 @@ class NodeState : public EnableRef<NodeState> {
   std::unordered_map<OutgoingSubscribeStream *, ref_<OutgoingSubscribeStream>>
       _subscription_streams;
   std::unordered_map<OutgoingListStream *, ref_<OutgoingListStream>>
-    _list_streams;
+      _list_streams;
 
   SubscribeOptions _merged_subscribe_options;
   void check_subscribe_options();
 
-  void close_impl();
+  void close_impl() override;
 
  public:
   NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent);

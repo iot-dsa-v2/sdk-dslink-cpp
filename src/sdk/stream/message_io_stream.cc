@@ -11,6 +11,13 @@ MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
     : MessageStream(rid), path(path), _session(std::move(session)){};
 MessageRefedStream::~MessageRefedStream() = default;
 
+void MessageRefedStream::send_message() {
+  if (!_writing && !is_closed()) {
+    _writing = true;
+    _session->write_stream(get_ref());
+  }
+}
+
 MessageCacheStream::MessageCacheStream(ref_<Session> &&session,
                                        const Path &path, uint32_t rid)
     : MessageRefedStream(std::move(session), path, rid) {}
