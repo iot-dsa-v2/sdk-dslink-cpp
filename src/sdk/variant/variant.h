@@ -52,7 +52,7 @@ class IntrusiveString : public std::string,
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
                        ref_<IntrusiveString>,
                        ref_<VariantMap>, ref_<VariantArray>,
-                       std::vector<uint8_t>, ref_<IntrusiveBytes>>
+                       std::vector<uint8_t>, BytesRef>
     BaseVariant;
 
 class Variant : public BaseVariant {
@@ -138,7 +138,7 @@ class Variant : public BaseVariant {
   }
   const std::vector<uint8_t> &get_binary() const {
     if (which() == SHARED_BINARY) {
-      return *boost::get<ref_<IntrusiveBytes>>(*this);
+      return *boost::get<BytesRef>(*this);
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }

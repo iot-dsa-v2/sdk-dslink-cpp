@@ -25,7 +25,7 @@ void OutgoingListStream::update_value(const std::string &key, BytesRef &value) {
 }
 void OutgoingListStream::update_value(const std::string &key,
                                       const Variant &v) {
-  _cached_map[key] = make_ref_<IntrusiveBytes>(std::move(v.to_msgpack()));
+  _cached_map[key] = make_ref_<const IntrusiveBytes>(std::move(v.to_msgpack()));
 }
 
 size_t OutgoingListStream::peek_next_message_size(size_t available) {

@@ -48,20 +48,20 @@ BytesRef MessageValue::to_msgpack() const {
   if (meta.is_map()) {
     meta_bytes = meta.to_msgpack();
   } else {
-    return make_ref_<IntrusiveBytes>(value_bytes);
+    return make_ref_<const IntrusiveBytes>(value_bytes);
   }
 
   if (meta_bytes.size() > MAX_META_SIZE) {
     throw std::runtime_error("value meta data is too big");
   }
 
-  auto merged = make_ref_<IntrusiveBytes>();
+  auto merged = new IntrusiveBytes();
   merged->resize(2);
   merged->reserve(2 + meta_bytes.size() + value_bytes.size());
 
   write_16_t(merged->data(), meta_bytes.size());
   merged->insert(merged->end(), meta_bytes.begin(), meta_bytes.end());
   merged->insert(merged->end(), value_bytes.begin(), value_bytes.end());
-  return std::move(merged);
+  return BytesRef(merged);
 }
 }  // namespace dsa

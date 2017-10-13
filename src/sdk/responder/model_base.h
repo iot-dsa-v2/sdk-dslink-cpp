@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NODE_MODEL_MANAGER_H_
-#define DSA_SDK_NODE_MODEL_MANAGER_H_
+#ifndef DSA_SDK_MODEL_BASE_H_
+#define DSA_SDK_MODEL_BASE_H_
 
 #if defined(_MSC_VER)
 #pragma once
@@ -68,15 +68,6 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
   virtual void init_list_stream(OutgoingListStream &stream){};
 };
 
-class NodeModel : public NodeModelBase {
-  explicit NodeModel(LinkStrandRef &&strand)
-      : NodeModelBase(std::move(strand)){};
-
-  std::unordered_map<std::string, ref_<NodeState>> _children;
-
-  void init_list_stream(OutgoingListStream &stream) override;
-};
-
 }  // namespace dsa
 
-#endif  // DSA_SDK_NODE_MODEL_MANAGER_H_
+#endif  // DSA_SDK_MODEL_BASE_H_

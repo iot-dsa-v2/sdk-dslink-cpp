@@ -45,21 +45,22 @@ void ListResponseMessage::parse() {
       data += sizeof(uint16_t);
       size -= sizeof(uint16_t);
       if (size < value_size) return;
-      _raw_map[key] = make_ref_<IntrusiveBytes>(data, data + value_size);
+      _raw_map[key] = make_ref_<const IntrusiveBytes>(data, data + value_size);
       data += value_size;
       size -= value_size;
     }
   }
 }
-ref_<VariantMap> ListResponseMessage::get_map() const {
-  VariantMap* map = new VariantMap();
 
-  for (auto& it : _raw_map) {
-    (*map)[it.first] =
-        Variant::from_msgpack(it.second->data(), it.second->size());
-  }
-
-  return map->get_ref();
-}
+//ref_<VariantMap> ListResponseMessage::get_map() const {
+//  VariantMap* map = new VariantMap();
+//
+//  for (auto& it : _raw_map) {
+//    (*map)[it.first] =
+//        Variant::from_msgpack(it.second->data(), it.second->size());
+//  }
+//
+//  return map->get_ref();
+//}
 
 }  // namespace dsa

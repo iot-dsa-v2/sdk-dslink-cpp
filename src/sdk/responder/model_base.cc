@@ -76,6 +76,4 @@ void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
   }
 }
 
-void NodeModel::init_list_stream(OutgoingListStream &stream) {}
-
 }  // namespace dsa

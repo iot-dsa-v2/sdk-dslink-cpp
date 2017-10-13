@@ -27,7 +27,7 @@ class IntrusiveBytes : public std::vector<uint8_t>,
   typedef std::vector<uint8_t>::const_iterator const_iterator;
 };
 
-typedef ref_<IntrusiveBytes> BytesRef;
+typedef ref_<const IntrusiveBytes> BytesRef;
 }  // namespace dsa
 
 //std::ostream &operator<<(std::ostream &os, const dsa::IntrusiveBytes &buf) {
