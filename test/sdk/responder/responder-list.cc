@@ -25,8 +25,7 @@ public:
     : NodeModelBase(std::move(strand)){};
 
   void initialize() override {
-    ref_<NodeModelBase> m = new MockNodeListChild(_strand);
-    add_child("child_a", ref_<NodeModelBase>(m));
+    add_child("child_a", ModelRef(new MockNodeListChild(_strand)));
   }
 };
 
@@ -38,7 +37,7 @@ TEST(ResponderTest, ListTest) {
   MockNodeListRoot *root_node = new MockNodeListRoot(server_config.strand);
 
   server_config.get_link_config()->set_responder_model(
-    ref_<MockNodeListRoot>(root_node));
+    ModelRef(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 

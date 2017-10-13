@@ -47,15 +47,12 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
 
   ModelRef get_child(const std::string &name);
 
-  ModelRef add_child(const std::string &name,
-                                ModelRef &&model);
+  void add_child(const std::string &name, ModelRef &&model);
 
   // when return true, model will be removed
   virtual bool periodic_check(size_t ts) { return true; }
   virtual bool allows_runtime_child_change() { return false; }
-  virtual ModelRef on_demand_create_child(const Path &path) {
-    return INVALID;
-  }
+  virtual ModelRef on_demand_create_child(const Path &path) { return INVALID; }
 
   void subscribe(const SubscribeOptions &options, SubscribeCallback &&callback);
   void unsubscribe();
@@ -68,10 +65,8 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
   virtual void on_subscribe_option_change(const SubscribeOptions &options){};
   virtual void on_unsubscribe(){};
 
-  virtual void init_list_stream(OutgoingListStream &stream) {};
+  virtual void init_list_stream(OutgoingListStream &stream){};
 };
-
-
 
 class NodeModel : public NodeModelBase {
   explicit NodeModel(LinkStrandRef &&strand)

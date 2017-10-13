@@ -39,7 +39,7 @@ TEST(ResponderTest, Subscribe) {
   MockNode *root_node = new MockNode(server_config.strand);
 
   server_config.get_link_config()->set_responder_model(
-      ref_<MockNode>(root_node));
+      ModelRef(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 

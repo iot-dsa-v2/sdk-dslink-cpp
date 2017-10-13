@@ -4,9 +4,9 @@
 
 #include "module/logger.h"
 #include "node_state.h"
-#include "util/date_time.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
+#include "util/date_time.h"
 
 namespace dsa {
 
@@ -15,11 +15,12 @@ class InvalidNodeModel : public NodeModelBase {
   InvalidNodeModel() : NodeModelBase(LinkStrandRef()){};
 };
 
-ModelRef NodeModelBase::WAITING = make_ref_<InvalidNodeModel>();
-ModelRef NodeModelBase::INVALID = make_ref_<InvalidNodeModel>();
-ModelRef NodeModelBase::UNAVAILABLE = make_ref_<InvalidNodeModel>();
+ModelRef NodeModelBase::WAITING = ModelRef(new InvalidNodeModel());
+ModelRef NodeModelBase::INVALID = ModelRef(new InvalidNodeModel());
+ModelRef NodeModelBase::UNAVAILABLE = ModelRef(new InvalidNodeModel());
 
-NodeModelBase::NodeModelBase(LinkStrandRef &&strand) : _strand(std::move(strand)) {}
+NodeModelBase::NodeModelBase(LinkStrandRef &&strand)
+    : _strand(std::move(strand)) {}
 
 NodeModelBase::~NodeModelBase() = default;
 
@@ -32,8 +33,7 @@ ModelRef NodeModelBase::get_child(const std::string &name) {
   return ModelRef();
 }
 
-ModelRef NodeModelBase::add_child(const std::string &name,
-                                             ModelRef &&model) {
+void NodeModelBase::add_child(const std::string &name, ModelRef &&model) {
   auto child_state = _state->get_child(name, true);
   if (child_state->get_model() != nullptr) {
     LOG_FATAL(_strand->logger(), LOG << "NodeModel already exists: " << name);
@@ -41,7 +41,7 @@ ModelRef NodeModelBase::add_child(const std::string &name,
   child_state->set_model(std::move(model));
 }
 void NodeModelBase::subscribe(const SubscribeOptions &options,
-                          SubscribeCallback &&callback) {
+                              SubscribeCallback &&callback) {
   if (callback != nullptr) {
     _subscribe_callback = callback;
     on_subscribe(options);
@@ -75,8 +75,6 @@ void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
   }
 }
 
-void NodeModel::init_list_stream(OutgoingListStream &stream) {
-
-}
+void NodeModel::init_list_stream(OutgoingListStream &stream) {}
 
 }  // namespace dsa
