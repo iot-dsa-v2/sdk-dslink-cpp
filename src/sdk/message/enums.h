@@ -5,8 +5,6 @@
 #pragma once
 #endif
 
-#include <iostream>
-
 namespace dsa {
 
 enum class MessageType : uint8_t {
@@ -59,8 +57,8 @@ enum class PermissionLevel : uint8_t {
   UNKNOWN = 0xff
 };
 
-}  // namespace dsa
+const char* to_str(dsa::MessageType type);
 
-std::ostream &operator<<(std::ostream &os, dsa::MessageType type);
+}  // namespace dsa
 
 #endif  // DSA_SDK_MESSAGE_ENUMS_H

@@ -9,13 +9,11 @@
 
 #include <boost/assert.hpp>
 #include <boost/detail/workaround.hpp>
-#include <boost/smart_ptr/detail/sp_nullptr_t.hpp>
 
 #include <functional>
 
-#if !defined(BOOST_NO_IOSTREAM)
-#include <ostream>
-#endif
+#include <iosfwd>
+
 
 namespace dsa {
 
@@ -156,26 +154,22 @@ inline bool operator!=(T *a, ref_<U> const &b) {
 }
 
 template <class T>
-inline bool operator==(ref_<T> const &p,
-                       boost::detail::sp_nullptr_t) BOOST_NOEXCEPT {
+inline bool operator==(ref_<T> const &p, std::nullptr_t) BOOST_NOEXCEPT {
   return p.get() == 0;
 }
 
 template <class T>
-inline bool operator==(boost::detail::sp_nullptr_t,
-                       ref_<T> const &p) BOOST_NOEXCEPT {
+inline bool operator==(std::nullptr_t, ref_<T> const &p) BOOST_NOEXCEPT {
   return p.get() == 0;
 }
 
 template <class T>
-inline bool operator!=(ref_<T> const &p,
-                       boost::detail::sp_nullptr_t) BOOST_NOEXCEPT {
+inline bool operator!=(ref_<T> const &p, std::nullptr_t) BOOST_NOEXCEPT {
   return p.get() != 0;
 }
 
 template <class T>
-inline bool operator!=(boost::detail::sp_nullptr_t,
-                       ref_<T> const &p) BOOST_NOEXCEPT {
+inline bool operator!=(std::nullptr_t, ref_<T> const &p) BOOST_NOEXCEPT {
   return p.get() != 0;
 }
 
@@ -213,44 +207,11 @@ ref_<T> dynamic_pointer_cast(ref_<U> const &p) {
 
 // operator<<
 
-#if !defined(BOOST_NO_IOSTREAM)
-
-#if defined(BOOST_NO_TEMPLATED_IOSTREAMS) || \
-    (defined(__GNUC__) && (__GNUC__ < 3))
-
 template <class Y>
 std::ostream &operator<<(std::ostream &os, ref_<Y> const &p) {
   os << p.get();
   return os;
 }
-
-#else
-
-// in STLport's no-iostreams mode no iostream symbols can be used
-#ifndef _STLP_NO_IOSTREAMS
-
-#if defined(BOOST_MSVC) && \
-    BOOST_WORKAROUND(BOOST_MSVC, < 1300 && __SGI_STL_PORT)
-// MSVC6 has problems finding std::basic_ostream through the using declaration
-// in namespace _STL
-using std::basic_ostream;
-template <class E, class T, class Y>
-basic_ostream<E, T> &operator<<(basic_ostream<E, T> &os, ref_<Y> const &p)
-#else
-template <class E, class T, class Y>
-std::basic_ostream<E, T> &operator<<(std::basic_ostream<E, T> &os,
-                                     ref_<Y> const &p)
-#endif
-{
-  os << p.get();
-  return os;
-}
-
-#endif  // _STLP_NO_IOSTREAMS
-
-#endif  // __GNUC__ < 3
-
-#endif  // !defined(BOOST_NO_IOSTREAM)
 
 template <class T>
 class EnableRef {
@@ -261,10 +222,6 @@ class EnableRef {
   ref_<const T> get_ref() const {
     return ref_<const T>(static_cast<const T *>(this));
   }
-  //  template <typename _Downcast>
-  //  ref_<_Downcast> get_ref() {
-  //    return ref_<_Downcast>(static_cast<_Downcast*>(this));
-  //  }
 
   mutable size_t _refs{0};
 

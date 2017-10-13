@@ -2,39 +2,41 @@
 
 #include "enums.h"
 
-using namespace dsa;
+namespace dsa {
 
-std::ostream &operator<<(std::ostream &os, MessageType type) {
+const char* to_str(dsa::MessageType type) {
   switch (type) {
     case MessageType::CLOSE:
-      return os << "CLOSE";
+      return "CLOSE";
     case MessageType::SUBSCRIBE_REQUEST:
-      return os << "SUBSCRIBE_REQUEST";
+      return "SUBSCRIBE_REQUEST";
     case MessageType::LIST_REQUEST:
-      return os << "LIST_REQUEST";
+      return "LIST_REQUEST";
     case MessageType::INVOKE_REQUEST:
-      return os << "INVOKE_REQUEST";
+      return "INVOKE_REQUEST";
     case MessageType::SET_REQUEST:
-      return os << "SET_REQUEST";
+      return "SET_REQUEST";
     case MessageType::SUBSCRIBE_RESPONSE:
-      return os << "SUBSCRIBE_RESPONSE";
+      return "SUBSCRIBE_RESPONSE";
     case MessageType::LIST_RESPONSE:
-      return os << "LIST_RESPONSE";
+      return "LIST_RESPONSE";
     case MessageType::INVOKE_RESPONSE:
-      return os << "INVOKE_RESPONSE";
+      return "INVOKE_RESPONSE";
     case MessageType::SET_RESPONSE:
-      return os << "SET_RESPONSE";
+      return "SET_RESPONSE";
     case MessageType::HANDSHAKE0:
-      return os << "HANDSHAKE0";
+      return "HANDSHAKE0";
     case MessageType::HANDSHAKE1:
-      return os << "HANDSHAKE1";
+      return "HANDSHAKE1";
     case MessageType::HANDSHAKE2:
-      return os << "HANDSHAKE2";
+      return "HANDSHAKE2";
     case MessageType::HANDSHAKE3:
-      return os << "HANDSHAKE3";
+      return "HANDSHAKE3";
     case MessageType::ACK:
-      return os << "ACK";
+      return "ACK";
     default:
-      return os << "INVALID";
+      return "INVALID";
   }
+}
+
 }

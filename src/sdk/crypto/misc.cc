@@ -2,6 +2,8 @@
 
 #include "misc.h"
 
+#include <sstream>
+
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
