@@ -5,7 +5,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "core/session.h"
-#include "node_model.h"
+#include "model_base.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
 

@@ -7,7 +7,7 @@
 
 #include <unordered_map>
 
-#include "../node_model.h"
+#include "responder/model_base.h"
 
 namespace dsa {
 

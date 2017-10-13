@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "node_model.h"
+#include "model_base.h"
 
 #include "module/logger.h"
 #include "node_state.h"
@@ -33,12 +33,13 @@ ModelRef NodeModelBase::get_child(const std::string &name) {
   return ModelRef();
 }
 
-void NodeModelBase::add_child(const std::string &name, ModelRef &&model) {
+ModelRef NodeModelBase::add_child(const std::string &name, ModelRef &&model) {
   auto child_state = _state->get_child(name, true);
   if (child_state->get_model() != nullptr) {
     LOG_FATAL(_strand->logger(), LOG << "NodeModel already exists: " << name);
   }
-  child_state->set_model(std::move(model));
+  child_state->set_model(ModelRef(model));
+  return std::move(model);
 }
 void NodeModelBase::subscribe(const SubscribeOptions &options,
                               SubscribeCallback &&callback) {

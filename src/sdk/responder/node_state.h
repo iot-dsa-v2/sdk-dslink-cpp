@@ -11,7 +11,7 @@
 #include "core/link_strand.h"
 
 #include "message/response/subscribe_response_message.h"
-#include "node_model.h"
+#include "model_base.h"
 //#include "stream/responder/outgoing_subscribe_stream.h"
 
 

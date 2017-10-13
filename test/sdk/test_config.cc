@@ -8,7 +8,7 @@
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
 #include "network/tcp/tcp_client_connection.h"
-#include "responder/node_model.h"
+#include "responder/model_base.h"
 #include "responder/node_state_manager.h"
 
 namespace dsa {

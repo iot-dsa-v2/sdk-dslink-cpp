@@ -47,7 +47,7 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
 
   ModelRef get_child(const std::string &name);
 
-  void add_child(const std::string &name, ModelRef &&model);
+  ModelRef add_child(const std::string &name, ModelRef &&model);
 
   // when return true, model will be removed
   virtual bool periodic_check(size_t ts) { return true; }
@@ -71,6 +71,8 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
 class NodeModel : public NodeModelBase {
   explicit NodeModel(LinkStrandRef &&strand)
       : NodeModelBase(std::move(strand)){};
+
+  std::unordered_map<std::string, ref_<NodeState>> _children;
 
   void init_list_stream(OutgoingListStream &stream) override;
 };
