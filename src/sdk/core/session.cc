@@ -57,7 +57,7 @@ void Session::check_pending_acks(int32_t ack) {
 
 void Session::receive_message(MessageRef &&message) {
   LOG_TRACE(_strand->logger(),
-            LOG << "receive message: " << to_str(message->type()));
+            LOG << "receive message: " << message->type());
 
   if (message->need_ack()) {
     _ack_stream->add_ack(message->get_ack_id());
@@ -130,7 +130,7 @@ void Session::write_loop(ref_<Session> sthis) {
     }
 
     LOG_TRACE(sthis->_strand->logger(),
-              LOG << "send message: " << to_str(message->type()));
+              LOG << "send message: " << message->type());
 
     write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
 

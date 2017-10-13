@@ -4,38 +4,38 @@
 
 namespace dsa {
 
-const char* to_str(dsa::MessageType type) {
+std::ostream &operator<<(std::ostream &os, MessageType type) {
   switch (type) {
     case MessageType::CLOSE:
-      return "CLOSE";
+      return os << std::string("CLOSE");
     case MessageType::SUBSCRIBE_REQUEST:
-      return "SUBSCRIBE_REQUEST";
+      return os << std::string("SUBSCRIBE_REQUEST");
     case MessageType::LIST_REQUEST:
-      return "LIST_REQUEST";
+      return os << std::string("LIST_REQUEST");
     case MessageType::INVOKE_REQUEST:
-      return "INVOKE_REQUEST";
+      return os << std::string("INVOKE_REQUEST");
     case MessageType::SET_REQUEST:
-      return "SET_REQUEST";
+      return os << std::string("SET_REQUEST");
     case MessageType::SUBSCRIBE_RESPONSE:
-      return "SUBSCRIBE_RESPONSE";
+      return os << std::string("SUBSCRIBE_RESPONSE");
     case MessageType::LIST_RESPONSE:
-      return "LIST_RESPONSE";
+      return os << std::string("LIST_RESPONSE");
     case MessageType::INVOKE_RESPONSE:
-      return "INVOKE_RESPONSE";
+      return os << std::string("INVOKE_RESPONSE");
     case MessageType::SET_RESPONSE:
-      return "SET_RESPONSE";
+      return os << std::string("SET_RESPONSE");
     case MessageType::HANDSHAKE0:
-      return "HANDSHAKE0";
+      return os << std::string("HANDSHAKE0");
     case MessageType::HANDSHAKE1:
-      return "HANDSHAKE1";
+      return os << std::string("HANDSHAKE1");
     case MessageType::HANDSHAKE2:
-      return "HANDSHAKE2";
+      return os << std::string("HANDSHAKE2");
     case MessageType::HANDSHAKE3:
-      return "HANDSHAKE3";
+      return os << std::string("HANDSHAKE3");
     case MessageType::ACK:
-      return "ACK";
+      return os << std::string("ACK");
     default:
-      return "INVALID";
+      return os << std::string("INVALID");
   }
 }
 

@@ -57,7 +57,7 @@ enum class PermissionLevel : uint8_t {
   UNKNOWN = 0xff
 };
 
-const char* to_str(dsa::MessageType type);
+std::ostream &operator<<(std::ostream &os, dsa::MessageType type);
 
 }  // namespace dsa
 
