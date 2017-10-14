@@ -73,16 +73,13 @@ Variant::Variant(const std::vector<uint8_t>&& v) {
   }
 }
 
-Variant::Variant(IntrusiveString* p)
-    : BaseVariant(ref_<IntrusiveString>(p)) {}
+Variant::Variant(IntrusiveString* p) : BaseVariant(ref_<IntrusiveString>(p)) {}
 
-Variant::Variant(IntrusiveBytes* p)
-    : BaseVariant(BytesRef(p)) {}
+Variant::Variant(IntrusiveBytes* p) : BaseVariant(BytesRef(p)) {}
 
 Variant::Variant() : BaseVariant(boost::blank()) {}
 Variant::Variant(VariantMap* p) : BaseVariant(ref_<VariantMap>(p)) {}
-Variant::Variant(VariantArray* p)
-    : BaseVariant(ref_<VariantArray>(p)) {}
+Variant::Variant(VariantArray* p) : BaseVariant(ref_<VariantArray>(p)) {}
 
 Variant::Variant(std::initializer_list<VariantMap::value_type> init)
     : BaseVariant(ref_<VariantMap>(new VariantMap(init))) {}
@@ -116,6 +113,19 @@ Variant Variant::copy() const {
     default:
       return Variant(*this);
   }
+}
+
+Variant& Variant::operator[](const std::string& name) {
+  if (which() == MAP) {
+    return get_map().at(name);
+  }
+  throw std::out_of_range("Varian is not a map");
+}
+Variant& Variant::operator[](size_t index) {
+  if (which() == ARRAY) {
+    return get_array().at(index);
+  }
+  throw std::out_of_range("Varian is not an array");
 }
 
 Variant Variant::deep_copy() const {

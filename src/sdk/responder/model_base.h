@@ -37,6 +37,8 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
 
   void close_impl() override;
 
+  virtual void initialize() {}
+
  public:
   static ModelRef WAITING;
   static ModelRef INVALID;
@@ -44,8 +46,6 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
 
   explicit NodeModelBase(LinkStrandRef &&strand);
   virtual ~NodeModelBase();
-
-  virtual void initialize() {}
 
   ModelRef get_child(const std::string &name);
 

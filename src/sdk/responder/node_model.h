@@ -23,6 +23,7 @@ class ModelProperty {
 
   BytesRef &get_bytes() const;
   const Variant &get_value() const;
+  bool valid() const { return _bytes != nullptr || _value_ready; }
 };
 
 class NodeModel : public NodeModelBase {
@@ -34,6 +35,7 @@ class NodeModel : public NodeModelBase {
   BytesRef _summary;
 
   void close_impl() override;
+  void initialize() override;
 
  public:
   explicit NodeModel(LinkStrandRef &&strand)
@@ -41,10 +43,12 @@ class NodeModel : public NodeModelBase {
 
   void init_list_stream(OutgoingListStream &stream) override;
 
+  void update_property(const std::string &field, ModelProperty &&value);
+
   ref_<NodeModel> add_list_child(const std::string &name,
                                  ref_<NodeModel> &&model);
 
-  BytesRef & get_summary();
+  BytesRef &get_summary();
 
  protected:
   void send_props_list(OutgoingListStream &stream);

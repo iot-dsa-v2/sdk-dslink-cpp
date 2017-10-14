@@ -25,7 +25,7 @@ class VariantMap : public std::map<std::string, Variant>,
                    public EnableRef<VariantMap> {
  public:
   template <typename... Args>
-  inline VariantMap(Args &&... args)
+  explicit VariantMap(Args &&... args)
       : std::map<std::string, Variant>(std::forward<Args>(args)...){};
 
   VariantMap(std::initializer_list<VariantMap::value_type> init);
@@ -35,7 +35,7 @@ class VariantArray : public std::vector<Variant>,
                      public EnableRef<VariantArray> {
  public:
   template <typename... Args>
-  inline VariantArray(Args &&... args)
+  explicit VariantArray(Args &&... args)
       : std::vector<Variant>(std::forward<Args>(args)...){};
 
   VariantArray(std::initializer_list<Variant> init);
@@ -45,7 +45,7 @@ class IntrusiveString : public std::string,
                         public EnableRef<IntrusiveString> {
  public:
   template <typename... Args>
-  inline IntrusiveString(Args &&... args)
+  explicit IntrusiveString(Args &&... args)
       : std::string(std::forward<Args>(args)...){};
 };
 
@@ -149,6 +149,8 @@ class Variant : public BaseVariant {
     return *boost::get<ref_<VariantArray>>(*this);
   }
 
+  Variant& operator[] (const std::string &name);
+  Variant& operator[] (size_t index);
  public:
   Variant deep_copy() const;
 

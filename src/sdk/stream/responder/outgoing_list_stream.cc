@@ -51,6 +51,8 @@ size_t OutgoingListStream::peek_next_message_size(size_t available) {
   return size;
 }
 MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
+  _writing = false;
+
   ListResponseMessage *message = new ListResponseMessage();
   // TODO: dynamic headers; base_path;
   size_t availible_size = _next_size - message->size();

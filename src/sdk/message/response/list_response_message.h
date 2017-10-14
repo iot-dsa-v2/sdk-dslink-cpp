@@ -40,6 +40,8 @@ class ListResponseMessage : public ResponseMessage {
   const std::string& get_base_path() const;
   void set_base_path(const std::string& value);
 
+  std::map<std::string, BytesRef>& get_raw_map() { return _raw_map; };
+  ref_<VariantMap> get_map() const;
 };
 
 typedef ref_<const ListResponseMessage> ListResponseMessageCRef;

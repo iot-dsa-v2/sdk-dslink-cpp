@@ -7,29 +7,24 @@
 #include "stream/responder/outgoing_list_stream.h"
 
 namespace dsa {
-ModelProperty::ModelProperty() : _value_ready(false) {}
+ModelProperty::ModelProperty()
+    : _bytes(new IntrusiveBytes()), _value_ready(false) {}
 ModelProperty::ModelProperty(BytesRef &bytes)
     : _bytes(bytes), _value_ready(false) {}
 ModelProperty::ModelProperty(Variant &&value)
     : _value(std::move(value)), _value_ready(true) {}
 
 BytesRef &ModelProperty::get_bytes() const {
-  if (_bytes == nullptr) {
-#ifdef DSA_DEBUG
-    if (!_value_ready) {
-      LOG_FATAL(Logger::_(), LOG << "invalid value in ModelProperty");
-    }
-#endif
+  if (_bytes == nullptr && _value_ready) {
     _bytes.reset(new IntrusiveBytes(_value.to_msgpack()));
   }
-
   return _bytes;
 }
 
 const Variant &ModelProperty::get_value() const {
   if (!_value_ready) {
 #ifdef DSA_DEBUG
-    if (_bytes == nullptr) {
+    if (_bytes->empty()) {
       LOG_FATAL(Logger::_(), LOG << "invalid value in ModelProperty");
     }
 #endif
@@ -65,6 +60,12 @@ void NodeModel::close_impl() {
   NodeModelBase::close_impl();
 }
 
+void NodeModel::initialize() {
+  for (auto &it : _list_children) {
+    add_child(it.first, ModelRef(it.second.get()));
+  }
+}
+
 void NodeModel::init_list_stream(OutgoingListStream &stream) {
   send_props_list(stream);
   send_children_list(stream);
@@ -84,11 +85,28 @@ void NodeModel::send_children_list(OutgoingListStream &stream) {
   }
 }
 
+void NodeModel::update_property(const std::string &field,
+                                ModelProperty &&value) {
+  if (!field.empty()) {
+    if (field[0] == '$') {
+      _metas[field] = std::move(value);
+    } else if (field[0] == '@') {
+      _attributes[field] = std::move(value);
+    } else {
+      return;
+    }
+    if (_state != nullptr) {
+      _state->update_list_value(field, value.get_bytes());
+    }
+  }
+}
 ref_<NodeModel> NodeModel::add_list_child(const std::string &name,
                                           ref_<NodeModel> &&model) {
-  auto p = model.get();
-  add_child(name, ModelRef(p));
   _list_children[name] = model;
+  if (_state != nullptr) {
+    add_child(name, ModelRef(model.get()));
+    _state->update_list_value(name, model->get_summary());
+  }
   return std::move(model);
 }
 
