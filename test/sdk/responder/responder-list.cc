@@ -98,7 +98,7 @@ TEST(ResponderTest, ListTest) {
   }
 
   // update root property
-  client_config.strand->post(
+  server_config.strand->post(
       [&]() { root_node->update_property("@int", Variant(1)); });
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
@@ -112,9 +112,9 @@ TEST(ResponderTest, ListTest) {
   }
 
   // update root child
-  client_config.strand->post([&]() {
+  server_config.strand->post([&]() {
     root_node->add_list_child("child_c",
-                              new MockNodeListChild(client_config.strand));
+                              new MockNodeListChild(server_config.strand));
   });
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
