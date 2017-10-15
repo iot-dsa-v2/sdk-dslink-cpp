@@ -42,14 +42,13 @@ ModelRef NodeModelBase::get_child(const std::string &name) {
 
 ModelRef NodeModelBase::add_child(const std::string &name, ModelRef &&model) {
   if (_state == nullptr) {
-    LOG_FATAL(_strand->logger(), LOG << "NodeModelBase::add_child shouldn't be "
-                                        "called before initialize() ");
+    LOG_FATAL(LOG << "NodeModelBase::add_child shouldn't be "
+                     "called before initialize() ");
   }
   auto child_state = _state->get_child(name, true);
   if (child_state->get_model() != nullptr) {
-    LOG_FATAL(
-        _strand->logger(),
-        LOG << "NodeModelBase::add_child, child already exists: " << name);
+    LOG_FATAL(LOG << "NodeModelBase::add_child, child already exists: "
+                  << name);
   }
   child_state->set_model(ModelRef(model));
   return std::move(model);

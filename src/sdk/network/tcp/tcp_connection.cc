@@ -104,8 +104,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
           }
 
         } else {
-          LOG_FATAL(connection->_strand->logger(),
-                    LOG << "on_read_message is null");
+          LOG_FATAL(LOG << "on_read_message is null");
         }
 
         cur += message_size;
@@ -138,9 +137,7 @@ void TcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
     if (total_size <= MAX_BUFFER_SIZE) {
       connection._write_buffer.resize(connection._write_buffer.size() * 4);
     } else {
-      LOG_FATAL(
-          connection._strand->logger(),
-          LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
+      LOG_FATAL(LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
     }
   }
   message.write(&connection._write_buffer[size], rid, ack_id);

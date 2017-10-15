@@ -25,7 +25,7 @@ const Variant &ModelProperty::get_value() const {
   if (!_value_ready) {
 #ifdef DSA_DEBUG
     if (_bytes->empty()) {
-      LOG_FATAL(Logger::_(), LOG << "invalid value in ModelProperty");
+      LOG_FATAL(LOG << "invalid value in ModelProperty");
     }
 #endif
     _value = Variant::from_msgpack(_bytes->data(), _bytes->size());

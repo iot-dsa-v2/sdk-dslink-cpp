@@ -23,6 +23,8 @@ class Logger {
 
   // default logger, implemented in console_logger.cc
   static Logger& _();
+  // the new logger will be maintained by unique pointer and no need for delete
+  static void set_default(Logger* logger);
 
  public:
   uint8_t level = 0;
@@ -52,13 +54,14 @@ class Logger {
 
 #define LOG_TRACE(logger, stream_exp) DSA_LOG(TRACE_, logger, stream_exp)
 
-#define LOG_FATAL(logger, stream_exp)       \
+#define LOG_FATAL(stream_exp)               \
   {                                         \
     std::stringstream LOG;                  \
     LOG << std::endl;                       \
-    (logger).write_meta(LOG, "FATAL_");     \
     stream_exp;                             \
+    dsa::Logger& logger = Logger::_();      \
     if ((logger).level <= Logger::FATAL_) { \
+      (logger).write_meta(LOG, "FATAL_");   \
       (logger).log(LOG.str());              \
     }                                       \
     throw std::runtime_error(LOG.str());    \

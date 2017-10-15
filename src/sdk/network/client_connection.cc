@@ -15,8 +15,7 @@ namespace dsa {
 void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
     const std::runtime_error &) {
   if (connection->_session == nullptr) {
-    LOG_FATAL(connection->_strand->logger(),
-              LOG << "no session attached to client connection");
+    LOG_FATAL(LOG << "no session attached to client connection");
   }
   Connection *raw_ptr = connection.get();
   raw_ptr->_session->connected(std::move(connection));
