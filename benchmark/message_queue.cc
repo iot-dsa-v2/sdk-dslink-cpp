@@ -41,7 +41,7 @@ int main(int argc, const char *argv[]) {
     return 0;
   }
 
-  bool encode_value = true;//variables["encode-value"].as<bool>();
+  bool encode_value = true;  // variables["encode-value"].as<bool>();
 
   int num_message = variables["num-message"].as<int>();
 
@@ -51,7 +51,8 @@ int main(int argc, const char *argv[]) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_responder_model(ref_<MockNode>(root_node));
+  server_config.get_link_config()->set_responder_model(
+      ref_<MockNode>(root_node));
 
   //  auto tcp_server(new TcpServer(server_config));
   auto tcp_server = make_shared_<TcpServer>(server_config);
@@ -72,13 +73,12 @@ int main(int argc, const char *argv[]) {
 
   client->get_session().requester.subscribe(
       "",
-      [&](ref_<const SubscribeResponseMessage> &&msg,
-          IncomingSubscribeStream &stream) {
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
         receive_count.fetch_add(1);
 
       },
       initial_options);
-
 
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Variant(0));

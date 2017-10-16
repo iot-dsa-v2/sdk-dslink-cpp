@@ -116,8 +116,8 @@ int main(int argc, const char *argv[]) {
 
     clients[i]->get_session().requester.subscribe(
         "",
-        [&](ref_<const SubscribeResponseMessage> &&msg,
-            IncomingSubscribeStream &stream) {
+        [&](IncomingSubscribeStream &stream,
+            ref_<const SubscribeResponseMessage> &&msg) {
           count.fetch_add(1);
           if (decode_value) {
             msg->get_value();

@@ -1,5 +1,5 @@
-#include "dsa/stream.h"
 #include "dsa/network.h"
+#include "dsa/stream.h"
 
 #include "../async_test.h"
 #include "../test_config.h"
@@ -62,8 +62,8 @@ TEST(RequesterTest, Subscribe) {
   ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "path",
-      [&](ref_<const SubscribeResponseMessage> &&msg,
-          IncomingSubscribeStream &stream) {
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
         last_response = std::move(msg);  // store response
       },
       initial_options);

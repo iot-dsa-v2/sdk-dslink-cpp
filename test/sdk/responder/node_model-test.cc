@@ -1,5 +1,5 @@
-#include "dsa/stream.h"
 #include "dsa/network.h"
+#include "dsa/stream.h"
 
 #include "../async_test.h"
 #include "../test_config.h"
@@ -11,7 +11,7 @@
 using namespace dsa;
 
 class MockNode : public NodeModelBase {
-public:
+ public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
@@ -32,7 +32,7 @@ public:
 };
 
 class MockStreamAcceptor : public OutgoingStreamAcceptor {
-public:
+ public:
   ref_<OutgoingSubscribeStream> last_subscribe_stream;
   std::unique_ptr<SubscribeOptions> last_subscribe_options;
   void add(ref_<OutgoingSubscribeStream> &&stream) {
@@ -40,7 +40,7 @@ public:
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
     stream->send_response(
-      make_ref_<SubscribeResponseMessage>(Variant("hello")));
+        make_ref_<SubscribeResponseMessage>(Variant("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
@@ -51,20 +51,19 @@ public:
   void add(ref_<OutgoingSetStream> &&stream) {}
 };
 
-
 class MockNodeListChild_0 : public NodeModelBase {
-public:
+ public:
   explicit MockNodeListChild_0(LinkStrandRef strand)
-    : NodeModelBase(std::move(strand)){};
+      : NodeModelBase(std::move(strand)){};
 };
 
 class MockNodeListRoot_0 : public NodeModelBase {
-public:
+ public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
   explicit MockNodeListRoot_0(LinkStrandRef strand)
-    : NodeModelBase(std::move(strand)){};
+      : NodeModelBase(std::move(strand)){};
 
   void initialize() override {
     add_child("child_a", ref_<NodeModelBase>(new MockNodeListChild_0(_strand)));
@@ -78,7 +77,7 @@ TEST(ResponderTest, model__add_child) {
 
   TestConfig server_config(app);
   server_config.get_link_config()->set_stream_acceptor(
-    std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
+      std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
 
   WrapperConfig client_config = server_config.get_client_config(app, true);
 
@@ -98,12 +97,9 @@ TEST(ResponderTest, model__add_child) {
 
   // test invalid path scenario
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-    "child_a",
-    [&](ref_<const SubscribeResponseMessage> &&msg,
-        IncomingSubscribeStream &stream) {
-      ;
-    },
-    initial_options);
+      "child_a", [&](IncomingSubscribeStream &stream,
+                     ref_<const SubscribeResponseMessage> &&msg) { ; },
+      initial_options);
 
   wait_for_bool(500, [&]() -> bool { return false; });
 
@@ -129,7 +125,7 @@ TEST(ResponderTest, model__get_child) {
   MockNode *root_node = new MockNode(server_config.strand);
 
   server_config.get_link_config()->set_responder_model(
-    ref_<MockNode>(root_node));
+      ref_<MockNode>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -147,7 +143,8 @@ TEST(ResponderTest, model__get_child) {
 
   EXPECT_EQ(nullptr, child_node);
 
-  root_node->add_child("child_a", ModelRef(new MockNodeListChild_0(server_config.strand)));
+  root_node->add_child("child_a",
+                       ModelRef(new MockNodeListChild_0(server_config.strand)));
   child_node = root_node->get_child("child_a");
 
   EXPECT_NE(nullptr, child_node);
@@ -174,7 +171,7 @@ TEST(ResponderTest, model__set_value) {
   MockNode *root_node = new MockNode(server_config.strand);
 
   server_config.get_link_config()->set_responder_model(
-    ref_<MockNode>(root_node));
+      ref_<MockNode>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -195,18 +192,15 @@ TEST(ResponderTest, model__set_value) {
   root_node->set_value(MessageValue(Variant(0)));
 
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-    "",
-    [&](ref_<const SubscribeResponseMessage> &&msg,
-        IncomingSubscribeStream &stream) {
-      ;
-    },
-    initial_options);
+      "", [&](IncomingSubscribeStream &stream,
+              ref_<const SubscribeResponseMessage> &&msg) { ; },
+      initial_options);
 
   //
   wait_for_bool(500, [&]() -> bool { return false; });
 
   SubscribeResponseMessageCRef cached_message =
-    make_ref_<SubscribeResponseMessage>(Variant(0));
+      make_ref_<SubscribeResponseMessage>(Variant(0));
   root_node->set_message(copy_ref_(cached_message));
 
   Server::close_in_strand(tcp_server);

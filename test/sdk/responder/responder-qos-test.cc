@@ -17,7 +17,8 @@ using namespace dsa;
 
 class MockNodeQos : public NodeModelBase {
  public:
-  explicit MockNodeQos(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
+  explicit MockNodeQos(LinkStrandRef strand)
+      : NodeModelBase(std::move(strand)){};
 
   void on_subscribe(const SubscribeOptions &options) override {
     if (_subscribe_callback != nullptr) {
@@ -58,8 +59,8 @@ TEST(ResponderQosTest, QueueSizeTest) {
   size_t msg_count = 0;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "",
-      [&](ref_<const SubscribeResponseMessage> &&msg,
-          IncomingSubscribeStream &stream) {
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
         ++msg_count;
         last_response = std::move(msg);  // store response
       },

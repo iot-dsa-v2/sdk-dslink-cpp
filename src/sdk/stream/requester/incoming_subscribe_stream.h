@@ -15,8 +15,8 @@ class SubscribeResponseMessage;
 
 class IncomingSubscribeStream : public MessageCacheStream {
  public:
-  typedef std::function<void(ref_<const SubscribeResponseMessage>&&,
-                             IncomingSubscribeStream&)>
+  typedef std::function<void(IncomingSubscribeStream&,
+                             ref_<const SubscribeResponseMessage>&&)>
       Callback;
 
   static const SubscribeOptions default_options;
@@ -25,14 +25,13 @@ class IncomingSubscribeStream : public MessageCacheStream {
   Callback _callback;
 
  public:
-  explicit IncomingSubscribeStream(ref_<Session>&& session,
-                                   const Path& path, uint32_t rid,
-                                   Callback&& callback);
+  explicit IncomingSubscribeStream(ref_<Session>&& session, const Path& path,
+                                   uint32_t rid, Callback&& callback);
 
   void receive_message(MessageCRef&& msg) override;
 
   // send subscription request and update of subscription options
-  void subscribe(const SubscribeOptions &options);
+  void subscribe(const SubscribeOptions& options);
 };
 }
 

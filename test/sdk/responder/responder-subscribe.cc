@@ -1,5 +1,5 @@
-#include "dsa/stream.h"
 #include "dsa/network.h"
+#include "dsa/stream.h"
 
 #include "../async_test.h"
 #include "../test_config.h"
@@ -38,8 +38,7 @@ TEST(ResponderTest, Subscribe) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_responder_model(
-      ModelRef(root_node));
+  server_config.get_link_config()->set_responder_model(ModelRef(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -64,8 +63,8 @@ TEST(ResponderTest, Subscribe) {
   ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "",
-      [&](ref_<const SubscribeResponseMessage> &&msg,
-          IncomingSubscribeStream &stream) {
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
         last_response = std::move(msg);  // store response
       },
       initial_options);
@@ -131,7 +130,6 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingSetStream> &&stream) {}
 };
 
-
 TEST(ResponderTest, receive_message) {
   App app;
 
@@ -163,13 +161,9 @@ TEST(ResponderTest, receive_message) {
 
   // test invalid path scenario
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "@path",
-      [&](ref_<const SubscribeResponseMessage> &&msg,
-          IncomingSubscribeStream &stream) {
-	;
-      },
+      "path", [&](IncomingSubscribeStream &stream,
+                   ref_<const SubscribeResponseMessage> &&msg) { ; },
       initial_options);
-
 
   wait_for_bool(500, [&]() -> bool { return false; });
 

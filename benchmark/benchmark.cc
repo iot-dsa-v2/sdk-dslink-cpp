@@ -42,7 +42,8 @@ int main() {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_responder_model(ref_<MockNode>(root_node));
+  server_config.get_link_config()->set_responder_model(
+      ref_<MockNode>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -70,8 +71,8 @@ int main() {
   while (idx < MAX_NUM_MSGS) {
     auto subscribe_stream = tcp_client->get_session().requester.subscribe(
         "",
-        [&](ref_<const SubscribeResponseMessage> &&msg,
-            IncomingSubscribeStream &stream) {
+        [&](IncomingSubscribeStream &stream,
+            ref_<const SubscribeResponseMessage> &&msg) {
           if (idx == (MAX_NUM_MSGS - 1)) {
             last_response = std::move(msg);
           }
@@ -97,7 +98,7 @@ int main() {
   }
 
   std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                    end_time_point - start_time_point)
+                   end_time_point - start_time_point)
                    .count()
             << std::endl;
 
