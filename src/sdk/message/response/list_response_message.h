@@ -42,6 +42,8 @@ class ListResponseMessage : public ResponseMessage {
 
   std::map<std::string, BytesRef>& get_map() { return _raw_map; };
   const std::map<std::string, BytesRef>& get_map() const { return _raw_map; };
+
+  ref_<VariantMap> get_parsed_map() const;
 };
 
 typedef ref_<const ListResponseMessage> ListResponseMessageCRef;

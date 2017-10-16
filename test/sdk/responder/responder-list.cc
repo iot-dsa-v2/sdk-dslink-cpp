@@ -12,18 +12,6 @@
 
 using namespace dsa;
 
-static ref_<VariantMap> parse_map(
-  const std::map<std::string, BytesRef> &raw_map)  {
-  VariantMap *map = new VariantMap();
-
-  for (auto &it : raw_map) {
-    (*map)[it.first] =
-      Variant::from_msgpack(it.second->data(), it.second->size());
-  }
-
-  return map->get_ref();
-}
-
 class MockNodeListChild : public NodeModel {
 public:
   explicit MockNodeListChild(LinkStrandRef strand)
@@ -83,7 +71,7 @@ TEST(ResponderTest, ListTest) {
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
-    auto mapref = parse_map(root_list_response->get_map());
+    auto mapref = root_list_response->get_parsed_map();
     auto map = *mapref;
     EXPECT_TRUE(map["child_a"].is_map());
     EXPECT_TRUE(map["child_a"]["$is"].is_string());
@@ -99,7 +87,7 @@ TEST(ResponderTest, ListTest) {
                     [&]() { return child_list_response != nullptr; });
   {
     // check child list response
-    auto mapref = parse_map(child_list_response->get_map());
+    auto mapref = child_list_response->get_parsed_map();
     auto map = *mapref;
 
     EXPECT_TRUE(map["$is"].is_string());
@@ -116,7 +104,7 @@ TEST(ResponderTest, ListTest) {
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
-    auto mapref = parse_map(root_list_response->get_map());
+    auto mapref = root_list_response->get_parsed_map();
     auto map = *mapref;
     EXPECT_TRUE(map["@int"].is_int());
     EXPECT_EQ(map["@int"].get_int(), 1);
@@ -132,7 +120,7 @@ TEST(ResponderTest, ListTest) {
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
-    auto mapref = parse_map(root_list_response->get_map());
+    auto mapref = root_list_response->get_parsed_map();
     auto map = *mapref;
     EXPECT_TRUE(map["child_c"].is_map());
     EXPECT_TRUE(map["child_c"]["$is"].is_string());
