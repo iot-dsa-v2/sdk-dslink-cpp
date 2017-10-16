@@ -40,13 +40,13 @@ SubscribeOptions::SubscribeOptions(QosLevel qos, int32_t queue_size,
     : BaseRequestOptions(priority),
       qos(qos),
       queue_size(queue_size),
-      queue_time(queue_time) {}
+      queue_duration(queue_time) {}
 
 bool SubscribeOptions::operator==(const SubscribeOptions& other) const {
   if (!BaseRequestOptions::operator==(other)) return false;
   if (other.qos != qos) return false;
   if (other.queue_size != queue_size) return false;
-  if (other.queue_time != queue_time) return false;
+  if (other.queue_duration != queue_duration) return false;
   return true;
 }
 
@@ -56,7 +56,7 @@ bool SubscribeOptions::needUpdateOnRemoval(
 
   if (other.qos == qos && qos != 0) return true;
   if (other.queue_size == queue_size && queue_size != 0) return true;
-  if (other.queue_time == queue_time && queue_time != 0) return true;
+  if (other.queue_duration == queue_duration && queue_duration != 0) return true;
 
   return false;
 }
@@ -67,7 +67,7 @@ bool SubscribeOptions::needUpdateOnChange(
   if (oldopt.qos == qos && newopt.qos != qos) return true;
   if (oldopt.queue_size == queue_size && newopt.queue_size != queue_size)
     return true;
-  if (oldopt.queue_time == queue_time && newopt.queue_time != queue_time)
+  if (oldopt.queue_duration == queue_duration && newopt.queue_duration != queue_duration)
     return true;
   return false;
 }
@@ -83,8 +83,8 @@ bool SubscribeOptions::mergeFrom(const SubscribeOptions& other) {
     queue_size = other.queue_size;
     changed = true;
   }
-  if (other.queue_time > queue_time) {
-    queue_time = other.queue_time;
+  if (other.queue_duration > queue_duration) {
+    queue_duration = other.queue_duration;
     changed = true;
   }
 

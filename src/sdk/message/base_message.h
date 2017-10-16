@@ -45,6 +45,7 @@ class Message : public EnableRef<Message> {
   Message(const StaticHeaders& headers);
   virtual ~Message() = default;
 
+  const int64_t created_ts;
   int32_t size() const;
 
   // update_static_header must be called before write
@@ -71,7 +72,7 @@ class Message : public EnableRef<Message> {
   void set_ack_rid(int32_t ack_id) { static_headers.ack_id = ack_id; }
 
   void set_body(IntrusiveBytes* b) {
-    static_headers.message_size = 0; // invalidate message_size
+    static_headers.message_size = 0;  // invalidate message_size
     body.reset(b);
   }
 
@@ -158,7 +159,7 @@ class MessageStream : public ClosableRef<MessageStream> {
   virtual ~MessageStream() = default;
 
   // write message to remote
-  virtual size_t peek_next_message_size(size_t available) = 0;
+  virtual size_t peek_next_message_size(size_t available, int64_t time) = 0;
   virtual MessageCRef get_next_message(AckCallback&) = 0;
 
   // read message from remote

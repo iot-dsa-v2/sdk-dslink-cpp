@@ -36,7 +36,8 @@ void MessageCacheStream::send_message(MessageCRef &&msg) {
   }
 }
 
-size_t MessageCacheStream::peek_next_message_size(size_t available) {
+size_t MessageCacheStream::peek_next_message_size(size_t available,
+                                                  int64_t time) {
   if (is_closed() || _cache == nullptr) {
     _writing = false;
     return 0;
@@ -60,19 +61,49 @@ void MessageQueueStream::close_impl() {
   _queue.clear();
   _session.reset();
 }
+
+void MessageQueueStream::purge() {
+  if (_queue.size() > 1) {
+    MessageCRef last = std::move(_queue.back());
+    _queue.clear();
+    _current_queue_size = last->size();
+    _current_queue_time = last->created_ts;
+    _queue.emplace_back(std::move(last));
+  }
+}
+
 void MessageQueueStream::send_message(MessageCRef &&msg) {
   if (msg == nullptr || is_closed()) return;
+  int64_t current_time = msg->created_ts;
+  if (_queue.empty()) {
+    _current_queue_time = current_time;
+    _current_queue_size = msg->size();
+  } else {
+    _current_queue_size += msg->size();
+  }
+
   _queue.emplace_back(std::move(msg));
+  if (_current_queue_size > _max_queue_size) {
+    check_queue_size();
+  }
+  if (_current_queue_time < current_time - _max_queue_duration) {
+    check_queue_time(current_time);
+  }
+
   if (!_writing) {
     _writing = true;
     _session->write_stream(get_ref());
   }
 }
 
-size_t MessageQueueStream::peek_next_message_size(size_t available) {
+size_t MessageQueueStream::peek_next_message_size(size_t available,
+                                                  int64_t time) {
   if (is_closed() || _queue.empty()) {
     _writing = false;
     return 0;
+  }
+  if (time - _max_queue_duration > _current_queue_time) {
+    check_queue_time(time);
   }
   return _queue.front()->size();
 }
@@ -83,8 +114,9 @@ MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
   }
   MessageCRef msg = std::move(_queue.front());
   _queue.pop_front();
-
+  _current_queue_size -= msg->size();
   if (!_queue.empty()) {
+    _current_queue_time = _queue.front()->created_ts;
     _writing = true;
     _session->write_stream(get_ref());
   }

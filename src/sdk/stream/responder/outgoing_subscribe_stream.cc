@@ -2,6 +2,7 @@
 
 #include "outgoing_subscribe_stream.h"
 
+#include <ctime>
 #include "util/date_time.h"
 
 namespace dsa {
@@ -21,14 +22,32 @@ void OutgoingSubscribeStream::close_impl() {
   };
 }
 
-void OutgoingSubscribeStream::check_queue_time() {}
+void OutgoingSubscribeStream::check_queue_time(int64_t time) {
+  if (_queue.size() <= 1) return;
+
+  int64_t target_time = time - _max_queue_duration;
+  for (auto it = _queue.begin(); it != _queue.end(); ++it) {
+    if ((*it)->created_ts >= target_time) {
+      // clear all the data from the begin of the queue
+      _queue.erase(_queue.begin(), it);
+      _current_queue_time =(*it)->created_ts;
+      return;
+    }
+    _current_queue_size -= (*it)->size();
+  }
+  // all message before target time, but still need to keep the last one
+  purge();
+}
 void OutgoingSubscribeStream::check_queue_size() {
   for (auto it = _queue.begin(); it != _queue.end(); ++it) {
     _current_queue_size -= (*it)->size();
     if (_current_queue_size <= _max_queue_size) {
       // clear all the data from the begin of the queue
       _queue.erase(_queue.begin(), ++it);
-      break;
+      if (it != _queue.end()) {
+        _current_queue_time = (*it)->created_ts;
+      }
+      return;
     }
   }
 }
@@ -36,13 +55,14 @@ void OutgoingSubscribeStream::check_queue_size() {
 void OutgoingSubscribeStream::set_options(SubscribeOptions &&options) {
   _options = std::move(options);
   _max_queue_size = _options.queue_size > 0 ? _options.queue_size : 65536;
-  _max_queue_time = _options.queue_time > 0 ? _options.queue_time : 120;
+  _max_queue_duration = _options.queue_duration > 0 ? _options.queue_duration : 120;
   if (_max_queue_size < _current_queue_size) {
     check_queue_size();
   }
-//  if (_max_queue_time < _current_queue_time) {
-//    check_queue_time();
-//  }
+  auto current_time = std::time(nullptr);
+  if (current_time - _max_queue_duration > _current_queue_time) {
+    check_queue_time(current_time);
+  }
 }
 
 void OutgoingSubscribeStream::on_option_change(Callback &&callback) {
@@ -57,21 +77,6 @@ void OutgoingSubscribeStream::receive_message(MessageCRef &&message) {
   if (_option_callback != nullptr) {
     _option_callback(*this, old_options);
   }
-}
-
-void OutgoingSubscribeStream::send_response(
-    SubscribeResponseMessageCRef &&message) {
-  _current_queue_size += message->size();
-  send_message(std::move(message));
-  if (_current_queue_size > _max_queue_size) {
-    check_queue_size();
-  }
-}
-
-MessageCRef OutgoingSubscribeStream::get_next_message(AckCallback &callback) {
-  MessageCRef rslt = MessageQueueStream::get_next_message(callback);
-  _current_queue_size -= rslt->size();
-  return std::move(rslt);
 }
 
 }

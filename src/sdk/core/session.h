@@ -52,9 +52,9 @@ class Session final : public ClosableRef<Session> {
 
   LinkStrandRef _strand;
 
-  ref_<MessageStream> get_next_ready_stream();
+  ref_<MessageStream> get_next_ready_stream(int64_t time);
 
-  size_t peek_next_message(size_t availible);
+  size_t peek_next_message(size_t availible, int64_t time);
 
   static void write_loop(ref_<Session> sthis);
 

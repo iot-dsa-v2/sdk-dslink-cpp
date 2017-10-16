@@ -30,7 +30,7 @@ void OutgoingListStream::update_value(const std::string &key,
   send_message();
 }
 
-size_t OutgoingListStream::peek_next_message_size(size_t available) {
+size_t OutgoingListStream::peek_next_message_size(size_t available, int64_t time) {
   if (_cached_map.empty()) return 0;
 
   size_t size = StaticHeaders::TOTAL_SIZE;

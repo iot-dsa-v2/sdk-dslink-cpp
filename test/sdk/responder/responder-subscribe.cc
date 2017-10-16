@@ -53,11 +53,11 @@ TEST(ResponderTest, Subscribe) {
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
-  initial_options.queue_time = 0x1234;
+  initial_options.queue_duration = 0x1234;
   initial_options.queue_size = 0x5678;
 
   SubscribeOptions update_options;
-  update_options.queue_time = 0x9876;
+  update_options.queue_duration = 0x9876;
   update_options.queue_size = 0x5432;
 
   ref_<const SubscribeResponseMessage> last_response;
@@ -152,11 +152,11 @@ TEST(ResponderTest, receive_message) {
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
-  initial_options.queue_time = 0x1234;
+  initial_options.queue_duration = 0x1234;
   initial_options.queue_size = 0x5678;
 
   SubscribeOptions update_options;
-  update_options.queue_time = 0x9876;
+  update_options.queue_duration = 0x9876;
   update_options.queue_size = 0x5432;
 
   // test invalid path scenario

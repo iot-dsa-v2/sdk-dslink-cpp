@@ -16,7 +16,7 @@ class AckStream : public MessageRefedStream {
 
  public:
   explicit AckStream(ref_<Session>&& session);
-  size_t peek_next_message_size(size_t available) override;
+  size_t peek_next_message_size(size_t available, int64_t time) override;
   MessageCRef get_next_message(AckCallback& callback) override;
 
   void receive_message(MessageCRef&& msg) override {}

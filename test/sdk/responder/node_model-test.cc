@@ -92,7 +92,7 @@ TEST(ResponderTest, model__add_child) {
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
-  initial_options.queue_time = 0x1234;
+  initial_options.queue_duration = 0x1234;
   initial_options.queue_size = 0x5678;
 
   // test invalid path scenario
@@ -186,7 +186,7 @@ TEST(ResponderTest, model__set_value) {
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
-  initial_options.queue_time = 0x1234;
+  initial_options.queue_duration = 0x1234;
   initial_options.queue_size = 0x5678;
 
   root_node->set_value(MessageValue(Variant(0)));

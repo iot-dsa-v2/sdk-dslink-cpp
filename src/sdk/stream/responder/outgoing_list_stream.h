@@ -33,7 +33,7 @@ class OutgoingListStream : public MessageRefedStream {
   void update_value(const std::string &key, BytesRef &value);
   void update_value(const std::string &key, const Variant &v);
 
-  size_t peek_next_message_size(size_t available) override;
+  size_t peek_next_message_size(size_t available, int64_t time) override;
   MessageCRef get_next_message(AckCallback &) override;
 
   void receive_message(MessageCRef &&mesage) override;

@@ -53,7 +53,7 @@ void SubscribeRequestMessage::set_subscribe_option(
   set_priority(options.priority);
   set_qos(options.qos);
   set_queue_size(options.queue_size);
-  set_queue_time(options.queue_time);
+  set_queue_time(options.queue_duration);
 }
 
 }  // namespace dsa

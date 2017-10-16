@@ -7,7 +7,7 @@ ErrorStream::ErrorStream(int32_t rid, MessageType type, MessageStatus status)
     : MessageStream(rid), _message(new ErrorMessage(type, status)) {
 }
 
-size_t ErrorStream::peek_next_message_size(size_t available) {
+size_t ErrorStream::peek_next_message_size(size_t available, int64_t time) {
   return _message->size();
 }
 

@@ -9,7 +9,7 @@ AckStream::AckStream(ref_<Session>&& session)
     : MessageRefedStream(std::move(session), Path()),
       _message(new AckMessage()) {}
 
-size_t AckStream::peek_next_message_size(size_t available) {
+size_t AckStream::peek_next_message_size(size_t available, int64_t time) {
   return _message->size();
 }
 MessageCRef AckStream::get_next_message(AckCallback& callback) {

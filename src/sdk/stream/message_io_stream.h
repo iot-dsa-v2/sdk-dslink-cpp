@@ -47,7 +47,7 @@ class MessageCacheStream : public MessageRefedStream {
                      uint32_t rid = 0);
   ~MessageCacheStream() override;
 
-  size_t peek_next_message_size(size_t available) override;
+  size_t peek_next_message_size(size_t available, int64_t time) override;
   MessageCRef get_next_message(AckCallback &callback) override;
 };
 
@@ -61,12 +61,24 @@ class MessageQueueStream : public MessageRefedStream {
   /// add message to the queue
   void send_message(MessageCRef &&msg);
 
+  int32_t _max_queue_size = 0;
+  int32_t _current_queue_size = 0;
+
+  int64_t _current_queue_time = 0;
+  int32_t _max_queue_duration = 0;
+
+  // clear all element but the last
+  void purge();
+
+  virtual void check_queue_time(int64_t time) { purge(); }
+  virtual void check_queue_size() { purge(); }
+
  public:
   explicit MessageQueueStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);
   ~MessageQueueStream() override;
 
-  size_t peek_next_message_size(size_t available) override;
+  size_t peek_next_message_size(size_t available, int64_t time) override;
   MessageCRef get_next_message(AckCallback &callback) override;
 };
 }

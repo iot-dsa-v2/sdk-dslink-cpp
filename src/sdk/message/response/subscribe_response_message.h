@@ -19,7 +19,6 @@ class SubscribeResponseMessage : public ResponseMessage, PagedMessageMixin {
   explicit SubscribeResponseMessage(Variant&& value);
 
  public:
-  const int32_t created_ts;
 
   MessageValue get_value() const;
   void set_value(MessageValue&& value);

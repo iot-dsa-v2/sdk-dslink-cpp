@@ -38,7 +38,7 @@ struct SubscribeOptions : BaseRequestOptions {
   // queue size in bytes;
   int32_t queue_size = -1;
   // queue time in seconds
-  int32_t queue_time = -1;
+  int32_t queue_duration = -1;
 
   QosLevel qos = QosLevel::_0;
 

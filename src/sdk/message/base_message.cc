@@ -4,10 +4,15 @@
 
 #include "util/path.h"
 
+#include <ctime>
+
 namespace dsa {
-Message::Message(const uint8_t* data, size_t size) : static_headers(data){};
-Message::Message(MessageType type) : static_headers(0, 0, type, 0, 0){};
-Message::Message(const StaticHeaders& headers) : static_headers(headers){};
+Message::Message(const uint8_t* data, size_t size)
+    : static_headers(data), created_ts(std::time(nullptr)){};
+Message::Message(MessageType type)
+    : static_headers(0, 0, type, 0, 0), created_ts(std::time(nullptr)){};
+Message::Message(const StaticHeaders& headers)
+    : static_headers(headers), created_ts(std::time(nullptr)){};
 
 int32_t Message::size() const {
   if (!static_headers.message_size) {

@@ -75,21 +75,21 @@ void Session::receive_message(MessageRef &&message) {
   }
 }
 
-ref_<MessageStream> Session::get_next_ready_stream() {
+ref_<MessageStream> Session::get_next_ready_stream(int64_t time) {
   while (!_write_streams.empty()) {
     ref_<MessageStream> stream = std::move(_write_streams.front());
     _write_streams.pop_front();
-    if (stream->peek_next_message_size(0) > 0) {
+    if (stream->peek_next_message_size(0, time) > 0) {
       return std::move(stream);
     }
   }
   return ref_<MessageStream>();
 }
 
-size_t Session::peek_next_message(size_t availible) {
+size_t Session::peek_next_message(size_t availible, int64_t time) {
   while (!_write_streams.empty()) {
     ref_<MessageStream> &stream = _write_streams.front();
-    size_t size = stream->peek_next_message_size(availible);
+    size_t size = stream->peek_next_message_size(availible, time);
     if (size > 0) {
       return size;
     }
@@ -106,8 +106,10 @@ void Session::write_loop(ref_<Session> sthis) {
   }
 
   auto write_buffer = connection->get_write_buffer();
+  std::time_t current_time= std::time(nullptr);
+
   size_t next_message_size =
-      sthis->peek_next_message(Message::MAX_MESSAGE_SIZE);
+      sthis->peek_next_message(Message::MAX_MESSAGE_SIZE, current_time);
 
   if (next_message_size == 0) {
     sthis->_is_writing = false;
@@ -119,7 +121,7 @@ void Session::write_loop(ref_<Session> sthis) {
   size_t total_size = 0;
   while (next_message_size > 0 &&
          next_message_size < write_buffer->max_next_size()) {
-    auto stream = sthis->get_next_ready_stream();
+    auto stream = sthis->get_next_ready_stream(current_time);
     AckCallback ack_callback;
     MessageCRef message = stream->get_next_message(ack_callback);
 
@@ -134,7 +136,7 @@ void Session::write_loop(ref_<Session> sthis) {
 
     write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
 
-    next_message_size = sthis->peek_next_message(write_buffer->max_next_size());
+    next_message_size = sthis->peek_next_message(write_buffer->max_next_size(), current_time);
   }
 
   write_buffer->write([sthis = std::move(sthis)](

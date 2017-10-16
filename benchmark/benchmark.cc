@@ -58,7 +58,7 @@ int main() {
         [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
-  initial_options.queue_time = 0x1234;
+  initial_options.queue_duration = 0x1234;
   initial_options.queue_size = 0x5678;
 
   ref_<const SubscribeResponseMessage> last_response;
