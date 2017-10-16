@@ -37,8 +37,8 @@ public:
 
 
 TEST(ResponderTest, ListTest) {
-  using MockNodeRoot = responder_list_test::MockNodeRoot;
-  using MockNodeChild = responder_list_test::MockNodeChild;
+  typedef responder_list_test::MockNodeRoot MockNodeRoot;
+  typedef responder_list_test::MockNodeChild MockNodeChild;
   App app;
 
   TestConfig server_config(app);
