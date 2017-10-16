@@ -34,7 +34,7 @@ class ref_ {
   }
 
   template <class U>
-  ref_(ref_<U> const &rhs) : px(rhs.get()) {
+  ref_(ref_<U> const &rhs) : px(static_cast<T *>(rhs.get())) {
     if (px != 0) ++px->_refs;
   }
 
@@ -68,7 +68,7 @@ class ref_ {
   friend class ref_;
 
   template <class U>
-  ref_(ref_<U> &&rhs) : px(rhs.px) {
+  ref_(ref_<U> &&rhs) : px(static_cast<T *>(rhs.px)) {
     rhs.px = 0;
   }
 
@@ -261,11 +261,6 @@ template <class T>
 ref_<T> copy_ref_(ref_<T> ref) {
   return ref_<T>(ref.get());
 }
-
-template <typename T, typename TBase>
-ref_<T> ref_cast_(ref_<TBase> &ref) {
-  return ref_<T>(DOWN_CAST<T *>(ref.get()));
-};
 
 }  // namespace dsa
 

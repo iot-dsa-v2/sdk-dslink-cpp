@@ -51,21 +51,21 @@ void Responder::receive_message(ref_<Message> &&message) {
     switch (message->type()) {
       case MessageType::SUBSCRIBE_REQUEST:
         on_subscribe_request(ref_<SubscribeRequestMessage>(
-            ref_cast_<SubscribeRequestMessage>(message)));
+            std::move(message)));
         break;
       case MessageType::INVOKE_REQUEST:
         on_invoke_request(ref_<InvokeRequestMessage>(
-            ref_cast_<InvokeRequestMessage>(message)));
+           std::move(message)));
 
         break;
       case MessageType::SET_REQUEST:
         on_set_request(
-            ref_<SetRequestMessage>(ref_cast_<SetRequestMessage>(message)));
+            ref_<SetRequestMessage>(std::move(message)));
 
         break;
       case MessageType::LIST_REQUEST:
         on_list_request(
-            ref_<ListRequestMessage>(ref_cast_<ListRequestMessage>(message)));
+            ref_<ListRequestMessage>(std::move(message)));
 
         break;
       default:
