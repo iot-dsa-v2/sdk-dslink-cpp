@@ -12,22 +12,34 @@
 
 using namespace dsa;
 
+static ref_<VariantMap> parse_map(
+  const std::map<std::string, BytesRef> &raw_map)  {
+  VariantMap *map = new VariantMap();
+
+  for (auto &it : raw_map) {
+    (*map)[it.first] =
+      Variant::from_msgpack(it.second->data(), it.second->size());
+  }
+
+  return map->get_ref();
+}
+
 class MockNodeListChild : public NodeModel {
- public:
+public:
   explicit MockNodeListChild(LinkStrandRef strand)
-      : NodeModel(std::move(strand)) {
+    : NodeModel(std::move(strand)) {
     update_property("$is", Variant("test_class"));
     update_property("@unit", Variant("test_unit"));
   };
 };
 
 class MockNodeListRoot : public NodeModel {
- public:
+public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options = nullptr;
   std::unique_ptr<SubscribeOptions> second_subscribe_options = nullptr;
 
   explicit MockNodeListRoot(LinkStrandRef strand)
-      : NodeModel(std::move(strand)) {
+    : NodeModel(std::move(strand)) {
     add_list_child("child_a", new MockNodeListChild(_strand));
     add_list_child("child_b", new MockNodeListChild(_strand));
   };
@@ -56,22 +68,22 @@ TEST(ResponderTest, ListTest) {
   // list on root node
   ref_<const ListResponseMessage> root_list_response;
   tcp_client->get_session().requester.list(
-      "", [&](ref_<const ListResponseMessage> &&msg,
-              IncomingListStream &stream) { root_list_response = msg; });
+    "", [&](ref_<const ListResponseMessage> &&msg,
+            IncomingListStream &stream) { root_list_response = msg; });
 
   // list on child node
   ref_<const ListResponseMessage> child_list_response;
   tcp_client->get_session().requester.list(
-      "child_a",
-      [&](ref_<const ListResponseMessage> &&msg, IncomingListStream &stream) {
-        child_list_response = msg;
-      });
+    "child_a",
+    [&](ref_<const ListResponseMessage> &&msg, IncomingListStream &stream) {
+      child_list_response = msg;
+    });
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
-    auto mapref = root_list_response->get_map();
+    auto mapref = parse_map(root_list_response->get_map());
     auto map = *mapref;
     EXPECT_TRUE(map["child_a"].is_map());
     EXPECT_TRUE(map["child_a"]["$is"].is_string());
@@ -87,7 +99,7 @@ TEST(ResponderTest, ListTest) {
                     [&]() { return child_list_response != nullptr; });
   {
     // check child list response
-    auto mapref = child_list_response->get_map();
+    auto mapref = parse_map(child_list_response->get_map());
     auto map = *mapref;
 
     EXPECT_TRUE(map["$is"].is_string());
@@ -99,12 +111,12 @@ TEST(ResponderTest, ListTest) {
 
   // update root property
   server_config.strand->post(
-      [&]() { root_node->update_property("@int", Variant(1)); });
+    [&]() { root_node->update_property("@int", Variant(1)); });
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
-    auto mapref = root_list_response->get_map();
+    auto mapref = parse_map(root_list_response->get_map());
     auto map = *mapref;
     EXPECT_TRUE(map["@int"].is_int());
     EXPECT_EQ(map["@int"].get_int(), 1);
@@ -120,7 +132,7 @@ TEST(ResponderTest, ListTest) {
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
-    auto mapref = root_list_response->get_map();
+    auto mapref = parse_map(root_list_response->get_map());
     auto map = *mapref;
     EXPECT_TRUE(map["child_c"].is_map());
     EXPECT_TRUE(map["child_c"]["$is"].is_string());

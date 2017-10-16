@@ -52,15 +52,4 @@ void ListResponseMessage::parse() {
   }
 }
 
-ref_<VariantMap> ListResponseMessage::get_map() const {
-  VariantMap* map = new VariantMap();
-
-  for (auto& it : _raw_map) {
-    (*map)[it.first] =
-        Variant::from_msgpack(it.second->data(), it.second->size());
-  }
-
-  return map->get_ref();
-}
-
 }  // namespace dsa
