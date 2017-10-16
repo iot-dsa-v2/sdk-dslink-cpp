@@ -12,33 +12,38 @@
 
 using namespace dsa;
 
-class MockNodeListChild : public NodeModel {
+namespace responder_list_test{
+class MockNodeChild : public NodeModel {
 public:
-  explicit MockNodeListChild(LinkStrandRef strand)
+  explicit MockNodeChild(LinkStrandRef strand)
     : NodeModel(std::move(strand)) {
     update_property("$is", Variant("test_class"));
     update_property("@unit", Variant("test_unit"));
   };
 };
 
-class MockNodeListRoot : public NodeModel {
+class MockNodeRoot : public NodeModel {
 public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options = nullptr;
   std::unique_ptr<SubscribeOptions> second_subscribe_options = nullptr;
 
-  explicit MockNodeListRoot(LinkStrandRef strand)
+  explicit MockNodeRoot(LinkStrandRef strand)
     : NodeModel(std::move(strand)) {
-    add_list_child("child_a", new MockNodeListChild(_strand));
-    add_list_child("child_b", new MockNodeListChild(_strand));
+    add_list_child("child_a", new MockNodeChild(_strand));
+    add_list_child("child_b", new MockNodeChild(_strand));
   };
 };
+}
+
 
 TEST(ResponderTest, ListTest) {
+  using MockNodeRoot = responder_list_test::MockNodeRoot;
+  using MockNodeChild = responder_list_test::MockNodeChild;
   App app;
 
   TestConfig server_config(app);
 
-  MockNodeListRoot *root_node = new MockNodeListRoot(server_config.strand);
+  MockNodeRoot *root_node = new MockNodeRoot(server_config.strand);
 
   server_config.get_link_config()->set_responder_model(ModelRef(root_node));
 
@@ -114,7 +119,7 @@ TEST(ResponderTest, ListTest) {
   // update root child
   server_config.strand->post([&]() {
     root_node->add_list_child("child_c",
-                              new MockNodeListChild(server_config.strand));
+                              new MockNodeChild(server_config.strand));
   });
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
