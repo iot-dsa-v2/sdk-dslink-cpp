@@ -101,7 +101,7 @@ TEST(ResponderTest, model__add_child) {
                      ref_<const SubscribeResponseMessage> &&msg) { ; },
       initial_options);
 
-  wait_for_bool(500, [&]() -> bool { return false; });
+  wait_for_bool(25, [&]() -> bool { return false; });
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);
@@ -197,7 +197,7 @@ TEST(ResponderTest, model__set_value) {
       initial_options);
 
   //
-  wait_for_bool(500, [&]() -> bool { return false; });
+  wait_for_bool(25, [&]() -> bool { return false; });
 
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Variant(0));

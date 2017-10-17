@@ -165,7 +165,7 @@ TEST(ResponderTest, receive_message) {
                    ref_<const SubscribeResponseMessage> &&msg) { ; },
       initial_options);
 
-  wait_for_bool(500, [&]() -> bool { return false; });
+  wait_for_bool(25, [&]() -> bool { return false; });
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);
