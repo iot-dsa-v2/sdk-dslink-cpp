@@ -7,9 +7,9 @@
 
 #include <map>
 
+#include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
-#include "stream/requester/incoming_invoke_stream.h"
 
 namespace dsa {
 
@@ -41,9 +41,9 @@ class Requester {
       const std::string &path, IncomingListStream::Callback &&callback,
       const ListOptions &options = IncomingListStream::default_options);
 
-  ref_<IncomingListStream> invoke(
-    const std::string &path, IncomingInvokeStream::Callback &&callback,
-    ref_<const InvokeRequestMessage>);
+  ref_<IncomingListStream> invoke(const std::string &path,
+                                  IncomingInvokeStream::Callback &&callback,
+                                  ref_<const InvokeRequestMessage> &&message);
 };
 
 }  // namespace dsa

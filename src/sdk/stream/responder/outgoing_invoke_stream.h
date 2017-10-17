@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include <map>
+#include <vector>
 
 #include "../message_io_stream.h"
 
@@ -23,6 +23,8 @@ class OutgoingInvokeStream : public MessageQueueStream {
  protected:
   Callback _callback;
 
+  std::vector<ref_<const InvokeRequestMessage> > _waiting_requests;
+
   void close_impl() override;
 
  public:
@@ -30,6 +32,8 @@ class OutgoingInvokeStream : public MessageQueueStream {
                        ref_<const InvokeRequestMessage> &&msg);
 
   void receive_message(MessageCRef &&mesage) override;
+
+  void on_update(Callback &&callback);
 
   void send_response(InvokeResponseMessageCRef &&message) {
     send_message(MessageCRef(std::move(message)));

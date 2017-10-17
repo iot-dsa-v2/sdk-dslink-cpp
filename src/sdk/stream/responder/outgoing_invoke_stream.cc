@@ -9,7 +9,7 @@ OutgoingInvokeStream::OutgoingInvokeStream(
     ref_<Session> &&session, const Path &path, uint32_t rid,
     ref_<const InvokeRequestMessage> &&msg)
     : MessageQueueStream(std::move(session), path, rid) {
-  _callback(*this, std::move(msg));
+  _waiting_requests.emplace_back(std::move(msg));
 }
 
 void OutgoingInvokeStream::close_impl() {
@@ -21,4 +21,14 @@ void OutgoingInvokeStream::close_impl() {
 void OutgoingInvokeStream::receive_message(MessageCRef &&mesage) {
   _callback(*this, std::move(mesage));
 };
+
+void OutgoingInvokeStream::on_update(Callback &&callback) {
+  _callback = std::move(callback);
+  if (_callback != nullptr && !_waiting_requests.empty()) {
+    for (auto & msg : _waiting_requests) {
+      _callback(*this, std::move(msg));
+    }
+    _waiting_requests.clear();
+  }
+}
 }

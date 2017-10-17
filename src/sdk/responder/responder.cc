@@ -11,8 +11,9 @@
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
 #include "stream/error_stream.h"
-#include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
+#include "stream/responder/outgoing_subscribe_stream.h"
+#include "stream/responder/outgoing_invoke_stream.h"
 
 namespace dsa {
 
@@ -49,25 +50,22 @@ void Responder::receive_message(ref_<Message> &&message) {
     // TODO: implement permissions
 
     switch (message->type()) {
-      case MessageType::SUBSCRIBE_REQUEST:
-        on_subscribe_request(ref_<SubscribeRequestMessage>(
-            std::move(message)));
-        break;
       case MessageType::INVOKE_REQUEST:
-        on_invoke_request(ref_<InvokeRequestMessage>(
-           std::move(message)));
+        on_invoke_request(ref_<InvokeRequestMessage>(std::move(message)));
+
+        break;
+      case MessageType::SUBSCRIBE_REQUEST:
+        on_subscribe_request(ref_<SubscribeRequestMessage>(std::move(message)));
+        break;
+      case MessageType::LIST_REQUEST:
+        on_list_request(ref_<ListRequestMessage>(std::move(message)));
 
         break;
       case MessageType::SET_REQUEST:
-        on_set_request(
-            ref_<SetRequestMessage>(std::move(message)));
+        on_set_request(ref_<SetRequestMessage>(std::move(message)));
 
         break;
-      case MessageType::LIST_REQUEST:
-        on_list_request(
-            ref_<ListRequestMessage>(std::move(message)));
 
-        break;
       default:
         return;
     }
@@ -90,8 +88,8 @@ void Responder::on_subscribe_request(ref_<SubscribeRequestMessage> &&message) {
 
 void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
   auto stream = make_ref_<OutgoingListStream>(
-    _session.get_ref(), message->get_target_path(), message->get_rid(),
-    message->get_list_options());
+      _session.get_ref(), message->get_target_path(), message->get_rid(),
+      message->get_list_options());
 
   _outgoing_streams[stream->rid] = stream;
 
@@ -99,19 +97,13 @@ void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
 }
 
 void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message) {
-  //  auto model = _model_manager.get_model(message.get_target_path());
-  //  if (model == nullptr) {
-  //    send_error(MessageType::INVOKE_RESPONSE, MessageStatus::DISCONNECTED,
-  //    message.get_rid());
-  //    return;
-  //  }
-  //
-  //  auto stream =
-  //  make_ref_<InvokeMessageStream>(_session.get_intrusive(),
-  //                                                     message.get_invoke_options(),
-  //                                                     message.get_rid(),
-  //                                                     );
-  //  model->add_stream(stream);
+  auto stream = make_ref_<OutgoingInvokeStream>(
+    _session.get_ref(), message->get_target_path(), message->get_rid(),
+    std::move(message));
+
+  _outgoing_streams[stream->rid] = stream;
+
+  _session._strand->stream_acceptor().add(std::move(stream));
 }
 
 void Responder::on_set_request(ref_<SetRequestMessage> &&message) {

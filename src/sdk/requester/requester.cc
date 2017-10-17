@@ -41,12 +41,12 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
   return stream;
 }
 
-ref_<IncomingListStream> Requester::list(const std::string& path, IncomingListStream::Callback &&callback,
-                              const ListOptions &options) {
-
+ref_<IncomingListStream> Requester::list(
+    const std::string &path, IncomingListStream::Callback &&callback,
+    const ListOptions &options) {
   uint32_t rid = next_rid();
-  auto stream = make_ref_<IncomingListStream>(
-    _session.get_ref(), Path(path), rid, std::move(callback));
+  auto stream = make_ref_<IncomingListStream>(_session.get_ref(), Path(path),
+                                              rid, std::move(callback));
   _incoming_streams[rid] = stream;
 
   stream->list(options);
@@ -55,9 +55,15 @@ ref_<IncomingListStream> Requester::list(const std::string& path, IncomingListSt
 }
 
 ref_<IncomingListStream> Requester::invoke(
-  const std::string &path, IncomingInvokeStream::Callback &&callback,
-  ref_<const InvokeRequestMessage>) {
+    const std::string &path, IncomingInvokeStream::Callback &&callback,
+    ref_<const InvokeRequestMessage> &&message) {
+  uint32_t rid = next_rid();
+  auto stream = make_ref_<IncomingInvokeStream>(_session.get_ref(), Path(path),
+                                                rid, std::move(callback));
+  _incoming_streams[rid] = stream;
 
+  stream->invoke(std::move(message));
+
+  return stream;
 }
-
 }
