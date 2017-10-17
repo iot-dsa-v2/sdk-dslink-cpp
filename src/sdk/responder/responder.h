@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include <map>
+#include <unordered_map>
 #include <string>
 
 #include "node_state_manager.h"
@@ -25,7 +25,7 @@ class Responder {
  protected:
   Session &_session;
 
-  std::map<uint32_t, ref_<MessageStream> > _outgoing_streams;
+  std::unordered_map<uint32_t, ref_<MessageStream> > _outgoing_streams;
 
   virtual void on_invoke_request(
       ref_<InvokeRequestMessage> &&request);

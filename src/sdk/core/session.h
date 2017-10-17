@@ -6,7 +6,7 @@
 #endif
 
 #include <deque>
-#include <map>
+#include <unordered_map>
 
 #include "network/connection.h"
 #include "util/enable_shared.h"

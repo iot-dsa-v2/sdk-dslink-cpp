@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include <map>
+#include <unordered_map>
 
 #include "../../util/buffer.h"
 #include "../base_message.h"
@@ -32,7 +32,7 @@ class ListResponseMessage : public ResponseMessage {
 
   std::unique_ptr<DynamicStringHeader> base_path;
 
-  std::map<std::string, BytesRef> _raw_map;
+  std::unordered_map<std::string, BytesRef> _raw_map;
 
   void parse();
 
@@ -40,8 +40,8 @@ class ListResponseMessage : public ResponseMessage {
   const std::string& get_base_path() const;
   void set_base_path(const std::string& value);
 
-  std::map<std::string, BytesRef>& get_map() { return _raw_map; };
-  const std::map<std::string, BytesRef>& get_map() const { return _raw_map; };
+  std::unordered_map<std::string, BytesRef>& get_map() { return _raw_map; };
+  const std::unordered_map<std::string, BytesRef>& get_map() const { return _raw_map; };
 
   ref_<VariantMap> get_parsed_map() const;
 };

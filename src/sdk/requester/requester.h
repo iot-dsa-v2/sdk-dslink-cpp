@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include <map>
+#include <unordered_map>
 
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
@@ -23,7 +23,7 @@ class Requester {
   uint32_t _next_rid = 0;
   uint32_t next_rid();
 
-  std::map<uint32_t, ref_<MessageStream>> _incoming_streams;
+  std::unordered_map<uint32_t, ref_<MessageStream>> _incoming_streams;
 
   void receive_message(MessageRef &&message);
 

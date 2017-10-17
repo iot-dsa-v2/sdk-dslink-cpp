@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include <map>
+#include <unordered_map>
 
 #include "../message_io_stream.h"
 
@@ -23,7 +23,7 @@ class OutgoingListStream : public MessageRefedStream {
 
   void close_impl() override;
 
-  std::map<std::string, BytesRef> _cached_map;
+  std::unordered_map<std::string, BytesRef> _cached_map;
   size_t _next_size;
 
  public:
