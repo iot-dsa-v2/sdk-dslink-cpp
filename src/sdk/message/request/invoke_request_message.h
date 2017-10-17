@@ -18,7 +18,6 @@ class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
   InvokeRequestMessage(const InvokeRequestMessage&);
 
   std::unique_ptr<DynamicByteHeader> max_permission;
-  InvokeOptions get_invoke_options() const;
 
  protected:
   // measure the size and header size

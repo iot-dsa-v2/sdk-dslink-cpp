@@ -19,8 +19,6 @@ class SetRequestMessage : public RequestMessage, PagedMessageMixin {
 
   std::unique_ptr<DynamicStringHeader> attribute_field;
 
-  SetOptions get_set_options() const;
-
  protected:
   // measure the size and header size
   void update_static_header();

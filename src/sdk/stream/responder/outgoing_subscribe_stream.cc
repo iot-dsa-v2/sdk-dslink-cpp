@@ -30,7 +30,7 @@ void OutgoingSubscribeStream::check_queue_time(int64_t time) {
     if ((*it)->created_ts >= target_time) {
       // clear all the data from the begin of the queue
       _queue.erase(_queue.begin(), it);
-      _current_queue_time =(*it)->created_ts;
+      _current_queue_time = (*it)->created_ts;
       return;
     }
     _current_queue_size -= (*it)->size();
@@ -54,8 +54,10 @@ void OutgoingSubscribeStream::check_queue_size() {
 
 void OutgoingSubscribeStream::set_options(SubscribeOptions &&options) {
   _options = std::move(options);
-  _max_queue_size = _options.queue_size > 0 ? _options.queue_size : 65536;
-  _max_queue_duration = _options.queue_duration > 0 ? _options.queue_duration : 120;
+  _max_queue_size =
+      _options.queue_size > 0 ? _options.queue_size : DEFAULT_MAX_QUEUE_SIZE;
+  _max_queue_duration = _options.queue_duration > 0 ? _options.queue_duration
+                                                    : DEFAULT_MAX_QUEUE_TIME;
   if (_max_queue_size < _current_queue_size) {
     check_queue_size();
   }
@@ -78,5 +80,4 @@ void OutgoingSubscribeStream::receive_message(MessageCRef &&message) {
     _option_callback(*this, old_options);
   }
 }
-
 }

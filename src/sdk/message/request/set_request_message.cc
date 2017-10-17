@@ -12,6 +12,4 @@ SetRequestMessage::SetRequestMessage(const uint8_t* data, size_t size)
 
 SetRequestMessage::SetRequestMessage()
     : RequestMessage(MessageType::SET_REQUEST) {}
-
-SetOptions SetRequestMessage::get_set_options() const { return {}; }
 }  // namespace dsa

@@ -4,8 +4,10 @@ list(APPEND StreamSourceFiles
         ack_stream.cc
         requester/incoming_subscribe_stream.cc
         requester/incoming_list_stream.cc
+        requester/incoming_invoke_stream.cc
         responder/outgoing_subscribe_stream.cc
-        responder/outgoing_list_stream.cc)
+        responder/outgoing_list_stream.cc
+        responder/outgoing_invoke_stream.cc)
 
 foreach(file ${StreamSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_STREAM}/${file})

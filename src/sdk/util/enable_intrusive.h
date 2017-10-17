@@ -68,13 +68,13 @@ class ref_ {
   friend class ref_;
 
   template <class U>
-  ref_(ref_<U> &&rhs) : px(static_cast<T *>(rhs.px)) {
+  ref_(ref_<U> &&rhs) : px(DOWN_CAST<T *>(rhs.px)) {
     rhs.px = 0;
   }
 
   template <class U>
   ref_ &operator=(ref_<U> &&rhs) BOOST_NOEXCEPT {
-    this_type(static_cast<ref_<U> &&>(rhs)).swap(*this);
+    this_type(DOWN_CAST<ref_<U> &&>(rhs)).swap(*this);
     return *this;
   }
 

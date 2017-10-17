@@ -64,14 +64,6 @@ struct SubscribeOptions : BaseRequestOptions {
   bool mergeFrom(const SubscribeOptions& other);
 };
 
-struct InvokeOptions : BaseRequestOptions {
-  // TODO: implement this
-};
-
-struct SetOptions : BaseRequestOptions {
-  // TODO: implement this
-};
-
 struct ListOptions : BaseRequestOptions {
   ListOptions();
   // TODO: implement this

@@ -53,6 +53,12 @@ class MessageCacheStream : public MessageRefedStream {
 
 /// message stream with a queue to write
 class MessageQueueStream : public MessageRefedStream {
+ public:
+  enum : int32_t {
+    DEFAULT_MAX_QUEUE_SIZE = 65536,
+    DEFAULT_MAX_QUEUE_TIME = 120
+  };
+
  protected:
   std::deque<MessageCRef> _queue;
 
@@ -61,10 +67,10 @@ class MessageQueueStream : public MessageRefedStream {
   /// add message to the queue
   void send_message(MessageCRef &&msg);
 
-  int32_t _max_queue_size = 0;
+  int32_t _max_queue_size = DEFAULT_MAX_QUEUE_SIZE;
   int32_t _current_queue_size = 0;
 
-  int64_t _current_queue_time = 0;
+  int64_t _current_queue_time = DEFAULT_MAX_QUEUE_TIME;
   int32_t _max_queue_duration = 0;
 
   // clear all element but the last

@@ -157,15 +157,6 @@ TEST(MessageTest, InvokeRequest__Constructor_05) {
 
 }
 
-TEST(MessageTest, InvokeRequest__get_invoke_options) {
-  //   InvokeOptions get_invoke_options() const;
-
-  InvokeRequestMessage request;
-  InvokeOptions options = request.get_invoke_options();
-
-  EXPECT_EQ(1, sizeof(options));
-}
-
 TEST(MessageTest, InvokeRequest__update_static_header) {
   // void update_static_header();
   InvokeRequestMessageExt request;

@@ -54,4 +54,10 @@ ref_<IncomingListStream> Requester::list(const std::string& path, IncomingListSt
   return stream;
 }
 
+ref_<IncomingListStream> Requester::invoke(
+  const std::string &path, IncomingInvokeStream::Callback &&callback,
+  ref_<const InvokeRequestMessage>) {
+
+}
+
 }

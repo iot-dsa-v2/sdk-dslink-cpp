@@ -154,16 +154,6 @@ TEST(MessageTest, SetResponse__Constructor_05) {
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
-
-TEST(MessageTest, SetRequest__get_set_options) {
-  //   SetOptions get_set_options() const;
-
-  SetRequestMessage request;
-  SetOptions options = request.get_set_options();
-
-  EXPECT_EQ(1, sizeof(options));
-}
-
 TEST(MessageTest, SetRequest__update_static_header) {
   // void update_static_header();
   SetRequestMessageExt request;
