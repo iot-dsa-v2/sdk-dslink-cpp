@@ -10,6 +10,7 @@
 
 using namespace dsa;
 
+namespace responder_subscribe_test {
 class MockNode : public NodeModelBase {
  public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
@@ -30,8 +31,29 @@ class MockNode : public NodeModelBase {
     }
   }
 };
+class MockStreamAcceptor : public OutgoingStreamAcceptor {
+ public:
+  ref_<OutgoingSubscribeStream> last_subscribe_stream;
+  std::unique_ptr<SubscribeOptions> last_subscribe_options;
+  void add(ref_<OutgoingSubscribeStream> &&stream) {
+    BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
+                     "receive second subscription stream, not expected");
+    last_subscribe_stream = stream;
+    stream->send_response(
+        make_ref_<SubscribeResponseMessage>(Variant("hello")));
+    stream->on_option_change([=](OutgoingSubscribeStream &stream,
+                                 const SubscribeOptions &old_option) {
+      last_subscribe_options.reset(new SubscribeOptions(stream.options()));
+    });
+  }
+  void add(ref_<OutgoingListStream> &&stream) override {}
+  void add(ref_<OutgoingInvokeStream> &&stream) override {}
+  void add(ref_<OutgoingSetStream> &&stream) override {}
+};
+}
 
-TEST(ResponderTest, Subscribe) {
+TEST(ResponderTest, Subscribe_Model) {
+  typedef responder_subscribe_test::MockNode MockNode;
   App app;
 
   TestConfig server_config(app);
@@ -110,27 +132,8 @@ TEST(ResponderTest, Subscribe) {
   app.wait();
 }
 
-class MockStreamAcceptor : public OutgoingStreamAcceptor {
- public:
-  ref_<OutgoingSubscribeStream> last_subscribe_stream;
-  std::unique_ptr<SubscribeOptions> last_subscribe_options;
-  void add(ref_<OutgoingSubscribeStream> &&stream) {
-    BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
-                     "receive second subscription stream, not expected");
-    last_subscribe_stream = stream;
-    stream->send_response(
-        make_ref_<SubscribeResponseMessage>(Variant("hello")));
-    stream->on_option_change([=](OutgoingSubscribeStream &stream,
-                                 const SubscribeOptions &old_option) {
-      last_subscribe_options.reset(new SubscribeOptions(stream.options()));
-    });
-  }
-  void add(ref_<OutgoingListStream> &&stream) {}
-  void add(ref_<OutgoingInvokeStream> &&stream) {}
-  void add(ref_<OutgoingSetStream> &&stream) {}
-};
-
-TEST(ResponderTest, receive_message) {
+TEST(ResponderTest, Subscribe_Acceptor) {
+  typedef responder_subscribe_test::MockStreamAcceptor MockStreamAcceptor;
   App app;
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
@@ -162,7 +165,7 @@ TEST(ResponderTest, receive_message) {
   // test invalid path scenario
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "path", [&](IncomingSubscribeStream &stream,
-                   ref_<const SubscribeResponseMessage> &&msg) { ; },
+                  ref_<const SubscribeResponseMessage> &&msg) { ; },
       initial_options);
 
   wait_for_bool(25, [&]() -> bool { return false; });
