@@ -54,7 +54,7 @@ ref_<IncomingListStream> Requester::list(
   return stream;
 }
 
-ref_<IncomingListStream> Requester::invoke(
+ref_<IncomingInvokeStream> Requester::invoke(
     const std::string &path, IncomingInvokeStream::Callback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   uint32_t rid = next_rid();

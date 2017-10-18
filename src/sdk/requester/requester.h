@@ -41,7 +41,7 @@ class Requester {
       const std::string &path, IncomingListStream::Callback &&callback,
       const ListOptions &options = IncomingListStream::default_options);
 
-  ref_<IncomingListStream> invoke(const std::string &path,
+  ref_<IncomingInvokeStream> invoke(const std::string &path,
                                   IncomingInvokeStream::Callback &&callback,
                                   ref_<const InvokeRequestMessage> &&message);
 };
