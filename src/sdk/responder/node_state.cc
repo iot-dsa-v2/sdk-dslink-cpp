@@ -4,10 +4,15 @@
 
 #include "core/session.h"
 
+#include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
+#include "message/request/invoke_request_message.h"
 
 namespace dsa {
+
+NodeStateWaitingCache::NodeStateWaitingCache() = default;
+NodeStateWaitingCache::~NodeStateWaitingCache() = default;
 
 NodeState::NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent)
     : _owner(owner), _parent(std::move(parent)) {}
@@ -53,7 +58,8 @@ ref_<NodeState> NodeState::create_child(const Path &path,
   }
   if (allows_runtime_change) {
     // create new node
-    ref_<NodeState> new_state = ref_<NodeState>(static_cast<NodeState*>(new NodeStateChild(_owner, get_ref(), name)));
+    ref_<NodeState> new_state = ref_<NodeState>(
+        static_cast<NodeState *>(new NodeStateChild(_owner, get_ref(), name)));
     _children[name] = new_state;
     if (path.is_last()) {
       new_state->_path = path;
@@ -93,22 +99,27 @@ void NodeState::set_model(ModelRef &&model) {
   if (model == nullptr) {
     _model.reset();
     _model_status = MODEL_INVALID;
-  } else if (model->_strand == nullptr){ // Other Invalid Models
+  } else if (model->_strand == nullptr) {  // Other Invalid Models
     _model.reset();
     if (model == NodeModelBase::WAITING) {
       _model_status = MODEL_WAITING;
+      if (_watiging_cache == nullptr) {
+        _watiging_cache.reset(new NodeStateWaitingCache());
+      }
     } else if (model == NodeModelBase::UNAVAILABLE) {
       _model_status = MODEL_UNAVAILABLE;
     } else {
       _model_status = MODEL_INVALID;
     }
-  }else {
+  } else {
     _model = std::move(model);
     _model->_state = get_ref();
     _model_status = MODEL_CONNECTED;
     _model->initialize();
+
+    // TODO send request to model
+    // send _watiging_cache;
   }
-  // TODO send request to model
 }
 bool NodeState::periodic_check(size_t ts) {
   for (auto it = _children.begin(); it != _children.end();) {
@@ -192,6 +203,18 @@ void NodeState::list(ref_<OutgoingListStream> &&stream) {
   _list_streams[p] = std::move(stream);
   if (_model != nullptr) {
     _model->init_list_stream(*p);
+  }
+}
+
+void NodeState::invoke(ref_<OutgoingInvokeStream> &&stream) {
+  if (_model != nullptr) {
+    _model->invoke(std::move(stream));
+  } else if (_model_status == MODEL_WAITING) {
+    _watiging_cache->invokes.emplace_back(std::move(stream));
+  } else {
+    auto response = make_ref_<InvokeResponseMessage>();
+    response->set_status(MessageStatus::DISCONNECTED);
+    stream->send_response(std::move(response));
   }
 }
 

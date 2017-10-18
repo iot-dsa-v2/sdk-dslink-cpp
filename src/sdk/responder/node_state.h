@@ -17,11 +17,22 @@
 namespace dsa {
 class OutgoingSubscribeStream;
 class OutgoingListStream;
+class OutgoingInvokeStream;
+class OutgoingSetStream;
 class NodeModelBase;
 
 class NodeStateOwner {
  public:
   virtual void remove_state(const std::string &path) = 0;
+};
+
+class NodeStateWaitingCache {
+public:
+  std::vector<ref_<OutgoingInvokeStream>> invokes;
+  //std::vector<ref_<OutgoingSetStream>> sets;
+
+  NodeStateWaitingCache();
+  ~NodeStateWaitingCache();
 };
 
 // maintain streams of a node
@@ -45,6 +56,8 @@ class NodeState : public ClosableRef<NodeState> {
 
   ModelRef _model;
   ModelStatus _model_status = MODEL_UNKNOWN;
+
+  std::unique_ptr<NodeStateWaitingCache> _watiging_cache;
 
   // subscription related properties
   std::unordered_map<OutgoingSubscribeStream *, ref_<OutgoingSubscribeStream>>
@@ -89,6 +102,8 @@ class NodeState : public ClosableRef<NodeState> {
   void update_list_value(const std::string &key, BytesRef &value);
 
   void list(ref_<OutgoingListStream> &&stream);
+
+  void invoke(ref_<OutgoingInvokeStream> &&stream);
 };
 
 class NodeStateChild : public NodeState {

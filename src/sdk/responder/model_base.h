@@ -15,6 +15,9 @@
 
 namespace dsa {
 class OutgoingListStream;
+class OutgoingInvokeStream;
+class OutgoingSetStream;
+
 class NodeState;
 
 class NodeModelBase;
@@ -31,9 +34,6 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
   LinkStrandRef _strand;
 
   ref_<NodeState> _state;
-
-  SubscribeCallback _subscribe_callback;
-  SubscribeResponseMessageCRef _cached_value;
 
   void close_impl() override;
 
@@ -58,6 +58,12 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
   virtual bool allows_runtime_child_change() { return false; }
   virtual ModelRef on_demand_create_child(const Path &path) { return INVALID; }
 
+
+  /// subscribe
+protected:
+  SubscribeCallback _subscribe_callback;
+  SubscribeResponseMessageCRef _cached_value;
+public:
   void subscribe(const SubscribeOptions &options, SubscribeCallback &&callback);
   void unsubscribe();
 
@@ -69,7 +75,13 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
   virtual void on_subscribe_option_change(const SubscribeOptions &options){};
   virtual void on_unsubscribe(){};
 
+  /// list
+public:
   virtual void init_list_stream(OutgoingListStream &stream){};
+
+  /// invoke
+public:
+  virtual void invoke(ref_<OutgoingInvokeStream> && stream);
 };
 
 }  // namespace dsa

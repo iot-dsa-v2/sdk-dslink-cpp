@@ -2,10 +2,12 @@
 
 #include "model_base.h"
 
+#include "message/response/invoke_response_message.h"
 #include "module/logger.h"
 #include "node_state.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
+#include "stream/responder/outgoing_invoke_stream.h"
 #include "util/date_time.h"
 
 namespace dsa {
@@ -86,6 +88,12 @@ void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
   if (_subscribe_callback) {
     _subscribe_callback(copy_ref_(_cached_value));
   }
+}
+
+void NodeModelBase::invoke(ref_<OutgoingInvokeStream> &&stream) {
+  auto response = make_ref_<InvokeResponseMessage>();
+  response->set_status(MessageStatus::DISCONNECTED);
+  stream->send_response(std::move(response));
 }
 
 }  // namespace dsa
