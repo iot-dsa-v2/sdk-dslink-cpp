@@ -1,8 +1,8 @@
 # TESTS
 set(TARGET_NAME responder-test)
 add_library(${TARGET_NAME} OBJECT
-        responder-subscribe.cc
-        responder-qos-test.cc
+        subscribe-test.cc
+        qos-test.cc
         responder-list-test.cc
         node_model-test.cc
         )
