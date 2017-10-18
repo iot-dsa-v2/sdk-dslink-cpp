@@ -9,7 +9,7 @@ if [ ! -f deps/msgpack/CMakeLists.txt ]; then
 fi
 
 if [ ! -f deps/jansson/CMakeLists.txt ]; then
-	git clone https://github.com/akheron/jansson.git
+	git clone https://github.com/akheron/jansson.git deps/jansson
 fi
  
 cmake -GNinja . -DBoost_USE_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=. -B./build
