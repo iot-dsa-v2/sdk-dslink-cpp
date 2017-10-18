@@ -2,15 +2,16 @@
 
 #include "incoming_invoke_stream.h"
 
-#include "message/response/invoke_response_message.h"
 #include "message/request/invoke_request_message.h"
+#include "message/response/invoke_response_message.h"
 
 namespace dsa {
 
 IncomingInvokeStream::IncomingInvokeStream(ref_<Session>&& session,
                                            const Path& path, uint32_t rid,
                                            Callback&& callback)
-    : MessageQueueStream(std::move(session), path, rid) {}
+    : MessageQueueStream(std::move(session), path, rid),
+      _callback(std::move(callback)) {}
 
 void IncomingInvokeStream::receive_message(MessageCRef&& msg) {
   if (msg->type() == MessageType::INVOKE_RESPONSE) {

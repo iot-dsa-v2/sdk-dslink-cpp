@@ -75,6 +75,7 @@ class Message : public EnableRef<Message> {
     static_headers.message_size = 0;  // invalidate message_size
     body.reset(b);
   }
+  BytesRef get_body() const { return body; }
 
  protected:
   // measure the size and header size

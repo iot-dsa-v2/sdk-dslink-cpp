@@ -33,7 +33,7 @@ class OutgoingInvokeStream : public MessageQueueStream {
 
   void receive_message(MessageCRef &&mesage) override;
 
-  void on_update(Callback &&callback);
+  void on_request(Callback &&callback);
 
   void send_response(InvokeResponseMessageCRef &&message) {
     send_message(MessageCRef(std::move(message)));

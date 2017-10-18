@@ -2,6 +2,8 @@
 
 #include "invoke_response_message.h"
 
+#include "variant/variant.h"
+
 namespace dsa {
 InvokeResponseMessage::InvokeResponseMessage(const uint8_t* data, size_t size)
     : ResponseMessage(data, size) {
@@ -12,5 +14,9 @@ InvokeResponseMessage::InvokeResponseMessage(const uint8_t* data, size_t size)
 
 InvokeResponseMessage::InvokeResponseMessage()
     : ResponseMessage(MessageType::INVOKE_RESPONSE) {}
+
+void InvokeResponseMessage::set_value(const Variant& value) {
+  set_body(new IntrusiveBytes(value.to_msgpack()));
+}
 
 }  // namespace dsa

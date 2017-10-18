@@ -26,7 +26,7 @@ void OutgoingInvokeStream::receive_message(MessageCRef &&mesage) {
   }
 };
 
-void OutgoingInvokeStream::on_update(Callback &&callback) {
+void OutgoingInvokeStream::on_request(Callback &&callback) {
   _callback = std::move(callback);
   if (_callback != nullptr && !_waiting_requests.empty()) {
     for (auto & msg : _waiting_requests) {

@@ -2,6 +2,8 @@
 
 #include "invoke_request_message.h"
 
+#include "variant/variant.h"
+
 namespace dsa {
 
 InvokeRequestMessage::InvokeRequestMessage(const uint8_t* data, size_t size)
@@ -13,5 +15,9 @@ InvokeRequestMessage::InvokeRequestMessage(const uint8_t* data, size_t size)
 
 InvokeRequestMessage::InvokeRequestMessage()
     : RequestMessage(MessageType::INVOKE_REQUEST) {}
+
+void InvokeRequestMessage::set_value(const Variant& value) {
+  set_body(new IntrusiveBytes(value.to_msgpack()));
+}
 
 }  // namespace dsa
