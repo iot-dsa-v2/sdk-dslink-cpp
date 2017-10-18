@@ -59,7 +59,8 @@ include(${LIB_MODULE}/CMakeListsInclude.txt)
 include(${LIB_DSLINK}/CMakeListsInclude.txt)
 
 add_library(dsa_sdk STATIC ${ProjectSourceFiles} dsa_common.cc dsa_common.h
-        $<TARGET_OBJECTS:msgpackc-object>)
+        $<TARGET_OBJECTS:msgpackc-object>
+        $<TARGET_OBJECTS:jansson-object>)
 target_link_libraries(dsa_sdk ${EXTRA_LIBS})
 target_compile_features(dsa_sdk PRIVATE cxx_range_for)
 install(TARGETS dsa_sdk
