@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.6.2)
 
-#
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
-
 # Add external cmake modules
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../cmake")
 
@@ -60,6 +57,12 @@ include(${LIB_RESPONDER}/CMakeListsInclude.txt)
 include(${LIB_CORE}/CMakeListsInclude.txt)
 include(${LIB_MODULE}/CMakeListsInclude.txt)
 include(${LIB_DSLINK}/CMakeListsInclude.txt)
+
+if (WIN32)
+  set_source_files_properties(${LIB_VARIANT}/json.cc PROPERTIES COMPILE_FLAGS "/permissive-")
+else ()
+  set_source_files_properties(${LIB_VARIANT}/json.cc PROPERTIES COMPILE_FLAGS "-fpermissive")
+endif ()
 
 add_library(dsa_sdk STATIC ${ProjectSourceFiles} dsa_common.cc dsa_common.h
         $<TARGET_OBJECTS:msgpackc-object>
