@@ -62,6 +62,7 @@ void NodeModelBase::subscribe(const SubscribeOptions &options,
     _subscribe_callback = callback;
     on_subscribe(options);
   } else {
+    // second time option change, the callback is ignored
     on_subscribe_option_change(options);
   }
 }
@@ -98,7 +99,7 @@ void NodeModelBase::on_invoke(ref_<OutgoingInvokeStream> &&stream) {
 }
 
 void NodeModelBase::on_set(ref_<OutgoingSetStream> &&stream) {
-  auto response = make_ref_<InvokeResponseMessage>();
+  auto response = make_ref_<SetResponseMessage>();
   response->set_status(MessageStatus::NOT_SUPPORTED);
   stream->send_response(std::move(response));
 }

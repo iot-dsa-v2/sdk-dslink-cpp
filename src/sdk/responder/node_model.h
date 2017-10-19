@@ -53,6 +53,12 @@ class NodeModel : public NodeModelBase {
  protected:
   void send_props_list(OutgoingListStream &stream);
   void send_children_list(OutgoingListStream &stream);
+
+  virtual bool allows_set_value() { return false; }
+
+  void on_set(ref_<OutgoingSetStream> &&stream) override;
+  virtual MessageStatus on_set_value(MessageValue &&value);
+  virtual MessageStatus on_set_attribute(const std::string &field, Variant &&value);
 };
 
 }  // namespace dsa

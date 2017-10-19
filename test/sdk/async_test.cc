@@ -6,7 +6,7 @@
 #include <boost/asio/strand.hpp>
 #include <boost/thread.hpp>
 
-const int SLEEP_INTERVAL = 25;
+const int SLEEP_INTERVAL = 10;
 
 int wait_for_bool(int wait_time, const std::function<bool()>& callback) {
   int waited = 0;

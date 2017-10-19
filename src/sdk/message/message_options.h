@@ -36,17 +36,17 @@ struct BaseRequestOptions {
 
 struct SubscribeOptions : BaseRequestOptions {
   // queue size in bytes;
-  int32_t queue_size = -1;
+  int32_t queue_size;
   // queue time in seconds
-  int32_t queue_duration = -1;
+  int32_t queue_duration;
 
-  QosLevel qos = QosLevel::_0;
+  QosLevel qos;
 
-  SubscribeOptions();
-  SubscribeOptions(QosLevel qos, int32_t queue_size = 0, int32_t queue_time = 0,
-                   bool priority = false);
+  SubscribeOptions(QosLevel qos = QosLevel::_0, int32_t queue_size = 0,
+                   int32_t queue_time = 0, bool priority = false);
 
-  bool is_empty() const { return queue_size == -1; }
+  void make_invalid() { queue_size = -1; }
+  bool is_invalid() const { return queue_size == -1; }
 
   bool operator==(const SubscribeOptions& other) const;
 

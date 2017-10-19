@@ -2,9 +2,12 @@
 
 #include "node_model.h"
 
+#include "message/request/set_request_message.h"
+#include "message/response/set_response_message.h"
 #include "module/logger.h"
 #include "node_state.h"
 #include "stream/responder/outgoing_list_stream.h"
+#include "stream/responder/outgoing_set_stream.h"
 
 namespace dsa {
 ModelProperty::ModelProperty()
@@ -89,9 +92,9 @@ void NodeModel::update_property(const std::string &field,
                                 ModelProperty &&value) {
   if (!field.empty()) {
     if (field[0] == '$') {
-      _metas[field] = std::move(value);
+      _metas[field] = value;
     } else if (field[0] == '@') {
-      _attributes[field] = std::move(value);
+      _attributes[field] = value;
     } else {
       return;
     }
@@ -108,6 +111,34 @@ ref_<NodeModel> NodeModel::add_list_child(const std::string &name,
     _state->update_list_value(name, model->get_summary());
   }
   return std::move(model);
+}
+
+void NodeModel::on_set(ref_<OutgoingSetStream> &&stream) {
+  stream->on_request([this, ref=get_ref()](OutgoingSetStream &s,
+                            ref_<const SetRequestMessage> &&message) {
+    auto field = message->get_attribute_field();
+    MessageStatus status;
+    if (field.empty()) {
+      status = on_set_value(message->get_value());
+    } else {
+      status = on_set_attribute(field, std::move(message->get_value().value));
+    }
+    auto response = make_ref_<SetResponseMessage>();
+    response->set_status(status);
+    s.send_response(std::move(response));
+  });
+}
+
+MessageStatus NodeModel::on_set_value(MessageValue &&value) {
+  if (allows_set_value()) {
+    set_value(std::move(value));
+    return MessageStatus::CLOSED;
+  }
+  return MessageStatus::NOT_SUPPORTED;
+}
+MessageStatus NodeModel::on_set_attribute(const std::string &field,
+                                          Variant &&value) {
+  return MessageStatus::NOT_SUPPORTED;
 }
 
 }  // namespace dsa

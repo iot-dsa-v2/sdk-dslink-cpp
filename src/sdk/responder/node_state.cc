@@ -17,7 +17,9 @@ NodeStateWaitingCache::NodeStateWaitingCache() = default;
 NodeStateWaitingCache::~NodeStateWaitingCache() = default;
 
 NodeState::NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent)
-    : _owner(owner), _parent(std::move(parent)) {}
+    : _owner(owner),
+      _parent(std::move(parent)),
+      _merged_subscribe_options(QosLevel::_0, -1) {}
 NodeState::~NodeState() = default;
 
 ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
@@ -153,7 +155,7 @@ void NodeState::check_subscribe_options() {
     new_options.mergeFrom(stream.first->options());
   }
   if (new_options != _merged_subscribe_options && _model != nullptr) {
-    if (new_options.is_empty()) {
+    if (new_options.is_invalid()) {
       _model->unsubscribe();
     } else {
       // update options only

@@ -34,7 +34,6 @@ bool BaseRequestOptions::mergeFrom(const BaseRequestOptions& other) {
   return changed;
 }
 
-SubscribeOptions::SubscribeOptions() {}
 SubscribeOptions::SubscribeOptions(QosLevel qos, int32_t queue_size,
                                    int32_t queue_time, bool priority)
     : BaseRequestOptions(priority),

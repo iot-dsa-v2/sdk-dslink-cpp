@@ -22,4 +22,15 @@ void SetRequestMessage::set_value(MessageValue&& value) {
   // invalidate message_size
   static_headers.message_size = 0;
 }
+
+const std::string& SetRequestMessage::get_attribute_field() const {
+  return DynamicStringHeader::read_value(attribute_field);
+}
+void SetRequestMessage::set_attribute_field(const std::string& value) {
+  if (DynamicStringHeader::write_value(attribute_field,
+                                       DynamicHeader::ATTRIBUTE_FIELD, value)) {
+    static_headers.message_size = 0;
+  }
+}
+
 }  // namespace dsa
