@@ -64,7 +64,11 @@ Variant Variant::from_json(std::string data) {
     return Variant();
   }
 
-  return to_variant(value);
+  Variant v = to_variant(value);
+
+  json_decref(json_obj);
+
+  return Variant(v);
 }
 
 json_t *to_json_object(const Variant &v) {
