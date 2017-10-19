@@ -8,7 +8,6 @@ foreach(dir
             "./util"
             "./variant"
             "./network"
-            "./requester"
 	    "./responder"
        )
   add_subdirectory(${dir})

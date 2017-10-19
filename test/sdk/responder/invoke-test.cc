@@ -89,7 +89,7 @@ TEST(ResponderTest, Invoke_Model) {
   second_request->set_value(Variant("world"));
 
   ref_<const InvokeResponseMessage> last_response;
-  // test invalid path scenario
+
   auto invoke_stream = tcp_client->get_session().requester.invoke(
     "",
     [&](IncomingInvokeStream &stream,
@@ -163,7 +163,6 @@ TEST(ResponderTest, Invoke_Acceptor) {
   second_request->set_value(Variant("world"));
 
   ref_<const InvokeResponseMessage> last_response;
-  // test invalid path scenario
   auto invoke_stream = tcp_client->get_session().requester.invoke(
     "",
     [&](IncomingInvokeStream &stream,

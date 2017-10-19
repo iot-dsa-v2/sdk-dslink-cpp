@@ -92,14 +92,15 @@ TEST(ResponderTest, Subscribe_Model) {
       initial_options);
 
   // wait for root_node to receive the request
-  WAIT_EXPECT_TRUE(500, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
     return root_node->first_subscribe_options != nullptr;
   });
 
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options == *root_node->first_subscribe_options);
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return last_response != nullptr; });
+  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+                    [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
               last_response->get_value().value.is_string() &&
@@ -108,13 +109,13 @@ TEST(ResponderTest, Subscribe_Model) {
   // send an new request to update the option of the same stream
   subscribe_stream->subscribe(update_options);
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
     return root_node->second_subscribe_options != nullptr;
   });
   // request option should be same as the second one
   EXPECT_TRUE(update_options == *root_node->second_subscribe_options);
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
     return last_response->get_value().value.get_string() == "world";
   });
 
@@ -162,13 +163,40 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   update_options.queue_duration = 0x9876;
   update_options.queue_size = 0x5432;
 
-  // test invalid path scenario
+  ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "path", [&](IncomingSubscribeStream &stream,
-                  ref_<const SubscribeResponseMessage> &&msg) { ; },
+      "path",
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
+        last_response = std::move(msg);  // store response
+      },
       initial_options);
 
-  wait_for_bool(25, [&]() -> bool { return false; });
+  // wait for acceptor to receive the request
+  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+    return mock_stream_acceptor->last_subscribe_stream != nullptr;
+  });
+  // received request option should be same as the original one
+  EXPECT_TRUE(initial_options ==
+              mock_stream_acceptor->last_subscribe_stream->options());
+
+  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+                    [&]() -> bool { return last_response != nullptr; });
+
+  EXPECT_TRUE(last_response->get_value().has_value() &&
+              last_response->get_value().value.is_string() &&
+              last_response->get_value().value.get_string() == "hello");
+
+  // send an new request to udpate the option of the same stream
+  subscribe_stream->subscribe(update_options);
+
+  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+    return mock_stream_acceptor->last_subscribe_options != nullptr;
+  });
+  // request option should be same as the second one
+  EXPECT_TRUE(update_options == *mock_stream_acceptor->last_subscribe_options);
+  EXPECT_TRUE(update_options ==
+              mock_stream_acceptor->last_subscribe_stream->options());
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);
