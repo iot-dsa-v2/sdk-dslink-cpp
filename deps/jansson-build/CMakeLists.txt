@@ -371,6 +371,14 @@ else()
       ${JANSSON_HDR_PUBLIC})
 endif()
 
+TARGET_INCLUDE_DIRECTORIES (jansson-object
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../jansson/src
+)
+
 if (JANSSON_EXAMPLES)
 	add_executable(simple_parse "${PROJECT_SOURCE_DIR}/examples/simple_parse.c")
 	target_link_libraries(simple_parse jansson)

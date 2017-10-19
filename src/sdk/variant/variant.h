@@ -163,6 +163,9 @@ class Variant : public BaseVariant {
   static Variant from_msgpack(const uint8_t *data, size_t size);
   std::vector<uint8_t> to_msgpack() const throw(const EncodingError &);
 
+  static Variant from_json(std::string data);
+  std::string to_json() const throw(const EncodingError &);
+
  protected:
   static Variant to_variant(const msgpack_object &obj);
 };
