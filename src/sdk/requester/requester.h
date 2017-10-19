@@ -10,6 +10,7 @@
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
+#include "stream/requester/incoming_set_stream.h"
 
 namespace dsa {
 
@@ -44,6 +45,10 @@ class Requester {
   ref_<IncomingInvokeStream> invoke(const std::string &path,
                                   IncomingInvokeStream::Callback &&callback,
                                   ref_<const InvokeRequestMessage> &&message);
+
+  ref_<IncomingSetStream> set(const std::string &path,
+                                    IncomingSetStream::Callback &&callback,
+                                    ref_<const SetRequestMessage> &&message);
 };
 
 }  // namespace dsa

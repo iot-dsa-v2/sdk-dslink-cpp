@@ -8,6 +8,7 @@
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "stream/responder/outgoing_set_stream.h"
 #include "util/date_time.h"
 
 namespace dsa {
@@ -90,9 +91,15 @@ void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
   }
 }
 
-void NodeModelBase::invoke(ref_<OutgoingInvokeStream> &&stream) {
+void NodeModelBase::on_invoke(ref_<OutgoingInvokeStream> &&stream) {
   auto response = make_ref_<InvokeResponseMessage>();
-  response->set_status(MessageStatus::DISCONNECTED);
+  response->set_status(MessageStatus::NOT_SUPPORTED);
+  stream->send_response(std::move(response));
+}
+
+void NodeModelBase::on_set(ref_<OutgoingSetStream> &&stream) {
+  auto response = make_ref_<InvokeResponseMessage>();
+  response->set_status(MessageStatus::NOT_SUPPORTED);
   stream->send_response(std::move(response));
 }
 

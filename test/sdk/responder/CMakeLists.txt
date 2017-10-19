@@ -5,6 +5,7 @@ add_library(${TARGET_NAME} OBJECT
         qos-test.cc
         invoke-test.cc
         list-test.cc
+        set-test.cc
         node_model-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)

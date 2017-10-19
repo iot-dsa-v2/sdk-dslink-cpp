@@ -19,6 +19,7 @@ class OutgoingSubscribeStream;
 class OutgoingListStream;
 class OutgoingInvokeStream;
 class OutgoingSetStream;
+class OutgoingSetStream;
 class NodeModelBase;
 
 class NodeStateOwner {
@@ -29,7 +30,7 @@ class NodeStateOwner {
 class NodeStateWaitingCache {
 public:
   std::vector<ref_<OutgoingInvokeStream>> invokes;
-  //std::vector<ref_<OutgoingSetStream>> sets;
+  std::vector<ref_<OutgoingSetStream>> sets;
 
   NodeStateWaitingCache();
   ~NodeStateWaitingCache();
@@ -104,6 +105,8 @@ class NodeState : public ClosableRef<NodeState> {
   void list(ref_<OutgoingListStream> &&stream);
 
   void invoke(ref_<OutgoingInvokeStream> &&stream);
+
+  void set(ref_<OutgoingSetStream> &&stream);
 };
 
 class NodeStateChild : public NodeState {

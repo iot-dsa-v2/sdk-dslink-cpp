@@ -14,6 +14,7 @@
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "stream/responder/outgoing_set_stream.h"
 
 namespace dsa {
 
@@ -107,17 +108,12 @@ void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message) {
 }
 
 void Responder::on_set_request(ref_<SetRequestMessage> &&message) {
-  //  auto model = _model_manager.get_model(message.get_target_path());
-  //  if (model == nullptr) {
-  //    send_error(MessageType::SUBSCRIBE_RESPONSE, MessageStatus::DISCONNECTED,
-  //    message.get_rid());
-  //    return;
-  //  }
-  //
-  //  auto stream = make_ref_<SetMessageStream>(_session.get_intrusive(),
-  //                                                  message.get_set_options(),
-  //                                                  message.get_rid(),
-  //                                                  );
-  //  model->add_stream(stream);
+  auto stream = make_ref_<OutgoingSetStream>(
+    _session.get_ref(), message->get_target_path(), message->get_rid(),
+    std::move(message));
+
+  _outgoing_streams[stream->rid] = stream;
+
+  _session._strand->stream_acceptor().add(std::move(stream));
 }
 }  // namespace dsa

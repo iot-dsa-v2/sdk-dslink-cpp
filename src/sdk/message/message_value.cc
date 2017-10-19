@@ -47,8 +47,6 @@ BytesRef MessageValue::to_msgpack() const {
 
   if (meta.is_map()) {
     meta_bytes = meta.to_msgpack();
-  } else {
-    return make_ref_<const IntrusiveBytes>(value_bytes);
   }
 
   if (meta_bytes.size() > MAX_META_SIZE) {

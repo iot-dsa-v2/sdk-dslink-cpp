@@ -66,4 +66,17 @@ ref_<IncomingInvokeStream> Requester::invoke(
 
   return stream;
 }
+
+ref_<IncomingSetStream> Requester::set(
+    const std::string &path, IncomingSetStream::Callback &&callback,
+    ref_<const SetRequestMessage> &&message) {
+  uint32_t rid = next_rid();
+  auto stream = make_ref_<IncomingSetStream>(_session.get_ref(), Path(path),
+                                             rid, std::move(callback));
+  _incoming_streams[rid] = stream;
+
+  stream->set(std::move(message));
+
+  return stream;
+}
 }

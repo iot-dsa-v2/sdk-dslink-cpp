@@ -81,7 +81,11 @@ public:
 
   /// invoke
 public:
-  virtual void invoke(ref_<OutgoingInvokeStream> && stream);
+  virtual void on_invoke(ref_<OutgoingInvokeStream> &&stream);
+
+  /// invoke
+public:
+  virtual void on_set(ref_<OutgoingSetStream> &&stream);
 };
 
 }  // namespace dsa

@@ -20,7 +20,7 @@ class MessageValue {
   MessageValue() = default;
 
   explicit MessageValue(const Variant& value);
-  explicit MessageValue(Variant&& value);
+  MessageValue(Variant&& value);
 
   MessageValue(const uint8_t* data, size_t size);
 

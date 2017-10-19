@@ -12,4 +12,14 @@ SetRequestMessage::SetRequestMessage(const uint8_t* data, size_t size)
 
 SetRequestMessage::SetRequestMessage()
     : RequestMessage(MessageType::SET_REQUEST) {}
+
+MessageValue SetRequestMessage::get_value() const {
+  return MessageValue(body->data(), body->size());
+}
+void SetRequestMessage::set_value(MessageValue&& value) {
+  body = value.to_msgpack();
+
+  // invalidate message_size
+  static_headers.message_size = 0;
+}
 }  // namespace dsa

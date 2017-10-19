@@ -9,6 +9,7 @@
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "stream/responder/outgoing_set_stream.h"
 
 namespace dsa {
 
@@ -67,6 +68,9 @@ void NodeStateManager::add(ref_<OutgoingInvokeStream> &&stream) {
   ref_<NodeState> state = get_state(stream->path);
   state->invoke(std::move(stream));
 }
-void NodeStateManager::add(ref_<OutgoingSetStream> &&stream) {}
+void NodeStateManager::add(ref_<OutgoingSetStream> &&stream) {
+  ref_<NodeState> state = get_state(stream->path);
+  state->set(std::move(stream));
+}
 
 }  // namespace dsa

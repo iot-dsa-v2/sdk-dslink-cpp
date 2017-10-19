@@ -4,10 +4,12 @@
 
 #include "core/session.h"
 
+#include "message/request/invoke_request_message.h"
+#include "message/request/set_request_message.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
+#include "stream/responder/outgoing_set_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
-#include "message/request/invoke_request_message.h"
 
 namespace dsa {
 
@@ -208,12 +210,31 @@ void NodeState::list(ref_<OutgoingListStream> &&stream) {
 
 void NodeState::invoke(ref_<OutgoingInvokeStream> &&stream) {
   if (_model != nullptr) {
-    _model->invoke(std::move(stream));
+    _model->on_invoke(std::move(stream));
   } else if (_model_status == MODEL_WAITING) {
     _watiging_cache->invokes.emplace_back(std::move(stream));
   } else {
     auto response = make_ref_<InvokeResponseMessage>();
-    response->set_status(MessageStatus::DISCONNECTED);
+    if (_model_status == MODEL_UNAVAILABLE) {
+      response->set_status(MessageStatus::DISCONNECTED);
+    } else {
+      response->set_status(MessageStatus::NOT_SUPPORTED);
+    }
+    stream->send_response(std::move(response));
+  }
+}
+void NodeState::set(ref_<OutgoingSetStream> &&stream) {
+  if (_model != nullptr) {
+    _model->on_set(std::move(stream));
+  } else if (_model_status == MODEL_WAITING) {
+    _watiging_cache->sets.emplace_back(std::move(stream));
+  } else {
+    auto response = make_ref_<SetResponseMessage>();
+    if (_model_status == MODEL_UNAVAILABLE) {
+      response->set_status(MessageStatus::DISCONNECTED);
+    } else {
+      response->set_status(MessageStatus::NOT_SUPPORTED);
+    }
     stream->send_response(std::move(response));
   }
 }
