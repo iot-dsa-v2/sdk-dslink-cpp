@@ -8,8 +8,63 @@
 
 namespace dsa {
 
+Variant Variant::to_variant(json_t *json_obj) {
+  if (json_is_integer(json_obj)) {
+    return Variant(static_cast<int64_t>(json_integer_value(json_obj)));
+  } else if (json_is_real(json_obj)) {
+    return Variant(static_cast<double>(json_real_value(json_obj)));
+  } else if (json_is_true(json_obj)) {
+    return Variant(true);
+  } else if (json_is_false(json_obj)) {
+    return Variant(false);
+  } else if (json_is_string(json_obj)) {
+    return Variant(json_string_value(json_obj), json_string_length(json_obj));
+  } else if (json_is_array(json_obj)) {
+    auto array = new VariantArray();
+    array->reserve(json_array_size(json_obj));
+
+    size_t index;
+    json_t *value;
+    json_array_foreach(json_obj, index, value) {
+      array->push_back(to_variant(value));
+    }
+
+    return Variant(array);
+  } else if (json_is_object(json_obj)) {
+    auto map = new VariantMap();
+    
+    const char *key;
+    json_t *value;
+    json_object_foreach(json_obj, key, value) {
+      (*map)[std::string(key, strlen(key))] = to_variant(value);
+    }
+
+    return Variant(map);
+  } else {
+    return Variant();
+  }
+}
+
 Variant Variant::from_json(std::string data) {
-  ;
+  json_error_t error;
+  json_t *json_obj;
+
+  json_obj = json_loads(data.c_str(), 0, &error);
+
+  if (!json_obj || !json_is_object(json_obj)) {
+    // error handling
+    return Variant();
+  }
+
+  json_t *value;
+  value = json_object_get(json_obj, "");
+
+  if (!value) {
+    // error handling
+    return Variant();
+  }
+
+  return to_variant(value);
 }
 
 json_t *to_json_object(const Variant &v) {
@@ -32,7 +87,7 @@ json_t *to_json_object(const Variant &v) {
     json_obj = json_array();
     VariantArray &array = v.get_array();
     for (auto &it : array) {
-      json_array_append(json_obj, to_json_object(it));
+      json_array_append_new(json_obj, to_json_object(it));
     }
   } else if (v.is_map()) {
     json_obj = json_object();
@@ -50,10 +105,7 @@ json_t *to_json_object(const Variant &v) {
 
 std::string Variant::to_json() const throw(const EncodingError &) {
   json_t *json_obj;
-  // json_obj = to_json_object(*this);
-
   char *encoded_value;
-  // encoded_value = json_dumps(json_obj, 0);
 
   json_obj = json_object();
   json_object_set_new_nocheck(json_obj, "", to_json_object(*this));

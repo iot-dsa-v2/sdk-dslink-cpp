@@ -16,6 +16,7 @@
 #include "util/buffer.h"
 
 struct msgpack_object;
+struct json_t;
 
 namespace dsa {
 
@@ -168,6 +169,7 @@ class Variant : public BaseVariant {
 
  protected:
   static Variant to_variant(const msgpack_object &obj);
+  static Variant to_variant(json_t *obj);
 };
 
 }  // namespace dsa

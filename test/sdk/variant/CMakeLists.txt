@@ -5,6 +5,7 @@ add_library(${TARGET_NAME} OBJECT
         msgpack_encode.cc
         msgpack_decode.cc
 #        json_encode.cc
+#        json_decode.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)
 

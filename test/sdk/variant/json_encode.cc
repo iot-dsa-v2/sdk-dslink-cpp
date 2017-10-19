@@ -44,7 +44,6 @@ TEST(VariantTest, JsonEncodingString) {
   EXPECT_EQ("{\"\": \"hello\"}", encoded_value);
 }
 
-
 TEST(VariantTest, JsonEncodingNull) {
   Variant v;
 
