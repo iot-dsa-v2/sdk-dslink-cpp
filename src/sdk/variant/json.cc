@@ -29,9 +29,18 @@ json_t *to_json_object(const Variant &v) {
   } else if (v.is_null()) {
     json_obj = json_null();
   } else if (v.is_array()) {
-    json_obj = nullptr;
+    json_obj = json_array();
+    VariantArray &array = v.get_array();
+    for (auto &it : array) {
+      json_array_append(json_obj, to_json_object(it));
+    }
   } else if (v.is_map()) {
-    json_obj = nullptr;
+    json_obj = json_object();
+
+    VariantMap &map = v.get_map();
+    for (auto &it : map) {
+      json_object_set_new_nocheck(json_obj, it.first.c_str(), to_json_object(it.second));
+    }
   } else {
     json_obj = nullptr;
   }
