@@ -23,20 +23,21 @@ Responder::Responder(Session &session) : _session(session) {}
 void Responder::close_impl() { _outgoing_streams.clear(); }
 
 void Responder::receive_message(ref_<Message> &&message) {
-  auto request = DOWN_CAST<RequestMessage *>(message.get());
-  auto find_stream = _outgoing_streams.find(request->get_rid());
+
+  auto find_stream = _outgoing_streams.find(message->get_rid());
   if (find_stream != _outgoing_streams.end()) {
-    if (request->type() == MessageType::CLOSE) {
+    if (message->type() == MessageType::CLOSE) {
       find_stream->second->close();
     } else {
       find_stream->second->receive_message(std::move(message));
     }
     return;
   }
-  if (request->type() == MessageType::CLOSE) {
+  if (message->type() == MessageType::CLOSE) {
     // no need to close a stream that doesn't exist
     return;
   }
+  auto request = DOWN_CAST<RequestMessage *>(message.get());
   if (request->get_target_path().is_invalid()) {
     MessageType response_type = Message::get_response_type(request->type());
     if (response_type != MessageType::INVALID) {

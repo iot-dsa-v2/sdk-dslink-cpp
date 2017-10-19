@@ -29,4 +29,8 @@ void IncomingSubscribeStream::subscribe(const SubscribeOptions& options) {
   msg->set_target_path(path.full_str());
   send_message(std::move(msg));
 }
+
+void IncomingSubscribeStream::close_stream(){
+  send_message(make_ref_<Message>(MessageType::CLOSE));
+}
 }

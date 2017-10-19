@@ -25,7 +25,7 @@ class Responder {
  protected:
   Session &_session;
 
-  std::unordered_map<uint32_t, ref_<MessageStream> > _outgoing_streams;
+  std::unordered_map<int32_t, ref_<MessageStream> > _outgoing_streams;
 
   virtual void on_invoke_request(
       ref_<InvokeRequestMessage> &&request);

@@ -12,7 +12,7 @@ using namespace dsa;
 
 namespace responder_subscribe_test {
 class MockNode : public NodeModelBase {
- public:
+public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
@@ -32,7 +32,7 @@ class MockNode : public NodeModelBase {
   }
 };
 class MockStreamAcceptor : public OutgoingStreamAcceptor {
- public:
+public:
   ref_<OutgoingSubscribeStream> last_subscribe_stream;
   std::unique_ptr<SubscribeOptions> last_subscribe_options;
   void add(ref_<OutgoingSubscribeStream> &&stream) {
@@ -40,7 +40,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
     stream->send_response(
-        make_ref_<SubscribeResponseMessage>(Variant("hello")));
+      make_ref_<SubscribeResponseMessage>(Variant("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
@@ -84,12 +84,12 @@ TEST(ResponderTest, Subscribe_Model) {
 
   ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "",
-      [&](IncomingSubscribeStream &stream,
-          ref_<const SubscribeResponseMessage> &&msg) {
-        last_response = std::move(msg);  // store response
-      },
-      initial_options);
+    "",
+    [&](IncomingSubscribeStream &stream,
+        ref_<const SubscribeResponseMessage> &&msg) {
+      last_response = std::move(msg);  // store response
+    },
+    initial_options);
 
   // wait for root_node to receive the request
   ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
@@ -141,7 +141,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
 
   TestConfig server_config(app);
   server_config.get_link_config()->set_stream_acceptor(
-      std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
+    std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
 
   WrapperConfig client_config = server_config.get_client_config(app, true);
 
@@ -165,12 +165,12 @@ TEST(ResponderTest, Subscribe_Acceptor) {
 
   ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "path",
-      [&](IncomingSubscribeStream &stream,
-          ref_<const SubscribeResponseMessage> &&msg) {
-        last_response = std::move(msg);  // store response
-      },
-      initial_options);
+    "path",
+    [&](IncomingSubscribeStream &stream,
+        ref_<const SubscribeResponseMessage> &&msg) {
+      last_response = std::move(msg);  // store response
+    },
+    initial_options);
 
   // wait for acceptor to receive the request
   ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
@@ -197,6 +197,14 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   EXPECT_TRUE(update_options == *mock_stream_acceptor->last_subscribe_options);
   EXPECT_TRUE(update_options ==
               mock_stream_acceptor->last_subscribe_stream->options());
+
+  // unsubscribe
+
+  subscribe_stream->close_stream();
+
+  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+    return subscribe_stream->is_closed() && subscribe_stream->ref_count() == 1;
+  });
 
   Server::close_in_strand(tcp_server);
   Client::close_in_strand(tcp_client);

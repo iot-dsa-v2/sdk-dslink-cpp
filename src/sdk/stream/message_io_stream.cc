@@ -49,6 +49,13 @@ MessageCRef MessageCacheStream::get_next_message(AckCallback &callback) {
   if (is_closed() || _cache == nullptr) {
     return MessageCRef();
   }
+
+  if (_cache->type() == MessageType::CLOSE) {
+    // clear the stream and return the cache
+    MessageCRef copy = std::move(_cache);
+    _session->requester.remove_stream(rid);
+    return std::move(copy);
+  }
   return std::move(_cache);
 }
 
@@ -120,6 +127,6 @@ MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
     _writing = true;
     _session->write_stream(get_ref());
   }
-  return msg;
+  return std::move(msg);
 }
 }

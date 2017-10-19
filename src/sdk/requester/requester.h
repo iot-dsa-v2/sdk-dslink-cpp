@@ -21,10 +21,10 @@ class Requester {
 
  protected:
   Session &_session;
-  uint32_t _next_rid = 0;
-  uint32_t next_rid();
+  int32_t _next_rid = 0;
+  int32_t next_rid();
 
-  std::unordered_map<uint32_t, ref_<MessageStream>> _incoming_streams;
+  std::unordered_map<int32_t, ref_<MessageStream>> _incoming_streams;
 
   void receive_message(MessageRef &&message);
 
@@ -49,6 +49,8 @@ class Requester {
   ref_<IncomingSetStream> set(const std::string &path,
                                     IncomingSetStream::Callback &&callback,
                                     ref_<const SetRequestMessage> &&message);
+
+  bool remove_stream(uint32_t rid);
 };
 
 }  // namespace dsa
