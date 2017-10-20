@@ -31,6 +31,6 @@ void IncomingSubscribeStream::subscribe(const SubscribeOptions& options) {
 }
 
 void IncomingSubscribeStream::close_stream(){
-  send_message(make_ref_<Message>(MessageType::CLOSE));
+  send_message(make_ref_<RequestMessage>(MessageType::CLOSE));
 }
 }

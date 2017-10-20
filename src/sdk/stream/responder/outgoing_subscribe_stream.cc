@@ -7,7 +7,7 @@
 
 namespace dsa {
 
-static SubscribeOptions empty_subscribe_options;
+static SubscribeOptions empty_subscribe_options(QosLevel::_0, -2);
 
 OutgoingSubscribeStream::OutgoingSubscribeStream(ref_<Session> &&session,
                                                  const Path &path, uint32_t rid,

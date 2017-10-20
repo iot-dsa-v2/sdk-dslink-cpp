@@ -28,6 +28,7 @@ void Responder::receive_message(ref_<Message> &&message) {
   if (find_stream != _outgoing_streams.end()) {
     if (message->type() == MessageType::CLOSE) {
       find_stream->second->destroy();
+      _outgoing_streams.erase(find_stream);
     } else {
       find_stream->second->receive_message(std::move(message));
     }

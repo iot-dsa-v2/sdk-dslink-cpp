@@ -35,6 +35,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 public:
   ref_<OutgoingSubscribeStream> last_subscribe_stream;
   std::unique_ptr<SubscribeOptions> last_subscribe_options;
+  bool closed = false;
   void add(ref_<OutgoingSubscribeStream> &&stream) {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
@@ -43,6 +44,10 @@ public:
       make_ref_<SubscribeResponseMessage>(Var("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
+      if (stream.is_destroyed()) {
+        closed = true;
+        return;
+      }
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
     });
   }
@@ -204,6 +209,10 @@ TEST(ResponderTest, Subscribe_Acceptor) {
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() && subscribe_stream->ref_count() == 1;
+  });
+
+  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+    return mock_stream_acceptor->closed;
   });
 
   Server::destroy_in_strand(tcp_server);

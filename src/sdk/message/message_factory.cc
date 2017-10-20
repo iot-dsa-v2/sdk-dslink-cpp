@@ -39,7 +39,7 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
     case MessageType::ACK:
       return MessageRef(new AckMessage(data, size));
     case MessageType::CLOSE:
-      return MessageRef(new Message(MessageType::CLOSE));
+      return MessageRef(new RequestMessage(data, size));
     case MessageType::PING:
       return MessageRef(new Message(MessageType::PING));
     case MessageType::SUBSCRIBE_REQUEST:
