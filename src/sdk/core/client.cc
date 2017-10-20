@@ -13,15 +13,15 @@ Client::Client(WrapperConfig& config)
 
 Client::~Client() = default;
 
-void Client::close_impl() {
+void Client::destroy_impl() {
   if (_connection != nullptr) {
-    _connection->close();
+    _connection->destroy();
   }
 }
 
 void Client::connect() {
   if (_connection != nullptr) {
-    _connection->close();
+    _connection->destroy();
     _connection.reset();
   }
   _connection = _client_connection_maker(_strand, _session->session_id(),

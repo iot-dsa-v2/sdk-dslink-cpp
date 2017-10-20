@@ -15,8 +15,8 @@ TcpServer::TcpServer(WrapperConfig &config)
       _acceptor(new tcp::acceptor(_strand->get_io_service(),
           tcp::endpoint(tcp::v4(), config.tcp_port))) {}
 TcpServer::~TcpServer() {
-  if (!is_closed()) {
-    close();
+  if (!is_destroyed()) {
+    destroy();
   }
 }
 void TcpServer::start() {
@@ -29,11 +29,11 @@ void TcpServer::start() {
   ](const boost::system::error_code &error) { accept_loop(error); });
 }
 
-void TcpServer::close_impl() {
+void TcpServer::destroy_impl() {
   _acceptor->close();
   // TODO: fix this!
-  _next_connection->close();
-  Server::close_impl();
+  _next_connection->destroy();
+  Server::destroy_impl();
 }
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {
@@ -45,7 +45,7 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
       this, sthis = shared_from_this()
     ](const boost::system::error_code &err) { accept_loop(err); });
   } else {
-    close();
+    destroy();
   }
 }
 

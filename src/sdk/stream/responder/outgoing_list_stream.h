@@ -21,7 +21,7 @@ class OutgoingListStream : public MessageRefedStream {
  protected:
   CancelCallback _cancel_callback;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
   std::unordered_map<std::string, BytesRef> _cached_map;
   size_t _next_size;

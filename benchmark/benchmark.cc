@@ -102,8 +102,8 @@ int main() {
                    .count()
             << std::endl;
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 

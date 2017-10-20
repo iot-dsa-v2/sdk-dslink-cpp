@@ -49,7 +49,7 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
   write_buffer->write([sthis = shared_from_this()](
       const boost::system::error_code &err) mutable {
     if (err != boost::system::errc::success) {
-      Connection::close_in_strand(std::move(sthis));
+      Connection::destroy_in_strand(std::move(sthis));
     }
   });
 
@@ -93,20 +93,20 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
               write_buffer->write([sthis = shared_from_this()](
                   const boost::system::error_code &err) mutable {
                 if (err != boost::system::errc::success) {
-                  Connection::close_in_strand(std::move(sthis));
+                  Connection::destroy_in_strand(std::move(sthis));
                 }
               });
               boost::lock_guard<boost::mutex> read_loop_lock(read_loop_mutex);
 
             } else {
-              close();
+              destroy();
             }
           });
 
     });
 
   } else {
-    Connection::close_in_strand(shared_from_this());
+    Connection::destroy_in_strand(shared_from_this());
   }
   return false;
 }

@@ -23,7 +23,7 @@ class NodeState;
 class NodeModelBase;
 typedef ref_<NodeModelBase> ModelRef;
 
-class NodeModelBase : public ClosableRef<NodeModelBase> {
+class NodeModelBase : public DestroyableRef<NodeModelBase> {
   friend class NodeState;
 
  public:
@@ -35,7 +35,7 @@ class NodeModelBase : public ClosableRef<NodeModelBase> {
 
   ref_<NodeState> _state;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
   virtual void initialize() {}
 

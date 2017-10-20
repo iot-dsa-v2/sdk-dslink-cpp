@@ -51,7 +51,7 @@ std::string SessionManager::get_new_session_id() {
 void SessionManager::close() {
   for (auto &kv : _sessions) {
     if (kv.second != nullptr) {
-      kv.second->close();
+      kv.second->destroy();
       kv.second.reset();
     }
   }

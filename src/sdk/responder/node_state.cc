@@ -137,7 +137,7 @@ bool NodeState::periodic_check(size_t ts) {
   if ((_model == nullptr ||
        _model->periodic_check(ts))  // check if model is still in use
       && _children.empty() && _subscription_streams.empty()) {
-    close();
+    destroy();
     return true;
   }
   return false;
@@ -179,7 +179,7 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
   }
   p->on_option_change([ this, keep_ref = get_ref() ](
       OutgoingSubscribeStream & stream, const SubscribeOptions &old_options) {
-    if (stream.is_closed()) {
+    if (stream.is_destroyed()) {
       _subscription_streams.erase(&stream);
       if (_merged_subscribe_options.needUpdateOnRemoval(stream.options())) {
         check_subscribe_options();
@@ -241,9 +241,9 @@ void NodeState::set(ref_<OutgoingSetStream> &&stream) {
   }
 }
 
-void NodeState::close_impl() {
+void NodeState::destroy_impl() {
   if (_model != nullptr) {
-    _model->close();
+    _model->destroy();
     _model.reset();
     _model_status = MODEL_UNKNOWN;
     _owner.remove_state(_path.full_str());

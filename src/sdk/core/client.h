@@ -14,7 +14,7 @@ namespace dsa {
 class Connection;
 class Session;
 
-class Client : public SharedClosable<Client> {
+class Client : public SharedDestroyable<Client> {
  protected:
   // for Session/Requester/Responder
 
@@ -29,7 +29,7 @@ class Client : public SharedClosable<Client> {
   shared_ptr_<Connection> _connection;
   ref_<Session> _session;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
  public:
   explicit Client(WrapperConfig &config);

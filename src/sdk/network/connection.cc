@@ -23,10 +23,10 @@ void Connection::set_session(const ref_<Session> &session) {
 }
 
 void Connection::success_or_close(const boost::system::error_code &error) {
-  if (error != nullptr) close();
+  if (error != nullptr) destroy();
 }
 
-void Connection::close_impl() {
+void Connection::destroy_impl() {
   if (_session != nullptr) {
     _session->disconnected(shared_from_this());
     _session.reset();

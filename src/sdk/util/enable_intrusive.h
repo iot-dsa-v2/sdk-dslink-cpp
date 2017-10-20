@@ -229,19 +229,19 @@ class EnableRef {
 };
 
 template <typename T>
-class ClosableRef : public EnableRef<T> {
+class DestroyableRef : public EnableRef<T> {
  private:
-  bool _closed = false;
+  bool _destroyed = false;
 
  protected:
-  virtual void close_impl(){};
+  virtual void destroy_impl(){};
 
  public:
-  bool is_closed() const { return _closed; }
-  void close() {
-    if (!_closed) {
-      _closed = true;
-      close_impl();
+  bool is_destroyed() const { return _destroyed; }
+  void destroy() {
+    if (!_destroyed) {
+      _destroyed = true;
+      destroy_impl();
     }
   }
 };

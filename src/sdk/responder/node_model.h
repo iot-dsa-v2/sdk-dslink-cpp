@@ -34,7 +34,7 @@ class NodeModel : public NodeModelBase {
 
   BytesRef _summary;
 
-  void close_impl() override;
+  void destroy_impl() override;
   void initialize() override;
 
  public:

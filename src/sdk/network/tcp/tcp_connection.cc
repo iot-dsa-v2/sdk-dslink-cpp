@@ -20,12 +20,12 @@ TcpConnection::TcpConnection(LinkStrandRef &strand,
       _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
 
-void TcpConnection::close_impl() {
+void TcpConnection::destroy_impl() {
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.close();
   }
-  Connection::close_impl();
+  Connection::destroy_impl();
 }
 
 void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
@@ -76,9 +76,9 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
         if (message_size > Message::MAX_MESSAGE_SIZE) {
           LOG_DEBUG(connection->_strand->logger(),
                     LOG << "message is bigger than maxed buffer size");
-          TcpConnection::close_in_strand(connection);
+          TcpConnection::destroy_in_strand(connection);
           // TODO: send error, and close with std::move
-          // TcpConnection::close_in_strand(std::move(connection));
+          // TcpConnection::destroy_in_strand(std::move(connection));
           return;
         }
         if (message_size > total_bytes - cur) {
@@ -97,9 +97,9 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
             LOG_DEBUG(connection->_strand->logger(),
                       LOG << "invalid message received, close connection : "
                           << err.what());
-            TcpConnection::close_in_strand(connection);
+            TcpConnection::destroy_in_strand(connection);
             // TODO: send error, and close with std::move
-            // TcpConnection::close_in_strand(std::move(connection));
+            // TcpConnection::destroy_in_strand(std::move(connection));
             return;
           }
 
@@ -117,7 +117,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
     start_read(std::move(connection), 0, 0);
   } else {
     // TODO: send error
-    TcpConnection::close_in_strand(std::move(connection));
+    TcpConnection::destroy_in_strand(std::move(connection));
     return;
   }
 }

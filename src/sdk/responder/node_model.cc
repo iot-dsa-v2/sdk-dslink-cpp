@@ -57,10 +57,10 @@ BytesRef &NodeModel::get_summary() {
   return _summary;
 }
 
-void NodeModel::close_impl() {
+void NodeModel::destroy_impl() {
   // clear children just in case some children keep parent's ref
   _list_children.clear();
-  NodeModelBase::close_impl();
+  NodeModelBase::destroy_impl();
 }
 
 void NodeModel::initialize() {

@@ -45,7 +45,7 @@ class ConnectionWriteBuffer {
   virtual void write(WriteHandler &&callback) = 0;
 };
 
-class Connection : public SharedClosable<Connection> {
+class Connection : public SharedDestroyable<Connection> {
   friend class Session;
 
  public:
@@ -89,7 +89,7 @@ class Connection : public SharedClosable<Connection> {
   ref_<Session> _session;
 
 
-  void close_impl() override;
+  void destroy_impl() override;
 
   std::string _path;
 

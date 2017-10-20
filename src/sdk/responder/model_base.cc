@@ -27,7 +27,7 @@ NodeModelBase::NodeModelBase(LinkStrandRef &&strand)
 
 NodeModelBase::~NodeModelBase() = default;
 
-void NodeModelBase::close_impl() {
+void NodeModelBase::destroy_impl() {
   _subscribe_callback = nullptr;
   _cached_value.reset();
   _state.reset();

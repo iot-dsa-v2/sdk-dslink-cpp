@@ -27,7 +27,7 @@ void ClientConnection::connect() {
       [ connection = share_this<TcpConnection>(),
         this ](const boost::system::error_code &error) mutable {
         if (error != boost::system::errc::success) {
-          TcpConnection::close_in_strand(std::move(connection));
+          TcpConnection::destroy_in_strand(std::move(connection));
           // TODO: log or return the error?
           return;
         }

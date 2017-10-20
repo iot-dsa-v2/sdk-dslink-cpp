@@ -36,7 +36,7 @@ class Responder {
 
   void receive_message(ref_<Message> &&message);
 
-  void close_impl();
+  void destroy_impl();
   
  public:
   explicit Responder(Session &session);

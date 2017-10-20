@@ -20,14 +20,14 @@ namespace dsa {
 
 Responder::Responder(Session &session) : _session(session) {}
 
-void Responder::close_impl() { _outgoing_streams.clear(); }
+void Responder::destroy_impl() { _outgoing_streams.clear(); }
 
 void Responder::receive_message(ref_<Message> &&message) {
 
   auto find_stream = _outgoing_streams.find(message->get_rid());
   if (find_stream != _outgoing_streams.end()) {
     if (message->type() == MessageType::CLOSE) {
-      find_stream->second->close();
+      find_stream->second->destroy();
     } else {
       find_stream->second->receive_message(std::move(message));
     }

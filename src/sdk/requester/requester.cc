@@ -8,7 +8,7 @@ namespace dsa {
 
 Requester::Requester(Session &session) : _session(session) {}
 
-void Requester::close_impl() { _incoming_streams.clear(); }
+void Requester::destroy_impl() { _incoming_streams.clear(); }
 
 int32_t Requester::next_rid() {
   while (_incoming_streams.find(++_next_rid) != _incoming_streams.end()) {
@@ -84,7 +84,7 @@ bool Requester::remove_stream(uint32_t rid){
   auto search = _incoming_streams.find(rid);
   if (search != _incoming_streams.end()) {
     auto &stream = search->second;
-    stream->close();
+    stream->destroy();
     _incoming_streams.erase(search);
     return true;
   }

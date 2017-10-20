@@ -119,8 +119,8 @@ TEST(ResponderTest, Subscribe_Model) {
     return last_response->get_value().value.get_string() == "world";
   });
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 
@@ -203,11 +203,11 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   subscribe_stream->close_stream();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
-    return subscribe_stream->is_closed() && subscribe_stream->ref_count() == 1;
+    return subscribe_stream->is_destroyed() && subscribe_stream->ref_count() == 1;
   });
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 

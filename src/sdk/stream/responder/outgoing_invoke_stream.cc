@@ -12,7 +12,7 @@ OutgoingInvokeStream::OutgoingInvokeStream(
   _waiting_requests.emplace_back(std::move(mesage));
 }
 
-void OutgoingInvokeStream::close_impl() {
+void OutgoingInvokeStream::destroy_impl() {
   if (_callback != nullptr) {
     std::move(_callback)(*this, ref_<const InvokeRequestMessage>());
   }

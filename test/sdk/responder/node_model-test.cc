@@ -103,8 +103,8 @@ TEST(ResponderTest, model__add_child) {
 
   wait_for_bool(25, [&]() -> bool { return false; });
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 
@@ -149,8 +149,8 @@ TEST(ResponderTest, model__get_child) {
 
   EXPECT_NE(nullptr, child_node);
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 
@@ -203,8 +203,8 @@ TEST(ResponderTest, model__set_value) {
       make_ref_<SubscribeResponseMessage>(Var(0));
   root_node->set_message(copy_ref_(cached_message));
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 

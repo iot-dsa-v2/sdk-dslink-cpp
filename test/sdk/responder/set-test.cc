@@ -122,8 +122,8 @@ TEST(ResponderTest, Set_Model) {
   EXPECT_TRUE(list_map != nullptr && (*list_map)["@attr"].is_string() &&
               (*list_map)["@attr"].get_string() == "world");
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 
@@ -184,8 +184,8 @@ TEST(ResponderTest, Set_Acceptor) {
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 

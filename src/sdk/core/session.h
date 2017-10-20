@@ -31,7 +31,7 @@ struct AckHolder {
 //////////////////////////////////////////
 // maintain request and response streams
 //////////////////////////////////////////
-class Session final : public ClosableRef<Session> {
+class Session final : public DestroyableRef<Session> {
   friend class Connection;
   friend class Responder;
   friend class MessageStream;
@@ -78,7 +78,7 @@ class Session final : public ClosableRef<Session> {
   void connected(shared_ptr_<Connection> connection);
   void disconnected(const shared_ptr_<Connection> &connection);
 
-  void close_impl() final;
+  void destroy_impl() final;
 
   void write_stream(ref_<MessageStream> &&stream);
 };

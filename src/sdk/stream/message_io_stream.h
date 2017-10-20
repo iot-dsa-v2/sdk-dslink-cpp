@@ -37,7 +37,7 @@ class MessageCacheStream : public MessageRefedStream {
  protected:
   MessageCRef _cache;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
   /// put message to writing cache
   void send_message(MessageCRef &&msg);
@@ -62,7 +62,7 @@ class MessageQueueStream : public MessageRefedStream {
  protected:
   std::deque<MessageCRef> _queue;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
   /// add message to the queue
   void send_message(MessageCRef &&msg);

@@ -28,7 +28,7 @@ class Requester {
 
   void receive_message(MessageRef &&message);
 
-  void close_impl();
+  void destroy_impl();
 
  public:
   explicit Requester(Session &session);

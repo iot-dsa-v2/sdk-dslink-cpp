@@ -48,7 +48,7 @@ class TcpConnection : public Connection {
   tcp_socket _socket;
   std::atomic_bool _socket_open{true};
 
-  void close_impl() override;
+  void destroy_impl() override;
 
  public:
   TcpConnection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,

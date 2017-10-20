@@ -37,7 +37,7 @@ public:
 };
 
 // maintain streams of a node
-class NodeState : public ClosableRef<NodeState> {
+class NodeState : public DestroyableRef<NodeState> {
   enum ModelStatus : uint8_t {
     MODEL_UNKNOWN,
     MODEL_CONNECTED,
@@ -69,7 +69,7 @@ class NodeState : public ClosableRef<NodeState> {
   SubscribeOptions _merged_subscribe_options;
   void check_subscribe_options();
 
-  void close_impl() override;
+  void destroy_impl() override;
 
  public:
   NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent);

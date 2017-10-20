@@ -14,7 +14,7 @@ OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
                                        ListOptions &&options)
     : MessageRefedStream(std::move(session), path, rid) {}
 
-void OutgoingListStream::close_impl() {
+void OutgoingListStream::destroy_impl() {
   if (_cancel_callback != nullptr) {
     std::move(_cancel_callback)(*this);
   };

@@ -25,7 +25,7 @@ class OutgoingInvokeStream : public MessageQueueStream {
 
   std::vector<ref_<const InvokeRequestMessage> > _waiting_requests;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
  public:
   OutgoingInvokeStream(ref_<Session> &&session, const Path &path, uint32_t rid,

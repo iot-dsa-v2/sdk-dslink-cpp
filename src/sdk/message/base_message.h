@@ -152,7 +152,7 @@ class ResponseMessage : public Message {
 
 typedef std::function<void(bool)> AckCallback;
 
-class MessageStream : public ClosableRef<MessageStream> {
+class MessageStream : public DestroyableRef<MessageStream> {
  public:
   const int32_t rid;
 

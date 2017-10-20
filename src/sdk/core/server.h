@@ -12,7 +12,7 @@
 namespace dsa {
 class Connection;
 
-class Server : public SharedClosable<Server> {
+class Server : public SharedDestroyable<Server> {
  protected:
   // for Session/Requester/Responder
 
@@ -23,7 +23,7 @@ class Server : public SharedClosable<Server> {
 
   //  void on_session_connected(const ref_ <Session> session);
 
-  void close_impl() override;
+  void destroy_impl() override;
 
  public:
   explicit Server(WrapperConfig &config);

@@ -76,8 +76,8 @@ TEST(ResponderQosTest, QueueSizeTest) {
   // can't receive all message because queue size limit
   EXPECT_EQ(msg_count, 2);
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 

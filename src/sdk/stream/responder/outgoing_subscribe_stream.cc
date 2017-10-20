@@ -16,7 +16,7 @@ OutgoingSubscribeStream::OutgoingSubscribeStream(ref_<Session> &&session,
   set_options(std::move(options));
 }
 
-void OutgoingSubscribeStream::close_impl() {
+void OutgoingSubscribeStream::destroy_impl() {
   if (_option_callback != nullptr) {
     std::move(_option_callback)(*this, empty_subscribe_options);
   };

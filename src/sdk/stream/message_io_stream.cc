@@ -12,7 +12,7 @@ MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
 MessageRefedStream::~MessageRefedStream() = default;
 
 void MessageRefedStream::send_message() {
-  if (!_writing && !is_closed()) {
+  if (!_writing && !is_destroyed()) {
     _writing = true;
     _session->write_stream(get_ref());
   }
@@ -23,14 +23,14 @@ MessageCacheStream::MessageCacheStream(ref_<Session> &&session,
     : MessageRefedStream(std::move(session), path, rid) {}
 MessageCacheStream::~MessageCacheStream() {}
 
-void MessageCacheStream::close_impl() {
+void MessageCacheStream::destroy_impl() {
   _cache.reset();
   _session.reset();
 }
 
 void MessageCacheStream::send_message(MessageCRef &&msg) {
   _cache = std::move(msg);
-  if (!_writing && _cache != nullptr && !is_closed()) {
+  if (!_writing && _cache != nullptr && !is_destroyed()) {
     _writing = true;
     _session->write_stream(get_ref());
   }
@@ -38,7 +38,7 @@ void MessageCacheStream::send_message(MessageCRef &&msg) {
 
 size_t MessageCacheStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
-  if (is_closed() || _cache == nullptr) {
+  if (is_destroyed() || _cache == nullptr) {
     _writing = false;
     return 0;
   }
@@ -46,7 +46,7 @@ size_t MessageCacheStream::peek_next_message_size(size_t available,
 }
 MessageCRef MessageCacheStream::get_next_message(AckCallback &callback) {
   _writing = false;
-  if (is_closed() || _cache == nullptr) {
+  if (is_destroyed() || _cache == nullptr) {
     return MessageCRef();
   }
 
@@ -64,7 +64,7 @@ MessageQueueStream::MessageQueueStream(ref_<Session> &&session,
     : MessageRefedStream(std::move(session), path, rid) {}
 MessageQueueStream::~MessageQueueStream() {}
 
-void MessageQueueStream::close_impl() {
+void MessageQueueStream::destroy_impl() {
   _queue.clear();
   _session.reset();
 }
@@ -80,7 +80,7 @@ void MessageQueueStream::purge() {
 }
 
 void MessageQueueStream::send_message(MessageCRef &&msg) {
-  if (msg == nullptr || is_closed()) return;
+  if (msg == nullptr || is_destroyed()) return;
   int64_t current_time = msg->created_ts;
   if (_queue.empty()) {
     _current_queue_time = current_time;
@@ -105,7 +105,7 @@ void MessageQueueStream::send_message(MessageCRef &&msg) {
 
 size_t MessageQueueStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
-  if (is_closed() || _queue.empty()) {
+  if (is_destroyed() || _queue.empty()) {
     _writing = false;
     return 0;
   }
@@ -116,7 +116,7 @@ size_t MessageQueueStream::peek_next_message_size(size_t available,
 }
 MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
   _writing = false;
-  if (is_closed() || _queue.empty()) {
+  if (is_destroyed() || _queue.empty()) {
     return MessageCRef();
   }
   MessageCRef msg = std::move(_queue.front());

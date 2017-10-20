@@ -33,37 +33,37 @@ class EnableShared : public std::enable_shared_from_this<T> {
 };
 
 template <typename T>
-class SharedClosable : public EnableShared<T> {
+class SharedDestroyable : public EnableShared<T> {
  private:
-  bool _closed = false;
+  bool _destroyed = false;
 
  protected:
-  virtual void close_impl(){};
+  virtual void destroy_impl(){};
   virtual void dispatch_in_strand(std::function<void()> &&) = 0;
 
  public:
   boost::shared_mutex mutex;
-  bool is_closed() const { return _closed; }
+  bool is_destroyed() const { return _destroyed; }
 
   // reuse any lock
-  void close(boost::unique_lock<boost::shared_mutex> &unique_lock) {
-    if (!_closed) {
-      _closed = true;
-      close_impl();
+  void destroy(boost::unique_lock<boost::shared_mutex> &unique_lock) {
+    if (!_destroyed) {
+      _destroyed = true;
+      destroy_impl();
     }
   }
-  void close() {
+  void destroy() {
     boost::unique_lock<boost::shared_mutex> unique_lock(mutex);
-    close(unique_lock);
+    destroy(unique_lock);
   }
 
-  static void close_in_strand(shared_ptr_<SharedClosable<T>> closable) {
-    SharedClosable<T> *raw_ptr = closable.get();
+  static void destroy_in_strand(shared_ptr_ <SharedDestroyable<T>> destroyable) {
+    SharedDestroyable<T> *raw_ptr = destroyable.get();
     // obtain the lock before dispatch to strand to reduce the load on main
     // strand
     raw_ptr->dispatch_in_strand([
-      closable = std::move(closable)
-    ]() mutable { closable->close(); });
+      destroyable = std::move(destroyable)
+    ]() mutable { destroyable->destroy(); });
   }
 };
 }  // namespace dsa

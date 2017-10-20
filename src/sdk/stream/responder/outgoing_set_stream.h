@@ -25,7 +25,7 @@ class OutgoingSetStream : public MessageCacheStream {
 
  ref_<const SetRequestMessage> _waiting_request;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
  public:
   OutgoingSetStream(ref_<Session> &&session, const Path &path, uint32_t rid,

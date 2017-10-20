@@ -103,8 +103,8 @@ int main(int argc, const char *argv[]) {
     std::cout << std::endl
               << num_message << " messages processed in  " << ms << " ms";
 
-    Server::close_in_strand(tcp_server);
-    Client::close_in_strand(client);
+    Server::destroy_in_strand(tcp_server);
+    Client::destroy_in_strand(client);
     app.close();
 
     wait_for_bool(500, [&]() { return app.is_stopped(); });

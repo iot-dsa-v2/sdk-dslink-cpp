@@ -11,7 +11,7 @@ OutgoingSetStream::OutgoingSetStream(
   : MessageCacheStream(std::move(session), path, rid),_waiting_request(std::move(message)) {
 }
 
-void OutgoingSetStream::close_impl() {
+void OutgoingSetStream::destroy_impl() {
   if (_callback != nullptr) {
     std::move(_callback)(*this, ref_<const SetRequestMessage>());
   }

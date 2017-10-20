@@ -120,8 +120,8 @@ TEST(ResponderTest, Invoke_Model) {
   EXPECT_TRUE(parsed_response_body.is_string() &&
               parsed_response_body.get_string() == "dsa");
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 
@@ -193,8 +193,8 @@ TEST(ResponderTest, Invoke_Acceptor) {
   EXPECT_TRUE(parsed_response_body.is_string() &&
               parsed_response_body.get_string() == "dsa");
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 

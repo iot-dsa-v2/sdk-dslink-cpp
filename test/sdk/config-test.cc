@@ -39,9 +39,9 @@ TEST(ConfigTest, asyncSimpleSecurityManager) {
   });
 
   // close everything
-  Server::close_in_strand(tcp_server);
+  Server::destroy_in_strand(tcp_server);
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    Client::close_in_strand(clients[i]);
+    Client::destroy_in_strand(clients[i]);
   }
 
   app.close();

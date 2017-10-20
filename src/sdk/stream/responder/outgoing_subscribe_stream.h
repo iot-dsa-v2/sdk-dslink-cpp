@@ -26,7 +26,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
   void check_queue_time(int64_t time) override;
   void check_queue_size() override;
 
-  void close_impl() override;
+  void destroy_impl() override;
 
  public:
   const SubscribeOptions &options() { return _options; }

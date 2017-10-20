@@ -32,7 +32,7 @@ class TcpServer : public Server {
   ~TcpServer();
 
   void start() override;
-  void close_impl() override;
+  void destroy_impl() override;
   std::string type() override { return "TCP"; }
 };
 

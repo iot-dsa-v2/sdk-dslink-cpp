@@ -190,7 +190,7 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl << "total message: " << total_message;
 
   for (int i = 0; i < client_count; ++i) {
-    Client::close_in_strand(clients[i]);
+    Client::destroy_in_strand(clients[i]);
   }
 
   app.close();

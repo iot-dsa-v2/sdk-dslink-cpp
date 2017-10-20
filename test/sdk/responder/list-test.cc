@@ -132,8 +132,8 @@ TEST(ResponderTest, ListTest) {
     EXPECT_EQ(map["child_c"]["$is"].get_string(), "test_class");
   }
 
-  Server::close_in_strand(tcp_server);
-  Client::close_in_strand(tcp_client);
+  Server::destroy_in_strand(tcp_server);
+  Client::destroy_in_strand(tcp_client);
 
   app.close();
 

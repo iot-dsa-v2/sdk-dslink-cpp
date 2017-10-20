@@ -20,16 +20,16 @@ Session::~Session() = default;
 
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {
-    _connection->close();
+    _connection->destroy();
   }
   _connection = std::move(connection);
 }
 
-void Session::close_impl() {
-  requester.close_impl();
-  responder.close_impl();
+void Session::destroy_impl() {
+  requester.destroy_impl();
+  responder.destroy_impl();
   if (_connection != nullptr) {
-    _connection->close();
+    _connection->destroy();
   }
   _ack_stream.reset();
 }
