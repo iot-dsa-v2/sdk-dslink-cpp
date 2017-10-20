@@ -2,9 +2,7 @@
 
 #include "variant.h"
 
-#include <jansson.h>
-
-#include <iostream>
+#include "jansson_9e7847e.h"
 
 namespace dsa {
 
