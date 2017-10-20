@@ -14,17 +14,17 @@ class MessageValue {
   enum : size_t { MAX_META_SIZE = 0x7FFF };
 
  public:
-  Variant meta;
-  Variant value;
+  Var meta;
+  Var value;
 
   MessageValue() = default;
 
-  explicit MessageValue(const Variant& value);
-  MessageValue(Variant&& value);
+  explicit MessageValue(const Var& value);
+  MessageValue(Var&& value);
 
   MessageValue(const uint8_t* data, size_t size);
 
-  MessageValue(Variant&& value, const std::string& ts);
+  MessageValue(Var&& value, const std::string& ts);
 
   void parse(const uint8_t* data, size_t size);
 

@@ -9,7 +9,7 @@
 #include "../base_message.h"
 
 namespace dsa {
-class Variant;
+class Var;
 
 class InvokeResponseMessage : public ResponseMessage, PagedMessageMixin {
  public:
@@ -28,7 +28,7 @@ class InvokeResponseMessage : public ResponseMessage, PagedMessageMixin {
                           size_t body_size) throw(const MessageParsingError&);
 
  public:
-  void set_value(const Variant& value);
+  void set_value(const Var& value);
 };
 
 typedef ref_<const InvokeResponseMessage> InvokeResponseMessageCRef;

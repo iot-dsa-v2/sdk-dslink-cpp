@@ -10,7 +10,7 @@
 #include "../base_message.h"
 
 namespace dsa {
-class Variant;
+class Var;
 
 class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
  public:
@@ -29,7 +29,7 @@ class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
                           size_t body_size) throw(const MessageParsingError&);
 
  public:
-  void set_value(const Variant& value);
+  void set_value(const Var& value);
 };
 
 typedef ref_<const InvokeRequestMessage> InvokeRequestMessageCRef;

@@ -23,12 +23,12 @@ TEST(VariantTest, MsgpackDecodingArray) {
     msgpack_pack_str_body(&pk, "example", 7);
   }
 
-  Variant v = Variant::from_msgpack(reinterpret_cast<const uint8_t*>(sbuf.data),
+  Var v = Var::from_msgpack(reinterpret_cast<const uint8_t*>(sbuf.data),
                                     sbuf.size);
 
   EXPECT_TRUE(v.is_array());
 
-  VariantArray& vec = v.get_array();
+  VarArray& vec = v.get_array();
 
   EXPECT_EQ(vec.size(), 3);
 
@@ -65,12 +65,12 @@ TEST(VariantTest, MsgpackDecodingMap) {
     msgpack_pack_str_body(&pk, "/path/name", 10);
   }
 
-  Variant v = Variant::from_msgpack(reinterpret_cast<const uint8_t*>(sbuf.data),
+  Var v = Var::from_msgpack(reinterpret_cast<const uint8_t*>(sbuf.data),
                                     sbuf.size);
 
   EXPECT_TRUE(v.is_map());
 
-  VariantMap& map = v.get_map();
+  VarMap& map = v.get_map();
 
   EXPECT_EQ(2, map.size());
 

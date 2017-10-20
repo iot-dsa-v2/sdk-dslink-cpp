@@ -17,8 +17,8 @@ class MockNodeChild : public NodeModel {
 public:
   explicit MockNodeChild(LinkStrandRef strand)
     : NodeModel(std::move(strand)) {
-    update_property("$is", Variant("test_class"));
-    update_property("@unit", Variant("test_unit"));
+    update_property("$is", Var("test_class"));
+    update_property("@unit", Var("test_unit"));
   };
 };
 
@@ -104,7 +104,7 @@ TEST(ResponderTest, ListTest) {
 
   // update root property
   server_config.strand->post(
-    [&]() { root_node->update_property("@int", Variant(1)); });
+    [&]() { root_node->update_property("@int", Var(1)); });
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
   {

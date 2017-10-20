@@ -12,7 +12,7 @@
 #include "message/message_options.h"
 
 namespace dsa {
-class Variant;
+class Var;
 
 class OutgoingListStream : public MessageRefedStream {
  public:
@@ -31,7 +31,7 @@ class OutgoingListStream : public MessageRefedStream {
                      ListOptions &&options);
 
   void update_value(const std::string &key, BytesRef &value);
-  void update_value(const std::string &key, const Variant &v);
+  void update_value(const std::string &key, const Var &v);
 
   size_t peek_next_message_size(size_t available, int64_t time) override;
   MessageCRef get_next_message(AckCallback &) override;

@@ -67,7 +67,7 @@ public:
   void subscribe(const SubscribeOptions &options, SubscribeCallback &&callback);
   void unsubscribe();
 
-  void set_value(Variant &&value);
+  void set_value(Var &&value);
   void set_value(MessageValue &&value);
   void set_message(SubscribeResponseMessageCRef &&message);
 

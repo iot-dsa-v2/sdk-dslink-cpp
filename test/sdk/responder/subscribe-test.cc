@@ -21,13 +21,13 @@ public:
   void on_subscribe(const SubscribeOptions &options) override {
     first_subscribe_options.reset(new SubscribeOptions(options));
     if (_subscribe_callback != nullptr) {
-      set_value(Variant("hello"));
+      set_value(Var("hello"));
     }
   }
   void on_subscribe_option_change(const SubscribeOptions &options) override {
     second_subscribe_options.reset(new SubscribeOptions(options));
     if (_subscribe_callback != nullptr) {
-      set_value(Variant("world"));
+      set_value(Var("world"));
     }
   }
 };
@@ -40,7 +40,7 @@ public:
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
     stream->send_response(
-      make_ref_<SubscribeResponseMessage>(Variant("hello")));
+      make_ref_<SubscribeResponseMessage>(Var("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));

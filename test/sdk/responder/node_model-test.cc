@@ -20,13 +20,13 @@ class MockNode : public NodeModelBase {
   void on_subscribe(const SubscribeOptions &options) override {
     first_subscribe_options.reset(new SubscribeOptions(options));
     if (_subscribe_callback != nullptr) {
-      set_value(Variant("hello"));
+      set_value(Var("hello"));
     }
   }
   void on_subscribe_option_change(const SubscribeOptions &options) override {
     second_subscribe_options.reset(new SubscribeOptions(options));
     if (_subscribe_callback != nullptr) {
-      set_value(Variant("world"));
+      set_value(Var("world"));
     }
   }
 };
@@ -40,7 +40,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
     stream->send_response(
-        make_ref_<SubscribeResponseMessage>(Variant("hello")));
+        make_ref_<SubscribeResponseMessage>(Var("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
@@ -189,7 +189,7 @@ TEST(ResponderTest, model__set_value) {
   initial_options.queue_duration = 0x1234;
   initial_options.queue_size = 0x5678;
 
-  root_node->set_value(MessageValue(Variant(0)));
+  root_node->set_value(MessageValue(Var(0)));
 
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "", [&](IncomingSubscribeStream &stream,
@@ -200,7 +200,7 @@ TEST(ResponderTest, model__set_value) {
   wait_for_bool(25, [&]() -> bool { return false; });
 
   SubscribeResponseMessageCRef cached_message =
-      make_ref_<SubscribeResponseMessage>(Variant(0));
+      make_ref_<SubscribeResponseMessage>(Var(0));
   root_node->set_message(copy_ref_(cached_message));
 
   Server::close_in_strand(tcp_server);

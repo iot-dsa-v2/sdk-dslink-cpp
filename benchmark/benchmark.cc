@@ -30,7 +30,7 @@ class MockNode : public NodeModelBase {
   void on_subscribe(const SubscribeOptions &options) override {
     first_subscribe_options.reset(new SubscribeOptions(options));
     if (_subscribe_callback != nullptr) {
-      set_value(Variant("hello"));
+      set_value(Var("hello"));
     }
   }
 };

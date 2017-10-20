@@ -119,7 +119,7 @@ int main(int argc, const char *argv[]) {
   int total_message = 0;
 
   SubscribeResponseMessageCRef cached_message =
-      make_ref_<SubscribeResponseMessage>(Variant(0));
+      make_ref_<SubscribeResponseMessage>(Var(0));
 
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {
@@ -166,7 +166,7 @@ int main(int argc, const char *argv[]) {
           long num_message = tosend_per_second * ms / (800 + total_ms / 50);
           if (encode_value) {
             for (int i = 0; i < num_message; ++i) {
-              root_node->set_value(Variant(i));
+              root_node->set_value(Var(i));
             }
           } else {
             for (int i = 0; i < num_message; ++i) {

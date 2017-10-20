@@ -52,12 +52,12 @@ void ListResponseMessage::parse() {
   }
 }
 
-ref_<VariantMap> ListResponseMessage::get_parsed_map() const {
-  VariantMap* map = new VariantMap();
+ref_<VarMap> ListResponseMessage::get_parsed_map() const {
+  VarMap* map = new VarMap();
 
   for (auto& it : _raw_map) {
     (*map)[it.first] =
-        Variant::from_msgpack(it.second->data(), it.second->size());
+        Var::from_msgpack(it.second->data(), it.second->size());
   }
 
   return map->get_ref();

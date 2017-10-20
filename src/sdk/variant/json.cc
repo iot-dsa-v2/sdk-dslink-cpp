@@ -8,19 +8,19 @@
 
 namespace dsa {
 
-Variant Variant::to_variant(json_t *json_obj) {
+Var Var::to_variant(json_t *json_obj) {
   if (json_is_integer(json_obj)) {
-    return Variant(static_cast<int64_t>(json_integer_value(json_obj)));
+    return Var(static_cast<int64_t>(json_integer_value(json_obj)));
   } else if (json_is_real(json_obj)) {
-    return Variant(static_cast<double>(json_real_value(json_obj)));
+    return Var(static_cast<double>(json_real_value(json_obj)));
   } else if (json_is_true(json_obj)) {
-    return Variant(true);
+    return Var(true);
   } else if (json_is_false(json_obj)) {
-    return Variant(false);
+    return Var(false);
   } else if (json_is_string(json_obj)) {
-    return Variant(json_string_value(json_obj), json_string_length(json_obj));
+    return Var(json_string_value(json_obj), json_string_length(json_obj));
   } else if (json_is_array(json_obj)) {
-    auto array = new VariantArray();
+    auto array = new VarArray();
     array->reserve(json_array_size(json_obj));
 
     size_t index;
@@ -29,9 +29,9 @@ Variant Variant::to_variant(json_t *json_obj) {
       array->push_back(to_variant(value));
     }
 
-    return Variant(array);
+    return Var(array);
   } else if (json_is_object(json_obj)) {
-    auto map = new VariantMap();
+    auto map = new VarMap();
     
     const char *key;
     json_t *value;
@@ -39,13 +39,13 @@ Variant Variant::to_variant(json_t *json_obj) {
       (*map)[std::string(key, strlen(key))] = to_variant(value);
     }
 
-    return Variant(map);
+    return Var(map);
   } else {
-    return Variant();
+    return Var();
   }
 }
 
-Variant Variant::from_json(std::string data) {
+Var Var::from_json(std::string data) {
   json_error_t error;
   json_t *json_obj;
 
@@ -53,7 +53,7 @@ Variant Variant::from_json(std::string data) {
 
   if (!json_obj || !json_is_object(json_obj)) {
     // error handling
-    return Variant();
+    return Var();
   }
 
   json_t *value;
@@ -61,17 +61,17 @@ Variant Variant::from_json(std::string data) {
 
   if (!value) {
     // error handling
-    return Variant();
+    return Var();
   }
 
-  Variant v = to_variant(value);
+  Var v = to_variant(value);
 
   json_decref(json_obj);
 
-  return Variant(v);
+  return Var(v);
 }
 
-json_t *to_json_object(const Variant &v) {
+json_t *to_json_object(const Var &v) {
   json_t *json_obj;
 
   if (v.is_double()) {
@@ -89,14 +89,14 @@ json_t *to_json_object(const Variant &v) {
     json_obj = json_null();
   } else if (v.is_array()) {
     json_obj = json_array();
-    VariantArray &array = v.get_array();
+    VarArray &array = v.get_array();
     for (auto &it : array) {
       json_array_append_new(json_obj, to_json_object(it));
     }
   } else if (v.is_map()) {
     json_obj = json_object();
 
-    VariantMap &map = v.get_map();
+    VarMap &map = v.get_map();
     for (auto &it : map) {
       json_object_set_new_nocheck(json_obj, it.first.c_str(), to_json_object(it.second));
     }
@@ -107,7 +107,7 @@ json_t *to_json_object(const Variant &v) {
   return json_obj;
 }
 
-std::string Variant::to_json() const throw(const EncodingError &) {
+std::string Var::to_json() const throw(const EncodingError &) {
   json_t *json_obj;
   char *encoded_value;
 
@@ -125,7 +125,7 @@ std::string Variant::to_json() const throw(const EncodingError &) {
     return std::string(return_value);
   }
 
-  throw EncodingError("Failed to encode Variant to json format");
+  throw EncodingError("Failed to encode Var to json format");
 }
 
 }  // namespace dsa

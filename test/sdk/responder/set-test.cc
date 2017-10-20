@@ -25,7 +25,7 @@ public:
   bool allows_set_value() override { return true; }
 
   MessageStatus on_set_attribute(const std::string &field,
-                                 Variant &&value) override {
+                                 Var &&value) override {
     update_property(field, std::move(value));
     return MessageStatus::CLOSED;
   }
@@ -91,11 +91,11 @@ TEST(ResponderTest, Set_Model) {
             IncomingListStream &stream) { last_list_response = msg; });
 
   auto first_request = make_ref_<SetRequestMessage>();
-  first_request->set_value(Variant("hello"));
+  first_request->set_value(Var("hello"));
 
   auto second_request = make_ref_<SetRequestMessage>();
   second_request->set_attribute_field("@attr");
-  second_request->set_value(Variant("world"));
+  second_request->set_value(Var("world"));
 
   // test invalid path scenario
   auto set_stream1 = tcp_client->get_session().requester.set(
@@ -157,10 +157,10 @@ TEST(ResponderTest, Set_Acceptor) {
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   auto first_request = make_ref_<SetRequestMessage>();
-  first_request->set_value(Variant("hello"));
+  first_request->set_value(Var("hello"));
 
   auto second_request = make_ref_<SetRequestMessage>();
-  second_request->set_value(Variant("world"));
+  second_request->set_value(Var("world"));
 
   ref_<const SetResponseMessage> last_response;
   // test invalid path scenario

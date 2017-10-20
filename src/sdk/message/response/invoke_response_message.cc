@@ -15,7 +15,7 @@ InvokeResponseMessage::InvokeResponseMessage(const uint8_t* data, size_t size)
 InvokeResponseMessage::InvokeResponseMessage()
     : ResponseMessage(MessageType::INVOKE_RESPONSE) {}
 
-void InvokeResponseMessage::set_value(const Variant& value) {
+void InvokeResponseMessage::set_value(const Var& value) {
   set_body(new IntrusiveBytes(value.to_msgpack()));
 }
 

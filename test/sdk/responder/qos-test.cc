@@ -23,7 +23,7 @@ class MockNodeQos : public NodeModelBase {
   void on_subscribe(const SubscribeOptions &options) override {
     if (_subscribe_callback != nullptr) {
       for (int i = 0; i < 10; ++i) {
-        set_value(Variant(i));
+        set_value(Var(i));
       }
     }
   }

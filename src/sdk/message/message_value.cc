@@ -6,15 +6,15 @@
 
 namespace dsa {
 
-MessageValue::MessageValue(const Variant& value) : value(value) {}
-MessageValue::MessageValue(Variant&& value) : value(std::move(value)) {}
+MessageValue::MessageValue(const Var& value) : value(value) {}
+MessageValue::MessageValue(Var&& value) : value(std::move(value)) {}
 
 MessageValue::MessageValue(const uint8_t* data, size_t size) {
   parse(data, size);
 }
 
-MessageValue::MessageValue(Variant&& value, const std::string& ts)
-    : value(std::move(value)), meta({{"ts", Variant(ts)}}) {}
+MessageValue::MessageValue(Var&& value, const std::string& ts)
+    : value(std::move(value)), meta({{"ts", Var(ts)}}) {}
 
 void MessageValue::parse(const uint8_t* data, size_t size) {
   if (size < 2) {
@@ -29,11 +29,11 @@ void MessageValue::parse(const uint8_t* data, size_t size) {
     return;
   }
 
-  meta = std::move(Variant::from_msgpack(data, meta_size));
+  meta = std::move(Var::from_msgpack(data, meta_size));
   data += meta_size;
   size -= meta_size;
   if (size > 0) {
-    value = std::move(Variant::from_msgpack(data, size));
+    value = std::move(Var::from_msgpack(data, size));
   }
 }
 

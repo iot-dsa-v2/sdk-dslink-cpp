@@ -14,7 +14,7 @@ ModelProperty::ModelProperty()
     : _bytes(new IntrusiveBytes()), _value_ready(false) {}
 ModelProperty::ModelProperty(BytesRef &bytes)
     : _bytes(bytes), _value_ready(false) {}
-ModelProperty::ModelProperty(Variant &&value)
+ModelProperty::ModelProperty(Var &&value)
     : _value(std::move(value)), _value_ready(true) {}
 
 BytesRef &ModelProperty::get_bytes() const {
@@ -24,14 +24,14 @@ BytesRef &ModelProperty::get_bytes() const {
   return _bytes;
 }
 
-const Variant &ModelProperty::get_value() const {
+const Var &ModelProperty::get_value() const {
   if (!_value_ready) {
 #ifdef DSA_DEBUG
     if (_bytes->empty()) {
       LOG_FATAL(LOG << "invalid value in ModelProperty");
     }
 #endif
-    _value = Variant::from_msgpack(_bytes->data(), _bytes->size());
+    _value = Var::from_msgpack(_bytes->data(), _bytes->size());
     _value_ready = true;
   }
   return _value;
@@ -42,8 +42,8 @@ static const std::vector<std::string> default_summary_metas = {
 
 BytesRef &NodeModel::get_summary() {
   if (_summary == nullptr) {
-    Variant v = Variant::new_map();
-    VariantMap &map = v.get_map();
+    Var v = Var::new_map();
+    VarMap &map = v.get_map();
 
     for (auto &key : default_summary_metas) {
       auto find = _metas.find(key);
@@ -137,7 +137,7 @@ MessageStatus NodeModel::on_set_value(MessageValue &&value) {
   return MessageStatus::NOT_SUPPORTED;
 }
 MessageStatus NodeModel::on_set_attribute(const std::string &field,
-                                          Variant &&value) {
+                                          Var &&value) {
   return MessageStatus::NOT_SUPPORTED;
 }
 

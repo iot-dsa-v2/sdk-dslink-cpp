@@ -64,9 +64,9 @@ TEST(MessageValueTest, Constructor_01) {
 }
 
 TEST(MessageValueTest, Constructor_02) {
-  //  MessageValue(Variant value);
+  //  MessageValue(Var value);
   {
-    Variant v(123);
+    Var v(123);
 
     MessageValue mv = MessageValue(v);
 
@@ -78,7 +78,7 @@ TEST(MessageValueTest, Constructor_02) {
   }
 
   {
-    Variant v("hello");
+    Var v("hello");
 
     MessageValue mv = MessageValue(v);
 
@@ -90,14 +90,14 @@ TEST(MessageValueTest, Constructor_02) {
   }
 
   {
-    //  Variant v{{"dsid", "dsid-1234"}};
+    //  Var v{{"dsid", "dsid-1234"}};
 
-    Variant v = {{"dsid", Variant("dsid-1234")}};
+    Var v = {{"dsid", Var("dsid-1234")}};
 
     MessageValue mv(v);
 
     EXPECT_TRUE(mv.value.is_map());
-    VariantMap vm = mv.value.get_map();
+    VarMap vm = mv.value.get_map();
     EXPECT_TRUE(vm["dsid"].is_string());
     EXPECT_EQ("dsid-1234", vm["dsid"].get_string());
 
@@ -108,17 +108,17 @@ TEST(MessageValueTest, Constructor_02) {
 TEST(MessageValueTest, Constructor_03) {
   const char* timestamp = "2000-01-01T00:00:00.000+00:00";
 
-  //  MessageValue(Variant value, const std::string& ts);
+  //  MessageValue(Var value, const std::string& ts);
   {
-    Variant v("hello");
+    Var v("hello");
 
-    MessageValue mv = MessageValue(Variant(v), timestamp);
+    MessageValue mv = MessageValue(Var(v), timestamp);
 
     EXPECT_TRUE(mv.value.is_string());
     EXPECT_EQ("hello", mv.value.get_string());
 
     EXPECT_TRUE(mv.meta.is_map());
-    VariantMap& map = mv.meta.get_map();
+    VarMap& map = mv.meta.get_map();
     EXPECT_EQ(1, map.size());
     EXPECT_TRUE(map["ts"].is_string());
     EXPECT_EQ(timestamp, map["ts"].get_string());
@@ -128,17 +128,17 @@ TEST(MessageValueTest, Constructor_03) {
   }
 
   {
-    Variant v = {{"dsid", Variant("dsid-1234")}};
+    Var v = {{"dsid", Var("dsid-1234")}};
 
-    MessageValue mv(Variant(v), timestamp);
+    MessageValue mv(Var(v), timestamp);
 
     EXPECT_TRUE(mv.value.is_map());
-    VariantMap vm = mv.value.get_map();
+    VarMap vm = mv.value.get_map();
     EXPECT_TRUE(vm["dsid"].is_string());
     EXPECT_EQ("dsid-1234", vm["dsid"].get_string());
 
     EXPECT_TRUE(mv.meta.is_map());
-    VariantMap& map = mv.meta.get_map();
+    VarMap& map = mv.meta.get_map();
     EXPECT_EQ(1, map.size());
     EXPECT_TRUE(map["ts"].is_string());
     EXPECT_EQ(timestamp, map["ts"].get_string());

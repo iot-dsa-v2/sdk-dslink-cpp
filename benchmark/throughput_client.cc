@@ -142,7 +142,7 @@ int main(int argc, const char *argv[]) {
   int total_message = 0;
 
   SubscribeResponseMessageCRef cached_message =
-      make_ref_<SubscribeResponseMessage>(Variant(0));
+      make_ref_<SubscribeResponseMessage>(Var(0));
 
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {

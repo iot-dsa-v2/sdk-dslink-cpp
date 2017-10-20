@@ -71,7 +71,7 @@ void NodeModelBase::unsubscribe() {
   on_unsubscribe();
 }
 
-void NodeModelBase::set_value(Variant &&value) {
+void NodeModelBase::set_value(Var &&value) {
   _cached_value = make_ref_<SubscribeResponseMessage>(std::move(value));
   if (_subscribe_callback) {
     _subscribe_callback(copy_ref_(_cached_value));

@@ -12,7 +12,7 @@
 
 namespace dsa {
 
-class VariantMap;
+class VarMap;
 
 class ListResponseMessage : public ResponseMessage {
  public:
@@ -43,7 +43,7 @@ class ListResponseMessage : public ResponseMessage {
   std::unordered_map<std::string, BytesRef>& get_map() { return _raw_map; };
   const std::unordered_map<std::string, BytesRef>& get_map() const { return _raw_map; };
 
-  ref_<VariantMap> get_parsed_map() const;
+  ref_<VarMap> get_parsed_map() const;
 };
 
 typedef ref_<const ListResponseMessage> ListResponseMessageCRef;

@@ -25,10 +25,10 @@ struct MsgpackSbuffer : public msgpack_sbuffer {
 
 thread_local MsgpackSbuffer sbuf;
 
-Variant Variant::to_variant(const msgpack_object &obj) {
+Var Var::to_variant(const msgpack_object &obj) {
   switch (obj.type) {
     case MSGPACK_OBJECT_MAP: {
-      auto map = new VariantMap();
+      auto map = new VarMap();
 
       struct msgpack_object_kv *p = obj.via.map.ptr;
       for (size_t i = 0; i < obj.via.map.size; ++i, ++p) {
@@ -38,47 +38,47 @@ Variant Variant::to_variant(const msgpack_object &obj) {
               to_variant(p->val);
         }
       }
-      return Variant(map);
+      return Var(map);
     }
     case MSGPACK_OBJECT_ARRAY: {
-      auto array = new VariantArray();
+      auto array = new VarArray();
       array->reserve(obj.via.array.size);
 
       struct msgpack_object *p = obj.via.array.ptr;
       for (size_t i = 0; i < obj.via.array.size; ++i, ++p) {
         array->push_back(to_variant(*p));
       }
-      return Variant(array);
+      return Var(array);
     }
     case MSGPACK_OBJECT_STR:
-      return Variant(obj.via.str.ptr, obj.via.str.size);
+      return Var(obj.via.str.ptr, obj.via.str.size);
     case MSGPACK_OBJECT_POSITIVE_INTEGER:
-      return Variant(static_cast<int64_t>(obj.via.u64));
+      return Var(static_cast<int64_t>(obj.via.u64));
     case MSGPACK_OBJECT_NEGATIVE_INTEGER:
-      return Variant(obj.via.i64);
+      return Var(obj.via.i64);
     case MSGPACK_OBJECT_FLOAT64:
-      return Variant(obj.via.f64);
+      return Var(obj.via.f64);
     case MSGPACK_OBJECT_BOOLEAN:
-      return Variant(obj.via.boolean);
+      return Var(obj.via.boolean);
     case MSGPACK_OBJECT_BIN:
-      return Variant(reinterpret_cast<const uint8_t *>(obj.via.bin.ptr),
+      return Var(reinterpret_cast<const uint8_t *>(obj.via.bin.ptr),
                      obj.via.bin.size);
     default:
       // return null
       // ignore extension
-      return Variant();
+      return Var();
   }
 }
 
-Variant Variant::from_msgpack(const uint8_t *data, size_t size) {
+Var Var::from_msgpack(const uint8_t *data, size_t size) {
   MsgpackMemPool mempool;
   msgpack_object obj;
   msgpack_unpack(reinterpret_cast<const char *>(data), size, NULL,
                  &mempool.zone, &obj);
-  return Variant(to_variant(obj));
+  return Var(to_variant(obj));
 }
 
-bool msgpack_pack(msgpack_packer *pk, const Variant &v) {
+bool msgpack_pack(msgpack_packer *pk, const Var &v) {
   bool rc = true;
 
   if (v.is_double()) {
@@ -106,13 +106,13 @@ bool msgpack_pack(msgpack_packer *pk, const Variant &v) {
   } else if (v.is_null()) {
     msgpack_pack_nil(pk);
   } else if (v.is_array()) {
-    VariantArray &array = v.get_array();
+    VarArray &array = v.get_array();
     msgpack_pack_array(pk, array.size());
     for (auto &it : array) {
       msgpack_pack(pk, it);
     }
   } else if (v.is_map()) {
-    VariantMap &map = v.get_map();
+    VarMap &map = v.get_map();
     msgpack_pack_map(pk, map.size());
     for (auto &it : map) {
       std::string key = it.first;
@@ -128,7 +128,7 @@ bool msgpack_pack(msgpack_packer *pk, const Variant &v) {
   return rc;
 }
 
-std::vector<uint8_t> Variant::to_msgpack() const throw(const EncodingError &) {
+std::vector<uint8_t> Var::to_msgpack() const throw(const EncodingError &) {
   sbuf;
   if (msgpack_pack(&pk, *this)) {
     size_t sbuf_size = sbuf.size;
@@ -147,7 +147,7 @@ std::vector<uint8_t> Variant::to_msgpack() const throw(const EncodingError &) {
     return std::vector<uint8_t>(&sbuf.data[0], &sbuf.data[sbuf_size]);
   }
 
-  throw EncodingError("Failed to pack Variant to msgpack");
+  throw EncodingError("Failed to pack Var to msgpack");
 }
 
 }  // namespace dsa

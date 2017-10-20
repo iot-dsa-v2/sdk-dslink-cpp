@@ -16,7 +16,7 @@ SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data,
 SubscribeResponseMessage::SubscribeResponseMessage()
     : ResponseMessage(MessageType::SUBSCRIBE_RESPONSE) {}
 
-SubscribeResponseMessage::SubscribeResponseMessage(Variant&& value)
+SubscribeResponseMessage::SubscribeResponseMessage(Var&& value)
     : ResponseMessage(MessageType::SUBSCRIBE_RESPONSE) {
   set_value(MessageValue(std::move(value), DateTime::get_ts()));
 }

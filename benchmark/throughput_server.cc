@@ -115,7 +115,7 @@ int main(int argc, const char *argv[]) {
   int total_message = 0;
 
   SubscribeResponseMessageCRef cached_message =
-      make_ref_<SubscribeResponseMessage>(Variant(0));
+      make_ref_<SubscribeResponseMessage>(Var(0));
 
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {
@@ -136,7 +136,7 @@ int main(int argc, const char *argv[]) {
 
           if (encode_value) {
             for (int i = 0; i < num_message; ++i) {
-              root_node->set_value(Variant(i));
+              root_node->set_value(Var(i));
             }
           } else {
             for (int i = 0; i < num_message; ++i) {

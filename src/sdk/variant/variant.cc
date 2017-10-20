@@ -5,22 +5,22 @@
 namespace dsa {
 const size_t MAX_SIZE_UNSHARED = 256;
 
-VariantMap::VariantMap(
-    std::initializer_list<std::map<std::string, Variant>::value_type> init)
-    : std::map<std::string, Variant>(init) {}
+VarMap::VarMap(
+    std::initializer_list<std::map<std::string, Var>::value_type> init)
+    : std::map<std::string, Var>(init) {}
 
-VariantArray::VariantArray(std::initializer_list<Variant> init)
-    : std::vector<Variant>(init) {}
+VarArray::VarArray(std::initializer_list<Var> init)
+    : std::vector<Var>(init) {}
 
-Variant::Variant(const int64_t v) : BaseVariant(v) {}
-Variant::Variant(const int32_t v) : BaseVariant(static_cast<int64_t>(v)) {}
-Variant::Variant(const uint64_t v) : BaseVariant(static_cast<int64_t>(v)) {}
+Var::Var(const int64_t v) : BaseVariant(v) {}
+Var::Var(const int32_t v) : BaseVariant(static_cast<int64_t>(v)) {}
+Var::Var(const uint64_t v) : BaseVariant(static_cast<int64_t>(v)) {}
 
-Variant::Variant(const double v) : BaseVariant(v) {}
+Var::Var(const double v) : BaseVariant(v) {}
 
-Variant::Variant(const bool v) : BaseVariant(v) {}
+Var::Var(const bool v) : BaseVariant(v) {}
 
-Variant::Variant(const char* v) {
+Var::Var(const char* v) {
   size_t size = strlen(v);
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::string(v, size);
@@ -29,21 +29,21 @@ Variant::Variant(const char* v) {
   }
 }
 
-Variant::Variant(const char* v, size_t size) {
+Var::Var(const char* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::string(v, size);
   } else {
     *this = ref_<IntrusiveString>(new IntrusiveString(v, size));
   }
 }
-Variant::Variant(const std::string& v) : BaseVariant(v) {
+Var::Var(const std::string& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
     *this = ref_<IntrusiveString>(new IntrusiveString(v));
   }
 }
-Variant::Variant(const std::string&& v) {
+Var::Var(const std::string&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
@@ -51,21 +51,21 @@ Variant::Variant(const std::string&& v) {
   }
 }
 
-Variant::Variant(const uint8_t* v, size_t size) {
+Var::Var(const uint8_t* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::vector<uint8_t>(v, v + size);
   } else {
     *this = BytesRef(new IntrusiveBytes(v, v + size));
   }
 }
-Variant::Variant(const std::vector<uint8_t>& v) : BaseVariant(v) {
+Var::Var(const std::vector<uint8_t>& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
     *this = BytesRef(new IntrusiveBytes(v));
   }
 }
-Variant::Variant(const std::vector<uint8_t>&& v) {
+Var::Var(const std::vector<uint8_t>&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
@@ -73,84 +73,84 @@ Variant::Variant(const std::vector<uint8_t>&& v) {
   }
 }
 
-Variant::Variant(IntrusiveString* p) : BaseVariant(ref_<IntrusiveString>(p)) {}
+Var::Var(IntrusiveString* p) : BaseVariant(ref_<IntrusiveString>(p)) {}
 
-Variant::Variant(IntrusiveBytes* p) : BaseVariant(BytesRef(p)) {}
+Var::Var(IntrusiveBytes* p) : BaseVariant(BytesRef(p)) {}
 
-Variant::Variant() : BaseVariant(boost::blank()) {}
-Variant::Variant(VariantMap* p) : BaseVariant(ref_<VariantMap>(p)) {}
-Variant::Variant(VariantArray* p) : BaseVariant(ref_<VariantArray>(p)) {}
+Var::Var() : BaseVariant(boost::blank()) {}
+Var::Var(VarMap* p) : BaseVariant(ref_<VarMap>(p)) {}
+Var::Var(VarArray* p) : BaseVariant(ref_<VarArray>(p)) {}
 
-Variant::Variant(std::initializer_list<VariantMap::value_type> init)
-    : BaseVariant(ref_<VariantMap>(new VariantMap(init))) {}
-Variant::Variant(std::initializer_list<Variant> init)
-    : BaseVariant(ref_<VariantArray>(new VariantArray(init))) {}
+Var::Var(std::initializer_list<VarMap::value_type> init)
+    : BaseVariant(ref_<VarMap>(new VarMap(init))) {}
+Var::Var(std::initializer_list<Var> init)
+    : BaseVariant(ref_<VarArray>(new VarArray(init))) {}
 
-Variant Variant::new_map() { return Variant(new VariantMap()); }
-Variant Variant::new_array() { return Variant(new VariantArray()); }
+Var Var::new_map() { return Var(new VarMap()); }
+Var Var::new_array() { return Var(new VarArray()); }
 
-Variant Variant::copy() const {
+Var Var::copy() const {
   switch (which()) {
     case MAP: {
-      auto new_map = new VariantMap();
-      VariantMap& map = get_map();
+      auto new_map = new VarMap();
+      VarMap& map = get_map();
 
       for (auto& it : map) {
-        (*new_map)[it.first] = Variant(it.second);
+        (*new_map)[it.first] = Var(it.second);
       }
-      return Variant(new_map);
+      return Var(new_map);
     }
     case ARRAY: {
-      auto new_array = new VariantArray();
-      VariantArray& array = get_array();
+      auto new_array = new VarArray();
+      VarArray& array = get_array();
       new_array->reserve(array.size());
 
       for (auto& it : array) {
-        new_array->push_back(Variant(it));
+        new_array->push_back(Var(it));
       }
-      return Variant(new_array);
+      return Var(new_array);
     }
     default:
-      return Variant(*this);
+      return Var(*this);
   }
 }
 
-Variant& Variant::operator[](const std::string& name) {
+Var& Var::operator[](const std::string& name) {
   if (which() == MAP) {
     return get_map().at(name);
   }
   throw std::out_of_range("Varian is not a map");
 }
-Variant& Variant::operator[](size_t index) {
+Var& Var::operator[](size_t index) {
   if (which() == ARRAY) {
     return get_array().at(index);
   }
   throw std::out_of_range("Varian is not an array");
 }
 
-Variant Variant::deep_copy() const {
+Var Var::deep_copy() const {
   switch (which()) {
     case MAP: {
-      auto new_map = new VariantMap();
-      VariantMap& map = get_map();
+      auto new_map = new VarMap();
+      VarMap& map = get_map();
 
       for (auto& it : map) {
         (*new_map)[it.first] = std::move(it.second.deep_copy());
       }
-      return Variant(new_map);
+      return Var(new_map);
     }
     case ARRAY: {
-      auto new_array = new VariantArray();
-      VariantArray& array = get_array();
+      auto new_array = new VarArray();
+      VarArray& array = get_array();
       new_array->reserve(array.size());
 
       for (auto& it : array) {
         new_array->push_back(std::move(it.deep_copy()));
       }
-      return Variant(new_array);
+      return Var(new_array);
     }
     default:
-      return Variant(*this);
+      return Var(*this);
   }
 }
 

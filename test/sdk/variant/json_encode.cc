@@ -4,7 +4,7 @@
 using namespace dsa;
 
 TEST(VariantTest, JsonEncodingInt) {
-  Variant v(123);
+  Var v(123);
 
   std::string encoded_value = v.to_json();
 
@@ -12,7 +12,7 @@ TEST(VariantTest, JsonEncodingInt) {
 }
 
 TEST(VariantTest, JsonEncodingDouble) {
-  Variant v(1.23);
+  Var v(1.23);
 
   std::string encoded_value = v.to_json();
 
@@ -21,14 +21,14 @@ TEST(VariantTest, JsonEncodingDouble) {
 
 TEST(VariantTest, JsonEncodingBool) {
   {
-    Variant v(true);
+    Var v(true);
 
     std::string encoded_value = v.to_json();
 
     EXPECT_EQ("{\"\": true}", encoded_value);
   }
   {
-    Variant v(false);
+    Var v(false);
 
     std::string encoded_value = v.to_json();
 
@@ -37,7 +37,7 @@ TEST(VariantTest, JsonEncodingBool) {
 }
 
 TEST(VariantTest, JsonEncodingString) {
-  Variant v("hello");
+  Var v("hello");
 
   std::string encoded_value = v.to_json();
 
@@ -45,7 +45,7 @@ TEST(VariantTest, JsonEncodingString) {
 }
 
 TEST(VariantTest, JsonEncodingNull) {
-  Variant v;
+  Var v;
 
   std::string encoded_value = v.to_json();
 
@@ -53,7 +53,7 @@ TEST(VariantTest, JsonEncodingNull) {
 }
 
 TEST(VariantTest, JsonEncodingArray) {
-  Variant v{Variant("hello"), Variant(123), Variant(true)};
+  Var v{Var("hello"), Var(123), Var(true)};
 
   std::string encoded_value = v.to_json();
 
@@ -61,9 +61,9 @@ TEST(VariantTest, JsonEncodingArray) {
 }
 
 TEST(VariantTest, JsonEncodingMap) {
-  Variant v{{"string", Variant("hello")},
-            {"int", Variant(123)},
-            {"bool", Variant(true)}};
+  Var v{{"string", Var("hello")},
+            {"int", Var(123)},
+            {"bool", Var(true)}};
 
   std::string encoded_value = v.to_json();
 
@@ -71,9 +71,9 @@ TEST(VariantTest, JsonEncodingMap) {
 }
 
 TEST(VariantTest, JsonEncodingNestedArray) {
-  Variant v{{"string", Variant("hello")},
-            {"int", Variant(123)},
-            {"map", {{"first", Variant("one")}, {"second", Variant("two")}}}};
+  Var v{{"string", Var("hello")},
+            {"int", Var(123)},
+            {"map", {{"first", Var("one")}, {"second", Var("two")}}}};
 
   std::string encoded_value = v.to_json();
 

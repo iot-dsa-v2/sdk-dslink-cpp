@@ -20,26 +20,26 @@ struct json_t;
 
 namespace dsa {
 
-class Variant;
+class Var;
 
-class VariantMap : public std::map<std::string, Variant>,
-                   public EnableRef<VariantMap> {
+class VarMap : public std::map<std::string, Var>,
+                   public EnableRef<VarMap> {
  public:
   template <typename... Args>
-  explicit VariantMap(Args &&... args)
-      : std::map<std::string, Variant>(std::forward<Args>(args)...){};
+  explicit VarMap(Args &&... args)
+      : std::map<std::string, Var>(std::forward<Args>(args)...){};
 
-  VariantMap(std::initializer_list<VariantMap::value_type> init);
+  VarMap(std::initializer_list<VarMap::value_type> init);
 };
 
-class VariantArray : public std::vector<Variant>,
-                     public EnableRef<VariantArray> {
+class VarArray : public std::vector<Var>,
+                     public EnableRef<VarArray> {
  public:
   template <typename... Args>
-  explicit VariantArray(Args &&... args)
-      : std::vector<Variant>(std::forward<Args>(args)...){};
+  explicit VarArray(Args &&... args)
+      : std::vector<Var>(std::forward<Args>(args)...){};
 
-  VariantArray(std::initializer_list<Variant> init);
+  VarArray(std::initializer_list<Var> init);
 };
 
 class IntrusiveString : public std::string,
@@ -52,11 +52,11 @@ class IntrusiveString : public std::string,
 
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
                        ref_<IntrusiveString>,
-                       ref_<VariantMap>, ref_<VariantArray>,
+                       ref_<VarMap>, ref_<VarArray>,
                        std::vector<uint8_t>, BytesRef>
     BaseVariant;
 
-class Variant : public BaseVariant {
+class Var : public BaseVariant {
   enum : int {
     NUL = 0,
     DOUBLE,
@@ -71,48 +71,48 @@ class Variant : public BaseVariant {
   };
 
  public:
-  Variant();
+  Var();
 
-  explicit Variant(int64_t v);
-  explicit Variant(int32_t v);
-  explicit Variant(uint64_t v);
+  explicit Var(int64_t v);
+  explicit Var(int32_t v);
+  explicit Var(uint64_t v);
 
-  explicit Variant(double v);
-  explicit Variant(bool v);
+  explicit Var(double v);
+  explicit Var(bool v);
 
-  explicit Variant(VariantMap *p);
-  explicit Variant(VariantArray *p);
+  explicit Var(VarMap *p);
+  explicit Var(VarArray *p);
 
-  explicit Variant(const char *v);
-  explicit Variant(const char *v, size_t size);
-  explicit Variant(const std::string &v);
-  explicit Variant(const std::string &&v);
+  explicit Var(const char *v);
+  explicit Var(const char *v, size_t size);
+  explicit Var(const std::string &v);
+  explicit Var(const std::string &&v);
 
-  explicit Variant(const uint8_t *data, size_t size);
-  explicit Variant(const std::vector<uint8_t> &v);
-  explicit Variant(const std::vector<uint8_t> &&v);
+  explicit Var(const uint8_t *data, size_t size);
+  explicit Var(const std::vector<uint8_t> &v);
+  explicit Var(const std::vector<uint8_t> &&v);
 
  public:
-  Variant(std::initializer_list<VariantMap::value_type> init);
-  Variant(std::initializer_list<Variant> init);
-  static Variant new_map();
-  static Variant new_array();
+  Var(std::initializer_list<VarMap::value_type> init);
+  Var(std::initializer_list<Var> init);
+  static Var new_map();
+  static Var new_array();
 
  template <class T>
-  inline Variant & operator= (T && other){
+  inline Var & operator= (T && other){
     BaseVariant::operator=(std::forward<T>(other));
     return *this;
   }
 
-  Variant(const Variant &other) = default;
-  Variant(Variant &&other) = default;
-  Variant &operator=(const Variant &other) = default;
-  Variant &operator=(Variant &&other) = default;
-  ~Variant() = default;
+  Var(const Var &other) = default;
+  Var(Var &&other) = default;
+  Var &operator=(const Var &other) = default;
+  Var &operator=(Var &&other) = default;
+  ~Var() = default;
 
  protected:
-  explicit Variant(IntrusiveString *p);
-  explicit Variant(IntrusiveBytes *p);
+  explicit Var(IntrusiveString *p);
+  explicit Var(IntrusiveBytes *p);
 
  public:
   bool is_double() const { return which() == DOUBLE; }
@@ -143,33 +143,33 @@ class Variant : public BaseVariant {
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }
-  VariantMap &get_map() const {
-    return *boost::get<ref_<VariantMap>>(*this);
+  VarMap &get_map() const {
+    return *boost::get<ref_<VarMap>>(*this);
   }
-  VariantArray &get_array() const {
-    return *boost::get<ref_<VariantArray>>(*this);
+  VarArray &get_array() const {
+    return *boost::get<ref_<VarArray>>(*this);
   }
 
-  Variant& operator[] (const std::string &name);
-  Variant& operator[] (size_t index);
+  Var& operator[] (const std::string &name);
+  Var& operator[] (size_t index);
  public:
-  Variant deep_copy() const;
+  Var deep_copy() const;
 
   // shallow copy on array and map
   // other types are const and can use copy constructor directly
-  Variant copy() const;
+  Var copy() const;
 
   // msgpack encoding and decoding
  public:
-  static Variant from_msgpack(const uint8_t *data, size_t size);
+  static Var from_msgpack(const uint8_t *data, size_t size);
   std::vector<uint8_t> to_msgpack() const throw(const EncodingError &);
 
-  static Variant from_json(std::string data);
+  static Var from_json(std::string data);
   std::string to_json() const throw(const EncodingError &);
 
  protected:
-  static Variant to_variant(const msgpack_object &obj);
-  static Variant to_variant(json_t *obj);
+  static Var to_variant(const msgpack_object &obj);
+  static Var to_variant(json_t *obj);
 };
 
 }  // namespace dsa

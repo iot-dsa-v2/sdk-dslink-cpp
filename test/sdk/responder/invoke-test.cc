@@ -30,7 +30,7 @@ public:
       last_invoke_request = std::move(message);
     });
     auto response = make_ref_<InvokeResponseMessage>();
-    response->set_value(Variant("dsa"));
+    response->set_value(Var("dsa"));
     stream->send_response(std::move(response));
   }
 };
@@ -48,7 +48,7 @@ public:
       last_invoke_request = std::move(message);
     });
     auto response = make_ref_<InvokeResponseMessage>();
-    response->set_value(Variant("dsa"));
+    response->set_value(Var("dsa"));
     stream->send_response(std::move(response));
   }
 
@@ -83,10 +83,10 @@ TEST(ResponderTest, Invoke_Model) {
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   auto first_request = make_ref_<InvokeRequestMessage>();
-  first_request->set_value(Variant("hello"));
+  first_request->set_value(Var("hello"));
 
   auto second_request = make_ref_<InvokeRequestMessage>();
-  second_request->set_value(Variant("world"));
+  second_request->set_value(Var("world"));
 
   ref_<const InvokeResponseMessage> last_response;
 
@@ -105,8 +105,8 @@ TEST(ResponderTest, Invoke_Model) {
   // received request option should be same as the original one
   auto request_body = root_node->last_invoke_request->get_body();
   EXPECT_TRUE(request_body != nullptr && !request_body->empty());
-  Variant parsed_request_body =
-    Variant::from_msgpack(request_body->data(), request_body->size());
+  Var parsed_request_body =
+    Var::from_msgpack(request_body->data(), request_body->size());
   EXPECT_TRUE(parsed_request_body.is_string() &&
               parsed_request_body.get_string() == "hello");
 
@@ -115,8 +115,8 @@ TEST(ResponderTest, Invoke_Model) {
   auto response_body = last_response->get_body();
 
   EXPECT_TRUE(response_body != nullptr && !response_body->empty());
-  Variant parsed_response_body =
-    Variant::from_msgpack(response_body->data(), response_body->size());
+  Var parsed_response_body =
+    Var::from_msgpack(response_body->data(), response_body->size());
   EXPECT_TRUE(parsed_response_body.is_string() &&
               parsed_response_body.get_string() == "dsa");
 
@@ -157,10 +157,10 @@ TEST(ResponderTest, Invoke_Acceptor) {
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   auto first_request = make_ref_<InvokeRequestMessage>();
-  first_request->set_value(Variant("hello"));
+  first_request->set_value(Var("hello"));
 
   auto second_request = make_ref_<InvokeRequestMessage>();
-  second_request->set_value(Variant("world"));
+  second_request->set_value(Var("world"));
 
   ref_<const InvokeResponseMessage> last_response;
   auto invoke_stream = tcp_client->get_session().requester.invoke(
@@ -178,8 +178,8 @@ TEST(ResponderTest, Invoke_Acceptor) {
   // received request option should be same as the original one
   auto request_body = mock_stream_acceptor->last_invoke_request->get_body();
   EXPECT_TRUE(request_body != nullptr && !request_body->empty());
-  Variant parsed_request_body =
-    Variant::from_msgpack(request_body->data(), request_body->size());
+  Var parsed_request_body =
+    Var::from_msgpack(request_body->data(), request_body->size());
   EXPECT_TRUE(parsed_request_body.is_string() &&
               parsed_request_body.get_string() == "hello");
 
@@ -188,8 +188,8 @@ TEST(ResponderTest, Invoke_Acceptor) {
   auto response_body = last_response->get_body();
 
   EXPECT_TRUE(response_body != nullptr && !response_body->empty());
-  Variant parsed_response_body =
-    Variant::from_msgpack(response_body->data(), response_body->size());
+  Var parsed_response_body =
+    Var::from_msgpack(response_body->data(), response_body->size());
   EXPECT_TRUE(parsed_response_body.is_string() &&
               parsed_response_body.get_string() == "dsa");
 

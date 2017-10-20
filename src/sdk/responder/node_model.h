@@ -13,16 +13,16 @@ namespace dsa {
 
 class ModelProperty {
   mutable BytesRef _bytes;
-  mutable Variant _value;
+  mutable Var _value;
   mutable bool _value_ready;
 
  public:
   ModelProperty();
   explicit ModelProperty(BytesRef &bytes);
-  ModelProperty(Variant &&value);
+  ModelProperty(Var &&value);
 
   BytesRef &get_bytes() const;
-  const Variant &get_value() const;
+  const Var &get_value() const;
   bool valid() const { return _bytes != nullptr || _value_ready; }
 };
 
@@ -58,7 +58,7 @@ class NodeModel : public NodeModelBase {
 
   void on_set(ref_<OutgoingSetStream> &&stream) override;
   virtual MessageStatus on_set_value(MessageValue &&value);
-  virtual MessageStatus on_set_attribute(const std::string &field, Variant &&value);
+  virtual MessageStatus on_set_attribute(const std::string &field, Var &&value);
 };
 
 }  // namespace dsa

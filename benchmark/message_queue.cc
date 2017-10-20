@@ -81,14 +81,14 @@ int main(int argc, const char *argv[]) {
       initial_options);
 
   SubscribeResponseMessageCRef cached_message =
-      make_ref_<SubscribeResponseMessage>(Variant(0));
+      make_ref_<SubscribeResponseMessage>(Var(0));
 
   server_config.strand->dispatch([&]() {
     auto ts = high_resolution_clock::now();
 
     if (encode_value) {
       for (int i = 0; i < num_message; ++i) {
-        root_node->set_value(Variant(i));
+        root_node->set_value(Var(i));
       }
     } else {
       for (int i = 0; i < num_message; ++i) {

@@ -5,55 +5,55 @@ using namespace dsa;
 
 TEST(VariantTest, BaseTest) {
   {
-    Variant v;
+    Var v;
     EXPECT_TRUE(v.is_null());
   }
   {
-    Variant v("hello");
+    Var v("hello");
     EXPECT_TRUE(v.is_string());
   }
   {
     std::string s("hello");
-    Variant v(std::move(s));
+    Var v(std::move(s));
     EXPECT_TRUE(v.is_string());
   }
   {
-    Variant v(123);
+    Var v(123);
     EXPECT_TRUE(v.is_int());
     EXPECT_EQ(v.get_int(), 123);
   }
   {
-    Variant v(1.23);
+    Var v(1.23);
     EXPECT_TRUE(v.is_double());
     EXPECT_EQ(v.get_double(), 1.23);
   }
   {
-    Variant v(true);
+    Var v(true);
     EXPECT_TRUE(v.is_bool());
     EXPECT_EQ(v.get_bool(), true);
   }
   {
     std::vector<uint8_t> vec = {0, 1, 2};
-    Variant v(std::move(vec));
+    Var v(std::move(vec));
     EXPECT_TRUE(v.is_binary());
   }
 }
 
 TEST(VariantTest, MapTest) {
-  Variant v = Variant::new_map();
+  Var v = Var::new_map();
   EXPECT_TRUE(v.is_map());
 }
 
 TEST(VariantTest, ArrayTest) {
-  Variant v = Variant::new_array();
+  Var v = Var::new_array();
   EXPECT_TRUE(v.is_array());
 }
 
 TEST(VariantTest, BinaryTest) {
-  Variant v;
+  Var v;
   {
     std::vector<uint8_t> vec = {0, 1, 2};
-    Variant v0(vec);
+    Var v0(vec);
     EXPECT_TRUE(v0.is_binary());
     v = v0;
   }
@@ -64,11 +64,11 @@ TEST(VariantTest, BinaryTest) {
 }
 
 TEST(VariantTest, InitializerList__Array) {
-  Variant v{Variant("hello"), Variant(123), Variant(true)};
+  Var v{Var("hello"), Var(123), Var(true)};
 
   EXPECT_TRUE(v.is_array());
 
-  VariantArray& vec = v.get_array();
+  VarArray& vec = v.get_array();
 
   EXPECT_EQ(3, vec.size());
 
@@ -83,13 +83,13 @@ TEST(VariantTest, InitializerList__Array) {
 }
 
 TEST(VariantTest, InitilizerList__Map) {
-  Variant v{{"string", Variant("hello")},
-            {"int", Variant(123)},
-            {"bool", Variant(true)}};
+  Var v{{"string", Var("hello")},
+            {"int", Var(123)},
+            {"bool", Var(true)}};
 
   EXPECT_TRUE(v.is_map());
 
-  VariantMap& map = v.get_map();
+  VarMap& map = v.get_map();
 
   EXPECT_EQ(3, map.size());
 
@@ -104,13 +104,13 @@ TEST(VariantTest, InitilizerList__Map) {
 }
 
 TEST(VariantTest, InitilizerList__NestedMap) {
-  Variant v{{"string", Variant("hello")},
-            {"int", Variant(123)},
-            {"map", {{"first", Variant("one")}, {"second", Variant("two")}}}};
+  Var v{{"string", Var("hello")},
+            {"int", Var(123)},
+            {"map", {{"first", Var("one")}, {"second", Var("two")}}}};
 
   EXPECT_TRUE(v.is_map());
 
-  VariantMap& map = v.get_map();
+  VarMap& map = v.get_map();
 
   EXPECT_EQ(3, map.size());
 
@@ -122,7 +122,7 @@ TEST(VariantTest, InitilizerList__NestedMap) {
 
   EXPECT_TRUE(map["map"].is_map());
 
-  VariantMap& nested_map = map["map"].get_map();
+  VarMap& nested_map = map["map"].get_map();
 
   EXPECT_EQ(2, nested_map.size());
 
@@ -135,22 +135,22 @@ TEST(VariantTest, InitilizerList__NestedMap) {
 
 TEST(VariantTest, copy) {
   {
-    Variant v{{"string", Variant("hello")},
-              {"int", Variant(123)},
-              {"map", {{"first", Variant("one")}, {"second", Variant("two")}}}};
+    Var v{{"string", Var("hello")},
+              {"int", Var(123)},
+              {"map", {{"first", Var("one")}, {"second", Var("two")}}}};
 
-    Variant v1 = v.copy();
+    Var v1 = v.copy();
 
     EXPECT_TRUE(v1.is_map());
     EXPECT_EQ(123, v1.get_map()["int"].get_int());
   }
   {
-    Variant v{Variant("hello"), Variant(123), Variant(true)};
-    Variant v1 = v.copy();
+    Var v{Var("hello"), Var(123), Var(true)};
+    Var v1 = v.copy();
 
     EXPECT_TRUE(v1.is_array());
 
-    VariantArray& vec = v1.get_array();
+    VarArray& vec = v1.get_array();
 
      EXPECT_EQ(3, vec.size());
 
@@ -162,22 +162,22 @@ TEST(VariantTest, copy) {
 TEST(VariantTest, deep_copy) {
   // TODO: 'deep test' for deep_copy
   {
-    Variant v{{"string", Variant("hello")},
-              {"int", Variant(123)},
-              {"map", {{"first", Variant("one")}, {"second", Variant("two")}}}};
+    Var v{{"string", Var("hello")},
+              {"int", Var(123)},
+              {"map", {{"first", Var("one")}, {"second", Var("two")}}}};
 
-    Variant v1 = v.deep_copy();
+    Var v1 = v.deep_copy();
 
     EXPECT_TRUE(v1.is_map());
     EXPECT_EQ(123, v1.get_map()["int"].get_int());
   }
   {
-    Variant v{Variant("hello"), Variant(123), Variant(true)};
-    Variant v1 = v.deep_copy();
+    Var v{Var("hello"), Var(123), Var(true)};
+    Var v1 = v.deep_copy();
 
     EXPECT_TRUE(v1.is_array());
 
-    VariantArray& vec = v1.get_array();
+    VarArray& vec = v1.get_array();
 
      EXPECT_EQ(3, vec.size());
 
