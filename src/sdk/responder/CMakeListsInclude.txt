@@ -3,8 +3,7 @@ list(APPEND ResponderSourceFiles
         model_base.cc
         node_model.cc
         node_state_manager.cc
-        node_state.cc
-        local/local_node.cc)
+        node_state.cc)
 
 foreach(file ${ResponderSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_RESPONDER}/${file})
