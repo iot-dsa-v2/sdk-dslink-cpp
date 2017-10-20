@@ -58,12 +58,6 @@ include(${LIB_CORE}/CMakeListsInclude.txt)
 include(${LIB_MODULE}/CMakeListsInclude.txt)
 include(${LIB_DSLINK}/CMakeListsInclude.txt)
 
-if (WIN32)
-  set_source_files_properties(${LIB_VARIANT}/json.cc PROPERTIES COMPILE_FLAGS "/permissive-")
-else ()
-  set_source_files_properties(${LIB_VARIANT}/json.cc PROPERTIES COMPILE_FLAGS "-fpermissive")
-endif ()
-
 add_library(dsa_sdk STATIC ${ProjectSourceFiles} dsa_common.cc dsa_common.h
         $<TARGET_OBJECTS:msgpackc-object>
         $<TARGET_OBJECTS:jansson-object>)
