@@ -15,6 +15,7 @@ class MockNode : public NodeModelBase {
 public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
+  bool unsubscribed = false;
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
@@ -30,22 +31,22 @@ public:
       set_value(Var("world"));
     }
   }
+  void on_unsubscribe() override { unsubscribed = true; }
 };
 class MockStreamAcceptor : public OutgoingStreamAcceptor {
 public:
   ref_<OutgoingSubscribeStream> last_subscribe_stream;
   std::unique_ptr<SubscribeOptions> last_subscribe_options;
-  bool closed = false;
+  bool unsubscribed = false;
   void add(ref_<OutgoingSubscribeStream> &&stream) {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_response(
-      make_ref_<SubscribeResponseMessage>(Var("hello")));
+    stream->send_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       if (stream.is_destroyed()) {
-        closed = true;
+        unsubscribed = true;
         return;
       }
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
@@ -123,6 +124,17 @@ TEST(ResponderTest, Subscribe_Model) {
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
     return last_response->get_value().value.get_string() == "world";
   });
+
+  // unsubscribe
+  subscribe_stream->close_stream();
+
+  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+    return subscribe_stream->is_destroyed() &&
+           subscribe_stream->ref_count() == 1;
+  });
+
+  ASYNC_EXPECT_TRUE(500, *server_config.strand,
+                    [&]() -> bool { return root_node->unsubscribed; });
 
   Server::destroy_in_strand(tcp_server);
   Client::destroy_in_strand(tcp_client);
@@ -204,15 +216,15 @@ TEST(ResponderTest, Subscribe_Acceptor) {
               mock_stream_acceptor->last_subscribe_stream->options());
 
   // unsubscribe
-
   subscribe_stream->close_stream();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
-    return subscribe_stream->is_destroyed() && subscribe_stream->ref_count() == 1;
+    return subscribe_stream->is_destroyed() &&
+           subscribe_stream->ref_count() == 1;
   });
 
   ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
-    return mock_stream_acceptor->closed;
+    return mock_stream_acceptor->unsubscribed;
   });
 
   Server::destroy_in_strand(tcp_server);

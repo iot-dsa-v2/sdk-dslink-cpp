@@ -150,16 +150,19 @@ void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
 }
 
 void NodeState::check_subscribe_options() {
-  SubscribeOptions new_options;
+  SubscribeOptions new_options(QosLevel::_0, -1);
   for (auto &stream : _subscription_streams) {
     new_options.mergeFrom(stream.first->options());
   }
-  if (new_options != _merged_subscribe_options && _model != nullptr) {
-    if (new_options.is_invalid()) {
-      _model->unsubscribe();
-    } else {
-      // update options only
-      _model->subscribe(new_options, nullptr);
+  if (new_options != _merged_subscribe_options) {
+    _merged_subscribe_options = new_options;
+    if (_model != nullptr) {
+      if (new_options.is_invalid()) {
+        _model->unsubscribe();
+      } else {
+        // update options only
+        _model->subscribe(new_options, nullptr);
+      }
     }
   }
 }
@@ -181,7 +184,8 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
       OutgoingSubscribeStream & stream, const SubscribeOptions &old_options) {
     if (stream.is_destroyed()) {
       _subscription_streams.erase(&stream);
-      if (_merged_subscribe_options.needUpdateOnRemoval(stream.options())) {
+      if (_subscription_streams.empty() ||
+          _merged_subscribe_options.needUpdateOnRemoval(stream.options())) {
         check_subscribe_options();
       }
     } else {
