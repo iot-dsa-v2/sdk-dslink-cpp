@@ -86,6 +86,8 @@ bool Requester::remove_stream(uint32_t rid){
     auto &stream = search->second;
     stream->close();
     _incoming_streams.erase(search);
+    return true;
   }
+  return false;
 }
 }
