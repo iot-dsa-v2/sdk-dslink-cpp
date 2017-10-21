@@ -69,7 +69,7 @@ void NodeModel::initialize() {
   }
 }
 
-void NodeModel::init_list_stream(OutgoingListStream &stream) {
+void NodeModel::on_list(OutgoingListStream &stream, bool first_request) {
   send_props_list(stream);
   send_children_list(stream);
 }
@@ -98,7 +98,7 @@ void NodeModel::update_property(const std::string &field,
     } else {
       return;
     }
-    if (_state != nullptr) {
+    if (_need_list && _state != nullptr) {
       _state->update_list_value(field, value.get_bytes());
     }
   }
@@ -108,14 +108,16 @@ ref_<NodeModel> NodeModel::add_list_child(const std::string &name,
   _list_children[name] = model;
   if (_state != nullptr) {
     add_child(name, ModelRef(model.get()));
-    _state->update_list_value(name, model->get_summary());
+    if (_need_list) {
+      _state->update_list_value(name, model->get_summary());
+    }
   }
   return std::move(model);
 }
 
 void NodeModel::on_set(ref_<OutgoingSetStream> &&stream) {
-  stream->on_request([this, ref=get_ref()](OutgoingSetStream &s,
-                            ref_<const SetRequestMessage> &&message) {
+  stream->on_request([ this, ref = get_ref() ](
+      OutgoingSetStream & s, ref_<const SetRequestMessage> && message) {
     auto field = message->get_attribute_field();
     MessageStatus status;
     if (field.empty()) {

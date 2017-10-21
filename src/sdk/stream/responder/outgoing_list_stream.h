@@ -16,10 +16,10 @@ class Var;
 
 class OutgoingListStream : public MessageRefedStream {
  public:
-  typedef std::function<void(OutgoingListStream &)> CancelCallback;
+  typedef std::function<void(OutgoingListStream &)> CloseCallback;
 
  protected:
-  CancelCallback _cancel_callback;
+  CloseCallback _close_callback;
 
   void destroy_impl() override;
 
@@ -29,6 +29,8 @@ class OutgoingListStream : public MessageRefedStream {
  public:
   OutgoingListStream(ref_<Session> &&session, const Path &path, uint32_t rid,
                      ListOptions &&options);
+
+  void on_close(CloseCallback &&callback);
 
   void update_value(const std::string &key, BytesRef &value);
   void update_value(const std::string &key, const Var &v);

@@ -28,7 +28,6 @@ NodeModelBase::NodeModelBase(LinkStrandRef &&strand)
 NodeModelBase::~NodeModelBase() = default;
 
 void NodeModelBase::destroy_impl() {
-  _subscribe_callback = nullptr;
   _cached_value.reset();
   _state.reset();
   _strand.reset();
@@ -56,39 +55,48 @@ ModelRef NodeModelBase::add_child(const std::string &name, ModelRef &&model) {
   child_state->set_model(ModelRef(model));
   return std::move(model);
 }
-void NodeModelBase::subscribe(const SubscribeOptions &options,
-                              SubscribeCallback &&callback) {
-  if (callback != nullptr) {
-    _subscribe_callback = callback;
-    on_subscribe(options);
-  } else {
-    // second time option change, the callback is ignored
-    on_subscribe_option_change(options);
-  }
+void NodeModelBase::subscribe(const SubscribeOptions &options) {
+  bool first_request = !_need_subscribe;
+  _need_subscribe = true;
+  on_subscribe(options, first_request);
 }
 void NodeModelBase::unsubscribe() {
-  _subscribe_callback = nullptr;
-  on_unsubscribe();
+  if (_need_subscribe) {
+    _need_subscribe = false;
+    on_unsubscribe();
+  }
 }
 
 void NodeModelBase::set_value(Var &&value) {
   _cached_value = make_ref_<SubscribeResponseMessage>(std::move(value));
-  if (_subscribe_callback) {
-    _subscribe_callback(copy_ref_(_cached_value));
+  if (_need_subscribe) {
+    _state->new_subscribe_response(copy_ref_(_cached_value));
   }
 }
 void NodeModelBase::set_value(MessageValue &&value) {
   auto response = make_ref_<SubscribeResponseMessage>();
   response->set_value(std::move(value));
   _cached_value = response;
-  if (_subscribe_callback) {
-    _subscribe_callback(copy_ref_(_cached_value));
+  if (_need_subscribe) {
+    _state->new_subscribe_response(copy_ref_(_cached_value));
   }
 }
 void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
   _cached_value = std::move(message);
-  if (_subscribe_callback) {
-    _subscribe_callback(copy_ref_(_cached_value));
+  if (_need_subscribe) {
+    _state->new_subscribe_response(copy_ref_(_cached_value));
+  }
+}
+
+void NodeModelBase::list(OutgoingListStream &stream) {
+  bool first_request = !_need_list;
+  _need_list = true;
+  on_list(stream, first_request);
+}
+void NodeModelBase::unlist() {
+  if (_need_list) {
+    _need_list = false;
+    on_unlist();
   }
 }
 

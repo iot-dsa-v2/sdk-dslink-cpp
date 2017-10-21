@@ -12,11 +12,10 @@
 
 using namespace dsa;
 
-namespace responder_list_test{
+namespace responder_list_test {
 class MockNodeChild : public NodeModel {
 public:
-  explicit MockNodeChild(LinkStrandRef strand)
-    : NodeModel(std::move(strand)) {
+  explicit MockNodeChild(LinkStrandRef strand) : NodeModel(std::move(strand)) {
     update_property("$is", Var("test_class"));
     update_property("@unit", Var("test_unit"));
   };
@@ -26,15 +25,14 @@ class MockNodeRoot : public NodeModel {
 public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options = nullptr;
   std::unique_ptr<SubscribeOptions> second_subscribe_options = nullptr;
+  bool need_list() { return _need_list; }
 
-  explicit MockNodeRoot(LinkStrandRef strand)
-    : NodeModel(std::move(strand)) {
+  explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
     add_list_child("child_a", new MockNodeChild(_strand));
     add_list_child("child_b", new MockNodeChild(_strand));
   };
 };
 }
-
 
 TEST(ResponderTest, ListTest) {
   typedef responder_list_test::MockNodeRoot MockNodeRoot;
@@ -60,7 +58,7 @@ TEST(ResponderTest, ListTest) {
 
   // list on root node
   ref_<const ListResponseMessage> root_list_response;
-  tcp_client->get_session().requester.list(
+  auto list_stream = tcp_client->get_session().requester.list(
     "", [&](ref_<const ListResponseMessage> &&msg,
             IncomingListStream &stream) { root_list_response = msg; });
 
@@ -131,6 +129,16 @@ TEST(ResponderTest, ListTest) {
     EXPECT_TRUE(map["child_c"]["$is"].is_string());
     EXPECT_EQ(map["child_c"]["$is"].get_string(), "test_class");
   }
+
+  // close list stream
+  list_stream->close();
+
+  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+    return list_stream->is_destroyed() && list_stream->ref_count() == 1;
+  });
+
+  ASYNC_EXPECT_TRUE(500, *server_config.strand,
+                    [&]() -> bool { return !root_node->need_list(); });
 
   Server::destroy_in_strand(tcp_server);
   Client::destroy_in_strand(tcp_client);

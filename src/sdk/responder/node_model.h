@@ -41,7 +41,7 @@ class NodeModel : public NodeModelBase {
   explicit NodeModel(LinkStrandRef &&strand)
       : NodeModelBase(std::move(strand)){};
 
-  void init_list_stream(OutgoingListStream &stream) override;
+  void on_list(OutgoingListStream &stream, bool first_request) override;
 
   void update_property(const std::string &field, ModelProperty &&value);
 

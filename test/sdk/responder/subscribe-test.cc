@@ -15,23 +15,19 @@ class MockNode : public NodeModelBase {
 public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
-  bool unsubscribed = false;
+  bool need_subscribe(){return _need_subscribe;}
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
-  void on_subscribe(const SubscribeOptions &options) override {
-    first_subscribe_options.reset(new SubscribeOptions(options));
-    if (_subscribe_callback != nullptr) {
+  void on_subscribe(const SubscribeOptions &options, bool first_request) override {
+    if (first_request) {
+      first_subscribe_options.reset(new SubscribeOptions(options));
       set_value(Var("hello"));
-    }
-  }
-  void on_subscribe_option_change(const SubscribeOptions &options) override {
-    second_subscribe_options.reset(new SubscribeOptions(options));
-    if (_subscribe_callback != nullptr) {
+    } else {
+      second_subscribe_options.reset(new SubscribeOptions(options));
       set_value(Var("world"));
     }
   }
-  void on_unsubscribe() override { unsubscribed = true; }
 };
 class MockStreamAcceptor : public OutgoingStreamAcceptor {
 public:
@@ -125,7 +121,7 @@ TEST(ResponderTest, Subscribe_Model) {
     return last_response->get_value().value.get_string() == "world";
   });
 
-  // unsubscribe
+  // close the subscribe stream
   subscribe_stream->close();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
@@ -134,7 +130,7 @@ TEST(ResponderTest, Subscribe_Model) {
   });
 
   ASYNC_EXPECT_TRUE(500, *server_config.strand,
-                    [&]() -> bool { return root_node->unsubscribed; });
+                    [&]() -> bool { return !root_node->need_subscribe(); });
 
   Server::destroy_in_strand(tcp_server);
   Client::destroy_in_strand(tcp_client);

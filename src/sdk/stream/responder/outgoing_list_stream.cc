@@ -14,9 +14,13 @@ OutgoingListStream::OutgoingListStream(ref_<Session> &&session,
                                        ListOptions &&options)
     : MessageRefedStream(std::move(session), path, rid) {}
 
+void OutgoingListStream::on_close(CloseCallback &&callback) {
+  _close_callback = std::move(callback);
+}
+
 void OutgoingListStream::destroy_impl() {
-  if (_cancel_callback != nullptr) {
-    std::move(_cancel_callback)(*this);
+  if (_close_callback != nullptr) {
+    std::move(_close_callback)(*this);
   };
 }
 
@@ -24,13 +28,13 @@ void OutgoingListStream::update_value(const std::string &key, BytesRef &value) {
   _cached_map[key] = value;
   send_message();
 }
-void OutgoingListStream::update_value(const std::string &key,
-                                      const Var &v) {
+void OutgoingListStream::update_value(const std::string &key, const Var &v) {
   _cached_map[key] = make_ref_<const IntrusiveBytes>(std::move(v.to_msgpack()));
   send_message();
 }
 
-size_t OutgoingListStream::peek_next_message_size(size_t available, int64_t time) {
+size_t OutgoingListStream::peek_next_message_size(size_t available,
+                                                  int64_t time) {
   if (_cached_map.empty()) return 0;
 
   size_t size = StaticHeaders::TOTAL_SIZE;

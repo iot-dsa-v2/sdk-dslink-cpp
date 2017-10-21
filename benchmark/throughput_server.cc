@@ -36,7 +36,7 @@ class MockNode : public NodeModelBase {
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
-  void on_subscribe(const SubscribeOptions &options) override {
+  void on_subscribe(const SubscribeOptions &options, bool first_request) override {
     first_client_subscribed = true;
   }
 };

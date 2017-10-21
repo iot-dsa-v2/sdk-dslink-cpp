@@ -20,8 +20,8 @@ class MockNodeQos : public NodeModelBase {
   explicit MockNodeQos(LinkStrandRef strand)
       : NodeModelBase(std::move(strand)){};
 
-  void on_subscribe(const SubscribeOptions &options) override {
-    if (_subscribe_callback != nullptr) {
+  void on_subscribe(const SubscribeOptions &options, bool first_request) override {
+    if (_need_subscribe) {
       for (int i = 0; i < 10; ++i) {
         set_value(Var(i));
       }

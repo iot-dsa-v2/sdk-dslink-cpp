@@ -26,10 +26,6 @@ typedef ref_<NodeModelBase> ModelRef;
 class NodeModelBase : public DestroyableRef<NodeModelBase> {
   friend class NodeState;
 
- public:
-  typedef std::function<void(SubscribeResponseMessageCRef &&)>
-      SubscribeCallback;
-
  protected:
   LinkStrandRef _strand;
 
@@ -58,33 +54,36 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   virtual bool allows_runtime_child_change() { return false; }
   virtual ModelRef on_demand_create_child(const Path &path) { return INVALID; }
 
-
   /// subscribe
-protected:
-  SubscribeCallback _subscribe_callback;
+ protected:
+  bool _need_subscribe = false;
   SubscribeResponseMessageCRef _cached_value;
-public:
-  void subscribe(const SubscribeOptions &options, SubscribeCallback &&callback);
+  virtual void on_subscribe(const SubscribeOptions &options,
+                            bool first_request){};
+  virtual void on_unsubscribe() {}
+  void subscribe(const SubscribeOptions &options);
   void unsubscribe();
 
+ public:
   void set_value(Var &&value);
   void set_value(MessageValue &&value);
   void set_message(SubscribeResponseMessageCRef &&message);
 
-  virtual void on_subscribe(const SubscribeOptions &options){};
-  virtual void on_subscribe_option_change(const SubscribeOptions &options){};
-  virtual void on_unsubscribe(){};
-
   /// list
-public:
-  virtual void init_list_stream(OutgoingListStream &stream){};
+ protected:
+  bool _need_list = false;
+  virtual void on_list(OutgoingListStream &stream, bool first_request){};
+  virtual void on_unlist() {}
+
+  void list(OutgoingListStream &stream);
+  void unlist();
 
   /// invoke
-public:
+ public:
   virtual void on_invoke(ref_<OutgoingInvokeStream> &&stream);
 
   /// invoke
-public:
+ public:
   virtual void on_set(ref_<OutgoingSetStream> &&stream);
 };
 

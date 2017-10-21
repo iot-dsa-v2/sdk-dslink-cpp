@@ -161,7 +161,7 @@ void NodeState::check_subscribe_options() {
         _model->unsubscribe();
       } else {
         // update options only
-        _model->subscribe(new_options, nullptr);
+        _model->subscribe(new_options);
       }
     }
   }
@@ -172,11 +172,7 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
   _subscription_streams[p] = std::move(stream);
   if (_merged_subscribe_options.mergeFrom(p->options())) {
     if (_model_status == MODEL_CONNECTED) {
-      _model->subscribe(
-          _merged_subscribe_options,
-          [ this, keep_ref = get_ref() ](SubscribeResponseMessageCRef && msg) {
-            new_subscribe_response(std::move(msg));
-          });
+      _model->subscribe(_merged_subscribe_options);
     }
     // TODO update model;
   }
@@ -209,8 +205,14 @@ void NodeState::update_list_value(const std::string &key, BytesRef &value) {
 void NodeState::list(ref_<OutgoingListStream> &&stream) {
   auto p = stream.get();
   _list_streams[p] = std::move(stream);
+  p->on_close([ this, keep_ref = get_ref() ](OutgoingListStream & s) {
+    _list_streams.erase(&s);
+    if (_list_streams.empty() && _model != nullptr) {
+      _model->unlist();
+    }
+  });
   if (_model != nullptr) {
-    _model->init_list_stream(*p);
+    _model->list(*p);
   }
 }
 

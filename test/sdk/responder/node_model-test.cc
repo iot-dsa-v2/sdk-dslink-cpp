@@ -17,15 +17,11 @@ class MockNode : public NodeModelBase {
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
-  void on_subscribe(const SubscribeOptions &options) override {
+  void on_subscribe(const SubscribeOptions &options, bool first_request) override {
     first_subscribe_options.reset(new SubscribeOptions(options));
-    if (_subscribe_callback != nullptr) {
+    if (first_request) {
       set_value(Var("hello"));
-    }
-  }
-  void on_subscribe_option_change(const SubscribeOptions &options) override {
-    second_subscribe_options.reset(new SubscribeOptions(options));
-    if (_subscribe_callback != nullptr) {
+    } else {
       set_value(Var("world"));
     }
   }

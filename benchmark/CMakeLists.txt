@@ -18,8 +18,7 @@ endif ()
 
 
 #
-foreach (name "benchmark"
-              "throughput"
+foreach (name "throughput"
               "throughput_server"
               "throughput_client"
               "message_queue"
