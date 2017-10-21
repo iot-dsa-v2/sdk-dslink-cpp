@@ -28,4 +28,11 @@ void IncomingListStream::list(const ListOptions &options) {
   msg->set_target_path(path.full_str());
   send_message(std::move(msg));
 }
+
+void IncomingListStream::close(){
+  if (_closed) return;
+  _callback = nullptr;
+  send_message(make_ref_<RequestMessage>(MessageType::CLOSE));
+  _closed = true;
+}
 }

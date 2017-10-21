@@ -31,6 +31,8 @@ class IncomingListStream : public MessageCacheStream {
 
   // send the list request
   void list(const ListOptions &options);
+
+  void close();
 };
 }
 

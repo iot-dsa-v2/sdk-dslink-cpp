@@ -126,7 +126,7 @@ TEST(ResponderTest, Subscribe_Model) {
   });
 
   // unsubscribe
-  subscribe_stream->close_stream();
+  subscribe_stream->close();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&
@@ -216,7 +216,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
               mock_stream_acceptor->last_subscribe_stream->options());
 
   // unsubscribe
-  subscribe_stream->close_stream();
+  subscribe_stream->close();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&

@@ -16,9 +16,11 @@ class MessageRefedStream : public MessageStream {
  protected:
   ref_<Session> _session;
   bool _writing = false;
+  bool _closed = false;
 
  public:
   const Path path;
+  bool is_closed() const { return _closed; }
 
   explicit MessageRefedStream(ref_<Session> &&session, const Path &path,
                               uint32_t rid = 0);

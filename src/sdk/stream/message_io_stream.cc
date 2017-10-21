@@ -24,13 +24,15 @@ MessageCacheStream::MessageCacheStream(ref_<Session> &&session,
 MessageCacheStream::~MessageCacheStream() {}
 
 void MessageCacheStream::destroy_impl() {
+  _closed = true;
   _cache.reset();
   _session.reset();
 }
 
 void MessageCacheStream::send_message(MessageCRef &&msg) {
+  if (_closed || msg == nullptr) return;
   _cache = std::move(msg);
-  if (!_writing && _cache != nullptr && !is_destroyed()) {
+  if (!_writing && _cache != nullptr) {
     _writing = true;
     _session->write_stream(get_ref());
   }
@@ -65,6 +67,7 @@ MessageQueueStream::MessageQueueStream(ref_<Session> &&session,
 MessageQueueStream::~MessageQueueStream() {}
 
 void MessageQueueStream::destroy_impl() {
+  _closed = true;
   _queue.clear();
   _session.reset();
 }
@@ -80,7 +83,7 @@ void MessageQueueStream::purge() {
 }
 
 void MessageQueueStream::send_message(MessageCRef &&msg) {
-  if (msg == nullptr || is_destroyed()) return;
+  if (_closed || msg == nullptr) return;
   int64_t current_time = msg->created_ts;
   if (_queue.empty()) {
     _current_queue_time = current_time;

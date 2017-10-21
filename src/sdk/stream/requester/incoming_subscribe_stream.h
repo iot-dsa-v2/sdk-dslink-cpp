@@ -33,7 +33,7 @@ class IncomingSubscribeStream : public MessageCacheStream {
   // send subscription request and update of subscription options
   void subscribe(const SubscribeOptions& options);
 
-  void close_stream();
+  void close();
 };
 }
 

@@ -30,7 +30,10 @@ void IncomingSubscribeStream::subscribe(const SubscribeOptions& options) {
   send_message(std::move(msg));
 }
 
-void IncomingSubscribeStream::close_stream(){
+void IncomingSubscribeStream::close(){
+  if (_closed) return;
+  _callback = nullptr;
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE));
+  _closed = true;
 }
 }
