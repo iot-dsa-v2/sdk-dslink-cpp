@@ -14,7 +14,7 @@ using namespace dsa;
 
 namespace responder_list_test {
 class MockNodeChild : public NodeModel {
-public:
+ public:
   explicit MockNodeChild(LinkStrandRef strand) : NodeModel(std::move(strand)) {
     update_property("$is", Var("test_class"));
     update_property("@unit", Var("test_unit"));
@@ -22,7 +22,7 @@ public:
 };
 
 class MockNodeRoot : public NodeModel {
-public:
+ public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options = nullptr;
   std::unique_ptr<SubscribeOptions> second_subscribe_options = nullptr;
   bool need_list() { return _need_list; }
@@ -59,16 +59,18 @@ TEST(ResponderTest, ListTest) {
   // list on root node
   ref_<const ListResponseMessage> root_list_response;
   auto list_stream = tcp_client->get_session().requester.list(
-    "", [&](ref_<const ListResponseMessage> &&msg,
-            IncomingListStream &stream) { root_list_response = msg; });
+      "",
+      [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
+        root_list_response = msg;
+      });
 
   // list on child node
   ref_<const ListResponseMessage> child_list_response;
   tcp_client->get_session().requester.list(
-    "child_a",
-    [&](ref_<const ListResponseMessage> &&msg, IncomingListStream &stream) {
-      child_list_response = msg;
-    });
+      "child_a",
+      [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
+        child_list_response = msg;
+      });
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
@@ -102,7 +104,7 @@ TEST(ResponderTest, ListTest) {
 
   // update root property
   server_config.strand->post(
-    [&]() { root_node->update_property("@int", Var(1)); });
+      [&]() { root_node->update_property("@int", Var(1)); });
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() { return root_list_response != nullptr; });
   {

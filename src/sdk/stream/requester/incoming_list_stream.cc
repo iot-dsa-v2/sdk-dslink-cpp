@@ -17,7 +17,7 @@ IncomingListStream::IncomingListStream(ref_<Session>&& session,
 void IncomingListStream::receive_message(MessageCRef&& msg) {
   if (msg->type() == MessageType::LIST_RESPONSE) {
     if (_callback != nullptr) {
-      _callback(std::move(msg), *this);
+      _callback(*this, std::move(msg));
     }
   }
 }

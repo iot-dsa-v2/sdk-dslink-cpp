@@ -15,8 +15,8 @@ class ListResponseMessage;
 
 class IncomingListStream : public MessageCacheStream {
  public:
-  typedef std::function<void(ref_<const ListResponseMessage>&&,
-                             IncomingListStream&)>
+  typedef std::function<void(IncomingListStream&,
+                             ref_<const ListResponseMessage>&&)>
       Callback;
 
   static const ListOptions default_options;
@@ -30,7 +30,7 @@ class IncomingListStream : public MessageCacheStream {
   void receive_message(MessageCRef&& msg) override;
 
   // send the list request
-  void list(const ListOptions &options);
+  void list(const ListOptions& options);
 
   void close();
 };

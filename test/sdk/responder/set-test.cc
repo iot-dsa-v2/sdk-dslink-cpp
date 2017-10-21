@@ -19,7 +19,7 @@ using namespace dsa;
 
 namespace responder_set_test {
 class MockNode : public NodeModel {
-public:
+ public:
   explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
 
   bool allows_set_value() override { return true; }
@@ -31,7 +31,7 @@ public:
   }
 };
 class MockStreamAcceptor : public OutgoingStreamAcceptor {
-public:
+ public:
   ref_<OutgoingSetStream> last_set_stream;
   ref_<const SetRequestMessage> last_set_request;
 
@@ -40,9 +40,9 @@ public:
                      "receive second subscription stream, not expected");
     last_set_stream = stream;
     stream->on_request(
-      [this](OutgoingSetStream &s, ref_<const SetRequestMessage> &&message) {
-        last_set_request = std::move(message);
-      });
+        [this](OutgoingSetStream &s, ref_<const SetRequestMessage> &&message) {
+          last_set_request = std::move(message);
+        });
     auto response = make_ref_<SetResponseMessage>();
     stream->send_response(std::move(response));
   }
@@ -79,16 +79,18 @@ TEST(ResponderTest, Set_Model) {
   // subscribe on root node value
   ref_<const SubscribeResponseMessage> last_subscribe_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-    "", [&](IncomingSubscribeStream &stream,
-            ref_<const SubscribeResponseMessage> &&msg) {
-      last_subscribe_response = std::move(msg);  // store response
-    });
+      "", [&](IncomingSubscribeStream &stream,
+              ref_<const SubscribeResponseMessage> &&msg) {
+        last_subscribe_response = std::move(msg);  // store response
+      });
 
   // list on root node
   ref_<const ListResponseMessage> last_list_response;
   tcp_client->get_session().requester.list(
-    "", [&](ref_<const ListResponseMessage> &&msg,
-            IncomingListStream &stream) { last_list_response = msg; });
+      "",
+      [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
+        last_list_response = msg;
+      });
 
   auto first_request = make_ref_<SetRequestMessage>();
   first_request->set_value(Var("hello"));
@@ -99,13 +101,13 @@ TEST(ResponderTest, Set_Model) {
 
   // test invalid path scenario
   auto set_stream1 = tcp_client->get_session().requester.set(
-    "",
-    [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
-    std::move(first_request));
+      "",
+      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
+      std::move(first_request));
   auto set_stream2 = tcp_client->get_session().requester.set(
-    "",
-    [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
-    std::move(second_request));
+      "",
+      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
+      std::move(second_request));
 
   // wait for acceptor to receive the request
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -144,7 +146,7 @@ TEST(ResponderTest, Set_Acceptor) {
 
   TestConfig server_config(app);
   server_config.get_link_config()->set_stream_acceptor(
-    std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
+      std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
 
   WrapperConfig client_config = server_config.get_client_config(app, true);
   auto tcp_server = make_shared_<TcpServer>(server_config);
@@ -165,11 +167,11 @@ TEST(ResponderTest, Set_Acceptor) {
   ref_<const SetResponseMessage> last_response;
   // test invalid path scenario
   auto set_stream = tcp_client->get_session().requester.set(
-    "",
-    [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {
-      last_response = std::move(msg);
-    },
-    copy_ref_(first_request));
+      "",
+      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {
+        last_response = std::move(msg);
+      },
+      copy_ref_(first_request));
 
   // wait for acceptor to receive the request
   ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
@@ -177,7 +179,7 @@ TEST(ResponderTest, Set_Acceptor) {
   });
   // received request option should be same as the original one
   MessageValue request_value =
-    mock_stream_acceptor->last_set_request->get_value();
+      mock_stream_acceptor->last_set_request->get_value();
   EXPECT_TRUE(request_value.value.is_string() &&
               request_value.value.get_string() == "hello");
 
