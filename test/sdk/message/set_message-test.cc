@@ -260,7 +260,8 @@ TEST(MessageTest, SetResponse__Constructor_01) {
   EXPECT_EQ(MessageType::SET_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
-  EXPECT_EQ(MessageType::SET_RESPONSE, response.get_response_type(MessageType::SET_REQUEST));
+  EXPECT_EQ(MessageType::SET_RESPONSE,
+            response.get_response_type(MessageType::SET_REQUEST));
 }
 
 TEST(MessageTest, SetResponse__Constructor_02) {
@@ -327,7 +328,7 @@ TEST(MessageTest, SetResponse__write) {
   response.write(buf);
 
   uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x84, 0x0, 0x0,
-                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x28};
+                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x48};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
@@ -358,7 +359,7 @@ TEST(MessageTest, SetResponse__dynamic_structure) {
   response.write(buf);
 
   uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x84, 0x0, 0x0,
-                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x10};
+                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x20};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
@@ -378,9 +379,8 @@ TEST(MessageTest, copy) {
   dup_response.write(buf);
 
   uint8_t expected_values[] = {0x11, 0x0, 0x0, 0x0, 0x11, 0x0, 0x84, 0x0, 0x0,
-                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x28};
+                               0x0,  0x0, 0x0, 0x0, 0x0,  0x0, 0x0,  0x48};
 
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
-
