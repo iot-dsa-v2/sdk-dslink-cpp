@@ -32,8 +32,9 @@ void IncomingSubscribeStream::subscribe(const SubscribeOptions& options) {
 
 void IncomingSubscribeStream::close(){
   if (_closed) return;
-  _callback = nullptr;
-  send_message(make_ref_<RequestMessage>(MessageType::CLOSE));
   _closed = true;
+  _callback = nullptr;
+  send_message(make_ref_<RequestMessage>(MessageType::CLOSE), true);
+
 }
 }

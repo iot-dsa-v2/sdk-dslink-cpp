@@ -22,17 +22,17 @@ void IncomingListStream::receive_message(MessageCRef&& msg) {
   }
 }
 
-void IncomingListStream::list(const ListOptions &options) {
+void IncomingListStream::list(const ListOptions& options) {
   auto msg = make_ref_<ListRequestMessage>();
   msg->set_list_option(options);
   msg->set_target_path(path.full_str());
   send_message(std::move(msg));
 }
 
-void IncomingListStream::close(){
+void IncomingListStream::close() {
   if (_closed) return;
-  _callback = nullptr;
-  send_message(make_ref_<RequestMessage>(MessageType::CLOSE));
   _closed = true;
+  _callback = nullptr;
+  send_message(make_ref_<RequestMessage>(MessageType::CLOSE), true);
 }
 }

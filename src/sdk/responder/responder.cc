@@ -11,10 +11,10 @@
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
 #include "stream/error_stream.h"
-#include "stream/responder/outgoing_list_stream.h"
-#include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
+#include "stream/responder/outgoing_subscribe_stream.h"
 
 namespace dsa {
 
@@ -23,7 +23,6 @@ Responder::Responder(Session &session) : _session(session) {}
 void Responder::destroy_impl() { _outgoing_streams.clear(); }
 
 void Responder::receive_message(ref_<Message> &&message) {
-
   auto find_stream = _outgoing_streams.find(message->get_rid());
   if (find_stream != _outgoing_streams.end()) {
     if (message->type() == MessageType::CLOSE) {
@@ -101,8 +100,8 @@ void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
 
 void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message) {
   auto stream = make_ref_<OutgoingInvokeStream>(
-    _session.get_ref(), message->get_target_path(), message->get_rid(),
-    std::move(message));
+      _session.get_ref(), message->get_target_path(), message->get_rid(),
+      std::move(message));
 
   _outgoing_streams[stream->rid] = stream;
 
@@ -111,11 +110,23 @@ void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message) {
 
 void Responder::on_set_request(ref_<SetRequestMessage> &&message) {
   auto stream = make_ref_<OutgoingSetStream>(
-    _session.get_ref(), message->get_target_path(), message->get_rid(),
-    std::move(message));
+      _session.get_ref(), message->get_target_path(), message->get_rid(),
+      std::move(message));
 
   _outgoing_streams[stream->rid] = stream;
 
   _session._strand->stream_acceptor().add(std::move(stream));
 }
+
+bool Responder::remove_stream(int32_t rid) {
+  auto search = _outgoing_streams.find(rid);
+  if (search != _outgoing_streams.end()) {
+    auto &stream = search->second;
+    stream->destroy();
+    _outgoing_streams.erase(search);
+    return true;
+  }
+  return false;
+}
+
 }  // namespace dsa

@@ -50,7 +50,7 @@ class Requester {
                                     IncomingSetStream::Callback &&callback,
                                     ref_<const SetRequestMessage> &&message);
 
-  bool remove_stream(uint32_t rid);
+  bool remove_stream(int32_t rid);
 };
 
 }  // namespace dsa

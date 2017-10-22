@@ -11,6 +11,8 @@ MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
     : MessageStream(rid), path(path), _session(std::move(session)){};
 MessageRefedStream::~MessageRefedStream() = default;
 
+inline void MessageRefedStream::destroy_impl() { _session.reset(); }
+
 void MessageRefedStream::send_message() {
   if (!_writing && !is_destroyed()) {
     _writing = true;
@@ -26,11 +28,14 @@ MessageCacheStream::~MessageCacheStream() {}
 void MessageCacheStream::destroy_impl() {
   _closed = true;
   _cache.reset();
-  _session.reset();
+  MessageRefedStream::destroy_impl();
 }
 
-void MessageCacheStream::send_message(MessageCRef &&msg) {
-  if (_closed || msg == nullptr) return;
+void MessageCacheStream::send_message(MessageCRef &&msg, bool close) {
+  if (msg == nullptr) return;
+  if (_closed && !close) {
+    return;
+  }
   _cache = std::move(msg);
   if (!_writing && _cache != nullptr) {
     _writing = true;
@@ -69,7 +74,7 @@ MessageQueueStream::~MessageQueueStream() {}
 void MessageQueueStream::destroy_impl() {
   _closed = true;
   _queue.clear();
-  _session.reset();
+  MessageRefedStream::destroy_impl();
 }
 
 void MessageQueueStream::purge() {
@@ -82,8 +87,11 @@ void MessageQueueStream::purge() {
   }
 }
 
-void MessageQueueStream::send_message(MessageCRef &&msg) {
-  if (_closed || msg == nullptr) return;
+void MessageQueueStream::send_message(MessageCRef &&msg, bool close) {
+  if (msg == nullptr) return;
+  if (_closed && !close) {
+    return;
+  }
   int64_t current_time = msg->created_ts;
   if (_queue.empty()) {
     _current_queue_time = current_time;

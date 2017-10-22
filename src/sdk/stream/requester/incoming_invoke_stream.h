@@ -28,6 +28,10 @@ class IncomingInvokeStream : public MessageQueueStream {
   void receive_message(MessageCRef&& msg) override;
 
   void invoke(ref_<const InvokeRequestMessage>&& msg);
+
+  void close();
+
+  MessageCRef get_next_message(AckCallback& callback) override;
 };
 }
 

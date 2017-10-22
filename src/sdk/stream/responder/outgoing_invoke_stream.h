@@ -38,6 +38,10 @@ class OutgoingInvokeStream : public MessageQueueStream {
   void send_response(InvokeResponseMessageCRef &&message) {
     send_message(MessageCRef(std::move(message)));
   };
+
+  void close(MessageStatus status = MessageStatus::CLOSED);
+
+  MessageCRef get_next_message(AckCallback &callback) override;
 };
 }
 

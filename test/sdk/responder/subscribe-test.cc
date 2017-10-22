@@ -209,7 +209,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   EXPECT_TRUE(update_options ==
               mock_stream_acceptor->last_subscribe_stream->options());
 
-  // unsubscribe
+  // close the subscribe stream
   subscribe_stream->close();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {

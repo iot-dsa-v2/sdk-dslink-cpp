@@ -18,6 +18,8 @@ class MessageRefedStream : public MessageStream {
   bool _writing = false;
   bool _closed = false;
 
+  void destroy_impl() override;
+
  public:
   const Path path;
   bool is_closed() const { return _closed; }
@@ -42,7 +44,7 @@ class MessageCacheStream : public MessageRefedStream {
   void destroy_impl() override;
 
   /// put message to writing cache
-  void send_message(MessageCRef &&msg);
+  void send_message(MessageCRef &&msg, bool close = false);
 
  public:
   MessageCacheStream(ref_<Session> &&session, const Path &path,
@@ -67,7 +69,7 @@ class MessageQueueStream : public MessageRefedStream {
   void destroy_impl() override;
 
   /// add message to the queue
-  void send_message(MessageCRef &&msg);
+  void send_message(MessageCRef &&msg, bool close = false);
 
   int32_t _max_queue_size = DEFAULT_MAX_QUEUE_SIZE;
   int32_t _current_queue_size = 0;
