@@ -79,12 +79,10 @@ TEST(ResponderTest, ListTest) {
     auto mapref = root_list_response->get_parsed_map();
     auto map = *mapref;
     EXPECT_TRUE(map["child_a"].is_map());
-    EXPECT_TRUE(map["child_a"]["$is"].is_string());
-    EXPECT_EQ(map["child_a"]["$is"].get_string(), "test_class");
+    EXPECT_EQ(map["child_a"]["$is"].to_string(), "test_class");
 
     EXPECT_TRUE(map["child_b"].is_map());
-    EXPECT_TRUE(map["child_b"]["$is"].is_string());
-    EXPECT_EQ(map["child_b"]["$is"].get_string(), "test_class");
+    EXPECT_EQ(map["child_b"]["$is"].to_string(), "test_class");
     root_list_response.reset();
   }
 
@@ -95,11 +93,9 @@ TEST(ResponderTest, ListTest) {
     auto mapref = child_list_response->get_parsed_map();
     auto map = *mapref;
 
-    EXPECT_TRUE(map["$is"].is_string());
-    EXPECT_EQ(map["$is"].get_string(), "test_class");
+    EXPECT_EQ(map["$is"].to_string(), "test_class");
 
-    EXPECT_TRUE(map["@unit"].is_string());
-    EXPECT_EQ(map["@unit"].get_string(), "test_unit");
+    EXPECT_EQ(map["@unit"].to_string(), "test_unit");
   }
 
   // update root property
@@ -128,8 +124,7 @@ TEST(ResponderTest, ListTest) {
     auto mapref = root_list_response->get_parsed_map();
     auto map = *mapref;
     EXPECT_TRUE(map["child_c"].is_map());
-    EXPECT_TRUE(map["child_c"]["$is"].is_string());
-    EXPECT_EQ(map["child_c"]["$is"].get_string(), "test_class");
+    EXPECT_EQ(map["child_c"]["$is"].to_string(), "test_class");
   }
 
   // close list stream

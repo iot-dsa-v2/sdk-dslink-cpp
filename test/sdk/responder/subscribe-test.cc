@@ -105,8 +105,7 @@ TEST(ResponderTest, Subscribe_Model) {
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
-              last_response->get_value().value.is_string() &&
-              last_response->get_value().value.get_string() == "hello");
+              last_response->get_value().value.to_string() == "hello");
 
   // send an new request to update the option of the same stream
   subscribe_stream->subscribe(update_options);
@@ -197,8 +196,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
-              last_response->get_value().value.is_string() &&
-              last_response->get_value().value.get_string() == "hello");
+              last_response->get_value().value.to_string() == "hello");
 
   // send an new request to udpate the option of the same stream
   subscribe_stream->subscribe(update_options);

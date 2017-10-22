@@ -11,9 +11,9 @@
 #include <utility>
 #include <vector>
 
+#include "util/buffer.h"
 #include "util/enable_intrusive.h"
 #include "util/exception.h"
-#include "util/buffer.h"
 
 struct msgpack_object;
 struct json_t;
@@ -22,8 +22,7 @@ namespace dsa {
 
 class Var;
 
-class VarMap : public std::map<std::string, Var>,
-                   public EnableRef<VarMap> {
+class VarMap : public std::map<std::string, Var>, public EnableRef<VarMap> {
  public:
   template <typename... Args>
   explicit VarMap(Args &&... args)
@@ -32,8 +31,7 @@ class VarMap : public std::map<std::string, Var>,
   VarMap(std::initializer_list<VarMap::value_type> init);
 };
 
-class VarArray : public std::vector<Var>,
-                     public EnableRef<VarArray> {
+class VarArray : public std::vector<Var>, public EnableRef<VarArray> {
  public:
   template <typename... Args>
   explicit VarArray(Args &&... args)
@@ -42,8 +40,7 @@ class VarArray : public std::vector<Var>,
   VarArray(std::initializer_list<Var> init);
 };
 
-class IntrusiveString : public std::string,
-                        public EnableRef<IntrusiveString> {
+class IntrusiveString : public std::string, public EnableRef<IntrusiveString> {
  public:
   template <typename... Args>
   explicit IntrusiveString(Args &&... args)
@@ -51,8 +48,7 @@ class IntrusiveString : public std::string,
 };
 
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
-                       ref_<IntrusiveString>,
-                       ref_<VarMap>, ref_<VarArray>,
+                       ref_<IntrusiveString>, ref_<VarMap>, ref_<VarArray>,
                        std::vector<uint8_t>, BytesRef>
     BaseVariant;
 
@@ -98,8 +94,8 @@ class Var : public BaseVariant {
   static Var new_map();
   static Var new_array();
 
- template <class T>
-  inline Var & operator= (T && other){
+  template <class T>
+  inline Var &operator=(T &&other) {
     BaseVariant::operator=(std::forward<T>(other));
     return *this;
   }
@@ -143,15 +139,16 @@ class Var : public BaseVariant {
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }
-  VarMap &get_map() const {
-    return *boost::get<ref_<VarMap>>(*this);
-  }
-  VarArray &get_array() const {
-    return *boost::get<ref_<VarArray>>(*this);
-  }
+  VarMap &get_map() const { return *boost::get<ref_<VarMap>>(*this); }
+  VarArray &get_array() const { return *boost::get<ref_<VarArray>>(*this); }
 
-  Var& operator[] (const std::string &name);
-  Var& operator[] (size_t index);
+  double to_double(double defaultout = 0.0 / 0.0) const;
+  int64_t to_bool(bool defaultout = false) const;
+  const std::string &to_string(const std::string &defaultout = "") const;
+
+  Var &operator[](const std::string &name);
+  Var &operator[](size_t index);
+
  public:
   Var deep_copy() const;
 

@@ -23,7 +23,7 @@ public:
 
   void on_invoke(ref_<OutgoingInvokeStream> &&stream) override {
     BOOST_ASSERT_MSG(last_invoke_stream == nullptr,
-                     "receive second subscription stream, not expected");
+                     "receive second invoke stream, not expected");
     last_invoke_stream = stream;
     stream->on_request([this](OutgoingInvokeStream &s,
                               ref_<const InvokeRequestMessage> &&message) {
@@ -41,7 +41,7 @@ public:
 
   void add(ref_<OutgoingInvokeStream> &&stream) override {
     BOOST_ASSERT_MSG(last_invoke_stream == nullptr,
-                     "receive second subscription stream, not expected");
+                     "receive second invoke stream, not expected");
     last_invoke_stream = stream;
     stream->on_request([this](OutgoingInvokeStream &s,
                               ref_<const InvokeRequestMessage> &&message) {
@@ -107,8 +107,7 @@ TEST(ResponderTest, Invoke_Model) {
   EXPECT_TRUE(request_body != nullptr && !request_body->empty());
   Var parsed_request_body =
     Var::from_msgpack(request_body->data(), request_body->size());
-  EXPECT_TRUE(parsed_request_body.is_string() &&
-              parsed_request_body.get_string() == "hello");
+  EXPECT_TRUE(parsed_request_body.to_string() == "hello");
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() -> bool { return last_response != nullptr; });
@@ -117,8 +116,7 @@ TEST(ResponderTest, Invoke_Model) {
   EXPECT_TRUE(response_body != nullptr && !response_body->empty());
   Var parsed_response_body =
     Var::from_msgpack(response_body->data(), response_body->size());
-  EXPECT_TRUE(parsed_response_body.is_string() &&
-              parsed_response_body.get_string() == "dsa");
+  EXPECT_TRUE(parsed_response_body.to_string() == "dsa");
 
   Server::destroy_in_strand(tcp_server);
   Client::destroy_in_strand(tcp_client);
@@ -180,8 +178,7 @@ TEST(ResponderTest, Invoke_Acceptor) {
   EXPECT_TRUE(request_body != nullptr && !request_body->empty());
   Var parsed_request_body =
     Var::from_msgpack(request_body->data(), request_body->size());
-  EXPECT_TRUE(parsed_request_body.is_string() &&
-              parsed_request_body.get_string() == "hello");
+  EXPECT_TRUE(parsed_request_body.to_string() == "hello");
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() -> bool { return last_response != nullptr; });
@@ -190,8 +187,7 @@ TEST(ResponderTest, Invoke_Acceptor) {
   EXPECT_TRUE(response_body != nullptr && !response_body->empty());
   Var parsed_response_body =
     Var::from_msgpack(response_body->data(), response_body->size());
-  EXPECT_TRUE(parsed_response_body.is_string() &&
-              parsed_response_body.get_string() == "dsa");
+  EXPECT_TRUE(parsed_response_body.to_string() == "dsa");
 
   Server::destroy_in_strand(tcp_server);
   Client::destroy_in_strand(tcp_client);

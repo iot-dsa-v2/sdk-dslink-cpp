@@ -9,8 +9,7 @@ VarMap::VarMap(
     std::initializer_list<std::map<std::string, Var>::value_type> init)
     : std::map<std::string, Var>(init) {}
 
-VarArray::VarArray(std::initializer_list<Var> init)
-    : std::vector<Var>(init) {}
+VarArray::VarArray(std::initializer_list<Var> init) : std::vector<Var>(init) {}
 
 Var::Var(const int64_t v) : BaseVariant(v) {}
 Var::Var(const int32_t v) : BaseVariant(static_cast<int64_t>(v)) {}
@@ -112,6 +111,72 @@ Var Var::copy() const {
     }
     default:
       return Var(*this);
+  }
+}
+
+double Var::to_double(double defaultout) const {
+  const std::string* str_value;
+  switch (which()) {
+    case DOUBLE:
+      return boost::get<double>(*this);
+    case INT:
+      return boost::get<int64_t>(*this);
+    case BOOL:
+      return boost::get<bool>(*this) ? 1.0 : 0.0;
+    case STRING:
+      str_value = &boost::get<std::string>(*this);
+      break;
+    case SHARED_STRING:
+      str_value = boost::get<ref_<IntrusiveString>>(*this).get();
+      break;
+    default:
+      return defaultout;
+  }
+  try {
+    return std::stod(*str_value);
+  } catch (std::exception& err) {
+    return defaultout;
+  }
+}
+int64_t Var::to_bool(bool defaultout) const {
+  const std::string* str_value;
+  switch (which()) {
+    case BOOL:
+      return boost::get<bool>(*this);
+    case DOUBLE: {
+      double v = boost::get<double>(*this);
+      return (v != 0.0 && v == v);  // not 0 or NaN
+    }
+    case INT:
+      return boost::get<int64_t>(*this) != 0;
+    case STRING:
+      str_value = &boost::get<std::string>(*this);
+      break;
+    case SHARED_STRING:
+      str_value = boost::get<ref_<IntrusiveString>>(*this).get();
+      break;
+    default:
+      return defaultout;
+  }
+  if (*str_value == "true" || *str_value == "True" || *str_value == "TRUE") {
+    return true;
+  }
+  return false;
+}
+const std::string& Var::to_string(const std::string& defaultout) const {
+  switch (which()) {
+    case BOOL:
+      return std::to_string(boost::get<bool>(*this));
+    case DOUBLE:
+      return std::to_string(boost::get<double>(*this));
+    case INT:
+      return std::to_string(boost::get<int64_t>(*this));
+    case STRING:
+      return boost::get<std::string>(*this);
+    case SHARED_STRING:
+      return *boost::get<ref_<IntrusiveString>>(*this);
+    default:
+      return defaultout;
   }
 }
 

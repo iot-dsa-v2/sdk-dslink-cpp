@@ -37,7 +37,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 
   void add(ref_<OutgoingSetStream> &&stream) override {
     BOOST_ASSERT_MSG(last_set_stream == nullptr,
-                     "receive second subscription stream, not expected");
+                     "receive second set stream, not expected");
     last_set_stream = stream;
     stream->on_request(
         [this](OutgoingSetStream &s, ref_<const SetRequestMessage> &&message) {
