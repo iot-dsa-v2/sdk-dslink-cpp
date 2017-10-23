@@ -43,7 +43,7 @@ TestConfig::TestConfig(App &app, bool async) : WrapperConfig() {
 WrapperConfig TestConfig::get_client_config(App &app, bool async) {
   WrapperConfig copy(*this);
   copy.strand.reset(make_config(app, async));
-
+  copy.strand->logger().level = strand->logger().level;
   copy.client_connection_maker =
       [
         dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port,

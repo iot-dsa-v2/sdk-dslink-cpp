@@ -56,14 +56,9 @@ MessageCRef MessageCacheStream::get_next_message(AckCallback &callback) {
   if (is_destroyed() || _cache == nullptr) {
     return MessageCRef();
   }
-
-  if (_cache->type() == MessageType::CLOSE) {
-    // clear the stream and return the cache
-    MessageCRef copy = std::move(_cache);
-    _session->requester.remove_stream(rid);
-    return std::move(copy);
-  }
-  return std::move(_cache);
+  MessageCRef copy = std::move(_cache);
+  check_close_message(copy);
+  return std::move(copy);
 }
 
 MessageQueueStream::MessageQueueStream(ref_<Session> &&session,
@@ -133,7 +128,8 @@ MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
   MessageCRef msg = std::move(_queue.front());
   _queue.pop_front();
   _current_queue_size -= msg->size();
-  if (!_queue.empty()) {
+  if (check_close_message(msg)) {
+  } else if (!_queue.empty()) {
     _current_queue_time = _queue.front()->created_ts;
     _writing = true;
     _session->write_stream(get_ref());

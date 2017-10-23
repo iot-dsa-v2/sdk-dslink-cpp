@@ -33,6 +33,8 @@ class IncomingListStream : public MessageCacheStream {
   void list(const ListOptions& options);
 
   void close();
+
+  bool check_close_message(MessageCRef& message) override;
 };
 }
 

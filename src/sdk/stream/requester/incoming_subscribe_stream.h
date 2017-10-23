@@ -34,6 +34,8 @@ class IncomingSubscribeStream : public MessageCacheStream {
   void subscribe(const SubscribeOptions& options);
 
   void close();
+
+  bool check_close_message(MessageCRef& message) override;
 };
 }
 

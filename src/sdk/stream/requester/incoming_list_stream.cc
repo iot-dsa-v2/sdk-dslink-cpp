@@ -2,6 +2,7 @@
 
 #include "incoming_list_stream.h"
 
+#include "core/session.h"
 #include "message/request/list_request_message.h"
 #include "message/response/list_response_message.h"
 
@@ -34,5 +35,13 @@ void IncomingListStream::close() {
   _closed = true;
   _callback = nullptr;
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE), true);
+}
+
+bool IncomingListStream::check_close_message(MessageCRef& message) {
+  if (message->type() == MessageType::CLOSE) {
+    _session->requester.remove_stream(rid);
+    return true;
+  }
+  return false;
 }
 }

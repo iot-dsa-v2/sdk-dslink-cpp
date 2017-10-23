@@ -23,7 +23,7 @@ class OutgoingSetStream : public MessageCacheStream {
  protected:
   Callback _callback;
 
- ref_<const SetRequestMessage> _waiting_request;
+  ref_<const SetRequestMessage> _waiting_request;
 
   void destroy_impl() override;
 
@@ -35,9 +35,9 @@ class OutgoingSetStream : public MessageCacheStream {
 
   void on_request(Callback &&callback);
 
-  void send_response(SetResponseMessageCRef &&message) {
-    send_message(MessageCRef(std::move(message)));
-  };
+  void send_response(ref_<SetResponseMessage> &&message);
+
+  bool check_close_message(MessageCRef &message) override;
 };
 }
 

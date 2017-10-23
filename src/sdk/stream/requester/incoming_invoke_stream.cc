@@ -37,24 +37,11 @@ void IncomingInvokeStream::close() {
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE), true);
 }
 
-MessageCRef IncomingInvokeStream::get_next_message(AckCallback& callback) {
-  _writing = false;
-  if (is_destroyed() || _queue.empty()) {
-    return MessageCRef();
-  }
-  MessageCRef msg = std::move(_queue.front());
-  _queue.pop_front();
-  _current_queue_size -= msg->size();
-  if (msg->type() == MessageType::CLOSE) {
-    // clear the stream and return the cache
-    MessageCRef copy = std::move(msg);
+bool IncomingInvokeStream::check_close_message(MessageCRef& message) {
+  if (message->type() == MessageType::CLOSE) {
     _session->requester.remove_stream(rid);
-    return std::move(copy);
-  } else if (!_queue.empty()) {
-    _current_queue_time = _queue.front()->created_ts;
-    _writing = true;
-    _session->write_stream(get_ref());
+    return true;
   }
-  return std::move(msg);
+  return false;
 }
 }

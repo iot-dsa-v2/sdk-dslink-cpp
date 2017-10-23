@@ -41,7 +41,7 @@ class OutgoingInvokeStream : public MessageQueueStream {
 
   void close(MessageStatus status = MessageStatus::CLOSED);
 
-  MessageCRef get_next_message(AckCallback &callback) override;
+  bool check_close_message(MessageCRef &message) override;
 };
 }
 

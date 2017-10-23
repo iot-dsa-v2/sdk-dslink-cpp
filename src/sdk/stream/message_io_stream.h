@@ -29,6 +29,8 @@ class MessageRefedStream : public MessageStream {
 
   void send_message();
 
+  virtual bool check_close_message(MessageCRef &message) { return false; };
+
   MessageRefedStream(const MessageRefedStream &other) = delete;
   MessageRefedStream(MessageRefedStream &&other) noexcept = delete;
   MessageRefedStream &operator=(const MessageRefedStream &other) = delete;

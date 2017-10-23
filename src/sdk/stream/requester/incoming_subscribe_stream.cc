@@ -2,6 +2,7 @@
 
 #include "incoming_subscribe_stream.h"
 
+#include "core/session.h"
 #include "message/request/subscribe_request_message.h"
 #include "message/response/subscribe_response_message.h"
 
@@ -30,11 +31,18 @@ void IncomingSubscribeStream::subscribe(const SubscribeOptions& options) {
   send_message(std::move(msg));
 }
 
-void IncomingSubscribeStream::close(){
+void IncomingSubscribeStream::close() {
   if (_closed) return;
   _closed = true;
   _callback = nullptr;
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE), true);
+}
 
+bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
+  if (message->type() == MessageType::CLOSE) {
+    _session->requester.remove_stream(rid);
+    return true;
+  }
+  return false;
 }
 }

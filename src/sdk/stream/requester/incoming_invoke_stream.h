@@ -31,7 +31,7 @@ class IncomingInvokeStream : public MessageQueueStream {
 
   void close();
 
-  MessageCRef get_next_message(AckCallback& callback) override;
+  bool check_close_message(MessageCRef& message) override;
 };
 }
 
