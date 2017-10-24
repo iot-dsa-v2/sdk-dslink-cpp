@@ -12,6 +12,8 @@
 #include "message/enums.h"
 #include "util/enable_intrusive.h"
 
+#include "storage.h"
+
 namespace dsa {
 
 class Path;

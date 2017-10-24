@@ -53,9 +53,6 @@ TEST(MessageTest, HandshakeF0) {
   // Client public _key
   message.public_key = client_public_key;
 
-  // no encryption
-  message.security_preference = false;
-
   // Client salt
   message.salt =
       std::vector<uint8_t>(client_salt, client_salt + sizeof(client_salt));
@@ -68,11 +65,11 @@ TEST(MessageTest, HandshakeF0) {
   message.write(buf);
 
   std::string expected_values(
-      "a70000000f00f00000000000000000020032006d796c696e6b2d54544458744c2d555f4e"
+      "a60000000f00f00000000000000000020032006d796c696e6b2d54544458744c2d555f4e"
       "5132736746525535773048725a56696232442d4f3443785851724b6b34685573490415ca"
       "f59c92efecb9253ea43912b419941fdb59a23d5d1289027128bf3d6ee4cb86fbe251b675"
-      "a8d9bd991a65caa1bb23f8a8e0dd4eb0974f6b1eaa3436cec0e900c4ca4238a0b923820d"
-      "cc509a6f75849bc81e728d9d4c2f636f067f89cc14862c");
+      "a8d9bd991a65caa1bb23f8a8e0dd4eb0974f6b1eaa3436cec0e9c4ca4238a0b923820dcc"
+      "509a6f75849bc81e728d9d4c2f636f067f89cc14862c");
   size_t length = expected_values.length();
 
   std::stringstream ss;

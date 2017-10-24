@@ -21,7 +21,7 @@ void HandshakeF0Message::update_static_header() {
   static_headers.header_size = (uint16_t)StaticHeaders::TOTAL_SIZE;
   static_headers.message_size = StaticHeaders::TOTAL_SIZE + 2 /*version*/ +
                                 2 /*dsidlen*/ + dsid.length() +
-                                PUBLIC_KEY_LENGTH + SALT_LENGTH + 1 /*encryption*/;
+                                PUBLIC_KEY_LENGTH + SALT_LENGTH;
 }
 
 void HandshakeF0Message::write_dynamic_data(uint8_t* data) const {
@@ -29,8 +29,8 @@ void HandshakeF0Message::write_dynamic_data(uint8_t* data) const {
   (*data++) = dsa_version_minor;
   data += write_str_with_len(data, dsid);
   data = std::copy(public_key.begin(), public_key.end(), data);
-  (*data++) = static_cast<uint8_t>(security_preference);
   data = std::copy(salt.begin(), salt.end(), data);
+  //(*data++) = static_cast<uint8_t>(security_preference);
 }
 
 void HandshakeF0Message::parse_dynamic_headers(
@@ -42,10 +42,9 @@ void HandshakeF0Message::parse_dynamic_headers(
 
   public_key.assign(data, data + PUBLIC_KEY_LENGTH);
   data += PUBLIC_KEY_LENGTH;
-
-  security_preference = static_cast<bool>(*data++);
-
   salt.assign(data, data + SALT_LENGTH);
+
+  //security_preference = static_cast<bool>(*data++);
 }
 
 }  // namespace dsa
