@@ -50,7 +50,7 @@ class Storage {
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket
-  virtual StorageBucket& get_queue_bucket(const std::string& name) = 0;
+  virtual QueueBucket& get_queue_bucket(const std::string& name) = 0;
   /// delete everything in the bucket
   virtual void remove_queue_bucket(const std::string& name) = 0;
 };
