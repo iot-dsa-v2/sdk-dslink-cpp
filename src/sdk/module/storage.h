@@ -15,21 +15,21 @@ namespace dsa {
 class QueueBucket {
  public:
   typedef std::function<void(const std::string& key, std::vector<uint8_t> data,
-                             bool key_finished, bool all_finished)>
+                             bool key_finished)>
       ReadCallback;
 
   virtual void array_push_back(const std::string& key, const uint8_t* data,
                                size_t size) = 0;
   virtual void array_remove_front(const std::string& key, size_t count) = 0;
 
-  virtual void read_all(ReadCallback&& callback) = 0;
+  virtual void read_all(ReadCallback&& callback,
+                        std::function<void()>&& on_done) = 0;
 };
 
 /// key->binary storage
 class StorageBucket {
  public:
-  typedef std::function<void(const std::string& key, std::vector<uint8_t> data,
-                             bool all_finished)>
+  typedef std::function<void(const std::string& key, std::vector<uint8_t> data)>
       ReadCallback;
 
   virtual void write(const std::string& key, const uint8_t* data,
@@ -38,7 +38,8 @@ class StorageBucket {
   virtual void remove(const std::string& key) = 0;
 
   /// the callback might run asynchronously
-  virtual void read_all(ReadCallback&& callback) = 0;
+  virtual void read_all(ReadCallback&& callback,
+                        std::function<void()>&& on_done) = 0;
 };
 
 class Storage {
