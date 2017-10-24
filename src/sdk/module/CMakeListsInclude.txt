@@ -1,6 +1,10 @@
 list(APPEND ModulekSourceFiles
         default/simple_security_manager.cc
-        default/console_logger.cc)
+        default/console_logger.cc
+        logger.h
+        security_manager.h
+        storage.h
+        )
 
 foreach(file ${ModulekSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_MODULE}/${file})

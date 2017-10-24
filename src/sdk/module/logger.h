@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_MODULE__LOGGER_H
-#define DSA_SDK_MODULE__LOGGER_H
+#ifndef DSA_SDK_MODULE_LOGGER_H_
+#define DSA_SDK_MODULE_LOGGER_H_
 
 #if defined(_MSC_VER)
 #pragma once
@@ -67,4 +67,4 @@ class Logger {
     throw std::runtime_error(LOG.str());    \
   }
 
-#endif  // DSA_SDK_MODULE__LOGGER_H
+#endif  // DSA_SDK_MODULE_LOGGER_H_

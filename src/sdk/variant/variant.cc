@@ -163,7 +163,7 @@ int64_t Var::to_bool(bool defaultout) const {
   }
   return false;
 }
-const std::string& Var::to_string(const std::string& defaultout) const {
+const std::string Var::to_string(const std::string& defaultout) const {
   switch (which()) {
     case BOOL:
       return std::to_string(boost::get<bool>(*this));

@@ -144,7 +144,7 @@ class Var : public BaseVariant {
 
   double to_double(double defaultout = 0.0 / 0.0) const;
   int64_t to_bool(bool defaultout = false) const;
-  const std::string &to_string(const std::string &defaultout = "") const;
+  const std::string to_string(const std::string &defaultout = "") const;
 
   Var &operator[](const std::string &name);
   Var &operator[](size_t index);
