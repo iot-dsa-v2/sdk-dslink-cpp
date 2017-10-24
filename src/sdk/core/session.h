@@ -11,6 +11,7 @@
 #include "network/connection.h"
 #include "util/enable_shared.h"
 
+#include "client_info.h"
 #include "requester/requester.h"
 #include "responder/responder.h"
 
@@ -20,6 +21,34 @@ class AckStream;
 class IncomingMessageStream;
 class OutgoingMessageStream;
 class Connection;
+class SessionManager;
+
+/// one client (a dsid) can have multiple sessions at same time
+/// these sessions are grouped in ClientSessions class
+class ClientSessions {
+  friend class SessionManager;
+
+ public:
+  typedef std::function<void(const ref_<Session> &session)> GetSessionCallback;
+
+ private:
+  uint64_t _session_id_seed;
+  uint64_t _session_id_count = 0;
+
+  ClientInfo _info;
+  std::unordered_map<std::string, ref_<Session>> _sessions;
+
+  void add_session(LinkStrandRef &strand, const std::string &session_id,
+                   GetSessionCallback &&callback);
+  void destroy();
+
+  std::string get_new_session_id(const std::string old_id = "");
+
+ public:
+  ClientSessions() = default;
+  explicit ClientSessions(const ClientInfo &info);
+  const ClientInfo &info() const { return _info; };
+};
 
 struct AckHolder {
   int32_t ack;
@@ -47,7 +76,7 @@ class Session final : public DestroyableRef<Session> {
   shared_ptr_<Connection> _connection;
 
   ref_<AckStream> _ack_stream;
-  std::deque<ref_<MessageStream> > _write_streams;
+  std::deque<ref_<MessageStream>> _write_streams;
   bool _is_writing = false;
 
   LinkStrandRef _strand;

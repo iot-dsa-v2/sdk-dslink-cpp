@@ -3,11 +3,59 @@
 #include "session.h"
 
 #include "client.h"
+#include "crypto/hash.h"
+#include "crypto/misc.h"
 #include "module/logger.h"
 #include "server.h"
 #include "stream/ack_stream.h"
 
 namespace dsa {
+
+ClientSessions::ClientSessions(const ClientInfo &info) : _info(info) {
+  gen_salt(reinterpret_cast<uint8_t *>(&_session_id_seed), sizeof(uint64_t));
+};
+
+void ClientSessions::add_session(LinkStrandRef &strand,
+                                 const std::string &session_id,
+                                 GetSessionCallback &&callback) {
+  auto search = _sessions.find(session_id);
+  if (search != _sessions.end()) {
+    callback(search->second);
+    return;
+  }
+  std::string sid = get_new_session_id(session_id);
+  auto session = make_ref_<Session>(strand->get_ref(), sid);
+
+  _sessions[sid] = session;
+
+  callback(session);
+}
+
+std::string ClientSessions::get_new_session_id(const std::string old_session_id) {
+  Hash hash("sha256");
+
+  std::vector<uint8_t> data(16);
+  memcpy(&data[0], &_session_id_seed, sizeof(uint64_t));
+  memcpy(&data[8], &_session_id_count, sizeof(uint64_t));
+  _session_id_count++;
+
+  hash.update(data);
+
+  std::string result = base64_url_convert(hash.digest_base64());
+  if (result != old_session_id || _sessions.find(result)==_sessions.end()) {
+    return std::move(result);
+  }
+  return get_new_session_id(old_session_id);
+}
+
+void ClientSessions::destroy() {
+  for (auto &kv : _sessions) {
+    if (kv.second != nullptr) {
+      kv.second->destroy();
+    }
+  }
+  _sessions.clear();
+}
 
 Session::Session(LinkStrandRef strand, const std::string &session_id)
     : _strand(std::move(strand)),
@@ -56,8 +104,7 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE(_strand->logger(),
-            LOG << "receive message: " << message->type());
+  LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
 
   if (message->need_ack()) {
     _ack_stream->add_ack(message->get_ack_id());
@@ -106,7 +153,7 @@ void Session::write_loop(ref_<Session> sthis) {
   }
 
   auto write_buffer = connection->get_write_buffer();
-  std::time_t current_time= std::time(nullptr);
+  std::time_t current_time = std::time(nullptr);
 
   size_t next_message_size =
       sthis->peek_next_message(Message::MAX_MESSAGE_SIZE, current_time);
@@ -136,7 +183,8 @@ void Session::write_loop(ref_<Session> sthis) {
 
     write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
 
-    next_message_size = sthis->peek_next_message(write_buffer->max_next_size(), current_time);
+    next_message_size =
+        sthis->peek_next_message(write_buffer->max_next_size(), current_time);
   }
 
   write_buffer->write([sthis = std::move(sthis)](

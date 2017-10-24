@@ -47,7 +47,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
 
   ModelRef add_child(const std::string &name, ModelRef &&model);
 
-  // when return true, close() will be called by NodeState
+  // when return true, destroy() will be called by NodeState
   // and model will be removed from the node tree
   virtual bool periodic_check(size_t ts) { return false; }
 
