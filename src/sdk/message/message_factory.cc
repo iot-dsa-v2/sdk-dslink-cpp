@@ -38,7 +38,7 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
       return MessageRef(new SetResponseMessage(data, size));
     case MessageType::ACK:
       return MessageRef(new AckMessage(data, size));
-    case MessageType::CLOSE:
+    case MessageType::CLOSE_REQUEST:
       return MessageRef(new RequestMessage(data, size));
     case MessageType::PING:
       return MessageRef(new Message(MessageType::PING));

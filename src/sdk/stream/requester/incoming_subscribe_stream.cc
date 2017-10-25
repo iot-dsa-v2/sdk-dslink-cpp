@@ -35,11 +35,11 @@ void IncomingSubscribeStream::close() {
   if (_closed) return;
   _closed = true;
   _callback = nullptr;
-  send_message(make_ref_<RequestMessage>(MessageType::CLOSE), true);
+  send_message(make_ref_<RequestMessage>(MessageType::CLOSE_REQUEST), true);
 }
 
 bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
-  if (message->type() == MessageType::CLOSE) {
+  if (message->type() == MessageType::CLOSE_REQUEST) {
     _session->requester.remove_stream(rid);
     return true;
   }

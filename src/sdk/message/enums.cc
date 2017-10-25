@@ -6,7 +6,7 @@ namespace dsa {
 
 std::ostream &operator<<(std::ostream &os, MessageType type) {
   switch (type) {
-    case MessageType::CLOSE:
+    case MessageType::CLOSE_REQUEST:
       return os << std::string("CLOSE");
     case MessageType::SUBSCRIBE_REQUEST:
       return os << std::string("SUBSCRIBE_REQUEST");

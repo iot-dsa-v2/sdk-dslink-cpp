@@ -6,7 +6,7 @@ using namespace dsa;
 TEST(EnumTest, enum) {
   {
     std::stringstream ss;
-    ss << MessageType::CLOSE;
+    ss << MessageType::CLOSE_REQUEST;
 
     EXPECT_EQ("CLOSE", ss.str());
   }

@@ -25,7 +25,7 @@ void Responder::destroy_impl() { _outgoing_streams.clear(); }
 void Responder::receive_message(ref_<Message> &&message) {
   auto find_stream = _outgoing_streams.find(message->get_rid());
   if (find_stream != _outgoing_streams.end()) {
-    if (message->type() == MessageType::CLOSE) {
+    if (message->type() == MessageType::CLOSE_REQUEST) {
       find_stream->second->destroy();
       _outgoing_streams.erase(find_stream);
     } else {
@@ -33,7 +33,7 @@ void Responder::receive_message(ref_<Message> &&message) {
     }
     return;
   }
-  if (message->type() == MessageType::CLOSE) {
+  if (message->type() == MessageType::CLOSE_REQUEST) {
     // no need to close a stream that doesn't exist
     return;
   }
