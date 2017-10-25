@@ -176,7 +176,6 @@ const messages = {
             new ByteHeader('Status'),
             new IntHeader('SequenceId'),
             new StringHeader('BasePath'),
-            new StringHeader('ClassPath'),
             new StringHeader('SourcePath'),
             new BodyHeader('Body'),
         ],

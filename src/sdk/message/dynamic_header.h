@@ -24,7 +24,6 @@ class DynamicHeader {
     QUEUE_SIZE = 0x14,
     QUEUE_TIME = 0x15,
     BASE_PATH = 0x21,
-    CLASS_PATH = 0x22,
     SKIPPABLE = 0x30,
     MAX_PERMISSION = 0x32,
     ATTRIBUTE_FIELD = 0x41,

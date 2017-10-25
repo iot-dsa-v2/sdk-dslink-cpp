@@ -12,8 +12,6 @@ ListResponseMessage::ListResponseMessage(const ListResponseMessage& from)
     sequence_id.reset(new DynamicIntHeader(DynamicHeader::SEQUENCE_ID, from.sequence_id->value()));
   if (from.base_path != nullptr)
     base_path.reset(new DynamicStringHeader(DynamicHeader::BASE_PATH, from.base_path->value()));
-  if (from.class_path != nullptr)
-    class_path.reset(new DynamicStringHeader(DynamicHeader::CLASS_PATH, from.class_path->value()));
   if (from.source_path != nullptr)
     source_path.reset(new DynamicStringHeader(DynamicHeader::SOURCE_PATH, from.source_path->value()));
   if (from.body != nullptr)
@@ -31,8 +29,6 @@ void ListResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic
       case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
       case DynamicHeader::BASE_PATH:base_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
-        break;
-      case DynamicHeader::CLASS_PATH:class_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
       case DynamicHeader::SOURCE_PATH:source_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
         break;
@@ -58,10 +54,6 @@ void ListResponseMessage::write_dynamic_data(uint8_t *data) const {
     base_path->write(data);
     data += base_path->size();
   }
-  if (class_path != nullptr) {
-    class_path->write(data);
-    data += class_path->size();
-  }
   if (source_path != nullptr) {
     source_path->write(data);
     data += source_path->size();
@@ -81,9 +73,6 @@ void ListResponseMessage::update_static_header() {
   }
   if (base_path != nullptr) {
     header_size += base_path->size();
-  }
-  if (class_path != nullptr) {
-    header_size += class_path->size();
   }
   if (source_path != nullptr) {
     header_size += source_path->size();

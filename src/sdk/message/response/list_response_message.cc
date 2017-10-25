@@ -25,16 +25,6 @@ void ListResponseMessage::set_base_path(const std::string& value) {
   }
 }
 
-const std::string& ListResponseMessage::get_class_path() const {
-  return DynamicStringHeader::read_value(class_path);
-}
-void ListResponseMessage::set_class_path(const std::string& value) {
-  if (DynamicStringHeader::write_value(class_path, DynamicHeader::BASE_PATH,
-                                       value)) {
-    static_headers.message_size = 0;
-  }
-}
-
 ListResponseMessage::~ListResponseMessage() = default;
 
 void ListResponseMessage::parse() {
