@@ -10,7 +10,7 @@
 
 #include "core/client_info.h"
 #include "message/enums.h"
-#include "util/enable_intrusive.h"
+#include "util/enable_ref.h"
 
 #include "storage.h"
 

@@ -6,7 +6,7 @@
 #endif
 
 #include <vector>
-#include "enable_intrusive.h"
+#include "enable_ref.h"
 #include "exception.h"
 
 namespace dsa {

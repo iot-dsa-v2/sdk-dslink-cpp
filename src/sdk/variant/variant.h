@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "util/buffer.h"
-#include "util/enable_intrusive.h"
+#include "util/enable_ref.h"
 #include "util/exception.h"
 
 struct msgpack_object;

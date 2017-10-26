@@ -11,7 +11,7 @@
 #include "enums.h"
 #include "static_headers.h"
 #include "util/buffer.h"
-#include "util/enable_intrusive.h"
+#include "util/enable_ref.h"
 #include "util/path.h"
 
 namespace dsa {

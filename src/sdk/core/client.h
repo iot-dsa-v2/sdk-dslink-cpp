@@ -7,7 +7,7 @@
 
 #include "config.h"
 #include "util/enable_shared.h"
-#include "util/enable_intrusive.h"
+#include "util/enable_ref.h"
 
 namespace dsa {
 

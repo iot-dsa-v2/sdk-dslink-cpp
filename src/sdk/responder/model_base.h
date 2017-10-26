@@ -10,7 +10,7 @@
 #include "core/link_strand.h"
 #include "message/message_options.h"
 #include "message/response/subscribe_response_message.h"
-#include "util/enable_intrusive.h"
+#include "util/enable_ref.h"
 #include "util/path.h"
 
 namespace dsa {

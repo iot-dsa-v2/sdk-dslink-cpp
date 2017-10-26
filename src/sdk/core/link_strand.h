@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include "util/enable_intrusive.h"
+#include "util/enable_ref.h"
 
 namespace boost {
 namespace asio {

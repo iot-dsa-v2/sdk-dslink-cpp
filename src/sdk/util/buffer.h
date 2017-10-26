@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "enable_intrusive.h"
+#include "enable_ref.h"
 
 namespace dsa {
 class Message;
