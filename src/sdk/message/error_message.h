@@ -10,11 +10,11 @@
 namespace dsa {
 
 
-class ErrorMessage :public ResponseMessage {
+class ErrorMessage final : public ResponseMessage {
  public:
   ErrorMessage(MessageType type, MessageStatus status);
-  void write_dynamic_data(uint8_t* data) const override;
-  void update_static_header() override;
+  void write_dynamic_data(uint8_t* data) const final;
+  void update_static_header() final;
 };
 }
 #endif //DSA_SDK_ERROR_MESSAGE_H

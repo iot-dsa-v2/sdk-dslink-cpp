@@ -12,7 +12,7 @@ namespace dsa {
 class SetRequestMessage;
 class SetResponseMessage;
 
-class IncomingSetStream : public MessageCacheStream {
+class IncomingSetStream final : public MessageCacheStream {
  public:
   typedef std::function<void(IncomingSetStream&,
                              ref_<const SetResponseMessage>&&)>
@@ -25,7 +25,7 @@ class IncomingSetStream : public MessageCacheStream {
   IncomingSetStream(ref_<Session>&& session, const Path& path, uint32_t rid,
                     Callback&& callback);
 
-  void receive_message(MessageCRef&& msg) override;
+  void receive_message(MessageCRef&& msg) final;
 
   void set(ref_<const SetRequestMessage>&& msg);
 };

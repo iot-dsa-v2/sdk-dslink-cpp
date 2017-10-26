@@ -11,12 +11,12 @@
 
 namespace dsa {
 
-class SubscribeRequestMessage : public RequestMessage {
+class SubscribeRequestMessage final : public RequestMessage {
  protected:
   // measure the size and header size
-  void update_static_header() override;
+  void update_static_header() final;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const override;
+  void write_dynamic_data(uint8_t* data) const final;
   void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,
                           size_t body_size) throw(const MessageParsingError&);
 

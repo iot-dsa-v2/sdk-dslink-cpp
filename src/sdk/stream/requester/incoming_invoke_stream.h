@@ -12,7 +12,7 @@ namespace dsa {
 class InvokeRequestMessage;
 class InvokeResponseMessage;
 
-class IncomingInvokeStream : public MessageQueueStream {
+class IncomingInvokeStream final : public MessageQueueStream {
  public:
   typedef std::function<void(IncomingInvokeStream&,
                              ref_<const InvokeResponseMessage>&&)>
@@ -25,13 +25,13 @@ class IncomingInvokeStream : public MessageQueueStream {
   IncomingInvokeStream(ref_<Session>&& session, const Path& path, uint32_t rid,
                        Callback&& callback);
 
-  void receive_message(MessageCRef&& msg) override;
+  void receive_message(MessageCRef&& msg) final;
 
   void invoke(ref_<const InvokeRequestMessage>&& msg);
 
   void close();
 
-  bool check_close_message(MessageCRef& message) override;
+  bool check_close_message(MessageCRef& message) final;
 };
 }
 

@@ -4,29 +4,13 @@
 
 using namespace dsa;
 
-class SubscribeRequestMessageExt : public SubscribeRequestMessage {
- public:
-  SubscribeRequestMessageExt() : SubscribeRequestMessage() {}
+bool check_static_headers(SubscribeRequestMessage& message,
+                          uint8_t* expected_values, size_t size) {
+  uint8_t buf[1024];
+  message.write(buf);
 
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
-
-class SubscribeResponseMessageExt : public SubscribeResponseMessage {
- public:
-  SubscribeResponseMessageExt() : SubscribeResponseMessage() {}
-
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
+  return (memcmp(expected_values, buf, size) == 0);
+}
 
 TEST(MessageTest, subscribe_request_message) {
   SubscribeRequestMessage subscribe_request;
@@ -175,12 +159,12 @@ TEST(MessageTest, SubscribeRequest__get_subscribe_options) {
 
 TEST(MessageTest, SubscribeRequest__update_static_header) {
   // void update_static_header();
-  SubscribeRequestMessageExt request;
+  SubscribeRequestMessage request;
   request.size();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
-  EXPECT_TRUE(request.check_static_headers(
-      expect_values, sizeof(expect_values) / sizeof(uint8_t)));
+  EXPECT_TRUE(check_static_headers(request, expect_values,
+                                   sizeof(expect_values) / sizeof(uint8_t)));
 }
 
 TEST(MessageTest, SubscribeRequest__priority) {
@@ -276,7 +260,8 @@ TEST(MessageTest, SubscribeResponse__Constructor_01) {
   EXPECT_EQ(MessageType::SUBSCRIBE_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
-  EXPECT_EQ(MessageType::SUBSCRIBE_RESPONSE, response.get_response_type(MessageType::SUBSCRIBE_REQUEST));
+  EXPECT_EQ(MessageType::SUBSCRIBE_RESPONSE,
+            response.get_response_type(MessageType::SUBSCRIBE_REQUEST));
 }
 
 TEST(MessageTest, SubscribeResponse__Constructor_02) {

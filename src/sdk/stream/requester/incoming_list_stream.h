@@ -13,7 +13,7 @@ namespace dsa {
 
 class ListResponseMessage;
 
-class IncomingListStream : public MessageCacheStream {
+class IncomingListStream final : public MessageCacheStream {
  public:
   typedef std::function<void(IncomingListStream&,
                              ref_<const ListResponseMessage>&&)>
@@ -27,14 +27,14 @@ class IncomingListStream : public MessageCacheStream {
  public:
   explicit IncomingListStream(ref_<Session>&& session, const Path& path,
                               uint32_t rid, Callback&& callback);
-  void receive_message(MessageCRef&& msg) override;
+  void receive_message(MessageCRef&& msg) final;
 
   // send the list request
   void list(const ListOptions& options);
 
   void close();
 
-  bool check_close_message(MessageCRef& message) override;
+  bool check_close_message(MessageCRef& message) final;
 };
 }
 

@@ -13,7 +13,7 @@ namespace dsa {
 
 class SubscribeResponseMessage;
 
-class IncomingSubscribeStream : public MessageCacheStream {
+class IncomingSubscribeStream final : public MessageCacheStream {
  public:
   typedef std::function<void(IncomingSubscribeStream&,
                              ref_<const SubscribeResponseMessage>&&)>
@@ -28,14 +28,14 @@ class IncomingSubscribeStream : public MessageCacheStream {
   explicit IncomingSubscribeStream(ref_<Session>&& session, const Path& path,
                                    uint32_t rid, Callback&& callback);
 
-  void receive_message(MessageCRef&& msg) override;
+  void receive_message(MessageCRef&& msg) final;
 
   // send subscription request and update of subscription options
   void subscribe(const SubscribeOptions& options);
 
   void close();
 
-  bool check_close_message(MessageCRef& message) override;
+  bool check_close_message(MessageCRef& message) final;
 };
 }
 

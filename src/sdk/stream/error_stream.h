@@ -11,15 +11,15 @@
 
 namespace dsa {
 
-class ErrorStream : public MessageStream {
+class ErrorStream final : public MessageStream {
   ref_<ErrorMessage> _message;
 
  public:
   explicit ErrorStream(int32_t rid, MessageType type, MessageStatus status);
-  size_t peek_next_message_size(size_t available, int64_t time) override;
-  MessageCRef get_next_message(AckCallback& callback) override;
+  size_t peek_next_message_size(size_t available, int64_t time) final;
+  MessageCRef get_next_message(AckCallback& callback) final;
 
-  void receive_message(MessageCRef&& msg) override {}
+  void receive_message(MessageCRef&& msg) final {}
 };
 }
 

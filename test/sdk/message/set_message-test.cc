@@ -4,29 +4,13 @@
 
 using namespace dsa;
 
-class SetRequestMessageExt : public SetRequestMessage {
- public:
-  SetRequestMessageExt() : SetRequestMessage() {}
+bool check_static_headers(SetRequestMessage& message, uint8_t* expected_values,
+                          size_t size) {
+  uint8_t buf[1024];
+  message.write(buf);
 
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
-
-class SetResponseMessageExt : public SetResponseMessage {
- public:
-  SetResponseMessageExt() : SetResponseMessage() {}
-
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
+  return (memcmp(expected_values, buf, size) == 0);
+}
 
 TEST(MessageTest, SetRequest__Constructor_01) {
   // public methods
@@ -156,12 +140,12 @@ TEST(MessageTest, SetResponse__Constructor_05) {
 
 TEST(MessageTest, SetRequest__update_static_header) {
   // void update_static_header();
-  SetRequestMessageExt request;
+  SetRequestMessage request;
   request.size();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
-  EXPECT_TRUE(request.check_static_headers(
-      expect_values, sizeof(expect_values) / sizeof(uint8_t)));
+  EXPECT_TRUE(check_static_headers(request, expect_values,
+                                   sizeof(expect_values) / sizeof(uint8_t)));
 }
 
 TEST(MessageTest, SetRequest__priority) {

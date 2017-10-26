@@ -12,7 +12,7 @@
 namespace dsa {
 class Var;
 
-class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
+class InvokeRequestMessage final : public RequestMessage, PagedMessageMixin {
  public:
   InvokeRequestMessage(const uint8_t* data, size_t size);
   InvokeRequestMessage();
@@ -22,9 +22,9 @@ class InvokeRequestMessage : public RequestMessage, PagedMessageMixin {
 
  protected:
   // measure the size and header size
-  void update_static_header();
+  void update_static_header() final;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const;
+  void write_dynamic_data(uint8_t* data) const final;
   void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,
                           size_t body_size) throw(const MessageParsingError&);
 

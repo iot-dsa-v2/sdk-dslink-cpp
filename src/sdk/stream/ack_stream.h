@@ -11,15 +11,15 @@
 
 namespace dsa {
 
-class AckStream : public MessageRefedStream {
+class AckStream final : public MessageRefedStream {
   ref_<AckMessage> _message;
 
  public:
   explicit AckStream(ref_<Session>&& session);
-  size_t peek_next_message_size(size_t available, int64_t time) override;
-  MessageCRef get_next_message(AckCallback& callback) override;
+  size_t peek_next_message_size(size_t available, int64_t time) final;
+  MessageCRef get_next_message(AckCallback& callback) final;
 
-  void receive_message(MessageCRef&& msg) override {}
+  void receive_message(MessageCRef&& msg) final {}
 
   void add_ack(int32_t ack);
   int32_t get_ack() const { return _message->get_ack(); };

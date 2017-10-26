@@ -3,29 +3,13 @@
 
 using namespace dsa;
 
-class InvokeRequestMessageExt : public InvokeRequestMessage {
- public:
-  InvokeRequestMessageExt() : InvokeRequestMessage() {}
+bool check_static_headers(InvokeRequestMessage& message,
+                          uint8_t* expected_values, size_t size) {
+  uint8_t buf[1024];
+  message.write(buf);
 
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
-
-class InvokeResponseMessageExt : public InvokeResponseMessage {
- public:
-  InvokeResponseMessageExt() : InvokeResponseMessage() {}
-
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
+  return (memcmp(expected_values, buf, size) == 0);
+}
 
 TEST(MessageTest, InvokeRequest__Constructor_01) {
   // public methods
@@ -154,17 +138,16 @@ TEST(MessageTest, InvokeRequest__Constructor_05) {
   request.write(buf);
 
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
-
 }
 
 TEST(MessageTest, InvokeRequest__update_static_header) {
   // void update_static_header();
-  InvokeRequestMessageExt request;
+  InvokeRequestMessage request;
   request.size();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
-  EXPECT_TRUE(request.check_static_headers(
-      expect_values, sizeof(expect_values) / sizeof(uint8_t)));
+  EXPECT_TRUE(check_static_headers(request, expect_values,
+                                   sizeof(expect_values) / sizeof(uint8_t)));
 }
 
 TEST(MessageTest, InvokeRequest__priority) {
@@ -257,7 +240,8 @@ TEST(MessageTest, InvokeResponse__Constructor_01) {
   EXPECT_EQ(MessageType::INVOKE_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
-  EXPECT_EQ(MessageType::INVOKE_RESPONSE, response.get_response_type(MessageType::INVOKE_REQUEST));
+  EXPECT_EQ(MessageType::INVOKE_RESPONSE,
+            response.get_response_type(MessageType::INVOKE_REQUEST));
 }
 
 TEST(MessageTest, InvokeResponse__Constructor_02) {
@@ -378,5 +362,3 @@ TEST(MessageTest, InvokeResponse__copy) {
   EXPECT_EQ(0, memcmp(expected_values, buf,
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
-
-

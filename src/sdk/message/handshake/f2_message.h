@@ -10,7 +10,7 @@
 
 namespace dsa {
 
-class HandshakeF2Message : public Message {
+class HandshakeF2Message final : public Message {
  public:
   bool is_responder;
 
@@ -24,9 +24,9 @@ class HandshakeF2Message : public Message {
 
  protected:
   // measure the size and header size
-  void update_static_header();
+  void update_static_header() final;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const;
+  void write_dynamic_data(uint8_t* data) const final;
   void parse_dynamic_headers(const uint8_t* data,
                              size_t size) throw(const MessageParsingError&);
 };

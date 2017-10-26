@@ -14,14 +14,14 @@
 namespace dsa {
 class Var;
 
-class OutgoingListStream : public MessageRefedStream {
+class OutgoingListStream final : public MessageRefedStream {
  public:
   typedef std::function<void(OutgoingListStream &)> CloseCallback;
 
  protected:
   CloseCallback _close_callback;
 
-  void destroy_impl() override;
+  void destroy_impl() final;
 
   std::unordered_map<std::string, BytesRef> _cached_map;
   size_t _next_size;
@@ -35,10 +35,10 @@ class OutgoingListStream : public MessageRefedStream {
   void update_value(const std::string &key, BytesRef &value);
   void update_value(const std::string &key, const Var &v);
 
-  size_t peek_next_message_size(size_t available, int64_t time) override;
-  MessageCRef get_next_message(AckCallback &) override;
+  size_t peek_next_message_size(size_t available, int64_t time) final;
+  MessageCRef get_next_message(AckCallback &) final;
 
-  void receive_message(MessageCRef &&mesage) override;
+  void receive_message(MessageCRef &&mesage) final;
 };
 }
 

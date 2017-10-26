@@ -10,7 +10,7 @@
 
 namespace dsa {
 
-class HandshakeF0Message : public Message {
+class HandshakeF0Message final : public Message {
  public:
   uint8_t dsa_version_major = 2;
   uint8_t dsa_version_minor = 0;
@@ -25,9 +25,9 @@ class HandshakeF0Message : public Message {
 
  protected:
   // measure the size and header size
-  void update_static_header() override;
+  void update_static_header() final;
   // write dynamic header and body
-  void write_dynamic_data(uint8_t* data) const override;
+  void write_dynamic_data(uint8_t* data) const final;
   void parse_dynamic_headers(const uint8_t* data,
                              size_t size) throw(const MessageParsingError&);
 };

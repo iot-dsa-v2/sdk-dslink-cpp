@@ -12,7 +12,7 @@
 
 namespace dsa {
 
-class OutgoingSubscribeStream : public MessageQueueStream {
+class OutgoingSubscribeStream final : public MessageQueueStream {
  public:
   typedef std::function<void(OutgoingSubscribeStream &,
                              const SubscribeOptions &)>
@@ -23,10 +23,10 @@ class OutgoingSubscribeStream : public MessageQueueStream {
   SubscribeOptions _options;
   void set_options(SubscribeOptions &&options);
 
-  void check_queue_time(int64_t time) override;
-  void check_queue_size() override;
+  void check_queue_time(int64_t time) final;
+  void check_queue_size() final;
 
-  void destroy_impl() override;
+  void destroy_impl() final;
 
  public:
   const SubscribeOptions &options() { return _options; }
@@ -36,7 +36,7 @@ class OutgoingSubscribeStream : public MessageQueueStream {
 
   void on_option_change(Callback &&callback);
 
-  void receive_message(MessageCRef &&mesage) override;
+  void receive_message(MessageCRef &&mesage) final;
 
   void send_response(SubscribeResponseMessageCRef &&message) {
     send_message(MessageCRef(std::move(message)));

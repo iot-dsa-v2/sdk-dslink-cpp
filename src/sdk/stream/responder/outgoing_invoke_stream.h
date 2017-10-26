@@ -14,7 +14,7 @@
 namespace dsa {
 class InvokeRequestMessage;
 
-class OutgoingInvokeStream : public MessageQueueStream {
+class OutgoingInvokeStream final : public MessageQueueStream {
  public:
   typedef std::function<void(OutgoingInvokeStream &,
                              ref_<const InvokeRequestMessage> &&)>
@@ -25,13 +25,13 @@ class OutgoingInvokeStream : public MessageQueueStream {
 
   std::vector<ref_<const InvokeRequestMessage> > _waiting_requests;
 
-  void destroy_impl() override;
+  void destroy_impl() final;
 
  public:
   OutgoingInvokeStream(ref_<Session> &&session, const Path &path, uint32_t rid,
                        ref_<const InvokeRequestMessage> &&msg);
 
-  void receive_message(MessageCRef &&mesage) override;
+  void receive_message(MessageCRef &&mesage) final;
 
   void on_request(Callback &&callback);
 
@@ -41,7 +41,7 @@ class OutgoingInvokeStream : public MessageQueueStream {
 
   void close(MessageStatus status = MessageStatus::CLOSED);
 
-  bool check_close_message(MessageCRef &message) override;
+  bool check_close_message(MessageCRef &message) final;
 };
 }
 

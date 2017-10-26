@@ -3,29 +3,13 @@
 
 using namespace dsa;
 
-class ListRequestMessageExt : public ListRequestMessage {
- public:
-  ListRequestMessageExt() : ListRequestMessage() {}
+bool check_static_headers(ListRequestMessage& message, uint8_t* expected_values,
+                          size_t size) {
+  uint8_t buf[1024];
+  message.write(buf);
 
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
-
-class ListResponseMessageExt : public ListResponseMessage {
- public:
-  ListResponseMessageExt() : ListResponseMessage() {}
-
-  bool check_static_headers(uint8_t *expected_values, size_t size) {
-    uint8_t buf[1024];
-    static_headers.write(buf);
-
-    return (memcmp(expected_values, buf, size) == 0);
-  }
-};
+  return (memcmp(expected_values, buf, size) == 0);
+}
 
 TEST(MessageTest, ListRequest__Constructor_01) {
   // public methods
@@ -163,12 +147,12 @@ TEST(MessageTest, ListRequest__get_list_options) {
 
 TEST(MessageTest, ListRequest__update_static_header) {
   // void update_static_header();
-  ListRequestMessageExt request;
+  ListRequestMessage request;
   request.size();
 
   uint8_t expect_values[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0};
-  EXPECT_TRUE(request.check_static_headers(
-      expect_values, sizeof(expect_values) / sizeof(uint8_t)));
+  EXPECT_TRUE(check_static_headers(request, expect_values,
+                                   sizeof(expect_values) / sizeof(uint8_t)));
 }
 
 TEST(MessageTest, ListRequest__priority) {
@@ -259,7 +243,8 @@ TEST(MessageTest, ListResponse__Constructor_01) {
   EXPECT_EQ(MessageType::LIST_RESPONSE, response.type());
   EXPECT_FALSE(response.is_request());
   EXPECT_EQ(0, response.get_rid());
-  EXPECT_EQ(MessageType::LIST_RESPONSE, response.get_response_type(MessageType::LIST_REQUEST));
+  EXPECT_EQ(MessageType::LIST_RESPONSE,
+            response.get_response_type(MessageType::LIST_REQUEST));
 }
 
 TEST(MessageTest, ListResponse__Constructor_02) {

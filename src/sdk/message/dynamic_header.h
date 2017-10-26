@@ -49,7 +49,7 @@ class DynamicHeader {
   DynamicHeader(DynamicKey key, size_t size);
 };
 
-class DynamicStringHeader : public DynamicHeader {
+class DynamicStringHeader final : public DynamicHeader {
  private:
   std::string _value;
   static const std::string BLANK_STRING;
@@ -58,7 +58,7 @@ class DynamicStringHeader : public DynamicHeader {
   DynamicStringHeader(const uint8_t *data, uint16_t size, std::string &&str);
   DynamicStringHeader(DynamicKey key, const std::string &str);
   const std::string &value() const;
-  void write(uint8_t *data) const override;
+  void write(uint8_t *data) const final;
 
   static const std::string &read_value(
       const std::unique_ptr<DynamicStringHeader> &header) throw() {
@@ -81,7 +81,7 @@ class DynamicStringHeader : public DynamicHeader {
   }
 };
 
-class DynamicByteHeader : public DynamicHeader {
+class DynamicByteHeader final : public DynamicHeader {
  private:
   uint8_t _value;
 
@@ -89,7 +89,7 @@ class DynamicByteHeader : public DynamicHeader {
   const uint8_t value() const { return _value; };
   explicit DynamicByteHeader(const uint8_t *data);
   DynamicByteHeader(DynamicKey key, uint8_t value);
-  void write(uint8_t *data) const override;
+  void write(uint8_t *data) const final;
 
   static uint8_t read_value(const std::unique_ptr<DynamicByteHeader> &header) {
     if (header == nullptr) return 0;
@@ -114,7 +114,7 @@ class DynamicByteHeader : public DynamicHeader {
   }
 };
 
-class DynamicIntHeader : public DynamicHeader {
+class DynamicIntHeader final : public DynamicHeader {
  private:
   int32_t _value;
 
@@ -122,7 +122,7 @@ class DynamicIntHeader : public DynamicHeader {
   const int32_t value() const { return _value; };
   explicit DynamicIntHeader(const uint8_t *data);
   DynamicIntHeader(DynamicKey key, int32_t value);
-  void write(uint8_t *data) const override;
+  void write(uint8_t *data) const final;
 
   static int32_t read_value(const std::unique_ptr<DynamicIntHeader> &header) {
     if (header == nullptr) return 0;
@@ -147,12 +147,12 @@ class DynamicIntHeader : public DynamicHeader {
   }
 };
 
-class DynamicBoolHeader : public DynamicHeader {
+class DynamicBoolHeader final : public DynamicHeader {
  protected:
  public:
   explicit DynamicBoolHeader(const uint8_t *data);
   explicit DynamicBoolHeader(DynamicKey key);
-  void write(uint8_t *data) const override;
+  void write(uint8_t *data) const final;
 
   static bool read_value(const std::unique_ptr<DynamicBoolHeader> &header) {
     return (header != nullptr);

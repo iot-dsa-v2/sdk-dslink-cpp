@@ -8,7 +8,7 @@
 #include "base_message.h"
 
 namespace dsa {
-class AckMessage : public Message {
+class AckMessage final : public Message {
  public:
   AckMessage(const uint8_t* data, size_t size);
   AckMessage();
@@ -19,8 +19,8 @@ class AckMessage : public Message {
  protected:
   int32_t _ack;
 
-  void update_static_header() override;
-  void write_dynamic_data(uint8_t* data) const override;
+  void update_static_header() final;
+  void write_dynamic_data(uint8_t* data) const final;
 };
 }
 
