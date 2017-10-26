@@ -11,7 +11,7 @@
 
 namespace dsa {
 ModelProperty::ModelProperty()
-    : _bytes(new IntrusiveBytes()), _value_ready(false) {}
+    : _bytes(new RefCountBytes()), _value_ready(false) {}
 ModelProperty::ModelProperty(BytesRef &bytes)
     : _bytes(bytes), _value_ready(false) {}
 ModelProperty::ModelProperty(Var &&value)
@@ -19,7 +19,7 @@ ModelProperty::ModelProperty(Var &&value)
 
 BytesRef &ModelProperty::get_bytes() const {
   if (_bytes == nullptr && _value_ready) {
-    _bytes.reset(new IntrusiveBytes(_value.to_msgpack()));
+    _bytes.reset(new RefCountBytes(_value.to_msgpack()));
   }
   return _bytes;
 }
@@ -52,7 +52,7 @@ BytesRef &NodeModel::get_summary() {
       }
     }
 
-    _summary = new IntrusiveBytes(v.to_msgpack());
+    _summary = new RefCountBytes(v.to_msgpack());
   }
   return _summary;
 }

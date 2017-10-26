@@ -29,7 +29,7 @@ void OutgoingListStream::update_value(const std::string &key, BytesRef &value) {
   send_message();
 }
 void OutgoingListStream::update_value(const std::string &key, const Var &v) {
-  _cached_map[key] = make_ref_<const IntrusiveBytes>(std::move(v.to_msgpack()));
+  _cached_map[key] = make_ref_<const RefCountBytes>(std::move(v.to_msgpack()));
   send_message();
 }
 
@@ -61,7 +61,7 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   // TODO: dynamic headers; base_path;
   size_t availible_size = _next_size - message->size();
 
-  IntrusiveBytes body{availible_size};
+  RefCountBytes body{availible_size};
   size_t pos = 0;
   for (auto it = _cached_map.begin(); it != _cached_map.end();) {
     size_t this_size = it->first.size() + it->second->size() + 4;
@@ -81,7 +81,7 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
       break;
     }
   }
-  message->set_body(new IntrusiveBytes(std::move(body)));
+  message->set_body(new RefCountBytes(std::move(body)));
   return message->get_ref();
 }
 

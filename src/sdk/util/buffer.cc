@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-std::ostream &operator<<(std::ostream &os, const dsa::IntrusiveBytes &buf) {
+std::ostream &operator<<(std::ostream &os, const dsa::RefCountBytes &buf) {
   std::stringstream ss;
   ss << "[";
   if (!buf.empty()) {

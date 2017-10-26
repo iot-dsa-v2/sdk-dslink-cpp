@@ -39,7 +39,7 @@ TEST(MessageTest, subscribe_request_message) {
   SubscribeOptions option = subscribe_request.get_subscribe_options();
   EXPECT_EQ(QosLevel::_2, option.qos);
 
-  auto b = make_ref_<IntrusiveBytes>(256);
+  auto b = make_ref_<RefCountBytes>(256);
 
   EXPECT_EQ(17, subscribe_request.size());
 

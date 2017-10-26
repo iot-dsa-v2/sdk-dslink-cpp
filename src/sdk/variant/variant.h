@@ -40,15 +40,15 @@ class VarArray : public std::vector<Var>, public EnableRef<VarArray> {
   VarArray(std::initializer_list<Var> init);
 };
 
-class IntrusiveString : public std::string, public EnableRef<IntrusiveString> {
+class RefCountString : public std::string, public EnableRef<RefCountString> {
  public:
   template <typename... Args>
-  explicit IntrusiveString(Args &&... args)
+  explicit RefCountString(Args &&... args)
       : std::string(std::forward<Args>(args)...){};
 };
 
 typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
-                       ref_<IntrusiveString>, ref_<VarMap>, ref_<VarArray>,
+                       ref_<const RefCountString>, ref_<VarMap>, ref_<VarArray>,
                        std::vector<uint8_t>, BytesRef>
     BaseVariant;
 
@@ -107,8 +107,8 @@ class Var : public BaseVariant {
   ~Var() = default;
 
  protected:
-  explicit Var(IntrusiveString *p);
-  explicit Var(IntrusiveBytes *p);
+  explicit Var(RefCountString *p);
+  explicit Var(RefCountBytes *p);
 
  public:
   bool is_double() const { return which() == DOUBLE; }
@@ -129,7 +129,7 @@ class Var : public BaseVariant {
   bool get_bool() const { return boost::get<bool>(*this); }
   const std::string &get_string() const {
     if (which() == SHARED_STRING) {
-      return *boost::get<ref_<IntrusiveString>>(*this);
+      return *boost::get<ref_<const RefCountString>>(*this);
     }
     return boost::get<const std::string>(*this);
   }

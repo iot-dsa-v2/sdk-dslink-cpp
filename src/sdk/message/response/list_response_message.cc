@@ -45,7 +45,7 @@ void ListResponseMessage::parse() {
       data += sizeof(uint16_t);
       size -= sizeof(uint16_t);
       if (size < value_size) return;
-      _raw_map[key] = make_ref_<const IntrusiveBytes>(data, data + value_size);
+      _raw_map[key] = make_ref_<const RefCountBytes>(data, data + value_size);
       data += value_size;
       size -= value_size;
     }

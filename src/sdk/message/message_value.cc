@@ -53,7 +53,7 @@ BytesRef MessageValue::to_msgpack() const {
     throw std::runtime_error("value meta data is too big");
   }
 
-  auto merged = new IntrusiveBytes();
+  auto merged = new RefCountBytes();
   merged->resize(2);
   merged->reserve(2 + meta_bytes.size() + value_bytes.size());
 

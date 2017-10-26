@@ -36,7 +36,7 @@ void ListResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic
     }
   }
   if ( body_size > 0) {
-      body.reset(new IntrusiveBytes(data, data + body_size));
+      body.reset(new RefCountBytes(data, data + body_size));
       parse(); // parse the map right after decoding
   }
 }

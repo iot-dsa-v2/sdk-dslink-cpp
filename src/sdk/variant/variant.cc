@@ -24,7 +24,7 @@ Var::Var(const char* v) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::string(v, size);
   } else {
-    *this = ref_<IntrusiveString>(new IntrusiveString(v, size));
+    *this = ref_<const RefCountString>(new RefCountString(v, size));
   }
 }
 
@@ -32,21 +32,21 @@ Var::Var(const char* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::string(v, size);
   } else {
-    *this = ref_<IntrusiveString>(new IntrusiveString(v, size));
+    *this = ref_<const RefCountString>(new RefCountString(v, size));
   }
 }
 Var::Var(const std::string& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
-    *this = ref_<IntrusiveString>(new IntrusiveString(v));
+    *this = ref_<const RefCountString>(new RefCountString(v));
   }
 }
 Var::Var(const std::string&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
-    *this = ref_<IntrusiveString>(new IntrusiveString(std::move(v)));
+    *this = ref_<const RefCountString>(new RefCountString(std::move(v)));
   }
 }
 
@@ -54,27 +54,27 @@ Var::Var(const uint8_t* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
     *this = std::vector<uint8_t>(v, v + size);
   } else {
-    *this = BytesRef(new IntrusiveBytes(v, v + size));
+    *this = BytesRef(new RefCountBytes(v, v + size));
   }
 }
 Var::Var(const std::vector<uint8_t>& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
-    *this = BytesRef(new IntrusiveBytes(v));
+    *this = BytesRef(new RefCountBytes(v));
   }
 }
 Var::Var(const std::vector<uint8_t>&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
-    *this = BytesRef(new IntrusiveBytes(std::move(v)));
+    *this = BytesRef(new RefCountBytes(std::move(v)));
   }
 }
 
-Var::Var(IntrusiveString* p) : BaseVariant(ref_<IntrusiveString>(p)) {}
+Var::Var(RefCountString* p) : BaseVariant(ref_<const RefCountString>(p)) {}
 
-Var::Var(IntrusiveBytes* p) : BaseVariant(BytesRef(p)) {}
+Var::Var(RefCountBytes* p) : BaseVariant(BytesRef(p)) {}
 
 Var::Var() : BaseVariant(boost::blank()) {}
 Var::Var(VarMap* p) : BaseVariant(ref_<VarMap>(p)) {}
@@ -127,7 +127,7 @@ double Var::to_double(double defaultout) const {
       str_value = &boost::get<std::string>(*this);
       break;
     case SHARED_STRING:
-      str_value = boost::get<ref_<IntrusiveString>>(*this).get();
+      str_value = boost::get<ref_<const RefCountString>>(*this).get();
       break;
     default:
       return defaultout;
@@ -153,7 +153,7 @@ int64_t Var::to_bool(bool defaultout) const {
       str_value = &boost::get<std::string>(*this);
       break;
     case SHARED_STRING:
-      str_value = boost::get<ref_<IntrusiveString>>(*this).get();
+      str_value = boost::get<ref_<const RefCountString>>(*this).get();
       break;
     default:
       return defaultout;
@@ -174,7 +174,7 @@ const std::string Var::to_string(const std::string& defaultout) const {
     case STRING:
       return boost::get<std::string>(*this);
     case SHARED_STRING:
-      return *boost::get<ref_<IntrusiveString>>(*this);
+      return *boost::get<ref_<const RefCountString>>(*this);
     default:
       return defaultout;
   }

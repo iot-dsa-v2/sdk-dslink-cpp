@@ -16,7 +16,7 @@ InvokeResponseMessage::InvokeResponseMessage()
     : ResponseMessage(MessageType::INVOKE_RESPONSE) {}
 
 void InvokeResponseMessage::set_value(const Var& value) {
-  set_body(new IntrusiveBytes(value.to_msgpack()));
+  set_body(new RefCountBytes(value.to_msgpack()));
 }
 
 }  // namespace dsa

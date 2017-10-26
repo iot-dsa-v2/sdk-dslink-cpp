@@ -71,7 +71,7 @@ class Message : public EnableRef<Message> {
   int32_t get_ack_id() const { return static_headers.ack_id; }
   void set_ack_rid(int32_t ack_id) { static_headers.ack_id = ack_id; }
 
-  void set_body(IntrusiveBytes* b) {
+  void set_body(RefCountBytes* b) {
     static_headers.message_size = 0;  // invalidate message_size
     body.reset(b);
   }

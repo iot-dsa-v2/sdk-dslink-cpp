@@ -36,7 +36,7 @@ void SubscribeResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dy
     }
   }
   if ( body_size > 0) {
-      body.reset(new IntrusiveBytes(data, data + body_size));
+      body.reset(new RefCountBytes(data, data + body_size));
   }
 }
 

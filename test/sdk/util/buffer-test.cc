@@ -6,7 +6,7 @@ using namespace dsa;
 TEST(BufferTest, output) {
 
   std::vector<uint8_t> v = {0x01, 0x02, 0x03, 0x04};
-  IntrusiveBytes ib(v);
+  RefCountBytes ib(v);
 
   std::stringstream ss;
   ss << ib;
