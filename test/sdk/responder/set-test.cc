@@ -18,6 +18,8 @@
 using namespace dsa;
 
 namespace responder_set_test {
+
+/// define a node for the responder
 class MockNode : public NodeModel {
  public:
   explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
@@ -56,14 +58,12 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 TEST(ResponderTest, Set_Model) {
   typedef responder_set_test::MockNode MockNode;
   App app;
-
+  // get the configs for unit testing
   TestConfig server_config(app);
 
   MockNode *root_node = new MockNode(server_config.strand);
 
   server_config.get_link_config()->set_responder_model(ModelRef(root_node));
-
-  typedef responder_set_test::MockStreamAcceptor MockStreamAcceptor;
 
   WrapperConfig client_config = server_config.get_client_config(app, true);
 
@@ -92,14 +92,16 @@ TEST(ResponderTest, Set_Model) {
         last_list_response = msg;
       });
 
+  // set request to change value
   auto first_request = make_ref_<SetRequestMessage>();
   first_request->set_value(Var("hello"));
 
+  // set request to change attribute
   auto second_request = make_ref_<SetRequestMessage>();
   second_request->set_attribute_field("@attr");
   second_request->set_value(Var("world"));
 
-  // test invalid path scenario
+  // send set request
   auto set_stream1 = tcp_client->get_session().requester.set(
       "",
       [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
@@ -109,20 +111,21 @@ TEST(ResponderTest, Set_Model) {
       [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
       std::move(second_request));
 
-  // wait for acceptor to receive the request
+  // wait until response of subscribe and list are received
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() -> bool { return last_list_response != nullptr; });
   ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
     return last_subscribe_response != nullptr;
   });
 
+  // check the subsciption response is same as the value set
   auto value = last_subscribe_response->get_value().value;
-  EXPECT_TRUE(value.is_string() && value.get_string() == "hello");
+  EXPECT_TRUE(value.to_string() == "hello");
 
+  // check the list response is same as the value set
   auto list_map = last_list_response->get_parsed_map();
 
-  EXPECT_TRUE(list_map != nullptr && (*list_map)["@attr"].is_string() &&
-              (*list_map)["@attr"].get_string() == "world");
+  EXPECT_TRUE(list_map != nullptr && (*list_map)["@attr"].to_string() == "world");
 
   Server::destroy_in_strand(tcp_server);
   Client::destroy_in_strand(tcp_client);
