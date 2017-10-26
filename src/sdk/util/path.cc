@@ -27,8 +27,9 @@ static bool invalid_name(const std::string &name, bool is_meta) {
     }
 
     // invalid characters
-    if (c < ' ' || (c >= ':' && c <= '?') || c == '\\' || c == '\'' ||
-        c == '\"' || c == '/' || c == '*' || c == '|') {
+    if (c < ' ' || (c >= ':' && c <= '?')  // this range includes : ; < = > ?
+        || c == '\\' || c == '\'' || c == '\"' || c == '/' || c == '*' ||
+        c == '|') {
       return true;
     }
     if (c == '%') {
