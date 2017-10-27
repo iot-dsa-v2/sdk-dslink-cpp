@@ -1,7 +1,8 @@
-#include <module/logger.h>
 #include "dsa/message.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
+
+#include <module/logger.h>
 
 #include "../async_test.h"
 #include "../test_config.h"
