@@ -5,6 +5,7 @@ set(SOURCES "")
 foreach(dir
             "./crypto"
 	    "./message"
+	    "./module"
             "./util"
             "./variant"
             "./network"

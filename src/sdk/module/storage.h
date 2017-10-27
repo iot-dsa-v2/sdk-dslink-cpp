@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "dsa_common.h"
 #include "util/buffer.h"
 
 namespace dsa {

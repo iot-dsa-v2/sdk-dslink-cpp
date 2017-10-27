@@ -20,7 +20,7 @@ if (UNIX)
     set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
     set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
 endif ()
-find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time program_options)
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time program_options filesystem)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # Standard DSA v2 headers
