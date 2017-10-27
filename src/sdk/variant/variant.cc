@@ -195,6 +195,12 @@ Var& Var::operator[](size_t index) {
 
 Var Var::deep_copy() const {
   switch (which()) {
+    case SHARED_STRING: {
+      return Var(*boost::get<ref_<const RefCountString>>(*this));
+    }
+    case SHARED_BINARY: {
+      return Var(*boost::get<BytesRef>(*this));
+    }
     case MAP: {
       auto new_map = new VarMap();
       VarMap& map = get_map();
