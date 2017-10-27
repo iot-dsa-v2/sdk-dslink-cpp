@@ -218,7 +218,7 @@ void NodeState::list(ref_<OutgoingListStream> &&stream) {
 
 void NodeState::invoke(ref_<OutgoingInvokeStream> &&stream) {
   if (_model != nullptr) {
-    _model->on_invoke(std::move(stream));
+    _model->on_invoke(std::move(stream), _parent);
   } else if (_model_status == MODEL_WAITING) {
     _watiging_cache->invokes.emplace_back(std::move(stream));
   } else {

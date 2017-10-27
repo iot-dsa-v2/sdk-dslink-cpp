@@ -21,7 +21,7 @@ class MockNode : public NodeModelBase {
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
-  void on_invoke(ref_<OutgoingInvokeStream> &&stream) override {
+  void on_invoke(ref_<OutgoingInvokeStream> &&stream, ref_<NodeState> & parent) final {
     BOOST_ASSERT_MSG(last_invoke_stream == nullptr,
                      "receive second invoke stream, not expected");
     last_invoke_stream = stream;

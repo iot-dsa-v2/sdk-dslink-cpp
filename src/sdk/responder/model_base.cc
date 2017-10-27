@@ -5,10 +5,10 @@
 #include "message/response/invoke_response_message.h"
 #include "module/logger.h"
 #include "node_state.h"
-#include "stream/responder/outgoing_list_stream.h"
-#include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
+#include "stream/responder/outgoing_subscribe_stream.h"
 #include "util/date_time.h"
 
 namespace dsa {
@@ -100,7 +100,8 @@ void NodeModelBase::unlist() {
   }
 }
 
-void NodeModelBase::on_invoke(ref_<OutgoingInvokeStream> &&stream) {
+void NodeModelBase::on_invoke(ref_<OutgoingInvokeStream> &&stream,
+                              ref_<NodeState> &parent) {
   auto response = make_ref_<InvokeResponseMessage>();
   response->set_status(MessageStatus::NOT_SUPPORTED);
   stream->send_response(std::move(response));
