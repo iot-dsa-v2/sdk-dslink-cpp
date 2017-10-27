@@ -121,8 +121,32 @@ void NodeState::set_model(ModelRef &&model) {
     _model_status = MODEL_CONNECTED;
     _model->initialize();
 
-    // TODO send request to model
-    // send _watiging_cache;
+    // send all waiting streams
+
+    // subscribe streams
+    if (!_merged_subscribe_options.is_invalid()) {
+      _model->subscribe(_merged_subscribe_options);
+      if (_model->_cached_value != nullptr) {
+        for (auto &subscribe_stream : _subscription_streams) {
+          subscribe_stream.first->send_response(
+              copy_ref_(_model->_cached_value));
+        }
+      }
+    }
+    // list streams
+    for (auto &list_stream : _list_streams) {
+      _model->list(*list_stream.first);
+    }
+    // invoke and set streams
+    if (_watiging_cache != nullptr) {
+      for (auto &invoke_stream : _watiging_cache->invokes) {
+        _model->on_invoke(std::move(invoke_stream), _parent);
+      }
+      for (auto &set_stream : _watiging_cache->sets) {
+        _model->on_set(std::move(set_stream));
+      }
+      _watiging_cache.reset();
+    }
   }
 }
 bool NodeState::periodic_check(size_t ts) {
