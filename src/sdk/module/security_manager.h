@@ -26,12 +26,12 @@ class SecurityManager {
   typedef std::function<void(PermissionLevel permission)>
       CheckPermissionCallback;
 
-  virtual void get_client(const std::string& dsid,
-                          const std::string& auth_token,
+  virtual void get_client(const string_& dsid,
+                          const string_& auth_token,
                           GetClientCallback&& callback) = 0;
 
-  virtual void check_permission(const std::string& dsid,
-                                const std::string& permission_token,
+  virtual void check_permission(const string_& dsid,
+                                const string_& permission_token,
                                 MessageType method, const Path& path,
                                 CheckPermissionCallback&& callback) = 0;
   virtual ~SecurityManager(){};

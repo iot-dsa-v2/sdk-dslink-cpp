@@ -21,8 +21,8 @@ class Client : public SharedDestroyable<Client> {
   // for ClientConnection
   LinkStrandRef _strand;
   uint32_t handshake_timeout_ms;
-  std::string _dsid_prefix;
-  std::string _client_token;
+  string_ _dsid_prefix;
+  string_ _client_token;
 
   ClientConnectionMaker _client_connection_maker;
 
@@ -44,8 +44,8 @@ class Client : public SharedDestroyable<Client> {
 
   LinkStrand &get_strand() const { return *_strand; }
   uint32_t get_handshake_timeout_ms() const { return handshake_timeout_ms; }
-  const std::string &get_dsid_prefix() const { return _dsid_prefix; }
-  const std::string &get_client_token() const { return _client_token; }
+  const string_ &get_dsid_prefix() const { return _dsid_prefix; }
+  const string_ &get_client_token() const { return _client_token; }
 
   void connect();
 };

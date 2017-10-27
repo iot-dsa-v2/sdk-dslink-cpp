@@ -121,10 +121,10 @@ class RequestMessage : public Message {
   void set_priority(bool value);
 
   const Path& get_target_path() const;
-  void set_target_path(const std::string& value);
+  void set_target_path(const string_& value);
 
-  const std::string& get_permission_token() const;
-  void set_permission_token(const std::string& value);
+  const string_& get_permission_token() const;
+  void set_permission_token(const string_& value);
 
   bool get_no_stream() const;
   void set_no_stream(bool value);
@@ -143,8 +143,8 @@ class ResponseMessage : public Message {
   explicit ResponseMessage(MessageType type);
   explicit ResponseMessage(const StaticHeaders& headers);
 
-  const std::string& get_source_path() const;
-  void set_source_path(const std::string& value);
+  const string_& get_source_path() const;
+  void set_source_path(const string_& value);
 
   MessageStatus get_status() const;
   void set_status(MessageStatus value);

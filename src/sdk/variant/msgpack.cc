@@ -34,7 +34,7 @@ Var Var::to_variant(const msgpack_object &obj) {
       for (size_t i = 0; i < obj.via.map.size; ++i, ++p) {
         // ignore the key if not string
         if (p->key.type == MSGPACK_OBJECT_STR) {
-          (*map)[std::string(p->key.via.str.ptr, p->key.via.str.size)] =
+          (*map)[string_(p->key.via.str.ptr, p->key.via.str.size)] =
               to_variant(p->val);
         }
       }
@@ -88,7 +88,7 @@ bool msgpack_pack(msgpack_packer *pk, const Var &v) {
   } else if (v.is_bool()) {
     v.get_bool() ? msgpack_pack_true(pk) : msgpack_pack_false(pk);
   } else if (v.is_string()) {
-    const std::string &str = v.get_string();
+    const string_ &str = v.get_string();
     size_t str_length = str.length();
     msgpack_pack_str(pk, str_length);
     msgpack_pack_str_body(pk, str.c_str(), str_length);
@@ -115,7 +115,7 @@ bool msgpack_pack(msgpack_packer *pk, const Var &v) {
     VarMap &map = v.get_map();
     msgpack_pack_map(pk, map.size());
     for (auto &it : map) {
-      std::string key = it.first;
+      string_ key = it.first;
       size_t key_size = key.size();
       msgpack_pack_str(pk, key_size);
       msgpack_pack_str_body(pk, key.c_str(), key_size);

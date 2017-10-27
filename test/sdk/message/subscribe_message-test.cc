@@ -27,7 +27,7 @@ TEST(MessageTest, subscribe_request_message) {
 
   EXPECT_EQ(17, subscribe_request.size());
 
-  std::string path = "/a";
+  string_ path = "/a";
 
   subscribe_request.set_target_path(path);
 
@@ -85,7 +85,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_02) {
   EXPECT_FALSE(target__request.get_no_stream());
   EXPECT_EQ(0, target__request.get_alias_count());
 
-  std::string target_path("path/to/abc");
+  string_ target_path("path/to/abc");
   target__request.set_target_path(target_path);
 
   EXPECT_EQ("", src__request.get_target_path().full_str());

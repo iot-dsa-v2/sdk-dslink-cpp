@@ -14,8 +14,8 @@ class HandshakeF2Message final : public Message {
  public:
   bool is_responder;
 
-  std::string token;
-  std::string previous_session_id;
+  string_ token;
+  string_ previous_session_id;
   int32_t last_ack_id;
   std::vector<uint8_t> auth;
 

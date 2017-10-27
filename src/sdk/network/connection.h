@@ -50,7 +50,7 @@ class Connection : public SharedDestroyable<Connection> {
 
  public:
 
-  virtual std::string name() = 0;
+  virtual string_ name() = 0;
 
  public:
   void dispatch_in_strand(std::function<void()> &&callback) override {
@@ -71,7 +71,7 @@ class Connection : public SharedDestroyable<Connection> {
   // as server
   virtual void accept();
 
-  const std::string &dsid() { return _handshake_context.dsid(); }
+  const string_ &dsid() { return _handshake_context.dsid(); }
 
   void set_session(const ref_<Session> &session);
 
@@ -79,7 +79,7 @@ class Connection : public SharedDestroyable<Connection> {
 
  protected:
   Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
-             const std::string &dsid_prefix, const std::string &path = "");
+             const string_ &dsid_prefix, const string_ &path = "");
   virtual ~Connection() = default;
 
   HandshakeContext _handshake_context;
@@ -91,7 +91,7 @@ class Connection : public SharedDestroyable<Connection> {
 
   void destroy_impl() override;
 
-  std::string _path;
+  string_ _path;
 
   boost::asio::deadline_timer _deadline;
   uint32_t _handshake_timeout_ms{1000};
@@ -121,7 +121,7 @@ class Connection : public SharedDestroyable<Connection> {
 
   // client connection
  protected:
-  std::string _client_token;
+  string_ _client_token;
 
   static void on_client_connect(shared_ptr_<Connection> connection) throw(
       const std::runtime_error &);

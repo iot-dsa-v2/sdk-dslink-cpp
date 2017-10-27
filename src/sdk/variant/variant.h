@@ -22,11 +22,11 @@ namespace dsa {
 
 class Var;
 
-class VarMap : public std::map<std::string, Var>, public EnableRef<VarMap> {
+class VarMap : public std::map<string_, Var>, public EnableRef<VarMap> {
  public:
   template <typename... Args>
   explicit VarMap(Args &&... args)
-      : std::map<std::string, Var>(std::forward<Args>(args)...){};
+      : std::map<string_, Var>(std::forward<Args>(args)...){};
 
   VarMap(std::initializer_list<VarMap::value_type> init);
 };
@@ -40,14 +40,14 @@ class VarArray : public std::vector<Var>, public EnableRef<VarArray> {
   VarArray(std::initializer_list<Var> init);
 };
 
-class RefCountString : public std::string, public EnableRef<RefCountString> {
+class RefCountString : public string_, public EnableRef<RefCountString> {
  public:
   template <typename... Args>
   explicit RefCountString(Args &&... args)
-      : std::string(std::forward<Args>(args)...){};
+      : string_(std::forward<Args>(args)...){};
 };
 
-typedef boost::variant<boost::blank, double, int64_t, bool, std::string,
+typedef boost::variant<boost::blank, double, int64_t, bool, string_,
                        ref_<const RefCountString>, ref_<VarMap>, ref_<VarArray>,
                        std::vector<uint8_t>, BytesRef>
     BaseVariant;
@@ -81,8 +81,8 @@ class Var : public BaseVariant {
 
   explicit Var(const char *v);
   explicit Var(const char *v, size_t size);
-  explicit Var(const std::string &v);
-  explicit Var(const std::string &&v);
+  explicit Var(const string_ &v);
+  explicit Var(const string_ &&v);
 
   explicit Var(const uint8_t *data, size_t size);
   explicit Var(const std::vector<uint8_t> &v);
@@ -127,11 +127,11 @@ class Var : public BaseVariant {
   double get_double() const { return boost::get<double>(*this); }
   int64_t get_int() const { return boost::get<int64_t>(*this); }
   bool get_bool() const { return boost::get<bool>(*this); }
-  const std::string &get_string() const {
+  const string_ &get_string() const {
     if (which() == SHARED_STRING) {
       return *boost::get<ref_<const RefCountString>>(*this);
     }
-    return boost::get<const std::string>(*this);
+    return boost::get<const string_>(*this);
   }
   const std::vector<uint8_t> &get_binary() const {
     if (which() == SHARED_BINARY) {
@@ -144,9 +144,9 @@ class Var : public BaseVariant {
 
   double to_double(double defaultout = 0.0 / 0.0) const;
   int64_t to_bool(bool defaultout = false) const;
-  const std::string to_string(const std::string &defaultout = "") const;
+  const string_ to_string(const string_ &defaultout = "") const;
 
-  Var &operator[](const std::string &name);
+  Var &operator[](const string_ &name);
   Var &operator[](size_t index);
 
  public:
@@ -161,8 +161,8 @@ class Var : public BaseVariant {
   static Var from_msgpack(const uint8_t *data, size_t size);
   std::vector<uint8_t> to_msgpack() const throw(const EncodingError &);
 
-  static Var from_json(std::string data);
-  std::string to_json() const throw(const EncodingError &);
+  static Var from_json(string_ data);
+  string_ to_json() const throw(const EncodingError &);
 
  protected:
   static Var to_variant(const msgpack_object &obj);

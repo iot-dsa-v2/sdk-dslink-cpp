@@ -32,8 +32,8 @@ class SetRequestMessage final : public RequestMessage, PagedMessageMixin {
   MessageValue get_value() const;
   void set_value(MessageValue&& value);
 
-  const std::string& get_attribute_field() const;
-  void set_attribute_field(const std::string& value);
+  const string_& get_attribute_field() const;
+  void set_attribute_field(const string_& value);
 };
 
 typedef ref_<const SetRequestMessage> SetRequestMessageCRef;

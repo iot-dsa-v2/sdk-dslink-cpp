@@ -7,12 +7,12 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   HandshakeF3Message message;
 
   uint16_t session_id_length = 64;
-  std::string session_id(
+  string_ session_id(
       "session-id123456789012345678901234567890123456789012345678901234");
   message.session_id = session_id;
 
   uint16_t path_length = 32;
-  std::string path("path5678901234567890123456789012");
+  string_ path("path5678901234567890123456789012");
   message.path = path;
 
   uint8_t auth[] = "auth5678901234567890123456789012";

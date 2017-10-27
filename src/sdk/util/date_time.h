@@ -10,7 +10,7 @@ namespace dsa {
 class DateTime {
  public:
   // return ISO8601 timestamp string, i.e. 2017-09-25T14:46.023-07:00
-  static const std::string& get_ts();
+  static const string_& get_ts();
 };
 }
 #endif  // DSA_SDK_DATETIME_H

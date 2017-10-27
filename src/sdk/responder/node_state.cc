@@ -22,7 +22,7 @@ NodeState::NodeState(NodeStateOwner &owner, ref_<NodeState> &&parent)
       _merged_subscribe_options(QosLevel::_0, -1) {}
 NodeState::~NodeState() = default;
 
-ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
+ref_<NodeState> NodeState::get_child(const string_ &name, bool create) {
   // find existing node
   auto result = _children.find(name);
   if (result != _children.end()) {
@@ -39,7 +39,7 @@ ref_<NodeState> NodeState::get_child(const std::string &name, bool create) {
 ref_<NodeState> NodeState::create_child(const Path &path,
                                         NodeState &last_modeled_state,
                                         bool allows_runtime_change) {
-  const std::string &name = path.current_name();
+  const string_ &name = path.current_name();
 
   // find existing node
   auto result = _children.find(name);
@@ -84,7 +84,7 @@ ref_<NodeState> NodeState::create_child(const Path &path,
 }
 
 ref_<NodeState> NodeState::find_child(const Path &path) {
-  const std::string &name = path.current_name();
+  const string_ &name = path.current_name();
 
   auto result = _children.find(name);
   if (result != _children.end()) {
@@ -97,7 +97,7 @@ ref_<NodeState> NodeState::find_child(const Path &path) {
   return ref_<NodeState>();
 }
 
-void NodeState::remove_child(const std::string &name) { _children.erase(name); }
+void NodeState::remove_child(const string_ &name) { _children.erase(name); }
 
 void NodeState::set_model(ModelRef &&model) {
   if (model == nullptr) {
@@ -220,7 +220,7 @@ void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
   }
 }
 
-void NodeState::update_list_value(const std::string &key, BytesRef &value) {
+void NodeState::update_list_value(const string_ &key, BytesRef &value) {
   for (auto &it : _list_streams) {
     it.first->update_value(key, value);
   }
@@ -282,7 +282,7 @@ void NodeState::destroy_impl() {
 }
 
 NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
-                               const std::string &name)
+                               const string_ &name)
     : NodeState(owner, std::move(parent)), name(name) {}
 
 NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ModelRef &&model)

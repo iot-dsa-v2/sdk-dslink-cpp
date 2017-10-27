@@ -19,7 +19,7 @@ class Server : public SharedDestroyable<Server> {
   // for ServerConnection
   LinkStrandRef _strand;
   uint32_t _handshake_timeout_ms;
-  std::string _dsid_prefix;
+  string_ _dsid_prefix;
 
   //  void on_session_connected(const ref_ <Session> session);
 
@@ -35,11 +35,11 @@ class Server : public SharedDestroyable<Server> {
 
   LinkStrand &get_strand() const { return *_strand; }
   uint32_t get_handshake_timeout_ms() const { return _handshake_timeout_ms; }
-  const std::string &get_dsid_prefix() const { return _dsid_prefix; }
+  const string_ &get_dsid_prefix() const { return _dsid_prefix; }
 
   virtual void start() = 0;
 
-  virtual std::string type() = 0;
+  virtual string_ type() = 0;
 };
 
 typedef shared_ptr_<Server> ServerPtr;

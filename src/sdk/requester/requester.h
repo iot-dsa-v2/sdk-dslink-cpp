@@ -34,19 +34,19 @@ class Requester {
   explicit Requester(Session &session);
 
   ref_<IncomingSubscribeStream> subscribe(
-      const std::string &path, IncomingSubscribeStream::Callback &&callback,
+      const string_ &path, IncomingSubscribeStream::Callback &&callback,
       const SubscribeOptions &options =
           IncomingSubscribeStream::default_options);
 
   ref_<IncomingListStream> list(
-      const std::string &path, IncomingListStream::Callback &&callback,
+      const string_ &path, IncomingListStream::Callback &&callback,
       const ListOptions &options = IncomingListStream::default_options);
 
-  ref_<IncomingInvokeStream> invoke(const std::string &path,
+  ref_<IncomingInvokeStream> invoke(const string_ &path,
                                   IncomingInvokeStream::Callback &&callback,
                                   ref_<const InvokeRequestMessage> &&message);
 
-  ref_<IncomingSetStream> set(const std::string &path,
+  ref_<IncomingSetStream> set(const string_ &path,
                                     IncomingSetStream::Callback &&callback,
                                     ref_<const SetRequestMessage> &&message);
 

@@ -24,11 +24,11 @@ void OutgoingListStream::destroy_impl() {
   };
 }
 
-void OutgoingListStream::update_value(const std::string &key, BytesRef &value) {
+void OutgoingListStream::update_value(const string_ &key, BytesRef &value) {
   _cached_map[key] = value;
   send_message();
 }
-void OutgoingListStream::update_value(const std::string &key, const Var &v) {
+void OutgoingListStream::update_value(const string_ &key, const Var &v) {
   _cached_map[key] = make_ref_<const RefCountBytes>(std::move(v.to_msgpack()));
   send_message();
 }

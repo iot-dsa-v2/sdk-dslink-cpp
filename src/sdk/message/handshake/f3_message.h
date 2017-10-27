@@ -12,9 +12,9 @@ namespace dsa {
 
 class HandshakeF3Message final : public Message {
  public:
-  std::string session_id;
+  string_ session_id;
   int32_t last_ack_id;
-  std::string path;
+  string_ path;
   std::vector<uint8_t> auth;
   bool allow_requester;
 

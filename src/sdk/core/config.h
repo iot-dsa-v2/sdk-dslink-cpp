@@ -44,21 +44,28 @@ class LinkConfig : public LinkStrand {
 };
 
 typedef std::function<shared_ptr_<Connection>(
-    LinkStrandRef& strand, const std::string& previous_session_id,
+    LinkStrandRef& strand, const string_& previous_session_id,
     int32_t last_ack_id)>
     ClientConnectionMaker;
 
 class WrapperConfig {
  public:
   LinkStrandRef strand;
-  std::string dsid_prefix;
-  std::string tcp_host;
+  string_ dsid_prefix;
+
+  bool secure = false;
+
+  string_ tcp_host;
   uint16_t tcp_port{0};
+
+  string_ ws_host;
+  uint16_t ws_port{0};
+  string_ ws_path;
 
   uint32_t handshake_timeout_ms = 5000;
 
   // client configs
-  std::string client_token;
+  string_ client_token;
 
   ClientConnectionMaker client_connection_maker;
 };

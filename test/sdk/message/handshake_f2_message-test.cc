@@ -6,12 +6,12 @@ using namespace dsa;
 TEST(MessageTest, HandshakeF2__Constructor_01) {
   HandshakeF2Message message;
 
-  std::string token(
+  string_ token(
       "token6789012345678901234567890123456789012345678901234567890123456789012"
       "34567890123456789012345678901234567890123456789012345678");
   message.token = token;
   message.is_responder = false;
-  std::string previous_session_id(
+  string_ previous_session_id(
       "session-id123456789012345678901234567890123456789012345678901234");
   message.previous_session_id = previous_session_id;
   uint8_t auth[] = "auth5678901234567890123456789012";

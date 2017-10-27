@@ -6,8 +6,8 @@ namespace dsa {
 const size_t MAX_SIZE_UNSHARED = 256;
 
 VarMap::VarMap(
-    std::initializer_list<std::map<std::string, Var>::value_type> init)
-    : std::map<std::string, Var>(init) {}
+    std::initializer_list<std::map<string_, Var>::value_type> init)
+    : std::map<string_, Var>(init) {}
 
 VarArray::VarArray(std::initializer_list<Var> init) : std::vector<Var>(init) {}
 
@@ -22,7 +22,7 @@ Var::Var(const bool v) : BaseVariant(v) {}
 Var::Var(const char* v) {
   size_t size = strlen(v);
   if (size < MAX_SIZE_UNSHARED) {
-    *this = std::string(v, size);
+    *this = string_(v, size);
   } else {
     *this = ref_<const RefCountString>(new RefCountString(v, size));
   }
@@ -30,19 +30,19 @@ Var::Var(const char* v) {
 
 Var::Var(const char* v, size_t size) {
   if (size < MAX_SIZE_UNSHARED) {
-    *this = std::string(v, size);
+    *this = string_(v, size);
   } else {
     *this = ref_<const RefCountString>(new RefCountString(v, size));
   }
 }
-Var::Var(const std::string& v) : BaseVariant(v) {
+Var::Var(const string_& v) : BaseVariant(v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = v;
   } else {
     *this = ref_<const RefCountString>(new RefCountString(v));
   }
 }
-Var::Var(const std::string&& v) {
+Var::Var(const string_&& v) {
   if (v.size() < MAX_SIZE_UNSHARED) {
     *this = std::move(v);
   } else {
@@ -115,7 +115,7 @@ Var Var::copy() const {
 }
 
 double Var::to_double(double defaultout) const {
-  const std::string* str_value;
+  const string_* str_value;
   switch (which()) {
     case DOUBLE:
       return boost::get<double>(*this);
@@ -124,7 +124,7 @@ double Var::to_double(double defaultout) const {
     case BOOL:
       return boost::get<bool>(*this) ? 1.0 : 0.0;
     case STRING:
-      str_value = &boost::get<std::string>(*this);
+      str_value = &boost::get<string_>(*this);
       break;
     case SHARED_STRING:
       str_value = boost::get<ref_<const RefCountString>>(*this).get();
@@ -139,7 +139,7 @@ double Var::to_double(double defaultout) const {
   }
 }
 int64_t Var::to_bool(bool defaultout) const {
-  const std::string* str_value;
+  const string_* str_value;
   switch (which()) {
     case BOOL:
       return boost::get<bool>(*this);
@@ -150,7 +150,7 @@ int64_t Var::to_bool(bool defaultout) const {
     case INT:
       return boost::get<int64_t>(*this) != 0;
     case STRING:
-      str_value = &boost::get<std::string>(*this);
+      str_value = &boost::get<string_>(*this);
       break;
     case SHARED_STRING:
       str_value = boost::get<ref_<const RefCountString>>(*this).get();
@@ -163,7 +163,7 @@ int64_t Var::to_bool(bool defaultout) const {
   }
   return false;
 }
-const std::string Var::to_string(const std::string& defaultout) const {
+const string_ Var::to_string(const string_& defaultout) const {
   switch (which()) {
     case BOOL:
       return std::to_string(boost::get<bool>(*this));
@@ -172,7 +172,7 @@ const std::string Var::to_string(const std::string& defaultout) const {
     case INT:
       return std::to_string(boost::get<int64_t>(*this));
     case STRING:
-      return boost::get<std::string>(*this);
+      return boost::get<string_>(*this);
     case SHARED_STRING:
       return *boost::get<ref_<const RefCountString>>(*this);
     default:
@@ -180,7 +180,7 @@ const std::string Var::to_string(const std::string& defaultout) const {
   }
 }
 
-Var& Var::operator[](const std::string& name) {
+Var& Var::operator[](const string_& name) {
   if (which() == MAP) {
     return get_map().at(name);
   }

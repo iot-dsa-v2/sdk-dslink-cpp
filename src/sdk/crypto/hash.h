@@ -29,7 +29,7 @@ class Hash {
   ~Hash();
 
   void update(const std::vector<uint8_t> &data);
-  std::string digest_base64() throw(const std::runtime_error &);
+  string_ digest_base64() throw(const std::runtime_error &);
 };
 }  // namespace dsa
 

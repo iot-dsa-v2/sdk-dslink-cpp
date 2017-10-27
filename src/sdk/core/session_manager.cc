@@ -11,8 +11,8 @@ namespace dsa {
 SessionManager::SessionManager(LinkStrandRef strand) : _strand(strand) {}
 
 void SessionManager::get_session(
-    const std::string &dsid, const std::string &auth_token,
-    const std::string &session_id,
+    const string_ &dsid, const string_ &auth_token,
+    const string_ &session_id,
     ClientSessions::GetSessionCallback &&callback) {
   _strand->security_manager().get_client(
       dsid, auth_token, [ =, callback = std::move(callback) ](

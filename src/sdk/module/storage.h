@@ -17,13 +17,13 @@ namespace dsa {
 /// key->binary storage
 class QueueBucket {
  public:
-  typedef std::function<void(const std::string& key, std::vector<uint8_t> data,
+  typedef std::function<void(const string_& key, std::vector<uint8_t> data,
                              bool key_finished)>
       ReadCallback;
 
-  virtual void push_back(const std::string& key, BytesRef&& data) = 0;
+  virtual void push_back(const string_& key, BytesRef&& data) = 0;
   // when count = 0, remove all elements in the queue
-  virtual void remove_front(const std::string& key, size_t count) = 0;
+  virtual void remove_front(const string_& key, size_t count) = 0;
 
   virtual void read_all(ReadCallback&& callback,
                         std::function<void()>&& on_done) = 0;
@@ -34,12 +34,12 @@ class QueueBucket {
 /// key->binary storage
 class StorageBucket {
  public:
-  typedef std::function<void(const std::string& key, std::vector<uint8_t> data)>
+  typedef std::function<void(const string_& key, std::vector<uint8_t> data)>
       ReadCallback;
 
-  virtual void write(const std::string& key, BytesRef&& data) = 0;
-  virtual void read(const std::string& key, ReadCallback&& callback) = 0;
-  virtual void remove(const std::string& key) = 0;
+  virtual void write(const string_& key, BytesRef&& data) = 0;
+  virtual void read(const string_& key, ReadCallback&& callback) = 0;
+  virtual void remove(const string_& key) = 0;
 
   /// the callback might run asynchronously
   virtual void read_all(ReadCallback&& callback,
@@ -51,11 +51,11 @@ class StorageBucket {
 class Storage {
  public:
   /// create a bucket or find a existing bucket
-  virtual StorageBucket& get_bucket(const std::string& name) = 0;
+  virtual StorageBucket& get_bucket(const string_& name) = 0;
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket
-  virtual QueueBucket& get_queue_bucket(const std::string& name) = 0;
+  virtual QueueBucket& get_queue_bucket(const string_& name) = 0;
 };
 
 }  // namespace dsa

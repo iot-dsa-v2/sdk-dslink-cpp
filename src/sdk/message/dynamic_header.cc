@@ -47,7 +47,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
         if (str_size + 3 <= size) {
           return new DynamicStringHeader(
               data, str_size + 3,
-              std::string((char *)data + 3, (size_t)str_size));
+              string_((char *)data + 3, (size_t)str_size));
         }
       }
       throw MessageParsingError("invalid size for DynamicStringHeader");
@@ -65,17 +65,17 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
   }
 }
 
-const std::string DynamicStringHeader::BLANK_STRING = "";
+const string_ DynamicStringHeader::BLANK_STRING = "";
 
 DynamicStringHeader::DynamicStringHeader(const uint8_t *data, uint16_t size,
-                                         std::string &&str)
+                                         string_ &&str)
     : DynamicHeader(static_cast<DynamicKey>(*data), size),
       _value(std::move(str)) {}
 
-DynamicStringHeader::DynamicStringHeader(DynamicKey key, const std::string &str)
+DynamicStringHeader::DynamicStringHeader(DynamicKey key, const string_ &str)
     : DynamicHeader(key, str.length() + 3), _value(str) {}
 
-const std::string &DynamicStringHeader::value() const { return _value; }
+const string_ &DynamicStringHeader::value() const { return _value; }
 
 void DynamicStringHeader::write(uint8_t *data) const {
   data[0] = _key;

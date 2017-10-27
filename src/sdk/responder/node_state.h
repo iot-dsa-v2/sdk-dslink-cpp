@@ -24,7 +24,7 @@ class NodeModelBase;
 
 class NodeStateOwner {
  public:
-  virtual void remove_state(const std::string &path) = 0;
+  virtual void remove_state(const string_ &path) = 0;
 };
 
 class NodeStateWaitingCache {
@@ -53,7 +53,7 @@ class NodeState : public DestroyableRef<NodeState> {
   NodeStateOwner &_owner;
   Path _path;
   ref_<NodeState> _parent;
-  std::unordered_map<std::string, ref_<NodeState>> _children;
+  std::unordered_map<string_, ref_<NodeState>> _children;
 
   ModelRef _model;
   ModelStatus _model_status = MODEL_UNKNOWN;
@@ -77,12 +77,12 @@ class NodeState : public DestroyableRef<NodeState> {
 
   bool registered() { return _path.data() != nullptr; }
 
-  ref_<NodeState> get_child(const std::string &name, bool create);
+  ref_<NodeState> get_child(const string_ &name, bool create);
   ref_<NodeState> create_child(const Path &path, NodeState &last_modeled_state,
                                bool allows_runtime_change);
   ref_<NodeState> find_child(const Path &path);
 
-  void remove_child(const std::string &name);
+  void remove_child(const string_ &name);
 
   void set_model(ModelRef &&model);
   ModelRef &get_model() { return _model; }
@@ -90,7 +90,7 @@ class NodeState : public DestroyableRef<NodeState> {
   //////////////////////////
   // Getters
   //////////////////////////
-  const std::string &path() { return _path.full_str(); }
+  const string_ &path() { return _path.full_str(); }
 
   bool periodic_check(size_t ts);
   /////////////////////////
@@ -100,7 +100,7 @@ class NodeState : public DestroyableRef<NodeState> {
 
   void subscribe(ref_<OutgoingSubscribeStream> &&stream);
 
-  void update_list_value(const std::string &key, BytesRef &value);
+  void update_list_value(const string_ &key, BytesRef &value);
 
   void list(ref_<OutgoingListStream> &&stream);
 
@@ -111,10 +111,10 @@ class NodeState : public DestroyableRef<NodeState> {
 
 class NodeStateChild : public NodeState {
  public:
-  const std::string name;
+  const string_ name;
 
   NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
-                 const std::string &name);
+                 const string_ &name);
 };
 
 class NodeStateRoot : public NodeState {

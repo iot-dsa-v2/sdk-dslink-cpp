@@ -13,7 +13,7 @@ TEST(VariantTest, BaseTest) {
     EXPECT_TRUE(v.is_string());
   }
   {
-    std::string s("hello");
+    string_ s("hello");
     Var v(std::move(s));
     EXPECT_TRUE(v.is_string());
   }

@@ -21,7 +21,7 @@ static int char2int(char input) {
 }
 
 namespace dsa {
-std::string base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len) {
+string_ base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len) {
   BIO *bio, *b64;
   BUF_MEM *bufferPtr;
 
@@ -35,7 +35,7 @@ std::string base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len) {
   BIO_get_mem_ptr(b64, &bufferPtr);
   BIO_set_close(b64, BIO_NOCLOSE);
 
-  std::string ret(bufferPtr->data, bufferPtr->length);
+  string_ ret(bufferPtr->data, bufferPtr->length);
 
   BIO_free_all(b64);
   BUF_MEM_free(bufferPtr);
@@ -43,7 +43,7 @@ std::string base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len) {
   return ret;
 }
 
-std::string base64_decode(std::string const &encoded_string) {
+string_ base64_decode(string_ const &encoded_string) {
   size_t in_len = encoded_string.size();
   BIO *bio, *b64;
 
@@ -57,7 +57,7 @@ std::string base64_decode(std::string const &encoded_string) {
   BIO_read(b64, buffer, in_len);
   BIO_flush(b64);
 
-  std::string ret = std::string((const char *)buffer, in_len);
+  string_ ret = string_((const char *)buffer, in_len);
 
   delete[] buffer;
 
@@ -66,8 +66,8 @@ std::string base64_decode(std::string const &encoded_string) {
   return ret;
 }
 
-std::string base64_url_convert(const std::string &str) {
-  std::string out(str);
+string_ base64_url_convert(const string_ &str) {
+  string_ out(str);
   size_t length = str.size();
 
   for (size_t idx = 0; idx < length; ++idx) {
@@ -87,7 +87,7 @@ std::string base64_url_convert(const std::string &str) {
   return std::move(out);
 }
 
-std::string hex2bin(const char *src) {
+string_ hex2bin(const char *src) {
   std::stringstream out;
 
   int i = 0;

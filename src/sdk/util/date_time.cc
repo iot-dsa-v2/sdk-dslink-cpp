@@ -13,7 +13,7 @@
 namespace dsa {
 
 thread_local std::chrono::milliseconds _last_ms{0};
-thread_local std::string _last_ts;
+thread_local string_ _last_ts;
 
 static void update_ts(std::chrono::system_clock::time_point now) {
   std::time_t t = std::chrono::system_clock::to_time_t(now);
@@ -23,7 +23,7 @@ static void update_ts(std::chrono::system_clock::time_point now) {
 
   char buf[32];
   size_t str_size = std::strftime(buf, sizeof(buf), "%FT%T.000%z0", &localt);
-  std::string str(buf, str_size);
+  string_ str(buf, str_size);
 
   // set milli second;
   auto ms = _last_ms.count() % 1000;
@@ -39,7 +39,7 @@ static void update_ts(std::chrono::system_clock::time_point now) {
   _last_ts = std::move(str);
 }
 
-const std::string& DateTime::get_ts() {
+const string_& DateTime::get_ts() {
   // only generate the string when time changed
   auto now = std::chrono::system_clock::now();
   auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(

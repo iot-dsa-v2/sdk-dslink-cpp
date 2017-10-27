@@ -4,7 +4,9 @@
 
 #include <boost/algorithm/string/join.hpp>
 
-static bool invalid_name(const std::string &name, bool is_meta) {
+namespace dsa {
+
+static bool invalid_name(const string_ &name, bool is_meta) {
   if (name.empty()) return true;
   if (!is_meta && (name[0] == '@' || name[0] == '$')) {
     // attribute and metadata name can not show up in parent node
@@ -39,9 +41,7 @@ static bool invalid_name(const std::string &name, bool is_meta) {
   return check_escape != 0;
 }
 
-namespace dsa {
-
-PathData::PathData(const std::string &path) : str(path) {
+PathData::PathData(const string_ &path) : str(path) {
   if (path.empty()) {
     is_root = true;
     return;
@@ -51,7 +51,7 @@ PathData::PathData(const std::string &path) : str(path) {
 
   while (true) {
     auto next = std::find(current, end, '/');
-    std::string name = std::string(current, next);
+    string_ name = string_(current, next);
     if (invalid_name(name, false)) {
       invalid = true;
       return;
@@ -70,7 +70,7 @@ PathData::PathData(const std::string &path) : str(path) {
   }
 }
 
-PathData::PathData(std::vector<std::string> &&strs) {
+PathData::PathData(std::vector<string_> &&strs) {
   names = std::move(strs);
   if (names.empty()) {
     is_root = true;
@@ -79,12 +79,12 @@ PathData::PathData(std::vector<std::string> &&strs) {
   str = boost::algorithm::join(names, "/");
 }
 
-Path::Path(const std::string &path) : _data(make_ref_<PathData>(path)) {}
+Path::Path(const string_ &path) : _data(make_ref_<PathData>(path)) {}
 Path::Path(const ref_<const PathData> &data, size_t idx)
     : _data(data), _current(idx) {}
 
-const std::string Path::remain_str() const {
-  std::string result = current_name();
+const string_ Path::remain_str() const {
+  string_ result = current_name();
   size_t size = _data->names.size();
   for (size_t i = _current + 1; i < size; ++i) {
     result.insert(result.size(), "/");
@@ -93,9 +93,9 @@ const std::string Path::remain_str() const {
   return std::move(result);
 }
 
-const Path Path::get_child_path(const std::string &name) {
+const Path Path::get_child_path(const string_ &name) {
   if (!invalid_name(name, false)) {
-    std::vector<std::string> new_names = _data->names;
+    std::vector<string_> new_names = _data->names;
     new_names.push_back(name);
     return Path(ref_<PathData>(new PathData(std::move(new_names))), 0);
   } else {
@@ -104,7 +104,7 @@ const Path Path::get_child_path(const std::string &name) {
 }
 const Path Path::get_parent_path() {
   if (!is_invalid() && !is_root()) {
-    std::vector<std::string> new_names = _data->names;
+    std::vector<string_> new_names = _data->names;
     new_names.pop_back();
     return Path(ref_<PathData>(new PathData(std::move(new_names))), 0);
   } else {

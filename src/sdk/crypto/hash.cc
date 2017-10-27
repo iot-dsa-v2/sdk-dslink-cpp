@@ -29,7 +29,7 @@ void Hash::update(const std::vector<uint8_t> &content) {
   EVP_DigestUpdate(mdctx, (uint8_t*)&content[0], content.size());
 }
 
-std::string Hash::digest_base64() throw(const std::runtime_error &) {
+string_ Hash::digest_base64() throw(const std::runtime_error &) {
   if (finalized) throw std::runtime_error("digest already called");
 
   uint8_t md_value[EVP_MAX_MD_SIZE];
@@ -39,7 +39,7 @@ std::string Hash::digest_base64() throw(const std::runtime_error &) {
 
   EVP_MD_CTX_cleanup(mdctx);
 
-  std::string out = base64_encode(md_value, md_len);
+  string_ out = base64_encode(md_value, md_len);
   return out;
 }
 }  // namespace dsa

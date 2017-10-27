@@ -17,14 +17,14 @@ class PathData : public EnableRef<PathData> {
   friend class Path;
 
  public:
-  std::string str;
-  std::vector<std::string> names;
+  string_ str;
+  std::vector<string_> names;
   bool is_root = false;
   bool invalid = false;
 
-  explicit PathData(const std::string &path);
+  explicit PathData(const string_ &path);
 
-  explicit PathData(std::vector<std::string> &&names);
+  explicit PathData(std::vector<string_> &&names);
 };
 
 class Path {
@@ -35,7 +35,7 @@ class Path {
 
  public:
   Path() = default;
-  explicit Path(const std::string &path);
+  explicit Path(const string_ &path);
 
   const ref_<const PathData> &data() { return _data; }
 
@@ -43,15 +43,15 @@ class Path {
   bool is_root() const { return _data->is_root; }
 
   const size_t &current_pos() const { return _current; }
-  const std::string &current_name() const { return _data->names[_current]; }
+  const string_ &current_name() const { return _data->names[_current]; }
 
-  const std::string &last_name() const {
+  const string_ &last_name() const {
     return _data->names[_data->names.size() - 1];
   }
 
-  const std::string &full_str() const { return _data->str; }
+  const string_ &full_str() const { return _data->str; }
 
-  const std::string remain_str() const;
+  const string_ remain_str() const;
 
   // last part of the path
   bool is_last() const { return _current + 1 == _data->names.size(); }
@@ -62,7 +62,7 @@ class Path {
   const Path previous() const { return Path(_data, _current - 1); }
   const Path move_pos(size_t pos) const { return Path(_data, pos); }
 
-  const Path get_child_path(const std::string &name);
+  const Path get_child_path(const string_ &name);
 
   const Path get_parent_path();
 

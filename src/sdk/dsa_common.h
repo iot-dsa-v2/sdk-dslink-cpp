@@ -35,6 +35,8 @@ namespace dsa {
 template <typename T>
 using shared_ptr_ = std::shared_ptr<T>;
 
+using string_ = std::string;
+
 template <typename T>
 class ref_;
 

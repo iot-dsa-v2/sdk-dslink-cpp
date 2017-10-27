@@ -34,7 +34,7 @@ Var Var::to_variant(json_t *json_obj) {
     const char *key;
     json_t *value;
     json_object_foreach(json_obj, key, value) {
-      (*map)[std::string(key, strlen(key))] = to_variant(value);
+      (*map)[string_(key, strlen(key))] = to_variant(value);
     }
 
     return Var(map);
@@ -43,7 +43,7 @@ Var Var::to_variant(json_t *json_obj) {
   }
 }
 
-Var Var::from_json(std::string data) {
+Var Var::from_json(string_ data) {
   json_error_t error;
   json_t *json_obj;
 
@@ -105,7 +105,7 @@ json_t *to_json_object(const Var &v) {
   return json_obj;
 }
 
-std::string Var::to_json() const throw(const EncodingError &) {
+string_ Var::to_json() const throw(const EncodingError &) {
   json_t *json_obj;
   char *encoded_value;
 
@@ -116,11 +116,11 @@ std::string Var::to_json() const throw(const EncodingError &) {
   json_decref(json_obj);
 
   if (encoded_value) {
-    std::string return_value(encoded_value);
+    string_ return_value(encoded_value);
 
     free(encoded_value);
 
-    return std::string(return_value);
+    return string_(return_value);
   }
 
   throw EncodingError("Failed to encode Var to json format");

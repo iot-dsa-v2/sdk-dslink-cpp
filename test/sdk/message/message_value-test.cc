@@ -108,7 +108,7 @@ TEST(MessageValueTest, Constructor_02) {
 TEST(MessageValueTest, Constructor_03) {
   const char* timestamp = "2000-01-01T00:00:00.000+00:00";
 
-  //  MessageValue(Var value, const std::string& ts);
+  //  MessageValue(Var value, const string_& ts);
   {
     Var v("hello");
 

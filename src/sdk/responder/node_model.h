@@ -28,9 +28,9 @@ class ModelProperty {
 
 class NodeModel : public NodeModelBase {
  protected:
-  std::unordered_map<std::string, ModelProperty> _metas;
-  std::unordered_map<std::string, ModelProperty> _attributes;
-  std::unordered_map<std::string, ref_<NodeModel>> _list_children;
+  std::unordered_map<string_, ModelProperty> _metas;
+  std::unordered_map<string_, ModelProperty> _attributes;
+  std::unordered_map<string_, ref_<NodeModel>> _list_children;
 
   BytesRef _summary;
 
@@ -43,9 +43,9 @@ class NodeModel : public NodeModelBase {
 
   void on_list(OutgoingListStream &stream, bool first_request) override;
 
-  void update_property(const std::string &field, ModelProperty &&value);
+  void update_property(const string_ &field, ModelProperty &&value);
 
-  ref_<NodeModel> add_list_child(const std::string &name,
+  ref_<NodeModel> add_list_child(const string_ &name,
                                  ref_<NodeModel> &&model);
 
   BytesRef &get_summary();
@@ -58,7 +58,7 @@ class NodeModel : public NodeModelBase {
 
   void on_set(ref_<OutgoingSetStream> &&stream) override;
   virtual MessageStatus on_set_value(MessageValue &&value);
-  virtual MessageStatus on_set_attribute(const std::string &field, Var &&value);
+  virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
 };
 
 }  // namespace dsa

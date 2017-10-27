@@ -18,17 +18,17 @@ class ClientConnection : public TcpConnection {
  private:
 
  protected:
-  std::string _hostname;
+  string_ _hostname;
   uint16_t _port;
 
 
  public:
   ClientConnection(LinkStrandRef & strand,
-                      const std::string &dsid_prefix,
-                      const std::string &tcp_host, uint16_t tcp_port,
+                      const string_ &dsid_prefix,
+                      const string_ &tcp_host, uint16_t tcp_port,
                       uint32_t handshake_timeout_ms = 5000);
 
-  std::string name() override { return "ClientConnection"; }
+  string_ name() override { return "ClientConnection"; }
 
   void connect() override;
 

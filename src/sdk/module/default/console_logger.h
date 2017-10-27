@@ -11,7 +11,7 @@ namespace dsa {
 class ConsoleLogger : public Logger {
  public:
   void write_meta(std::ostream& stream, const char* level) override;
-  void log(const std::string& str) override;
+  void log(const string_& str) override;
 };
 }
 

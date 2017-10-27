@@ -30,7 +30,7 @@ class Logger {
   uint8_t level = 0;
 
   virtual void write_meta(std::ostream& stream, const char* level) = 0;
-  virtual void log(const std::string& str) = 0;
+  virtual void log(const string_& str) = 0;
   virtual ~Logger() = default;
 };
 }

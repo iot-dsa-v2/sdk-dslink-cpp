@@ -16,7 +16,7 @@ class HandshakeF0Message final : public Message {
   uint8_t dsa_version_minor = 0;
   //bool security_preference = false;
 
-  std::string dsid;
+  string_ dsid;
   std::vector<uint8_t> public_key;
   std::vector<uint8_t> salt;
 

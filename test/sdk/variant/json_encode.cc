@@ -6,7 +6,7 @@ using namespace dsa;
 TEST(VariantTest, JsonEncodingInt) {
   Var v(123);
 
-  std::string encoded_value = v.to_json();
+  string_ encoded_value = v.to_json();
 
   EXPECT_EQ("{\"\": 123}", encoded_value);
 }
@@ -14,7 +14,7 @@ TEST(VariantTest, JsonEncodingInt) {
 TEST(VariantTest, JsonEncodingDouble) {
   Var v(1.23);
 
-  std::string encoded_value = v.to_json();
+  string_ encoded_value = v.to_json();
 
   EXPECT_EQ("{\"\": 1.23}", encoded_value);
 }
@@ -23,14 +23,14 @@ TEST(VariantTest, JsonEncodingBool) {
   {
     Var v(true);
 
-    std::string encoded_value = v.to_json();
+    string_ encoded_value = v.to_json();
 
     EXPECT_EQ("{\"\": true}", encoded_value);
   }
   {
     Var v(false);
 
-    std::string encoded_value = v.to_json();
+    string_ encoded_value = v.to_json();
 
     EXPECT_EQ("{\"\": false}", encoded_value);
   }
@@ -39,7 +39,7 @@ TEST(VariantTest, JsonEncodingBool) {
 TEST(VariantTest, JsonEncodingString) {
   Var v("hello");
 
-  std::string encoded_value = v.to_json();
+  string_ encoded_value = v.to_json();
 
   EXPECT_EQ("{\"\": \"hello\"}", encoded_value);
 }
@@ -47,7 +47,7 @@ TEST(VariantTest, JsonEncodingString) {
 TEST(VariantTest, JsonEncodingNull) {
   Var v;
 
-  std::string encoded_value = v.to_json();
+  string_ encoded_value = v.to_json();
 
   EXPECT_EQ("{\"\": null}", encoded_value);
 }
@@ -55,7 +55,7 @@ TEST(VariantTest, JsonEncodingNull) {
 TEST(VariantTest, JsonEncodingArray) {
   Var v{Var("hello"), Var(123), Var(true)};
 
-  std::string encoded_value = v.to_json();
+  string_ encoded_value = v.to_json();
 
   EXPECT_EQ("{\"\": [\"hello\", 123, true]}", encoded_value);
 }
@@ -65,7 +65,7 @@ TEST(VariantTest, JsonEncodingMap) {
             {"int", Var(123)},
             {"bool", Var(true)}};
 
-  std::string encoded_value = v.to_json();
+  string_ encoded_value = v.to_json();
 
   EXPECT_EQ("{\"\": {\"bool\": true, \"int\": 123, \"string\": \"hello\"}}", encoded_value);
 }
@@ -75,7 +75,7 @@ TEST(VariantTest, JsonEncodingNestedArray) {
             {"int", Var(123)},
             {"map", {{"first", Var("one")}, {"second", Var("two")}}}};
 
-  std::string encoded_value = v.to_json();
+  string_ encoded_value = v.to_json();
 
   EXPECT_EQ("{\"\": {\"int\": 123, \"map\": {\"first\": \"one\", \"second\": \"two\"}, \"string\": \"hello\"}}", encoded_value);
 }

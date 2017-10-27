@@ -19,7 +19,7 @@ namespace dsa {
 class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
  private:
   ref_<NodeStateRoot> _root;
-  std::unordered_map<std::string, ref_<NodeState>> _states;
+  std::unordered_map<string_, ref_<NodeState>> _states;
 
   ref_<NodeState> get_state(const Path &path);
   ref_<NodeState> check_state(const Path &path);
@@ -30,7 +30,7 @@ class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
   explicit NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                             size_t timer_interval = 60);
 
-  void remove_state(const std::string &path) override;
+  void remove_state(const string_ &path) override;
 
   void model_added(const Path &path, ModelRef &model);
   void model_deleted(const Path &path);

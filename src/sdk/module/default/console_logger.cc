@@ -15,5 +15,5 @@ void Logger::set_default(Logger* logger) { default_logger.reset(logger); }
 void ConsoleLogger::write_meta(std::ostream& stream, const char* level) {
   stream << '[' << level << ' ' << DateTime::get_ts() << "]  ";
 }
-void ConsoleLogger::log(const std::string& str) { std::cout << str; }
+void ConsoleLogger::log(const string_& str) { std::cout << str; }
 }

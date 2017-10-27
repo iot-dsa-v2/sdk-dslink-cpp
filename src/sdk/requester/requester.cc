@@ -36,7 +36,7 @@ void Requester::receive_message(MessageRef &&message) {
   }
 }
 ref_<IncomingSubscribeStream> Requester::subscribe(
-    const std::string &path, IncomingSubscribeStream::Callback &&callback,
+    const string_ &path, IncomingSubscribeStream::Callback &&callback,
     const SubscribeOptions &options) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingSubscribeStream>(
@@ -49,7 +49,7 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
 }
 
 ref_<IncomingListStream> Requester::list(
-    const std::string &path, IncomingListStream::Callback &&callback,
+    const string_ &path, IncomingListStream::Callback &&callback,
     const ListOptions &options) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingListStream>(_session.get_ref(), Path(path),
@@ -62,7 +62,7 @@ ref_<IncomingListStream> Requester::list(
 }
 
 ref_<IncomingInvokeStream> Requester::invoke(
-    const std::string &path, IncomingInvokeStream::Callback &&callback,
+    const string_ &path, IncomingInvokeStream::Callback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingInvokeStream>(_session.get_ref(), Path(path),
@@ -75,7 +75,7 @@ ref_<IncomingInvokeStream> Requester::invoke(
 }
 
 ref_<IncomingSetStream> Requester::set(
-    const std::string &path, IncomingSetStream::Callback &&callback,
+    const string_ &path, IncomingSetStream::Callback &&callback,
     ref_<const SetRequestMessage> &&message) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingSetStream>(_session.get_ref(), Path(path),

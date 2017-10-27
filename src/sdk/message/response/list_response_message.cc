@@ -15,10 +15,10 @@ ListResponseMessage::ListResponseMessage(const uint8_t* data, size_t size)
 ListResponseMessage::ListResponseMessage()
     : ResponseMessage(MessageType::LIST_RESPONSE) {}
 
-const std::string& ListResponseMessage::get_base_path() const {
+const string_& ListResponseMessage::get_base_path() const {
   return DynamicStringHeader::read_value(base_path);
 }
-void ListResponseMessage::set_base_path(const std::string& value) {
+void ListResponseMessage::set_base_path(const string_& value) {
   if (DynamicStringHeader::write_value(base_path, DynamicHeader::BASE_PATH,
                                        value)) {
     static_headers.message_size = 0;
@@ -37,7 +37,7 @@ void ListResponseMessage::parse() {
       data += sizeof(uint16_t);
       size -= sizeof(uint16_t);
       if (size < key_size) return;
-      std::string key(reinterpret_cast<const char*>(data), key_size);
+      string_ key(reinterpret_cast<const char*>(data), key_size);
       data += key_size;
       size -= key_size;
       // read value

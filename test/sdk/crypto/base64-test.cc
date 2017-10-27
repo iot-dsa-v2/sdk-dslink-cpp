@@ -19,7 +19,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
         "of knowledge, exceeds the short vehemence of any carnal pleasure.";
     size_t data_size = sizeof_const_str(data) / sizeof(uint8_t);
 
-    std::string encoded = base64_encode(data, data_size);
+    string_ encoded = base64_encode(data, data_size);
 
     EXPECT_EQ(
         "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieS"
@@ -37,7 +37,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
     const uint8_t data[] = "sdk-dslink-cpp";
     size_t data_size = sizeof_const_str(data) / sizeof(uint8_t);
 
-    std::string encoded = base64_encode(data, data_size);
+    string_ encoded = base64_encode(data, data_size);
 
     EXPECT_EQ("c2RrLWRzbGluay1jcHA=", encoded);
 
@@ -48,7 +48,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
     const uint8_t data[] = "-dslink-cpp";
     size_t data_size = sizeof_const_str(data) / sizeof(uint8_t);
 
-    std::string encoded = base64_encode(data, data_size);
+    string_ encoded = base64_encode(data, data_size);
 
     EXPECT_EQ("LWRzbGluay1jcHA=", encoded);
 
@@ -59,7 +59,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
     const uint8_t data[] = "dslink-cpp";
     size_t data_size = sizeof_const_str(data) / sizeof(uint8_t);
 
-    std::string encoded = base64_encode(data, data_size);
+    string_ encoded = base64_encode(data, data_size);
 
     EXPECT_EQ("ZHNsaW5rLWNwcA==", encoded);
 
@@ -70,7 +70,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
     const uint8_t data[] = "-cpp";
     size_t data_size = sizeof_const_str(data) / sizeof(uint8_t);
 
-    std::string encoded = base64_encode(data, data_size);
+    string_ encoded = base64_encode(data, data_size);
 
     EXPECT_EQ("LWNwcA==", encoded);
 
@@ -81,7 +81,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
     const uint8_t data[] = "cpp";
     size_t data_size = sizeof_const_str(data) / sizeof(uint8_t);
 
-    std::string encoded = base64_encode(data, data_size);
+    string_ encoded = base64_encode(data, data_size);
 
     EXPECT_EQ("Y3Bw", encoded);
 
@@ -92,22 +92,22 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
 TEST(Base64Test, Base64URL) {
   {
-    std::string s("=123");
+    string_ s("=123");
 
     EXPECT_EQ("", base64_url_convert(s));
   }
   {
-    std::string s("123==");
+    string_ s("123==");
 
     EXPECT_EQ("123", base64_url_convert(s));
   }
   {
-    std::string s("1+2+3==");
+    string_ s("1+2+3==");
 
     EXPECT_EQ("1-2-3", base64_url_convert(s));
   }
   {
-    std::string s("1////23==");
+    string_ s("1////23==");
 
     EXPECT_EQ("1____23", base64_url_convert(s));
   }

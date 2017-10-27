@@ -16,14 +16,14 @@ ClientSessions::ClientSessions(const ClientInfo &info) : _info(info) {
 };
 
 void ClientSessions::add_session(LinkStrandRef &strand,
-                                 const std::string &session_id,
+                                 const string_ &session_id,
                                  GetSessionCallback &&callback) {
   auto search = _sessions.find(session_id);
   if (search != _sessions.end()) {
     callback(search->second);
     return;
   }
-  std::string sid = get_new_session_id(session_id);
+  string_ sid = get_new_session_id(session_id);
   auto session = make_ref_<Session>(strand->get_ref(), sid);
 
   _sessions[sid] = session;
@@ -31,7 +31,7 @@ void ClientSessions::add_session(LinkStrandRef &strand,
   callback(session);
 }
 
-std::string ClientSessions::get_new_session_id(const std::string old_session_id) {
+string_ ClientSessions::get_new_session_id(const string_ old_session_id) {
   Hash hash("sha256");
 
   std::vector<uint8_t> data(16);
@@ -41,7 +41,7 @@ std::string ClientSessions::get_new_session_id(const std::string old_session_id)
 
   hash.update(data);
 
-  std::string result = base64_url_convert(hash.digest_base64());
+  string_ result = base64_url_convert(hash.digest_base64());
   if (result != old_session_id || _sessions.find(result)==_sessions.end()) {
     return std::move(result);
   }
@@ -57,7 +57,7 @@ void ClientSessions::destroy() {
   _sessions.clear();
 }
 
-Session::Session(LinkStrandRef strand, const std::string &session_id)
+Session::Session(LinkStrandRef strand, const string_ &session_id)
     : _strand(std::move(strand)),
       _session_id(session_id),
       requester(*this),

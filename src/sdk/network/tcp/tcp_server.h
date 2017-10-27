@@ -18,7 +18,7 @@ class TcpServerConnection;
 
 class TcpServer : public Server {
  private:
-  std::string _hostname;
+  string_ _hostname;
   uint16_t _port;
   uint32_t _handshake_timeout_ms = 5000;
 
@@ -33,7 +33,7 @@ class TcpServer : public Server {
 
   void start() override;
   void destroy_impl() override;
-  std::string type() override { return "TCP"; }
+  string_ type() override { return "TCP"; }
 };
 
 typedef shared_ptr_<TcpServer> TcpServerPtr;

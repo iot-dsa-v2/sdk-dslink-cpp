@@ -24,7 +24,7 @@ class MessageValue {
 
   MessageValue(const uint8_t* data, size_t size);
 
-  MessageValue(Var&& value, const std::string& ts);
+  MessageValue(Var&& value, const string_& ts);
 
   void parse(const uint8_t* data, size_t size);
 

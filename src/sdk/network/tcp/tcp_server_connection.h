@@ -17,12 +17,12 @@ class TcpServer;
 class TcpServerConnection : public TcpConnection {
  public:
   TcpServerConnection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
-                      const std::string &dsid_prefix = "",
-                      const std::string &path = "");
+                      const string_ &dsid_prefix = "",
+                      const string_ &path = "");
 
   void accept() override;
 
-  std::string name() override { return "TcpServerConnection"; }
+  string_ name() override { return "TcpServerConnection"; }
 };
 }  // namespace dsa
 

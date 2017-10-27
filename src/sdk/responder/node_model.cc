@@ -37,7 +37,7 @@ const Var &ModelProperty::get_value() const {
   return _value;
 }
 
-static const std::vector<std::string> default_summary_metas = {
+static const std::vector<string_> default_summary_metas = {
     "$is", "$type", "$writable", "$invokable"};
 
 BytesRef &NodeModel::get_summary() {
@@ -88,7 +88,7 @@ void NodeModel::send_children_list(OutgoingListStream &stream) {
   }
 }
 
-void NodeModel::update_property(const std::string &field,
+void NodeModel::update_property(const string_ &field,
                                 ModelProperty &&value) {
   if (!field.empty()) {
     if (field[0] == '$') {
@@ -103,7 +103,7 @@ void NodeModel::update_property(const std::string &field,
     }
   }
 }
-ref_<NodeModel> NodeModel::add_list_child(const std::string &name,
+ref_<NodeModel> NodeModel::add_list_child(const string_ &name,
                                           ref_<NodeModel> &&model) {
   _list_children[name] = model;
   if (_state != nullptr) {
@@ -138,7 +138,7 @@ MessageStatus NodeModel::on_set_value(MessageValue &&value) {
   }
   return MessageStatus::NOT_SUPPORTED;
 }
-MessageStatus NodeModel::on_set_attribute(const std::string &field,
+MessageStatus NodeModel::on_set_attribute(const string_ &field,
                                           Var &&value) {
   return MessageStatus::NOT_SUPPORTED;
 }

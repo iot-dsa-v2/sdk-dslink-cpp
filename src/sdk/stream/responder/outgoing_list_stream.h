@@ -23,7 +23,7 @@ class OutgoingListStream final : public MessageRefedStream {
 
   void destroy_impl() final;
 
-  std::unordered_map<std::string, BytesRef> _cached_map;
+  std::unordered_map<string_, BytesRef> _cached_map;
   size_t _next_size;
 
  public:
@@ -32,8 +32,8 @@ class OutgoingListStream final : public MessageRefedStream {
 
   void on_close(CloseCallback &&callback);
 
-  void update_value(const std::string &key, BytesRef &value);
-  void update_value(const std::string &key, const Var &v);
+  void update_value(const string_ &key, BytesRef &value);
+  void update_value(const string_ &key, const Var &v);
 
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback &) final;

@@ -33,7 +33,7 @@ void NodeModelBase::destroy_impl() {
   _strand.reset();
 }
 
-ModelRef NodeModelBase::get_child(const std::string &name) {
+ModelRef NodeModelBase::get_child(const string_ &name) {
   auto child_state = _state->get_child(name, false);
   if (child_state != nullptr) {
     return child_state->get_model();
@@ -42,7 +42,7 @@ ModelRef NodeModelBase::get_child(const std::string &name) {
   return ModelRef();
 }
 
-ModelRef NodeModelBase::add_child(const std::string &name, ModelRef &&model) {
+ModelRef NodeModelBase::add_child(const string_ &name, ModelRef &&model) {
   if (_state == nullptr) {
     LOG_FATAL(LOG << "NodeModelBase::add_child shouldn't be "
                      "called before initialize() ");

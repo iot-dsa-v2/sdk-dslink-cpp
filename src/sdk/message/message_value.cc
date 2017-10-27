@@ -13,7 +13,7 @@ MessageValue::MessageValue(const uint8_t* data, size_t size) {
   parse(data, size);
 }
 
-MessageValue::MessageValue(Var&& value, const std::string& ts)
+MessageValue::MessageValue(Var&& value, const string_& ts)
     : value(std::move(value)), meta({{"ts", Var(ts)}}) {}
 
 void MessageValue::parse(const uint8_t* data, size_t size) {

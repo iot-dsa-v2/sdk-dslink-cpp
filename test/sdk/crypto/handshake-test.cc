@@ -78,10 +78,10 @@ std::vector<uint8_t> CryptoTest::compute_public_key(BIGNUM *priv) {
 }
 
 //---------------------------------------------
-std::string hex_string(const std::vector<uint8_t> &buf) {
+string_ hex_string(const std::vector<uint8_t> &buf) {
   auto ptr = buf.data();
   boost::format formater("%02x");
-  std::string out;
+  string_ out;
   for (uint32_t i = 0; i < buf.size(); ++i) {
     formater % (int)ptr[i];
     out += formater.str();
@@ -100,7 +100,7 @@ TEST(HandshakeTest, ClientInfo) {
   std::vector<uint8_t> public_key = ct.compute_public_key(client_private_key);
 
   // Buffer other(other_public_key);
-  std::string expected_public_key(
+  string_ expected_public_key(
       "0415caf59c92efecb9253ea43912b419941fdb59a23d5d1289027128bf3d6ee4cb86fbe2"
       "51b675a8d9bd991a65caa1bb23f8a8e0dd4eb0974f6b1eaa3436cec0e9");
   EXPECT_EQ(expected_public_key, hex_string(public_key));
@@ -156,7 +156,7 @@ TEST(HandshakeTest, ServerInfo) {
   std::vector<uint8_t> public_key = ct.compute_public_key(server_private_key);
 
   // Buffer other(other_public_key);
-  std::string expected_public_key(
+  string_ expected_public_key(
       "04f9e64edcec5ea0a645bd034e46ff209dd9fb21d8aba74a5531dc6dcbea28d696c6c938"
       "6d924ebc2f48092a1d6c8b2ca907005cca7e8d2a58783b8a765d8eb29d");
   EXPECT_EQ(expected_public_key, hex_string(public_key));

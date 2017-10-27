@@ -32,16 +32,16 @@ class ListResponseMessage final : public ResponseMessage {
 
   std::unique_ptr<DynamicStringHeader> base_path;
 
-  std::unordered_map<std::string, BytesRef> _raw_map;
+  std::unordered_map<string_, BytesRef> _raw_map;
 
   void parse();
 
  public:
-  const std::string& get_base_path() const;
-  void set_base_path(const std::string& value);
+  const string_& get_base_path() const;
+  void set_base_path(const string_& value);
 
-  std::unordered_map<std::string, BytesRef>& get_map() { return _raw_map; };
-  const std::unordered_map<std::string, BytesRef>& get_map() const { return _raw_map; };
+  std::unordered_map<string_, BytesRef>& get_map() { return _raw_map; };
+  const std::unordered_map<string_, BytesRef>& get_map() const { return _raw_map; };
 
   ref_<VarMap> get_parsed_map() const;
 };

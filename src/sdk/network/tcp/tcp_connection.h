@@ -52,7 +52,7 @@ class TcpConnection : public Connection {
 
  public:
   TcpConnection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
-                const std::string &dsid_prefix, const std::string &path = "");
+                const string_ &dsid_prefix, const string_ &path = "");
 
   static void start_read(shared_ptr_<TcpConnection> &&connection,
                          size_t cur = 0, size_t next = 0);

@@ -8,7 +8,7 @@
 
 namespace dsa {
 
-HandshakeContext::HandshakeContext(std::string dsid_prefix, const ECDH &ecdh)
+HandshakeContext::HandshakeContext(string_ dsid_prefix, const ECDH &ecdh)
     : _ecdh(ecdh), _salt(32) {
   Hash hash("sha256");
   hash.update(_ecdh.get_public_key());
@@ -16,7 +16,7 @@ HandshakeContext::HandshakeContext(std::string dsid_prefix, const ECDH &ecdh)
   //_salt = gen_salt(Connection::SALT_LENGTH);
   gen_salt(_salt.data(), _salt.size());
 }
-HandshakeContext::HandshakeContext(std::string dsid_prefix) : _salt(32) {
+HandshakeContext::HandshakeContext(string_ dsid_prefix) : _salt(32) {
   Hash hash("sha256");
   hash.update(_ecdh.get_public_key());
   _dsid = dsid_prefix + base64_url_convert(hash.digest_base64());
@@ -24,7 +24,7 @@ HandshakeContext::HandshakeContext(std::string dsid_prefix) : _salt(32) {
   gen_salt(_salt.data(), _salt.size());
 }
 
-void HandshakeContext::set_remote(std::string &&dsid,
+void HandshakeContext::set_remote(string_ &&dsid,
                                   std::vector<uint8_t> &&public_key,
                                   std::vector<uint8_t> &&salt) {
   _remote_dsid = std::move(dsid);

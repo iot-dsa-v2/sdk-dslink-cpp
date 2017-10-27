@@ -36,13 +36,13 @@ class ClientSessions {
   uint64_t _session_id_count = 0;
 
   ClientInfo _info;
-  std::unordered_map<std::string, ref_<Session>> _sessions;
+  std::unordered_map<string_, ref_<Session>> _sessions;
 
-  void add_session(LinkStrandRef &strand, const std::string &session_id,
+  void add_session(LinkStrandRef &strand, const string_ &session_id,
                    GetSessionCallback &&callback);
   void destroy();
 
-  std::string get_new_session_id(const std::string old_id = "");
+  string_ get_new_session_id(const string_ old_id = "");
 
  public:
   ClientSessions() = default;
@@ -71,8 +71,8 @@ class Session final : public DestroyableRef<Session> {
   std::deque<AckHolder> _pending_acks;
   void check_pending_acks(int32_t ack);
 
-  std::string _dsid;
-  std::string _session_id;
+  string_ _dsid;
+  string_ _session_id;
   shared_ptr_<Connection> _connection;
 
   ref_<AckStream> _ack_stream;
@@ -93,13 +93,13 @@ class Session final : public DestroyableRef<Session> {
   Requester requester;
   Responder responder;
 
-  Session(LinkStrandRef strand, const std::string &session_id);
+  Session(LinkStrandRef strand, const string_ &session_id);
   ~Session();
 
   LinkStrandRef &get_strand() { return _strand; };
 
-  const std::string &dsid() const { return _dsid; }
-  const std::string &session_id() const { return _session_id; }
+  const string_ &dsid() const { return _dsid; }
+  const string_ &session_id() const { return _session_id; }
   bool is_connected() const { return _connection != nullptr; }
 
   int32_t last_sent_ack();

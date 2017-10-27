@@ -48,7 +48,7 @@ WrapperConfig TestConfig::get_client_config(App &app, bool async) {
       [
         dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port,
         handshake_timeout_ms = handshake_timeout_ms
-      ](LinkStrandRef & strand, const std::string &previous_session_id,
+      ](LinkStrandRef & strand, const string_ &previous_session_id,
         int32_t last_ack_id) {
     return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
                                           tcp_port, handshake_timeout_ms);

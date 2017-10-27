@@ -7,8 +7,8 @@
 namespace dsa {
 ClientConnection::ClientConnection(LinkStrandRef &strand,
 
-                                         const std::string &dsid_prefix,
-                                         const std::string &tcp_host,
+                                         const string_ &dsid_prefix,
+                                         const string_ &tcp_host,
                                          uint16_t tcp_port,
                                          uint32_t handshake_timeout_ms)
     : TcpConnection(strand, handshake_timeout_ms, dsid_prefix),

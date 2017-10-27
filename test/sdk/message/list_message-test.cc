@@ -50,7 +50,7 @@ TEST(MessageTest, ListRequest__Constructor_02) {
   EXPECT_FALSE(target__request.get_no_stream());
   EXPECT_EQ(0, target__request.get_alias_count());
 
-  std::string target_path("path/to/abc");
+  string_ target_path("path/to/abc");
   target__request.set_target_path(target_path);
 
   EXPECT_EQ("", src__request.get_target_path().full_str());

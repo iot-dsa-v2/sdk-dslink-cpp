@@ -17,14 +17,14 @@ class Config;
 
 class SessionManager {
 
-  std::unordered_map<std::string, ClientSessions> _clients;
+  std::unordered_map<string_, ClientSessions> _clients;
 
   LinkStrandRef _strand;
 
  public:
   SessionManager(LinkStrandRef strand);
-  void get_session(const std::string &dsid, const std::string &auth_token,
-                   const std::string &session_id,
+  void get_session(const string_ &dsid, const string_ &auth_token,
+                   const string_ &session_id,
                    ClientSessions::GetSessionCallback &&callback);
 
 

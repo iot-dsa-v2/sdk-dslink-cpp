@@ -80,7 +80,7 @@ const Path& RequestMessage::get_target_path() const {
   }
   return *_parsed_target_path;
 }
-void RequestMessage::set_target_path(const std::string& value) {
+void RequestMessage::set_target_path(const string_& value) {
   if (DynamicStringHeader::write_value(target_path, DynamicHeader::TARGET_PATH,
                                        value)) {
     _parsed_target_path.reset();
@@ -88,10 +88,10 @@ void RequestMessage::set_target_path(const std::string& value) {
   }
 }
 
-const std::string& RequestMessage::get_permission_token() const {
+const string_& RequestMessage::get_permission_token() const {
   return DynamicStringHeader::read_value(permission_token);
 }
-void RequestMessage::set_permission_token(const std::string& value) {
+void RequestMessage::set_permission_token(const string_& value) {
   if (DynamicStringHeader::write_value(
           permission_token, DynamicHeader::PERMISSION_TOKEN, value)) {
     static_headers.message_size = 0;
@@ -124,11 +124,11 @@ ResponseMessage::ResponseMessage(MessageType type) : Message(type){};
 ResponseMessage::ResponseMessage(const StaticHeaders& headers)
     : Message(headers){};
 
-const std::string& ResponseMessage::get_source_path() const {
+const string_& ResponseMessage::get_source_path() const {
   return DynamicStringHeader::read_value(source_path);
 }
 
-void ResponseMessage::set_source_path(const std::string& value) {
+void ResponseMessage::set_source_path(const string_& value) {
   if (DynamicStringHeader::write_value(source_path, DynamicHeader::SOURCE_PATH,
                                        value)) {
     static_headers.message_size = 0;

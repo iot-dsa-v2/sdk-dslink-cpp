@@ -51,23 +51,23 @@ class DynamicHeader {
 
 class DynamicStringHeader final : public DynamicHeader {
  private:
-  std::string _value;
-  static const std::string BLANK_STRING;
+  string_ _value;
+  static const string_ BLANK_STRING;
 
  public:
-  DynamicStringHeader(const uint8_t *data, uint16_t size, std::string &&str);
-  DynamicStringHeader(DynamicKey key, const std::string &str);
-  const std::string &value() const;
+  DynamicStringHeader(const uint8_t *data, uint16_t size, string_ &&str);
+  DynamicStringHeader(DynamicKey key, const string_ &str);
+  const string_ &value() const;
   void write(uint8_t *data) const final;
 
-  static const std::string &read_value(
+  static const string_ &read_value(
       const std::unique_ptr<DynamicStringHeader> &header) throw() {
     if (header == nullptr) return BLANK_STRING;
     return header->value();
   }
   // return true when the length of content is changed
   static bool write_value(std::unique_ptr<DynamicStringHeader> &header,
-                          DynamicKey key, const std::string &value) {
+                          DynamicKey key, const string_ &value) {
     if (value.empty()) {
       if (header != nullptr) {
         header.reset();

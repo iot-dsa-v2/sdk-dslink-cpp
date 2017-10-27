@@ -12,7 +12,7 @@ namespace dsa {
 
 class HandshakeF1Message final : public Message {
  public:
-  std::string dsid;
+  string_ dsid;
   std::vector<uint8_t> public_key;
   std::vector<uint8_t> salt;
 

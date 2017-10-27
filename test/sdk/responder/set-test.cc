@@ -26,7 +26,7 @@ class MockNode : public NodeModel {
 
   bool allows_set_value() override { return true; }
 
-  MessageStatus on_set_attribute(const std::string &field,
+  MessageStatus on_set_attribute(const string_ &field,
                                  Var &&value) override {
     update_property(field, std::move(value));
     return MessageStatus::CLOSED;

@@ -43,9 +43,9 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   explicit NodeModelBase(LinkStrandRef &&strand);
   virtual ~NodeModelBase();
 
-  ModelRef get_child(const std::string &name);
+  ModelRef get_child(const string_ &name);
 
-  ModelRef add_child(const std::string &name, ModelRef &&model);
+  ModelRef add_child(const string_ &name, ModelRef &&model);
 
   // when return true, destroy() will be called by NodeState
   // and model will be removed from the node tree

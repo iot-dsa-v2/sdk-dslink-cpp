@@ -11,8 +11,8 @@ using namespace dsa;
 #define TO_CHAR(x) ((x) <= 0x9) ? (x) + 0x30 : 'a' + (x)-0xa
 
 void to_char(std::stringstream& ss, uint8_t x) {
-  ss << std::string(1, TO_CHAR((x & 0xf0) >> 4));
-  ss << std::string(1, TO_CHAR(x & 0xf));
+  ss << string_(1, TO_CHAR((x & 0xf0) >> 4));
+  ss << string_(1, TO_CHAR(x & 0xf));
 }
 
 // Client Info
@@ -24,7 +24,7 @@ const unsigned char client_salt[] = {
     0x9a, 0x6f, 0x75, 0x84, 0x9b, 0xc8, 0x1e, 0x72, 0x8d, 0x9d, 0x4c,
     0x2f, 0x63, 0x6f, 0x06, 0x7f, 0x89, 0xcc, 0x14, 0x86, 0x2c};
 
-std::string client_token("sample_token_string");
+string_ client_token("sample_token_string");
 
 // Broker Info
 char broker_private_key[] =
@@ -64,7 +64,7 @@ TEST(MessageTest, HandshakeF0) {
   uint8_t buf[1024];
   message.write(buf);
 
-  std::string expected_values(
+  string_ expected_values(
       "a60000000f00f00000000000000000020032006d796c696e6b2d54544458744c2d555f4e"
       "5132736746525535773048725a56696232442d4f3443785851724b6b34685573490415ca"
       "f59c92efecb9253ea43912b419941fdb59a23d5d1289027128bf3d6ee4cb86fbe251b675"
@@ -108,7 +108,7 @@ TEST(MessageTest, HandshakeF1) {
   uint8_t buf[1024];
   message.write(buf);
 
-  std::string expected_values(
+  string_ expected_values(
       "a40000000f00f10000000000000000320062726f6b65722d67363735676153516f677a4d"
       "786a4a46764c374873436279533842304c79325f4162686b775f2d6734694904f9e64edc"
       "ec5ea0a645bd034e46ff209dd9fb21d8aba74a5531dc6dcbea28d696c6c9386d924ebc2f"
@@ -153,7 +153,7 @@ TEST(MessageTest, HandshakeF2) {
   uint8_t buf[1024];
   message.write(buf);
 
-  std::string expected_values(
+  string_ expected_values(
       "4b0000000f00f20000000000000000130073616d706c655f746f6b656e5f737472696e67"
       "01000000000000f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fa"
       "c8b2b"
@@ -203,7 +203,7 @@ TEST(MessageTest, HandshakeF3) {
   uint8_t buf[1024];
   message.write(buf);
 
-  std::string expected_values(
+  string_ expected_values(
       "5b0000000f00f3000000000000000001110073616d70652d73657373696f6e2d30303100"
       "0000001200"
       "2f646f776e73747265616d2f6d6c696e6b31e709059f1ebb84cfb8c34d53fdba7fbf20b1"
