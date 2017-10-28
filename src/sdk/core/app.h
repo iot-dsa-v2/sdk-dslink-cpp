@@ -19,9 +19,9 @@ class App {
   shared_ptr_<boost::thread_group> _threads;
 
  public:
-  explicit App(unsigned int thread_count = 4);
+  explicit App(size_t thread_count = 4);
   App(shared_ptr_<boost::asio::io_service> io_service,
-      unsigned int thread_count = 4);
+      size_t thread_count = 4);
   boost::asio::io_service &io_service() const { return *_io_service; };
 
 

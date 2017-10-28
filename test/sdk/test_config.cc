@@ -16,7 +16,7 @@ namespace dsa {
 uint16_t TestConfig::_port = 4120;
 
 static LinkConfig *make_config(App &app, bool async) {
-  auto *config = new LinkConfig(app.new_strand(), new ECDH());
+  auto *config = new LinkConfig(app.new_strand(), make_unique_<ECDH>());
 
   config->set_session_manager(make_unique_<SessionManager>(config));
 

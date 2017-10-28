@@ -6,19 +6,23 @@
 #include <iostream>
 #include <regex>
 
+#include "core/app.h"
+#include "crypto/ecdh.h"
+
 namespace opts = boost::program_options;
 
 namespace dsa {
 
 ConfigLoader::ConfigLoader(int argc, const char *argv[],
-                           const string_ &link_name,
-                           const string_ &version) {
+                           const string_ &link_name, const string_ &version) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
       ("broker,b", opts::value<string_>()->default_value("localhost"),
        "Broker Url")  // broker url
       ("log,l", opts::value<string_>()->default_value("info"),
        "Log Level [all,trace,debug,info,warn,error,fatal,none]")  // log level
+      ("thread,t", opts::value<size_t>()->default_value(1),
+       "Number of thread")  // custom name
       ("name,n", opts::value<string_>()->default_value(link_name),
        "Override Link Name")  // custom name
       ;
@@ -32,11 +36,26 @@ ConfigLoader::ConfigLoader(int argc, const char *argv[],
     std::cout << desc << '\n';
     exit(0);
   }
+
+  parse_thread(variables["thread"].as<size_t>());
+
+  LinkConfig *config =
+      new LinkConfig(get_app().new_strand(), load_private_key());
+
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
   parse_log(variables["name"].as<string_>());
 }
 
+std::unique_ptr<ECDH> ConfigLoader::load_private_key() {}
+void ConfigLoader::parse_thread(size_t thread) {
+  if (thread < 1) {
+    thread = 1;
+  } else if (thread > 16) {
+    thread = 16;
+  }
+  _app.reset(new App(thread));
+}
 void ConfigLoader::parse_url(const string_ &url) {
   static std::regex url_regex(
       R"(^(ds://|dss://|ws://|wss://)?([^/:\[]+|\[[0-9A-Fa-f:]+\])(:\d+)?(/.*)?$)");

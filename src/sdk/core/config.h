@@ -24,6 +24,7 @@ std::unique_ptr<T> make_unique_(Args&&... args) {
 
 class LinkConfig : public LinkStrand {
  protected:
+  std::unique_ptr<ECDH> _ecdh;
   // modules
   std::unique_ptr<SecurityManager> _security_manager;
   std::unique_ptr<OutgoingStreamAcceptor> _stream_acceptor;
@@ -31,16 +32,16 @@ class LinkConfig : public LinkStrand {
   std::unique_ptr<Logger> _logger;
 
  public:
-  explicit LinkConfig(boost::asio::io_service::strand* strand, ECDH* ecdh);
-  virtual ~LinkConfig();
+  explicit LinkConfig(boost::asio::io_service::strand* strand,
+                      std::unique_ptr<ECDH>&& ecdh);
+  ~LinkConfig() override;
 
   void set_security_manager(std::unique_ptr<SecurityManager> p);
   void set_stream_acceptor(std::unique_ptr<OutgoingStreamAcceptor> p);
   void set_session_manager(std::unique_ptr<SessionManager> p);
   void set_logger(std::unique_ptr<Logger> p);
 
-  void set_responder_model(ModelRef&& root_model,
-                           size_t timer_interval = 60);
+  void set_responder_model(ModelRef&& root_model, size_t timer_interval = 60);
 };
 
 typedef std::function<shared_ptr_<Connection>(

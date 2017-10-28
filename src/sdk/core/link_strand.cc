@@ -11,7 +11,6 @@ LinkStrand::LinkStrand(void* strand, ECDH* ecdh)
     : __strand(strand), __ecdh(ecdh) {}
 LinkStrand::~LinkStrand() {
   delete static_cast<boost::asio::io_service::strand*>(__strand);
-  delete __ecdh;
 }
 boost::asio::io_service &LinkStrand::get_io_service(){
   return static_cast<boost::asio::io_service::strand*>(__strand)->get_io_service();

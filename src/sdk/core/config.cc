@@ -8,8 +8,10 @@
 #include "session_manager.h"
 
 namespace dsa {
-LinkConfig::LinkConfig(boost::asio::io_service::strand* strand, ECDH* ecdh)
-    : LinkStrand(strand, ecdh){
+LinkConfig::LinkConfig(boost::asio::io_service::strand* strand,
+                       std::unique_ptr<ECDH>&& ecdh)
+    : LinkStrand(strand, ecdh.get()),
+      _ecdh(std::move(ecdh)){
 
       };
 LinkConfig::~LinkConfig() = default;

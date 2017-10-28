@@ -28,8 +28,9 @@ static void run_worker_thread(
 //////////////
 // App
 //////////////
-App::App(unsigned int thread_count)
-    : _io_service(new boost::asio::io_service(thread_count)),
+
+App::App(shared_ptr_<boost::asio::io_service> io_service, size_t thread_count)
+    : _io_service(std::move(io_service)),
       _threads(new boost::thread_group),
       _work(new boost::asio::io_service::work(*_io_service)) {
   if (thread_count == 0) {
@@ -40,10 +41,9 @@ App::App(unsigned int thread_count)
       _threads->create_thread(boost::bind(run_worker_thread, _io_service));
   }
 }
-
-App::App(shared_ptr_<boost::asio::io_service> io_service,
-         unsigned int thread_count)
-    : _io_service(std::move(io_service)), _threads(new boost::thread_group) {}
+App::App(size_t thread_count)
+    : App(std::make_shared<boost::asio::io_service>(thread_count),
+          thread_count) {}
 
 void App::wait() {
   if (_threads.use_count() == 0) {
