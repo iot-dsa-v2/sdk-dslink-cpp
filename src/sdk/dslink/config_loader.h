@@ -20,7 +20,7 @@ class ConfigLoader : public WrapperConfig {
 
   void parse_thread(size_t thread);
   void parse_url(const string_ &url);
-  void parse_log(const string_ &log);
+  void parse_log(const string_ &log, LinkConfig &config);
   void parse_name(const string_ &name);
 };
 }

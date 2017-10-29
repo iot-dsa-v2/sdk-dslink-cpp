@@ -26,8 +26,11 @@ class ECDH {
   std::vector<uint8_t> _public_key_cache;
   void cache_public_key();
 
+  void init_private_key(BIGNUM *priv) throw(const std::runtime_error &);
+
  public:
   ECDH() throw(const std::runtime_error &);
+  ECDH(uint8_t *data, size_t size);
   ECDH(const ECDH &ecdh);
   ECDH &operator=(const ECDH &ecdh);
   ~ECDH();
@@ -39,6 +42,7 @@ class ECDH {
   };
   std::vector<uint8_t> compute_secret(const std::vector<uint8_t> &public_key)
       const throw(const std::runtime_error &);
+
   void set_private_key_hex(const char *data) throw(const std::runtime_error &);
 };
 }  // namespace dsa

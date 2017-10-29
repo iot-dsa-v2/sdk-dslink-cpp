@@ -18,6 +18,7 @@ ECDH::ECDH() throw(const std::runtime_error &) {
   generate_key();
   cache_public_key();
 }
+
 ECDH::ECDH(const ECDH &ecdh) {
   int nid = OBJ_sn2nid(curve_name);
   key = EC_KEY_new_by_curve_name(nid);
@@ -25,6 +26,12 @@ ECDH::ECDH(const ECDH &ecdh) {
   group = EC_KEY_get0_group(key);
   cache_public_key();
 }
+
+ECDH::ECDH(uint8_t *data, size_t size) {
+  BIGNUM *priv = BN_bin2bn(data, size, nullptr);
+  init_private_key(priv);
+}
+
 ECDH::~ECDH() { EC_KEY_free(key); }
 
 ECDH &ECDH::operator=(const ECDH &ecdh) {
@@ -63,6 +70,41 @@ const std::vector<uint8_t> ECDH::get_private_key() const
   return std::move(out);
 }
 
+void ECDH::init_private_key(BIGNUM *priv) throw(const std::runtime_error &) {
+  if (!is_key_valid_for_curve(priv)) {
+    BN_free(priv);
+    throw std::runtime_error("invalid key for curve");
+  }
+
+  int result = EC_KEY_set_private_key(key, priv);
+  BN_free(priv);
+
+  if (result == 0)
+    throw std::runtime_error("failed to convert BN to private key");
+
+  // To avoid inconsistency, clear the current public key in-case computing
+  // the new one fails for some reason.
+  EC_KEY_set_public_key(key, nullptr);
+
+  const BIGNUM *priv_key = EC_KEY_get0_private_key(key);
+  CHECK_NE(priv_key, nullptr);
+
+  EC_POINT *pub = EC_POINT_new(group);
+  CHECK_NE(pub, nullptr);
+
+  if (EC_POINT_mul(group, pub, priv_key, nullptr, nullptr, nullptr) == 0) {
+    EC_POINT_free(pub);
+    throw std::runtime_error("Failed to generate ecdh public key");
+  }
+
+  if (EC_KEY_set_public_key(key, pub) == 0) {
+    EC_POINT_free(pub);
+    return throw std::runtime_error("Failed to set generated public key");
+  }
+  EC_POINT_free(pub);
+
+  cache_public_key();
+}
 void ECDH::cache_public_key() {
   const EC_POINT *pub = EC_KEY_get0_public_key(key);
   if (pub == nullptr) throw std::runtime_error("Couldn't get public key");
@@ -102,39 +144,7 @@ void ECDH::set_private_key_hex(const char *data) throw(
     const std::runtime_error &) {
   BIGNUM *priv = BN_new();
   BN_hex2bn(&priv, data);
-  if (!is_key_valid_for_curve(priv)) {
-    BN_free(priv);
-    throw std::runtime_error("invalid key for curve");
-  }
-
-  int result = EC_KEY_set_private_key(key, priv);
-  BN_free(priv);
-
-  if (result == 0)
-    throw std::runtime_error("failed to convert BN to private key");
-
-  // To avoid inconsistency, clear the current public key in-case computing
-  // the new one fails for some reason.
-  EC_KEY_set_public_key(key, nullptr);
-
-  const BIGNUM *priv_key = EC_KEY_get0_private_key(key);
-  CHECK_NE(priv_key, nullptr);
-
-  EC_POINT *pub = EC_POINT_new(group);
-  CHECK_NE(pub, nullptr);
-
-  if (EC_POINT_mul(group, pub, priv_key, nullptr, nullptr, nullptr) == 0) {
-    EC_POINT_free(pub);
-    throw std::runtime_error("Failed to generate ecdh public key");
-  }
-
-  if (EC_KEY_set_public_key(key, pub) == 0) {
-    EC_POINT_free(pub);
-    return throw std::runtime_error("Failed to set generated public key");
-  }
-  EC_POINT_free(pub);
-
-  cache_public_key();
+  init_private_key(priv);
 }
 
 std::vector<uint8_t> ECDH::compute_secret(

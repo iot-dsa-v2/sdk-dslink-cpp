@@ -4,6 +4,7 @@ list(APPEND ModulekSourceFiles
         default/simple_storage.cc
         default/simple_storage_bucket.cc
         default/simple_queue_bucket.cc
+        logger.cc
         logger.h
         security_manager.h
         storage.h

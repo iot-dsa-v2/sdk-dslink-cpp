@@ -2,14 +2,17 @@
 
 #include "config_loader.h"
 
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <regex>
 
 #include "core/app.h"
 #include "crypto/ecdh.h"
+#include "module/default/console_logger.h"
 
 namespace opts = boost::program_options;
+namespace fs = boost::filesystem;
 
 namespace dsa {
 
@@ -39,15 +42,48 @@ ConfigLoader::ConfigLoader(int argc, const char *argv[],
 
   parse_thread(variables["thread"].as<size_t>());
 
-  LinkConfig *config =
-      new LinkConfig(get_app().new_strand(), load_private_key());
+  auto *config = new LinkConfig(get_app().new_strand(), load_private_key());
+  strand.reset(config);
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
-  parse_log(variables["name"].as<string_>());
+  parse_log(variables["log"].as<string_>(), *config);
 }
 
-std::unique_ptr<ECDH> ConfigLoader::load_private_key() {}
+std::unique_ptr<ECDH> ConfigLoader::load_private_key() {
+  fs::path path(".key");
+
+  try {
+    if (fs::file_size(path) == 32) {
+      std::ifstream keyfile(".key", std::ios::in | std::ios::binary);
+      if (keyfile.is_open()) {
+        uint8_t data[32];
+        keyfile.read(reinterpret_cast<char *>(data), 32);
+        return std::unique_ptr<ECDH>(new ECDH(data, 32));
+
+      } else {
+        std::cout << "Unable to open .key file";
+        // file exists but can't open, make a new kwy won't solve the problem
+        exit(1);
+      }
+    }
+  } catch (std::exception &e) {
+    std::cout << "error loading private key, generating new key";
+  }
+
+  auto newkey = std::unique_ptr<ECDH>(new ECDH());
+
+  std::ofstream keyfile(".key",
+                        std::ios::out | std::ios::binary | std::ios::trunc);
+  if (keyfile.is_open()) {
+    auto data = newkey->get_private_key();
+    keyfile.write(reinterpret_cast<char *>(data.data()), data.size());
+  } else {
+    std::cout << "Unable to open .key file";
+    exit(1);
+  }
+  return std::move(newkey);
+}
 void ConfigLoader::parse_thread(size_t thread) {
   if (thread < 1) {
     thread = 1;
@@ -95,6 +131,26 @@ void ConfigLoader::parse_url(const string_ &url) {
   }
 }
 
-void ConfigLoader::parse_log(const string_ &log) {}
-void ConfigLoader::parse_name(const string_ &name) {}
+void ConfigLoader::parse_log(const string_ &log, LinkConfig &config) {
+  auto *logger = new ConsoleLogger();
+  config.set_logger(std::unique_ptr<Logger>(logger));
+  if (log == "all") {
+    logger->level = Logger::ALL_;
+  } else if (log == "trace") {
+    logger->level = Logger::TRACE_;
+  } else if (log == "debug") {
+    logger->level = Logger::DEBUG_;
+  } else if (log == "warn") {
+    logger->level = Logger::WARN_;
+  } else if (log == "error") {
+    logger->level = Logger::ERROR_;
+  } else if (log == "fatal") {
+    logger->level = Logger::FATAL_;
+  } else if (log == "none") {
+    logger->level = Logger::NONE_;
+  } else {  // default
+    logger->level = Logger::INFO_;
+  }
+}
+void ConfigLoader::parse_name(const string_ &name) { dsid_prefix = name; }
 }

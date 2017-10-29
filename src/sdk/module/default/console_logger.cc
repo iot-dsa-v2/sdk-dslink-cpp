@@ -8,10 +8,6 @@
 
 namespace dsa {
 
-static std::unique_ptr<Logger> default_logger(new ConsoleLogger());
-Logger& Logger::_() { return *default_logger; }
-void Logger::set_default(Logger* logger) { default_logger.reset(logger); }
-
 void ConsoleLogger::write_meta(std::ostream& stream, const char* level) {
   stream << '[' << level << ' ' << DateTime::get_ts() << "]  ";
 }

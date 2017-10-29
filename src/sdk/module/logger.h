@@ -12,6 +12,7 @@ namespace dsa {
 class Logger {
  public:
   enum : uint8_t {
+    ALL_ = 0x00,
     TRACE_ = 0x10,
     DEBUG_ = 0x20,
     INFO_ = 0x30,
