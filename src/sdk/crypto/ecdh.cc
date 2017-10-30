@@ -28,6 +28,9 @@ ECDH::ECDH(const ECDH &ecdh) {
 }
 
 ECDH::ECDH(uint8_t *data, size_t size) {
+  int nid = OBJ_sn2nid(curve_name);
+  key = EC_KEY_new_by_curve_name(nid);
+  group = EC_KEY_get0_group(key);
   BIGNUM *priv = BN_bin2bn(data, size, nullptr);
   init_private_key(priv);
 }

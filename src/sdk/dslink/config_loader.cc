@@ -54,7 +54,7 @@ std::unique_ptr<ECDH> ConfigLoader::load_private_key() {
   fs::path path(".key");
 
   try {
-    if (fs::file_size(path) == 32) {
+    if (fs::is_regular_file(path) && fs::file_size(path) == 32) {
       std::ifstream keyfile(".key", std::ios::in | std::ios::binary);
       if (keyfile.is_open()) {
         uint8_t data[32];
