@@ -33,13 +33,6 @@ typedef std::function<void(const boost::system::error_code &error)>
 
 class ConnectionWriteBuffer {
  public:
-//<<<<<<< HEAD
-//  static const size_t DEFAULT_BUFFER_SIZE = 8192;
-//  // write buffer will have 1/16 unusable part by default
-//  // which seems to improve the performance on windows
-//  static const size_t MAX_BUFFER_SIZE = 8192 * 15;
-//
-//=======
   virtual size_t max_next_size() const = 0;
   virtual void add(const Message &msg, int32_t rid, int32_t ack_id) = 0;
   virtual void write(WriteHandler &&callback) = 0;
@@ -49,7 +42,6 @@ class Connection : public SharedDestroyable<Connection> {
   friend class Session;
 
  public:
-
   virtual string_ name() = 0;
 
  public:
@@ -78,8 +70,8 @@ class Connection : public SharedDestroyable<Connection> {
   Session *session() { return _session.get(); }
 
  protected:
-  Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
-             const string_ &dsid_prefix, const string_ &path = "");
+  Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
+             const string_ &path = "");
   virtual ~Connection() = default;
 
   HandshakeContext _handshake_context;
@@ -88,13 +80,11 @@ class Connection : public SharedDestroyable<Connection> {
   // this should rarely be touched
   ref_<Session> _session;
 
-
   void destroy_impl() override;
 
   string_ _path;
 
   boost::asio::deadline_timer _deadline;
-  uint32_t _handshake_timeout_ms{1000};
 
   //  virtual void read_loop(size_t from_prev, const boost::system::error_code
   //  &error, size_t bytes_transferred) = 0;

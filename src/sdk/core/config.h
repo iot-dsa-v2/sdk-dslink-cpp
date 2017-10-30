@@ -54,6 +54,11 @@ class WrapperConfig {
   LinkStrandRef strand;
   string_ dsid_prefix;
 
+  // server features
+  uint16_t tcp_server_port{0};
+  uint16_t tcp_secure_port{0};
+
+  // client features
   bool secure = false;
 
   string_ tcp_host;
@@ -63,9 +68,6 @@ class WrapperConfig {
   uint16_t ws_port{0};
   string_ ws_path;
 
-  uint32_t handshake_timeout_ms = 5000;
-
-  // client configs
   string_ client_token;
 
   ClientConnectionMaker client_connection_maker;

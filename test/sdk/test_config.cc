@@ -36,22 +36,24 @@ static LinkConfig *make_config(App &app, bool async) {
 TestConfig::TestConfig(App &app, bool async) : WrapperConfig() {
   strand.reset(make_config(app, async));
 
-  tcp_host = "127.0.0.1";
-  tcp_port = _port++;
+  tcp_server_port = _port++;
 }
 
 WrapperConfig TestConfig::get_client_config(App &app, bool async) {
   WrapperConfig copy(*this);
+
+  copy.tcp_server_port = 0;
+  copy.tcp_host = "127.0.0.1";
+  copy.tcp_port = tcp_server_port;
+
   copy.strand.reset(make_config(app, async));
   copy.strand->logger().level = strand->logger().level;
   copy.client_connection_maker =
-      [
-        dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port,
-        handshake_timeout_ms = handshake_timeout_ms
-      ](LinkStrandRef & strand, const string_ &previous_session_id,
-        int32_t last_ack_id) {
+      [ dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host, tcp_port = copy.tcp_port ](
+          LinkStrandRef & strand, const string_ &previous_session_id,
+          int32_t last_ack_id) {
     return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
-                                          tcp_port, handshake_timeout_ms);
+                                          tcp_port);
   };
 
   return std::move(copy);

@@ -15,10 +15,9 @@
 
 namespace dsa {
 TcpServerConnection::TcpServerConnection(LinkStrandRef &strand,
-                                         uint32_t handshake_timeout_ms,
                                          const string_ &dsid_prefix,
                                          const string_ &path)
-    : TcpConnection(strand, handshake_timeout_ms, dsid_prefix, path) {}
+    : TcpConnection(strand, dsid_prefix, path) {}
 
 void TcpServerConnection::accept() {
 #if 0

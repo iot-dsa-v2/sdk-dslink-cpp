@@ -68,6 +68,8 @@ TEST(TcpServerTest, SingleStrand) {
   App app;
 
   WrapperConfig config = TestConfig(app).get_client_config(app);
+  // use same config/strand for server and client
+  config.tcp_server_port = config.tcp_port;
 
   auto tcp_server = make_shared_<TcpServer>(config);
   tcp_server->start();

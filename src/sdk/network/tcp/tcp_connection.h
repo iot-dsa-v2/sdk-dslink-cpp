@@ -22,6 +22,9 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
 class TcpConnection : public Connection {
+
+  // write buffer will have 1/16 unusable part by default
+  // which seems to improve the performance
   static const size_t DEFAULT_BUFFER_SIZE = 8192;
   static const size_t MAX_BUFFER_SIZE = DEFAULT_BUFFER_SIZE * 15;
 
@@ -51,7 +54,7 @@ class TcpConnection : public Connection {
   void destroy_impl() override;
 
  public:
-  TcpConnection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
+  TcpConnection(LinkStrandRef &strand,
                 const string_ &dsid_prefix, const string_ &path = "");
 
   static void start_read(shared_ptr_<TcpConnection> &&connection,

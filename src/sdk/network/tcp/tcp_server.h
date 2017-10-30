@@ -18,9 +18,7 @@ class TcpServerConnection;
 
 class TcpServer : public Server {
  private:
-  string_ _hostname;
   uint16_t _port;
-  uint32_t _handshake_timeout_ms = 5000;
 
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   shared_ptr_<TcpServerConnection> _next_connection;

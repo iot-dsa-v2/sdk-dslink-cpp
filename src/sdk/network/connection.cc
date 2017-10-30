@@ -7,10 +7,9 @@
 #include "crypto/hmac.h"
 
 namespace dsa {
-Connection::Connection(LinkStrandRef &strand, uint32_t handshake_timeout_ms,
+Connection::Connection(LinkStrandRef &strand,
                        const string_ &dsid_prefix, const string_ &path)
     : _handshake_context(dsid_prefix, strand->ecdh()),
-      _handshake_timeout_ms(handshake_timeout_ms),
       _deadline(strand->get_io_service()),
       _strand(strand),
       _path(path) {}

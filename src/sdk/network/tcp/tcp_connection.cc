@@ -11,11 +11,9 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(LinkStrandRef &strand,
-                             uint32_t handshake_timeout_ms,
-                             const string_ &dsid_prefix,
+TcpConnection::TcpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                              const string_ &path)
-    : Connection(strand, handshake_timeout_ms, dsid_prefix, path),
+    : Connection(strand, dsid_prefix, path),
       _socket(strand->get_io_service()),
       _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
@@ -35,8 +33,7 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
   if (cur > 0) {
     std::copy(buffer.data() + cur, buffer.data() + next, buffer.data());
   }
-  if (next * 2 > buffer.size() &&
-      buffer.size() < MAX_BUFFER_SIZE) {
+  if (next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
   tcp_socket &socket = connection->_socket;
@@ -137,7 +134,8 @@ void TcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
     if (total_size <= MAX_BUFFER_SIZE) {
       connection._write_buffer.resize(connection._write_buffer.size() * 4);
     } else {
-      LOG_FATAL(LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
+      LOG_FATAL(LOG << "message is bigger than max buffer size: "
+                    << MAX_BUFFER_SIZE);
     }
   }
   message.write(&connection._write_buffer[size], rid, ack_id);

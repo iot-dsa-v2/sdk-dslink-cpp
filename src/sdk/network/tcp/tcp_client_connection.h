@@ -16,22 +16,17 @@ class Client;
 // Handles client side of DSA handshake and starts read loop.
 class ClientConnection : public TcpConnection {
  private:
-
  protected:
   string_ _hostname;
   uint16_t _port;
 
-
  public:
-  ClientConnection(LinkStrandRef & strand,
-                      const string_ &dsid_prefix,
-                      const string_ &tcp_host, uint16_t tcp_port,
-                      uint32_t handshake_timeout_ms = 5000);
+  ClientConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+                   const string_ &tcp_host, uint16_t tcp_port);
 
   string_ name() override { return "ClientConnection"; }
 
   void connect() override;
-
 };
 
 }  // namespace dsa

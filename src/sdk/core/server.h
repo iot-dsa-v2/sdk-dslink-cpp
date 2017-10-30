@@ -18,7 +18,6 @@ class Server : public SharedDestroyable<Server> {
 
   // for ServerConnection
   LinkStrandRef _strand;
-  uint32_t _handshake_timeout_ms;
   string_ _dsid_prefix;
 
   //  void on_session_connected(const ref_ <Session> session);
@@ -34,7 +33,6 @@ class Server : public SharedDestroyable<Server> {
   }
 
   LinkStrand &get_strand() const { return *_strand; }
-  uint32_t get_handshake_timeout_ms() const { return _handshake_timeout_ms; }
   const string_ &get_dsid_prefix() const { return _dsid_prefix; }
 
   virtual void start() = 0;
