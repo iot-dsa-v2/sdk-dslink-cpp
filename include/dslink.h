@@ -3,7 +3,6 @@
 
 #include "dsa_common.h"
 
-#include "dslink/config_loader.h"
 #include "dslink/link.h"
 #include "core/app.h"
 

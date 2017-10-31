@@ -62,7 +62,7 @@ TEST(ResponderTest, Subscribe_Model) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_responder_model(ModelRef(root_node));
+  server_config.strand->set_responder_model(ModelRef(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -152,7 +152,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
   TestConfig server_config(app);
-  server_config.get_link_config()->set_stream_acceptor(
+  server_config.strand->set_stream_acceptor(
     std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
 
   WrapperConfig client_config = server_config.get_client_config(app, true);

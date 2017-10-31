@@ -33,9 +33,7 @@ App::App(shared_ptr_<boost::asio::io_service> io_service, size_t thread_count)
     : _io_service(std::move(io_service)),
       _threads(new boost::thread_group),
       _work(new boost::asio::io_service::work(*_io_service)) {
-  if (thread_count == 0) {
-    // TODO LOG_FATAL
-  }
+  // 0 thread and 1 thread are same
   if (thread_count > 1) {
     for (size_t i = 0; i < thread_count; ++i)
       _threads->create_thread(boost::bind(run_worker_thread, _io_service));
@@ -46,7 +44,7 @@ App::App(size_t thread_count)
           thread_count) {}
 
 void App::wait() {
-  if (_threads.use_count() == 0) {
+  if (_threads->size() == 0) {
     run_worker_thread(_io_service);
   } else {
     _threads->join_all();

@@ -15,7 +15,6 @@ private:
 
   WrapperConfig get_client_config(App &app, bool async = false);
 
-  LinkConfig * get_link_config();
 };
 
 }

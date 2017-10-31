@@ -59,7 +59,4 @@ WrapperConfig TestConfig::get_client_config(App &app, bool async) {
   return std::move(copy);
 }
 
-LinkConfig *TestConfig::get_link_config() {
-  return static_cast<LinkConfig *>(strand.get());
-}
 }

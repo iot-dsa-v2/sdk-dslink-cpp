@@ -24,8 +24,6 @@ class MockNodeChild : public NodeModel {
 
 class MockNodeRoot : public NodeModel {
  public:
-  std::unique_ptr<SubscribeOptions> first_subscribe_options = nullptr;
-  std::unique_ptr<SubscribeOptions> second_subscribe_options = nullptr;
   bool need_list() { return _need_list; }
 
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
@@ -44,7 +42,7 @@ TEST(ResponderTest, ListTest) {
 
   MockNodeRoot *root_node = new MockNodeRoot(server_config.strand);
 
-  server_config.get_link_config()->set_responder_model(ModelRef(root_node));
+  server_config.strand->set_responder_model(ModelRef(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 

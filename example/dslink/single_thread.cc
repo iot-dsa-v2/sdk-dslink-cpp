@@ -1,10 +1,28 @@
+#include "dsa/responder.h"
 #include "dslink.h"
 
 using namespace dsa;
 
-int main(int argc, const char *argv[]) {
+class ExampleNodeChild : public NodeModel {
+ public:
+  explicit ExampleNodeChild(LinkStrandRef strand)
+      : NodeModel(std::move(strand)){
 
-  ConfigLoader config(argc, argv, "mydslink", "1.0.0");
-  Link link(config);
-  return 0;
+        };
+};
+
+class ExampleNodeRoot : public NodeModel {
+ public:
+  explicit ExampleNodeRoot(LinkStrandRef strand)
+      : NodeModel(std::move(strand)) {
+    add_list_child("child_a", new ExampleNodeChild(_strand));
+    add_list_child("child_b", new ExampleNodeChild(_strand));
+  };
+};
+
+int main(int argc, const char *argv[]) {
+  DsLink link(argc, argv, "mydslink", "1.0.0");
+  link.init_responder<ExampleNodeRoot>();
+
+  link.run();
 }

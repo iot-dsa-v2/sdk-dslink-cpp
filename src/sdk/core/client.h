@@ -32,7 +32,7 @@ class Client : public SharedDestroyable<Client> {
   void destroy_impl() override;
 
  public:
-  explicit Client(WrapperConfig &config);
+  Client(WrapperConfig &config);
 
   ~Client();
 

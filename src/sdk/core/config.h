@@ -51,7 +51,7 @@ typedef std::function<shared_ptr_<Connection>(
 
 class WrapperConfig {
  public:
-  LinkStrandRef strand;
+  ref_<LinkConfig> strand;
   string_ dsid_prefix;
 
   // server features

@@ -65,7 +65,7 @@ class Logger {
       (logger).write_meta(LOG, "FATAL_");   \
       (logger).log(LOG.str());              \
     }                                       \
-    throw std::runtime_error(LOG.str());    \
+    exit(1);                                \
   }
 
 #endif  // DSA_SDK_MODULE_LOGGER_H_

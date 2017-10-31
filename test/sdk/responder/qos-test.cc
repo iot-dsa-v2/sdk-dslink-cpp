@@ -36,7 +36,7 @@ TEST(ResponderQosTest, QueueSizeTest) {
 
   MockNodeQos *root_node = new MockNodeQos(server_config.strand);
 
-  server_config.get_link_config()->set_responder_model(
+  server_config.strand->set_responder_model(
       ref_<MockNodeQos>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
