@@ -84,7 +84,7 @@ bool msgpack_pack(msgpack_packer *pk, const Var &v) {
   if (v.is_double()) {
     msgpack_pack_double(pk, v.get_double());
   } else if (v.is_int()) {
-    msgpack_pack_int(pk, v.get_int());
+    msgpack_pack_int64(pk, v.get_int());
   } else if (v.is_bool()) {
     v.get_bool() ? msgpack_pack_true(pk) : msgpack_pack_false(pk);
   } else if (v.is_string()) {

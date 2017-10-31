@@ -23,7 +23,7 @@ class Session;
 class Server;
 class Client;
 
-class StaticHeaders;
+struct StaticHeaders;
 
 class Message;
 typedef ref_<Message> MessageRef;
