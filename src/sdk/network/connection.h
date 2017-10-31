@@ -89,9 +89,6 @@ class Connection : public SharedDestroyable<Connection> {
   //  virtual void read_loop(size_t from_prev, const boost::system::error_code
   //  &error, size_t bytes_transferred) = 0;
 
-  static bool valid_handshake_header(StaticHeaders &header,
-                                     size_t expected_size,
-                                     MessageType expected_type);
 
   void success_or_close(const boost::system::error_code &error);
 

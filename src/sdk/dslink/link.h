@@ -2,6 +2,7 @@
 #define DSA_SDK_CONFIG_LOADER_H
 
 #include "core/config.h"
+#include "core/session.h"
 
 namespace dsa {
 class App;
@@ -13,14 +14,13 @@ class DsLink : public WrapperConfig {
   DsLink(int argc, const char *argv[], const string_ &link_name,
          const string_ &version);
   ~DsLink();
-  App &get_app() const { return *_app; }
+  App &get_app();
 
  private:
   std::unique_ptr<App> _app;
   std::unique_ptr<TcpServer> _tcp_server;
   std::unique_ptr<Client> _tcp_client;
 
-  std::function<void()> _on_ready;
   bool _running = false;
 
   // initialization
@@ -38,7 +38,8 @@ class DsLink : public WrapperConfig {
     strand->set_responder_model(make_ref_<NodeClass>(strand));
   }
 
-  void run(std::function<void()> &&on_ready = nullptr);
+  void run(Session::OnConnectedCallback &&on_ready = nullptr,
+           uint8_t callback_type = Session::FIRST_CONNECTION);
 };
 }
 

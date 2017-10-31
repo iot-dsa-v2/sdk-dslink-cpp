@@ -11,8 +11,10 @@
 #include "core/client.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
+#include "module/default/simple_security_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
+#include "core/session_manager.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
@@ -57,6 +59,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 }
 DsLink::~DsLink() {}
 
+App &DsLink::get_app() { return *_app; }
+
 std::unique_ptr<ECDH> DsLink::load_private_key() {
   fs::path path(".key");
 
@@ -66,7 +70,7 @@ std::unique_ptr<ECDH> DsLink::load_private_key() {
       if (keyfile.is_open()) {
         uint8_t data[32];
         keyfile.read(reinterpret_cast<char *>(data), 32);
-        return std::unique_ptr<ECDH>(new ECDH(data, 32));
+        return make_unique_<ECDH>(data, 32);
 
       } else {
         LOG_FATAL(LOG << "Unable to open .key file");
@@ -78,7 +82,7 @@ std::unique_ptr<ECDH> DsLink::load_private_key() {
               LOG << "error loading existing private key, generating new key");
   }
 
-  auto newkey = std::unique_ptr<ECDH>(new ECDH());
+  auto newkey = make_unique_<ECDH>();
 
   std::ofstream keyfile(".key",
                         std::ios::out | std::ios::binary | std::ios::trunc);
@@ -161,18 +165,21 @@ void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
 void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
+  strand->set_session_manager(make_unique_<SessionManager>(strand));
+  strand->set_security_manager(make_unique_<SimpleSecurityManager>());
+
   strand->set_responder_model(std::move(root_node));
 }
 
-void DsLink::run(std::function<void()> &&on_ready) {
+void DsLink::run(Session::OnConnectedCallback &&on_connect,
+                 uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
   }
   _running = true;
-  _on_ready = std::move(on_ready);
 
   if (tcp_server_port > 0) {
-    _tcp_server = std::unique_ptr<TcpServer>(new TcpServer(*this));
+    _tcp_server = make_unique_<TcpServer>(*this);
     _tcp_server->start();
   }
 
@@ -193,8 +200,12 @@ void DsLink::run(std::function<void()> &&on_ready) {
     // TODO, implement ws client
   }
 
-  _tcp_client = std::unique_ptr<Client>(new Client(*this));
+  _tcp_client = make_unique_<Client>(*this);
   _tcp_client->connect();
+  if (on_connect != nullptr) {
+    _tcp_client->get_session().set_on_connected(std::move(on_connect),
+                                                callback_type);
+  }
 
   _app->wait();
 }

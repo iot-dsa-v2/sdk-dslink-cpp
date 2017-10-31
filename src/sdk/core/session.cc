@@ -42,7 +42,7 @@ string_ ClientSessions::get_new_session_id(const string_ old_session_id) {
   hash.update(data);
 
   string_ result = base64_url_convert(hash.digest_base64());
-  if (result != old_session_id || _sessions.find(result)==_sessions.end()) {
+  if (result != old_session_id || _sessions.find(result) == _sessions.end()) {
     return std::move(result);
   }
   return get_new_session_id(old_session_id);
@@ -66,11 +66,25 @@ Session::Session(LinkStrandRef strand, const string_ &session_id)
 
 Session::~Session() = default;
 
+void Session::set_on_connected(OnConnectedCallback &&callback, uint8_t type) {
+  on_connected_type = type;
+  on_connected = std::move(callback);
+}
+
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {
     _connection->destroy();
   }
   _connection = std::move(connection);
+  write_loop(get_ref());
+  if (on_connected != nullptr) {
+    // TODO, update ClientConnetionData
+    if (on_connected_type == FIRST_CONNECTION) {
+      std::move(on_connected)(connection_data);
+    } else {
+      // TODO, implement other connection type
+    }
+  }
 }
 
 void Session::destroy_impl() {
@@ -198,7 +212,7 @@ void Session::write_loop(ref_<Session> sthis) {
 
 void Session::write_stream(ref_<MessageStream> &&stream) {
   _write_streams.push_back(std::move(stream));
-  if (!_is_writing) {
+  if (!_is_writing && _connection != nullptr) {
     write_loop(get_ref());
   }
 }

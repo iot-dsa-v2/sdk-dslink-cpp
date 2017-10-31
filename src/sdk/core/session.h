@@ -57,13 +57,30 @@ struct AckHolder {
       : ack(ack), callback(std::move(callback)){};
 };
 
-//////////////////////////////////////////
+struct ClientConnetionData {
+  std::string broker_dsid;
+  std::string remote_path;
+};
+
 // maintain request and response streams
-//////////////////////////////////////////
 class Session final : public DestroyableRef<Session> {
   friend class Connection;
   friend class Responder;
   friend class MessageStream;
+
+ public:
+  enum : uint8_t {
+    FIRST_CONNECTION = 0,
+    BROKER_INFO_CHANGE = 1,
+    EVERY_CONNECTION = 2,
+    DISCONNECTION = 128,
+  };
+
+  typedef std::function<void(const ClientConnetionData &info)> OnConnectedCallback;
+
+  // call back on connect
+  void set_on_connected(OnConnectedCallback &&callback,
+                        uint8_t type = FIRST_CONNECTION);
 
  private:
   int32_t _waiting_ack = 0;
@@ -88,6 +105,10 @@ class Session final : public DestroyableRef<Session> {
   static void write_loop(ref_<Session> sthis);
 
   void receive_message(MessageRef &&message);
+
+  uint8_t on_connected_type;
+  OnConnectedCallback on_connected;
+  ClientConnetionData connection_data;
 
  public:
   Requester requester;

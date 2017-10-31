@@ -33,15 +33,6 @@ void Connection::destroy_impl() {
   _deadline.cancel();
 }
 
-bool Connection::valid_handshake_header(StaticHeaders &header,
-                                        size_t expected_size,
-                                        MessageType expected_type) {
-  return (header.message_size == expected_size &&
-          header.header_size == StaticHeaders::TOTAL_SIZE &&
-          header.type == expected_type && header.rid == 0 &&
-          header.ack_id == 0);
-}
-
 void Connection::reset_standard_deadline_timer() {
   //  _deadline.expires_from_now(boost::posix_time::minutes(1));
   //  _deadline.async_wait((*_strand)()->wrap([sthis = shared_from_this()](
