@@ -88,7 +88,7 @@ int main(int argc, const char *argv[]) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.get_link_config()->set_responder_model(
+  server_config.strand->set_responder_model(
       ref_<MockNode>(root_node));
 
   //  auto tcp_server(new TcpServer(server_config));
