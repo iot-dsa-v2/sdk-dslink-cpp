@@ -48,23 +48,27 @@ void Responder::receive_message(ref_<Message> &&message) {
   }
 
   auto callback = [ message = std::move(message),
-                    this ](PermissionLevel permission) mutable {
+                    this ](PermissionLevel permission_level) mutable {
     // TODO: implement permissions
 
     switch (message->type()) {
       case MessageType::INVOKE_REQUEST:
-        on_invoke_request(ref_<InvokeRequestMessage>(std::move(message)));
+        on_invoke_request(ref_<InvokeRequestMessage>(std::move(message)),
+                          permission_level);
 
         break;
       case MessageType::SUBSCRIBE_REQUEST:
-        on_subscribe_request(ref_<SubscribeRequestMessage>(std::move(message)));
+        on_subscribe_request(ref_<SubscribeRequestMessage>(std::move(message)),
+                             permission_level);
         break;
       case MessageType::LIST_REQUEST:
-        on_list_request(ref_<ListRequestMessage>(std::move(message)));
+        on_list_request(ref_<ListRequestMessage>(std::move(message)),
+                        permission_level);
 
         break;
       case MessageType::SET_REQUEST:
-        on_set_request(ref_<SetRequestMessage>(std::move(message)));
+        on_set_request(ref_<SetRequestMessage>(std::move(message)),
+                       permission_level);
 
         break;
 
@@ -78,41 +82,69 @@ void Responder::receive_message(ref_<Message> &&message) {
       request->get_target_path(), std::move(callback));
 }
 
-void Responder::on_subscribe_request(ref_<SubscribeRequestMessage> &&message) {
+void Responder::on_subscribe_request(ref_<SubscribeRequestMessage> &&message,
+                                     PermissionLevel permission_level) {
+  if (permission_level < PermissionLevel::READ) {
+    _session.write_stream(make_ref_<ErrorStream>(
+        message->get_rid(), MessageType::SUBSCRIBE_RESPONSE,
+        MessageStatus::PERMISSION_DENIED));
+    return;
+  }
   auto stream = make_ref_<OutgoingSubscribeStream>(
       _session.get_ref(), message->get_target_path(), message->get_rid(),
       message->get_subscribe_options());
-
+  stream->allowed_permission = permission_level;
   _outgoing_streams[stream->rid] = stream;
 
   _session._strand->stream_acceptor().add(std::move(stream));
 }
 
-void Responder::on_list_request(ref_<ListRequestMessage> &&message) {
+void Responder::on_list_request(ref_<ListRequestMessage> &&message,
+                                PermissionLevel permission_level) {
+  if (permission_level < PermissionLevel::LIST) {
+    _session.write_stream(
+        make_ref_<ErrorStream>(message->get_rid(), MessageType::LIST_RESPONSE,
+                               MessageStatus::PERMISSION_DENIED));
+    return;
+  }
   auto stream = make_ref_<OutgoingListStream>(
       _session.get_ref(), message->get_target_path(), message->get_rid(),
       message->get_list_options());
-
+  stream->allowed_permission = permission_level;
   _outgoing_streams[stream->rid] = stream;
 
   _session._strand->stream_acceptor().add(std::move(stream));
 }
 
-void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message) {
+void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message,
+                                  PermissionLevel permission_level) {
+  if (permission_level < PermissionLevel::READ) {
+    _session.write_stream(
+        make_ref_<ErrorStream>(message->get_rid(), MessageType::INVOKE_RESPONSE,
+                               MessageStatus::PERMISSION_DENIED));
+    return;
+  }
   auto stream = make_ref_<OutgoingInvokeStream>(
       _session.get_ref(), message->get_target_path(), message->get_rid(),
       std::move(message));
-
+  stream->allowed_permission = permission_level;
   _outgoing_streams[stream->rid] = stream;
 
   _session._strand->stream_acceptor().add(std::move(stream));
 }
 
-void Responder::on_set_request(ref_<SetRequestMessage> &&message) {
+void Responder::on_set_request(ref_<SetRequestMessage> &&message,
+                               PermissionLevel permission_level) {
+  if (permission_level < PermissionLevel::WRITE) {
+    _session.write_stream(
+        make_ref_<ErrorStream>(message->get_rid(), MessageType::SET_RESPONSE,
+                               MessageStatus::PERMISSION_DENIED));
+    return;
+  }
   auto stream = make_ref_<OutgoingSetStream>(
       _session.get_ref(), message->get_target_path(), message->get_rid(),
       std::move(message));
-
+  stream->allowed_permission = permission_level;
   _outgoing_streams[stream->rid] = stream;
 
   _session._strand->stream_acceptor().add(std::move(stream));

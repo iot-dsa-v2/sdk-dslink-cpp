@@ -115,7 +115,7 @@ ref_<NodeModel> NodeModel::add_list_child(const string_ &name,
   return std::move(model);
 }
 
-void NodeModel::on_set(ref_<OutgoingSetStream> &&stream) {
+void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
   stream->on_request([ this, ref = get_ref() ](
       OutgoingSetStream & s, ref_<const SetRequestMessage> && message) {
     auto field = message->get_attribute_field();

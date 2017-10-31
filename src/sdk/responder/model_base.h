@@ -80,12 +80,12 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
 
   /// invoke
  public:
-  virtual void on_invoke(ref_<OutgoingInvokeStream> &&stream,
-                         ref_<NodeState> &parent);
+  virtual void invoke(ref_ <OutgoingInvokeStream> &&stream,
+                      ref_ <NodeState> &parent);
 
   /// invoke
  public:
-  virtual void on_set(ref_<OutgoingSetStream> &&stream);
+  virtual void set(ref_ <OutgoingSetStream> &&stream);
 };
 
 }  // namespace dsa

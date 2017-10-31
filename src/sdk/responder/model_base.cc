@@ -100,14 +100,14 @@ void NodeModelBase::unlist() {
   }
 }
 
-void NodeModelBase::on_invoke(ref_<OutgoingInvokeStream> &&stream,
-                              ref_<NodeState> &parent) {
+void NodeModelBase::invoke(ref_<OutgoingInvokeStream> &&stream,
+                           ref_<NodeState> &parent) {
   auto response = make_ref_<InvokeResponseMessage>();
   response->set_status(MessageStatus::NOT_SUPPORTED);
   stream->send_response(std::move(response));
 }
 
-void NodeModelBase::on_set(ref_<OutgoingSetStream> &&stream) {
+void NodeModelBase::set(ref_<OutgoingSetStream> &&stream) {
   auto response = make_ref_<SetResponseMessage>();
   response->set_status(MessageStatus::NOT_SUPPORTED);
   stream->send_response(std::move(response));

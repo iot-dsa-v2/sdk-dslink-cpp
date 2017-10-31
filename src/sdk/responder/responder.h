@@ -27,12 +27,12 @@ class Responder {
 
   std::unordered_map<int32_t, ref_<MessageStream> > _outgoing_streams;
 
-  virtual void on_invoke_request(
-      ref_<InvokeRequestMessage> &&request);
-  virtual void on_list_request(ref_<ListRequestMessage> &&request);
-  virtual void on_set_request(ref_<SetRequestMessage> &&request);
-  virtual void on_subscribe_request(
-      ref_<SubscribeRequestMessage> &&request);
+  void on_invoke_request(
+      ref_<InvokeRequestMessage> &&request, PermissionLevel permission_level);
+  void on_list_request(ref_<ListRequestMessage> &&request, PermissionLevel permission_level);
+  void on_set_request(ref_<SetRequestMessage> &&request, PermissionLevel permission_level);
+  void on_subscribe_request(
+      ref_<SubscribeRequestMessage> &&request, PermissionLevel permission_level);
 
   void receive_message(ref_<Message> &&message);
 

@@ -140,10 +140,10 @@ void NodeState::set_model(ModelRef &&model) {
     // invoke and set streams
     if (_watiging_cache != nullptr) {
       for (auto &invoke_stream : _watiging_cache->invokes) {
-        _model->on_invoke(std::move(invoke_stream), _parent);
+        _model->invoke(std::move(invoke_stream), _parent);
       }
       for (auto &set_stream : _watiging_cache->sets) {
-        _model->on_set(std::move(set_stream));
+        _model->set(std::move(set_stream));
       }
       _watiging_cache.reset();
     }
@@ -242,7 +242,7 @@ void NodeState::list(ref_<OutgoingListStream> &&stream) {
 
 void NodeState::invoke(ref_<OutgoingInvokeStream> &&stream) {
   if (_model != nullptr) {
-    _model->on_invoke(std::move(stream), _parent);
+    _model->invoke(std::move(stream), _parent);
   } else if (_model_status == MODEL_WAITING) {
     _watiging_cache->invokes.emplace_back(std::move(stream));
   } else {
@@ -257,7 +257,7 @@ void NodeState::invoke(ref_<OutgoingInvokeStream> &&stream) {
 }
 void NodeState::set(ref_<OutgoingSetStream> &&stream) {
   if (_model != nullptr) {
-    _model->on_set(std::move(stream));
+    _model->set(std::move(stream));
   } else if (_model_status == MODEL_WAITING) {
     _watiging_cache->sets.emplace_back(std::move(stream));
   } else {

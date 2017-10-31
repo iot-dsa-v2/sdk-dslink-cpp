@@ -30,6 +30,7 @@ enum class MessageType : uint8_t {
   PING = 0xF9,
   INVALID = 0xFF
 };
+std::ostream &operator<<(std::ostream &os, dsa::MessageType type);
 
 enum class MessageStatus : uint8_t {
   // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Status-Table.md
@@ -59,7 +60,9 @@ enum class PermissionLevel : uint8_t {
   UNKNOWN = 0xff
 };
 
-std::ostream &operator<<(std::ostream &os, dsa::MessageType type);
+const char* to_string(PermissionLevel permission_level);
+
+
 
 }  // namespace dsa
 

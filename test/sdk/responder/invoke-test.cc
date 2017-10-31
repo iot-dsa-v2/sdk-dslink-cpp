@@ -10,16 +10,17 @@
 
 #include "message/request/invoke_request_message.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "responder/invoke_node_model.h"
 
 using namespace dsa;
 
 namespace responder_invoke_test {
-class MockNode : public NodeModelBase {
+class MockNode : public InvokeNodeModel {
  public:
   ref_<OutgoingInvokeStream> last_invoke_stream;
   ref_<const InvokeRequestMessage> last_invoke_request;
 
-  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand) : InvokeNodeModel(std::move(strand)){};
 
   void on_invoke(ref_<OutgoingInvokeStream> &&stream, ref_<NodeState> & parent) final {
     BOOST_ASSERT_MSG(last_invoke_stream == nullptr,

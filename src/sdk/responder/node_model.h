@@ -56,7 +56,7 @@ class NodeModel : public NodeModelBase {
 
   virtual bool allows_set_value() { return false; }
 
-  void on_set(ref_<OutgoingSetStream> &&stream) override;
+  void set(ref_ <OutgoingSetStream> &&stream) override;
   virtual MessageStatus on_set_value(MessageValue &&value);
   virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
 };

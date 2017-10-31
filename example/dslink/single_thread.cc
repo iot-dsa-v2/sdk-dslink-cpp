@@ -25,9 +25,8 @@ int main(int argc, const char *argv[]) {
   link.init_responder<ExampleNodeRoot>();
   link.run();
 
-// // add a callback when connected to broker
-//  link.run([](const ClientConnetionData& data){
-//    std::cout << std::endl << "connected to broker";
-//  });
-
+  // // add a callback when connected to broker
+  //  link.run([](const ClientConnetionData& data){
+  //    std::cout << std::endl << "connected to broker";
+  //  });
 }

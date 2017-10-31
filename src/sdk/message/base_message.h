@@ -19,7 +19,8 @@ namespace dsa {
 class Message : public EnableRef<Message> {
  public:
   enum : size_t {
-    MAX_MESSAGE_SIZE = 65472 // 65536-64, reserve 64 bytes for low level protocol headers.
+    MAX_MESSAGE_SIZE =
+        65472  // 65536-64, reserve 64 bytes for low level protocol headers.
   };
 
   static MessageType get_response_type(MessageType request_type) {
@@ -155,6 +156,7 @@ typedef std::function<void(bool)> AckCallback;
 class MessageStream : public DestroyableRef<MessageStream> {
  public:
   const int32_t rid;
+  PermissionLevel allowed_permission;
 
   explicit MessageStream(int32_t rid) : rid(rid){};
   virtual ~MessageStream() = default;
