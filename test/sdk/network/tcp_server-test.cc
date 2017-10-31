@@ -16,31 +16,34 @@ TEST(TcpServerTest, SingleThread) {
   App app(1);
 
   WrapperConfig config = TestConfig(app).get_client_config(app);
+  // use same config/strand for server and client
+  config.tcp_server_port = config.tcp_port;
 
   auto tcp_server = make_shared_<TcpServer>(config);
   tcp_server->start();
 
   const uint32_t NUM_CLIENT = 2;
 
+  std::vector<shared_ptr_<Client>> clients;
+  boost::asio::deadline_timer timer(app.io_service(),
+                                    boost::posix_time::milliseconds(20));
+  int waited = 0;
+  std::function<void(const boost::system::error_code&)> wait_for_connected;
+
   config.strand->post([&]() {
-    std::vector<shared_ptr_<Client>> clients;
+
     for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
       shared_ptr_<Client> tcp_client(new Client(config));
       tcp_client->connect();
       clients.push_back(std::move(tcp_client));
     }
 
-    boost::posix_time::milliseconds interval(20);
-    boost::asio::deadline_timer timer(app.io_service(), interval);
-
-    int waited = 0;
-
-    std::function<void(const boost::system::error_code&)> wait_for_connected;
     wait_for_connected = [&](const boost::system::error_code& error) {
       ++waited;
       if (waited > 20) {  // waited for too long
         EXPECT_TRUE(false);
         app.force_stop();
+        return;
       }
       for (auto& client : clients) {
         if (!client->get_session().is_connected()) {
