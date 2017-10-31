@@ -87,7 +87,7 @@ int main(int argc, const char *argv[]) {
   //  auto tcp_server(new TcpServer(server_config));
 
   std::vector<WrapperConfig> client_configs;
-  std::vector<shared_ptr_<Client>> clients;
+  std::vector<ref_<Client>> clients;
   std::atomic_int receive_count[MAX_CLIENT_COUNT];
 
   SubscribeOptions initial_options;
@@ -96,7 +96,7 @@ int main(int argc, const char *argv[]) {
 
   for (int i = 0; i < client_count; ++i) {
     client_configs.emplace_back(server_config.get_client_config(app));
-    clients.emplace_back(make_shared_<Client>(client_configs[i]));
+    clients.emplace_back(make_ref_<Client>(client_configs[i]));
     clients[i]->connect();
 
     wait_for_bool(500, *client_configs[i].strand,
@@ -190,7 +190,7 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl << "total message: " << total_message;
 
   for (int i = 0; i < client_count; ++i) {
-    Client::destroy_in_strand(clients[i]);
+    destroy_client_in_strand(clients[i]);
   }
 
   app.close();

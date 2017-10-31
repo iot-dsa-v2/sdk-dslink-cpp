@@ -32,10 +32,10 @@ void Connection::start_client_f0() {
   auto write_buffer = get_write_buffer();
   write_buffer->add(f0, 0, 0);
 
-  write_buffer->write([sthis = shared_from_this()](
+  write_buffer->write([this, sthis = shared_from_this()](
       const boost::system::error_code &err) mutable {
     if (err != boost::system::errc::success) {
-      Connection::destroy_in_strand(std::move(sthis));
+      destroy_in_strand(std::move(sthis));
     }
   });
   boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
@@ -64,10 +64,10 @@ bool Connection::on_receive_f1(MessageRef &&msg) {
   auto write_buffer = get_write_buffer();
   write_buffer->add(f2, 0, 0);
 
-  write_buffer->write([sthis = shared_from_this()](
+  write_buffer->write([this, sthis = shared_from_this()](
                        const boost::system::error_code &err) mutable {
           if (err != boost::system::errc::success) {
-            Connection::destroy_in_strand(std::move(sthis));
+            destroy_in_strand(std::move(sthis));
           }
         });
 

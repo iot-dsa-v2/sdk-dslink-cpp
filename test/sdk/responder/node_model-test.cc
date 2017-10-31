@@ -81,7 +81,7 @@ TEST(ResponderTest, model__add_child) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -99,8 +99,8 @@ TEST(ResponderTest, model__add_child) {
 
   wait_for_bool(25, [&]() -> bool { return false; });
 
-  Server::destroy_in_strand(tcp_server);
-  Client::destroy_in_strand(tcp_client);
+  tcp_server->destroy_in_strand(tcp_server);
+destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -129,7 +129,7 @@ TEST(ResponderTest, model__get_child) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -145,8 +145,8 @@ TEST(ResponderTest, model__get_child) {
 
   EXPECT_NE(nullptr, child_node);
 
-  Server::destroy_in_strand(tcp_server);
-  Client::destroy_in_strand(tcp_client);
+  tcp_server->destroy_in_strand(tcp_server);
+destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -175,7 +175,7 @@ TEST(ResponderTest, model__set_value) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -199,8 +199,8 @@ TEST(ResponderTest, model__set_value) {
       make_ref_<SubscribeResponseMessage>(Var(0));
   root_node->set_message(copy_ref_(cached_message));
 
-  Server::destroy_in_strand(tcp_server);
-  Client::destroy_in_strand(tcp_client);
+  tcp_server->destroy_in_strand(tcp_server);
+destroy_client_in_strand(tcp_client);
 
   app.close();
 

@@ -17,9 +17,9 @@ class DsLink : public WrapperConfig {
   App &get_app();
 
  private:
-  std::unique_ptr<App> _app;
-  std::unique_ptr<TcpServer> _tcp_server;
-  std::unique_ptr<Client> _tcp_client;
+  shared_ptr_<App> _app;
+  shared_ptr_<TcpServer> _tcp_server;
+  ref_<Client> _tcp_client;
 
   bool _running = false;
 
@@ -35,7 +35,7 @@ class DsLink : public WrapperConfig {
   void init_responder(ref_<NodeModelBase> &&root_node);
   template <class NodeClass>
   void init_responder() {
-    strand->set_responder_model(make_ref_<NodeClass>(strand));
+    init_responder(make_ref_<NodeClass>(strand));
   }
 
   void run(Session::OnConnectedCallback &&on_ready = nullptr,

@@ -59,7 +59,7 @@ int main(int argc, const char *argv[]) {
   tcp_server->start();
 
   WrapperConfig client_config = server_config.get_client_config(app);
-  shared_ptr_<Client> client = make_shared_<Client>(client_config);
+  ref_<Client> client = make_ref_<Client>(client_config);
   client->connect();
 
   std::atomic_int receive_count{0};
@@ -103,8 +103,8 @@ int main(int argc, const char *argv[]) {
     std::cout << std::endl
               << num_message << " messages processed in  " << ms << " ms";
 
-    Server::destroy_in_strand(tcp_server);
-    Client::destroy_in_strand(client);
+    tcp_server->destroy_in_strand(tcp_server);
+    destroy_client_in_strand(client);
     app.close();
 
     wait_for_bool(500, [&]() { return app.is_stopped(); });

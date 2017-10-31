@@ -7,9 +7,9 @@
 
 #include <stdexcept>
 
-#include <memory>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <memory>
 
 namespace dsa {
 
@@ -17,7 +17,6 @@ template <class T, typename... Args>
 inline shared_ptr_<T> make_shared_(Args &&... args) {
   return std::make_shared<T>(std::forward<Args>(args)...);
 }
-
 
 template <class T>
 class EnableShared : public std::enable_shared_from_this<T> {
@@ -57,13 +56,10 @@ class SharedDestroyable : public EnableShared<T> {
     destroy(unique_lock);
   }
 
-  static void destroy_in_strand(shared_ptr_ <SharedDestroyable<T>> destroyable) {
-    SharedDestroyable<T> *raw_ptr = destroyable.get();
-    // obtain the lock before dispatch to strand to reduce the load on main
-    // strand
-    raw_ptr->dispatch_in_strand([
-      destroyable = std::move(destroyable)
-    ]() mutable { destroyable->destroy(); });
+  void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> destroyable) {
+    dispatch_in_strand([destroyable = std::move(destroyable)]() mutable {
+      destroyable->destroy();
+    });
   }
 };
 }  // namespace dsa

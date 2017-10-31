@@ -46,10 +46,10 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
   auto write_buffer = get_write_buffer();
   write_buffer->add(f1, 0, 0);
 
-  write_buffer->write([sthis = shared_from_this()](
+  write_buffer->write([this, sthis = shared_from_this()](
       const boost::system::error_code &err) mutable {
     if (err != boost::system::errc::success) {
-      Connection::destroy_in_strand(std::move(sthis));
+      destroy_in_strand(std::move(sthis));
     }
   });
 
@@ -90,10 +90,10 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
               auto write_buffer = get_write_buffer();
               write_buffer->add(f3, 0, 0);
 
-              write_buffer->write([sthis = shared_from_this()](
+              write_buffer->write([this, sthis = shared_from_this()](
                   const boost::system::error_code &err) mutable {
                 if (err != boost::system::errc::success) {
-                  Connection::destroy_in_strand(std::move(sthis));
+                  destroy_in_strand(std::move(sthis));
                 }
               });
               boost::lock_guard<boost::mutex> read_loop_lock(read_loop_mutex);

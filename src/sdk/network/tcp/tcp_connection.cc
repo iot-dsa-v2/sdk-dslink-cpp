@@ -39,9 +39,9 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
   tcp_socket &socket = connection->_socket;
   socket.async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
-      [ connection = std::move(connection), partial_size ](
+      [this, connection = std::move(connection), partial_size ](
           const boost::system::error_code &err, size_t transferred) mutable {
-        TcpConnection::read_loop(std::move(connection), partial_size, err,
+        read_loop(std::move(connection), partial_size, err,
                                  transferred);
       });
 }
@@ -73,7 +73,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
         if (message_size > Message::MAX_MESSAGE_SIZE) {
           LOG_DEBUG(connection->_strand->logger(),
                     LOG << "message is bigger than maxed buffer size");
-          TcpConnection::destroy_in_strand(connection);
+          destroy_in_strand(connection);
           // TODO: send error, and close with std::move
           // TcpConnection::destroy_in_strand(std::move(connection));
           return;
@@ -94,7 +94,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
             LOG_DEBUG(connection->_strand->logger(),
                       LOG << "invalid message received, close connection : "
                           << err.what());
-            TcpConnection::destroy_in_strand(connection);
+            destroy_in_strand(connection);
             // TODO: send error, and close with std::move
             // TcpConnection::destroy_in_strand(std::move(connection));
             return;
@@ -114,7 +114,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
     start_read(std::move(connection), 0, 0);
   } else {
     // TODO: send error
-    TcpConnection::destroy_in_strand(std::move(connection));
+    destroy_in_strand(std::move(connection));
     return;
   }
 }

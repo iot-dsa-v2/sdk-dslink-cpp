@@ -3,6 +3,7 @@
 #include "test_config.h"
 
 #include "core/app.h"
+#include "core/client.h"
 #include "core/session_manager.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
@@ -49,9 +50,11 @@ WrapperConfig TestConfig::get_client_config(App &app, bool async) {
   copy.strand.reset(make_config(app, async));
   copy.strand->logger().level = strand->logger().level;
   copy.client_connection_maker =
-      [ dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host, tcp_port = copy.tcp_port ](
-          LinkStrandRef & strand, const string_ &previous_session_id,
-          int32_t last_ack_id) {
+      [
+        dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
+        tcp_port = copy.tcp_port
+      ](LinkStrandRef & strand, const string_ &previous_session_id,
+        int32_t last_ack_id) {
     return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
                                           tcp_port);
   };
@@ -59,4 +62,7 @@ WrapperConfig TestConfig::get_client_config(App &app, bool async) {
   return std::move(copy);
 }
 
+void destroy_client_in_strand(ref_<Client> &client) {
+  client->get_strand().dispatch([client]() { client->destroy(); });
+}
 }

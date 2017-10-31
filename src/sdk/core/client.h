@@ -6,7 +6,6 @@
 #endif
 
 #include "config.h"
-#include "util/enable_shared.h"
 #include "util/enable_ref.h"
 
 namespace dsa {
@@ -14,13 +13,12 @@ namespace dsa {
 class Connection;
 class Session;
 
-class Client : public SharedDestroyable<Client> {
+class Client : public DestroyableRef<Client> {
  protected:
   // for Session/Requester/Responder
 
   // for ClientConnection
   LinkStrandRef _strand;
-  uint32_t handshake_timeout_ms;
   string_ _dsid_prefix;
   string_ _client_token;
 
@@ -36,14 +34,9 @@ class Client : public SharedDestroyable<Client> {
 
   ~Client();
 
-  void dispatch_in_strand(std::function<void()> &&callback) override {
-    return _strand->dispatch(std::move(callback));
-  }
-
   Session &get_session() { return *_session; };
 
   LinkStrand &get_strand() const { return *_strand; }
-  uint32_t get_handshake_timeout_ms() const { return handshake_timeout_ms; }
   const string_ &get_dsid_prefix() const { return _dsid_prefix; }
   const string_ &get_client_token() const { return _client_token; }
 

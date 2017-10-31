@@ -29,7 +29,6 @@ void TcpServer::start() {
 
 void TcpServer::destroy_impl() {
   _acceptor->close();
-  // TODO: fix this!
   _next_connection->destroy();
   Server::destroy_impl();
 }

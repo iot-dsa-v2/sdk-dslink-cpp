@@ -24,7 +24,7 @@ TEST(TcpServerTest, SingleThread) {
 
   const uint32_t NUM_CLIENT = 2;
 
-  std::vector<shared_ptr_<Client>> clients;
+  std::vector<ref_<Client>> clients;
   boost::asio::deadline_timer timer(app.io_service(),
                                     boost::posix_time::milliseconds(20));
   int waited = 0;
@@ -33,7 +33,7 @@ TEST(TcpServerTest, SingleThread) {
   config.strand->post([&]() {
 
     for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-      shared_ptr_<Client> tcp_client(new Client(config));
+      ref_<Client> tcp_client(new Client(config));
       tcp_client->connect();
       clients.push_back(std::move(tcp_client));
     }
@@ -52,9 +52,9 @@ TEST(TcpServerTest, SingleThread) {
         }
       }
 
-      Server::destroy_in_strand(tcp_server);
+      tcp_server->destroy_in_strand(tcp_server);
       for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-        Client::destroy_in_strand(clients[i]);
+        destroy_client_in_strand(clients[i]);
       }
       app.close();
 
@@ -79,9 +79,9 @@ TEST(TcpServerTest, SingleStrand) {
 
   const uint32_t NUM_CLIENT = 2;
 
-  std::vector<shared_ptr_<Client>> clients;
+  std::vector<ref_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    shared_ptr_<Client> tcp_client(new Client(config));
+    ref_<Client> tcp_client(new Client(config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
@@ -96,9 +96,9 @@ TEST(TcpServerTest, SingleStrand) {
   });
 
   // close everything
-  Server::destroy_in_strand(tcp_server);
+  tcp_server->destroy_in_strand(tcp_server);
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    Client::destroy_in_strand(clients[i]);
+    destroy_client_in_strand(clients[i]);
   }
 
   app.close();
@@ -124,9 +124,9 @@ TEST(TcpServerTest, MultiStrand) {
 
   const uint32_t NUM_CLIENT = 2;
 
-  std::vector<shared_ptr_<Client>> clients;
+  std::vector<ref_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    shared_ptr_<Client> tcp_client(new Client(client_config));
+    ref_<Client> tcp_client(new Client(client_config));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
@@ -141,9 +141,9 @@ TEST(TcpServerTest, MultiStrand) {
   });
 
   // close everything
-  Server::destroy_in_strand(tcp_server);
+  tcp_server->destroy_in_strand(tcp_server);
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    Client::destroy_in_strand(clients[i]);
+    destroy_client_in_strand(clients[i]);
   }
 
   app.close();

@@ -70,7 +70,7 @@ TEST(ResponderTest, Set_Model) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -127,8 +127,8 @@ TEST(ResponderTest, Set_Model) {
 
   EXPECT_TRUE(list_map != nullptr && (*list_map)["@attr"].to_string() == "world");
 
-  Server::destroy_in_strand(tcp_server);
-  Client::destroy_in_strand(tcp_client);
+  tcp_server->destroy_in_strand(tcp_server);
+destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -155,7 +155,7 @@ TEST(ResponderTest, Set_Acceptor) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -189,8 +189,8 @@ TEST(ResponderTest, Set_Acceptor) {
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
-  Server::destroy_in_strand(tcp_server);
-  Client::destroy_in_strand(tcp_client);
+  tcp_server->destroy_in_strand(tcp_server);
+destroy_client_in_strand(tcp_client);
 
   app.close();
 

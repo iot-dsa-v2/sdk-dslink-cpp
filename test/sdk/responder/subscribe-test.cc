@@ -70,7 +70,7 @@ TEST(ResponderTest, Subscribe_Model) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -131,8 +131,8 @@ TEST(ResponderTest, Subscribe_Model) {
   ASYNC_EXPECT_TRUE(500, *server_config.strand,
                     [&]() -> bool { return !root_node->need_subscribe(); });
 
-  Server::destroy_in_strand(tcp_server);
-  Client::destroy_in_strand(tcp_client);
+  tcp_server->destroy_in_strand(tcp_server);
+destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -161,7 +161,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   auto tcp_server = make_shared_<TcpServer>(server_config);
   tcp_server->start();
 
-  auto tcp_client = make_shared_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_config);
   tcp_client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
@@ -221,8 +221,8 @@ TEST(ResponderTest, Subscribe_Acceptor) {
     return mock_stream_acceptor->unsubscribed;
   });
 
-  Server::destroy_in_strand(tcp_server);
-  Client::destroy_in_strand(tcp_client);
+  tcp_server->destroy_in_strand(tcp_server);
+destroy_client_in_strand(tcp_client);
 
   app.close();
 

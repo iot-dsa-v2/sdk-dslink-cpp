@@ -23,8 +23,11 @@ class ExampleNodeRoot : public NodeModel {
 int main(int argc, const char *argv[]) {
   DsLink link(argc, argv, "mydslink", "1.0.0");
   link.init_responder<ExampleNodeRoot>();
+  link.run();
 
-  link.run([](const ClientConnetionData& data){
-    std::cout << std::endl << "connection to broker";
-  });
+// // add a callback when connected to broker
+//  link.run([](const ClientConnetionData& data){
+//    std::cout << std::endl << "connected to broker";
+//  });
+
 }

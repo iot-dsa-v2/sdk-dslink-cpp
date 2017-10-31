@@ -156,7 +156,7 @@ int main(int argc, const char *argv[]) {
   boost::this_thread::sleep(boost::posix_time::seconds(run_time));
   timer.cancel();
 
-  Server::destroy_in_strand(tcp_server);
+  tcp_server->destroy_in_strand(tcp_server);
 
   app.close();
 

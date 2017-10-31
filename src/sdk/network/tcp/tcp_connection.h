@@ -41,7 +41,7 @@ class TcpConnection : public Connection {
   };
 
  protected:
-  static void read_loop(shared_ptr_<TcpConnection> &&connection,
+  void read_loop(shared_ptr_<TcpConnection> &&connection,
                         size_t from_prev,
                         const boost::system::error_code &error,
                         size_t bytes_transferred);
@@ -57,7 +57,7 @@ class TcpConnection : public Connection {
   TcpConnection(LinkStrandRef &strand,
                 const string_ &dsid_prefix, const string_ &path = "");
 
-  static void start_read(shared_ptr_<TcpConnection> &&connection,
+  void start_read(shared_ptr_<TcpConnection> &&connection,
                          size_t cur = 0, size_t next = 0);
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
