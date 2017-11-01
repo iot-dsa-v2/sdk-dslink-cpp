@@ -7,14 +7,15 @@
 
 #include <unordered_map>
 
-#include "stream/requester/incoming_invoke_stream.h"
-#include "stream/requester/incoming_list_stream.h"
-#include "stream/requester/incoming_subscribe_stream.h"
-#include "stream/requester/incoming_set_stream.h"
+#include "util/enable_ref.h"
+#include "stream/stream_callbacks.h"
+#include "message/message_options.h"
 
 namespace dsa {
 
+class Message;
 class Session;
+class MessageStream;
 
 class Requester {
   friend class Session;
@@ -26,29 +27,30 @@ class Requester {
 
   std::unordered_map<int32_t, ref_<MessageStream>> _incoming_streams;
 
-  void receive_message(MessageRef &&message);
+  void receive_message(ref_<Message> &&message);
 
   void destroy_impl();
 
  public:
   explicit Requester(Session &session);
+  ~Requester();
 
   ref_<IncomingSubscribeStream> subscribe(
-      const string_ &path, IncomingSubscribeStream::Callback &&callback,
+      const string_ &path, IncomingSubscribeStreamCallback &&callback,
       const SubscribeOptions &options =
-          IncomingSubscribeStream::default_options);
+      SubscribeOptions::default_options);
 
   ref_<IncomingListStream> list(
-      const string_ &path, IncomingListStream::Callback &&callback,
-      const ListOptions &options = IncomingListStream::default_options);
+      const string_ &path, IncomingListStreamCallback &&callback,
+      const ListOptions &options = ListOptions::default_options);
 
   ref_<IncomingInvokeStream> invoke(const string_ &path,
-                                  IncomingInvokeStream::Callback &&callback,
-                                  ref_<const InvokeRequestMessage> &&message);
+                                    IncomingInvokeStreamCallback &&callback,
+                                    ref_<const InvokeRequestMessage> &&message);
 
   ref_<IncomingSetStream> set(const string_ &path,
-                                    IncomingSetStream::Callback &&callback,
-                                    ref_<const SetRequestMessage> &&message);
+                              IncomingSetStreamCallback &&callback,
+                              ref_<const SetRequestMessage> &&message);
 
   bool remove_stream(int32_t rid);
 };

@@ -19,8 +19,6 @@ class IncomingListStream final : public MessageCacheStream {
                              ref_<const ListResponseMessage>&&)>
       Callback;
 
-  static const ListOptions default_options;
-
  protected:
   Callback _callback;
 

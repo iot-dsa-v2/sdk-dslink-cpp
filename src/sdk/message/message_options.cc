@@ -34,6 +34,8 @@ bool BaseRequestOptions::mergeFrom(const BaseRequestOptions& other) {
   return changed;
 }
 
+const SubscribeOptions SubscribeOptions::default_options;
+
 SubscribeOptions::SubscribeOptions(QosLevel qos, int32_t queue_size,
                                    int32_t queue_time, bool priority)
     : BaseRequestOptions(priority),
@@ -89,6 +91,8 @@ bool SubscribeOptions::mergeFrom(const SubscribeOptions& other) {
 
   return changed;
 }
+
+const ListOptions ListOptions::default_options;
 
 ListOptions::ListOptions() : BaseRequestOptions(false) {}
 }  // namespace dsa

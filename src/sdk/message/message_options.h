@@ -35,6 +35,8 @@ struct BaseRequestOptions {
 };
 
 struct SubscribeOptions : BaseRequestOptions {
+  static const SubscribeOptions default_options;
+
   // queue size in bytes;
   int32_t queue_size;
   // queue time in seconds
@@ -65,6 +67,8 @@ struct SubscribeOptions : BaseRequestOptions {
 };
 
 struct ListOptions : BaseRequestOptions {
+  static const ListOptions default_options;
+
   ListOptions();
   // TODO: implement this
 };

@@ -8,8 +8,6 @@
 
 namespace dsa {
 
-const SubscribeOptions IncomingSubscribeStream::default_options;
-
 IncomingSubscribeStream::IncomingSubscribeStream(ref_<Session>&& session,
                                                  const Path& path, uint32_t rid,
                                                  Callback&& callback)

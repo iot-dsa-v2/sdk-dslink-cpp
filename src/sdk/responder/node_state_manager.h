@@ -12,7 +12,7 @@
 
 #include "core/link_strand.h"
 #include "node_state.h"
-#include "stream/outgoing_stream_accepter.h"
+#include "stream/outgoing_stream_acceptor.h"
 
 namespace dsa {
 

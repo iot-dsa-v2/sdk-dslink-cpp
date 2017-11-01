@@ -1,4 +1,5 @@
 #include "dsa/message.h"
+#include "dsa/stream.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
 

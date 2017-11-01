@@ -8,8 +8,6 @@
 
 namespace dsa {
 
-const ListOptions IncomingListStream::default_options;
-
 IncomingListStream::IncomingListStream(ref_<Session>&& session,
                                        const Path& path, uint32_t rid,
                                        Callback&& callback)

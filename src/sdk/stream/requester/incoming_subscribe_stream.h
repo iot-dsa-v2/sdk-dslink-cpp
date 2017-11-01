@@ -19,8 +19,6 @@ class IncomingSubscribeStream final : public MessageCacheStream {
                              ref_<const SubscribeResponseMessage>&&)>
       Callback;
 
-  static const SubscribeOptions default_options;
-
  protected:
   Callback _callback;
 

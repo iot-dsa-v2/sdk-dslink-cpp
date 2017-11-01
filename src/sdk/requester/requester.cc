@@ -3,10 +3,15 @@
 #include "requester.h"
 
 #include "core/session.h"
+#include "stream/requester/incoming_invoke_stream.h"
+#include "stream/requester/incoming_list_stream.h"
+#include "stream/requester/incoming_set_stream.h"
+#include "stream/requester/incoming_subscribe_stream.h"
 
 namespace dsa {
 
 Requester::Requester(Session &session) : _session(session) {}
+Requester::~Requester() {}
 
 void Requester::destroy_impl() { _incoming_streams.clear(); }
 
@@ -36,7 +41,7 @@ void Requester::receive_message(MessageRef &&message) {
   }
 }
 ref_<IncomingSubscribeStream> Requester::subscribe(
-    const string_ &path, IncomingSubscribeStream::Callback &&callback,
+    const string_ &path, IncomingSubscribeStreamCallback &&callback,
     const SubscribeOptions &options) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingSubscribeStream>(
@@ -48,9 +53,9 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
   return stream;
 }
 
-ref_<IncomingListStream> Requester::list(
-    const string_ &path, IncomingListStream::Callback &&callback,
-    const ListOptions &options) {
+ref_<IncomingListStream> Requester::list(const string_ &path,
+                                         IncomingListStreamCallback &&callback,
+                                         const ListOptions &options) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingListStream>(_session.get_ref(), Path(path),
                                               rid, std::move(callback));
@@ -62,7 +67,7 @@ ref_<IncomingListStream> Requester::list(
 }
 
 ref_<IncomingInvokeStream> Requester::invoke(
-    const string_ &path, IncomingInvokeStream::Callback &&callback,
+    const string_ &path, IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingInvokeStream>(_session.get_ref(), Path(path),
@@ -75,7 +80,7 @@ ref_<IncomingInvokeStream> Requester::invoke(
 }
 
 ref_<IncomingSetStream> Requester::set(
-    const string_ &path, IncomingSetStream::Callback &&callback,
+    const string_ &path, IncomingSetStreamCallback &&callback,
     ref_<const SetRequestMessage> &&message) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingSetStream>(_session.get_ref(), Path(path),
