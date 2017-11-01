@@ -9,7 +9,11 @@ namespace dsa {
 namespace fs = boost::filesystem;
 using boost::filesystem::path;
 
+#if (defined (_WIN32) || defined (_WIN64))
+static std::string storage_root = "C:\\temp\\";
+#else
 static std::string storage_root = "/tmp/";
+#endif
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
   if (!strand_map.count(key)) {
@@ -24,7 +28,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
 
     try {
       std::ofstream ofs(p.string().c_str(), std::ios::out | std::ios::trunc);
-      if (!ofs) {
+      if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
                   content->size());
       } else {
@@ -60,7 +64,7 @@ void SimpleStorageBucket::read(const std::string& key,
 
         if (size) {
           std::ifstream ifs(p.string().c_str(), std::ios::in);
-          if (!ifs) {
+          if (ifs) {
             vec.resize(static_cast<size_t>(size));
             ifs.read(reinterpret_cast<char*>(&vec.front()),
                      static_cast<size_t>(size));
