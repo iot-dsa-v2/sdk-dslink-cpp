@@ -12,12 +12,10 @@ void SimpleQueueBucket::remove_front(const std::string& key, size_t count) {
 }
 
 void SimpleQueueBucket::read_all(ReadCallback&& callback,
-	      std::function<void()>&& on_done) {
+                                 std::function<void()>&& on_done) {
   return;
 }
 
-void SimpleQueueBucket::remove_all() {
-  return;
-}
+void SimpleQueueBucket::remove_all() { return; }
 
 }  // namespace dsa

@@ -1,9 +1,8 @@
 #include "simple_storage.h"
 
-#include <fstream>
-#include <iostream>
-
+#include <boost/asio/strand.hpp>
 #include <boost/filesystem.hpp>
+#include <fstream>
 
 namespace dsa {
 
@@ -13,43 +12,98 @@ using boost::filesystem::path;
 static std::string storage_root = "/tmp/";
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
-  path p(storage_root);
-  p /= (key + ".data");
+  if (!strand_map.count(key)) {
+    boost::asio::io_service::strand* strand =
+        new boost::asio::io_service::strand(*_io_service);
+    strand_map.insert(StrandPair(key, strand));
+  }
 
-  std::ofstream ofs(p.string().c_str(), std::ios::out | std::ios::trunc);
-  ofs.write(reinterpret_cast<const char*>(content->data()), content->size());
+  strand_map.at(key)->post([=]() {
+    path p(storage_root);
+    p /= (key + ".data");
+
+    try {
+      std::ofstream ofs(p.string().c_str(), std::ios::out | std::ios::trunc);
+      if (!ofs) {
+        ofs.write(reinterpret_cast<const char*>(content->data()),
+                  content->size());
+      } else {
+        // TODO - error handling
+      }
+    } catch (const fs::filesystem_error& ex) {
+      // TODO - error handling
+    }
+
+    return;
+  });
 
   return;
 }
 
 void SimpleStorageBucket::read(const std::string& key,
                                ReadCallback&& callback) {
-  std::vector<uint8_t> vec{};
-
-  path p(storage_root);
-  p /= (key + ".data");
-
-  size_t size = fs::file_size(p);
-
-  std::ifstream ifs(p.string().c_str(), std::ios::in);
-
-  if (size) {
-    vec.resize(static_cast<size_t>(size));
-    ifs.read(reinterpret_cast<char*>(&vec.front()), static_cast<size_t>(size));
+  if (!strand_map.count(key)) {
+    boost::asio::io_service::strand* strand =
+        new boost::asio::io_service::strand(*_io_service);
+    strand_map.insert(StrandPair(key, strand));
   }
 
-  callback(key, vec);
+  strand_map.at(key)->post([=]() {
+    std::vector<uint8_t> vec{};
+
+    path p(storage_root);
+    p /= (key + ".data");
+
+    try {
+      if (fs::exists(p) && is_regular_file(p)) {
+        size_t size = fs::file_size(p);
+
+        if (size) {
+          std::ifstream ifs(p.string().c_str(), std::ios::in);
+          if (!ifs) {
+            vec.resize(static_cast<size_t>(size));
+            ifs.read(reinterpret_cast<char*>(&vec.front()),
+                     static_cast<size_t>(size));
+          } else {
+            // TODO - error handling
+          }
+        }
+      } else {
+        // TODO - error handling
+      }
+    } catch (const fs::filesystem_error& ex) {
+      // TODO - error handling
+    }
+
+    callback(key, vec);
+
+    return;
+  });
 
   return;
 }
 
 void SimpleStorageBucket::remove(const std::string& key) {
-  path p(storage_root);
-  p /= (key + ".data");
-
-  if (exists(p) && is_regular_file(p)) {
-    fs::remove(p);
+  if (!strand_map.count(key)) {
+    boost::asio::io_service::strand* strand =
+        new boost::asio::io_service::strand(*_io_service);
+    strand_map.insert(StrandPair(key, strand));
   }
+
+  strand_map.at(key)->post([=]() {
+    path p(storage_root);
+    p /= (key + ".data");
+
+    try {
+      if (exists(p) && is_regular_file(p)) {
+        fs::remove(p);
+      }
+    } catch (const fs::filesystem_error& ex) {
+      ;
+    }
+
+    return;
+  });
 
   return;
 }
@@ -57,6 +111,25 @@ void SimpleStorageBucket::remove(const std::string& key) {
 /// the callback might run asynchronously
 void SimpleStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
+  path p(storage_root);
+
+  try {
+    for (auto&& x : fs::directory_iterator(p)) {
+      if (x.path().extension() == ".data") {
+        std::string key = x.path().stem().string();
+        if (strand_map.count(key)) {
+          strand_map.at(key)->post(
+              [ this, key, callback = std::move(callback) ]() {
+                // read(key, std::move(callback));
+              });
+        }
+        // TODO - call on_done once read_all complete
+      }
+    }
+  } catch (const fs::filesystem_error& ex) {
+    // std::cout << ex.what() << '\n';
+  }
+
   return;
 }
 
@@ -64,11 +137,12 @@ void SimpleStorageBucket::remove_all() {
   path p(storage_root);
 
   try {
-    std::vector<std::string> v;
-
     for (auto&& x : fs::directory_iterator(p)) {
       if (x.path().extension() == ".data") {
-        v.push_back(x.path().filename().string());
+        std::string key = x.path().stem().string();
+        if (strand_map.count(key)) {
+          strand_map.at(key)->post([=]() { remove(key); });
+        }
       }
     }
   } catch (const fs::filesystem_error& ex) {

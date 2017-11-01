@@ -1,19 +1,35 @@
 #include "module/default/simple_storage.h"
 #include "gtest/gtest.h"
 
+#include "core/app.h"
+
 #include <iostream>
+
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
+
+#include <functional>
+#include <map>
+#include <string>
+
+#include "../test/sdk/async_test.h"
 
 using namespace dsa;
 
+namespace ba = boost::asio;
+
 TEST(ModuleTest, StorageBucket) {
 
-  SimpleStorage ss;
+  App app;
+
+  SimpleStorage ss(&app.io_service());
 
   std::string storage_key("config");
 
   StorageBucket& sb = ss.get_bucket(storage_key);
 
   auto read_callback = [&](std::string storage_key, std::vector<uint8_t> data) {
+    std::cout << "read_callback..." << std::endl;
     for (auto elem : data) {
       std::cout << elem;
     }
@@ -51,8 +67,18 @@ TEST(ModuleTest, StorageBucket) {
     sb.write(storage_key, data);
   }
 
+  sb.read_all(read_callback, on_done);
   sb.remove_all();
-  
 
-  // sb.remove(storage_key);
+  wait_for_bool(500, [&]() { return false; });
+
+  app.close();
+
+  wait_for_bool(500, [&]() { return app.is_stopped(); });
+
+  if (!app.is_stopped()) {
+    app.force_stop();
+  }
+
+  app.wait();
 }
