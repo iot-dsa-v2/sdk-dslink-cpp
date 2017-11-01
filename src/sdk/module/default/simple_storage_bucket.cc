@@ -122,10 +122,7 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
       if (x.path().extension() == ".data") {
         std::string key = x.path().stem().string();
         if (strand_map.count(key)) {
-          strand_map.at(key)->post(
-              [ this, key, callback = std::move(callback) ]() {
-                // read(key, std::move(callback));
-              });
+          this->read(key, std::move(callback));
         }
         // TODO - call on_done once read_all complete
       }
