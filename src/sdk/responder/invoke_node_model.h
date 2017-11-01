@@ -10,18 +10,22 @@
 namespace dsa {
 
 class InvokeNodeModel : public NodeModel {
-  PermissionLevel _require_permission;
+ private:
+  PermissionLevel _invoke_require_permission = PermissionLevel::NEVER;
+  void invoke_require_permission(PermissionLevel permission_level);
 
  public:
-  InvokeNodeModel(LinkStrandRef &&strand, PermissionLevel require_permission = PermissionLevel::WRITE);
+  InvokeNodeModel(LinkStrandRef &&strand,
+                  PermissionLevel require_permission = PermissionLevel::WRITE);
 
-  void set_require_permission(PermissionLevel permission_level);
-
-  // if you need to override invoke, extends from NodeModel instead of InvokeNodeModel
+ protected:
+  // if you need to override invoke, extends from NodeModel instead of
+  // InvokeNodeModel
   void invoke(ref_<OutgoingInvokeStream> &&stream,
               ref_<NodeState> &parent) final;
+
   virtual void on_invoke(ref_<OutgoingInvokeStream> &&stream,
-    ref_<NodeState> &parent){};
+                         ref_<NodeState> &parent){};
 };
 
 }  // namespace dsa

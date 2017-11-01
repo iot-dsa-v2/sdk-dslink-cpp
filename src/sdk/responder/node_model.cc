@@ -40,6 +40,19 @@ const Var &ModelProperty::get_value() const {
 static const std::vector<string_> default_summary_metas = {
     "$is", "$type", "$writable", "$invokable"};
 
+NodeModel::NodeModel(LinkStrandRef &&strand,
+                     PermissionLevel write_require_permission)
+    : NodeModelBase(std::move(strand)) {
+  set_value_require_permission(write_require_permission);
+};
+void NodeModel::set_value_require_permission(PermissionLevel permission_level) {
+  if (permission_level >= PermissionLevel::WRITE &&
+      permission_level <= PermissionLevel::CONFIG) {
+    _set_value_require_permission = permission_level;
+    _metas["$writable"] = Var(to_string(permission_level));
+  }
+}
+
 BytesRef &NodeModel::get_summary() {
   if (_summary == nullptr) {
     Var v = Var::new_map();
@@ -88,8 +101,7 @@ void NodeModel::send_children_list(OutgoingListStream &stream) {
   }
 }
 
-void NodeModel::update_property(const string_ &field,
-                                ModelProperty &&value) {
+void NodeModel::update_property(const string_ &field, ModelProperty &&value) {
   if (!field.empty()) {
     if (field[0] == '$') {
       _metas[field] = value;
@@ -116,11 +128,18 @@ ref_<NodeModel> NodeModel::add_list_child(const string_ &name,
 }
 
 void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
-  stream->on_request([ this, ref = get_ref() ](
-      OutgoingSetStream & s, ref_<const SetRequestMessage> && message) {
+  OutgoingSetStream *raw_stream_pat = stream.get();
+  raw_stream_pat->on_request([
+    this, ref = get_ref(), stream = std::move(stream)
+  ](OutgoingSetStream & s, ref_<const SetRequestMessage> && message) {
     auto field = message->get_attribute_field();
     MessageStatus status;
     if (field.empty()) {
+      if (_set_value_require_permission >= PermissionLevel::NEVER) {
+        status = MessageStatus::NOT_SUPPORTED;
+      } else if (stream->allowed_permission < _set_value_require_permission) {
+        status = MessageStatus::PERMISSION_DENIED;
+      }
       status = on_set_value(message->get_value());
     } else {
       status = on_set_attribute(field, std::move(message->get_value().value));
@@ -132,14 +151,10 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
 }
 
 MessageStatus NodeModel::on_set_value(MessageValue &&value) {
-  if (allows_set_value()) {
-    set_value(std::move(value));
-    return MessageStatus::CLOSED;
-  }
-  return MessageStatus::NOT_SUPPORTED;
+  set_value(std::move(value));
+  return MessageStatus::CLOSED;
 }
-MessageStatus NodeModel::on_set_attribute(const string_ &field,
-                                          Var &&value) {
+MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
   return MessageStatus::NOT_SUPPORTED;
 }
 

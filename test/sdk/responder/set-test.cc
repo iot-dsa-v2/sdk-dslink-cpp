@@ -22,12 +22,10 @@ namespace responder_set_test {
 /// define a node for the responder
 class MockNode : public NodeModel {
  public:
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand) // allows set value with write permission
+      : NodeModel(std::move(strand), PermissionLevel::WRITE){};
 
-  bool allows_set_value() override { return true; }
-
-  MessageStatus on_set_attribute(const string_ &field,
-                                 Var &&value) override {
+  MessageStatus on_set_attribute(const string_ &field, Var &&value) override {
     update_property(field, std::move(value));
     return MessageStatus::CLOSED;
   }
@@ -125,10 +123,11 @@ TEST(ResponderTest, Set_Model) {
   // check the list response is same as the value set
   auto list_map = last_list_response->get_parsed_map();
 
-  EXPECT_TRUE(list_map != nullptr && (*list_map)["@attr"].to_string() == "world");
+  EXPECT_TRUE(list_map != nullptr &&
+              (*list_map)["@attr"].to_string() == "world");
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -190,7 +189,7 @@ TEST(ResponderTest, Set_Acceptor) {
                     [&]() -> bool { return last_response != nullptr; });
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 

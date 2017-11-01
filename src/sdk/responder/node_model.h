@@ -27,6 +27,10 @@ class ModelProperty {
 };
 
 class NodeModel : public NodeModelBase {
+ private:
+  PermissionLevel _set_value_require_permission = PermissionLevel::NEVER;
+  void set_value_require_permission(PermissionLevel permission_level);
+
  protected:
   std::unordered_map<string_, ModelProperty> _metas;
   std::unordered_map<string_, ModelProperty> _attributes;
@@ -38,15 +42,14 @@ class NodeModel : public NodeModelBase {
   void initialize() override;
 
  public:
-  explicit NodeModel(LinkStrandRef &&strand)
-      : NodeModelBase(std::move(strand)){};
+  NodeModel(LinkStrandRef &&strand,
+            PermissionLevel write_require_permission = PermissionLevel::NEVER);
 
   void on_list(OutgoingListStream &stream, bool first_request) override;
 
   void update_property(const string_ &field, ModelProperty &&value);
 
-  ref_<NodeModel> add_list_child(const string_ &name,
-                                 ref_<NodeModel> &&model);
+  ref_<NodeModel> add_list_child(const string_ &name, ref_<NodeModel> &&model);
 
   BytesRef &get_summary();
 
@@ -54,9 +57,7 @@ class NodeModel : public NodeModelBase {
   void send_props_list(OutgoingListStream &stream);
   void send_children_list(OutgoingListStream &stream);
 
-  virtual bool allows_set_value() { return false; }
-
-  void set(ref_ <OutgoingSetStream> &&stream) override;
+  void set(ref_<OutgoingSetStream> &&stream) override;
   virtual MessageStatus on_set_value(MessageValue &&value);
   virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
 };
