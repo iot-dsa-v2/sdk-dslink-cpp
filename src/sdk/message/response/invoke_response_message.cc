@@ -18,5 +18,11 @@ InvokeResponseMessage::InvokeResponseMessage()
 void InvokeResponseMessage::set_value(const Var& value) {
   set_body(new RefCountBytes(value.to_msgpack()));
 }
+Var InvokeResponseMessage::get_value() const {
+  if (body != nullptr && !body->empty()) {
+    return Var::from_msgpack(body->data(), body->size());
+  }
+  return Var();
+}
 
 }  // namespace dsa

@@ -9,8 +9,8 @@
 #include "network/tcp/tcp_server.h"
 
 #include "message/request/invoke_request_message.h"
-#include "stream/responder/outgoing_invoke_stream.h"
 #include "responder/invoke_node_model.h"
+#include "stream/responder/outgoing_invoke_stream.h"
 
 using namespace dsa;
 
@@ -20,9 +20,11 @@ class MockNode : public InvokeNodeModel {
   ref_<OutgoingInvokeStream> last_invoke_stream;
   ref_<const InvokeRequestMessage> last_invoke_request;
 
-  explicit MockNode(LinkStrandRef strand) : InvokeNodeModel(std::move(strand)){};
+  explicit MockNode(LinkStrandRef strand)
+      : InvokeNodeModel(std::move(strand)){};
 
-  void on_invoke(ref_<OutgoingInvokeStream> &&stream, ref_<NodeState> & parent) final {
+  void on_invoke(ref_<OutgoingInvokeStream> &&stream,
+                 ref_<NodeState> &parent) final {
     BOOST_ASSERT_MSG(last_invoke_stream == nullptr,
                      "receive second invoke stream, not expected");
     last_invoke_stream = stream;
@@ -104,20 +106,12 @@ TEST(ResponderTest, Invoke_Model) {
     return root_node->last_invoke_request != nullptr;
   });
   // received request option should be same as the original one
-  auto request_body = root_node->last_invoke_request->get_body();
-  EXPECT_TRUE(request_body != nullptr && !request_body->empty());
-  Var parsed_request_body =
-      Var::from_msgpack(request_body->data(), request_body->size());
-  EXPECT_TRUE(parsed_request_body.to_string() == "hello");
+  EXPECT_TRUE(root_node->last_invoke_request->get_value().to_string() ==
+              "hello");
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() -> bool { return last_response != nullptr; });
-  auto response_body = last_response->get_body();
-
-  EXPECT_TRUE(response_body != nullptr && !response_body->empty());
-  Var parsed_response_body =
-      Var::from_msgpack(response_body->data(), response_body->size());
-  EXPECT_TRUE(parsed_response_body.to_string() == "dsa");
+  EXPECT_TRUE(last_response->get_value().to_string() == "dsa");
 
   // close the invoke stream
   last_response.reset();
@@ -137,7 +131,7 @@ TEST(ResponderTest, Invoke_Model) {
   });
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -192,20 +186,14 @@ TEST(ResponderTest, Invoke_Acceptor) {
     return mock_stream_acceptor->last_invoke_request != nullptr;
   });
   // received request option should be same as the original one
-  auto request_body = mock_stream_acceptor->last_invoke_request->get_body();
-  EXPECT_TRUE(request_body != nullptr && !request_body->empty());
-  Var parsed_request_body =
-      Var::from_msgpack(request_body->data(), request_body->size());
-  EXPECT_TRUE(parsed_request_body.to_string() == "hello");
+  EXPECT_TRUE(
+      mock_stream_acceptor->last_invoke_request->get_value().to_string() ==
+      "hello");
 
   ASYNC_EXPECT_TRUE(500, *client_config.strand,
                     [&]() -> bool { return last_response != nullptr; });
-  auto response_body = last_response->get_body();
 
-  EXPECT_TRUE(response_body != nullptr && !response_body->empty());
-  Var parsed_response_body =
-      Var::from_msgpack(response_body->data(), response_body->size());
-  EXPECT_TRUE(parsed_response_body.to_string() == "dsa");
+  EXPECT_TRUE(last_response->get_value().to_string() == "dsa");
 
   // close the invoke stream from the re
   invoke_stream->close();
@@ -219,7 +207,7 @@ TEST(ResponderTest, Invoke_Acceptor) {
   });
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 

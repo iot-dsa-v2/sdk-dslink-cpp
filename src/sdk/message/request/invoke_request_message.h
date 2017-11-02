@@ -30,6 +30,7 @@ class InvokeRequestMessage final : public RequestMessage, PagedMessageMixin {
 
  public:
   void set_value(const Var& value);
+  Var get_value() const;
 };
 
 typedef ref_<const InvokeRequestMessage> InvokeRequestMessageCRef;
