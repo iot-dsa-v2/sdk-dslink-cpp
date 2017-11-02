@@ -1,6 +1,8 @@
 list(APPEND DsLinkSourceFiles
         link.cc
-       )
+        subscribe_merger.cc
+        list_merger.cc
+      )
 
 foreach (file ${DsLinkSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_DSLINK}/${file})

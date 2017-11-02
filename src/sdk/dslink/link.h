@@ -1,8 +1,14 @@
 #ifndef DSA_SDK_CONFIG_LOADER_H
 #define DSA_SDK_CONFIG_LOADER_H
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
 #include "core/config.h"
 #include "core/session.h"
+#include "subscribe_merger.h"
+#include "list_merger.h"
 
 namespace dsa {
 class App;
@@ -20,6 +26,9 @@ class DsLink : public WrapperConfig {
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
   ref_<Client> _tcp_client;
+
+  std::unordered_map<std::string, ref_<SubscribeMerger>> subscribe_mergers;
+  std::unordered_map<std::string, ref_<ListMerger>> list_mergers;
 
   bool _running = false;
 
@@ -40,6 +49,17 @@ class DsLink : public WrapperConfig {
 
   void run(Session::OnConnectedCallback &&on_ready = nullptr,
            uint8_t callback_type = Session::FIRST_CONNECTION);
+
+  // requester functions
+  
+
+  ref_<IncomingInvokeStream> invoke(const string_ &path,
+                                    IncomingInvokeStreamCallback &&callback,
+                                    ref_<const InvokeRequestMessage> &&message);
+
+  ref_<IncomingSetStream> set(const string_ &path,
+                              IncomingSetStreamCallback &&callback,
+                              ref_<const SetRequestMessage> &&message);
 };
 }
 

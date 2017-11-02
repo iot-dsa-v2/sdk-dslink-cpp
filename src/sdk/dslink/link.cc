@@ -9,12 +9,14 @@
 
 #include "core/app.h"
 #include "core/client.h"
+#include "core/session_manager.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
-#include "core/session_manager.h"
+#include "stream/requester/incoming_invoke_stream.h"
+#include "stream/requester/incoming_set_stream.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
@@ -208,5 +210,21 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
   }
 
   _app->wait();
+}
+
+// requester features
+
+ref_<IncomingInvokeStream> DsLink::invoke(
+    const string_ &path, IncomingInvokeStreamCallback &&callback,
+    ref_<const InvokeRequestMessage> &&message) {
+  return _tcp_client->get_session().requester.invoke(path, std::move(callback),
+                                                     std::move(message));
+}
+
+ref_<IncomingSetStream> DsLink::set(const string_ &path,
+                                    IncomingSetStreamCallback &&callback,
+                                    ref_<const SetRequestMessage> &&message) {
+  return _tcp_client->get_session().requester.set(path, std::move(callback),
+                                                  std::move(message));
 }
 }
