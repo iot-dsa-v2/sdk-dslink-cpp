@@ -46,6 +46,7 @@ ref_<IncomingListCache> ListMerger::list(
     // send a fresh update
     cache->_callback(*cache, {});
   }
+  return cache->get_ref();
 }
 
 void ListMerger::new_list_response(ref_<const ListResponseMessage>&& message) {

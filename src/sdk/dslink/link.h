@@ -64,6 +64,9 @@ class DsLink : public WrapperConfig, public EnableRef<DsLink> {
       const string_ &path, IncomingSubscribeCache::Callback &&callback,
       const SubscribeOptions &options = SubscribeOptions::default_options);
 
+  ref_<IncomingListCache> list(
+    const string_ &path, IncomingListCache::Callback &&callback);
+
   ref_<IncomingInvokeStream> invoke(const string_ &path,
                                     IncomingInvokeStreamCallback &&callback,
                                     ref_<const InvokeRequestMessage> &&message);

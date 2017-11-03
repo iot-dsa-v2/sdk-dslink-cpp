@@ -206,7 +206,7 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
   _client->connect();
   if (on_connect != nullptr) {
     _client->get_session().set_on_connected(std::move(on_connect),
-                                                callback_type);
+                                            callback_type);
   }
 
   _app->wait();
@@ -224,18 +224,26 @@ ref_<IncomingSubscribeCache> DsLink::subscribe(
   merger->subscribe(std::move(callback), options);
   return std::move(merger);
 }
-
+ref_<IncomingListCache> DsLink::list(
+    const string_ &path, IncomingListCache::Callback &&callback) {
+  if (_list_mergers.count(path) == 0) {
+    _list_mergers[path] = make_ref_<ListMerger>(get_ref(), path);
+  }
+  auto merger = _list_mergers[path];
+  merger->list(std::move(callback));
+  return std::move(merger);
+}
 ref_<IncomingInvokeStream> DsLink::invoke(
     const string_ &path, IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   return _client->get_session().requester.invoke(path, std::move(callback),
-                                                     std::move(message));
+                                                 std::move(message));
 }
 
 ref_<IncomingSetStream> DsLink::set(const string_ &path,
                                     IncomingSetStreamCallback &&callback,
                                     ref_<const SetRequestMessage> &&message) {
   return _client->get_session().requester.set(path, std::move(callback),
-                                                  std::move(message));
+                                              std::move(message));
 }
 }
