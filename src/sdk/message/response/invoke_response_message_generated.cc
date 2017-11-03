@@ -12,6 +12,8 @@ InvokeResponseMessage::InvokeResponseMessage(const InvokeResponseMessage& from)
     sequence_id.reset(new DynamicIntHeader(DynamicHeader::SEQUENCE_ID, from.sequence_id->value()));
   if (from.page_id != nullptr)
     page_id.reset(new DynamicIntHeader(DynamicHeader::PAGE_ID, from.page_id->value()));
+  if (from.refreshed != nullptr)
+    refreshed.reset(new DynamicBoolHeader(DynamicHeader::REFRESHED));
   if (from.skippable != nullptr)
     skippable.reset(new DynamicBoolHeader(DynamicHeader::SKIPPABLE));
   if (from.body != nullptr)
@@ -29,6 +31,8 @@ void InvokeResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynam
       case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
       case DynamicHeader::PAGE_ID:page_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
+        break;
+      case DynamicHeader::REFRESHED:refreshed.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
       case DynamicHeader::SKIPPABLE:skippable.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
@@ -53,6 +57,10 @@ void InvokeResponseMessage::write_dynamic_data(uint8_t *data) const {
     page_id->write(data);
     data += page_id->size();
   }
+  if (refreshed != nullptr) {
+    refreshed->write(data);
+    data += refreshed->size();
+  }
   if (skippable != nullptr) {
     skippable->write(data);
     data += skippable->size();
@@ -72,6 +80,9 @@ void InvokeResponseMessage::update_static_header() {
   }
   if (page_id != nullptr) {
     header_size += page_id->size();
+  }
+  if (refreshed != nullptr) {
+    header_size += refreshed->size();
   }
   if (skippable != nullptr) {
     header_size += skippable->size();

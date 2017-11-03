@@ -15,6 +15,8 @@ ListResponseMessage::ListResponseMessage(const uint8_t* data, size_t size)
 ListResponseMessage::ListResponseMessage()
     : ResponseMessage(MessageType::LIST_RESPONSE) {}
 
+ListResponseMessage::~ListResponseMessage() = default;
+
 const string_& ListResponseMessage::get_base_path() const {
   return DynamicStringHeader::read_value(base_path);
 }
@@ -25,7 +27,15 @@ void ListResponseMessage::set_base_path(const string_& value) {
   }
 }
 
-ListResponseMessage::~ListResponseMessage() = default;
+const bool ListResponseMessage::get_refreshed() const {
+  return DynamicBoolHeader::read_value(refreshed);
+}
+void ListResponseMessage::set_refreshed(bool value) {
+  if (DynamicBoolHeader::write_value(refreshed, DynamicHeader::REFRESHED,
+                                     value)) {
+    static_headers.message_size = 0;
+  }
+}
 
 void ListResponseMessage::parse() {
   if (body != nullptr) {
@@ -56,8 +66,7 @@ ref_<VarMap> ListResponseMessage::get_parsed_map() const {
   VarMap* map = new VarMap();
 
   for (auto& it : _raw_map) {
-    (*map)[it.first] =
-        Var::from_msgpack(it.second->data(), it.second->size());
+    (*map)[it.first] = Var::from_msgpack(it.second->data(), it.second->size());
   }
 
   return map->get_ref();

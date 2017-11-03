@@ -13,13 +13,14 @@ class Var;
 
 class InvokeResponseMessage final : public ResponseMessage, PagedMessageMixin {
  public:
-  std::unique_ptr<DynamicBoolHeader> skippable;
-
   InvokeResponseMessage(const uint8_t* data, size_t size);
   InvokeResponseMessage();
   InvokeResponseMessage(const InvokeResponseMessage&);
 
  protected:
+  std::unique_ptr<DynamicBoolHeader> skippable;
+  std::unique_ptr<DynamicBoolHeader> refreshed;
+
   // measure the size and header size
   void update_static_header() final;
   // write dynamic header and body
@@ -30,6 +31,12 @@ class InvokeResponseMessage final : public ResponseMessage, PagedMessageMixin {
  public:
   void set_value(const Var& value);
   Var get_value() const;
+
+  const bool get_skippable() const;
+  void set_skippable(bool value);
+
+  const bool get_refreshed() const;
+  void set_refreshed(bool value);
 };
 
 typedef ref_<const InvokeResponseMessage> InvokeResponseMessageCRef;

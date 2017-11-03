@@ -135,6 +135,8 @@ const messages = {
             new StringHeader('PermissionToken'),
             new ByteHeader('MaxPermission'),
             new BoolHeader('NoStream'),
+            new BoolHeader('Refreshed'),
+            new BoolHeader('Skippable'),
             new BodyHeader('Body'),
         ],
         List: [
@@ -169,11 +171,13 @@ const messages = {
             new ByteHeader('Status'),
             new IntHeader('SequenceId'),
             new IntHeader('PageId'),
+            new BoolHeader('Refreshed'),
             new BoolHeader('Skippable'),
             new BodyHeader('Body'),
         ],
         List: [
             new ByteHeader('Status'),
+            new BoolHeader('Refreshed'),
             new IntHeader('SequenceId'),
             new StringHeader('BasePath'),
             new StringHeader('SourcePath'),
@@ -235,13 +239,13 @@ void ${typename}::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_
         if (typename == 'ListResponseMessage') {
             data+=`
   if ( body_size > 0) {
-      body.reset(new IntrusiveBytes(data, data + body_size));
+      body.reset(new RefCountBytes(data, data + body_size));
       parse(); // parse the map right after decoding
   }`;
         } else {
             data+=`
   if ( body_size > 0) {
-      body.reset(new IntrusiveBytes(data, data + body_size));
+      body.reset(new RefCountBytes(data, data + body_size));
   }`;
         }
 

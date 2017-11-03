@@ -25,4 +25,24 @@ Var InvokeResponseMessage::get_value() const {
   return Var();
 }
 
+const bool InvokeResponseMessage::get_skippable() const {
+  return DynamicBoolHeader::read_value(skippable);
+}
+void InvokeResponseMessage::set_skippable(bool value) {
+  if (DynamicBoolHeader::write_value(skippable, DynamicHeader::SKIPPABLE,
+                                     value)) {
+    static_headers.message_size = 0;
+  }
+}
+
+const bool InvokeResponseMessage::get_refreshed() const {
+  return DynamicBoolHeader::read_value(refreshed);
+}
+void InvokeResponseMessage::set_refreshed(bool value) {
+  if (DynamicBoolHeader::write_value(refreshed, DynamicHeader::REFRESHED,
+                                     value)) {
+    static_headers.message_size = 0;
+  }
+}
+
 }  // namespace dsa

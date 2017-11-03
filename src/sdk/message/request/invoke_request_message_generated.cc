@@ -22,6 +22,10 @@ InvokeRequestMessage::InvokeRequestMessage(const InvokeRequestMessage& from)
     max_permission.reset(new DynamicByteHeader(DynamicHeader::MAX_PERMISSION, from.max_permission->value()));
   if (from.no_stream != nullptr)
     no_stream.reset(new DynamicBoolHeader(DynamicHeader::NO_STREAM));
+  if (from.refreshed != nullptr)
+    refreshed.reset(new DynamicBoolHeader(DynamicHeader::REFRESHED));
+  if (from.skippable != nullptr)
+    skippable.reset(new DynamicBoolHeader(DynamicHeader::SKIPPABLE));
   if (from.body != nullptr)
     body.reset(from.body.get());
 }
@@ -50,6 +54,10 @@ void InvokeRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dynami
       case DynamicHeader::MAX_PERMISSION:max_permission.reset(DOWN_CAST<DynamicByteHeader *>(header));
         break;
       case DynamicHeader::NO_STREAM:no_stream.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+        break;
+      case DynamicHeader::REFRESHED:refreshed.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+        break;
+      case DynamicHeader::SKIPPABLE:skippable.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }
@@ -92,6 +100,14 @@ void InvokeRequestMessage::write_dynamic_data(uint8_t *data) const {
     no_stream->write(data);
     data += no_stream->size();
   }
+  if (refreshed != nullptr) {
+    refreshed->write(data);
+    data += refreshed->size();
+  }
+  if (skippable != nullptr) {
+    skippable->write(data);
+    data += skippable->size();
+  }
   if (body != nullptr) {
     std::copy(body->begin(), body->end(), data);
   }
@@ -122,6 +138,12 @@ void InvokeRequestMessage::update_static_header() {
   }
   if (no_stream != nullptr) {
     header_size += no_stream->size();
+  }
+  if (refreshed != nullptr) {
+    header_size += refreshed->size();
+  }
+  if (skippable != nullptr) {
+    header_size += skippable->size();
   }
 
   uint32_t message_size = header_size; 

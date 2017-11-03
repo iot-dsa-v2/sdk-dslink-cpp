@@ -37,7 +37,8 @@ enum class MessageStatus : uint8_t {
 
   OK = 0x00,
   INITIALIZING = 0x01,
-  REFRESHED = 0x08,
+  REFRESHED = 0x02,
+  REFRESHED_INITIALIZING = 0x03,
   NOT_AVAILABLE = 0x0E,
   CLOSED = 0x20,
   DISCONNECTED = 0x2E,

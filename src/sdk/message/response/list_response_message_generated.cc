@@ -8,6 +8,8 @@ ListResponseMessage::ListResponseMessage(const ListResponseMessage& from)
     : ResponseMessage(from.static_headers) {
   if (from.status != nullptr)
     status.reset(new DynamicByteHeader(DynamicHeader::STATUS, from.status->value()));
+  if (from.refreshed != nullptr)
+    refreshed.reset(new DynamicBoolHeader(DynamicHeader::REFRESHED));
   if (from.sequence_id != nullptr)
     sequence_id.reset(new DynamicIntHeader(DynamicHeader::SEQUENCE_ID, from.sequence_id->value()));
   if (from.base_path != nullptr)
@@ -25,6 +27,8 @@ void ListResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic
     dynamic_header_size -= header->size();
     switch (header->key()) {
       case DynamicHeader::STATUS:status.reset(DOWN_CAST<DynamicByteHeader *>(header));
+        break;
+      case DynamicHeader::REFRESHED:refreshed.reset(DOWN_CAST<DynamicBoolHeader *>(header));
         break;
       case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
         break;
@@ -45,6 +49,10 @@ void ListResponseMessage::write_dynamic_data(uint8_t *data) const {
   if (status != nullptr) {
     status->write(data);
     data += status->size();
+  }
+  if (refreshed != nullptr) {
+    refreshed->write(data);
+    data += refreshed->size();
   }
   if (sequence_id != nullptr) {
     sequence_id->write(data);
@@ -67,6 +75,9 @@ void ListResponseMessage::update_static_header() {
   uint32_t header_size = StaticHeaders::TOTAL_SIZE;
   if (status != nullptr) {
     header_size += status->size();
+  }
+  if (refreshed != nullptr) {
+    header_size += refreshed->size();
   }
   if (sequence_id != nullptr) {
     header_size += sequence_id->size();

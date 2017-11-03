@@ -23,6 +23,7 @@ class DynamicHeader {
     QOS = 0x12,
     QUEUE_SIZE = 0x14,
     QUEUE_TIME = 0x15,
+    REFRESHED = 0x20,
     BASE_PATH = 0x21,
     SKIPPABLE = 0x30,
     MAX_PERMISSION = 0x32,
