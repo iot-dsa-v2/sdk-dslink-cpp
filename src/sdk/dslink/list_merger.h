@@ -8,6 +8,8 @@
 #include <unordered_set>
 #include <vector>
 #include "util/enable_ref.h"
+#include "variant/variant.h"
+#include "message/enums.h"
 
 namespace dsa {
 
@@ -20,6 +22,8 @@ class IncomingListCache : public DestroyableRef<IncomingListCache> {
   friend class ListMerger;
 
  public:
+  // a callback function that has all the changed keys
+  // when the vector is empty, that means all value are changed
   typedef std::function<void(IncomingListCache&, const std::vector<string_>&)>
       Callback;
 
@@ -32,10 +36,14 @@ class IncomingListCache : public DestroyableRef<IncomingListCache> {
   IncomingListCache();
   IncomingListCache(ref_<ListMerger>&& merger,
                     IncomingListCache::Callback&& callback);
+  const VarMap& get_map() const;
+  MessageStatus get_status() const;
 };
 // when multiple list request is made on same path, ListMerger merge
 // the subscription into one request
 class ListMerger : public DestroyableRef<ListMerger> {
+  friend class IncomingListCache;
+
  protected:
   std::unordered_set<ref_<IncomingListCache>, RefHash<IncomingListCache> >
       caches;
@@ -43,6 +51,9 @@ class ListMerger : public DestroyableRef<ListMerger> {
   string_ _path;
 
   ref_<IncomingListStream> _stream;
+  VarMap _map;
+  std::vector<string_> _changes;
+  MessageStatus _last_status = MessageStatus::INITIALIZING;
 
   void destroy_impl() final;
 
