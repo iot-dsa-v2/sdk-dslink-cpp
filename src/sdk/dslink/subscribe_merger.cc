@@ -2,15 +2,84 @@
 
 #include "subscribe_merger.h"
 
-namespace dsa {
-IncommingSubscribeCache::IncommingSubscribeCache(ref_<SubscribeMerger>&& merger)
-    : _merger(std::move(merger)) {}
-void IncommingSubscribeCache::destroy_impl() { _merger->remove(get_ref()); }
+#include "core/client.h"
+#include "link.h"
+#include "stream/requester/incoming_subscribe_stream.h"
 
-void SubscribeMerger::remove(const ref_<IncommingSubscribeCache>& cache) {
+namespace dsa {
+IncomingSubscribeCache::IncomingSubscribeCache(){};
+IncomingSubscribeCache::IncomingSubscribeCache(
+    ref_<SubscribeMerger>&& merger, IncomingSubscribeCache::Callback&& callback,
+    const SubscribeOptions& options)
+    : _merger(std::move(merger)),
+      _callback(std::move(callback)),
+      _options(options) {}
+void IncomingSubscribeCache::destroy_impl() { _merger->remove(get_ref()); }
+
+SubscribeMerger::SubscribeMerger(ref_<DsLink>&& link, const string_& path)
+    : _link(std::move(link)),
+      _path(path),
+      _merged_subscribe_options(QosLevel::_0, -1) {}
+SubscribeMerger::~SubscribeMerger() {}
+
+void SubscribeMerger::destroy_impl() {
+  if (_stream != nullptr) {
+    _stream->close();
+    _stream.reset();
+  }
+  _link->_subscribe_mergers.erase(_path);
+  _cached_value.reset();
+}
+
+ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
+    IncomingSubscribeCache::Callback&& callback,
+    const SubscribeOptions& options) {
+  IncomingSubscribeCache* cache =
+      new IncomingSubscribeCache(get_ref(), std::move(callback), options);
+  caches.emplace(cache);
+
+  if (_stream == nullptr) {
+    _merged_subscribe_options = options;
+    _stream = _link->_client->get_session().requester.subscribe(
+        _path, [ this, copy_ref = get_ref() ](
+                   IncomingSubscribeStream & stream,
+                   ref_<const SubscribeResponseMessage> && msg) {
+          new_subscribe_response(std::move(msg));
+        },
+        _merged_subscribe_options);
+  } else if (_merged_subscribe_options.mergeFrom(cache->_options)) {
+    _stream->subscribe(options);
+  }
+  if (_cached_value != nullptr) {
+    cache->_callback(*cache, _cached_value);
+  }
+}
+
+void SubscribeMerger::new_subscribe_response(
+    SubscribeResponseMessageCRef&& message) {
+  _cached_value = std::move(message);
+  for (auto& it : caches) {
+    it->_callback(*it, _cached_value);
+  }
+}
+
+void SubscribeMerger::check_subscribe_options() {
+  SubscribeOptions new_options(QosLevel::_0, -1);
+  for (auto& cache : caches) {
+    new_options.mergeFrom(cache->_options);
+  }
+  if (new_options != _merged_subscribe_options) {
+    _merged_subscribe_options = new_options;
+    _stream->subscribe(_merged_subscribe_options);
+  }
+}
+
+void SubscribeMerger::remove(const ref_<IncomingSubscribeCache>& cache) {
   caches.erase(cache);
   if (caches.empty()) {
-
+    destroy();
+  } else if (_merged_subscribe_options.needUpdateOnRemoval(cache->_options)) {
+    check_subscribe_options();
   }
 }
 }

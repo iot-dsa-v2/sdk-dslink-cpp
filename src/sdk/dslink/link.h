@@ -7,15 +7,22 @@
 
 #include "core/config.h"
 #include "core/session.h"
-#include "subscribe_merger.h"
 #include "list_merger.h"
+#include "subscribe_merger.h"
 
 namespace dsa {
 class App;
 class TcpServer;
 class Client;
 
-class DsLink : public WrapperConfig {
+class DsLink : public WrapperConfig, public EnableRef<DsLink> {
+  friend class SubscribeMerger;
+  friend class ListMerger;
+ public:
+  typedef std::function<void(IncomingListCache &,
+                             const std::vector<std::string> &)>
+      ListCallback;
+
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
          const string_ &version);
@@ -25,10 +32,7 @@ class DsLink : public WrapperConfig {
  private:
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
-  ref_<Client> _tcp_client;
-
-  std::unordered_map<std::string, ref_<SubscribeMerger>> subscribe_mergers;
-  std::unordered_map<std::string, ref_<ListMerger>> list_mergers;
+  ref_<Client> _client;
 
   bool _running = false;
 
@@ -51,7 +55,14 @@ class DsLink : public WrapperConfig {
            uint8_t callback_type = Session::FIRST_CONNECTION);
 
   // requester functions
-  
+ private:
+  std::unordered_map<std::string, ref_<SubscribeMerger>> _subscribe_mergers;
+  std::unordered_map<std::string, ref_<ListMerger>> _list_mergers;
+
+ public:
+  ref_<IncomingSubscribeCache> subscribe(
+      const string_ &path, IncomingSubscribeCache::Callback &&callback,
+      const SubscribeOptions &options = SubscribeOptions::default_options);
 
   ref_<IncomingInvokeStream> invoke(const string_ &path,
                                     IncomingInvokeStreamCallback &&callback,

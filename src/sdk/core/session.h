@@ -69,6 +69,7 @@ class Session final : public DestroyableRef<Session> {
   friend class MessageStream;
 
  public:
+  // TODO, implement all mode for on_connected callback
   enum : uint8_t {
     FIRST_CONNECTION = 0,
     BROKER_INFO_CHANGE = 1,

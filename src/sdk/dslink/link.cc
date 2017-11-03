@@ -202,10 +202,10 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
     // TODO, implement ws client
   }
 
-  _tcp_client = make_ref_<Client>(*this);
-  _tcp_client->connect();
+  _client = make_ref_<Client>(*this);
+  _client->connect();
   if (on_connect != nullptr) {
-    _tcp_client->get_session().set_on_connected(std::move(on_connect),
+    _client->get_session().set_on_connected(std::move(on_connect),
                                                 callback_type);
   }
 
@@ -214,17 +214,28 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
 
 // requester features
 
+ref_<IncomingSubscribeCache> DsLink::subscribe(
+    const string_ &path, IncomingSubscribeCache::Callback &&callback,
+    const SubscribeOptions &options) {
+  if (_subscribe_mergers.count(path) == 0) {
+    _subscribe_mergers[path] = make_ref_<SubscribeMerger>(get_ref(), path);
+  }
+  auto merger = _subscribe_mergers[path];
+  merger->subscribe(std::move(callback), options);
+  return std::move(merger);
+}
+
 ref_<IncomingInvokeStream> DsLink::invoke(
     const string_ &path, IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
-  return _tcp_client->get_session().requester.invoke(path, std::move(callback),
+  return _client->get_session().requester.invoke(path, std::move(callback),
                                                      std::move(message));
 }
 
 ref_<IncomingSetStream> DsLink::set(const string_ &path,
                                     IncomingSetStreamCallback &&callback,
                                     ref_<const SetRequestMessage> &&message) {
-  return _tcp_client->get_session().requester.set(path, std::move(callback),
+  return _client->get_session().requester.set(path, std::move(callback),
                                                   std::move(message));
 }
 }

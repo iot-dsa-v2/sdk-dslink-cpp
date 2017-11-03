@@ -6,33 +6,64 @@
 #endif
 
 #include <unordered_set>
+#include "message/message_options.h"
 #include "util/enable_ref.h"
 
 namespace dsa {
 
+class DsLink;
 class SubscribeMerger;
+class SubscribeResponseMessage;
+class IncomingSubscribeStream;
 
-class IncommingSubscribeCache : public DestroyableRef<IncommingSubscribeCache> {
+class IncomingSubscribeCache : public DestroyableRef<IncomingSubscribeCache> {
+  friend class SubscribeMerger;
+
+ public:
+  typedef std::function<void(IncomingSubscribeCache&,
+                             ref_<const SubscribeResponseMessage>&)>
+      Callback;
+
  protected:
   void destroy_impl() final;
   ref_<SubscribeMerger> _merger;
+  SubscribeOptions _options;
+  Callback _callback;
 
  public:
-  explicit IncommingSubscribeCache(ref_<SubscribeMerger> && merger);
+  IncomingSubscribeCache();
+  IncomingSubscribeCache(ref_<SubscribeMerger>&& merger,
+                         IncomingSubscribeCache::Callback&& callback,
+                         const SubscribeOptions& options);
 };
 // when multiple subscribe request is made on same path, SubscribeMerger merge
 // the subscription into one request
-class SubscribeMerger : public EnableRef<SubscribeMerger> {
-  struct Hash {
-    size_t operator()(const ref_<IncommingSubscribeCache>& ref) const {
-      return reinterpret_cast<size_t>(ref.get());
-    }
-  };
+class SubscribeMerger : public DestroyableRef<SubscribeMerger> {
+ protected:
+  std::unordered_set<ref_<IncomingSubscribeCache>,
+                     RefHash<IncomingSubscribeCache> >
+      caches;
+  ref_<DsLink> _link;
+  string_ _path;
 
-  std::unordered_set<ref_<IncommingSubscribeCache>, Hash> caches;
+  ref_<IncomingSubscribeStream> _stream;
+  ref_<const SubscribeResponseMessage> _cached_value;
 
-public:
-  void remove(const ref_<IncommingSubscribeCache> & cache);
+  void destroy_impl() final;
+
+  void new_subscribe_response(ref_<const SubscribeResponseMessage>&& message);
+  SubscribeOptions _merged_subscribe_options;
+  void check_subscribe_options();
+
+ public:
+  explicit SubscribeMerger(ref_<DsLink>&& link = nullptr,
+                           const string_& path = "");
+  ~SubscribeMerger();
+
+  ref_<IncomingSubscribeCache> subscribe(
+      IncomingSubscribeCache::Callback&& callback,
+      const SubscribeOptions& options);
+  void remove(const ref_<IncomingSubscribeCache>& cache);
 };
 }
 

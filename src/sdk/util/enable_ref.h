@@ -122,6 +122,16 @@ class ref_ {
   }
 };
 
+template <class T>
+struct RefHash {
+  size_t operator()(const ref_<T> &ref) const {
+    return reinterpret_cast<size_t>(ref.get());
+  }
+  size_t operator()(const ref_<const T> &ref) const {
+    return reinterpret_cast<size_t>(ref.get());
+  }
+};
+
 template <class T, class U>
 inline bool operator==(ref_<T> const &a, ref_<U> const &b) {
   return a.get() == b.get();
