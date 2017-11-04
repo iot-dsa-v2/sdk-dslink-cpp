@@ -53,6 +53,7 @@ ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
   if (_cached_value != nullptr) {
     cache->_callback(*cache, _cached_value);
   }
+  return std::move(cache);
 }
 
 void SubscribeMerger::new_subscribe_response(
