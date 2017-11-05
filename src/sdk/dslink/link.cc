@@ -221,17 +221,15 @@ ref_<IncomingSubscribeCache> DsLink::subscribe(
     _subscribe_mergers[path] = make_ref_<SubscribeMerger>(get_ref(), path);
   }
   auto merger = _subscribe_mergers[path];
-  merger->subscribe(std::move(callback), options);
-  return std::move(merger);
+  return merger->subscribe(std::move(callback), options);
 }
-ref_<IncomingListCache> DsLink::list(
-    const string_ &path, IncomingListCache::Callback &&callback) {
+ref_<IncomingListCache> DsLink::list(const string_ &path,
+                                     IncomingListCache::Callback &&callback) {
   if (_list_mergers.count(path) == 0) {
     _list_mergers[path] = make_ref_<ListMerger>(get_ref(), path);
   }
   auto merger = _list_mergers[path];
-  merger->list(std::move(callback));
-  return std::move(merger);
+  return merger->list(std::move(callback));
 }
 ref_<IncomingInvokeStream> DsLink::invoke(
     const string_ &path, IncomingInvokeStreamCallback &&callback,
