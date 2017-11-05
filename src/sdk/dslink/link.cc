@@ -27,7 +27,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
                const string_ &version) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
-      ("broker,b", opts::value<string_>()->default_value("localhost"),
+      ("broker,b", opts::value<string_>()->default_value("127.0.0.1"),
        "Broker Url")  // broker url
       ("log,l", opts::value<string_>()->default_value("info"),
        "Log Level [all,trace,debug,info,warn,error,fatal,none]")  // log level
@@ -35,7 +35,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
        "Number of thread")  // custom name
       ("name,n", opts::value<string_>()->default_value(link_name),
        "Override Link Name")  // custom name
-      ("server-port", opts::value<uint16_t>()->default_value(4120),
+      ("server-port", opts::value<uint16_t>()->default_value(0),
        "Tcp Server Port")  // custom name
       ;
 

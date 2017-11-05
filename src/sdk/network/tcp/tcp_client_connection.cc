@@ -2,7 +2,7 @@
 
 #include "tcp_client_connection.h"
 
-#include "core/session.h"
+#include "module/logger.h"
 
 namespace dsa {
 ClientConnection::ClientConnection(LinkStrandRef &strand,
@@ -17,6 +17,8 @@ void ClientConnection::connect() {
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand->get_io_service());
   // TODO: timeout
+  LOG_INFO(_strand->logger(),
+           LOG << "TCP client connecting to " << _hostname << ":" << _port);
   _socket.async_connect(
       *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
       // capture shared_ptr to keep the instance
