@@ -59,10 +59,10 @@ class Logger {
   {                                         \
     std::stringstream LOG;                  \
     LOG << std::endl;                       \
-    stream_exp;                             \
     dsa::Logger& logger = Logger::_();      \
     if ((logger).level <= Logger::FATAL_) { \
       (logger).write_meta(LOG, "FATAL_");   \
+      stream_exp;                           \
       (logger).log(LOG.str());              \
     }                                       \
     exit(1);                                \

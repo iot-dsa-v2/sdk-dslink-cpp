@@ -40,8 +40,13 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
       ;
 
   opts::variables_map variables;
-  opts::store(opts::parse_command_line(argc, argv, desc), variables);
-  opts::notify(variables);
+  try {
+    opts::store(opts::parse_command_line(argc, argv, desc), variables);
+    opts::notify(variables);
+  } catch (std::exception & e) {
+    LOG_FATAL(LOG << "Invalid input, please check available parameters with --help");
+  }
+
 
   // show help and exit
   if (variables.count("help")) {
