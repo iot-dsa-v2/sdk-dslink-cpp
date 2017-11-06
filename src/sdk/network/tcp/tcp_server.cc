@@ -13,8 +13,12 @@ TcpServer::TcpServer(WrapperConfig &config)
       _port(config.tcp_port),
       _acceptor(
           new tcp::acceptor(_strand->get_io_service(),
+#if defined(__CYGWIN__)
+                            tcp::endpoint(tcp::v4(), config.tcp_server_port))) {
+#else
                             // tcp:v6() already covers both ipv4 and ipv6
                             tcp::endpoint(tcp::v6(), config.tcp_server_port))) {
+#endif
   LOG_INFO(_strand->logger(),
            LOG << "Bind to TCP server port: " << config.tcp_server_port);
 }

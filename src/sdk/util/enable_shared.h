@@ -56,9 +56,14 @@ class SharedDestroyable : public EnableShared<T> {
     destroy(unique_lock);
   }
 
-  void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> destroyable) {
-    dispatch_in_strand([destroyable = std::move(destroyable)]() mutable {
-      destroyable->destroy();
+  void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &&destroyable) {
+    dispatch_in_strand([ this, keep_ptr = std::move(destroyable) ]() mutable {
+      destroy();
+    });
+  }
+  void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &destroyable) {
+    dispatch_in_strand([this, keep_ptr = destroyable]() mutable {
+      destroy();
     });
   }
 };
