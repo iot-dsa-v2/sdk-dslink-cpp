@@ -61,6 +61,8 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
     {
       boost::lock_guard<boost::mutex> read_loop_lock(
           connection->read_loop_mutex);
+      // connection post messages to main strand in batch
+      // need a null message in the end to actually send all messages
       bool need_null_end = false;
       while (cur < total_bytes) {
         if (total_bytes - cur < sizeof(uint32_t)) {
