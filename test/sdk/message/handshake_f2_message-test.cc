@@ -20,15 +20,18 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   // last_ack_id = 0xa1b2c3d4
   message.last_ack_id = 2712847316;
 
+  uint16_t path_length = 0;
+
+
   message.size();
 
   uint8_t buf[1024];
   message.write(buf);
 
-  // 15 + 2 + 128 + 1 + 2 + 64 + 4 + 32 = 248
-  uint8_t expected_values[248];
+  // 15 + 2 + 128 + 1 + 2 + 64 + 4 + 32 + 2 = 250
+  uint8_t expected_values[250];
 
-  uint32_t message_size = 248;
+  uint32_t message_size = 250;
   uint16_t header_size = StaticHeaders::TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE2;
   uint32_t request_id = 0;
@@ -54,7 +57,10 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   uint8_t PreviousSessionIdOffset =
       PreviousSessionIdLengthOffset + sizeof(session_id_length);
   uint8_t LastAckIdOffset = PreviousSessionIdOffset + session_id_length;
-  uint8_t AuthOffset = LastAckIdOffset + sizeof(uint32_t);
+
+  uint8_t PathLengthOffset = LastAckIdOffset + sizeof(uint32_t);
+  uint8_t PathOffset = PathLengthOffset + sizeof(uint16_t);
+  uint8_t AuthOffset = PathOffset + path_length;
 
   std::memcpy(&expected_values[TokenLengthOffset], &token_length,
               sizeof(token_length));
@@ -69,6 +75,10 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
               message.previous_session_id.size());
   std::memcpy(&expected_values[LastAckIdOffset], &message.last_ack_id,
               sizeof(uint32_t));
+  std::memcpy(&expected_values[PathLengthOffset], &path_length,
+              sizeof(path_length));
+  std::memcpy(&expected_values[PathOffset], message.path.data(),
+              message.path.size());
   std::memcpy(&expected_values[AuthOffset], message.auth.data(),
               Message::AUTH_LENGTH);
 
