@@ -1,0 +1,7 @@
+list(APPEND WebServerSourceFiles
+        web_server.cc
+    )
+
+foreach (file ${WebServerSourceFiles})
+    list(APPEND ProjectSourceFiles ${LIB_WEBSERVER}/${file})
+endforeach ()
