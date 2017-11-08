@@ -6,7 +6,6 @@
 #endif
 
 #include <boost/asio/deadline_timer.hpp>
-#include <boost/thread/mutex.hpp>
 #include <functional>
 #include <utility>
 
@@ -56,8 +55,6 @@ class Connection : public SharedDestroyable<Connection> {
 
   virtual std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() = 0;
 
-  boost::mutex read_loop_mutex;
-
   // as client
   virtual void connect();
   // as server
@@ -84,20 +81,16 @@ class Connection : public SharedDestroyable<Connection> {
 
   string_ _path;
 
-  boost::asio::deadline_timer _deadline;
-
-  //  virtual void read_loop(size_t from_prev, const boost::system::error_code
-  //  &error, size_t bytes_transferred) = 0;
-
-
-  void success_or_close(const boost::system::error_code &error);
-
-  void timeout(const boost::system::error_code &error);
-
-  void reset_standard_deadline_timer();
-
   std::vector<MessageRef> _batch_post;
   bool post_message(MessageRef &&msg);
+
+  boost::asio::deadline_timer _deadline;
+  virtual void on_deadline_timer_(const boost::system::error_code &error,
+                                  shared_ptr_<Connection> connection) {}
+
+ public:
+  void start_deadline_timer(size_t seconds);
+  void reset_deadline_timer(size_t seconds);
 
   // server connection
  protected:

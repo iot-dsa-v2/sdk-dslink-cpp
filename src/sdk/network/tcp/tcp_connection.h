@@ -22,7 +22,6 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
 class TcpConnection : public Connection {
-
   // write buffer will have 1/16 unusable part by default
   // which seems to improve the performance
   static const size_t DEFAULT_BUFFER_SIZE = 8192;
@@ -41,24 +40,26 @@ class TcpConnection : public Connection {
   };
 
  protected:
-  void read_loop(shared_ptr_<TcpConnection> &&connection,
-                        size_t from_prev,
-                        const boost::system::error_code &error,
-                        size_t bytes_transferred);
+  void read_loop_(shared_ptr_<TcpConnection> &&connection, size_t from_prev,
+                  const boost::system::error_code &error,
+                  size_t bytes_transferred);
 
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
   tcp_socket _socket;
   std::atomic_bool _socket_open{true};
 
+  void on_deadline_timer_(const boost::system::error_code &error,
+                          shared_ptr_<Connection> sthis);
+
   void destroy_impl() override;
 
  public:
-  TcpConnection(LinkStrandRef &strand,
-                const string_ &dsid_prefix, const string_ &path = "");
+  TcpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+                const string_ &path = "");
 
-  void start_read(shared_ptr_<TcpConnection> &&connection,
-                         size_t cur = 0, size_t next = 0);
+  void start_read(shared_ptr_<TcpConnection> &&connection, size_t cur = 0,
+                  size_t next = 0);
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
 

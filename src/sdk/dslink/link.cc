@@ -43,10 +43,10 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   try {
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
-  } catch (std::exception & e) {
-    LOG_FATAL(LOG << "Invalid input, please check available parameters with --help");
+  } catch (std::exception &e) {
+    LOG_FATAL(
+        LOG << "Invalid input, please check available parameters with --help");
   }
-
 
   // show help and exit
   if (variables.count("help")) {
@@ -200,7 +200,7 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
           ](LinkStrandRef & strand, const string_ &previous_session_id,
             int32_t last_ack_id) {
         return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
-                                              tcp_port);
+                                                  tcp_port);
       };
     }
   } else if (ws_port > 0) {

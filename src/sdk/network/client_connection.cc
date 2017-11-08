@@ -38,7 +38,7 @@ void Connection::start_client_f0() {
       destroy_in_strand(std::move(sthis));
     }
   });
-  boost::unique_lock<boost::shared_mutex>(read_loop_mutex);
+  std::lock_guard<std::mutex> lock(mutex);
   on_read_message = [this](MessageRef message) {
     return on_receive_f1(std::move(message));
   };

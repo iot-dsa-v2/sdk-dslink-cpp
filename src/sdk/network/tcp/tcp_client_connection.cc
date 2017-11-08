@@ -35,6 +35,7 @@ void ClientConnection::connect() {
 
         TcpConnection::start_read(std::move(connection));
       });
+  start_deadline_timer(15);
 }
 
 }  // namespace dsa

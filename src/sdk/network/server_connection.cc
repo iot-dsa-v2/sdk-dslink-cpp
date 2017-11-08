@@ -46,7 +46,7 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
   auto write_buffer = get_write_buffer();
   write_buffer->add(f1, 0, 0);
 
-  write_buffer->write([this, sthis = shared_from_this()](
+  write_buffer->write([ this, sthis = shared_from_this() ](
       const boost::system::error_code &err) mutable {
     if (err != boost::system::errc::success) {
       destroy_in_strand(std::move(sthis));
@@ -58,6 +58,7 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
   };
   return false;
 }
+
 bool Connection::on_receive_f2(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE2) {
     throw MessageParsingError("invalid handshake message, expect f2");
@@ -90,14 +91,12 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
               auto write_buffer = get_write_buffer();
               write_buffer->add(f3, 0, 0);
 
-              write_buffer->write([this, sthis = shared_from_this()](
+              write_buffer->write([ this, sthis = shared_from_this() ](
                   const boost::system::error_code &err) mutable {
                 if (err != boost::system::errc::success) {
                   destroy_in_strand(std::move(sthis));
                 }
               });
-              boost::lock_guard<boost::mutex> read_loop_lock(read_loop_mutex);
-
             } else {
               destroy();
             }
@@ -110,139 +109,4 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
   }
   return false;
 }
-
-/////////////////////////_write_buffer->data
-// bool Connection::parse_f0(size_t size) {
-//  if (size < MinF0Length) return false;
-//
-//  const uint8_t *data = _write_buffer.data();
-//
-//  StaticHeaders header(data);
-//
-//  if (!valid_handshake_header(header, size, MessageType::HANDSHAKE0))
-//    return false;
-//
-//  data += StaticHeaders::TotalSize;
-//  uint8_t dsid_length;
-//
-//  //  _dsa_version_major = *data++;
-//  //  _dsa_version_minor = *data++;
-//  dsid_length = *data++;
-//
-//  if ((data - _write_buffer.data()) + dsid_length + PUBLIC_KEY_LENGTH + 1 +
-//          SALT_LENGTH >
-//      size)
-//    return false;
-//
-//  data += _other_dsid.assign(reinterpret_cast<const char *>(data),
-//  dsid_length)
-//              .size();
-//  _other_public_key.assign(data, data + PUBLIC_KEY_LENGTH);
-//  data += _other_public_key.size();
-//
-//  _security_preference = static_cast<bool>(*data++);
-//
-//  _other_salt.assign(data, data + SALT_LENGTH);
-//
-//  data += _other_salt.size();
-//
-//  return data == _write_buffer.data() + size;
-//}
-//
-// bool Connection::parse_f2(size_t size) {
-//  if (size < MinF2Length) return false;
-//
-//  const uint8_t *data = _write_buffer.data();
-//
-//  StaticHeaders header(data);
-//  if (!valid_handshake_header(header, size, MessageType::HANDSHAKE2))
-//    return false;
-//
-//  data += StaticHeaders::TotalSize;
-//  uint16_t token_length;
-//  uint16_t session_id_length;
-//
-//  std::copy(data, data + sizeof(token_length), &token_length);
-//  data += sizeof(token_length);
-//
-//  // prevent accidental read in unowned memory
-//  if ((data - _write_buffer.data()) + token_length + 2 +
-//          sizeof(session_id_length) >
-//      size)
-//    return false;
-//
-//  data +=
-//      _other_token.assign(reinterpret_cast<const char *>(data), token_length)
-//          .size();
-//  _is_requester = (*data++ != 0u);
-//  _is_responder = (*data++ != 0u);
-//  std::copy(data, data + sizeof(session_id_length), &session_id_length);
-//  data += sizeof(session_id_length);
-//
-//  // prevent accidental read in unowned memory
-//  if ((data - _write_buffer.data()) + session_id_length + AUTH_LENGTH != size)
-//    return false;
-//
-//  data += _session_id
-//              .assign(reinterpret_cast<const char *>(data), session_id_length)
-//              .size();
-//  _other_auth.assign(data, data + AUTH_LENGTH);
-//  data += _other_auth.size();
-//
-//  return data == _write_buffer.data() + size;
-//}
-//
-// size_t Connection::load_f1(std::vector<uint8_t> &buf) {
-//  uint16_t dsid_length =
-//      static_cast<uint16_t>(_handshake_context.dsid().size());
-//
-//  // ensure buf is large enough
-//  buf.resize(MinF1Length + dsid_length);
-//
-//  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::HANDSHAKE1,
-//  0,
-//                       0);
-//  uint8_t *data = buf.data();
-//  header.write(data);
-//  data += StaticHeaders::TotalSize;
-//  data = std::copy(&dsid_length, &dsid_length + sizeof(dsid_length), data);
-//  data += _handshake_context.dsid().copy(reinterpret_cast<char *>(data),
-//                                         dsid_length);
-//  data = std::copy(_handshake_context.public_key().begin(),
-//                   _handshake_context.public_key().end(), data);
-//  data = std::copy(_handshake_context.salt().begin(),
-//                   _handshake_context.salt().end(), data);
-//
-//  uint32_t size = data - buf.data();
-//  std::copy(&size, &size + sizeof(size), buf.data());
-//
-//  return size;
-//}
-//
-// size_t Connection::load_f3(std::vector<uint8_t> &buf) {
-//  auto sid_length = (uint16_t)_session_id.size();
-//  auto path_length = (uint16_t)_path.size();
-//
-//  // ensure buf is large enough
-//  buf.resize(MinF2Length + sid_length);
-//
-//  // leave message size blank for now
-//  StaticHeaders header(0, StaticHeaders::TotalSize, MessageType::Handshake3,
-//  0,
-//                       0);
-//  uint8_t *data = buf.data();
-//  header.write(data);
-//  data += StaticHeaders::TotalSize;
-//  data = std::copy(&sid_length, &sid_length + sizeof(sid_length), data);
-//  data += _session_id.copy(reinterpret_cast<char *>(data), sid_length);
-//  data = std::copy(&path_length, &path_length + sizeof(path_length), data);
-//  data += _path.copy(reinterpret_cast<char *>(data), path_length);
-//  data = std::copy(_auth.begin(), _auth.end(), data);
-//
-//  uint32_t size = data - buf.data();
-//  std::copy(&size, &size + sizeof(size), buf.data());
-//
-//  return size;
-//}
-}  // namespace dsa
+}

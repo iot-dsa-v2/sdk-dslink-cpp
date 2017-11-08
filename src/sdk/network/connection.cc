@@ -7,8 +7,8 @@
 #include "crypto/hmac.h"
 
 namespace dsa {
-Connection::Connection(LinkStrandRef &strand,
-                       const string_ &dsid_prefix, const string_ &path)
+Connection::Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
+                       const string_ &path)
     : _handshake_context(dsid_prefix, strand->ecdh()),
       _deadline(strand->get_io_service()),
       _strand(strand),
@@ -17,12 +17,22 @@ Connection::Connection(LinkStrandRef &strand,
 void Connection::connect() { throw std::runtime_error("not implemented"); }
 void Connection::accept() { throw std::runtime_error("not implemented"); }
 
+void Connection::start_deadline_timer(size_t seconds) {
+  if (seconds > 0) {
+    _deadline.expires_from_now(boost::posix_time::seconds(seconds));
+    _deadline.async_wait([sthis = shared_from_this()](
+        const boost::system::error_code &error) {
+      if (error != boost::asio::error::operation_aborted) {
+        sthis->on_deadline_timer_(error, sthis);
+      }
+    });
+  }
+}
+void Connection::reset_deadline_timer(size_t seconds) {
+  _deadline.expires_from_now(boost::posix_time::seconds(seconds));
+}
 void Connection::set_session(const ref_<Session> &session) {
   _session = session;
-}
-
-void Connection::success_or_close(const boost::system::error_code &error) {
-  if (error != nullptr) destroy();
 }
 
 void Connection::destroy_impl() {
@@ -33,30 +43,20 @@ void Connection::destroy_impl() {
   _deadline.cancel();
 }
 
-void Connection::reset_standard_deadline_timer() {
-  //  _deadline.expires_from_now(boost::posix_time::minutes(1));
-  //  _deadline.async_wait((*_strand)()->wrap([sthis = shared_from_this()](
-  //      const boost::system::error_code &error) {
-  //    if (error != boost::asio::error::operation_aborted) {
-  //      sthis->close();
-  //    }
-  //  }));
-}
-
 bool Connection::post_message(MessageRef &&message) {
   if (message == nullptr) {
     if (_session != nullptr && !_batch_post.empty()) {
       std::vector<MessageRef> copy;
       _batch_post.swap(copy);
       _strand->post(
-        [ sthis = shared_from_this(), messages = std::move(copy) ]() mutable {
-          if (sthis->session() != nullptr) {
-            auto session = sthis->session();
-            for (auto & it : messages) {
-              session->receive_message(std::move(it));
+          [ sthis = shared_from_this(), messages = std::move(copy) ]() mutable {
+            if (sthis->session() != nullptr) {
+              auto session = sthis->session();
+              for (auto &it : messages) {
+                session->receive_message(std::move(it));
+              }
             }
-          }
-        });
+          });
     }
     return false;
   } else {

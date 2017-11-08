@@ -3,7 +3,6 @@
 #include "tcp_connection.h"
 
 #include <boost/asio/write.hpp>
-#include <boost/thread/locks.hpp>
 
 #include "module/logger.h"
 #include "tcp_server.h"
@@ -17,6 +16,12 @@ TcpConnection::TcpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
       _socket(strand->get_io_service()),
       _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
+
+void TcpConnection::on_deadline_timer_(const boost::system::error_code &error,
+                                       shared_ptr_<Connection> sthis) {
+  LOG_WARN(_strand->logger(), LOG << "Connection timeout");
+  destroy_in_strand(std::move(sthis));
+}
 
 void TcpConnection::destroy_impl() {
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");
@@ -39,28 +44,29 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
   tcp_socket &socket = connection->_socket;
   socket.async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
-      [this, connection = std::move(connection), partial_size ](
+      [ this, connection = std::move(connection), partial_size ](
           const boost::system::error_code &err, size_t transferred) mutable {
-        read_loop(std::move(connection), partial_size, err,
-                                 transferred);
+        read_loop_(std::move(connection), partial_size, err, transferred);
       });
 }
 
-void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
-                              size_t from_prev,
-                              const boost::system::error_code &error,
-                              size_t bytes_transferred) {
+void TcpConnection::read_loop_(shared_ptr_<TcpConnection> &&connection,
+                               size_t from_prev,
+                               const boost::system::error_code &error,
+                               size_t bytes_transferred) {
   // reset deadline timer for each new message
   // TODO: make this thread safe
   // connection->reset_standard_deadline_timer();
 
   if (!error) {
-    std::vector<uint8_t> &buffer = connection->_read_buffer;
+    std::vector<uint8_t> &buffer = _read_buffer;
     size_t total_bytes = from_prev + bytes_transferred;
     size_t cur = 0;
     {
-      boost::lock_guard<boost::mutex> read_loop_lock(
-          connection->read_loop_mutex);
+      std::lock_guard<std::mutex> read_loop_lock(mutex);
+      if (is_destroyed()) {
+        return;
+      }
       // connection post messages to main strand in batch
       // need a null message in the end to actually send all messages
       bool need_null_end = false;
@@ -73,9 +79,9 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
         // TODO: check if message_size is valid;
         int32_t message_size = read_32_t(&buffer[cur]);
         if (message_size > Message::MAX_MESSAGE_SIZE) {
-          LOG_DEBUG(connection->_strand->logger(),
+          LOG_DEBUG(_strand->logger(),
                     LOG << "message is bigger than maxed buffer size");
-          destroy_in_strand(connection);
+          destroy_in_strand(std::move(connection));
           // TODO: send error, and close with std::move
           // TcpConnection::destroy_in_strand(std::move(connection));
           return;
@@ -88,15 +94,15 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
 
         // post job with message buffer
 
-        if (connection->on_read_message != nullptr) {
+        if (on_read_message != nullptr) {
           try {
-            need_null_end = connection->on_read_message(
+            need_null_end = on_read_message(
                 Message::parse_message(&buffer[cur], message_size));
           } catch (const MessageParsingError &err) {
-            LOG_DEBUG(connection->_strand->logger(),
+            LOG_DEBUG(_strand->logger(),
                       LOG << "invalid message received, close connection : "
                           << err.what());
-            destroy_in_strand(connection);
+            destroy_in_strand(std::move(connection));
             // TODO: send error, and close with std::move
             // TcpConnection::destroy_in_strand(std::move(connection));
             return;
@@ -110,7 +116,7 @@ void TcpConnection::read_loop(shared_ptr_<TcpConnection> &&connection,
       }
 
       if (need_null_end) {
-        connection->on_read_message(MessageRef());
+        on_read_message(MessageRef());
       }
     }
     start_read(std::move(connection), 0, 0);

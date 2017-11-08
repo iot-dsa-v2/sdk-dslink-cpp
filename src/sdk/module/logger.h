@@ -47,7 +47,7 @@ class Logger {
 
 #define LOG_ERROR(logger, stream_exp) DSA_LOG(ERROR_, logger, stream_exp)
 
-#define LOG_WARN(logger, stream_exp) DSA_LOG(_WARN_, logger, stream_exp)
+#define LOG_WARN(logger, stream_exp) DSA_LOG(WARN_, logger, stream_exp)
 
 #define LOG_INFO(logger, stream_exp) DSA_LOG(INFO_, logger, stream_exp)
 

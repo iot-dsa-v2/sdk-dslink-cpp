@@ -92,6 +92,7 @@ void Session::destroy_impl() {
   responder.destroy_impl();
   if (_connection != nullptr) {
     _connection->destroy();
+    _connection.reset();
   }
   _ack_stream.reset();
 }
@@ -162,6 +163,7 @@ size_t Session::peek_next_message(size_t availible, int64_t time) {
 void Session::write_loop(ref_<Session> sthis) {
   Connection *connection = sthis->_connection.get();
   if (connection == nullptr) {
+    // not connected or already destroyed
     sthis->_is_writing = false;
     return;
   }

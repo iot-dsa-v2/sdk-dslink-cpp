@@ -6,9 +6,7 @@
 #endif
 
 #include <stdexcept>
-
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
+#include <mutex>
 #include <memory>
 
 namespace dsa {
@@ -41,30 +39,27 @@ class SharedDestroyable : public EnableShared<T> {
   virtual void dispatch_in_strand(std::function<void()> &&) = 0;
 
  public:
-  boost::shared_mutex mutex;
+  std::mutex mutex;
   bool is_destroyed() const { return _destroyed; }
 
   // reuse any lock
-  void destroy(boost::unique_lock<boost::shared_mutex> &unique_lock) {
+  void destroy(std::lock_guard<std::mutex> &unique_lock) {
     if (!_destroyed) {
       _destroyed = true;
       destroy_impl();
     }
   }
   void destroy() {
-    boost::unique_lock<boost::shared_mutex> unique_lock(mutex);
+    std::lock_guard<std::mutex> unique_lock(mutex);
     destroy(unique_lock);
   }
 
   void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &&destroyable) {
-    dispatch_in_strand([ this, keep_ptr = std::move(destroyable) ]() mutable {
-      destroy();
-    });
+    dispatch_in_strand(
+        [ this, keep_ptr = std::move(destroyable) ]() { destroy(); });
   }
   void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &destroyable) {
-    dispatch_in_strand([this, keep_ptr = destroyable]() mutable {
-      destroy();
-    });
+    dispatch_in_strand([ this, keep_ptr = destroyable ]() { destroy(); });
   }
 };
 }  // namespace dsa
