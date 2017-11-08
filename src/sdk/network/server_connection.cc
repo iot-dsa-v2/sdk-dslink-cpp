@@ -37,6 +37,8 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
     }
   });
 
+  // wait another 15 seconds until the connection timeout
+  reset_deadline_timer(15);
   // no need to lock, parent scope should already have the lock
   on_read_message = [this](MessageRef message) {
     return on_receive_f2(std::move(message));
