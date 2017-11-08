@@ -44,8 +44,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL(
-        LOG << "Invalid input, please check available parameters with --help");
+    std::cout << "Invalid input, please check available parameters with --help\n";
+    exit(1);
   }
 
   // show help and exit
