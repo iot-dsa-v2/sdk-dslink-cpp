@@ -14,14 +14,14 @@ class TcpServer;
 
 // TCP server side connection.
 // Handles server side of DSA handshake and starts read loop.
-class TcpServerConnection : public TcpConnection {
+class TcpServerConnection final : public TcpConnection {
  public:
   TcpServerConnection(LinkStrandRef &strand, const string_ &dsid_prefix = "",
                       const string_ &path = "");
 
-  void accept() override;
+  void accept() final;
 
-  string_ name() override { return "TcpServerConnection"; }
+  string_ name() final { return "TcpServerConnection"; }
 };
 }  // namespace dsa
 
