@@ -13,22 +13,6 @@
 
 namespace dsa {
 
-// void Connection::on_server_connect() throw(const std::runtime_error &) {
-//  // setup session now that client session id has been parsed
-//  _strand->session_manager().get_session(
-//      _other_dsid, _other_token, _session_id,
-//      [=](const ref_<Session> &session) {
-//        if (session != nullptr) {
-//          _session = session;
-//          _session_id = _session->session_id();
-//          _session->set_connection(shared_from_this());
-//          _session->start();
-//        } else {
-//          // TODO: send error
-//        }
-//      });
-//}
-
 bool Connection::on_receive_f0(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE0) {
     throw MessageParsingError("invalid handshake message, expect f0");
@@ -53,6 +37,7 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
     }
   });
 
+  // no need to lock, parent scope should already have the lock
   on_read_message = [this](MessageRef message) {
     return on_receive_f2(std::move(message));
   };
@@ -79,6 +64,8 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
             if (session != nullptr) {
               _session = session;
               _session->connected(shared_from_this());
+
+              std::lock_guard<std::mutex> lock(mutex);
               on_read_message = [this](MessageRef message) {
                 return post_message(std::move(message));
               };
