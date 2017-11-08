@@ -33,7 +33,7 @@ void Connection::start_client_f0() {
   auto write_buffer = get_write_buffer();
   write_buffer->add(f0, 0, 0);
 
-  write_buffer->write([this, sthis = shared_from_this()](
+  write_buffer->write([ this, sthis = shared_from_this() ](
       const boost::system::error_code &err) mutable {
     if (err != boost::system::errc::success) {
       destroy_in_strand(std::move(sthis));
@@ -65,12 +65,12 @@ bool Connection::on_receive_f1(MessageRef &&msg) {
   auto write_buffer = get_write_buffer();
   write_buffer->add(f2, 0, 0);
 
-  write_buffer->write([this, sthis = shared_from_this()](
-                       const boost::system::error_code &err) mutable {
-          if (err != boost::system::errc::success) {
-            destroy_in_strand(std::move(sthis));
-          }
-        });
+  write_buffer->write([ this, sthis = shared_from_this() ](
+      const boost::system::error_code &err) mutable {
+    if (err != boost::system::errc::success) {
+      destroy_in_strand(std::move(sthis));
+    }
+  });
 
   // no need to lock, parent scope should already have the lock
   on_read_message = [this](MessageRef message) {
@@ -89,9 +89,12 @@ bool Connection::on_receive_f3(MessageRef &&msg) {
 
   if (std::equal(_handshake_context.remote_auth().begin(),
                  _handshake_context.remote_auth().end(), f3->auth.begin())) {
+    _deadline.cancel();
     _strand->post([sthis = shared_from_this()]() mutable {
       on_client_connect(std::move(sthis));
     });
+  } else {
+    LOG_ERROR(_strand->logger(), LOG << "invalid handshake auth");
   }
   return false;
 }
