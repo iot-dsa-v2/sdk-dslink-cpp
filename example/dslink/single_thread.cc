@@ -29,7 +29,7 @@ int main(int argc, const char* argv[]) {
   // link->run();
 
   // add a callback when connected to broker
-  link->run([&](const ClientConnetionData& data) {
+  link->run([&](const shared_ptr_<Connection> connection) {
     cout << endl << "connected to broker";
 
     // subscribe

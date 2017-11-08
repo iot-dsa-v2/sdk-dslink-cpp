@@ -44,8 +44,8 @@ class Connection : public SharedDestroyable<Connection> {
   virtual string_ name() = 0;
 
  public:
-  void dispatch_in_strand(std::function<void()> &&callback) override {
-    return _strand->dispatch(std::move(callback));
+  void post_in_strand(std::function<void()> &&callback) override {
+    return _strand->post(std::move(callback));
   }
 
   std::function<bool(MessageRef)> on_read_message;
@@ -60,7 +60,7 @@ class Connection : public SharedDestroyable<Connection> {
   // as server
   virtual void accept();
 
-  const string_ &dsid() { return _handshake_context.dsid(); }
+  const string_ &get_dsid() { return _handshake_context.dsid(); }
 
   void set_session(const ref_<Session> &session);
 

@@ -44,7 +44,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    std::cout << "Invalid input, please check available parameters with --help\n";
+    std::cout
+        << "Invalid input, please check available parameters with --help\n";
     exit(1);
   }
 
@@ -68,6 +69,25 @@ DsLink::~DsLink() {}
 
 App &DsLink::get_app() { return *_app; }
 
+void DsLink::destroy_impl() {
+  //  shared_ptr_<App> _app;
+  //  shared_ptr_<TcpServer> _tcp_server;
+  //  ref_<Client> _client;
+  //
+  //  bool _running = false;
+  //
+  //  Session::OnConnectedCallback _user_on_connect;
+  if (_tcp_server != nullptr) {
+    _tcp_server->destroy();
+    _tcp_server.reset();
+  }
+  if (_client) {
+    _client->destroy();
+    _client.reset();
+  }
+  _user_on_connect = nullptr;
+  _app->close();
+}
 std::unique_ptr<ECDH> DsLink::load_private_key() {
   fs::path path(".key");
 
@@ -184,39 +204,63 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
   }
   _running = true;
+  _user_on_connect_type = callback_type;
 
-  if (tcp_server_port > 0) {
-    _tcp_server = make_shared_<TcpServer>(*this);
-    _tcp_server->start();
-  }
+  strand->dispatch([ this, on_connect = std::move(on_connect) ]() {
+    _user_on_connect = std::move(on_connect);
 
-  if (tcp_port > 0) {
-    if (secure) {
-      // TODO implement secure client
-    } else {
-      client_connection_maker =
-          [
-            dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
-          ](LinkStrandRef & strand, const string_ &previous_session_id,
-            int32_t last_ack_id) {
-        return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
-                                                  tcp_port);
-      };
+    if (tcp_server_port > 0) {
+      _tcp_server = make_shared_<TcpServer>(*this);
+      _tcp_server->start();
     }
-  } else if (ws_port > 0) {
-    // TODO, implement ws client
-  }
 
-  _client = make_ref_<Client>(*this);
-  _client->connect();
-  if (on_connect != nullptr) {
-    _client->get_session().set_on_connected(std::move(on_connect),
-                                            callback_type);
-  }
+    if (tcp_port > 0) {
+      if (secure) {
+        // TODO implement secure client
+      } else {
+        client_connection_maker =
+            [
+              dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+              tcp_port = tcp_port
+            ](LinkStrandRef & strand, const string_ &previous_session_id,
+              int32_t last_ack_id) {
+          return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
+                                                tcp_port);
+        };
+      }
+    } else if (ws_port > 0) {
+      // TODO, implement ws client
+    }
 
-  _app->wait();
+    _client = make_ref_<Client>(*this);
+    _client->connect();
+
+    _client->get_session().set_on_connected([ this, keep_ref = get_ref() ](
+        const shared_ptr_<Connection> &connection) {
+      _on_connected(connection);
+    });
+
+    _app->wait();
+  });
 }
 
+void DsLink::_on_connected(const shared_ptr_<Connection> &connection) {
+  if (_user_on_connect != nullptr) {
+    if (connection != nullptr) {
+      if (_user_on_connect_type | FIRST_CONNECTION) {
+        _user_on_connect_type ^= FIRST_CONNECTION;
+        _user_on_connect(connection);
+      }
+
+      _last_remote_dsid = connection->get_dsid();
+      //_last_remote_path = connection->get_remote_path();
+    } else {
+      if (_user_on_connect_type | DISCONNECTION) {
+        _user_on_connect(connection);
+      }
+    }
+  }
+}
 // requester features
 
 ref_<IncomingSubscribeCache> DsLink::subscribe(

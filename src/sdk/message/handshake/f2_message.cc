@@ -21,8 +21,9 @@ void HandshakeF2Message::update_static_header() {
   static_headers.header_size = (uint16_t)StaticHeaders::TOTAL_SIZE;
   static_headers.message_size =
       StaticHeaders::TOTAL_SIZE +
-      9 /* token_length, is_responder, session_id_length, last_ack_id */ +
-      token.length() + previous_session_id.length() + AUTH_LENGTH;
+      11 /* token_length, is_responder, session_id_length, last_ack_id */ +
+      path.length() + token.length() + previous_session_id.length() +
+      AUTH_LENGTH;
 }
 
 void HandshakeF2Message::write_dynamic_data(uint8_t* data) const {
@@ -30,6 +31,7 @@ void HandshakeF2Message::write_dynamic_data(uint8_t* data) const {
   (*data++) = (uint8_t)(is_responder ? 1 : 0);
   data += write_str_with_len(data, previous_session_id);
   data += write_32_t(data, last_ack_id);
+  data += write_str_with_len(data, path);
   data = std::copy(auth.begin(), auth.end(), data);
 }
 
@@ -40,6 +42,7 @@ void HandshakeF2Message::parse_dynamic_headers(
   data += read_str_with_len(data, previous_session_id);
   last_ack_id = read_32_t(data);
   data += sizeof(uint32_t);
+  data += read_str_with_len(data, path);
   auth.assign(data, data + AUTH_LENGTH);
 }
 

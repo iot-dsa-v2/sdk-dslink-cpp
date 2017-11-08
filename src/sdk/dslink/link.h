@@ -15,10 +15,19 @@ class App;
 class TcpServer;
 class Client;
 
-class DsLink : public WrapperConfig, public EnableRef<DsLink> {
+class DsLink final : public WrapperConfig, public DestroyableRef<DsLink> {
   friend class SubscribeMerger;
   friend class ListMerger;
+
  public:
+  // TODO, implement all mode for on_connected callback
+  enum : uint8_t {
+    FIRST_CONNECTION = 1,
+    BROKER_INFO_CHANGE = 2,
+    EVERY_CONNECTION = 4,
+    DISCONNECTION = 128,
+  };
+
   typedef std::function<void(IncomingListCache &,
                              const std::vector<std::string> &)>
       ListCallback;
@@ -29,12 +38,21 @@ class DsLink : public WrapperConfig, public EnableRef<DsLink> {
   ~DsLink();
   App &get_app();
 
+protected:
+  void destroy_impl() final;
+
  private:
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
   ref_<Client> _client;
 
   bool _running = false;
+
+  Session::OnConnectedCallback _user_on_connect;
+  uint8_t _user_on_connect_type;
+  string_ _last_remote_dsid;
+  string_ _last_remote_path;
+  void _on_connected(const shared_ptr_<Connection> &connection);
 
   // initialization
   std::unique_ptr<ECDH> load_private_key();
@@ -52,7 +70,7 @@ class DsLink : public WrapperConfig, public EnableRef<DsLink> {
   }
 
   void run(Session::OnConnectedCallback &&on_ready = nullptr,
-           uint8_t callback_type = Session::FIRST_CONNECTION);
+           uint8_t callback_type = FIRST_CONNECTION);
 
   // requester functions
  private:
@@ -64,8 +82,8 @@ class DsLink : public WrapperConfig, public EnableRef<DsLink> {
       const string_ &path, IncomingSubscribeCache::Callback &&callback,
       const SubscribeOptions &options = SubscribeOptions::default_options);
 
-  ref_<IncomingListCache> list(
-    const string_ &path, IncomingListCache::Callback &&callback);
+  ref_<IncomingListCache> list(const string_ &path,
+                               IncomingListCache::Callback &&callback);
 
   ref_<IncomingInvokeStream> invoke(const string_ &path,
                                     IncomingInvokeStreamCallback &&callback,

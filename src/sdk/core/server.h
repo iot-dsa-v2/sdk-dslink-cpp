@@ -28,8 +28,8 @@ class Server : public SharedDestroyable<Server> {
   explicit Server(WrapperConfig &config);
   virtual ~Server() = default;
 
-  void dispatch_in_strand(std::function<void()> &&callback) override {
-    return _strand->dispatch(std::move(callback));
+  void post_in_strand(std::function<void()> &&callback) override {
+    return _strand->post(std::move(callback));
   }
 
   LinkStrand &get_strand() const { return *_strand; }

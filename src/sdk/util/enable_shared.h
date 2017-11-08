@@ -36,7 +36,7 @@ class SharedDestroyable : public EnableShared<T> {
 
  protected:
   virtual void destroy_impl(){};
-  virtual void dispatch_in_strand(std::function<void()> &&) = 0;
+  virtual void post_in_strand(std::function<void()> &&) = 0;
 
  public:
   std::mutex mutex;
@@ -55,11 +55,11 @@ class SharedDestroyable : public EnableShared<T> {
   }
 
   void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &&destroyable) {
-    dispatch_in_strand(
+    post_in_strand(
         [ this, keep_ptr = std::move(destroyable) ]() { destroy(); });
   }
   void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &destroyable) {
-    dispatch_in_strand([ this, keep_ptr = destroyable ]() { destroy(); });
+    post_in_strand([ this, keep_ptr = destroyable ]() { destroy(); });
   }
 };
 }  // namespace dsa

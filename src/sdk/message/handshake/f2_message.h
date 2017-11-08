@@ -17,6 +17,7 @@ class HandshakeF2Message final : public Message {
   string_ token;
   string_ previous_session_id;
   int32_t last_ack_id;
+  string_ path;
   std::vector<uint8_t> auth;
 
   HandshakeF2Message(const uint8_t* data, size_t size);
