@@ -5,13 +5,12 @@
 #pragma once
 #endif
 
-#include "core/server.h"
-
+#include <memory>
 #include <functional>
 
 namespace dsa {
 
-class WebServer : public Server {
+class WebServer : public std::enable_shared_from_this<WebServer> {
  private:
   size_t _thread_count;
 
@@ -19,12 +18,11 @@ class WebServer : public Server {
   typedef std::function<void(WebServer&)> HttpCallback;
   typedef std::function<void(WebServer&)> WsCallback;
 
-  WebServer(WrapperConfig &, size_t thread_count = 4);
+  WebServer( );
   ~WebServer();
 
-  void start() override;
-  void destroy_impl() override;
-  string_ type() override { return "HTTP"; }
+  void start() ;
+  void destroy() ;
 
   // HTTP server specific methods
   void add_http_handler(const string_& path, HttpCallback&& callback);

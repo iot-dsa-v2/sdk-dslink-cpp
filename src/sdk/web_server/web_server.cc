@@ -8,14 +8,14 @@
 
 namespace dsa {
 
-WebServer::WebServer(WrapperConfig& config, size_t thread_count)
-    : Server(config),
+WebServer::WebServer()
+    :
       _thread_count(std::min(
           std::max<std::size_t>(1, std::thread::hardware_concurrency()),
           thread_count)) {}
 
 void WebServer::start() {
-  boost::asio::io_service ios{_thread_count};
+  //boost::asio::io_service ios{_thread_count};
 
   // create and launch listener
 
@@ -26,7 +26,7 @@ void WebServer::start() {
   ios.run();
 }
 
-void WebServer::destroy_impl() {}
+void WebServer::destroy() {}
 
 WebServer::~WebServer() {}
 

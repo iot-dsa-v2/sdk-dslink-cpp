@@ -3,6 +3,7 @@
 #include "app.h"
 
 #include <boost/asio/strand.hpp>
+#include <thread>
 
 namespace dsa {
 
@@ -35,6 +36,10 @@ App::App(shared_ptr_<boost::asio::io_service> io_service, size_t thread_count)
       _work(new boost::asio::io_service::work(*_io_service)) {
   // 0 thread and 1 thread are same
   if (thread_count > 1) {
+    size_t hardware_concurrency = std::thread::hardware_concurrency();
+    if (hardware_concurrency > 0 && thread_count > hardware_concurrency) {
+      thread_count = hardware_concurrency;
+    }
     for (size_t i = 0; i < thread_count; ++i)
       _threads->create_thread(boost::bind(run_worker_thread, _io_service));
   }
