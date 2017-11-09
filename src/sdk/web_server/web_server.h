@@ -6,6 +6,7 @@
 #endif
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/strand.hpp>
 #include <functional>
 #include <memory>
 #include "core/server.h"
@@ -16,7 +17,23 @@ namespace dsa {
 
 class App;
 
-class Listener : public EnableRef<Listener> {
+class HttpSession : public std::enable_shared_from_this<HttpSession> {
+ private:
+  tcp::socket _socket;
+  boost::asio::io_service::strand _strand;
+  std::string _doc_root;
+
+ public:
+  HttpSession(tcp::socket socket, std::string const& doc_root)
+      : _socket(std::move(socket)),
+        _strand(_socket.get_io_service()),
+        _doc_root(doc_root) {}
+
+  ~HttpSession() = default;
+  void start();
+};
+
+class Listener : public std::enable_shared_from_this<Listener> {
  private:
   tcp::acceptor _acceptor;
   tcp::socket _socket;

@@ -40,6 +40,22 @@ Listener::Listener(boost::asio::io_service& ios, tcp::endpoint endpoint,
 
 Listener::~Listener() {}
 
+void Listener::start() {
+  if (!_acceptor.is_open()) return;
+
+  std::function<void(const boost::system::error_code&)> do_accept;
+  do_accept = [this](const boost::system::error_code& ec) {
+    if (ec) {
+      std::cout << ec << "accept" << std::endl;
+    } else {
+      // Create the http_session and run it
+      std::make_shared<HttpSession>(std::move(_socket), _doc_root)->start();
+    }
+  };
+
+  _acceptor.async_accept(_socket, do_accept);
+}
+
 //-------------------------------------
 //-------------------------------------
 WebServer::WebServer(App& app) : _app(app) {}
@@ -49,9 +65,10 @@ void WebServer::start() {
   // TODO
   auto const address = boost::asio::ip::address::from_string("0.0.0.0");
   auto const port = static_cast<unsigned short>(8080);
+  std::string const doc_root = ".";
 
   std::make_shared<Listener>(_app.io_service(), tcp::endpoint{address, port},
-                             ".")
+                             doc_root)
       ->start();
 }
 
