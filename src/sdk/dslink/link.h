@@ -20,7 +20,6 @@ class DsLink final : public WrapperConfig, public DestroyableRef<DsLink> {
   friend class ListMerger;
 
  public:
-  // TODO, implement all mode for on_connected callback
   enum : uint8_t {
     FIRST_CONNECTION = 1,
     BROKER_INFO_CHANGE = 2,

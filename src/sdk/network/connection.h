@@ -61,6 +61,7 @@ class Connection : public SharedDestroyable<Connection> {
   virtual void accept();
 
   const string_ &get_dsid() { return _handshake_context.dsid(); }
+  const string_ &get_remote_path() { return _remote_path; }
 
   void set_session(const ref_<Session> &session);
 
@@ -79,7 +80,10 @@ class Connection : public SharedDestroyable<Connection> {
 
   void destroy_impl() override;
 
+  // path of remote node in local responder
   string_ _path;
+  // path of local root node in remote broker
+  string_ _remote_path;
 
   std::vector<MessageRef> _batch_post;
   bool post_message(MessageRef &&msg);

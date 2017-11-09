@@ -247,15 +247,29 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
 void DsLink::_on_connected(const shared_ptr_<Connection> &connection) {
   if (_user_on_connect != nullptr) {
     if (connection != nullptr) {
-      if (_user_on_connect_type | FIRST_CONNECTION) {
+      if (!_last_remote_dsid.empty() &&
+          _last_remote_dsid != connection->get_remote_path()) {
+        // remote dsid should not change
+        LOG_WARN(strand->logger(),
+                 LOG << "remote dsid changed from " << _last_remote_dsid
+                     << " to " << connection->get_remote_path());
+      }
+      if (_user_on_connect_type | BROKER_INFO_CHANGE) {
+        if (_last_remote_dsid != connection->get_dsid() ||
+            _last_remote_path != connection->get_remote_path()) {
+          _user_on_connect(connection);
+        }
+      } else if (_user_on_connect_type | FIRST_CONNECTION) {
         _user_on_connect_type ^= FIRST_CONNECTION;
         _user_on_connect(connection);
+      } else if (_user_on_connect_type | EVERY_CONNECTION) {
+        _user_on_connect(connection);
       }
-
       _last_remote_dsid = connection->get_dsid();
-      //_last_remote_path = connection->get_remote_path();
+      _last_remote_path = connection->get_remote_path();
     } else {
       if (_user_on_connect_type | DISCONNECTION) {
+        _last_remote_path = "";
         _user_on_connect(connection);
       }
     }
