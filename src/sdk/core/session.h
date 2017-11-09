@@ -95,6 +95,12 @@ class Session final : public DestroyableRef<Session> {
 
   OnConnectCallback _on_connect;
 
+  // a timer to check if connection is disconnected and send ping message
+  int _no_receive_in_loop = 0;
+  bool _sent_in_loop = false;
+  boost::asio::deadline_timer _timer;
+  void _on_timer();
+
  public:
   Requester requester;
   Responder responder;

@@ -62,6 +62,7 @@ Session::Session(LinkStrandRef strand, const string_ &session_id)
       _session_id(session_id),
       requester(*this),
       responder(*this),
+      _timer(_strand->get_io_service(), boost::posix_time::seconds(20)),
       _ack_stream(new AckStream(get_ref())) {}
 
 Session::~Session() = default;
@@ -80,10 +81,18 @@ void Session::connected(shared_ptr_<Connection> connection) {
   if (_on_connect != nullptr) {
     _on_connect(_connection);
   }
+
+  // start the 20 seconds timer
+  // assume there was message second in previous 20 seconds
+  // to avoid a extra ping message
+  _sent_in_loop = true;
+  _no_receive_in_loop = 0;
+  _on_timer();
 }
 void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
     _connection.reset();
+    _timer.cancel();
     if (_on_connect != nullptr) {
       _on_connect(_connection);
     }
@@ -98,7 +107,33 @@ void Session::destroy_impl() {
     _connection.reset();
   }
   _ack_stream.reset();
+  _timer.cancel();
   _on_connect = nullptr;
+}
+
+void Session::_on_timer() {
+  _no_receive_in_loop++;
+  if (_no_receive_in_loop > 3) {
+    // haven't received message in 3 loop (60 seconds)
+    _connection->destroy();
+    return;
+  }
+  if (!_sent_in_loop) {
+    // haven't sent any message in 20 seconds,
+    // TODO send ping
+  } else {
+    _sent_in_loop = false;
+  }
+
+  _timer.async_wait([ this, keep_ref = get_ref() ](
+      const boost::system::error_code &error) mutable {
+    if (error != boost::asio::error::operation_aborted) {
+      _strand->dispatch([ this, keep_ref = std::move(keep_ref) ]() {
+        if (is_destroyed()) return;
+        _on_timer();
+      });
+    }
+  });
 }
 
 int32_t Session::last_sent_ack() { return _ack_stream->get_ack(); }
@@ -119,6 +154,7 @@ void Session::check_pending_acks(int32_t ack) {
 void Session::receive_message(MessageRef &&message) {
   LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
 
+  _no_receive_in_loop = 0;
   if (message->need_ack()) {
     _ack_stream->add_ack(message->get_ack_id());
   }
@@ -130,7 +166,7 @@ void Session::receive_message(MessageRef &&message) {
     // responder receive request and send response
     responder.receive_message(std::move(message));
   } else {
-    // requester sent request and receive response
+    // requester send request and receive response
     requester.receive_message(std::move(message));
   }
 }
@@ -176,7 +212,7 @@ void Session::write_loop(ref_<Session> sthis) {
     sthis->_is_writing = false;
     return;
   }
-
+  sthis->_sent_in_loop = true;
   sthis->_is_writing = true;
 
   size_t total_size = 0;

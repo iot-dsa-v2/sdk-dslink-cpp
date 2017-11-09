@@ -13,15 +13,15 @@ Client::Client(WrapperConfig &config)
       _session(make_ref_<Session>(config.strand, "")),
       _client_connection_maker(config.client_connection_maker),
       _reconnect_timer(config.strand->get_io_service()) {
-  _reconnect_timer.async_wait(
-      [ this, keep_ref = get_ref() ](const boost::system::error_code &error) {
-        if (error != boost::asio::error::operation_aborted) {
-          _strand->dispatch([ this, keep_ref = std::move(keep_ref) ]() {
-            if (is_destroyed()) return;
-            reconnect();
-          });
-        }
+  _reconnect_timer.async_wait([ this, keep_ref = get_ref() ](
+      const boost::system::error_code &error) mutable {
+    if (error != boost::asio::error::operation_aborted) {
+      _strand->dispatch([ this, keep_ref = std::move(keep_ref) ]() {
+        if (is_destroyed()) return;
+        reconnect();
       });
+    }
+  });
 }
 
 Client::~Client() = default;
