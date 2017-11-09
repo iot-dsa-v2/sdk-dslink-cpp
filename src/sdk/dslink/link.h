@@ -20,13 +20,6 @@ class DsLink final : public WrapperConfig, public DestroyableRef<DsLink> {
   friend class ListMerger;
 
  public:
-  enum : uint8_t {
-    FIRST_CONNECTION = 1,
-    BROKER_INFO_CHANGE = 2,
-    EVERY_CONNECTION = 4,
-    DISCONNECTION = 128,
-  };
-
   typedef std::function<void(IncomingListCache &,
                              const std::vector<std::string> &)>
       ListCallback;
@@ -37,7 +30,7 @@ class DsLink final : public WrapperConfig, public DestroyableRef<DsLink> {
   ~DsLink();
   App &get_app();
 
-protected:
+ protected:
   void destroy_impl() final;
 
  private:
@@ -46,12 +39,6 @@ protected:
   ref_<Client> _client;
 
   bool _running = false;
-
-  Session::OnConnectedCallback _user_on_connect;
-  uint8_t _user_on_connect_type;
-  string_ _last_remote_dsid;
-  string_ _last_remote_path;
-  void _on_connected(const shared_ptr_<Connection> &connection);
 
   // initialization
   std::unique_ptr<ECDH> load_private_key();
@@ -68,8 +55,9 @@ protected:
     init_responder(make_ref_<NodeClass>(strand));
   }
 
-  void run(Session::OnConnectedCallback &&on_ready = nullptr,
-           uint8_t callback_type = FIRST_CONNECTION);
+  // the on_connect callback will always be called from main strand
+  void run(OnConnectCallback &&on_connect = nullptr,
+           uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
   // requester functions
  private:

@@ -57,6 +57,8 @@ struct AckHolder {
       : ack(ack), callback(std::move(callback)){};
 };
 
+typedef std::function<void(const shared_ptr_<Connection> &)> OnConnectCallback;
+
 // maintain request and response streams
 class Session final : public DestroyableRef<Session> {
   friend class Connection;
@@ -64,11 +66,8 @@ class Session final : public DestroyableRef<Session> {
   friend class MessageStream;
 
  public:
-  typedef std::function<void(const shared_ptr_<Connection> &)>
-      OnConnectedCallback;
-
   // call back on connect
-  void set_on_connected(OnConnectedCallback &&callback);
+  void set_on_connect(OnConnectCallback &&callback);
 
  private:
   int32_t _waiting_ack = 0;
@@ -94,7 +93,7 @@ class Session final : public DestroyableRef<Session> {
 
   void receive_message(MessageRef &&message);
 
-  OnConnectedCallback _on_connected;
+  OnConnectCallback _on_connect;
 
  public:
   Requester requester;

@@ -76,7 +76,7 @@ void DsLink::destroy_impl() {
   //
   //  bool _running = false;
   //
-  //  Session::OnConnectedCallback _user_on_connect;
+  //  OnConnectCallback _user_on_connect;
   if (_tcp_server != nullptr) {
     _tcp_server->destroy();
     _tcp_server.reset();
@@ -85,7 +85,6 @@ void DsLink::destroy_impl() {
     _client->destroy();
     _client.reset();
   }
-  _user_on_connect = nullptr;
   _app->close();
 }
 std::unique_ptr<ECDH> DsLink::load_private_key() {
@@ -198,16 +197,13 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
   strand->set_responder_model(std::move(root_node));
 }
 
-void DsLink::run(Session::OnConnectedCallback &&on_connect,
-                 uint8_t callback_type) {
+void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
   }
   _running = true;
-  _user_on_connect_type = callback_type;
 
-  strand->dispatch([ this, on_connect = std::move(on_connect) ]() {
-    _user_on_connect = std::move(on_connect);
+  strand->dispatch([ =, on_connect = std::move(on_connect) ]() mutable {
 
     if (tcp_server_port > 0) {
       _tcp_server = make_shared_<TcpServer>(*this);
@@ -233,48 +229,11 @@ void DsLink::run(Session::OnConnectedCallback &&on_connect,
     }
 
     _client = make_ref_<Client>(*this);
-    _client->connect();
-
-    _client->get_session().set_on_connected([ this, keep_ref = get_ref() ](
-        const shared_ptr_<Connection> &connection) {
-      _on_connected(connection);
-    });
-
-    _app->wait();
+    _client->connect(std::move(on_connect), callback_type);
   });
+  _app->wait();
 }
 
-void DsLink::_on_connected(const shared_ptr_<Connection> &connection) {
-  if (_user_on_connect != nullptr) {
-    if (connection != nullptr) {
-      if (!_last_remote_dsid.empty() &&
-          _last_remote_dsid != connection->get_remote_path()) {
-        // remote dsid should not change
-        LOG_WARN(strand->logger(),
-                 LOG << "remote dsid changed from " << _last_remote_dsid
-                     << " to " << connection->get_remote_path());
-      }
-      if (_user_on_connect_type | BROKER_INFO_CHANGE) {
-        if (_last_remote_dsid != connection->get_dsid() ||
-            _last_remote_path != connection->get_remote_path()) {
-          _user_on_connect(connection);
-        }
-      } else if (_user_on_connect_type | FIRST_CONNECTION) {
-        _user_on_connect_type ^= FIRST_CONNECTION;
-        _user_on_connect(connection);
-      } else if (_user_on_connect_type | EVERY_CONNECTION) {
-        _user_on_connect(connection);
-      }
-      _last_remote_dsid = connection->get_dsid();
-      _last_remote_path = connection->get_remote_path();
-    } else {
-      if (_user_on_connect_type | DISCONNECTION) {
-        _last_remote_path = "";
-        _user_on_connect(connection);
-      }
-    }
-  }
-}
 // requester features
 
 ref_<IncomingSubscribeCache> DsLink::subscribe(

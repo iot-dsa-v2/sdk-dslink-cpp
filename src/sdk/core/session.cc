@@ -66,8 +66,8 @@ Session::Session(LinkStrandRef strand, const string_ &session_id)
 
 Session::~Session() = default;
 
-void Session::set_on_connected(OnConnectedCallback &&callback) {
-  _on_connected = std::move(callback);
+void Session::set_on_connect(OnConnectCallback &&callback) {
+  _on_connect = std::move(callback);
 }
 
 void Session::connected(shared_ptr_<Connection> connection) {
@@ -77,15 +77,15 @@ void Session::connected(shared_ptr_<Connection> connection) {
   _connection = std::move(connection);
   // TODO, handle last ack
   write_loop(get_ref());
-  if (_on_connected != nullptr) {
-    _on_connected(_connection);
+  if (_on_connect != nullptr) {
+    _on_connect(_connection);
   }
 }
 void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
     _connection.reset();
-    if (_on_connected != nullptr) {
-      _on_connected(_connection);
+    if (_on_connect != nullptr) {
+      _on_connect(_connection);
     }
   }
 }
@@ -98,7 +98,7 @@ void Session::destroy_impl() {
     _connection.reset();
   }
   _ack_stream.reset();
-  _on_connected = nullptr;
+  _on_connect = nullptr;
 }
 
 int32_t Session::last_sent_ack() { return _ack_stream->get_ack(); }

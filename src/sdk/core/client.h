@@ -5,6 +5,8 @@
 #pragma once
 #endif
 
+#include <boost/asio/deadline_timer.hpp>
+
 #include "config.h"
 #include "util/enable_ref.h"
 
@@ -12,8 +14,17 @@ namespace dsa {
 
 class Connection;
 class Session;
+typedef std::function<void(const shared_ptr_<Connection> &)> OnConnectCallback;
 
 class Client : public DestroyableRef<Client> {
+ public:
+  enum : uint8_t {
+    FIRST_CONNECTION = 1,
+    BROKER_INFO_CHANGE = 2,
+    EVERY_CONNECTION = 4,
+    DISCONNECTION = 128,
+  };
+
  protected:
   // for Session/Requester/Responder
 
@@ -29,6 +40,19 @@ class Client : public DestroyableRef<Client> {
 
   void destroy_impl() override;
 
+  // on connect callback related fields
+
+  OnConnectCallback _user_on_connect;
+  uint8_t _user_on_connect_type;
+  string_ _last_remote_dsid;
+  string_ _last_remote_path;
+  void _on_connect(const shared_ptr_<Connection> &connection);
+
+  // reconnection related fields
+
+  boost::asio::deadline_timer _reconnect_timer;
+  void reconnect();
+
  public:
   Client(WrapperConfig &config);
 
@@ -40,7 +64,8 @@ class Client : public DestroyableRef<Client> {
   const string_ &get_dsid_prefix() const { return _dsid_prefix; }
   const string_ &get_client_token() const { return _client_token; }
 
-  void connect();
+  void connect(OnConnectCallback &&on_connect = nullptr,
+               uint8_t callback_type = FIRST_CONNECTION);
 };
 
 }  // namespace dsa
