@@ -2,28 +2,57 @@
 
 #include "web_server.h"
 
+#include "core/app.h"
+
 #include <algorithm>
+#include <iostream>
 #include <thread>
 #include <vector>
 
 namespace dsa {
 
-WebServer::WebServer()
-    :
-      _thread_count(std::min(
-          std::max<std::size_t>(1, std::thread::hardware_concurrency()),
-          thread_count)) {}
+Listener::Listener(boost::asio::io_service& ios, tcp::endpoint endpoint,
+                   std::string const& doc_root)
+    : _acceptor(ios), _socket(ios), _doc_root(doc_root) {
+  boost::system::error_code ec;
+
+  // Open the acceptor
+  _acceptor.open(endpoint.protocol(), ec);
+  if (ec) {
+    std::cout << ec << "open" << std::endl;
+    return;
+  }
+
+  // Bind to the server address
+  _acceptor.bind(endpoint, ec);
+  if (ec) {
+    std::cout << ec << "bind" << std::endl;
+    return;
+  }
+
+  // Start listening for connections
+  _acceptor.listen(boost::asio::socket_base::max_connections, ec);
+  if (ec) {
+    std::cout << ec << "listen" << std::endl;
+    return;
+  }
+}
+
+Listener::~Listener() {}
+
+//-------------------------------------
+//-------------------------------------
+WebServer::WebServer(App& app) : _app(app) {}
 
 void WebServer::start() {
-  //boost::asio::io_service ios{_thread_count};
-
   // create and launch listener
+  // TODO
+  auto const address = boost::asio::ip::address::from_string("0.0.0.0");
+  auto const port = static_cast<unsigned short>(8080);
 
-  std::vector<std::thread> v;
-  v.reserve(_thread_count - 1);
-  for (auto i = _thread_count - 1; i > 0; --i)
-    v.emplace_back([&ios] { ios.run(); });
-  ios.run();
+  std::make_shared<Listener>(_app.io_service(), tcp::endpoint{address, port},
+                             ".")
+      ->start();
 }
 
 void WebServer::destroy() {}

@@ -1,19 +1,22 @@
-
 #include "gtest/gtest.h"
 
 using namespace dsa;
 
-TEST(BufferTest, output) {
+TEST(WebServerTest, basic_flow) {
 
-auto web_server = make_shared_<WebServer>(cert);
-web_server->listen(port = 80);
-web_server->listen_secure(port=443);
+  App app;
+
+  // auto web_server = make_shared_<WebServer>(app, cert);
+  auto web_server = make_shared_<WebServer>(app);
+
+  web_server->listen(port = 80);
+  web_server->listen_secure(port=443);
 
 
-web_server->add_ws_handler(.... [](){
+  web_server->add_ws_handler(.... [](){
   new WsConnection();
-});
 
+});
 
 
 }
