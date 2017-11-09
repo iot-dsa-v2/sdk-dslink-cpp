@@ -2,6 +2,7 @@ list(APPEND StreamSourceFiles
         message_io_stream.cc
         error_stream.cc
         ack_stream.cc
+        ping_stream.cc
         requester/incoming_subscribe_stream.cc
         requester/incoming_list_stream.cc
         requester/incoming_invoke_stream.cc

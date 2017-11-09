@@ -18,6 +18,7 @@
 namespace dsa {
 class MessageStream;
 class AckStream;
+class PingStream;
 class IncomingMessageStream;
 class OutgoingMessageStream;
 class Connection;
@@ -80,6 +81,7 @@ class Session final : public DestroyableRef<Session> {
   shared_ptr_<Connection> _connection;
 
   ref_<AckStream> _ack_stream;
+  ref_<PingStream> _ping_stream;
   std::deque<ref_<MessageStream>> _write_streams;
   bool _is_writing = false;
 

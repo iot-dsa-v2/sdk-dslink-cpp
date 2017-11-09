@@ -8,6 +8,7 @@
 #include "module/logger.h"
 #include "server.h"
 #include "stream/ack_stream.h"
+#include "stream/ping_stream.h"
 
 namespace dsa {
 
@@ -63,7 +64,8 @@ Session::Session(LinkStrandRef strand, const string_ &session_id)
       requester(*this),
       responder(*this),
       _timer(_strand->get_io_service(), boost::posix_time::seconds(20)),
-      _ack_stream(new AckStream(get_ref())) {}
+      _ack_stream(new AckStream(get_ref())),
+      _ping_stream(new PingStream(get_ref())){}
 
 Session::~Session() = default;
 
@@ -107,6 +109,7 @@ void Session::destroy_impl() {
     _connection.reset();
   }
   _ack_stream.reset();
+  _ping_stream.reset();
   _timer.cancel();
   _on_connect = nullptr;
 }
@@ -120,7 +123,7 @@ void Session::_on_timer() {
   }
   if (!_sent_in_loop) {
     // haven't sent any message in 20 seconds,
-    // TODO send ping
+    _ping_stream->add_ping();
   } else {
     _sent_in_loop = false;
   }
