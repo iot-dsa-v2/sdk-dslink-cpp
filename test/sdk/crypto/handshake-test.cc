@@ -199,7 +199,7 @@ TEST(HandshakeTest, ServerInfo) {
             hex_string(hmac.digest()));
 }
 
-TEST(HandShakeTest, HMAC) {
+TEST(HandshakeTest, HMAC) {
   const char *key_str = "key";
   std::vector<uint8_t> key_buffer(key_str, key_str + strlen(key_str));
   const char *message_str = "The quick brown fox jumps over the lazy dog";
