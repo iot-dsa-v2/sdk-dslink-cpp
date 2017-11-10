@@ -28,11 +28,10 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   uint8_t buf[1024];
   message.write(buf);
 
-  // 15 + 2 + 128 + 1 + 2 + 64 + 4 + 32 + 2 = 250
-  uint8_t expected_values[250];
+  uint8_t expected_values[242];
 
-  uint32_t message_size = 250;
-  uint16_t header_size = StaticHeaders::TOTAL_SIZE;
+  uint32_t message_size = 242;
+  uint16_t header_size = StaticHeaders::SHORT_TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE2;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
@@ -50,7 +49,7 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
 
   uint16_t token_length = 128;
   uint16_t session_id_length = 64;
-  uint8_t TokenLengthOffset = StaticHeaders::TOTAL_SIZE;
+  uint8_t TokenLengthOffset = StaticHeaders::SHORT_TOTAL_SIZE;
   uint8_t TokenOffset = TokenLengthOffset + sizeof(token_length);
   uint8_t IsResponderOffset = TokenOffset + token_length;
   uint8_t PreviousSessionIdLengthOffset = IsResponderOffset + sizeof(bool);

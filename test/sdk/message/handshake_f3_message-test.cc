@@ -28,11 +28,10 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t buf[1024];
   message.write(buf);
 
-  // 15 + 1 + 2 + 64 + 4 + 2 + 32 + 32 = 152
-  uint8_t expected_values[152];
+  uint8_t expected_values[144];
 
-  uint32_t message_size = 152;
-  uint16_t header_size = StaticHeaders::TOTAL_SIZE;
+  uint32_t message_size = 144;
+  uint16_t header_size = StaticHeaders::SHORT_TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE3;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
@@ -48,7 +47,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   std::memcpy(&expected_values[StaticHeaders::ACK_ID_OFFSET], &ack_id,
               sizeof(ack_id));
 
-  uint8_t AllowRequesterOffset = StaticHeaders::TOTAL_SIZE;
+  uint8_t AllowRequesterOffset = StaticHeaders::SHORT_TOTAL_SIZE;
   uint8_t SessionIdLengthOffset = AllowRequesterOffset + sizeof(bool);
   uint8_t SessionIdOffset = SessionIdLengthOffset + sizeof(uint16_t);
   uint8_t LastAckIdOffset = SessionIdOffset + message.session_id.size();

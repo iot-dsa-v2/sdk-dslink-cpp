@@ -23,11 +23,10 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   uint8_t buf[1024];
   message.write(buf);
 
-  // 15 + 1 + 1 + 2 + 4 + 65 + 32 = 120
-  uint8_t expected_values[120];
+  uint8_t expected_values[112];
 
-  uint32_t message_size = 120;
-  uint16_t header_size = StaticHeaders::TOTAL_SIZE;
+  uint32_t message_size = 112;
+  uint16_t header_size = StaticHeaders::SHORT_TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE0;
   uint32_t request_id = 0;
   uint32_t ack_id = 0;
@@ -43,14 +42,14 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   std::memcpy(&expected_values[StaticHeaders::ACK_ID_OFFSET], &ack_id,
               sizeof(ack_id));
 
-  uint8_t DsidLengthOffset = StaticHeaders::TOTAL_SIZE + 2 * sizeof(uint8_t);
+  uint8_t DsidLengthOffset = StaticHeaders::SHORT_TOTAL_SIZE + 2 * sizeof(uint8_t);
   uint8_t DsidOffset = DsidLengthOffset + sizeof(uint16_t);
   uint8_t PublicKeyOffset = DsidOffset + message.dsid.size();
 
   uint8_t SaltOffset = PublicKeyOffset + Message::PUBLIC_KEY_LENGTH;
 
-  expected_values[StaticHeaders::TOTAL_SIZE] = 2;
-  expected_values[StaticHeaders::TOTAL_SIZE + 1] = 0;
+  expected_values[StaticHeaders::SHORT_TOTAL_SIZE] = 2;
+  expected_values[StaticHeaders::SHORT_TOTAL_SIZE + 1] = 0;
   write_16_t(&expected_values[DsidLengthOffset], message.dsid.length());
 
   std::memcpy(&expected_values[DsidOffset], message.dsid.data(),
