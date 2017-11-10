@@ -14,7 +14,9 @@ Connection::Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
       _strand(strand),
       _path(path) {}
 
-void Connection::connect() { throw std::runtime_error("not implemented"); }
+void Connection::connect(size_t reconnect_interval) {
+  throw std::runtime_error("not implemented");
+}
 void Connection::accept() { throw std::runtime_error("not implemented"); }
 
 void Connection::start_deadline_timer(size_t seconds) {

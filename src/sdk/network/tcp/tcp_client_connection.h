@@ -26,7 +26,7 @@ class ClientConnection final : public TcpConnection {
 
   string_ name() final { return "TcpClientConnection"; }
 
-  void connect() final;
+  void connect(size_t reconnect_interval) final;
 };
 
 }  // namespace dsa

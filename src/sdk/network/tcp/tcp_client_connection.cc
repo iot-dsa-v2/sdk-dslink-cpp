@@ -12,7 +12,7 @@ ClientConnection::ClientConnection(LinkStrandRef &strand,
       _hostname(tcp_host),
       _port(tcp_port) {}
 
-void ClientConnection::connect() {
+void ClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand->get_io_service());
@@ -25,6 +25,7 @@ void ClientConnection::connect() {
       // capture this to access protected member
       [ connection = share_this<TcpConnection>(),
         this ](const boost::system::error_code &error) mutable {
+        if (is_destroyed()) return;
         if (error != boost::system::errc::success) {
           TcpConnection::destroy_in_strand(std::move(connection));
           // TODO: log or return the error?
@@ -35,7 +36,7 @@ void ClientConnection::connect() {
 
         TcpConnection::start_read(std::move(connection));
       });
-  start_deadline_timer(15);
+  start_deadline_timer(reconnect_interval);
 }
 
 }  // namespace dsa

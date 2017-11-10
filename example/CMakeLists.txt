@@ -18,7 +18,7 @@ endif ()
 
 
 #
-foreach (name "single_thread"
+foreach (name "basic"
         )
     set(SOURCES "dslink/${name}.cc" $<TARGET_OBJECTS:dsa_test_util>)
     add_executable(${name} ${SOURCES})

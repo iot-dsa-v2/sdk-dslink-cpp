@@ -16,8 +16,15 @@ inline shared_ptr_<T> make_shared_(Args &&... args) {
   return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
-template <class T>
-class EnableShared : public std::enable_shared_from_this<T> {
+template <typename T>
+class SharedDestroyable : public std::enable_shared_from_this<T> {
+ private:
+  bool _destroyed = false;
+
+ protected:
+  virtual void destroy_impl(){};
+  virtual void post_in_strand(std::function<void()> &&) = 0;
+
  public:
   shared_ptr_<T> shared_from_this() {
     return std::enable_shared_from_this<T>::shared_from_this();
@@ -27,18 +34,7 @@ class EnableShared : public std::enable_shared_from_this<T> {
   shared_ptr_<Down> share_this() {
     return std::dynamic_pointer_cast<Down>(shared_from_this());
   }
-};
 
-template <typename T>
-class SharedDestroyable : public EnableShared<T> {
- private:
-  bool _destroyed = false;
-
- protected:
-  virtual void destroy_impl(){};
-  virtual void post_in_strand(std::function<void()> &&) = 0;
-
- public:
   std::mutex mutex;
   bool is_destroyed() const { return _destroyed; }
 

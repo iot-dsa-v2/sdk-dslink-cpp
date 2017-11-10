@@ -36,6 +36,8 @@ std::ostream &operator<<(std::ostream &os, MessageType type) {
       return os << "HANDSHAKE3";
     case MessageType::ACK:
       return os << "ACK";
+    case MessageType::PING:
+      return os << "PING";
     default:
       return os << "INVALID";
   }

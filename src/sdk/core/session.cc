@@ -63,9 +63,9 @@ Session::Session(LinkStrandRef strand, const string_ &session_id)
       _session_id(session_id),
       requester(*this),
       responder(*this),
-      _timer(_strand->get_io_service(), boost::posix_time::seconds(20)),
+      _timer(_strand->get_io_service()),
       _ack_stream(new AckStream(get_ref())),
-      _ping_stream(new PingStream(get_ref())){}
+      _ping_stream(new PingStream(get_ref())) {}
 
 Session::~Session() = default;
 
@@ -79,25 +79,30 @@ void Session::connected(shared_ptr_<Connection> connection) {
   }
   _connection = std::move(connection);
   // TODO, handle last ack
+  // TODO, remove Ack and Ping from the write streams
+
+  // start write loop
+  // assume there was message second in previous 20 seconds
+  // to avoid a extra ping message
+  _sent_in_loop = true;
   write_loop(get_ref());
+
   if (_on_connect != nullptr) {
     _on_connect(_connection);
   }
 
   // start the 20 seconds timer
-  // assume there was message second in previous 20 seconds
-  // to avoid a extra ping message
-  _sent_in_loop = true;
   _no_receive_in_loop = 0;
+  _timer.cancel();
   _on_timer();
 }
 void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
     _connection.reset();
-    _timer.cancel();
-    if (_on_connect != nullptr) {
-      _on_connect(_connection);
-    }
+  }
+  if (_on_connect != nullptr && _connection == nullptr) {
+    // disconnect event
+    _on_connect(_connection);
   }
 }
 
@@ -128,6 +133,7 @@ void Session::_on_timer() {
     _sent_in_loop = false;
   }
 
+  _timer.expires_from_now(boost::posix_time::seconds(20));
   _timer.async_wait([ this, keep_ref = get_ref() ](
       const boost::system::error_code &error) mutable {
     if (error != boost::asio::error::operation_aborted) {
@@ -158,12 +164,14 @@ void Session::receive_message(MessageRef &&message) {
   LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
 
   _no_receive_in_loop = 0;
-  if (message->need_ack()) {
-    _ack_stream->add_ack(message->get_ack_id());
-  }
+  if (message->type() == MessageType::PING) return;
+
   if (message->type() == MessageType::ACK) {
     check_pending_acks(DOWN_CAST<AckMessage *>(message.get())->get_ack_id());
     return;
+  }
+  if (message->need_ack()) {
+    _ack_stream->add_ack(message->get_ack_id());
   }
   if (message->is_request()) {
     // responder receive request and send response

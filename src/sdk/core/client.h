@@ -46,12 +46,18 @@ class Client : public DestroyableRef<Client> {
   uint8_t _user_on_connect_type;
   string_ _last_remote_dsid;
   string_ _last_remote_path;
+
   void _on_connect(const shared_ptr_<Connection> &connection);
+
 
   // reconnection related fields
 
+  int64_t _last_connected_time = 0;
+  int _reconnect_interval_s = 1;
+
   boost::asio::deadline_timer _reconnect_timer;
-  void reconnect();
+  void _reconnect();
+  void make_new_connection();
 
  public:
   Client(WrapperConfig &config);

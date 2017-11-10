@@ -39,6 +39,8 @@ void Connection::start_client_f0() {
       destroy_in_strand(std::move(sthis));
     }
   });
+  // wait another 15 seconds until the connection timeout
+  reset_deadline_timer(15);
   std::lock_guard<std::mutex> lock(mutex);
   on_read_message = [this](MessageRef message) {
     return on_receive_f1(std::move(message));

@@ -39,6 +39,7 @@ class ConnectionWriteBuffer {
 
 class Connection : public SharedDestroyable<Connection> {
   friend class Session;
+  friend class Client;
 
  public:
   virtual string_ name() = 0;
@@ -56,11 +57,12 @@ class Connection : public SharedDestroyable<Connection> {
   virtual std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() = 0;
 
   // as client
-  virtual void connect();
+  virtual void connect(size_t reconnect_interval);
   // as server
   virtual void accept();
 
   const string_ &get_dsid() { return _handshake_context.dsid(); }
+  const string_ &get_remote_dsid() { return _handshake_context.remote_dsid(); }
   const string_ &get_remote_path() { return _remote_path; }
 
   void set_session(const ref_<Session> &session);
