@@ -4,6 +4,6 @@
 #include "dsa_common.h"
 
 #include "dslink/link.h"
-#include "core/app.h"
+#include "util/app.h"
 
 #endif  // DSA_DSLINK_H
