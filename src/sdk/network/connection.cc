@@ -2,7 +2,7 @@
 
 #include "connection.h"
 
-#include "core/app.h"
+#include "util/app.h"
 #include "core/session.h"
 #include "crypto/hmac.h"
 

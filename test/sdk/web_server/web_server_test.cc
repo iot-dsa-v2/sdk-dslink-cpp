@@ -1,5 +1,5 @@
 #include "dsa_common.h"
-#include "core/app.h"
+#include "util/app.h"
 #include "util/enable_shared.h"
 #include "web_server/web_server.h"
 #include "gtest/gtest.h"

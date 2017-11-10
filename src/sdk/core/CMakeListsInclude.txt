@@ -1,5 +1,4 @@
 list(APPEND CoreSourceFiles
-        app.cc
         session.cc
         server.cc
 		client.cc

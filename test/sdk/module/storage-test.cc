@@ -1,5 +1,5 @@
 #include "module/default/simple_storage.h"
-#include "core/app.h"
+#include "util/app.h"
 #include "../test/sdk/async_test.h"
 #include "gtest/gtest.h"
 #include <boost/asio/io_service.hpp>

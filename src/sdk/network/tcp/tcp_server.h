@@ -10,7 +10,7 @@
 
 #include "core/session.h"
 #include "core/server.h"
-#include "core/app.h"
+#include "util/app.h"
 #include "util/enable_shared.h"
 
 namespace dsa {

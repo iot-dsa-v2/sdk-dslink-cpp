@@ -2,7 +2,7 @@
 #define DSA_NETWORK_H_
 
 #include "dsa_common.h"
-#include "core/app.h"
+#include "util/app.h"
 #include "core/server.h"
 #include "core/client.h"
 #include "core/session.h"

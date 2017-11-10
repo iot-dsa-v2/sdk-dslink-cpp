@@ -1,4 +1,5 @@
 list(APPEND UtilSourceFiles
+        app.cc
         date_time.cc
         boost_debug.cc
         path.cc

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <regex>
 
-#include "core/app.h"
+#include "util/app.h"
 #include "core/client.h"
 #include "core/session_manager.h"
 #include "crypto/ecdh.h"
