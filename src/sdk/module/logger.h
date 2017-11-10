@@ -12,14 +12,14 @@ namespace dsa {
 class Logger {
  public:
   enum : uint8_t {
-    ALL_ = 0x00,
+    ALL___ = 0x00,
     TRACE_ = 0x10,
     DEBUG_ = 0x20,
-    INFO_ = 0x30,
-    WARN_ = 0x40,
+    INFO__ = 0x30,
+    WARN__ = 0x40,
     ERROR_ = 0x50,
     FATAL_ = 0x60,
-    NONE_ = 0xFF,
+    NONE__ = 0xFF,
   };
 
   // default logger, implemented in console_logger.cc
@@ -47,9 +47,9 @@ class Logger {
 
 #define LOG_ERROR(logger, stream_exp) DSA_LOG(ERROR_, logger, stream_exp)
 
-#define LOG_WARN(logger, stream_exp) DSA_LOG(WARN_, logger, stream_exp)
+#define LOG_WARN(logger, stream_exp) DSA_LOG(WARN__, logger, stream_exp)
 
-#define LOG_INFO(logger, stream_exp) DSA_LOG(INFO_, logger, stream_exp)
+#define LOG_INFO(logger, stream_exp) DSA_LOG(INFO__, logger, stream_exp)
 
 #define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG_, logger, stream_exp)
 

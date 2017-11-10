@@ -29,7 +29,7 @@ static LinkConfig *make_config(App &app, bool async) {
   }
 
   config->set_logger(make_unique_<ConsoleLogger>());
-  config->logger().level = Logger::WARN_;
+  config->logger().level = Logger::WARN__;
 
   return config;
 }

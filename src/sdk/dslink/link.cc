@@ -170,21 +170,21 @@ void DsLink::parse_log(const string_ &log, LinkConfig &config) {
   auto *logger = new ConsoleLogger();
   config.set_logger(std::unique_ptr<Logger>(logger));
   if (log == "all") {
-    logger->level = Logger::ALL_;
+    logger->level = Logger::ALL___;
   } else if (log == "trace") {
     logger->level = Logger::TRACE_;
   } else if (log == "debug") {
     logger->level = Logger::DEBUG_;
   } else if (log == "warn") {
-    logger->level = Logger::WARN_;
+    logger->level = Logger::WARN__;
   } else if (log == "error") {
     logger->level = Logger::ERROR_;
   } else if (log == "fatal") {
     logger->level = Logger::FATAL_;
   } else if (log == "none") {
-    logger->level = Logger::NONE_;
+    logger->level = Logger::NONE__;
   } else {  // default
-    logger->level = Logger::INFO_;
+    logger->level = Logger::INFO__;
   }
 }
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
