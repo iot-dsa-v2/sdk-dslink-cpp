@@ -127,7 +127,8 @@ void Session::_on_timer() {
     return;
   }
   if (!_sent_in_loop) {
-    // haven't sent any message in 20 seconds,
+    // haven't sent any message in 20 seconds
+    // send a ping so connection won't be dropped
     _ping_stream->add_ping();
   } else {
     _sent_in_loop = false;
