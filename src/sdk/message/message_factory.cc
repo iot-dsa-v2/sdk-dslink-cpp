@@ -1,27 +1,26 @@
 #include "dsa_common.h"
 
 #include "ack_message.h"
-
-#include "request/invoke_request_message.h"
-#include "request/list_request_message.h"
-#include "request/set_request_message.h"
-#include "request/subscribe_request_message.h"
-
-#include "response/invoke_response_message.h"
-#include "response/list_response_message.h"
-#include "response/set_response_message.h"
-#include "response/subscribe_response_message.h"
+#include "ping_message.h"
 
 #include "handshake/f0_message.h"
 #include "handshake/f1_message.h"
 #include "handshake/f2_message.h"
 #include "handshake/f3_message.h"
+#include "request/invoke_request_message.h"
+#include "request/list_request_message.h"
+#include "request/set_request_message.h"
+#include "request/subscribe_request_message.h"
+#include "response/invoke_response_message.h"
+#include "response/list_response_message.h"
+#include "response/set_response_message.h"
+#include "response/subscribe_response_message.h"
 
 namespace dsa {
 
 MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
     const MessageParsingError&) {
-  if (size < StaticHeaders::TOTAL_SIZE) {
+  if (size < StaticHeaders::SHORT_TOTAL_SIZE) {
     return MessageRef();
   }
 
@@ -41,7 +40,7 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
     case MessageType::CLOSE_REQUEST:
       return MessageRef(new RequestMessage(data, size));
     case MessageType::PING:
-      return MessageRef(new Message(MessageType::PING));
+      return MessageRef(new PingMessage());
     case MessageType::SUBSCRIBE_REQUEST:
       return MessageRef(new SubscribeRequestMessage(data, size));
     case MessageType::LIST_REQUEST:

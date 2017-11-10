@@ -27,7 +27,8 @@ list(APPEND MessageSourceFiles
         response/list_response_message_generated.cc
         response/set_response_message_generated.cc
         error_message.cc
-        ack_message.cc)
+        ack_message.cc
+        ping_message.cc)
 
 foreach(file ${MessageSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_MESSAGE}/${file})

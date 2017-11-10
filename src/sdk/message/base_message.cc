@@ -32,8 +32,8 @@ void Message::write(uint8_t* data, int32_t rid, int32_t ack_id) const
     // message_size shouldn't be 0
     throw MessageParsingError("invalid message size");
   }
-  static_headers.write(data, rid, ack_id);
-  write_dynamic_data(data + StaticHeaders::TOTAL_SIZE);
+  // write dynamic header and message body after the static header
+  write_dynamic_data(static_headers.write(data, rid, ack_id));
 }
 
 int32_t Message::get_sequence_id() const {

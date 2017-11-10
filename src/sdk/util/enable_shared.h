@@ -20,6 +20,7 @@ template <typename T>
 class SharedDestroyable : public std::enable_shared_from_this<T> {
  private:
   bool _destroyed = false;
+  bool _pending_destroy = false;
 
  protected:
   virtual void destroy_impl(){};
@@ -40,8 +41,9 @@ class SharedDestroyable : public std::enable_shared_from_this<T> {
 
   // reuse any lock
   void destroy(std::lock_guard<std::mutex> &unique_lock) {
-    if (!_destroyed) {
+    if (!_destroyed || _pending_destroy) {
       _destroyed = true;
+      _pending_destroy = false;
       destroy_impl();
     }
   }
@@ -51,6 +53,9 @@ class SharedDestroyable : public std::enable_shared_from_this<T> {
   }
 
   void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &&destroyable) {
+    if (_destroyed) return;
+    _pending_destroy = true;
+    _destroyed = true;
     post_in_strand(
         [ this, keep_ptr = std::move(destroyable) ]() { destroy(); });
   }

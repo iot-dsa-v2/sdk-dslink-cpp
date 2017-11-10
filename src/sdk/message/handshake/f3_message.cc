@@ -8,16 +8,16 @@ namespace dsa {
 
 HandshakeF3Message::HandshakeF3Message(const uint8_t* data, size_t size)
     : Message(data, size) {
-  parse_dynamic_headers(data + StaticHeaders::TOTAL_SIZE,
-                        static_headers.header_size - StaticHeaders::TOTAL_SIZE);
+  parse_dynamic_headers(data + StaticHeaders::SHORT_TOTAL_SIZE,
+                        static_headers.header_size - StaticHeaders::SHORT_TOTAL_SIZE);
 }
 
 HandshakeF3Message::HandshakeF3Message()
     : Message(MessageType::HANDSHAKE3), auth(AUTH_LENGTH) {}
 
 void HandshakeF3Message::update_static_header() {
-  static_headers.header_size = (uint16_t)StaticHeaders::TOTAL_SIZE;
-  static_headers.message_size = StaticHeaders::TOTAL_SIZE +
+  static_headers.header_size = (uint16_t)StaticHeaders::SHORT_TOTAL_SIZE;
+  static_headers.message_size = StaticHeaders::SHORT_TOTAL_SIZE +
                                 9 /* allow_requester + + session_id_length + 
   + last_ack_id + path_length */ +
                                 session_id.length() + path.length() +

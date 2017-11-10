@@ -3,11 +3,12 @@
 #include "ping_stream.h"
 
 #include "core/session.h"
+#include "message/ping_message.h"
 
 namespace dsa {
 PingStream::PingStream(ref_<Session>&& session)
     : MessageRefedStream(std::move(session), Path()),
-      _message(new Message(MessageType::PING)) {}
+      _message(new PingMessage()) {}
 
 size_t PingStream::peek_next_message_size(size_t available, int64_t time) {
   return _message->size();

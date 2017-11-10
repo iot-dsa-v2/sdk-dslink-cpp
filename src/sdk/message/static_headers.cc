@@ -14,6 +14,13 @@ StaticHeaders::StaticHeaders(const uint8_t *data) {
   data += sizeof(uint16_t);
 
   type = static_cast<MessageType>(*data);
+
+  if (static_cast<uint8_t>(type) >= 0xF0) {
+    rid = 0;
+    ack_id = 0;
+    return;
+  }
+
   data++;
 
   rid = read_32_t(data);
@@ -35,16 +42,25 @@ void StaticHeaders::write(uint8_t *data) const {
   data += write_32_t(data, message_size);
   data += write_16_t(data, header_size);
   *(data++) = static_cast<uint8_t>(type);
-  data += write_32_t(data, rid);
-  /* data += */ write_32_t(data, ack_id);
+
+  if (static_cast<uint8_t>(type) < 0xF0) {
+    data += write_32_t(data, rid);
+    /* data += */ write_32_t(data, ack_id);
+  }
 }
 
-void StaticHeaders::write(uint8_t *data, int32_t rid, int32_t ack_id) const {
+uint8_t *StaticHeaders::write(uint8_t *data, int32_t rid,
+                              int32_t ack_id) const {
   data += write_32_t(data, message_size);
   data += write_16_t(data, header_size);
   *(data++) = static_cast<uint8_t>(type);
-  data += write_32_t(data, rid);
-  /* data += */ write_32_t(data, ack_id);
+
+  if (static_cast<uint8_t>(type) < 0xF0) {
+    data += write_32_t(data, rid);
+    data += write_32_t(data, ack_id);
+  }
+
+  return data;
 }
 
 }  // namespace dsa
