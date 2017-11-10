@@ -21,6 +21,7 @@ void Client::destroy_impl() {
     _connection->destroy();
     _connection.reset();
   }
+  _session->destroy();
   _reconnect_timer.cancel();
   _user_on_connect = nullptr;
 }
