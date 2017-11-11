@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.6.2)
 
-# Add external cmake modules
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../cmake")
-
 # DEPENDENCIES
 ## OpenSSL v1.0.2l
 if (MACOSX)
@@ -28,7 +25,6 @@ include_directories("../../deps/beast/include")
 
 # Standard DSA v2 headers
 include_directories(".")
-include_directories(${PROJECT_INCLUDE_DIR})
 
 # LIBRARIES:
 set(LIB_UTIL "./util")
@@ -44,7 +40,7 @@ set(LIB_MODULE "./module")
 set(LIB_DSLINK "./dslink")
 set(LIB_WEBSERVER "./web_server")
 # SOURCE FILES
-set(ProjectSourceFiles core/link_strand.cc core/link_strand.h)
+set(ProjectSourceFiles core/link_strand.cc core/link_strand.h dsa_common.cc dsa_common.h)
 
 # EXTERNAL LIBRARIES
 set(ExtraLibs)
@@ -62,7 +58,7 @@ include(${LIB_MODULE}/CMakeListsInclude.txt)
 include(${LIB_DSLINK}/CMakeListsInclude.txt)
 include(${LIB_WEBSERVER}/CMakeListsInclude.txt)
 
-add_library(dsa_sdk STATIC ${ProjectSourceFiles} dsa_common.cc dsa_common.h
+add_library(dsa_sdk STATIC ${ProjectSourceFiles}
         $<TARGET_OBJECTS:msgpackc-object>
         $<TARGET_OBJECTS:jansson-object>)
 target_link_libraries(dsa_sdk ${EXTRA_LIBS})
