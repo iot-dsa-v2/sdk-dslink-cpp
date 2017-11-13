@@ -27,6 +27,8 @@ class Logger {
   // the new logger will be maintained by unique pointer and no need for delete
   static void set_default(Logger* logger);
 
+  static uint8_t parse(const std::string& log);
+
  public:
   uint8_t level = 0;
 

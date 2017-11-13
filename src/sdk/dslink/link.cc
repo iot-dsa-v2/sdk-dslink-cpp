@@ -7,7 +7,6 @@
 #include <iostream>
 #include <regex>
 
-#include "util/app.h"
 #include "core/client.h"
 #include "core/session_manager.h"
 #include "crypto/ecdh.h"
@@ -17,6 +16,7 @@
 #include "network/tcp/tcp_server.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_set_stream.h"
+#include "util/app.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
@@ -169,23 +169,7 @@ void DsLink::parse_url(const string_ &url) {
 void DsLink::parse_log(const string_ &log, LinkConfig &config) {
   auto *logger = new ConsoleLogger();
   config.set_logger(std::unique_ptr<Logger>(logger));
-  if (log == "all") {
-    logger->level = Logger::ALL___;
-  } else if (log == "trace") {
-    logger->level = Logger::TRACE_;
-  } else if (log == "debug") {
-    logger->level = Logger::DEBUG_;
-  } else if (log == "warn") {
-    logger->level = Logger::WARN__;
-  } else if (log == "error") {
-    logger->level = Logger::ERROR_;
-  } else if (log == "fatal") {
-    logger->level = Logger::FATAL_;
-  } else if (log == "none") {
-    logger->level = Logger::NONE__;
-  } else {  // default
-    logger->level = Logger::INFO__;
-  }
+  logger->level = Logger::parse(log);
 }
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }

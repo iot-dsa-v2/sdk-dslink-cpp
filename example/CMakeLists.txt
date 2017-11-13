@@ -20,7 +20,7 @@ endif ()
 #
 foreach (name "basic"
         )
-    set(SOURCES "dslink/${name}.cc" $<TARGET_OBJECTS:dsa_test_util>)
+    set(SOURCES "dslink/${name}.cc")
     add_executable(${name} ${SOURCES})
     target_link_libraries(${name} ${EXAMPLE_LIBS})
 endforeach()
