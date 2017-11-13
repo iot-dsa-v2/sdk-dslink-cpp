@@ -3,6 +3,7 @@
 #include "web_server.h"
 
 #include "util/app.h"
+#include "util/enable_shared.h"
 
 #include <algorithm>
 #include <iostream>
@@ -14,6 +15,8 @@ namespace dsa {
 void HttpSession::start() {
 }
 
+//-------------------------------------
+//-------------------------------------
 Listener::Listener(boost::asio::io_service& ios, tcp::endpoint endpoint,
                    std::string const& doc_root)
     : _acceptor(ios), _socket(ios), _doc_root(doc_root) {
@@ -62,18 +65,28 @@ void Listener::start() {
 
 //-------------------------------------
 //-------------------------------------
-WebServer::WebServer(App& app) : _app(app) {}
+WebServer::WebServer(App& app) 
+  : _io_service(&app.io_service()),
+    _strand(make_shared_<boost::asio::io_service::strand>(*_io_service)) {}
 
 void WebServer::start() {
-  // create and launch listener
-  // TODO
+
+  // TODO: config
   auto const address = boost::asio::ip::address::from_string("0.0.0.0");
-  auto const port = static_cast<unsigned short>(8080);
+  unsigned short const port = 8080;
   std::string const doc_root = ".";
 
-  std::make_shared<Listener>(_app.io_service(), tcp::endpoint{address, port},
+  // _next_connection = make_shared_<HttpServerConnection>(_strand);
+  //  make_shared_<HttpServerConnection>(_strand);
+
+  LinkStrandRef ls_ref(new LinkStrand(_strand.get(), new ECDH()));
+  auto http_server_connection = new HttpServerConnection(ls_ref);
+
+  /*
+  std::make_shared<Listener>(*_io_service, tcp::endpoint{address, port},
                              doc_root)
       ->start();
+  */
 }
 
 void WebServer::destroy() {}

@@ -5,11 +5,15 @@
 #pragma once
 #endif
 
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <functional>
 #include <memory>
 #include "core/server.h"
+#include "network/http/http_server_connection.h"
+
+#include "util/enable_shared.h"
 
 using tcp = boost::asio::ip::tcp;
 
@@ -49,7 +53,8 @@ class Listener : public std::enable_shared_from_this<Listener> {
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  private:
-  App& _app;
+  shared_ptr_<boost::asio::io_service> _io_service;
+  shared_ptr_<boost::asio::io_service::strand> _strand;
 
  public:
   typedef std::function<void(WebServer&)> HttpCallback;
