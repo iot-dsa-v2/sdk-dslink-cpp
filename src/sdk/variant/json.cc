@@ -30,7 +30,7 @@ Var Var::to_variant(json_t *json_obj) {
     return Var(array);
   } else if (json_is_object(json_obj)) {
     auto map = new VarMap();
-    
+
     const char *key;
     json_t *value;
     json_object_foreach(json_obj, key, value) {
@@ -96,7 +96,8 @@ json_t *to_json_object(const Var &v) {
 
     VarMap &map = v.get_map();
     for (auto &it : map) {
-      json_object_set_new_nocheck(json_obj, it.first.c_str(), to_json_object(it.second));
+      json_object_set_new_nocheck(json_obj, it.first.c_str(),
+                                  to_json_object(it.second));
     }
   } else {
     json_obj = nullptr;
@@ -105,13 +106,19 @@ json_t *to_json_object(const Var &v) {
   return json_obj;
 }
 
-string_ Var::to_json() const throw(const EncodingError &) {
+string_ Var::to_json(size_t indent) const throw(const EncodingError &) {
   json_t *json_obj;
   char *encoded_value;
 
   json_obj = json_object();
   json_object_set_new_nocheck(json_obj, "", to_json_object(*this));
-  encoded_value = json_dumps(json_obj, 0);
+  if (indent == 0) {
+    encoded_value = json_dumps(json_obj, JSON_COMPACT | JSON_ENCODE_ANY);
+  } else {
+    if (indent > JSON_MAX_INDENT) indent = JSON_MAX_INDENT;
+    encoded_value = json_dumps(
+        json_obj, JSON_SORT_KEYS | JSON_ENCODE_ANY | JSON_INDENT(indent));
+  }
 
   json_decref(json_obj);
 

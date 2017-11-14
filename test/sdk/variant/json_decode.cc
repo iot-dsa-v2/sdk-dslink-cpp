@@ -4,7 +4,7 @@
 using namespace dsa;
 
 TEST(VariantTest, JsonDecodingInt) {
-  string_ json_string("{\"\": 123}");
+  string_ json_string("{\"\":123}");
 
   Var v = Var::from_json(json_string.c_str());
 
@@ -14,7 +14,7 @@ TEST(VariantTest, JsonDecodingInt) {
 }
 
 TEST(VariantTest, JsonDecodingDouble) {
-  string_ json_string("{\"\": 1.23}");
+  string_ json_string("{\"\":1.23}");
 
   Var v = Var::from_json(json_string.c_str());
 
@@ -25,7 +25,7 @@ TEST(VariantTest, JsonDecodingDouble) {
 
 TEST(VariantTest, JsonDecodingBool) {
   {
-    string_ json_string("{\"\": true}");
+    string_ json_string("{\"\":true}");
 
     Var v = Var::from_json(json_string.c_str());
 
@@ -34,7 +34,7 @@ TEST(VariantTest, JsonDecodingBool) {
     EXPECT_EQ(json_string, encoded_value);
   }
   {
-    string_ json_string("{\"\": false}");
+    string_ json_string("{\"\":false}");
 
     Var v = Var::from_json(json_string.c_str());
 
@@ -45,7 +45,7 @@ TEST(VariantTest, JsonDecodingBool) {
 }
 
 TEST(VariantTest, JsonDecodingString) {
-  string_ json_string("{\"\": \"hello\"}");
+  string_ json_string("{\"\":\"hello\"}");
 
   Var v = Var::from_json(json_string.c_str());
 
@@ -55,7 +55,7 @@ TEST(VariantTest, JsonDecodingString) {
 }
 
 TEST(VariantTest, JsonDecodingNull) {
-  string_ json_string("{\"\": null}");
+  string_ json_string("{\"\":null}");
 
   Var v = Var::from_json(json_string.c_str());
 
@@ -65,7 +65,7 @@ TEST(VariantTest, JsonDecodingNull) {
 }
 
 TEST(VariantTest, JsonDecodingArray) {
-  string_ json_string("{\"\": [\"hello\", 123, true]}");
+  string_ json_string("{\"\":[\"hello\",123,true]}");
 
   Var v = Var::from_json(json_string.c_str());
 
@@ -75,7 +75,7 @@ TEST(VariantTest, JsonDecodingArray) {
 }
 
 TEST(VariantTest, JsonDecodingMap) {
-  string_ json_string("{\"\": {\"bool\": true, \"int\": 123, \"string\": \"hello\"}}");
+  string_ json_string("{\"\":{\"bool\":true,\"int\":123,\"string\":\"hello\"}}");
 
   Var v = Var::from_json(json_string.c_str());
 
@@ -85,7 +85,7 @@ TEST(VariantTest, JsonDecodingMap) {
 }
 
 TEST(VariantTest, JsonDecodingNestedArray) {
-  string_ json_string("{\"\": {\"int\": 123, \"map\": {\"first\": \"one\", \"second\": \"two\"}, \"string\": \"hello\"}}");
+  string_ json_string("{\"\":{\"int\":123,\"map\":{\"first\":\"one\",\"second\":\"two\"},\"string\":\"hello\"}}");
 
   Var v = Var::from_json(json_string.c_str());
 

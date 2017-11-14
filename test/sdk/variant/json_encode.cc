@@ -8,7 +8,7 @@ TEST(VariantTest, JsonEncodingInt) {
 
   string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("{\"\": 123}", encoded_value);
+  EXPECT_EQ("{\"\":123}", encoded_value);
 }
 
 TEST(VariantTest, JsonEncodingDouble) {
@@ -16,7 +16,7 @@ TEST(VariantTest, JsonEncodingDouble) {
 
   string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("{\"\": 1.23}", encoded_value);
+  EXPECT_EQ("{\"\":1.23}", encoded_value);
 }
 
 TEST(VariantTest, JsonEncodingBool) {
@@ -25,14 +25,14 @@ TEST(VariantTest, JsonEncodingBool) {
 
     string_ encoded_value = v.to_json();
 
-    EXPECT_EQ("{\"\": true}", encoded_value);
+    EXPECT_EQ("{\"\":true}", encoded_value);
   }
   {
     Var v(false);
 
     string_ encoded_value = v.to_json();
 
-    EXPECT_EQ("{\"\": false}", encoded_value);
+    EXPECT_EQ("{\"\":false}", encoded_value);
   }
 }
 
@@ -41,7 +41,7 @@ TEST(VariantTest, JsonEncodingString) {
 
   string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("{\"\": \"hello\"}", encoded_value);
+  EXPECT_EQ("{\"\":\"hello\"}", encoded_value);
 }
 
 TEST(VariantTest, JsonEncodingNull) {
@@ -49,7 +49,7 @@ TEST(VariantTest, JsonEncodingNull) {
 
   string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("{\"\": null}", encoded_value);
+  EXPECT_EQ("{\"\":null}", encoded_value);
 }
 
 TEST(VariantTest, JsonEncodingArray) {
@@ -57,7 +57,7 @@ TEST(VariantTest, JsonEncodingArray) {
 
   string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("{\"\": [\"hello\", 123, true]}", encoded_value);
+  EXPECT_EQ("{\"\":[\"hello\",123,true]}", encoded_value);
 }
 
 TEST(VariantTest, JsonEncodingMap) {
@@ -67,7 +67,7 @@ TEST(VariantTest, JsonEncodingMap) {
 
   string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("{\"\": {\"bool\": true, \"int\": 123, \"string\": \"hello\"}}", encoded_value);
+  EXPECT_EQ("{\"\":{\"bool\":true,\"int\":123,\"string\":\"hello\"}}", encoded_value);
 }
 
 TEST(VariantTest, JsonEncodingNestedArray) {
@@ -77,7 +77,7 @@ TEST(VariantTest, JsonEncodingNestedArray) {
 
   string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("{\"\": {\"int\": 123, \"map\": {\"first\": \"one\", \"second\": \"two\"}, \"string\": \"hello\"}}", encoded_value);
+  EXPECT_EQ("{\"\":{\"int\":123,\"map\":{\"first\":\"one\",\"second\":\"two\"},\"string\":\"hello\"}}", encoded_value);
 }
 
 

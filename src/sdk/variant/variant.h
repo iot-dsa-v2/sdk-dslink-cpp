@@ -165,7 +165,7 @@ class Var : public BaseVariant {
   std::vector<uint8_t> to_msgpack() const throw(const EncodingError &);
 
   static Var from_json(string_ data);
-  string_ to_json() const throw(const EncodingError &);
+  string_ to_json(size_t indent = 0) const throw(const EncodingError &);
 
  protected:
   static Var to_variant(const msgpack_object &obj);
