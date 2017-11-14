@@ -14,14 +14,14 @@ class Client;
 
 // TCP client side connection.
 // Handles client side of DSA handshake and starts read loop.
-class ClientConnection final : public TcpConnection {
+class TcpClientConnection final : public TcpConnection {
  private:
  protected:
   string_ _hostname;
   uint16_t _port;
 
  public:
-  ClientConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+  TcpClientConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                    const string_ &tcp_host, uint16_t tcp_port);
 
   string_ name() final { return "TcpClientConnection"; }

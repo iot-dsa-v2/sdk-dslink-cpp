@@ -204,7 +204,7 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
               tcp_port = tcp_port
             ](LinkStrandRef & strand, const string_ &previous_session_id,
               int32_t last_ack_id) {
-          return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
+          return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                                 tcp_port);
         };
       }

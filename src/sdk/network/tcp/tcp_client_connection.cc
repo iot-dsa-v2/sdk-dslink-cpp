@@ -5,14 +5,14 @@
 #include "module/logger.h"
 
 namespace dsa {
-ClientConnection::ClientConnection(LinkStrandRef &strand,
+TcpClientConnection::TcpClientConnection(LinkStrandRef &strand,
                                    const string_ &dsid_prefix,
                                    const string_ &tcp_host, uint16_t tcp_port)
     : TcpConnection(strand, dsid_prefix),
       _hostname(tcp_host),
       _port(tcp_port) {}
 
-void ClientConnection::connect(size_t reconnect_interval) {
+void TcpClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand->get_io_service());

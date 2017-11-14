@@ -237,7 +237,7 @@ void Session::write_loop(ref_<Session> sthis) {
     ++sthis->_waiting_ack;
     if (ack_callback != nullptr) {
       sthis->_pending_acks.emplace_back(
-          AckHolder(sthis->_waiting_ack, std::move(ack_callback)));
+         sthis->_waiting_ack, std::move(ack_callback));
     }
 
     LOG_TRACE(sthis->_strand->logger(),

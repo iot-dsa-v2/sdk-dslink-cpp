@@ -28,7 +28,7 @@ TEST(NetworkTest, ReConnect) {
         int32_t last_ack_id)
           ->shared_ptr_<Connection> {
     connection =
-        make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host, tcp_port);
+        make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host, tcp_port);
     return connection;
   };
   //  auto tcp_server(new TcpServer(server_config));

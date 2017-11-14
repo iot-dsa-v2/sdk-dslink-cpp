@@ -55,7 +55,7 @@ WrapperConfig TestConfig::get_client_config(App &app, bool async) {
         tcp_port = copy.tcp_port
       ](LinkStrandRef & strand, const string_ &previous_session_id,
         int32_t last_ack_id) {
-    return make_shared_<ClientConnection>(strand, dsid_prefix, tcp_host,
+    return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                           tcp_port);
   };
 
