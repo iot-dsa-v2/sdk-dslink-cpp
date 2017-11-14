@@ -5,10 +5,20 @@
 #pragma once
 #endif
 
+#include <unordered_map>
+
+#include "broker_config_item.h"
 #include "util/enable_ref.h"
 
 namespace dsa {
 class BrokerConfig : public EnableRef<BrokerConfig> {
+  std::unordered_map<string_, BrokerConfigItem> _items;
+
+  // init all the config properties
+  void init();
+  // load config json from file
+  void load();
+
  public:
   BrokerConfig(int argc, const char *argv[]);
 };

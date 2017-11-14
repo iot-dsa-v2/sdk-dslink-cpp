@@ -17,8 +17,11 @@ class Client;
 class DsBroker final : public WrapperConfig, public DestroyableRef<DsBroker> {
   friend class SubscribeMerger;
   friend class ListMerger;
+private:
+
 
  public:
+
 
  protected:
   void destroy_impl() final;

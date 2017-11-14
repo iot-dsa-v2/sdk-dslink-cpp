@@ -88,6 +88,16 @@ Var::Var(std::initializer_list<Var> init)
 Var Var::new_map() { return Var(new VarMap()); }
 Var Var::new_array() { return Var(new VarArray()); }
 
+int Var::get_type() {
+  switch (which()) {
+    case Var::SHARED_STRING:
+      return Var::STRING;
+    case Var::SHARED_BINARY:
+      return Var::BINARY;
+    default:
+      return which();
+  }
+}
 Var Var::copy() const {
   switch (which()) {
     case MAP: {

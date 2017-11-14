@@ -53,6 +53,7 @@ typedef boost::variant<boost::blank, double, int64_t, bool, string_,
     BaseVariant;
 
 class Var : public BaseVariant {
+ public:
   enum : int {
     NUL = 0,
     DOUBLE,
@@ -66,7 +67,6 @@ class Var : public BaseVariant {
     SHARED_BINARY
   };
 
- public:
   Var();
 
   explicit Var(int64_t v);
@@ -111,6 +111,9 @@ class Var : public BaseVariant {
   explicit Var(RefCountBytes *p);
 
  public:
+  // return the type infomation that hides shared_string and shared_binary
+  int get_type();
+
   bool is_double() const { return which() == DOUBLE; }
   bool is_int() const { return which() == INT; }
   bool is_bool() const { return which() == BOOL; }
