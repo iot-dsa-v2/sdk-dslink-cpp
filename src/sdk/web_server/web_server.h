@@ -11,7 +11,7 @@
 #include <functional>
 #include <memory>
 #include "core/server.h"
-#include "network/http/http_server_connection.h"
+#include "network/ws/ws_server_connection.h"
 
 #include "util/enable_shared.h"
 

@@ -1,18 +1,18 @@
 #include "dsa_common.h"
 
-#include "http_client_connection.h"
+#include "ws_client_connection.h"
 
 #include "module/logger.h"
 
 namespace dsa {
-HttpClientConnection::HttpClientConnection(LinkStrandRef &strand,
+WsClientConnection::WsClientConnection(LinkStrandRef &strand,
                                    const string_ &dsid_prefix,
                                    const string_ &tcp_host, uint16_t tcp_port)
-    : HttpConnection(strand, dsid_prefix),
+    : WsConnection(strand, dsid_prefix),
       _hostname(tcp_host),
       _port(tcp_port) {}
 
-void HttpClientConnection::connect(size_t reconnect_interval) {
+void WsClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand->get_io_service());
@@ -23,7 +23,7 @@ void HttpClientConnection::connect(size_t reconnect_interval) {
       *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
       // capture shared_ptr to keep the instance
       // capture this to access protected member
-      [ connection = share_this<HttpConnection>(),
+      [ connection = share_this<WsConnection>(),
         this ](const boost::system::error_code &error) mutable {
         if (is_destroyed()) return;
 	/* TODO
@@ -36,7 +36,7 @@ void HttpClientConnection::connect(size_t reconnect_interval) {
 
         start_client_f0();
 
-        HttpConnection::start_read(std::move(connection));
+        WsConnection::start_read(std::move(connection));
       });
   start_deadline_timer(reconnect_interval);
 }

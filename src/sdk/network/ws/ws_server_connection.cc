@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "http_server_connection.h"
+#include "ws_server_connection.h"
 
 #include <boost/bind.hpp>
 
@@ -15,19 +15,19 @@
 #define DEBUG 0
 
 namespace dsa {
-HttpServerConnection::HttpServerConnection(LinkStrandRef &strand,
+WsServerConnection::WsServerConnection(LinkStrandRef &strand,
                                          const string_ &dsid_prefix,
                                          const string_ &path)
-    : HttpConnection(strand, dsid_prefix, path) {}
+    : WsConnection(strand, dsid_prefix, path) {}
 
-void HttpServerConnection::accept() {
+void WsServerConnection::accept() {
   {
     std::lock_guard<std::mutex> lock(mutex);
     on_read_message = [this](MessageRef message) {
       return on_receive_f0(std::move(message));
     };
   }
-  HttpConnection::start_read(share_this<HttpServerConnection>(), 0, 0);
+  WsConnection::start_read(share_this<WsServerConnection>(), 0, 0);
   start_deadline_timer(15);
 }
 

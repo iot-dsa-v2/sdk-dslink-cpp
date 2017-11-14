@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "http_connection.h"
+#include "ws_connection.h"
 
 #include <boost/asio/write.hpp>
 
@@ -9,20 +9,20 @@
 
 namespace dsa {
 
-HttpConnection::HttpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+WsConnection::WsConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                              const string_ &path)
     : Connection(strand, dsid_prefix, path),
       _socket(strand->get_io_service()),
             _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
 
-void HttpConnection::on_deadline_timer_(const boost::system::error_code &error,
+void WsConnection::on_deadline_timer_(const boost::system::error_code &error,
                                        shared_ptr_<Connection> sthis) {
   LOG_WARN(_strand->logger(), LOG << "Connection timeout");
   destroy_in_strand(std::move(sthis));
 }
 
-void HttpConnection::destroy_impl() {
+void WsConnection::destroy_impl() {
   /*
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");
   if (_socket_open.exchange(false)) {
@@ -32,7 +32,7 @@ void HttpConnection::destroy_impl() {
   */
 }
 
-void HttpConnection::start_read(shared_ptr_<HttpConnection> &&connection,
+void WsConnection::start_read(shared_ptr_<WsConnection> &&connection,
                                size_t cur, size_t next) {
   std::vector<uint8_t> &buffer = connection->_read_buffer;
   size_t partial_size = next - cur;
@@ -51,7 +51,7 @@ void HttpConnection::start_read(shared_ptr_<HttpConnection> &&connection,
       });
 }
 
-void HttpConnection::read_loop_(shared_ptr_<HttpConnection> &&connection,
+void WsConnection::read_loop_(shared_ptr_<WsConnection> &&connection,
                                size_t from_prev,
                                const boost::system::error_code &error,
                                size_t bytes_transferred) {
@@ -84,7 +84,7 @@ void HttpConnection::read_loop_(shared_ptr_<HttpConnection> &&connection,
                     LOG << "message is bigger than maxed buffer size");
           destroy_in_strand(std::move(connection));
           // TODO: send error, and close with std::move
-          // HttpConnection::destroy_in_strand(std::move(connection));
+          // WsConnection::destroy_in_strand(std::move(connection));
           return;
         }
         if (message_size > total_bytes - cur) {
@@ -105,7 +105,7 @@ void HttpConnection::read_loop_(shared_ptr_<HttpConnection> &&connection,
                           << err.what());
             destroy_in_strand(std::move(connection));
             // TODO: send error, and close with std::move
-            // HttpConnection::destroy_in_strand(std::move(connection));
+            // WsConnection::destroy_in_strand(std::move(connection));
             return;
           }
 
@@ -128,18 +128,18 @@ void HttpConnection::read_loop_(shared_ptr_<HttpConnection> &&connection,
   }
 }
 
-std::unique_ptr<ConnectionWriteBuffer> HttpConnection::get_write_buffer() {
+std::unique_ptr<ConnectionWriteBuffer> WsConnection::get_write_buffer() {
   /*
   return std::unique_ptr<ConnectionWriteBuffer>(new WriteBuffer(*this));
   */
 }
 
   /*
-size_t HttpConnection::WriteBuffer::max_next_size() const {
+size_t WsConnection::WriteBuffer::max_next_size() const {
   return MAX_BUFFER_SIZE - size;
 };
 
-void HttpConnection::WriteBuffer::add(const Message &message, int32_t rid,
+void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                      int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > connection._write_buffer.size()) {
@@ -153,7 +153,7 @@ void HttpConnection::WriteBuffer::add(const Message &message, int32_t rid,
   message.write(&connection._write_buffer[size], rid, ack_id);
   size += message.size();
 }
-void HttpConnection::WriteBuffer::write(WriteHandler &&callback) {
+void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
   boost::asio::async_write(
       connection._socket,
       boost::asio::buffer(connection._write_buffer.data(), size),
@@ -164,6 +164,6 @@ void HttpConnection::WriteBuffer::write(WriteHandler &&callback) {
 }
   */
 
-tcp_socket &HttpConnection::socket() { return _socket; }
+tcp_socket &WsConnection::socket() { return _socket; }
 
 }  // namespace dsa

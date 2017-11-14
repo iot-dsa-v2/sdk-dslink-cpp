@@ -80,7 +80,7 @@ void WebServer::start() {
   //  make_shared_<HttpServerConnection>(_strand);
 
   LinkStrandRef ls_ref(new LinkStrand(_strand.get(), new ECDH()));
-  auto http_server_connection = new HttpServerConnection(ls_ref);
+  auto ws_server_connection = new WsServerConnection(ls_ref);
 
   /*
   std::make_shared<Listener>(*_io_service, tcp::endpoint{address, port},

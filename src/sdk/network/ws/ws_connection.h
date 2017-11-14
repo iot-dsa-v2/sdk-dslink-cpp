@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_HTTP_CONNECTION_H_
-#define DSA_SDK_HTTP_CONNECTION_H_
+#ifndef DSA_SDK_WS_CONNECTION_H_
+#define DSA_SDK_WS_CONNECTION_H_
 
 #if defined(_MSC_VER)
 #pragma once
@@ -16,8 +16,8 @@ namespace dsa {
 
 typedef boost::asio::ip::tcp::socket tcp_socket;
 
-// Base HTTP connection. Used for DSA connections over HTTP.
-class HttpConnection : public Connection {
+// Base WS connection. Used for DSA connections over WS.
+class WsConnection : public Connection {
   // write buffer will have 1/16 unusable part by default
   // which seems to improve the performance
   static const size_t DEFAULT_BUFFER_SIZE = 8192;
@@ -37,7 +37,7 @@ class HttpConnection : public Connection {
   };
   */
  protected:
-  void read_loop_(shared_ptr_<HttpConnection> &&connection, size_t from_prev,
+  void read_loop_(shared_ptr_<WsConnection> &&connection, size_t from_prev,
                   const boost::system::error_code &error,
                   size_t bytes_transferred);
 
@@ -52,10 +52,10 @@ class HttpConnection : public Connection {
   void destroy_impl() override;
 
  public:
-  HttpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+  WsConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                 const string_ &path = "");
 
-  void start_read(shared_ptr_<HttpConnection> &&connection, size_t cur = 0,
+  void start_read(shared_ptr_<WsConnection> &&connection, size_t cur = 0,
                   size_t next = 0);
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
@@ -65,4 +65,4 @@ class HttpConnection : public Connection {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_HTTP_CONNECTION_H_
+#endif  // DSA_SDK_WS_CONNECTION_H_
