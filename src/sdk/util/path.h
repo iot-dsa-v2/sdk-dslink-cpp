@@ -67,7 +67,7 @@ class Path {
   const Path get_parent_path();
 
   // deep copy the path to share with other thread
-  const Path copy();
+  const Path deep_copy();
 };
 }
 

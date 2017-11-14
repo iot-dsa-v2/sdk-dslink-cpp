@@ -210,7 +210,7 @@ TEST(PathTest, Path__current__next__last) {
 TEST(PathTest, Path__copy) {
   {
     Path src_path("p1/p2/p3");
-    Path des_path = src_path.copy();
+    Path des_path = src_path.deep_copy();
 
     EXPECT_FALSE(des_path.is_invalid());
     EXPECT_EQ(des_path.full_str(), src_path.full_str());
@@ -220,6 +220,6 @@ TEST(PathTest, Path__copy) {
 
   {
     Path src_path("//");
-    Path des_pat = src_path.copy();
+    Path des_pat = src_path.deep_copy();
   }
 }

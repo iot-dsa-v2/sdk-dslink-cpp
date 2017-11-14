@@ -111,7 +111,7 @@ const Path Path::get_parent_path() {
     return Path();
   }
 }
-const Path Path::copy() {
+const Path Path::deep_copy() {
   return Path(ref_<PathData>(new PathData(*_data)), _current);
 }
 }
