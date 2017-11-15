@@ -2,91 +2,63 @@
 
 #include "web_server.h"
 
+#include "core/config.h"
+#include "core/session_manager.h"
+#include "module/default/console_logger.h"
+#include "module/default/simple_security_manager.h"
 #include "util/app.h"
 #include "util/enable_shared.h"
 
-#include <algorithm>
-#include <iostream>
-#include <thread>
-#include <vector>
-
 namespace dsa {
 
-void HttpSession::start() {
+using tcp = boost::asio::ip::tcp;
+
+WebServer::WebServer(App& app)
+    : _io_service(&app.io_service()),
+      _strand(make_shared_<boost::asio::io_service::strand>(*_io_service)),
+      _acceptor(
+		new tcp::acceptor(*_io_service,
+// TODO - server port
+#if defined(__CYGWIN__)
+				  tcp::endpoint(tcp::v4(), 8080)) {
+#else
+                                  // tcp:v6() already covers both ipv4 and ipv6
+                                  tcp::endpoint(tcp::v6(), 8080))) {
+#endif
+
+  // TODO -
+  _port = 8080;
+  _doc_root = ".";
+
+  // start taking connections
+  auto* config = new LinkConfig(_strand.get(), make_unique_<ECDH>());
+  config->set_session_manager(make_unique_<SessionManager>(config));
+  config->set_security_manager(make_unique_<SimpleSecurityManager>());
+  config->set_logger(make_unique_<ConsoleLogger>());
+  config->logger().level = Logger::WARN__;
+  _link_strand.reset(config);
+
+  LOG_INFO(_link_strand->logger(), LOG << "Bind to TCP server port: " << _port);
 }
-
-//-------------------------------------
-//-------------------------------------
-Listener::Listener(boost::asio::io_service& ios, tcp::endpoint endpoint,
-                   std::string const& doc_root)
-    : _acceptor(ios), _socket(ios), _doc_root(doc_root) {
-  boost::system::error_code ec;
-
-  // Open the acceptor
-  _acceptor.open(endpoint.protocol(), ec);
-  if (ec) {
-    std::cout << ec << "open" << std::endl;
-    return;
-  }
-
-  // Bind to the server address
-  _acceptor.bind(endpoint, ec);
-  if (ec) {
-    std::cout << ec << "bind" << std::endl;
-    return;
-  }
-
-  // Start listening for connections
-  _acceptor.listen(boost::asio::socket_base::max_connections, ec);
-  if (ec) {
-    std::cout << ec << "listen" << std::endl;
-    return;
-  }
-}
-
-Listener::~Listener() {}
-
-void Listener::start() {
-  if (!_acceptor.is_open()) return;
-
-  std::function<void(const boost::system::error_code&)> do_accept;
-  do_accept = [&](const boost::system::error_code& ec) {
-    if (ec) {
-      std::cout << ec << "accept" << std::endl;
-    } else {
-      // Create the http_session and run it
-      std::make_shared<HttpSession>(std::move(_socket), _doc_root)->start();
-    }
-    _acceptor.async_accept(_socket, do_accept);
-  };
-
-  _acceptor.async_accept(_socket, do_accept);
-}
-
-//-------------------------------------
-//-------------------------------------
-WebServer::WebServer(App& app) 
-  : _io_service(&app.io_service()),
-    _strand(make_shared_<boost::asio::io_service::strand>(*_io_service)) {}
 
 void WebServer::start() {
+  _next_connection = make_shared_<WsServerConnection>(_link_strand);
 
-  // TODO: config
-  auto const address = boost::asio::ip::address::from_string("0.0.0.0");
-  unsigned short const port = 8080;
-  std::string const doc_root = ".";
+  _acceptor->async_accept(_next_connection->socket(), [
+    this, sthis = shared_from_this()
+  ](const boost::system::error_code& error) { accept_loop(error); });
+}
 
-  // _next_connection = make_shared_<HttpServerConnection>(_strand);
-  //  make_shared_<HttpServerConnection>(_strand);
-
-  LinkStrandRef ls_ref(new LinkStrand(_strand.get(), new ECDH()));
-  auto ws_server_connection = new WsServerConnection(ls_ref);
-
-  /*
-  std::make_shared<Listener>(*_io_service, tcp::endpoint{address, port},
-                             doc_root)
-      ->start();
-  */
+void WebServer::accept_loop(const boost::system::error_code& error) {
+  if (!error) {
+    _next_connection->accept();
+    _next_connection = make_shared_<WsServerConnection>(_link_strand);
+    _acceptor->async_accept(_next_connection->socket(), [
+      this, sthis = shared_from_this()
+    ](const boost::system::error_code& err) { accept_loop(err); });
+  } else {
+    destroy();
+  }
 }
 
 void WebServer::destroy() {}

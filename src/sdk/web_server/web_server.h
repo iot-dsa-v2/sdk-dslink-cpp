@@ -5,15 +5,10 @@
 #pragma once
 #endif
 
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
-#include <functional>
-#include <memory>
-#include "core/server.h"
-#include "network/ws/ws_server_connection.h"
 
-#include "util/enable_shared.h"
+#include "network/ws/ws_server_connection.h"
 
 using tcp = boost::asio::ip::tcp;
 
@@ -21,40 +16,18 @@ namespace dsa {
 
 class App;
 
-class HttpSession : public std::enable_shared_from_this<HttpSession> {
- private:
-  tcp::socket _socket;
-  boost::asio::io_service::strand _strand;
-  std::string _doc_root;
-
- public:
-  HttpSession(tcp::socket socket, std::string const& doc_root)
-      : _socket(std::move(socket)),
-        _strand(_socket.get_io_service()),
-        _doc_root(doc_root) {}
-
-  ~HttpSession() = default;
-  void start();
-};
-
-class Listener : public std::enable_shared_from_this<Listener> {
- private:
-  tcp::acceptor _acceptor;
-  tcp::socket _socket;
-  std::string const& _doc_root;
-
- public:
-  Listener(boost::asio::io_service& ios, tcp::endpoint endpoint,
-           std::string const& doc_root);
-  ~Listener();
-
-  void start();
-};
-
 class WebServer : public std::enable_shared_from_this<WebServer> {
  private:
+  uint16_t _port;
+  string_ _doc_root;
+
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<boost::asio::io_service::strand> _strand;
+  std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
+  shared_ptr_<WsServerConnection> _next_connection;
+  LinkStrandRef _link_strand;
+
+  void accept_loop(const boost::system::error_code& error);
 
  public:
   typedef std::function<void(WebServer&)> HttpCallback;
