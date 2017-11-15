@@ -32,6 +32,9 @@ class runtime_error;
 
 namespace dsa {
 
+const uint8_t DSA_MAJOR_VERSION = 2;
+const uint8_t DSA_MINOR_VERSION = 0;
+
 template <typename T>
 using shared_ptr_ = std::shared_ptr<T>;
 

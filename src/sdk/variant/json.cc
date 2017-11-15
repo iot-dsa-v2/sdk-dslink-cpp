@@ -43,7 +43,7 @@ Var Var::to_variant(json_t *json_obj) {
   }
 }
 
-Var Var::from_json(string_ data) {
+Var Var::from_json(const string_ &data) {
   json_error_t error;
   json_t *json_obj;
 
@@ -54,15 +54,7 @@ Var Var::from_json(string_ data) {
     return Var();
   }
 
-  json_t *value;
-  value = json_object_get(json_obj, "");
-
-  if (!value) {
-    // error handling
-    return Var();
-  }
-
-  Var v = to_variant(value);
+  Var v = to_variant(json_obj);
 
   json_decref(json_obj);
 
@@ -107,11 +99,9 @@ json_t *to_json_object(const Var &v) {
 }
 
 string_ Var::to_json(size_t indent) const throw(const EncodingError &) {
-  json_t *json_obj;
+  json_t *json_obj = to_json_object(*this);
   char *encoded_value;
 
-  json_obj = json_object();
-  json_object_set_new_nocheck(json_obj, "", to_json_object(*this));
   if (indent == 0) {
     encoded_value = json_dumps(json_obj, JSON_COMPACT | JSON_ENCODE_ANY);
   } else {

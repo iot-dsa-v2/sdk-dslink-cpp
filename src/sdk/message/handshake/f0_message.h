@@ -12,8 +12,8 @@ namespace dsa {
 
 class HandshakeF0Message final : public Message {
  public:
-  uint8_t dsa_version_major = 2;
-  uint8_t dsa_version_minor = 0;
+  uint8_t dsa_version_major = DSA_MAJOR_VERSION;
+  uint8_t dsa_version_minor = DSA_MINOR_VERSION;
   //bool security_preference = false;
 
   string_ dsid;

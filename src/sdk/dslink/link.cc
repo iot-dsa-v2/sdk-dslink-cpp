@@ -4,7 +4,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include <iostream>
+#include <fstream>
 #include <regex>
 
 #include "core/client.h"

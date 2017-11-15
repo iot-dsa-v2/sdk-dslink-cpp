@@ -4,7 +4,7 @@
 
 namespace dsa {
 bool BrokerConfigItem::set_value(Var&& value) {
-  if (_constraint >= Var::NUL && value.get_type() != _constraint) {
+  if (_type >= Var::NUL && value.get_type() != _type) {
     return false;
   }
   // if (value == _value) return false;

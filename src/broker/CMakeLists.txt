@@ -21,6 +21,7 @@ endif ()
 set(SOURCES broker.cc
         config/broker_config.cc
         config/broker_config_item.cc
+        config/module_loader.cc
         remote_node/remote_node.cc)
 add_executable(broker ${SOURCES})
 target_link_libraries(broker ${BROKER_LIBS})
