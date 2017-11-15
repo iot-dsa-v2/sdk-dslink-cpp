@@ -76,8 +76,14 @@ void BrokerConfig::save() {
   auto& path = get_file_path();
   std::ofstream config_file(path, std::ios::out | std::ios::trunc);
   if (config_file.is_open()) {
-    config_file << "{\n\"dsa-version\": \"" << int(DSA_MAJOR_VERSION) << "."
-                << int(DSA_MINOR_VERSION) << "\"";
+    config_file << "{\n"
+                << R"("dsa-version": ")" << int(DSA_MAJOR_VERSION) << "."
+                << int(DSA_MINOR_VERSION) << "\",\n";
+#ifdef DSA_DEBUG
+    config_file << R"("broker-build": "debug")";
+#else
+    config_file << R"("broker-build": "release")";
+#endif
     for (auto& name : _names) {
       config_file << ",\n\"" << name << "\": ";
       config_file << _items[name].get_value().to_json(2);
