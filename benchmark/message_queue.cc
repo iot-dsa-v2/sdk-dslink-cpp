@@ -115,6 +115,8 @@ int main(int argc, const char *argv[]) {
     }
   });
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
   return 0;
 }

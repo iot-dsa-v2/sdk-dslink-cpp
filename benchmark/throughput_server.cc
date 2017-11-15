@@ -167,7 +167,8 @@ int main(int argc, const char *argv[]) {
     app.force_stop();
   }
 
-  //  app.wait();
+  server_config.destroy();
+  app.wait();
 
   return 0;
 }

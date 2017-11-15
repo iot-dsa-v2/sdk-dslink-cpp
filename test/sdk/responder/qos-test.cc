@@ -1,6 +1,6 @@
 #include "dsa/message.h"
-#include "dsa/stream.h"
 #include "dsa/network.h"
+#include "dsa/stream.h"
 
 #include <chrono>
 
@@ -21,7 +21,8 @@ class MockNodeQos : public NodeModelBase {
   explicit MockNodeQos(LinkStrandRef strand)
       : NodeModelBase(std::move(strand)){};
 
-  void on_subscribe(const SubscribeOptions &options, bool first_request) override {
+  void on_subscribe(const SubscribeOptions &options,
+                    bool first_request) override {
     if (_need_subscribe) {
       for (int i = 0; i < 10; ++i) {
         set_value(Var(i));
@@ -30,15 +31,14 @@ class MockNodeQos : public NodeModelBase {
   }
 };
 
-TEST(ResponderQosTest, QueueSizeTest) {
+TEST(ResponderTest, QosQueueSizeTest) {
   App app;
 
   TestConfig server_config(app);
 
   MockNodeQos *root_node = new MockNodeQos(server_config.strand);
 
-  server_config.strand->set_responder_model(
-      ref_<MockNodeQos>(root_node));
+  server_config.strand->set_responder_model(ref_<MockNodeQos>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -78,7 +78,7 @@ TEST(ResponderQosTest, QueueSizeTest) {
   EXPECT_EQ(msg_count, 2);
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -88,5 +88,7 @@ destroy_client_in_strand(tcp_client);
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }

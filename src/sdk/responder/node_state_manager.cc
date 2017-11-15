@@ -20,6 +20,12 @@ NodeStateManager::NodeStateManager(LinkStrand &strand,
       _timer(strand.get_io_service(),
              boost::posix_time::seconds(timer_interval)) {}
 
+void NodeStateManager::destroy_impl() {
+  _root->destroy();
+  _root.reset();
+  _states.clear();
+}
+
 void NodeStateManager::remove_state(const string_ &path) {
   _states.erase(path);
 }

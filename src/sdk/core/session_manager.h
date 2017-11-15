@@ -15,7 +15,7 @@ namespace dsa {
 class SecurityManager;
 class Config;
 
-class SessionManager : public DestroyableRef<SessionManager> {
+class SessionManager final: public DestroyableRef<SessionManager> {
   std::unordered_map<string_, ClientSessions> _clients;
 
   LinkStrandRef _strand;

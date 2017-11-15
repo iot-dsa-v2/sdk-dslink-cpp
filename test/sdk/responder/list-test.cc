@@ -148,5 +148,7 @@ destroy_client_in_strand(tcp_client);
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }

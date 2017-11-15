@@ -16,7 +16,8 @@
 
 namespace dsa {
 
-class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
+class NodeStateManager final : public OutgoingStreamAcceptor,
+                               public NodeStateOwner {
  private:
   ref_<NodeStateRoot> _root;
   std::unordered_map<string_, ref_<NodeState>> _states;
@@ -26,19 +27,22 @@ class NodeStateManager : public OutgoingStreamAcceptor, public NodeStateOwner {
 
   boost::asio::deadline_timer _timer;
 
+ protected:
+  void destroy_impl() final;
+
  public:
   explicit NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                             size_t timer_interval = 60);
 
-  void remove_state(const string_ &path) override;
+  void remove_state(const string_ &path) final;
 
   void model_added(const Path &path, ModelRef &model);
   void model_deleted(const Path &path);
 
-  void add(ref_<OutgoingSubscribeStream> &&stream) override;
-  void add(ref_<OutgoingListStream> &&stream) override;
-  void add(ref_<OutgoingInvokeStream> &&stream) override;
-  void add(ref_<OutgoingSetStream> &&stream) override;
+  void add(ref_<OutgoingSubscribeStream> &&stream) final;
+  void add(ref_<OutgoingListStream> &&stream) final;
+  void add(ref_<OutgoingInvokeStream> &&stream) final;
+  void add(ref_<OutgoingSetStream> &&stream) final;
 };
 }  // namespace dsa
 

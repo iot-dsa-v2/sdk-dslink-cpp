@@ -17,7 +17,8 @@ class MockNode : public NodeModelBase {
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
 
-  void on_subscribe(const SubscribeOptions &options, bool first_request) override {
+  void on_subscribe(const SubscribeOptions &options,
+                    bool first_request) override {
     first_subscribe_options.reset(new SubscribeOptions(options));
     if (first_request) {
       set_value(Var("hello"));
@@ -35,8 +36,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_response(
-        make_ref_<SubscribeResponseMessage>(Var("hello")));
+    stream->send_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
     stream->on_option_change([=](OutgoingSubscribeStream &stream,
                                  const SubscribeOptions &old_option) {
       last_subscribe_options.reset(new SubscribeOptions(stream.options()));
@@ -100,7 +100,7 @@ TEST(ResponderTest, model__add_child) {
   wait_for_bool(25, [&]() -> bool { return false; });
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -110,6 +110,8 @@ destroy_client_in_strand(tcp_client);
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }
 
@@ -120,8 +122,7 @@ TEST(ResponderTest, model__get_child) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.strand->set_responder_model(
-      ref_<MockNode>(root_node));
+  server_config.strand->set_responder_model(ref_<MockNode>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -146,7 +147,7 @@ TEST(ResponderTest, model__get_child) {
   EXPECT_NE(nullptr, child_node);
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -156,6 +157,8 @@ destroy_client_in_strand(tcp_client);
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }
 
@@ -166,8 +169,7 @@ TEST(ResponderTest, model__set_value) {
 
   MockNode *root_node = new MockNode(server_config.strand);
 
-  server_config.strand->set_responder_model(
-      ref_<MockNode>(root_node));
+  server_config.strand->set_responder_model(ref_<MockNode>(root_node));
 
   WrapperConfig client_config = server_config.get_client_config(app);
 
@@ -200,7 +202,7 @@ TEST(ResponderTest, model__set_value) {
   root_node->set_message(copy_ref_(cached_message));
 
   tcp_server->destroy_in_strand(tcp_server);
-destroy_client_in_strand(tcp_client);
+  destroy_client_in_strand(tcp_client);
 
   app.close();
 
@@ -210,5 +212,7 @@ destroy_client_in_strand(tcp_client);
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }

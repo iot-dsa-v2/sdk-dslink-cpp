@@ -201,6 +201,10 @@ int main(int argc, const char *argv[]) {
     app.force_stop();
   }
 
+  server_config.destroy();
+  for (int i = 0; i < client_count; ++i) {
+    client_configs[i].destroy();
+  }
   app.wait();
   return 0;
 }

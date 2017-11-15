@@ -15,7 +15,7 @@ class App;
 class TcpServer;
 class Client;
 
-class DsLink final : public WrapperConfig, public DestroyableRef<DsLink> {
+class DsLink final : public WrapperConfig {
   friend class SubscribeMerger;
   friend class ListMerger;
 

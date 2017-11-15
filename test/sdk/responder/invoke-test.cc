@@ -141,6 +141,8 @@ TEST(ResponderTest, Invoke_Model) {
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }
 
@@ -217,5 +219,7 @@ TEST(ResponderTest, Invoke_Acceptor) {
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }

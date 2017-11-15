@@ -137,6 +137,8 @@ TEST(ResponderTest, Set_Model) {
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }
 
@@ -199,5 +201,7 @@ TEST(ResponderTest, Set_Acceptor) {
     app.force_stop();
   }
 
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }

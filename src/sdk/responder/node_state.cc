@@ -276,9 +276,11 @@ void NodeState::destroy_impl() {
     _model->destroy();
     _model.reset();
     _model_status = MODEL_UNKNOWN;
-    _owner.remove_state(_path.full_str());
-    _parent.reset();
   }
+  if (!_path.is_invalid()) {
+    _owner.remove_state(_path.full_str());
+  }
+  _parent.reset();
 }
 
 NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,

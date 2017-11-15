@@ -86,6 +86,8 @@ void DsLink::destroy_impl() {
     _client.reset();
   }
   _app->close();
+
+  WrapperConfig::destroy_impl();
 }
 std::unique_ptr<ECDH> DsLink::load_private_key() {
   fs::path path(".key");
@@ -204,8 +206,8 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
               tcp_port = tcp_port
             ](LinkStrandRef & strand, const string_ &previous_session_id,
               int32_t last_ack_id) {
-          return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                                tcp_port);
+          return make_shared_<TcpClientConnection>(strand, dsid_prefix,
+                                                   tcp_host, tcp_port);
         };
       }
     } else if (ws_port > 0) {

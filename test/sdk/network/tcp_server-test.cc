@@ -15,7 +15,8 @@ using namespace dsa;
 TEST(TcpServerTest, SingleThread) {
   App app(1);
 
-  WrapperConfig config = TestConfig(app).get_client_config(app);
+  TestConfig server_config(app);
+  WrapperConfig config = server_config.get_client_config(app);
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
 
@@ -56,14 +57,14 @@ TEST(TcpServerTest, SingleThread) {
       for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
         destroy_client_in_strand(clients[i]);
       }
+
+      server_config.destroy();
+      config.destroy();
       app.close();
-
     };
-
     timer.async_wait(wait_for_connected);
 
   });
-
   app.wait();
 }
 
@@ -108,7 +109,7 @@ TEST(TcpServerTest, SingleStrand) {
   if (!app.is_stopped()) {
     app.force_stop();
   }
-
+  config.destroy();
   app.wait();
 }
 
@@ -153,6 +154,7 @@ TEST(TcpServerTest, MultiStrand) {
   if (!app.is_stopped()) {
     app.force_stop();
   }
-
+  server_config.destroy();
+  client_config.destroy();
   app.wait();
 }

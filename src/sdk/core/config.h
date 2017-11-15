@@ -49,7 +49,7 @@ typedef std::function<shared_ptr_<Connection>(
     int32_t last_ack_id)>
     ClientConnectionMaker;
 
-class WrapperConfig {
+class WrapperConfig : public DestroyableRef<WrapperConfig> {
  public:
   ref_<LinkConfig> strand;
   string_ dsid_prefix;
@@ -71,6 +71,13 @@ class WrapperConfig {
   string_ client_token;
 
   ClientConnectionMaker client_connection_maker;
+
+ protected:
+  void destroy_impl() override {
+    if (strand != nullptr) {
+      strand->destroy();
+    }
+  }
 };
 
 }  // namespace dsa
