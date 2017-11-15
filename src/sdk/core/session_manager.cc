@@ -29,7 +29,7 @@ void SessionManager::get_session(
       });
 }
 
-void SessionManager::destroy() {
+void SessionManager::destroy_impl() {
   for (auto &kv : _clients) {
     kv.second.destroy();
   }

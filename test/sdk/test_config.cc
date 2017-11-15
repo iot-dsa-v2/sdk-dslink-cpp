@@ -19,13 +19,13 @@ uint16_t TestConfig::_port = 4120;
 static LinkConfig *make_config(App &app, bool async) {
   auto *config = new LinkConfig(app.new_strand(), make_unique_<ECDH>());
 
-  config->set_session_manager(make_unique_<SessionManager>(config));
+  config->set_session_manager(make_ref_<SessionManager>(config));
 
   if (async) {
     config->set_security_manager(
-        make_unique_<AsyncSimpleSecurityManager>(config->get_ref()));
+      make_ref_<AsyncSimpleSecurityManager>(config->get_ref()));
   } else {
-    config->set_security_manager(make_unique_<SimpleSecurityManager>());
+    config->set_security_manager(make_ref_<SimpleSecurityManager>());
   }
 
   config->set_logger(make_unique_<ConsoleLogger>());

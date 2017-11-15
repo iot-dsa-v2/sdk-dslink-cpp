@@ -175,8 +175,8 @@ void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
 void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
-  strand->set_session_manager(make_unique_<SessionManager>(strand));
-  strand->set_security_manager(make_unique_<SimpleSecurityManager>());
+  strand->set_session_manager(make_ref_<SessionManager>(strand));
+  strand->set_security_manager(make_ref_<SimpleSecurityManager>());
 
   strand->set_responder_model(std::move(root_node));
 }

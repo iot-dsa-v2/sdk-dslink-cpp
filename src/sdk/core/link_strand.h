@@ -21,7 +21,7 @@ class OutgoingStreamAcceptor;
 class ECDH;
 class Logger;
 
-class LinkStrand : public EnableRef<LinkStrand> {
+class LinkStrand : public DestroyableRef<LinkStrand> {
  protected:
   // managed pointer by LinkStrand
   void *__strand = nullptr;
@@ -31,6 +31,8 @@ class LinkStrand : public EnableRef<LinkStrand> {
   OutgoingStreamAcceptor *__stream_acceptor = nullptr;
   SessionManager *__session_manager = nullptr;
   Logger *__logger = nullptr;
+
+  void destroy_impl() override;
 
  public:
   explicit LinkStrand(void *strand, ECDH *ecdh);

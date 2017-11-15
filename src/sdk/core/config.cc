@@ -16,16 +16,15 @@ LinkConfig::LinkConfig(boost::asio::io_service::strand* strand,
       };
 LinkConfig::~LinkConfig() = default;
 
-void LinkConfig::set_security_manager(std::unique_ptr<SecurityManager> p) {
+void LinkConfig::set_security_manager(ref_<SecurityManager> p) {
   __security_manager = p.get();
   _security_manager = std::move(p);
 };
-void LinkConfig::set_stream_acceptor(
-    std::unique_ptr<OutgoingStreamAcceptor> p) {
+void LinkConfig::set_stream_acceptor(ref_<OutgoingStreamAcceptor> p) {
   __stream_acceptor = p.get();
   _stream_acceptor = std::move(p);
 };
-void LinkConfig::set_session_manager(std::unique_ptr<SessionManager> p) {
+void LinkConfig::set_session_manager(ref_<SessionManager> p) {
   __session_manager = p.get();
   _session_manager = std::move(p);
 };
@@ -37,7 +36,7 @@ void LinkConfig::set_logger(std::unique_ptr<Logger> p) {
 
 void LinkConfig::set_responder_model(ModelRef&& root_model,
                                      size_t timer_interval) {
-  set_stream_acceptor(make_unique_<NodeStateManager>(
+  set_stream_acceptor(make_ref_<NodeStateManager>(
       *this, std::move(root_model), timer_interval));
 }
 

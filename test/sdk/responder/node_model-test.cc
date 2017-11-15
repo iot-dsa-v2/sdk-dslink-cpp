@@ -73,7 +73,7 @@ TEST(ResponderTest, model__add_child) {
 
   TestConfig server_config(app);
   server_config.strand->set_stream_acceptor(
-      std::unique_ptr<MockStreamAcceptor>(mock_stream_acceptor));
+      ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
   WrapperConfig client_config = server_config.get_client_config(app, true);
 

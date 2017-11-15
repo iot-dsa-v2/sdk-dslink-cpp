@@ -13,8 +13,10 @@ class OutgoingListStream;
 class OutgoingInvokeStream;
 class OutgoingSetStream;
 
-class OutgoingStreamAcceptor {
+class OutgoingStreamAcceptor : public DestroyableRef<OutgoingStreamAcceptor> {
  public:
+  virtual ~OutgoingStreamAcceptor() = default;
+
   virtual void add(ref_<OutgoingSubscribeStream> &&stream) = 0;
   virtual void add(ref_<OutgoingListStream> &&stream) = 0;
   virtual void add(ref_<OutgoingInvokeStream> &&stream) = 0;

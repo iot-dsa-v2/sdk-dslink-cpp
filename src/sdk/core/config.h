@@ -26,9 +26,9 @@ class LinkConfig : public LinkStrand {
  protected:
   std::unique_ptr<ECDH> _ecdh;
   // modules
-  std::unique_ptr<SecurityManager> _security_manager;
-  std::unique_ptr<OutgoingStreamAcceptor> _stream_acceptor;
-  std::unique_ptr<SessionManager> _session_manager;
+  ref_<SecurityManager> _security_manager;
+  ref_<OutgoingStreamAcceptor> _stream_acceptor;
+  ref_<SessionManager> _session_manager;
   std::unique_ptr<Logger> _logger;
 
  public:
@@ -36,9 +36,9 @@ class LinkConfig : public LinkStrand {
                       std::unique_ptr<ECDH>&& ecdh);
   ~LinkConfig() override;
 
-  void set_security_manager(std::unique_ptr<SecurityManager> p);
-  void set_stream_acceptor(std::unique_ptr<OutgoingStreamAcceptor> p);
-  void set_session_manager(std::unique_ptr<SessionManager> p);
+  void set_security_manager(ref_<SecurityManager> p);
+  void set_stream_acceptor(ref_<OutgoingStreamAcceptor> p);
+  void set_session_manager(ref_<SessionManager> p);
   void set_logger(std::unique_ptr<Logger> p);
 
   void set_responder_model(ModelRef&& root_model, size_t timer_interval = 60);

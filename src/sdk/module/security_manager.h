@@ -18,16 +18,14 @@ namespace dsa {
 
 class Path;
 
-
-class SecurityManager {
+class SecurityManager : public DestroyableRef<SecurityManager> {
  public:
   typedef std::function<void(const ClientInfo client, bool error)>
       GetClientCallback;
   typedef std::function<void(PermissionLevel permission)>
       CheckPermissionCallback;
 
-  virtual void get_client(const string_& dsid,
-                          const string_& auth_token,
+  virtual void get_client(const string_& dsid, const string_& auth_token,
                           GetClientCallback&& callback) = 0;
 
   virtual void check_permission(const string_& dsid,
