@@ -20,7 +20,7 @@ WebServer::WebServer(App& app)
 		new tcp::acceptor(*_io_service,
 // TODO - server port
 #if defined(__CYGWIN__)
-				  tcp::endpoint(tcp::v4(), 8080)) {
+				  tcp::endpoint(tcp::v4(), 8080))) {
 #else
                                   // tcp:v6() already covers both ipv4 and ipv6
                                   tcp::endpoint(tcp::v6(), 8080))) {
