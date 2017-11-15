@@ -32,8 +32,8 @@ WebServer::WebServer(App& app)
 
   // start taking connections
   auto* config = new LinkConfig(_strand.get(), make_unique_<ECDH>());
-  config->set_session_manager(make_unique_<SessionManager>(config));
-  config->set_security_manager(make_unique_<SimpleSecurityManager>());
+  config->set_session_manager(make_ref_<SessionManager>(config));
+  config->set_security_manager(make_ref_<SimpleSecurityManager>());
   config->set_logger(make_unique_<ConsoleLogger>());
   config->logger().level = Logger::WARN__;
   _link_strand.reset(config);
