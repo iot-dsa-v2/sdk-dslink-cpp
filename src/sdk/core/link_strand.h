@@ -24,7 +24,11 @@ class Logger;
 class LinkStrand : public DestroyableRef<LinkStrand> {
  protected:
   // managed pointer by LinkStrand
+  // use raw pointer here because there is no way to forward declare the strand type
   void *__strand = nullptr;
+
+  // following pointers are managed by LinkConfig
+
   ECDH *__ecdh = nullptr;
 
   SecurityManager *__security_manager = nullptr;
