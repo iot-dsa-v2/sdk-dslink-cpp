@@ -53,6 +53,8 @@ class Client : public DestroyableRef<Client> {
   // reconnection related fields
 
   int64_t _last_connected_time = 0;
+
+  // initially reconnect interval
   int _reconnect_interval_s = 1;
 
   boost::asio::deadline_timer _reconnect_timer;

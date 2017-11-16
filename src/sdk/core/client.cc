@@ -83,18 +83,18 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
     // check reconnect interval
     if (_reconnect_interval_s < 0) {
       if (std::time(nullptr) - _last_connected_time > 60) {
-        // connected for long enough, reset the reconnect timer
-        _reconnect_interval_s = 0;
+        // connected for long enough, reset the reconnect timer to 1 second
+        _reconnect_interval_s = 1;
       } else {
         // disconnect right after connection, so ++ the previous interval
         _reconnect_interval_s = -_reconnect_interval_s;
       }
     }
 
+    _reconnect();
     if (_reconnect_interval_s < 60) {
       ++_reconnect_interval_s;
     }
-    _reconnect();
   }
 }
 void Client::_reconnect() {
