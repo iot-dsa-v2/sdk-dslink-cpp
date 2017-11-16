@@ -1,4 +1,5 @@
 #include "dsa_common.h"
+#include "network/ws/ws_client_connection.h"
 #include "util/app.h"
 #include "util/enable_shared.h"
 #include "web_server/web_server.h"
@@ -14,8 +15,19 @@ TEST(WebServerTest, basic_flow) {
   App app;
 
 // auto web_server = make_shared_<WebServer>(app, cert);
+
+  // server
   auto web_server = make_shared_<WebServer>(app);
   web_server->start();
+
+  // client
+  const string_ dsid_prefix = "ws_";
+  const string_ ws_host = "127.0.0.1";
+  uint16_t ws_port = 0;
+  TestConfig test_config(app, false);
+  LinkStrandRef link_strand(std::move(test_config.strand));
+  make_shared_<WsClientConnection>(link_strand, dsid_prefix, ws_host,
+                                          ws_port);
 
 #if 0
   const uint32_t NUM_CLIENT = 2;
