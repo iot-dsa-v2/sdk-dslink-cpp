@@ -99,6 +99,7 @@ void Session::connected(shared_ptr_<Connection> connection) {
 void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
     _connection.reset();
+    _timer.cancel();
   }
   if (_on_connect != nullptr && _connection == nullptr) {
     // disconnect event
@@ -139,7 +140,7 @@ void Session::_on_timer() {
       const boost::system::error_code &error) mutable {
     if (error != boost::asio::error::operation_aborted) {
       _strand->dispatch([ this, keep_ref = std::move(keep_ref) ]() {
-        if (is_destroyed()) return;
+        if (_connection == nullptr) return;
         _on_timer();
       });
     }

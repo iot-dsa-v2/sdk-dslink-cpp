@@ -10,17 +10,11 @@ namespace dsa {
 static void run_worker_thread(
     const shared_ptr_<boost::asio::io_service> &io_service) {
   while (true) {
-    try {
-      boost::system::error_code err;
-      io_service->run(err);
-
-      if (err != boost::system::errc::success) {
-        // TODO: log error message to file?
-      } else {
-        return;
-      }
-    } catch (std::exception &e) {
+    boost::system::error_code err;
+    io_service->run(err);
+    if (err != boost::system::errc::success) {
       // TODO: log error message to file?
+    } else {
       return;
     }
   }
