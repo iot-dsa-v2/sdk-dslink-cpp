@@ -130,12 +130,9 @@ void WsConnection::read_loop_(shared_ptr_<WsConnection> &&connection,
 }
 
 std::unique_ptr<ConnectionWriteBuffer> WsConnection::get_write_buffer() {
-  /*
   return std::unique_ptr<ConnectionWriteBuffer>(new WriteBuffer(*this));
-  */
 }
 
-  /*
 size_t WsConnection::WriteBuffer::max_next_size() const {
   return MAX_BUFFER_SIZE - size;
 };
@@ -155,15 +152,13 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size += message.size();
 }
 void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
-  boost::asio::async_write(
-      connection._socket,
+  connection._ws.async_write(
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
         callback(error);
       });
 }
-  */
 
 tcp_socket &WsConnection::socket() { return _socket; }
 
