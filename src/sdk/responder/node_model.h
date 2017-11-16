@@ -34,11 +34,13 @@ class NodeModel : public NodeModelBase {
  protected:
   std::unordered_map<string_, ModelProperty> _metas;
   std::unordered_map<string_, ModelProperty> _attributes;
-  std::unordered_map<string_, ref_<NodeModel>> _list_children;
+  std::unordered_map<string_, ref_<NodeModelBase>> _list_children;
 
   BytesRef _summary;
 
   void destroy_impl() override;
+
+  // initialize will be called when NodeModel is attached to NodeState
   void initialize() override;
 
  public:
@@ -51,7 +53,7 @@ class NodeModel : public NodeModelBase {
 
   ref_<NodeModel> add_list_child(const string_ &name, ref_<NodeModel> &&model);
 
-  BytesRef &get_summary();
+  BytesRef &get_summary() override;
 
  protected:
   void send_props_list(OutgoingListStream &stream);

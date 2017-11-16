@@ -19,12 +19,14 @@ class OutgoingInvokeStream;
 class OutgoingSetStream;
 
 class NodeState;
+class NodeModel;
 
 class NodeModelBase;
 typedef ref_<NodeModelBase> ModelRef;
 
 class NodeModelBase : public DestroyableRef<NodeModelBase> {
   friend class NodeState;
+  friend class NodeModel;
 
  protected:
   LinkStrandRef _strand;
@@ -78,14 +80,17 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   void list(OutgoingListStream &stream);
   void unlist();
 
-  /// invoke
- public:
-  virtual void invoke(ref_ <OutgoingInvokeStream> &&stream,
-                      ref_ <NodeState> &parent);
+  // get the summery Map when it's listed in a parent node
+  virtual BytesRef &get_summary();
 
   /// invoke
  public:
-  virtual void set(ref_ <OutgoingSetStream> &&stream);
+  virtual void invoke(ref_<OutgoingInvokeStream> &&stream,
+                      ref_<NodeState> &parent);
+
+  /// invoke
+ public:
+  virtual void set(ref_<OutgoingSetStream> &&stream);
 };
 
 }  // namespace dsa

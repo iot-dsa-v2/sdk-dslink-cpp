@@ -99,6 +99,11 @@ void NodeModelBase::unlist() {
     on_unlist();
   }
 }
+static BytesRef blank_bytes;
+BytesRef &NodeModelBase::get_summary() {
+  LOG_WARN(_strand->logger(), LOG << "::get_summary not implemented");
+  return blank_bytes;
+}
 
 void NodeModelBase::invoke(ref_<OutgoingInvokeStream> &&stream,
                            ref_<NodeState> &parent) {
