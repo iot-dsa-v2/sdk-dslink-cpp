@@ -2,15 +2,15 @@
 
 #include "ws_client_connection.h"
 
+#include <boost/asio/connect.hpp>
+
 #include "module/logger.h"
 
 namespace dsa {
 WsClientConnection::WsClientConnection(LinkStrandRef &strand,
-                                   const string_ &dsid_prefix,
-                                   const string_ &tcp_host, uint16_t tcp_port)
-    : WsConnection(strand, dsid_prefix),
-      _hostname(tcp_host),
-      _port(tcp_port) {}
+                                       const string_ &dsid_prefix,
+                                       const string_ &host, uint16_t port)
+    : WsConnection(strand, dsid_prefix), _hostname(host), _port(port) {}
 
 void WsClientConnection::connect(size_t reconnect_interval) {
   // connect to server
@@ -19,20 +19,24 @@ void WsClientConnection::connect(size_t reconnect_interval) {
   // TODO: timeout
   LOG_INFO(_strand->logger(),
            LOG << "TCP client connecting to " << _hostname << ":" << _port);
-  _socket.async_connect(
-      *resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
+  boost::asio::async_connect(
+      _ws.next_layer(),
+      resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
       // capture shared_ptr to keep the instance
       // capture this to access protected member
-      [ connection = share_this<WsConnection>(),
-        this ](const boost::system::error_code &error) mutable {
+      [ connection = share_this<WsConnection>(), this ](
+          const boost::system::error_code &error,
+          tcp::resolver::iterator) mutable {
         if (is_destroyed()) return;
-	/* TODO
+        /* TODO
         if (error != boost::system::errc::success) {
           TcpConnection::destroy_in_strand(std::move(connection));
           // TODO: log or return the error?
           return;
         }
-	*/
+        */
+
+        // TODO: websocket handshake
 
         start_client_f0();
 

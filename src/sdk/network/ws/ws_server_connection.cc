@@ -2,16 +2,6 @@
 
 #include "ws_server_connection.h"
 
-#include <boost/bind.hpp>
-
-// TODO: remove this
-#include <boost/asio.hpp>
-
-// TODO
-//#include "tcp_server.h"
-
-#include "message/handshake/f1_message.h"
-
 #define DEBUG 0
 
 namespace dsa {

@@ -14,6 +14,7 @@ WsConnection::WsConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
     : Connection(strand, dsid_prefix, path),
       _socket(strand->get_io_service()),
             _read_buffer(DEFAULT_BUFFER_SIZE),
+      _ws(strand->get_io_service()),
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
 
 void WsConnection::on_deadline_timer_(const boost::system::error_code &error,

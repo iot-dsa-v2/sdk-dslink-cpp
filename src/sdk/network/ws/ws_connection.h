@@ -6,6 +6,7 @@
 #endif
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/beast/websocket.hpp>
 
 #include "../connection.h"
 #include "crypto/handshake_context.h"
@@ -14,7 +15,11 @@
 
 namespace dsa {
 
+using tcp = boost::asio::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
+namespace websocket = boost::beast::websocket;  // from <boost/beast/websocket.hpp>
+
 typedef boost::asio::ip::tcp::socket tcp_socket;
+typedef websocket::stream<tcp::socket> websocket_stream;
 
 // Base WS connection. Used for DSA connections over WS.
 class WsConnection : public Connection {
@@ -44,7 +49,10 @@ class WsConnection : public Connection {
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
   tcp_socket _socket;
+  websocket_stream _ws;
+  
   std::atomic_bool _socket_open{true};
+  std::atomic_bool _ws_open{true};
 
   void on_deadline_timer_(const boost::system::error_code &error,
                           shared_ptr_<Connection> sthis);
