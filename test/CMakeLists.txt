@@ -37,7 +37,7 @@ if (WIN32)
     set(TEST_LIBS ${GTEST_LIBRARIES})
 endif (WIN32)
 
-find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time filesystem)
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time filesystem program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
 
@@ -72,3 +72,7 @@ add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
 add_executable("test-playground" sdk/playground/test.cc sdk/async_test.cc sdk/test_config.cc)
 target_link_libraries("test-playground" ${TEST_LIBS})
 add_test(NAME "test-playground" COMMAND "test-playground")
+
+add_executable("test-dslink" sdk/dslink/dslink-config-test.cc)
+target_link_libraries("test-dslink" ${TEST_LIBS})
+add_test(NAME "test-dslink" COMMAND "test-dslink")

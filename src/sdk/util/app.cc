@@ -67,4 +67,7 @@ void App::force_stop() {
 
 bool App::is_stopped() { return _io_service->stopped(); }
 
+size_t App::get_thread_size() {
+  return _threads.get()->size();
+}
 }  // namespace dsa
