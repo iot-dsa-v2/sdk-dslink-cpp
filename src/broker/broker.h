@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include "core/config.h"
+#include "core/editable_strand.h"
 #include "core/session.h"
 
 namespace dsa {
@@ -16,7 +16,7 @@ class Client;
 class BrokerConfig;
 class ModuleLoader;
 
-class DsBroker final : public WrapperConfig {
+class DsBroker final : public WrapperStrand {
   friend class SubscribeMerger;
   friend class ListMerger;
 private:

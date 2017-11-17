@@ -7,7 +7,7 @@
 #include "network/connection.h"
 
 namespace dsa {
-Client::Client(WrapperConfig &config)
+Client::Client(WrapperStrand &config)
     : _strand(config.strand),
       _client_token(config.client_token),
       _session(make_ref_<Session>(config.strand, "")),

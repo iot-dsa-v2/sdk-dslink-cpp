@@ -57,7 +57,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_thread(variables["thread"].as<size_t>());
 
-  auto *config = new LinkConfig(get_app().new_strand(), load_private_key());
+  auto *config = new EditableStrand(get_app().new_strand(), load_private_key());
   strand.reset(config);
 
   parse_url(variables["broker"].as<string_>());
@@ -87,7 +87,7 @@ void DsLink::destroy_impl() {
   }
   _app->close();
 
-  WrapperConfig::destroy_impl();
+  WrapperStrand::destroy_impl();
 }
 std::unique_ptr<ECDH> DsLink::load_private_key() {
   fs::path path(".key");
@@ -168,7 +168,7 @@ void DsLink::parse_url(const string_ &url) {
   }
 }
 
-void DsLink::parse_log(const string_ &log, LinkConfig &config) {
+void DsLink::parse_log(const string_ &log, EditableStrand &config) {
   auto *logger = new ConsoleLogger();
   config.set_logger(std::unique_ptr<Logger>(logger));
   logger->level = Logger::parse(log);

@@ -78,16 +78,16 @@ int main(int argc, const char *argv[]) {
             << "benchmark with " << client_count << " clients (" << num_thread
             << " threads)";
 
-  TestConfigExt server_config(app, host_ip_address);
+  TestConfigExt server_strand(app, host_ip_address);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_config.strand->set_responder_model(
+  server_strand.strand->set_responder_model(
       ref_<MockNode>(root_node));
 
-  //  auto tcp_server(new TcpServer(server_config));
+  //  auto tcp_server(new TcpServer(server_strand));
 
-  std::vector<WrapperConfig> client_configs;
+  std::vector<WrapperStrand> client_strands;
   std::vector<ref_<Client>> clients;
   std::atomic_int receive_count[MAX_CLIENT_COUNT];
 
@@ -96,11 +96,11 @@ int main(int argc, const char *argv[]) {
   initial_options.queue_size = 655360;
 
   for (int i = 0; i < client_count; ++i) {
-    client_configs.emplace_back(server_config.get_client_config(app));
-    clients.emplace_back(make_ref_<Client>(client_configs[i]));
+    client_strands.emplace_back(server_strand.get_client_wrapper_strand(app));
+    clients.emplace_back(make_ref_<Client>(client_strands[i]));
     clients[i]->connect();
 
-    wait_for_bool(500, *client_configs[i].strand,
+    wait_for_bool(500, *client_strands[i].strand,
                   [&]() { return clients[i]->get_session().is_connected(); });
 
     if (!clients[i]->get_session().is_connected()) {
@@ -149,7 +149,7 @@ int main(int argc, const char *argv[]) {
   tick = [&](const boost::system::error_code &error) {
 
     if (!error) {
-      client_configs[0].strand->dispatch([&]() {
+      client_strands[0].strand->dispatch([&]() {
         auto ts2 = high_resolution_clock::now();
 
         auto ms =
@@ -201,9 +201,9 @@ int main(int argc, const char *argv[]) {
   if (!app.is_stopped()) {
     app.force_stop();
   }
-  server_config.destroy();
+  server_strand.destroy();
   for (int i = 0; i < client_count; ++i) {
-    client_configs[i].destroy();
+    client_strands[i].destroy();
   }
   app.wait();
   return 0;

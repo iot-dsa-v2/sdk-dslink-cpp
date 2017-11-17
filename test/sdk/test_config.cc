@@ -16,8 +16,8 @@ namespace dsa {
 
 uint16_t TestConfig::_port = 4120;
 
-static LinkConfig *make_config(App &app, bool async) {
-  auto *config = new LinkConfig(app.new_strand(), make_unique_<ECDH>());
+static EditableStrand *make_config(App &app, bool async) {
+  auto *config = new EditableStrand(app.new_strand(), make_unique_<ECDH>());
 
   config->set_session_manager(make_ref_<SessionManager>(config));
 
@@ -34,14 +34,14 @@ static LinkConfig *make_config(App &app, bool async) {
   return config;
 }
 
-TestConfig::TestConfig(App &app, bool async) : WrapperConfig() {
+TestConfig::TestConfig(App &app, bool async) : WrapperStrand() {
   strand.reset(make_config(app, async));
 
   tcp_server_port = _port++;
 }
 
-WrapperConfig TestConfig::get_client_config(App &app, bool async) {
-  WrapperConfig copy(*this);
+WrapperStrand TestConfig::get_client_wrapper_strand(App &app, bool async) {
+  WrapperStrand copy(*this);
 
   copy.tcp_server_port = 0;
   copy.tcp_host = "127.0.0.1";

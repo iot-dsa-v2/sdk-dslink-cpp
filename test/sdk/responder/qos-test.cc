@@ -34,22 +34,22 @@ class MockNodeQos : public NodeModelBase {
 TEST(ResponderTest, QosQueueSizeTest) {
   App app;
 
-  TestConfig server_config(app);
+  TestConfig server_strand(app);
 
-  MockNodeQos *root_node = new MockNodeQos(server_config.strand);
+  MockNodeQos *root_node = new MockNodeQos(server_strand.strand);
 
-  server_config.strand->set_responder_model(ref_<MockNodeQos>(root_node));
+  server_strand.strand->set_responder_model(ref_<MockNodeQos>(root_node));
 
-  WrapperConfig client_config = server_config.get_client_config(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -68,7 +68,7 @@ TEST(ResponderTest, QosQueueSizeTest) {
       initial_options);
 
   // wait for root_node to receive the request
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return last_response != nullptr && last_response->get_value().has_value() &&
            last_response->get_value().value.is_int() &&
            last_response->get_value().value.get_int() == 9;
@@ -88,7 +88,7 @@ TEST(ResponderTest, QosQueueSizeTest) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }

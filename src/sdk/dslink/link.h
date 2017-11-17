@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include "core/config.h"
+#include "core/editable_strand.h"
 #include "core/session.h"
 #include "list_merger.h"
 #include "subscribe_merger.h"
@@ -15,7 +15,7 @@ class App;
 class TcpServer;
 class Client;
 
-class DsLink final : public WrapperConfig {
+class DsLink final : public WrapperStrand {
   friend class SubscribeMerger;
   friend class ListMerger;
 
@@ -44,7 +44,7 @@ class DsLink final : public WrapperConfig {
   std::unique_ptr<ECDH> load_private_key();
   void parse_thread(size_t thread);
   void parse_url(const string_ &url);
-  void parse_log(const string_ &log, LinkConfig &config);
+  void parse_log(const string_ &log, EditableStrand &config);
   void parse_name(const string_ &name);
   void parse_server_port(uint16_t port);
 

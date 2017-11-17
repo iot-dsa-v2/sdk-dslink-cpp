@@ -59,22 +59,22 @@ TEST(ResponderTest, Subscribe_Model) {
   typedef responder_subscribe_test::MockNode MockNode;
   App app;
 
-  TestConfig server_config(app);
+  TestConfig server_strand(app);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_config.strand->set_responder_model(ModelRef(root_node));
+  server_strand.strand->set_responder_model(ModelRef(root_node));
 
-  WrapperConfig client_config = server_config.get_client_config(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -95,14 +95,14 @@ TEST(ResponderTest, Subscribe_Model) {
       initial_options);
 
   // wait for root_node to receive the request
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return root_node->first_subscribe_options != nullptr;
   });
 
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options == *root_node->first_subscribe_options);
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
@@ -111,25 +111,25 @@ TEST(ResponderTest, Subscribe_Model) {
   // send an new request to update the option of the same stream
   subscribe_stream->subscribe(update_options);
 
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return root_node->second_subscribe_options != nullptr;
   });
   // request option should be same as the second one
   EXPECT_TRUE(update_options == *root_node->second_subscribe_options);
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return last_response->get_value().value.get_string() == "world";
   });
 
   // close the subscribe stream
   subscribe_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&
            subscribe_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *server_config.strand,
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand,
                     [&]() -> bool { return !root_node->need_subscribe(); });
 
   tcp_server->destroy_in_strand(tcp_server);
@@ -143,8 +143,8 @@ TEST(ResponderTest, Subscribe_Model) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }
 
@@ -154,20 +154,20 @@ TEST(ResponderTest, Subscribe_Acceptor) {
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
-  TestConfig server_config(app);
-  server_config.strand->set_stream_acceptor(
+  TestConfig server_strand(app);
+  server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperConfig client_config = server_config.get_client_config(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -188,14 +188,14 @@ TEST(ResponderTest, Subscribe_Acceptor) {
       initial_options);
 
   // wait for acceptor to receive the request
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->last_subscribe_stream != nullptr;
   });
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options ==
               mock_stream_acceptor->last_subscribe_stream->options());
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
@@ -204,7 +204,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   // send an new request to udpate the option of the same stream
   subscribe_stream->subscribe(update_options);
 
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->last_subscribe_options != nullptr;
   });
   // request option should be same as the second one
@@ -215,12 +215,12 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   // close the subscribe stream
   subscribe_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&
            subscribe_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->unsubscribed;
   });
 
@@ -235,7 +235,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }

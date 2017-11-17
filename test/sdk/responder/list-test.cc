@@ -39,21 +39,21 @@ TEST(ResponderTest, ListTest) {
   typedef responder_list_test::MockNodeChild MockNodeChild;
   App app;
 
-  TestConfig server_config(app);
+  TestConfig server_strand(app);
 
-  MockNodeRoot *root_node = new MockNodeRoot(server_config.strand);
+  MockNodeRoot *root_node = new MockNodeRoot(server_strand.strand);
 
-  server_config.strand->set_responder_model(ModelRef(root_node));
+  server_strand.strand->set_responder_model(ModelRef(root_node));
 
-  WrapperConfig client_config = server_config.get_client_config(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   // list on root node
@@ -72,7 +72,7 @@ TEST(ResponderTest, ListTest) {
         child_list_response = msg;
       });
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
@@ -86,7 +86,7 @@ TEST(ResponderTest, ListTest) {
     root_list_response.reset();
   }
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return child_list_response != nullptr; });
   {
     // check child list response
@@ -99,9 +99,9 @@ TEST(ResponderTest, ListTest) {
   }
 
   // update root property
-  server_config.strand->post(
+  server_strand.strand->post(
       [&]() { root_node->update_property("@int", Var(1)); });
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
@@ -113,11 +113,11 @@ TEST(ResponderTest, ListTest) {
   }
 
   // update root child
-  server_config.strand->post([&]() {
+  server_strand.strand->post([&]() {
     root_node->add_list_child("child_c",
-                              new MockNodeChild(server_config.strand));
+                              new MockNodeChild(server_strand.strand));
   });
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
@@ -130,11 +130,11 @@ TEST(ResponderTest, ListTest) {
   // close list stream
   list_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return list_stream->is_destroyed() && list_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *server_config.strand,
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand,
                     [&]() -> bool { return !root_node->need_list(); });
 
   tcp_server->destroy_in_strand(tcp_server);
@@ -148,7 +148,7 @@ destroy_client_in_strand(tcp_client);
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }

@@ -8,7 +8,7 @@
 namespace dsa {
 
 using tcp = boost::asio::ip::tcp;
-TcpServer::TcpServer(WrapperConfig &config)
+TcpServer::TcpServer(WrapperStrand &config)
     : Server(config),
       _port(config.tcp_port),
       _acceptor(
