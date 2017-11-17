@@ -1,4 +1,4 @@
-find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time program_options)
+find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time program_options filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 set(BENCHMARK_LIBS ${BENCHMARK_LIBS} ${Boost_LIBRARIES})
 
