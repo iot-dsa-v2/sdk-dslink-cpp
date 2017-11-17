@@ -15,6 +15,8 @@ class ECDH {
  public:
   static const char *curve_name;
 
+  static ECDH *from_file(const char *path);
+
  private:
   EC_KEY *key;
   const EC_GROUP *group;

@@ -57,7 +57,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_thread(variables["thread"].as<size_t>());
 
-  auto *config = new EditableStrand(get_app().new_strand(), load_private_key());
+  auto *config = new EditableStrand(
+      get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key")));
   strand.reset(config);
 
   parse_url(variables["broker"].as<string_>());
@@ -89,39 +90,7 @@ void DsLink::destroy_impl() {
 
   WrapperStrand::destroy_impl();
 }
-std::unique_ptr<ECDH> DsLink::load_private_key() {
-  fs::path path(".key");
 
-  try {
-    if (fs::is_regular_file(path) && fs::file_size(path) == 32) {
-      std::ifstream keyfile(".key", std::ios::in | std::ios::binary);
-      if (keyfile.is_open()) {
-        uint8_t data[32];
-        keyfile.read(reinterpret_cast<char *>(data), 32);
-        return make_unique_<ECDH>(data, 32);
-
-      } else {
-        LOG_FATAL(LOG << "Unable to open .key file");
-        // file exists but can't open, make a new kwy won't solve the problem
-      }
-    }
-  } catch (std::exception &e) {
-    LOG_ERROR(Logger::_(),
-              LOG << "error loading existing private key, generating new key");
-  }
-
-  auto newkey = make_unique_<ECDH>();
-
-  std::ofstream keyfile(".key",
-                        std::ios::out | std::ios::binary | std::ios::trunc);
-  if (keyfile.is_open()) {
-    auto data = newkey->get_private_key();
-    keyfile.write(reinterpret_cast<char *>(data.data()), data.size());
-  } else {
-    LOG_FATAL(LOG << "Unable to open .key file");
-  }
-  return std::move(newkey);
-}
 void DsLink::parse_thread(size_t thread) {
   if (thread < 1) {
     thread = 1;

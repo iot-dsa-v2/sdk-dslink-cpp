@@ -41,7 +41,6 @@ class DsLink final : public WrapperStrand {
   bool _running = false;
 
   // initialization
-  std::unique_ptr<ECDH> load_private_key();
   void parse_thread(size_t thread);
   void parse_url(const string_ &url);
   void parse_log(const string_ &log, EditableStrand &config);
