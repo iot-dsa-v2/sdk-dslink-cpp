@@ -51,7 +51,7 @@ class NodeModel : public NodeModelBase {
 
   void update_property(const string_ &field, ModelProperty &&value);
 
-  ref_<NodeModel> add_list_child(const string_ &name, ref_<NodeModel> &&model);
+  ref_<NodeModelBase> add_list_child(const string_ &name, ref_<NodeModelBase> &&model);
 
   BytesRef &get_summary() override;
 

@@ -115,8 +115,8 @@ void NodeModel::update_property(const string_ &field, ModelProperty &&value) {
     }
   }
 }
-ref_<NodeModel> NodeModel::add_list_child(const string_ &name,
-                                          ref_<NodeModel> &&model) {
+ref_<NodeModelBase> NodeModel::add_list_child(const string_ &name,
+                                              ref_<NodeModelBase> &&model) {
   _list_children[name] = model;
   if (_state != nullptr) {
     add_child(name, ModelRef(model.get()));

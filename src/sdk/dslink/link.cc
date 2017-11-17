@@ -218,6 +218,7 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
     _client->connect(std::move(on_connect), callback_type);
   });
   _app->wait();
+  destroy();
 }
 
 // requester features

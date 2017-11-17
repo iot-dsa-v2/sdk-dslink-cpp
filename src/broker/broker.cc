@@ -3,17 +3,13 @@
 #include "broker.h"
 
 #include "config/broker_config.h"
-#include "config/module_loader.h"
+#include "module/logger.h"
 
 namespace dsa {
-void DsBroker::destroy_impl() {}
+DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules)
+    : _config(std::move(config)) {}
+DsBroker::~DsBroker() {}
+void DsBroker::run(){
+
 }
-
-using namespace dsa;
-
-int main(int argc, const char* argv[]) {
-  ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(argc, argv);
-  ModuleLoader loader(broker_config);
-
-  return 0;
 }
