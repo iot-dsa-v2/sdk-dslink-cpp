@@ -31,7 +31,7 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   void destroy_impl() final;
 
  public:
-  explicit NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
+  NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                             size_t timer_interval = 60);
 
   void remove_state(const string_ &path) final;

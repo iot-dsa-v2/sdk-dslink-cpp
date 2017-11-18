@@ -4,9 +4,13 @@
 
 #include "config/broker_config.h"
 #include "config/module_loader.h"
+#include "core/session_manager.h"
 #include "module/logger.h"
-#include "util/app.h"
 #include "module/security_manager.h"
+#include "network/tcp/tcp_server.h"
+#include "node/broker_root.h"
+#include "responder/node_state_manager.h"
+#include "util/app.h"
 
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules)
@@ -23,7 +27,7 @@ void DsBroker::init(ModuleLoader& modules) {
   }
   _app.reset(new App(thread));
 
-  server_host = _config->port().get_value().get_string();
+  server_host = _config->host().get_value().get_string();
   tcp_server_port =
       static_cast<uint16_t>(_config->port().get_value().get_int());
   tcp_secure_port =
@@ -43,10 +47,20 @@ void DsBroker::init(ModuleLoader& modules) {
 
   // init security manager
   strand->set_security_manager(modules.new_security_manager(*_app, strand));
+
+  // init session manager
+  strand->set_session_manager(make_ref_<SessionManager>(strand));
+
+  // init responder
+  strand->set_stream_acceptor(
+      make_ref_<NodeStateManager>(*strand, make_ref_<BrokerRoot>(strand->get_ref())));
 }
 void DsBroker::run() {
-  strand->dispatch([]() {
-
+  strand->dispatch([this]() {
+    if (tcp_server_port > 0) {
+      _tcp_server = make_shared_<TcpServer>(*this);
+      _tcp_server->start();
+    }
   });
   _app->wait();
   destroy();

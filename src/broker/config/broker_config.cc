@@ -26,7 +26,7 @@ const string_& BrokerConfig::get_file_path() {
 // init all the config properties
 void BrokerConfig::init() {
   add_item("thread", Var(2), VarValidatorInt(1, 100));
-  add_item("host", Var("localhost"), [](const Var& var) {
+  add_item("host", Var("0.0.0.0"), [](const Var& var) {
     return var.is_string() && !var.get_string().empty();
   });
   add_item("port", Var(4120), VarValidatorInt(1, 65535));

@@ -10,10 +10,9 @@
 namespace dsa {
 
 class BrokerRoot : public NodeModel {
+ public:
   explicit BrokerRoot(LinkStrandRef &&strand);
 };
-
 }
 
-
-#endif //DSA_BROKER_ROOT_H
+#endif  // DSA_BROKER_ROOT_H
