@@ -57,13 +57,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_thread(variables["thread"].as<size_t>());
 
-  auto *config = new EditableStrand(
-      get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key")));
-  strand.reset(config);
+  strand.reset(new EditableStrand(
+      get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
-  parse_log(variables["log"].as<string_>(), *config);
+  parse_log(variables["log"].as<string_>(), *strand);
   parse_server_port(variables["server-port"].as<uint16_t>());
 }
 DsLink::~DsLink() {}

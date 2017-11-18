@@ -34,7 +34,7 @@ private:
   ref_<BrokerConfig> _config;
   // initialization
 
-  void init();
+  void init(ModuleLoader& modules);
 
  public:
 };

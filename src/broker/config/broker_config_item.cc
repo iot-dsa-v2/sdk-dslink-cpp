@@ -4,7 +4,7 @@
 
 namespace dsa {
 bool BrokerConfigItem::set_value(Var&& value) {
-  if (_type >= Var::NUL && value.get_type() != _type) {
+  if (_validator != nullptr && !_validator(value)) {
     return false;
   }
   // if (value == _value) return false;

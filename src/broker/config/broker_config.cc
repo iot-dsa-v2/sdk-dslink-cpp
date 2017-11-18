@@ -25,12 +25,19 @@ const string_& BrokerConfig::get_file_path() {
 
 // init all the config properties
 void BrokerConfig::init() {
-  add_item("thread", Var(2), Var::INT);
-  add_item("host", Var("localhost"), Var::STRING);
-  add_item("port", Var(4120), Var::INT);
-  add_item("secure-port", Var(4128), Var::INT);
-  add_item("http-port", Var(80), Var::INT);
-  add_item("https-port", Var(443), Var::INT);
+  add_item("thread", Var(2), VarValidatorInt(1, 100));
+  add_item("host", Var("localhost"), [](const Var& var) {
+    return var.is_string() && !var.get_string().empty();
+  });
+  add_item("port", Var(4120), VarValidatorInt(1, 65535));
+  add_item("secure-port", Var(4128), VarValidatorInt(1, 65535));
+  add_item("http-port", Var(80), VarValidatorInt(1, 65535));
+  add_item("https-port", Var(443), VarValidatorInt(1, 65535));
+  add_item("log-level", Var("warn"), [](const Var& var) {
+    string_ str = var.to_string();
+    return str == "trace" || str == "debug" || str == "info" || str == "warn" ||
+           str == "error" || str == "fatal";
+  });
 }
 // load config json from file
 void BrokerConfig::load() {
@@ -93,8 +100,10 @@ void BrokerConfig::save() {
     LOG_ERROR(Logger::_(), LOG << "failed to write the broker config file");
   }
 }
-void BrokerConfig::add_item(const string_& name, Var&& value, int type) {
+void BrokerConfig::add_item(const string_& name, Var&& value,
+                            VarValidator&& validator) {
   _names.emplace_back(name);
-  _items.emplace(name, BrokerConfigItem(std::move(value), type));
+  _items.emplace(name,
+                 BrokerConfigItem(std::move(value), std::move(validator)));
 }
 }

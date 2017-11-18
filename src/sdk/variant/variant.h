@@ -172,6 +172,19 @@ class Var : public BaseVariant {
   static Var to_variant(json_t *obj);
 };
 
+typedef std::function<bool(const Var&)> VarValidator;
+
+class VarValidatorInt {
+  int64_t _min;
+  int64_t _max;
+
+public:
+  VarValidatorInt(int64_t min, int64_t max) : _min(min), _max(max){};
+  bool operator()(const Var& var) {
+    return var.is_int() && var.get_int() >= _min && var.get_int() <= _max;
+  }
+};
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_VARIANT_H

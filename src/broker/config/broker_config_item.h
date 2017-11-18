@@ -18,17 +18,18 @@ class BrokerConfigItem {
 
  private:
   Var _value;
-  const int _type;
 
   std::list<Callback> _callbacks;
+
+  VarValidator _validator;
 
  public:
   Var& get_value() { return _value; }
   const Var& get_value() const { return _value; }
 
-  BrokerConfigItem() : _type(-1) {}
-  BrokerConfigItem(Var&& value, int type = -1)
-      : _value(std::move(value)), _type(type) {}
+  BrokerConfigItem() {}
+  BrokerConfigItem(Var&& value, VarValidator&& validator)
+      : _value(std::move(value)), _validator(std::move(validator)) {}
 
   bool set_value(Var&& value);
   std::list<Callback>::iterator listen(Callback&& callback);
