@@ -55,6 +55,7 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
   string_ dsid_prefix;
 
   // server features
+  string_ server_host{"0.0.0.0"};
   uint16_t tcp_server_port{0};
   uint16_t tcp_secure_port{0};
 

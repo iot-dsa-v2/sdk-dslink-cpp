@@ -11,14 +11,12 @@ using tcp = boost::asio::ip::tcp;
 TcpServer::TcpServer(WrapperStrand &config)
     : Server(config),
       _port(config.tcp_port),
-      _acceptor(
-          new tcp::acceptor(_strand->get_io_service(),
-#if defined(__CYGWIN__)
-                            tcp::endpoint(tcp::v4(), config.tcp_server_port))) {
-#else
-                            // tcp:v6() already covers both ipv4 and ipv6
-                            tcp::endpoint(tcp::v6(), config.tcp_server_port))) {
-#endif
+      _acceptor(new tcp::acceptor(
+          _strand->get_io_service(),
+
+          tcp::endpoint(
+              boost::asio::ip::address::from_string(config.server_host),
+              config.tcp_server_port))) {
   LOG_INFO(_strand->logger(),
            LOG << "Bind to TCP server port: " << config.tcp_server_port);
 }
