@@ -58,10 +58,10 @@ class SimpleStorage : public Storage {
   SimpleStorage(boost::asio::io_service* io_service)
       : _io_service(io_service) {}
 
-  StorageBucket& get_bucket(const std::string& name) override;
+  std::unique_ptr<StorageBucket> get_bucket(const std::string& name) override;
 
   /// create a bucket or find a existing bucket
-  QueueBucket& get_queue_bucket(const std::string& name) override;
+  std::unique_ptr<QueueBucket> get_queue_bucket(const std::string& name) override;
 };
 
 }  // namespace dsa

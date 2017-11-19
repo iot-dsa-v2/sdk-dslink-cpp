@@ -43,6 +43,8 @@ class DynamicHeader {
 
   virtual void write(uint8_t *data) const = 0;
 
+  virtual ~DynamicHeader() = default;
+
  protected:
   DynamicKey _key;
   uint16_t _size;

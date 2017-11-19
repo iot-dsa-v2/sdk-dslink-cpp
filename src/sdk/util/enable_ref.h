@@ -234,6 +234,9 @@ class EnableRef {
 
   mutable size_t _refs{0};
 
+  EnableRef<T>(){};
+  EnableRef<T>(const EnableRef<T> &rhs){};
+
  public:
   size_t ref_count() const { return _refs; }
 };

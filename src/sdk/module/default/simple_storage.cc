@@ -1,13 +1,13 @@
 #include "simple_storage.h"
 
 namespace dsa {
-StorageBucket& SimpleStorage::get_bucket(const std::string& name) {
-  return *(new SimpleStorageBucket(_io_service));
+std::unique_ptr<StorageBucket> SimpleStorage::get_bucket(const std::string& name) {
+  return std::unique_ptr<StorageBucket>(new SimpleStorageBucket(_io_service));
 }
 
 /// create a bucket or find a existing bucket
-QueueBucket& SimpleStorage::get_queue_bucket(const std::string& name) {
-  return *(new SimpleQueueBucket());
+std::unique_ptr<QueueBucket> SimpleStorage::get_queue_bucket(const std::string& name) {
+  return std::unique_ptr<QueueBucket>(new SimpleQueueBucket());
 }
 
 }  // namespace dsa

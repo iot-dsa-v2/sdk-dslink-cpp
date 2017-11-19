@@ -39,5 +39,11 @@ void EditableStrand::set_responder_model(ModelRef&& root_model,
   set_stream_acceptor(make_ref_<NodeStateManager>(
       *this, std::move(root_model), timer_interval));
 }
+void EditableStrand::destroy_impl() {
+  LinkStrand::destroy_impl();
+  _session_manager.reset();
+  _stream_acceptor.reset();
+  _security_manager.reset();
+}
 
 }  // namespace dsa

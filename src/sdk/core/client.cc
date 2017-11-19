@@ -22,8 +22,10 @@ void Client::destroy_impl() {
     _connection.reset();
   }
   _session->destroy();
+  _session.reset();
   _reconnect_timer.cancel();
   _user_on_connect = nullptr;
+  _strand.reset();
 }
 
 void Client::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {

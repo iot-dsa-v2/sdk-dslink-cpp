@@ -19,7 +19,7 @@ TEST(ModuleTest, StorageBucket) {
 
   std::string storage_key("config");
 
-  StorageBucket& sb = ss.get_bucket(storage_key);
+  std::unique_ptr<StorageBucket> sb = ss.get_bucket(storage_key);
 
   auto on_done = []() {
     std::cout << "on_done" << std::endl;
@@ -29,7 +29,7 @@ TEST(ModuleTest, StorageBucket) {
   {
     const char* content = {"first_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    sb.write(storage_key, data);
+    sb->write(storage_key, std::forward<RefCountBytes*>(data));
 
     auto read_callback = [=] (std::string storage_key, std::vector<uint8_t> vec) {
 
@@ -37,13 +37,13 @@ TEST(ModuleTest, StorageBucket) {
 
       return;
     };
-    sb.read(storage_key, read_callback);
+    sb->read(storage_key, read_callback);
   }
 
   {
     const char* content = {"second_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    sb.write(storage_key, data);
+    sb->write(storage_key, std::forward<RefCountBytes*>(data));
 
     auto read_callback = [=] (std::string storage_key, std::vector<uint8_t> vec) {
 
@@ -51,10 +51,10 @@ TEST(ModuleTest, StorageBucket) {
 
       return;
     };
-    sb.read(storage_key, read_callback);
+    sb->read(storage_key, read_callback);
   }
 
-  sb.remove(storage_key);
+  sb->remove(storage_key);
 
   app.close();
 

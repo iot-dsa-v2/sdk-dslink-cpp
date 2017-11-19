@@ -16,8 +16,8 @@ namespace dsa {
 
 uint16_t TestConfig::_port = 4120;
 
-static EditableStrand *make_config(App &app, bool async) {
-  auto *config = new EditableStrand(app.new_strand(), make_unique_<ECDH>());
+static ref_<EditableStrand> make_config(App &app, bool async) {
+  auto config = make_ref_<EditableStrand>(app.new_strand(), make_unique_<ECDH>());
 
   config->set_session_manager(make_ref_<SessionManager>(config));
 
@@ -35,7 +35,7 @@ static EditableStrand *make_config(App &app, bool async) {
 }
 
 TestConfig::TestConfig(App &app, bool async) : WrapperStrand() {
-  strand.reset(make_config(app, async));
+  strand = make_config(app, async);
 
   tcp_server_port = _port++;
 }
@@ -47,7 +47,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand(App &app, bool async) {
   copy.tcp_host = "127.0.0.1";
   copy.tcp_port = tcp_server_port;
 
-  copy.strand.reset(make_config(app, async));
+  copy.strand = make_config(app, async);
   copy.strand->logger().level = strand->logger().level;
   copy.client_connection_maker =
       [

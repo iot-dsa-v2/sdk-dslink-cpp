@@ -73,6 +73,9 @@ BytesRef &NodeModel::get_summary() {
 void NodeModel::destroy_impl() {
   // clear children just in case some children keep parent's ref
   _list_children.clear();
+  _metas.clear();
+  _attributes.clear();
+  _summary.reset();
   NodeModelBase::destroy_impl();
 }
 

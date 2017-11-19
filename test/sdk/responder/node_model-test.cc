@@ -156,7 +156,7 @@ TEST(ResponderTest, model__get_child) {
   if (!app.is_stopped()) {
     app.force_stop();
   }
-
+  child_node->destroy();
   server_strand.destroy();
   client_strand.destroy();
   app.wait();

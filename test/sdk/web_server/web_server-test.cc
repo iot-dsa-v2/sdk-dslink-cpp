@@ -34,7 +34,7 @@ TEST(WebServerTest, basic_flow) {
 
   std::vector<ref_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    ref_<Client> tcp_client(new Client(config));
+    var tcp_client = make_ref_<client>(config);
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }

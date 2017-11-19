@@ -14,7 +14,10 @@ IncomingSubscribeCache::IncomingSubscribeCache(
     : _merger(std::move(merger)),
       _callback(std::move(callback)),
       _options(options) {}
-void IncomingSubscribeCache::destroy_impl() { _merger->remove(get_ref()); }
+void IncomingSubscribeCache::destroy_impl() {
+  _merger->remove(get_ref());
+  _callback= nullptr;
+}
 
 SubscribeMerger::SubscribeMerger(ref_<DsLink>&& link, const string_& path)
     : _link(std::move(link)),
@@ -28,6 +31,7 @@ void SubscribeMerger::destroy_impl() {
     _stream.reset();
   }
   _link->_subscribe_mergers.erase(_path);
+  _link.reset();
   _cached_value.reset();
 }
 

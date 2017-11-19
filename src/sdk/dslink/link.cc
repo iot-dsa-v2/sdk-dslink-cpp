@@ -87,6 +87,9 @@ void DsLink::destroy_impl() {
   }
   _app->close();
 
+  _subscribe_mergers.clear();
+  _list_mergers.clear();
+
   WrapperStrand::destroy_impl();
 }
 

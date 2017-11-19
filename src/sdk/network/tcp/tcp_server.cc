@@ -37,6 +37,7 @@ void TcpServer::start() {
 void TcpServer::destroy_impl() {
   _acceptor->close();
   _next_connection->destroy();
+  _next_connection.reset();
   Server::destroy_impl();
 }
 

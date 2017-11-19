@@ -23,6 +23,8 @@ NodeStateManager::NodeStateManager(LinkStrand &strand,
 void NodeStateManager::destroy_impl() {
   _root->destroy();
   _root.reset();
+  for ( auto it = _states.begin(); it != _states.end(); ++it )
+    it->second->destroy();
   _states.clear();
 }
 

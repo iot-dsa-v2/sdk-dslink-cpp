@@ -78,6 +78,7 @@ TEST(DynamicHeaderTest, parse) {
     default:
       ;
     }
+    delete dynamic_header;
   }
 }
 
