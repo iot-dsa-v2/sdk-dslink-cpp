@@ -118,6 +118,8 @@ void Session::destroy_impl() {
   _ping_stream.reset();
   _timer.cancel();
   _on_connect = nullptr;
+  _write_streams.clear();
+  _pending_acks.clear();
 }
 
 void Session::_on_timer() {

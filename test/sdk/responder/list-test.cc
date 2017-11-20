@@ -28,8 +28,8 @@ class MockNodeRoot : public NodeModel {
   bool need_list() { return _need_list; }
 
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
-    add_list_child("child_a", new MockNodeChild(_strand));
-    add_list_child("child_b", new MockNodeChild(_strand));
+      add_list_child("child_a", make_ref_<MockNodeChild>(_strand));
+      add_list_child("child_b", make_ref_<MockNodeChild>(_strand));
   };
 };
 }
@@ -148,7 +148,7 @@ destroy_client_in_strand(tcp_client);
     app.force_stop();
   }
 
-  server_strand.destroy();
   client_strand.destroy();
+  server_strand.destroy();
   app.wait();
 }

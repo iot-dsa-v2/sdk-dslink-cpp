@@ -42,6 +42,8 @@ class EditableStrand : public LinkStrand {
   void set_logger(std::unique_ptr<Logger> p);
 
   void set_responder_model(ModelRef&& root_model, size_t timer_interval = 60);
+
+  void destroy_impl() override;
 };
 
 typedef std::function<shared_ptr_<Connection>(
@@ -77,6 +79,7 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
   void destroy_impl() override {
     if (strand != nullptr) {
       strand->destroy();
+      strand.reset();
     }
   }
 };

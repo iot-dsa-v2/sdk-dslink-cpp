@@ -34,7 +34,7 @@ TEST(TcpServerTest, SingleThread) {
   config.strand->post([&]() {
 
     for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-      ref_<Client> tcp_client(new Client(config));
+      auto tcp_client = make_ref_<Client>(config);
       tcp_client->connect();
       clients.push_back(std::move(tcp_client));
     }
@@ -60,6 +60,7 @@ TEST(TcpServerTest, SingleThread) {
 
       server_strand.destroy();
       config.destroy();
+      clients.clear();
       app.close();
     };
     timer.async_wait(wait_for_connected);
@@ -71,7 +72,8 @@ TEST(TcpServerTest, SingleThread) {
 TEST(TcpServerTest, SingleStrand) {
   App app;
 
-  WrapperStrand config = TestConfig(app).get_client_wrapper_strand(app);
+  TestConfig testConfig = TestConfig(app);
+  WrapperStrand config = testConfig.get_client_wrapper_strand(app);
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
 
@@ -110,6 +112,7 @@ TEST(TcpServerTest, SingleStrand) {
     app.force_stop();
   }
   config.destroy();
+  testConfig.destroy();
   app.wait();
 }
 

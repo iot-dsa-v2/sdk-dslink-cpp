@@ -52,6 +52,11 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingListStream> &&stream) override {}
   void add(ref_<OutgoingInvokeStream> &&stream) override {}
   void add(ref_<OutgoingSetStream> &&stream) override {}
+    //TODO: keep in mind
+  void custom_destroy() {
+    last_subscribe_stream->destroy();
+    last_subscribe_stream.reset();
+  }
 };
 }
 
@@ -67,7 +72,6 @@ TEST(ResponderTest, Subscribe_Model) {
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
@@ -160,7 +164,6 @@ TEST(ResponderTest, Subscribe_Acceptor) {
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
 
-  //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
@@ -223,7 +226,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->unsubscribed;
   });
-
+  subscribe_stream->destroy();
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 

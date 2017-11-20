@@ -8,6 +8,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "dsa_common.h"
 #include "util/buffer.h"
@@ -46,16 +47,17 @@ class StorageBucket {
                         std::function<void()>&& on_done) = 0;
 
   virtual void remove_all() = 0;
+  virtual ~StorageBucket() = default;
 };
 
 class Storage {
  public:
   /// create a bucket or find a existing bucket
-  virtual StorageBucket& get_bucket(const string_& name) = 0;
+  virtual std::unique_ptr<StorageBucket> get_bucket(const string_& name) = 0;
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket
-  virtual QueueBucket& get_queue_bucket(const string_& name) = 0;
+  virtual std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) = 0;
 };
 
 }  // namespace dsa

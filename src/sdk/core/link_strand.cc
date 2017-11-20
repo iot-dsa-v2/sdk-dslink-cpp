@@ -14,7 +14,10 @@ namespace dsa {
 LinkStrand::LinkStrand(void* strand, ECDH* ecdh)
     : __strand(strand), __ecdh(ecdh) {}
 LinkStrand::~LinkStrand() {
-  delete static_cast<boost::asio::io_service::strand*>(__strand);
+  if(__strand != nullptr) {
+    delete static_cast<boost::asio::io_service::strand*>(__strand);
+    __strand = nullptr;
+  }
 }
 
 void LinkStrand::destroy_impl() {

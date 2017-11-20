@@ -3,12 +3,12 @@ set(SOURCES "")
 
 #
 foreach(dir
-            "./crypto"
-	    "./message"
+		"./crypto"
+		"./message"
 	    "./module"
-            "./util"
-            "./variant"
-            "./network"
+		"./util"
+		"./variant"
+		"./network"
 	    "./responder"
        )
   add_subdirectory(${dir})

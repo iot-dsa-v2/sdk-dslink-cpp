@@ -30,7 +30,6 @@ NodeModelBase::~NodeModelBase() = default;
 void NodeModelBase::destroy_impl() {
   _cached_value.reset();
   _state.reset();
-  _strand.reset();
 }
 
 ModelRef NodeModelBase::get_child(const string_ &name) {

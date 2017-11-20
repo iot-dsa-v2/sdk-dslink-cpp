@@ -27,6 +27,9 @@ void ListMerger::destroy_impl() {
     _stream.reset();
   }
   _link->_list_mergers.erase(_path);
+  _link.reset();
+  caches.clear();
+  _changes.clear();
 }
 
 ref_<IncomingListCache> ListMerger::list(

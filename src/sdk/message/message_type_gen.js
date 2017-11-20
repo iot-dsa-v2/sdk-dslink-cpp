@@ -52,7 +52,7 @@ class BoolHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;`
     }
 }
@@ -64,7 +64,7 @@ class IntHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicIntHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicIntHeader *>(header.release()));
         break;`
     }
 }
@@ -76,7 +76,7 @@ class StringHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicStringHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
         break;`
     }
 }
@@ -88,7 +88,7 @@ class ByteHeader extends Header {
 
     parseDynamicHeadersStatement() {
         return `
-      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicByteHeader *>(header));
+      case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicByteHeader *>(header.release()));
         break;`
     }
 }
@@ -117,8 +117,8 @@ class TargetPathHeader extends StringHeader {
     parseDynamicHeadersStatement() {
         return `
       case DynamicHeader::${this.upperName}: {
-        ${this.underName}.reset(DOWN_CAST<DynamicStringHeader *>(header));
-        _parsed_target_path.reset(new Path(DOWN_CAST<DynamicStringHeader *>(header)->value()));
+        ${this.underName}.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
+        _parsed_target_path.reset(new Path(${this.underName}->value()));
         break;
       }`
     }
@@ -219,7 +219,7 @@ ${typename}::${typename}(const ${typename}& from)
 
 void ${typename}::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_size, size_t body_size) throw(const MessageParsingError &) {
   while (dynamic_header_size > 0) {
-    DynamicHeader *header = DynamicHeader::parse(data, dynamic_header_size);
+    auto header = DynamicHeader::parse(data, dynamic_header_size);
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {`;

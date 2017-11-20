@@ -75,7 +75,8 @@ TEST(PathTest, Path__is_invalid) {
     EXPECT_TRUE(p.is_invalid());
   }
   {
-    char data[] = {0x1f};
+//    char data[] = {0x1f};
+    char data[] = {0x1f, 0x00};
     Path p(data);
     EXPECT_TRUE(p.is_invalid());
   }

@@ -55,7 +55,7 @@ class NodeState : public DestroyableRef<NodeState> {
   ModelRef _model;
   ModelStatus _model_status = MODEL_UNKNOWN;
 
-  std::unique_ptr<NodeStateWaitingCache> _watiging_cache;
+  std::unique_ptr<NodeStateWaitingCache> _waiting_cache;
 
   // subscription related properties
   std::unordered_map<BaseOutgoingSubscribeStream *,

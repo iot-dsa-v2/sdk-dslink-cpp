@@ -12,6 +12,7 @@
 #ifdef DSA_DEBUG
 
 #define DOWN_CAST dynamic_cast
+
 #define BOOST_ENABLE_ASSERT_HANDLER
 
 #else  // DSA_DEBUG

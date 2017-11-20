@@ -10,8 +10,7 @@ Server::Server(WrapperStrand & config)
     : _strand(config.strand) {}
 
 void Server::destroy_impl() {
-  _strand->session_manager().destroy();
-  _strand.reset();
+//  _strand->session_manager().destroy();
 }
 
 }  // namespace dsa
