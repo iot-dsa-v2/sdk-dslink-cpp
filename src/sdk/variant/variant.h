@@ -22,8 +22,7 @@ namespace dsa {
 
 class Var;
 
-
-    class VarMap : public std::map<string_, Var>, public EnableRef<VarMap> {
+class VarMap : public std::map<string_, Var>, public EnableRef<VarMap> {
  public:
   template <typename... Args>
   explicit VarMap(Args &&... args)
@@ -53,8 +52,7 @@ typedef boost::variant<boost::blank, double, int64_t, bool, string_,
                        std::vector<uint8_t>, BytesRef>
     BaseVariant;
 
-
-    class Var : public BaseVariant {
+class Var : public BaseVariant {
  public:
   enum : int {
     NUL = 0,
@@ -161,6 +159,12 @@ typedef boost::variant<boost::blank, double, int64_t, bool, string_,
   // other types are const and can use copy constructor directly
   Var copy() const;
 
+  // shallow compare
+  bool equals(const Var &val) const;
+  // deep compare
+  bool operator==(const Var &lhs) const;
+
+
   // msgpack encoding and decoding
  public:
   static Var from_msgpack(const uint8_t *data, size_t size);
@@ -174,22 +178,18 @@ typedef boost::variant<boost::blank, double, int64_t, bool, string_,
   static Var to_variant(json_t *obj);
 };
 
-typedef std::function<bool(const Var&)> VarValidator;
+typedef std::function<bool(const Var &)> VarValidator;
 
 class VarValidatorInt {
   int64_t _min;
   int64_t _max;
 
-public:
+ public:
   VarValidatorInt(int64_t min, int64_t max) : _min(min), _max(max){};
-  bool operator()(const Var& var) {
+  bool operator()(const Var &var) {
     return var.is_int() && var.get_int() >= _min && var.get_int() <= _max;
   }
 };
-
-
-bool operator==(const Var& rhs, const Var& lhs);
-
 
 }  // namespace dsa
 
