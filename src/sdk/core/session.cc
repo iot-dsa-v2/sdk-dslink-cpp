@@ -120,7 +120,6 @@ void Session::destroy_impl() {
   _on_connect = nullptr;
   _write_streams.clear();
   _pending_acks.clear();
-  _strand.reset();
 }
 
 void Session::_on_timer() {

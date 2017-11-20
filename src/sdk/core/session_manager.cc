@@ -34,7 +34,5 @@ void SessionManager::destroy_impl() {
     kv.second.destroy();
   }
   _clients.clear();
-  _strand->destroy();
-  _strand.reset();
 }
 }  // namespace dsa
