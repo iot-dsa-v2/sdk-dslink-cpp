@@ -154,7 +154,7 @@ class ResponseMessage : public Message {
 typedef std::function<void(bool)> AckCallback;
 
 class SubscribeResponseMessage;
-class SubscribeOptions;
+struct SubscribeOptions;
 class MessageStream : public DestroyableRef<MessageStream> {
  public:
   const int32_t rid;
