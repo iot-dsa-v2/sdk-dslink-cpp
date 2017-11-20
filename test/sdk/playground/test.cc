@@ -9,8 +9,8 @@ using namespace dsa;
 TEST(PlayTest, SESSION) {
     App app;
 
-    WrapperConfig config = TestConfig(app);
-    config.destroy();
+    // WrapperConfig config = TestConfig(app);
+    // config.destroy();
 
 //    auto config = make_ref_<EditableStrand>(app.new_strand(), make_unique_<ECDH>());
 //
