@@ -5,6 +5,8 @@
 namespace dsa {
 const size_t MAX_SIZE_UNSHARED = 256;
 
+
+
 VarMap::VarMap(
     std::initializer_list<std::map<string_, Var>::value_type> init)
     : std::map<string_, Var>(init) {}
@@ -203,6 +205,7 @@ Var& Var::operator[](size_t index) {
   throw std::out_of_range("Varian is not an array");
 }
 
+
 Var Var::deep_copy() const {
   switch (which()) {
     case SHARED_STRING: {
@@ -234,5 +237,55 @@ Var Var::deep_copy() const {
       return Var(*this);
   }
 }
+
+
+#define ITERATIVE_STD_EQUAL     if(a.size()  != b.size() ) return false; return std::equal(a.begin(),  a.end(),  b.begin());
+#define ITERATIVE_STD_EQUAL_PTR if(a->size() != b->size()) return false; return std::equal(a->begin(), a->end(), b->begin());
+
+struct VAR_equality_visitor : public boost::static_visitor<bool> {
+    // Basic types
+    bool operator()(const boost::blank& a, const boost::blank& b) const { return true; }
+    bool operator()(const short& a, const short& b) const { return a==b; }
+    bool operator()(const int& a, const int& b) const { return a==b; }
+    bool operator()(const long& a, const long& b) const { return a==b; }
+    bool operator()(const double& a, const double& b) const { return a==b; }
+    bool operator()(const bool& a, const bool& b) const { return a==b; }
+
+    bool operator()(const ref_<VarArray>& a, const ref_<VarArray>& b) const {
+        if(a->size() != b->size()) return false;
+        for(int i = 0; i < a->size(); i++) {
+            if(!this->operator()(a->at(i), b->at(i))) return false;
+        }
+
+        return true;
+    }
+
+    bool operator()(const ref_<VarMap>& a, const ref_<VarMap>& b) const { ITERATIVE_STD_EQUAL_PTR }
+
+    bool operator()(const std::string& a, const std::string& b) const { ITERATIVE_STD_EQUAL }
+    bool operator()(const ref_<const RefCountString>& a, const ref_<const RefCountString>& b) const { ITERATIVE_STD_EQUAL_PTR }
+    bool operator()(const std::vector<uint8_t>& a, const std::vector<uint8_t>& b) const { ITERATIVE_STD_EQUAL }
+    bool operator()(const BytesRef& a, const BytesRef& b) const { ITERATIVE_STD_EQUAL_PTR }
+
+    // Different type checks!
+    bool operator()(const ref_<const RefCountString>& a, const BytesRef& b) const { ITERATIVE_STD_EQUAL_PTR }
+    bool operator()(const BytesRef& a, const ref_<const RefCountString>& b) const { ITERATIVE_STD_EQUAL_PTR }
+
+    bool operator()(const std::vector<uint8_t>& a, const std::string& b) const { ITERATIVE_STD_EQUAL }
+    bool operator()(const std::string& a, const std::vector<uint8_t>& b) const { ITERATIVE_STD_EQUAL }
+
+    // Default operator
+    template <typename T1, typename T2>
+    bool operator()(const T1& a, const T2& b) const { return false; }
+
+};
+
+struct VAR_equality_visitor var_equality_visitor;
+bool operator==(const Var& lhs, const Var& rhs)
+{
+    return boost::apply_visitor(var_equality_visitor, lhs, rhs);
+}
+
+
 
 }  // namespace dsa
