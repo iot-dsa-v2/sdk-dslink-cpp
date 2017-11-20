@@ -67,11 +67,6 @@ void OutgoingSubscribeStream::set_options(SubscribeOptions &&options) {
   }
 }
 
-void OutgoingSubscribeStream::on_subscribe_option_change(
-    SubOptionChangeCallback &&callback) {
-  _option_callback = callback;
-}
-
 void OutgoingSubscribeStream::receive_message(MessageCRef &&message) {
   auto request_message =
       DOWN_CAST<const SubscribeRequestMessage *>(message.get());

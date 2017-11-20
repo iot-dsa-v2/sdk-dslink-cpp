@@ -29,7 +29,9 @@ class OutgoingSubscribeStream final : public MessageQueueStream {
   OutgoingSubscribeStream(ref_<Session> &&session, const Path &path,
                           uint32_t rid, SubscribeOptions &&options);
 
-  void on_subscribe_option_change(SubOptionChangeCallback &&callback) final;
+  void on_subscribe_option_change(SubOptionChangeCallback &&callback) final {
+    _option_callback = callback;
+  }
 
   void receive_message(MessageCRef &&mesage) final;
 
