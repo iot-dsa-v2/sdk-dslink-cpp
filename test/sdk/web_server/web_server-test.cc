@@ -23,11 +23,14 @@ TEST(WebServerTest, basic_flow) {
   // client
   const string_ dsid_prefix = "ws_";
   const string_ ws_host = "127.0.0.1";
-  uint16_t ws_port = 0;
+  uint16_t ws_port = 8080;
   TestConfig test_config(app, false);
   LinkStrandRef link_strand(std::move(test_config.strand));
-  make_shared_<WsClientConnection>(link_strand, dsid_prefix, ws_host,
-                                          ws_port);
+
+  auto client = make_shared_<WsClientConnection>(link_strand, dsid_prefix, ws_host,
+                                           ws_port);
+
+  client->connect(60);
 
 #if 0
   const uint32_t NUM_CLIENT = 2;
