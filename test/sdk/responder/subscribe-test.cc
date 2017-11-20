@@ -39,14 +39,14 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
-    stream->on_option_change([=](OutgoingSubscribeStream &stream,
-                                 const SubscribeOptions &old_option) {
+    stream->send_subscribe_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
+    stream->on_subscribe_option_change([=](MessageStream &stream,
+                                           const SubscribeOptions &old_option) {
       if (stream.is_destroyed()) {
         unsubscribed = true;
         return;
       }
-      last_subscribe_options.reset(new SubscribeOptions(stream.options()));
+      last_subscribe_options.reset(new SubscribeOptions(stream.subscribe_options()));
     });
   }
   void add(ref_<OutgoingListStream> &&stream) override {}
@@ -193,7 +193,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   });
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options ==
-              mock_stream_acceptor->last_subscribe_stream->options());
+                mock_stream_acceptor->last_subscribe_stream->subscribe_options());
 
   ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
@@ -210,7 +210,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   // request option should be same as the second one
   EXPECT_TRUE(update_options == *mock_stream_acceptor->last_subscribe_options);
   EXPECT_TRUE(update_options ==
-              mock_stream_acceptor->last_subscribe_stream->options());
+                mock_stream_acceptor->last_subscribe_stream->subscribe_options());
 
   // close the subscribe stream
   subscribe_stream->close();

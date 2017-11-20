@@ -82,22 +82,22 @@ void NodeModel::initialize() {
   }
 }
 
-void NodeModel::on_list(OutgoingListStream &stream, bool first_request) {
+void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
   send_props_list(stream);
   send_children_list(stream);
 }
 
-void NodeModel::send_props_list(OutgoingListStream &stream) {
+void NodeModel::send_props_list(BaseOutgoingListStream &stream) {
   for (auto &it : _metas) {
-    stream.update_value(it.first, it.second.get_bytes());
+    stream.update_list_value(it.first, it.second.get_bytes());
   }
   for (auto &it : _attributes) {
-    stream.update_value(it.first, it.second.get_bytes());
+    stream.update_list_value(it.first, it.second.get_bytes());
   }
 }
-void NodeModel::send_children_list(OutgoingListStream &stream) {
+void NodeModel::send_children_list(BaseOutgoingListStream &stream) {
   for (auto &it : _list_children) {
-    stream.update_value(it.first, it.second->get_summary());
+    stream.update_list_value(it.first, it.second->get_summary());
   }
 }
 

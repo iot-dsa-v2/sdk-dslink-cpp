@@ -15,11 +15,8 @@ namespace dsa {
 class Var;
 
 class OutgoingListStream final : public MessageRefedStream {
- public:
-  typedef std::function<void(OutgoingListStream &)> CloseCallback;
-
  protected:
-  CloseCallback _close_callback;
+  ListCloseCallback _close_callback;
 
   void destroy_impl() final;
 
@@ -30,10 +27,9 @@ class OutgoingListStream final : public MessageRefedStream {
   OutgoingListStream(ref_<Session> &&session, const Path &path, uint32_t rid,
                      ListOptions &&options);
 
-  void on_close(CloseCallback &&callback);
+  void on_list_close(ListCloseCallback &&callback) final;
 
-  void update_value(const string_ &key, BytesRef &value);
-  void update_value(const string_ &key, const Var &v);
+  void update_list_value(const string_ &key, BytesRef &value) final;
 
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback &) final;

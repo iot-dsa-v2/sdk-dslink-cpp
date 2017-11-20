@@ -67,7 +67,8 @@ void OutgoingSubscribeStream::set_options(SubscribeOptions &&options) {
   }
 }
 
-void OutgoingSubscribeStream::on_option_change(Callback &&callback) {
+void OutgoingSubscribeStream::on_subscribe_option_change(
+    SubOptionChangeCallback &&callback) {
   _option_callback = callback;
 }
 

@@ -13,13 +13,8 @@
 namespace dsa {
 
 class OutgoingSubscribeStream final : public MessageQueueStream {
- public:
-  typedef std::function<void(OutgoingSubscribeStream &,
-                             const SubscribeOptions &)>
-      Callback;
-
  protected:
-  Callback _option_callback;
+  SubOptionChangeCallback _option_callback;
   SubscribeOptions _options;
   void set_options(SubscribeOptions &&options);
 
@@ -29,16 +24,16 @@ class OutgoingSubscribeStream final : public MessageQueueStream {
   void destroy_impl() final;
 
  public:
-  const SubscribeOptions &options() { return _options; }
+  const SubscribeOptions &subscribe_options() final { return _options; }
 
   OutgoingSubscribeStream(ref_<Session> &&session, const Path &path,
                           uint32_t rid, SubscribeOptions &&options);
 
-  void on_option_change(Callback &&callback);
+  void on_subscribe_option_change(SubOptionChangeCallback &&callback) final;
 
   void receive_message(MessageCRef &&mesage) final;
 
-  void send_response(SubscribeResponseMessageCRef &&message) {
+  void send_subscribe_response(SubscribeResponseMessageCRef &&message) final {
     send_message(MessageCRef(std::move(message)));
   }
 };

@@ -2,9 +2,9 @@
 
 #include "base_message.h"
 
-#include "util/path.h"
-
 #include <ctime>
+#include "message_options.h"
+#include "util/path.h"
 
 namespace dsa {
 Message::Message(const uint8_t* data, size_t size)
@@ -143,6 +143,10 @@ void ResponseMessage::set_status(MessageStatus value) {
                                      uint8_t(value))) {
     static_headers.message_size = 0;
   }
+}
+
+const SubscribeOptions& MessageStream::subscribe_options() {
+  return SubscribeOptions::default_options;
 }
 
 }  // namespace dsa
