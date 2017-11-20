@@ -33,8 +33,8 @@ class DynamicHeader {
     SOURCE_PATH = 0x81
   };
 
-  static DynamicHeader *parse(const uint8_t *data,
-                              size_t size) throw(const MessageParsingError &);
+  static std::unique_ptr<DynamicHeader> parse(
+          const uint8_t *data, size_t size) throw(const MessageParsingError &);
 
   DynamicKey key() const { return _key; }
 

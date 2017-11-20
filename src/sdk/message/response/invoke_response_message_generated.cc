@@ -22,19 +22,19 @@ InvokeResponseMessage::InvokeResponseMessage(const InvokeResponseMessage& from)
 
 void InvokeResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_size, size_t body_size) throw(const MessageParsingError &) {
   while (dynamic_header_size > 0) {
-    DynamicHeader *header = DynamicHeader::parse(data, dynamic_header_size);
+    auto header = DynamicHeader::parse(data, dynamic_header_size);
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::STATUS:status.reset(DOWN_CAST<DynamicByteHeader *>(header));
+      case DynamicHeader::STATUS:status.reset(DOWN_CAST<DynamicByteHeader *>(header.release()));
         break;
-      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
+      case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header.release()));
         break;
-      case DynamicHeader::PAGE_ID:page_id.reset(DOWN_CAST<DynamicIntHeader *>(header));
+      case DynamicHeader::PAGE_ID:page_id.reset(DOWN_CAST<DynamicIntHeader *>(header.release()));
         break;
-      case DynamicHeader::REFRESHED:refreshed.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+      case DynamicHeader::REFRESHED:refreshed.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;
-      case DynamicHeader::SKIPPABLE:skippable.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+      case DynamicHeader::SKIPPABLE:skippable.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }
