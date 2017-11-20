@@ -14,7 +14,6 @@
 #include "util/path.h"
 
 namespace dsa {
-class OutgoingListStream;
 class OutgoingInvokeStream;
 class OutgoingSetStream;
 
@@ -74,10 +73,10 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   /// list
  protected:
   bool _need_list = false;
-  virtual void on_list(OutgoingListStream &stream, bool first_request){};
+  virtual void on_list(BaseOutgoingListStream &stream, bool first_request){};
   virtual void on_unlist() {}
 
-  void list(OutgoingListStream &stream);
+  void list(BaseOutgoingListStream &stream);
   void unlist();
 
   // get the summery Map when it's listed in a parent node

@@ -128,7 +128,7 @@ void NodeState::set_model(ModelRef &&model) {
       _model->subscribe(_merged_subscribe_options);
       if (_model->_cached_value != nullptr) {
         for (auto &subscribe_stream : _subscription_streams) {
-          subscribe_stream.first->send_response(
+          subscribe_stream.first->send_subscribe_response(
               copy_ref_(_model->_cached_value));
         }
       }
@@ -169,14 +169,14 @@ bool NodeState::periodic_check(size_t ts) {
 
 void NodeState::new_subscribe_response(SubscribeResponseMessageCRef &&message) {
   for (auto &it : _subscription_streams) {
-    it.first->send_response(copy_ref_(message));
+    it.first->send_subscribe_response(copy_ref_(message));
   }
 }
 
 void NodeState::check_subscribe_options() {
   SubscribeOptions new_options(QosLevel::_0, -1);
   for (auto &stream : _subscription_streams) {
-    new_options.mergeFrom(stream.first->options());
+    new_options.mergeFrom(stream.first->subscribe_options());
   }
   if (new_options != _merged_subscribe_options) {
     _merged_subscribe_options = new_options;
@@ -191,45 +191,47 @@ void NodeState::check_subscribe_options() {
   }
 }
 
-void NodeState::subscribe(ref_<OutgoingSubscribeStream> &&stream) {
+void NodeState::subscribe(ref_<BaseOutgoingSubscribeStream> &&stream) {
   auto p = stream.get();
   _subscription_streams[p] = std::move(stream);
-  if (_merged_subscribe_options.mergeFrom(p->options())) {
+  if (_merged_subscribe_options.mergeFrom(p->subscribe_options())) {
     if (_model_status == MODEL_CONNECTED) {
       _model->subscribe(_merged_subscribe_options);
     }
     // TODO update model;
   }
-  p->on_option_change([ this, keep_ref = get_ref() ](
-      OutgoingSubscribeStream & stream, const SubscribeOptions &old_options) {
+  p->on_subscribe_option_change([
+    this, keep_ref = get_ref()
+  ](BaseOutgoingSubscribeStream & stream, const SubscribeOptions &old_options) {
     if (stream.is_destroyed()) {
       _subscription_streams.erase(&stream);
       if (_subscription_streams.empty() ||
-          _merged_subscribe_options.needUpdateOnRemoval(stream.options())) {
+          _merged_subscribe_options.needUpdateOnRemoval(
+              stream.subscribe_options())) {
         check_subscribe_options();
       }
     } else {
-      if (_merged_subscribe_options.needUpdateOnChange(old_options,
-                                                       stream.options())) {
+      if (_merged_subscribe_options.needUpdateOnChange(
+              old_options, stream.subscribe_options())) {
         check_subscribe_options();
       }
     }
   });
   if (_model != nullptr && _model->_cached_value != nullptr) {
-    p->send_response(copy_ref_(_model->_cached_value));
+    p->send_subscribe_response(copy_ref_(_model->_cached_value));
   }
 }
 
 void NodeState::update_list_value(const string_ &key, BytesRef &value) {
   for (auto &it : _list_streams) {
-    it.first->update_value(key, value);
+    it.first->update_list_value(key, value);
   }
 }
 
-void NodeState::list(ref_<OutgoingListStream> &&stream) {
+void NodeState::list(ref_<BaseOutgoingListStream> &&stream) {
   auto p = stream.get();
   _list_streams[p] = std::move(stream);
-  p->on_close([ this, keep_ref = get_ref() ](OutgoingListStream & s) {
+  p->on_list_close([ this, keep_ref = get_ref() ](BaseOutgoingListStream & s) {
     _list_streams.erase(&s);
     if (_list_streams.empty() && _model != nullptr) {
       _model->unlist();

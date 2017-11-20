@@ -153,6 +153,8 @@ class ResponseMessage : public Message {
 
 typedef std::function<void(bool)> AckCallback;
 
+class SubscribeResponseMessage;
+class SubscribeOptions;
 class MessageStream : public DestroyableRef<MessageStream> {
  public:
   const int32_t rid;
@@ -167,7 +169,28 @@ class MessageStream : public DestroyableRef<MessageStream> {
 
   // read message from remote
   virtual void receive_message(MessageCRef&& msg) = 0;
+
+  // because fake stream also need to extend ref_ , define the following
+  // interface here make things simpler. in other programing language these
+  // functions should be defined in real interface
+
+  // interface for fake outgoing list stream
+
+  typedef std::function<void(MessageStream&)> ListCloseCallback;
+  virtual void update_list_value(const string_& key, BytesRef& value) {}
+  virtual void on_list_close(ListCloseCallback&& callback){};
+
+  // interface for fake outgoing subscribe stream
+
+  typedef std::function<void(MessageStream&, const SubscribeOptions&)>
+      SubOptionChangeCallback;
+  virtual void send_subscribe_response(
+      ref_<const SubscribeResponseMessage>&& message) {}
+  virtual const SubscribeOptions& subscribe_options();
+  virtual void on_subscribe_option_change(SubOptionChangeCallback&& callback){};
 };
+typedef MessageStream BaseOutgoingSubscribeStream;
+typedef MessageStream BaseOutgoingListStream;
 
 }  // namespace dsa
 

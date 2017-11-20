@@ -88,7 +88,7 @@ void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
   }
 }
 
-void NodeModelBase::list(OutgoingListStream &stream) {
+void NodeModelBase::list(BaseOutgoingListStream &stream) {
   bool first_request = !_need_list;
   _need_list = true;
   on_list(stream, first_request);

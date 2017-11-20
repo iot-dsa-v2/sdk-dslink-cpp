@@ -36,10 +36,10 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
-    stream->on_option_change([=](OutgoingSubscribeStream &stream,
-                                 const SubscribeOptions &old_option) {
-      last_subscribe_options.reset(new SubscribeOptions(stream.options()));
+    stream->send_subscribe_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
+    stream->on_subscribe_option_change([=](MessageStream &stream,
+                                           const SubscribeOptions &old_option) {
+      last_subscribe_options.reset(new SubscribeOptions(stream.subscribe_options()));
     });
   }
   void add(ref_<OutgoingListStream> &&stream) {}

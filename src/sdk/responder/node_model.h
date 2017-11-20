@@ -47,17 +47,18 @@ class NodeModel : public NodeModelBase {
   NodeModel(LinkStrandRef &&strand,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
 
-  void on_list(OutgoingListStream &stream, bool first_request) override;
+  void on_list(BaseOutgoingListStream &stream, bool first_request) override;
 
   void update_property(const string_ &field, ModelProperty &&value);
 
-  ref_<NodeModelBase> add_list_child(const string_ &name, ref_<NodeModelBase> &&model);
+  ref_<NodeModelBase> add_list_child(const string_ &name,
+                                     ref_<NodeModelBase> &&model);
 
   BytesRef &get_summary() override;
 
  protected:
-  void send_props_list(OutgoingListStream &stream);
-  void send_children_list(OutgoingListStream &stream);
+  void send_props_list(BaseOutgoingListStream &stream);
+  void send_children_list(BaseOutgoingListStream &stream);
 
   void set(ref_<OutgoingSetStream> &&stream) override;
   virtual MessageStatus on_set_value(MessageValue &&value);
