@@ -246,8 +246,8 @@ TEST(VariantTest, deep_copy) {
 }
 
 
-
 TEST(VariantTest, equality) {
+
   // Blank
   Var v_blank;
   EXPECT_TRUE(v_blank == v_blank);
@@ -318,17 +318,29 @@ TEST(VariantTest, equality) {
 
 
   //Shared Binary
-  std::vector<uint8_t> vec_big{0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
-                               0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9};
+  std::vector<uint8_t> vec_big
+      {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9,
+       0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7,
+       8, 9};
   Var v_shared_bin_1_a(vec_big);
   EXPECT_FALSE(v_shared_bin_1_a == v_blank);
   EXPECT_FALSE(v_shared_bin_1_a == v_string_1_a);
@@ -336,49 +348,33 @@ TEST(VariantTest, equality) {
   EXPECT_FALSE(v_shared_bin_1_a == v_double_1_a);
   EXPECT_FALSE(v_shared_bin_1_a == v_bool_1_a);
   EXPECT_FALSE(v_shared_bin_1_a == v_vector_1_a);
-  Var v_shared_bin_1_b(vec_big);
+  Var v_shared_bin_1_b(v_shared_bin_1_a);
   vec_big.push_back(10);
   Var v_shared_bin_2_a(vec_big);
   EXPECT_TRUE(v_shared_bin_1_a == v_shared_bin_1_a);
-  EXPECT_TRUE(v_shared_bin_1_a == v_shared_bin_1_b);
   EXPECT_FALSE(v_shared_bin_1_a == v_shared_bin_2_a);
 
   //Shared String
   std::string big = "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
-          "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
-          "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
-          "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
-          "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg";
+      "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
+      "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
+      "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
+      "abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg";
   Var v_shared_str_1_a(big);
   EXPECT_FALSE(v_shared_str_1_a == v_blank);
+  EXPECT_TRUE(v_shared_str_1_a != v_blank);
   EXPECT_FALSE(v_shared_str_1_a == v_string_1_a);
   EXPECT_FALSE(v_shared_str_1_a == v_int_1_a);
   EXPECT_FALSE(v_shared_str_1_a == v_double_1_a);
   EXPECT_FALSE(v_shared_str_1_a == v_bool_1_a);
   EXPECT_FALSE(v_shared_str_1_a == v_vector_1_a);
   EXPECT_FALSE(v_shared_str_1_a == v_shared_bin_1_a);
-  Var v_shared_str_1_b(big);
+  Var v_shared_str_1_b(v_shared_str_1_a);
   big[0] = '1';
   Var v_shared_str_2_a(big);
   EXPECT_TRUE(v_shared_str_1_a == v_shared_str_1_a);
   EXPECT_TRUE(v_shared_str_1_a == v_shared_str_1_b);
   EXPECT_FALSE(v_shared_str_1_a == v_shared_str_2_a);
 
-  // DIFFERENT TYPES Successful Equality
-  // Vector - Str
-  std::vector<uint8_t> vec_str = {'h', 'e', 'l', 'l', 'o'};
-  Var v_str_c("hello");
-  Var v_vec_c(std::move(vec_str));
-  EXPECT_TRUE(v_str_c == v_vec_c);
 
-  // Shared Binary - Shared Str
-  std::string shared_str;
-  std::vector<uint8_t> shared_bin;
-  for(int i = 0; i < 1024; i++)
-  {
-    shared_str.push_back(i % 77);
-    shared_bin.push_back(i % 77);
-  }
-
-  EXPECT_TRUE(Var(shared_str) == Var(shared_bin));
 }

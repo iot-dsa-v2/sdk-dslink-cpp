@@ -160,9 +160,8 @@ class Var : public BaseVariant {
   Var copy() const;
 
   // shallow compare
-  bool equals(const Var &val) const;
-  // deep compare
   bool operator==(const Var &lhs) const;
+  bool operator!=(const Var &lhs) const;
 
 
   // msgpack encoding and decoding
