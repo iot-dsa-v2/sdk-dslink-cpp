@@ -109,7 +109,7 @@ TEST(HandshakeTest, ClientInfo) {
   ECDH ecdh;
   ecdh.set_private_key_hex(client_private_key);
 
-  Hash hash("sha256");
+  Hash hash;
   hash.update(ecdh.get_public_key());
 
   EXPECT_EQ("TTDXtL-U_NQ2sgFRU5w0HrZVib2D-O4CxXQrKk4hUsI",
@@ -138,7 +138,7 @@ TEST(HandshakeTest, ClientInfo) {
   std::vector<uint8_t> server_salt_buffer(server_salt,
                                           server_salt + sizeof(server_salt));
 
-  dsa::HMAC hmac("sha256", shared_secret);
+  dsa::HMAC hmac(shared_secret);
   hmac.update(server_salt_buffer);
 
   EXPECT_EQ("f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fac8b2ba",
@@ -165,7 +165,7 @@ TEST(HandshakeTest, ServerInfo) {
   ECDH ecdh;
   ecdh.set_private_key_hex(server_private_key);
 
-  Hash hash("sha256");
+  Hash hash;
   hash.update(ecdh.get_public_key());
 
   EXPECT_EQ("g675gaSQogzMxjJFvL7HsCbyS8B0Ly2_Abhkw_-g4iI",
@@ -192,7 +192,7 @@ TEST(HandshakeTest, ServerInfo) {
   std::vector<uint8_t> client_salt_buffer(client_salt,
                                           client_salt + sizeof(client_salt));
 
-  dsa::HMAC hmac("sha256", shared_secret);
+  dsa::HMAC hmac(shared_secret);
   hmac.update(client_salt_buffer);
 
   EXPECT_EQ("e709059f1ebb84cfb8c34d53fdba7fbf20b1fe3dff8c343050d2b5c7c62be85a",
@@ -206,7 +206,7 @@ TEST(HandshakeTest, HMAC) {
   std::vector<uint8_t> message_buffer(message_str,
                                       message_str + strlen(message_str));
 
-  dsa::HMAC hmac("sha256", key_buffer);
+  dsa::HMAC hmac(key_buffer);
   hmac.update(message_buffer);
 
   std::vector<uint8_t> auth_message = hmac.digest();

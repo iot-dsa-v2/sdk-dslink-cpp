@@ -33,7 +33,7 @@ void ClientSessions::add_session(LinkStrandRef &strand,
 }
 
 string_ ClientSessions::get_new_session_id(const string_ old_session_id) {
-  Hash hash("sha256");
+  Hash hash;
 
   std::vector<uint8_t> data(16);
   memcpy(&data[0], &_session_id_seed, sizeof(uint64_t));

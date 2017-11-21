@@ -5,10 +5,8 @@
 #pragma once
 #endif
 
-#include <vector>
-
 #include <openssl/evp.h>
-
+#include <vector>
 #include "util/buffer.h"
 
 namespace dsa {
@@ -17,15 +15,8 @@ class Hash {
   EVP_MD_CTX *mdctx;
   bool finalized;
 
-  // hack-ish static initialization
-  class Init {
-   public:
-    Init() { OpenSSL_add_all_digests(); }
-  };
-  Init init;
-
  public:
-  explicit Hash(const char *hash_type) throw(const std::runtime_error &);
+  explicit Hash() throw(const std::runtime_error &);
   ~Hash();
 
   void update(const std::vector<uint8_t> &data);

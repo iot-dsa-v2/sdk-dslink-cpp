@@ -45,7 +45,7 @@ TEST(MessageTest, HandshakeF0) {
   client_ecdh.set_private_key_hex(client_private_key);
   std::vector<uint8_t> client_public_key = client_ecdh.get_public_key();
 
-  Hash hash("sha256");
+  Hash hash;
   hash.update(client_public_key);
 
   message.dsid = "mylink-" + base64_url_convert(hash.digest_base64());
@@ -88,7 +88,7 @@ TEST(MessageTest, HandshakeF1) {
   broker_ecdh.set_private_key_hex(broker_private_key);
   std::vector<uint8_t> broker_public_key = broker_ecdh.get_public_key();
 
-  Hash hash("sha256");
+  Hash hash;
   hash.update(broker_public_key);
 
   message.dsid = "broker-" + base64_url_convert(hash.digest_base64());
@@ -136,7 +136,7 @@ TEST(MessageTest, HandshakeF2) {
   std::vector<uint8_t> client_shared_secret =
       client_ecdh.compute_secret(broker_ecdh.get_public_key());
 
-  dsa::HMAC hmac("sha256", client_shared_secret);
+  dsa::HMAC hmac(client_shared_secret);
 
   std::vector<uint8_t> salt_buffer =
       std::vector<uint8_t>(broker_salt, broker_salt + sizeof(broker_salt));
@@ -182,7 +182,7 @@ TEST(MessageTest, HandshakeF3) {
   std::vector<uint8_t> broker_shared_secret =
       broker_ecdh.compute_secret(client_ecdh.get_public_key());
 
-  dsa::HMAC hmac("sha256", broker_shared_secret);
+  dsa::HMAC hmac(broker_shared_secret);
 
   std::vector<uint8_t> salt_buffer =
       std::vector<uint8_t>(client_salt, client_salt + sizeof(client_salt));
