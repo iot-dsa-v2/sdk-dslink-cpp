@@ -85,15 +85,15 @@ int main(int argc, const char *argv[]) {
 
   App app(num_thread);
 
-  TestConfigExt server_config(app, host_ip_address);
+  TestConfigExt server_strand(app, host_ip_address);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_config.strand->set_responder_model(
+  server_strand.strand->set_responder_model(
       ref_<MockNode>(root_node));
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
   wait_for_bool(5000,
@@ -122,7 +122,7 @@ int main(int argc, const char *argv[]) {
   tick = [&](const boost::system::error_code &error) {
 
     if (!error) {
-      server_config.strand->dispatch([&]() {
+      server_strand.strand->dispatch([&]() {
         auto ts2 = high_resolution_clock::now();
 
         auto ms =
@@ -167,7 +167,7 @@ int main(int argc, const char *argv[]) {
     app.force_stop();
   }
 
-  server_config.destroy();
+  server_strand.destroy();
   app.wait();
 
   return 0;

@@ -36,10 +36,10 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
-    stream->on_option_change([=](OutgoingSubscribeStream &stream,
-                                 const SubscribeOptions &old_option) {
-      last_subscribe_options.reset(new SubscribeOptions(stream.options()));
+    stream->send_subscribe_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
+    stream->on_subscribe_option_change([=](MessageStream &stream,
+                                           const SubscribeOptions &old_option) {
+      last_subscribe_options.reset(new SubscribeOptions(stream.subscribe_options()));
     });
   }
   void add(ref_<OutgoingListStream> &&stream) {}
@@ -71,20 +71,20 @@ TEST(ResponderTest, model__add_child) {
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
-  TestConfig server_config(app);
-  server_config.strand->set_stream_acceptor(
+  TestConfig server_strand(app);
+  server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperConfig client_config = server_config.get_client_config(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -110,30 +110,30 @@ TEST(ResponderTest, model__add_child) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }
 
 TEST(ResponderTest, model__get_child) {
   App app;
 
-  TestConfig server_config(app);
+  TestConfig server_strand(app);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_config.strand->set_responder_model(ref_<MockNode>(root_node));
+  server_strand.strand->set_responder_model(ref_<MockNode>(root_node));
 
-  WrapperConfig client_config = server_config.get_client_config(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   ModelRef child_node = root_node->get_child("child_a");
@@ -141,7 +141,7 @@ TEST(ResponderTest, model__get_child) {
   EXPECT_EQ(nullptr, child_node);
 
   root_node->add_child("child_a",
-                       ModelRef(new MockNodeListChild_0(server_config.strand)));
+                       ModelRef(new MockNodeListChild_0(server_strand.strand)));
   child_node = root_node->get_child("child_a");
 
   EXPECT_NE(nullptr, child_node);
@@ -157,30 +157,30 @@ TEST(ResponderTest, model__get_child) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }
 
 TEST(ResponderTest, model__set_value) {
   App app;
 
-  TestConfig server_config(app);
+  TestConfig server_strand(app);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_config.strand->set_responder_model(ref_<MockNode>(root_node));
+  server_strand.strand->set_responder_model(ref_<MockNode>(root_node));
 
-  WrapperConfig client_config = server_config.get_client_config(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -212,7 +212,7 @@ TEST(ResponderTest, model__set_value) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }

@@ -18,10 +18,17 @@ endif ()
 
 
 
-set(SOURCES broker.cc
+set(SOURCES broker_main.cc
+        broker.cc
         config/broker_config.cc
         config/broker_config_item.cc
         config/module_loader.cc
-        remote_node/remote_node.cc)
+        remote_node/remote_node.cc
+        node/broker_root.cc
+        node/downstream/downstream_root.cc
+        node/upstream/upstream_root.cc
+        node/home/home_root.cc
+        node/sys/sys_root.cc
+        node/pub/pub_root.cc)
 add_executable(broker ${SOURCES})
 target_link_libraries(broker ${BROKER_LIBS})

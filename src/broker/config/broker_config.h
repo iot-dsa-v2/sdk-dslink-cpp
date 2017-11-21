@@ -26,10 +26,17 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
   void load();
   void save();
 
-  void add_item(const string_& name, Var&& value, int type = -1);
+  void add_item(const string_& name, Var&& value, VarValidator&&);
 
  public:
   BrokerConfig(int argc, const char* argv[]);
+  BrokerConfigItem& thread() { return _items["thread"]; }
+  BrokerConfigItem& host() { return _items["host"]; }
+  BrokerConfigItem& port() { return _items["port"]; }
+  BrokerConfigItem& secure_port() { return _items["secure-port"]; }
+  BrokerConfigItem& http_port() { return _items["http-port"]; }
+  BrokerConfigItem& https_port() { return _items["https-port"]; }
+  BrokerConfigItem& log_level() { return _items["log-level"]; }
 };
 }
 

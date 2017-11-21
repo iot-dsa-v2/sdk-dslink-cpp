@@ -3,7 +3,7 @@ list(APPEND CoreSourceFiles
         server.cc
 		client.cc
         session_manager.cc
-		config.cc
+		editable_strand.cc
 		link_strand.cc
         )
 

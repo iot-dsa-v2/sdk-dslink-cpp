@@ -28,19 +28,18 @@ class WsConnection : public Connection {
   static const size_t DEFAULT_BUFFER_SIZE = 8192;
   static const size_t MAX_BUFFER_SIZE = DEFAULT_BUFFER_SIZE * 15;
 
-  /*
   class WriteBuffer : public ConnectionWriteBuffer {
-    TcpConnection &connection;
+    WsConnection &connection;
     size_t size = 0;
 
    public:
-    explicit WriteBuffer(TcpConnection &connection) : connection(connection){};
+    explicit WriteBuffer(WsConnection &connection) : connection(connection){};
 
     size_t max_next_size() const override;
     void add(const Message &msg, int32_t rid, int32_t ack_id) override;
     void write(WriteHandler &&callback) override;
   };
-  */
+
  protected:
   void read_loop_(shared_ptr_<WsConnection> &&connection, size_t from_prev,
                   const boost::system::error_code &error,

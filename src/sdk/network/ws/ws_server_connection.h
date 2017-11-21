@@ -5,18 +5,26 @@
 #pragma once
 #endif
 
+#include <boost/beast/core/flat_buffer.hpp>
+
 #include "../connection.h"
-#include "ws_connection.h"
 #include "util/enable_shared.h"
+#include "ws_connection.h"
+
+namespace http = boost::beast::http;            // from <boost/beast/http.hpp>
 
 namespace dsa {
 
 // Web server side connection.
 // Handles server side of DSA handshake and starts read loop.
 class WsServerConnection final : public WsConnection {
+ private:
+  boost::beast::flat_buffer _buffer;
+  http::request<http::string_body> _req;
+
  public:
   WsServerConnection(LinkStrandRef &strand, const string_ &dsid_prefix = "",
-                      const string_ &path = "");
+                     const string_ &path = "");
 
   void accept() final;
 

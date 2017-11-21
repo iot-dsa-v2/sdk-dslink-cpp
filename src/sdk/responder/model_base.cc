@@ -88,7 +88,7 @@ void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
   }
 }
 
-void NodeModelBase::list(OutgoingListStream &stream) {
+void NodeModelBase::list(BaseOutgoingListStream &stream) {
   bool first_request = !_need_list;
   _need_list = true;
   on_list(stream, first_request);
@@ -98,6 +98,11 @@ void NodeModelBase::unlist() {
     _need_list = false;
     on_unlist();
   }
+}
+static BytesRef blank_bytes;
+BytesRef &NodeModelBase::get_summary() {
+  LOG_WARN(_strand->logger(), LOG << "::get_summary not implemented");
+  return blank_bytes;
 }
 
 void NodeModelBase::invoke(ref_<OutgoingInvokeStream> &&stream,

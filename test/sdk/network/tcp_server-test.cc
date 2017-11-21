@@ -15,8 +15,8 @@ using namespace dsa;
 TEST(TcpServerTest, SingleThread) {
   App app(1);
 
-  TestConfig server_config(app);
-  WrapperConfig config = server_config.get_client_config(app);
+  TestConfig server_strand(app);
+  WrapperStrand config = server_strand.get_client_wrapper_strand(app);
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
 
@@ -58,7 +58,7 @@ TEST(TcpServerTest, SingleThread) {
         destroy_client_in_strand(clients[i]);
       }
 
-      server_config.destroy();
+      server_strand.destroy();
       config.destroy();
       app.close();
     };
@@ -71,7 +71,7 @@ TEST(TcpServerTest, SingleThread) {
 TEST(TcpServerTest, SingleStrand) {
   App app;
 
-  WrapperConfig config = TestConfig(app).get_client_config(app);
+  WrapperStrand config = TestConfig(app).get_client_wrapper_strand(app);
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
 
@@ -116,23 +116,23 @@ TEST(TcpServerTest, SingleStrand) {
 TEST(TcpServerTest, MultiStrand) {
   App app;
 
-  TestConfig server_config(app);
-  WrapperConfig client_config = server_config.get_client_config(app);
+  TestConfig server_strand(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
   const uint32_t NUM_CLIENT = 2;
 
   std::vector<ref_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    ref_<Client> tcp_client(new Client(client_config));
+    ref_<Client> tcp_client(new Client(client_strand));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() {
     for (auto& client : clients) {
       if (!client->get_session().is_connected()) {
         return false;
@@ -154,7 +154,7 @@ TEST(TcpServerTest, MultiStrand) {
   if (!app.is_stopped()) {
     app.force_stop();
   }
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }

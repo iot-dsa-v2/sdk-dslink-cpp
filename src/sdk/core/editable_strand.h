@@ -22,7 +22,7 @@ std::unique_ptr<T> make_unique_(Args&&... args) {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
-class LinkConfig : public LinkStrand {
+class EditableStrand : public LinkStrand {
  protected:
   std::unique_ptr<ECDH> _ecdh;
   // modules
@@ -32,9 +32,9 @@ class LinkConfig : public LinkStrand {
   std::unique_ptr<Logger> _logger;
 
  public:
-  explicit LinkConfig(boost::asio::io_service::strand* strand,
+  explicit EditableStrand(boost::asio::io_service::strand* strand,
                       std::unique_ptr<ECDH>&& ecdh);
-  ~LinkConfig() override;
+  ~EditableStrand() override;
 
   void set_security_manager(ref_<SecurityManager> p);
   void set_stream_acceptor(ref_<OutgoingStreamAcceptor> p);
@@ -49,12 +49,13 @@ typedef std::function<shared_ptr_<Connection>(
     int32_t last_ack_id)>
     ClientConnectionMaker;
 
-class WrapperConfig : public DestroyableRef<WrapperConfig> {
+class WrapperStrand : public DestroyableRef<WrapperStrand> {
  public:
-  ref_<LinkConfig> strand;
+  ref_<EditableStrand> strand;
   string_ dsid_prefix;
 
   // server features
+  string_ server_host{"0.0.0.0"};
   uint16_t tcp_server_port{0};
   uint16_t tcp_secure_port{0};
 

@@ -57,12 +57,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_thread(variables["thread"].as<size_t>());
 
-  auto *config = new LinkConfig(get_app().new_strand(), load_private_key());
-  strand.reset(config);
+  strand.reset(new EditableStrand(
+      get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
-  parse_log(variables["log"].as<string_>(), *config);
+  parse_log(variables["log"].as<string_>(), *strand);
   parse_server_port(variables["server-port"].as<uint16_t>());
 }
 DsLink::~DsLink() {}
@@ -87,41 +87,9 @@ void DsLink::destroy_impl() {
   }
   _app->close();
 
-  WrapperConfig::destroy_impl();
+  WrapperStrand::destroy_impl();
 }
-std::unique_ptr<ECDH> DsLink::load_private_key() {
-  fs::path path(".key");
 
-  try {
-    if (fs::is_regular_file(path) && fs::file_size(path) == 32) {
-      std::ifstream keyfile(".key", std::ios::in | std::ios::binary);
-      if (keyfile.is_open()) {
-        uint8_t data[32];
-        keyfile.read(reinterpret_cast<char *>(data), 32);
-        return make_unique_<ECDH>(data, 32);
-
-      } else {
-        LOG_FATAL(LOG << "Unable to open .key file");
-        // file exists but can't open, make a new kwy won't solve the problem
-      }
-    }
-  } catch (std::exception &e) {
-    LOG_ERROR(Logger::_(),
-              LOG << "error loading existing private key, generating new key");
-  }
-
-  auto newkey = make_unique_<ECDH>();
-
-  std::ofstream keyfile(".key",
-                        std::ios::out | std::ios::binary | std::ios::trunc);
-  if (keyfile.is_open()) {
-    auto data = newkey->get_private_key();
-    keyfile.write(reinterpret_cast<char *>(data.data()), data.size());
-  } else {
-    LOG_FATAL(LOG << "Unable to open .key file");
-  }
-  return std::move(newkey);
-}
 void DsLink::parse_thread(size_t thread) {
   if (thread < 1) {
     thread = 1;
@@ -168,7 +136,7 @@ void DsLink::parse_url(const string_ &url) {
   }
 }
 
-void DsLink::parse_log(const string_ &log, LinkConfig &config) {
+void DsLink::parse_log(const string_ &log, EditableStrand &config) {
   auto *logger = new ConsoleLogger();
   config.set_logger(std::unique_ptr<Logger>(logger));
   logger->level = Logger::parse(log);
@@ -218,6 +186,7 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
     _client->connect(std::move(on_connect), callback_type);
   });
   _app->wait();
+  destroy();
 }
 
 // requester features

@@ -27,7 +27,7 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   // use raw pointer here because there is no way to forward declare the strand type
   void *__strand = nullptr;
 
-  // following pointers are managed by LinkConfig
+  // following pointers are managed by EditableStrand
 
   ECDH *__ecdh = nullptr;
 

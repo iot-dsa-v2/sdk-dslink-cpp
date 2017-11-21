@@ -16,14 +16,14 @@ using namespace dsa;
 TEST(NetworkTest, ReConnect) {
   App app;
 
-  TestConfig server_config(app);
-  WrapperConfig client_config = server_config.get_client_config(app);
+  TestConfig server_strand(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
   shared_ptr_<Connection> connection;
-  client_config.client_connection_maker =
+  client_strand.client_connection_maker =
       [
-        &connection, dsid_prefix = client_config.dsid_prefix,
-        tcp_host = client_config.tcp_host, tcp_port = client_config.tcp_port
+        &connection, dsid_prefix = client_strand.dsid_prefix,
+        tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
       ](LinkStrandRef & strand, const string_ &previous_session_id,
         int32_t last_ack_id)
           ->shared_ptr_<Connection> {
@@ -31,24 +31,24 @@ TEST(NetworkTest, ReConnect) {
         make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host, tcp_port);
     return connection;
   };
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  ref_<Client> client(new Client(client_config));
+  ref_<Client> client(new Client(client_strand));
   client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return client->get_session().is_connected(); });
 
   connection->destroy_in_strand(connection);
 
   // it should be disconnected
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return !client->get_session().is_connected(); });
 
   // it should get reconnected within 5 seconds
-  ASYNC_EXPECT_TRUE(5000, *client_config.strand,
+  ASYNC_EXPECT_TRUE(5000, *client_strand.strand,
                     [&]() { return client->get_session().is_connected(); });
 
   // close everything
@@ -63,7 +63,7 @@ TEST(NetworkTest, ReConnect) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }

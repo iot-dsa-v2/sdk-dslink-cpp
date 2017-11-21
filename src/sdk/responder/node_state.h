@@ -12,13 +12,10 @@
 
 #include "message/response/subscribe_response_message.h"
 #include "model_base.h"
-//#include "stream/responder/outgoing_subscribe_stream.h"
 
 namespace dsa {
-class OutgoingSubscribeStream;
-class OutgoingListStream;
+
 class OutgoingInvokeStream;
-class OutgoingSetStream;
 class OutgoingSetStream;
 class NodeModelBase;
 
@@ -28,7 +25,7 @@ class NodeStateOwner {
 };
 
 class NodeStateWaitingCache {
-public:
+ public:
   std::vector<ref_<OutgoingInvokeStream>> invokes;
   std::vector<ref_<OutgoingSetStream>> sets;
 
@@ -61,9 +58,10 @@ class NodeState : public DestroyableRef<NodeState> {
   std::unique_ptr<NodeStateWaitingCache> _watiging_cache;
 
   // subscription related properties
-  std::unordered_map<OutgoingSubscribeStream *, ref_<OutgoingSubscribeStream>>
+  std::unordered_map<BaseOutgoingSubscribeStream *,
+                     ref_<BaseOutgoingSubscribeStream>>
       _subscription_streams;
-  std::unordered_map<OutgoingListStream *, ref_<OutgoingListStream>>
+  std::unordered_map<BaseOutgoingListStream *, ref_<BaseOutgoingListStream>>
       _list_streams;
 
   SubscribeOptions _merged_subscribe_options;
@@ -98,11 +96,11 @@ class NodeState : public DestroyableRef<NodeState> {
   /////////////////////////
   void new_subscribe_response(SubscribeResponseMessageCRef &&message);
 
-  void subscribe(ref_<OutgoingSubscribeStream> &&stream);
+  void subscribe(ref_<BaseOutgoingSubscribeStream> &&stream);
 
   void update_list_value(const string_ &key, BytesRef &value);
 
-  void list(ref_<OutgoingListStream> &&stream);
+  void list(ref_<BaseOutgoingListStream> &&stream);
 
   void invoke(ref_<OutgoingInvokeStream> &&stream);
 

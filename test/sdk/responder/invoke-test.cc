@@ -65,24 +65,24 @@ TEST(ResponderTest, Invoke_Model) {
   typedef responder_invoke_test::MockNode MockNode;
   App app;
 
-  TestConfig server_config(app);
+  TestConfig server_strand(app);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_config.strand->set_responder_model(ModelRef(root_node));
+  server_strand.strand->set_responder_model(ModelRef(root_node));
 
   typedef responder_invoke_test::MockStreamAcceptor MockStreamAcceptor;
 
-  WrapperConfig client_config = server_config.get_client_config(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   auto first_request = make_ref_<InvokeRequestMessage>();
@@ -102,14 +102,14 @@ TEST(ResponderTest, Invoke_Model) {
       copy_ref_(first_request));
 
   // wait for acceptor to receive the request
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return root_node->last_invoke_request != nullptr;
   });
   // received request option should be same as the original one
   EXPECT_TRUE(root_node->last_invoke_request->get_value().to_string() ==
               "hello");
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
   EXPECT_TRUE(last_response->get_value().to_string() == "dsa");
 
@@ -117,16 +117,16 @@ TEST(ResponderTest, Invoke_Model) {
   last_response.reset();
   root_node->last_invoke_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
   EXPECT_EQ(last_response->get_status(), MessageStatus::CLOSED);
 
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return root_node->last_invoke_stream->is_destroyed() &&
            root_node->last_invoke_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return invoke_stream->is_destroyed() && invoke_stream->ref_count() == 1;
   });
 
@@ -141,8 +141,8 @@ TEST(ResponderTest, Invoke_Model) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }
 
@@ -152,20 +152,20 @@ TEST(ResponderTest, Invoke_Acceptor) {
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
-  TestConfig server_config(app);
-  server_config.strand->set_stream_acceptor(
+  TestConfig server_strand(app);
+  server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperConfig client_config = server_config.get_client_config(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  auto tcp_client = make_ref_<Client>(client_config);
+  auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   auto first_request = make_ref_<InvokeRequestMessage>();
@@ -184,7 +184,7 @@ TEST(ResponderTest, Invoke_Acceptor) {
       copy_ref_(first_request));
 
   // wait for acceptor to receive the request
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->last_invoke_request != nullptr;
   });
   // received request option should be same as the original one
@@ -192,7 +192,7 @@ TEST(ResponderTest, Invoke_Acceptor) {
       mock_stream_acceptor->last_invoke_request->get_value().to_string() ==
       "hello");
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand,
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().to_string() == "dsa");
@@ -200,11 +200,11 @@ TEST(ResponderTest, Invoke_Acceptor) {
   // close the invoke stream from the re
   invoke_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return invoke_stream->is_destroyed() && invoke_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *server_config.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->last_invoke_request == nullptr;
   });
 
@@ -219,7 +219,7 @@ TEST(ResponderTest, Invoke_Acceptor) {
     app.force_stop();
   }
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
 }

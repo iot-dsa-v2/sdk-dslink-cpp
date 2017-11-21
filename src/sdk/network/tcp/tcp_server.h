@@ -26,7 +26,7 @@ class TcpServer : public Server {
   void accept_loop(const boost::system::error_code &error);
 
  public:
-  TcpServer(WrapperConfig &config);
+  TcpServer(WrapperStrand &config);
   ~TcpServer();
 
   void start() override;

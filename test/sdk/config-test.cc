@@ -15,22 +15,22 @@ using namespace dsa;
 TEST(ConfigTest, asyncSimpleSecurityManager) {
   App app;
 
-  TestConfig server_config(app);
-  WrapperConfig client_config = server_config.get_client_config(app, true);
+  TestConfig server_strand(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
 
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
   const uint32_t NUM_CLIENT = 2;
 
   std::vector<ref_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    ref_<Client> tcp_client(new Client(client_config));
+    ref_<Client> tcp_client(new Client(client_strand));
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
 
-  ASYNC_EXPECT_TRUE(500, *client_config.strand, [&]() {
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() {
     for (auto& client : clients) {
       if (!client->get_session().is_connected()) {
         return false;

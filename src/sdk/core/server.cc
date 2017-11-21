@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-Server::Server(WrapperConfig & config)
+Server::Server(WrapperStrand & config)
     : _strand(config.strand) {}
 
 void Server::destroy_impl() {

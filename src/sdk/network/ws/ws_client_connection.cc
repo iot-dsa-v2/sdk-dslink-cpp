@@ -36,11 +36,18 @@ void WsClientConnection::connect(size_t reconnect_interval) {
         }
         */
 
-        // TODO: websocket handshake
+        // websocket handshake
+        _ws.async_handshake(_hostname, "/",
+        [ connection = share_this<WsConnection>(),
+            this ](const boost::system::error_code &error) mutable {
+            if (is_destroyed()) return;
 
-        start_client_f0();
+            start_client_f0();
 
-        WsConnection::start_read(std::move(connection));
+            WsConnection::start_read(std::move(connection));
+
+        });
+
       });
   start_deadline_timer(reconnect_interval);
 }

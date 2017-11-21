@@ -2,7 +2,7 @@
 
 #include "web_server.h"
 
-#include "core/config.h"
+#include "core/editable_strand.h"
 #include "core/session_manager.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
@@ -31,7 +31,7 @@ WebServer::WebServer(App& app)
   _doc_root = ".";
 
   // start taking connections
-  auto* config = new LinkConfig(_strand.get(), make_unique_<ECDH>());
+  auto* config = new EditableStrand(_strand.get(), make_unique_<ECDH>());
   config->set_session_manager(make_ref_<SessionManager>(config));
   config->set_security_manager(make_ref_<SimpleSecurityManager>());
   config->set_logger(make_unique_<ConsoleLogger>());

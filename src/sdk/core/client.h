@@ -7,7 +7,7 @@
 
 #include <boost/asio/deadline_timer.hpp>
 
-#include "config.h"
+#include "editable_strand.h"
 #include "util/enable_ref.h"
 
 namespace dsa {
@@ -62,7 +62,7 @@ class Client : public DestroyableRef<Client> {
   void make_new_connection();
 
  public:
-  Client(WrapperConfig &config);
+  Client(WrapperStrand &config);
 
   ~Client();
 

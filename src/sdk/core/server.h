@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include "config.h"
+#include "editable_strand.h"
 
 #include "util/enable_shared.h"
 
@@ -25,7 +25,7 @@ class Server : public SharedDestroyable<Server> {
   void destroy_impl() override;
 
  public:
-  explicit Server(WrapperConfig &config);
+  explicit Server(WrapperStrand &config);
   virtual ~Server() = default;
 
   void post_in_strand(std::function<void()> &&callback) override {

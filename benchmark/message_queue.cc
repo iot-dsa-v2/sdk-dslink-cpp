@@ -48,19 +48,19 @@ int main(int argc, const char *argv[]) {
 
   App app;
 
-  TestConfig server_config(app);
+  TestConfig server_strand(app);
 
-  MockNode *root_node = new MockNode(server_config.strand);
+  MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_config.strand->set_responder_model(
+  server_strand.strand->set_responder_model(
       ref_<MockNode>(root_node));
 
-  //  auto tcp_server(new TcpServer(server_config));
-  auto tcp_server = make_shared_<TcpServer>(server_config);
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  WrapperConfig client_config = server_config.get_client_config(app);
-  ref_<Client> client = make_ref_<Client>(client_config);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
+  ref_<Client> client = make_ref_<Client>(client_strand);
   client->connect();
 
   std::atomic_int receive_count{0};
@@ -69,7 +69,7 @@ int main(int argc, const char *argv[]) {
   initial_options.qos = QosLevel::_1;
   initial_options.queue_size = 655360;
 
-  wait_for_bool(500, *client_config.strand,
+  wait_for_bool(500, *client_strand.strand,
                 [&]() { return client->get_session().is_connected(); });
 
   client->get_session().requester.subscribe(
@@ -84,7 +84,7 @@ int main(int argc, const char *argv[]) {
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Var(0));
 
-  server_config.strand->dispatch([&]() {
+  server_strand.strand->dispatch([&]() {
     auto ts = high_resolution_clock::now();
 
     if (encode_value) {
@@ -115,8 +115,8 @@ int main(int argc, const char *argv[]) {
     }
   });
 
-  server_config.destroy();
-  client_config.destroy();
+  server_strand.destroy();
+  client_strand.destroy();
   app.wait();
   return 0;
 }

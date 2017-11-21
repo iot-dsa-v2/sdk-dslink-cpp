@@ -4,6 +4,10 @@
 
 #include <openssl/ecdh.h>
 #include <openssl/objects.h>
+#include <boost/filesystem.hpp>
+#include "module/logger.h"
+
+namespace fs = boost::filesystem;
 
 template <typename T, typename U>
 inline void CHECK_NE(T a, U b) throw(const std::runtime_error &) {
@@ -13,6 +17,41 @@ inline void CHECK_NE(T a, U b) throw(const std::runtime_error &) {
 namespace dsa {
 
 const char *ECDH::curve_name = "prime256v1";
+
+ECDH *ECDH::from_file(const char *path_str) {
+  fs::path path(path_str);
+
+  try {
+    if (fs::is_regular_file(path) && fs::file_size(path) == 32) {
+      std::ifstream keyfile(path_str, std::ios::in | std::ios::binary);
+      if (keyfile.is_open()) {
+        uint8_t data[32];
+        keyfile.read(reinterpret_cast<char *>(data), 32);
+        return new ECDH(data, 32);
+
+      } else {
+        LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+        // file exists but can't open, make a new kwy won't solve the problem
+      }
+    }
+  } catch (std::exception &e) {
+    LOG_ERROR(Logger::_(),
+              LOG << "error loading existing private key " << path_str
+                  << ", generating new key");
+  }
+
+  auto newkey = new ECDH();
+
+  std::ofstream keyfile(path_str,
+                        std::ios::out | std::ios::binary | std::ios::trunc);
+  if (keyfile.is_open()) {
+    auto data = newkey->get_private_key();
+    keyfile.write(reinterpret_cast<char *>(data.data()), data.size());
+  } else {
+    LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+  }
+  return newkey;
+}
 
 ECDH::ECDH() throw(const std::runtime_error &) {
   generate_key();
