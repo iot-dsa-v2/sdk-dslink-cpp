@@ -23,6 +23,8 @@ set(SOURCES broker_main.cc
         config/broker_config.cc
         config/broker_config_item.cc
         config/module_loader.cc
+        module/broker_security_manager.cc
+        module/broker_session_manager.cc
         remote_node/remote_node.cc
         node/broker_root.cc
         node/downstream/downstream_root.cc

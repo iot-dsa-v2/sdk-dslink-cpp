@@ -12,14 +12,13 @@ void SimpleSecurityManager::get_client(const string_& dsid,
 }
 
 void SimpleSecurityManager::check_permission(
-    const string_& dsid, const string_& permission_token,
-    MessageType method, const Path& path, CheckPermissionCallback&& callback) {
+    const string_& dsid, const string_& permission_token, MessageType method,
+    const Path& path, CheckPermissionCallback&& callback) {
   callback(PermissionLevel::CONFIG);
 }
 
-AsyncSimpleSecurityManager::AsyncSimpleSecurityManager(
-  LinkStrandRef strand)
-    : _strand(strand){};
+AsyncSimpleSecurityManager::AsyncSimpleSecurityManager(LinkStrandRef strand)
+    : _strand(std::move(strand)){};
 
 void AsyncSimpleSecurityManager::get_client(const string_& dsid,
                                             const string_& auth_token,
@@ -27,12 +26,11 @@ void AsyncSimpleSecurityManager::get_client(const string_& dsid,
   _strand->post([ =, callback = std::move(callback) ]() {
     callback(ClientInfo(dsid, auth_token), false);
   });
-  ;
 }
 
 void AsyncSimpleSecurityManager::check_permission(
-    const string_& dsid, const string_& permission_token,
-    MessageType method, const Path& path, CheckPermissionCallback&& callback) {
+    const string_& dsid, const string_& permission_token, MessageType method,
+    const Path& path, CheckPermissionCallback&& callback) {
   _strand->post([ =, callback = std::move(callback) ]() {
     callback(PermissionLevel::CONFIG);
   });
