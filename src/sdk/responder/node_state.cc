@@ -194,6 +194,9 @@ void NodeState::check_subscribe_options() {
 void NodeState::subscribe(ref_<BaseOutgoingSubscribeStream> &&stream) {
   auto p = stream.get();
   _subscription_streams[p] = std::move(stream);
+  if (_model != nullptr && _model->_cached_value != nullptr) {
+    p->send_subscribe_response(copy_ref_(_model->_cached_value));
+  }
   if (_merged_subscribe_options.mergeFrom(p->subscribe_options())) {
     if (_model_status == MODEL_CONNECTED) {
       _model->subscribe(_merged_subscribe_options);
@@ -217,9 +220,6 @@ void NodeState::subscribe(ref_<BaseOutgoingSubscribeStream> &&stream) {
       }
     }
   });
-  if (_model != nullptr && _model->_cached_value != nullptr) {
-    p->send_subscribe_response(copy_ref_(_model->_cached_value));
-  }
 }
 
 void NodeState::update_list_value(const string_ &key, BytesRef &value) {
