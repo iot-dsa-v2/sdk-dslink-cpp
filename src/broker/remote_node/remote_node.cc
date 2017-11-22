@@ -2,6 +2,8 @@
 
 #include "remote_node.h"
 
+#include "core/session.h"
+
 namespace dsa {
 
 RemoteNode::RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
