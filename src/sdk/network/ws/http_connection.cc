@@ -5,6 +5,7 @@
 #include <boost/asio/strand.hpp>
 
 #include "network/ws/ws_server_connection.h"
+#include "module/default/simple_session_manager.h"
 
 namespace websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
@@ -27,7 +28,7 @@ void HttpConnection::accept() {
           auto *config = new EditableStrand(
               new boost::asio::io_service::strand(_io_service),
               make_unique_<ECDH>());
-          config->set_session_manager(make_ref_<SessionManager>(config));
+          config->set_session_manager(make_ref_<SimpleSessionManager>(config));
           config->set_security_manager(make_ref_<SimpleSecurityManager>());
           config->set_logger(make_unique_<ConsoleLogger>());
           config->logger().level = Logger::WARN__;

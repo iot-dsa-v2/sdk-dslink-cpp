@@ -4,7 +4,7 @@
 
 #include "util/app.h"
 #include "core/client.h"
-#include "core/session_manager.h"
+#include "module/default/simple_session_manager.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
@@ -19,7 +19,7 @@ uint16_t TestConfig::_port = 4120;
 static ref_<EditableStrand> make_config(App &app, bool async) {
   auto config = make_ref_<EditableStrand>(app.new_strand(), make_unique_<ECDH>());
 
-  config->set_session_manager(make_ref_<SessionManager>(config));
+  config->set_session_manager(make_ref_<SimpleSessionManager>(config));
 
   if (async) {
     config->set_security_manager(

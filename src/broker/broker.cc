@@ -4,7 +4,7 @@
 
 #include "config/broker_config.h"
 #include "config/module_loader.h"
-#include "core/session_manager.h"
+#include "module/default/simple_session_manager.h"
 #include "module/logger.h"
 #include "module/security_manager.h"
 #include "network/tcp/tcp_server.h"
@@ -49,7 +49,7 @@ void DsBroker::init(ModuleLoader& modules) {
   strand->set_security_manager(modules.new_security_manager(*_app, strand));
 
   // init session manager
-  strand->set_session_manager(make_ref_<SessionManager>(strand));
+  strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
 
   // init responder
   strand->set_stream_acceptor(

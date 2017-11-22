@@ -2,7 +2,7 @@
 
 #include "server.h"
 
-#include "core/session_manager.h"
+#include "module/session_manager.h"
 
 namespace dsa {
 

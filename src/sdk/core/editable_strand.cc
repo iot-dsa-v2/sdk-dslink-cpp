@@ -5,7 +5,7 @@
 #include "module/logger.h"
 #include "module/security_manager.h"
 #include "responder/node_state_manager.h"
-#include "session_manager.h"
+#include "module/session_manager.h"
 
 namespace dsa {
 EditableStrand::EditableStrand(boost::asio::io_service::strand* strand,

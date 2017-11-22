@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NETWORK_SESSION_MANAGER_H
-#define DSA_SDK_NETWORK_SESSION_MANAGER_H
+#ifndef DSA_SDK_MODULE_SIMPLE_SESSION_MANAGER_H
+#define DSA_SDK_MODULE_SIMPLE_SESSION_MANAGER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -7,15 +7,14 @@
 
 #include <unordered_map>
 
-#include "session.h"
-#include "util/enable_shared.h"
+#include "../session_manager.h"
 
 namespace dsa {
 
 class SecurityManager;
 class Config;
 
-class SessionManager final: public DestroyableRef<SessionManager> {
+class SimpleSessionManager final : public SessionManager {
   std::unordered_map<string_, ref_<ClientSessions>> _clients;
 
   LinkStrandRef _strand;
@@ -24,7 +23,7 @@ class SessionManager final: public DestroyableRef<SessionManager> {
   void destroy_impl() final;
 
  public:
-  SessionManager(LinkStrandRef strand);
+  SimpleSessionManager(LinkStrandRef strand);
   void get_session(const string_ &dsid, const string_ &auth_token,
                    const string_ &session_id,
                    ClientSessions::GetSessionCallback &&callback);
@@ -32,4 +31,4 @@ class SessionManager final: public DestroyableRef<SessionManager> {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_NETWORK_SESSION_MANAGER_H
+#endif  // DSA_SDK_MODULE_SIMPLE_SESSION_MANAGER_H

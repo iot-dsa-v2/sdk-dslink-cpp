@@ -34,15 +34,13 @@ class ClientSessions final : public DestroyableRef<ClientSessions> {
                              const ClientInfo &info)>
       GetSessionCallback;
 
- private:
+ protected:
   uint64_t _session_id_seed;
   uint64_t _session_id_count = 0;
 
   ClientInfo _info;
   std::unordered_map<string_, ref_<Session>> _sessions;
 
-  void add_session(LinkStrandRef &strand, const string_ &session_id,
-                   GetSessionCallback &&callback);
   void destroy_impl() final;
 
   string_ get_new_session_id(const string_ old_id = "");
@@ -51,6 +49,8 @@ class ClientSessions final : public DestroyableRef<ClientSessions> {
   ClientSessions() = default;
   explicit ClientSessions(const ClientInfo &info);
   const ClientInfo &info() const { return _info; };
+  void add_session(LinkStrandRef &strand, const string_ &session_id,
+                   GetSessionCallback &&callback);
 };
 
 struct AckHolder {

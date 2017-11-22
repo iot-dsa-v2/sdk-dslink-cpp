@@ -11,7 +11,7 @@
 #include <boost/beast/websocket.hpp>
 
 #include "core/editable_strand.h"
-#include "core/session_manager.h"
+#include "module/session_manager.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
 
