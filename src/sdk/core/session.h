@@ -26,11 +26,13 @@ class SessionManager;
 
 /// one client (a dsid) can have multiple sessions at same time
 /// these sessions are grouped in ClientSessions class
-class ClientSessions {
+class ClientSessions final : public DestroyableRef<ClientSessions> {
   friend class SessionManager;
 
  public:
-  typedef std::function<void(const ref_<Session> &session)> GetSessionCallback;
+  typedef std::function<void(const ref_<Session> &session,
+                             const ClientInfo &info)>
+      GetSessionCallback;
 
  private:
   uint64_t _session_id_seed;
@@ -41,7 +43,7 @@ class ClientSessions {
 
   void add_session(LinkStrandRef &strand, const string_ &session_id,
                    GetSessionCallback &&callback);
-  void destroy();
+  void destroy_impl() final;
 
   string_ get_new_session_id(const string_ old_id = "");
 

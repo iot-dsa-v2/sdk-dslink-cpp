@@ -87,7 +87,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   virtual void invoke(ref_<OutgoingInvokeStream> &&stream,
                       ref_<NodeState> &parent);
 
-  /// invoke
+  /// set
  public:
   virtual void set(ref_<OutgoingSetStream> &&stream);
 };

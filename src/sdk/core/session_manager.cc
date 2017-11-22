@@ -10,28 +10,30 @@ namespace dsa {
 
 SessionManager::SessionManager(LinkStrandRef strand) : _strand(strand) {}
 
+// used by invalid session callback
+static ClientInfo dummy_info;
+
 void SessionManager::get_session(
-    const string_ &dsid, const string_ &auth_token,
-    const string_ &session_id,
+    const string_ &dsid, const string_ &auth_token, const string_ &session_id,
     ClientSessions::GetSessionCallback &&callback) {
   _strand->security_manager().get_client(
       dsid, auth_token, [ =, callback = std::move(callback) ](
                             const ClientInfo client, bool error) mutable {
         if (error) {
-          callback(ref_<Session>());  // return nullptr
+          callback(ref_<Session>(), dummy_info);  // return nullptr
           return;
         }
         if (_clients.count(dsid) == 0) {
-          _clients[dsid] =  ClientSessions(client);
+          _clients[dsid] = make_ref_<ClientSessions>(client);
         }
-        _clients[dsid].add_session(_strand, session_id, std::move(callback));
+        _clients[dsid]->add_session(_strand, session_id, std::move(callback));
 
       });
 }
 
 void SessionManager::destroy_impl() {
   for (auto &kv : _clients) {
-    kv.second.destroy();
+    kv.second->destroy();
   }
   _clients.clear();
 }
