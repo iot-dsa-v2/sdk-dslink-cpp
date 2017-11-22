@@ -38,9 +38,6 @@ class RemoteNode : public NodeModelBase {
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
   void on_unlist() override;
 
-  // get the summery Map when it's listed in a parent node
-  BytesRef &get_summary() override;
-
   /// invoke
  public:
   void invoke(ref_<OutgoingInvokeStream> &&stream,
