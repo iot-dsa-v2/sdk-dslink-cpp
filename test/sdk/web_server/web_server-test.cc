@@ -29,7 +29,6 @@ TEST(WebServerTest, basic_flow) {
 
   auto client = make_shared_<WsClientConnection>(link_strand, dsid_prefix, ws_host,
                                            ws_port);
-
   client->connect(60);
 
 #if 0

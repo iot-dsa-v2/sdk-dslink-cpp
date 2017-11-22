@@ -9,16 +9,15 @@
 
 namespace dsa {
 
-WsConnection::WsConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
-                             const string_ &path)
+WsConnection::WsConnection(websocket_stream &ws, LinkStrandRef &strand,
+                           const string_ &dsid_prefix, const string_ &path)
     : Connection(strand, dsid_prefix, path),
-      _socket(strand->get_io_service()),
-      _ws(strand->get_io_service()),
+      _ws(std::move(ws)),
       _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
 
 void WsConnection::on_deadline_timer_(const boost::system::error_code &error,
-                                       shared_ptr_<Connection> sthis) {
+                                      shared_ptr_<Connection> sthis) {
   LOG_WARN(_strand->logger(), LOG << "Connection timeout");
   destroy_in_strand(std::move(sthis));
 }
@@ -34,7 +33,7 @@ void WsConnection::destroy_impl() {
 }
 
 void WsConnection::start_read(shared_ptr_<WsConnection> &&connection,
-                               size_t cur, size_t next) {
+                              size_t cur, size_t next) {
   std::vector<uint8_t> &buffer = connection->_read_buffer;
   size_t partial_size = next - cur;
   if (cur > 0) {
@@ -53,9 +52,9 @@ void WsConnection::start_read(shared_ptr_<WsConnection> &&connection,
 }
 
 void WsConnection::read_loop_(shared_ptr_<WsConnection> &&connection,
-                               size_t from_prev,
-                               const boost::system::error_code &error,
-                               size_t bytes_transferred) {
+                              size_t from_prev,
+                              const boost::system::error_code &error,
+                              size_t bytes_transferred) {
   // reset deadline timer for each new message
   // TODO: make this thread safe
   // connection->reset_standard_deadline_timer();
@@ -138,7 +137,7 @@ size_t WsConnection::WriteBuffer::max_next_size() const {
 };
 
 void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
-                                     int32_t ack_id) {
+                                    int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > connection._write_buffer.size()) {
     if (total_size <= MAX_BUFFER_SIZE) {
@@ -160,6 +159,6 @@ void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
       });
 }
 
-tcp_socket &WsConnection::socket() { return _socket; }
+websocket_stream &WsConnection::websocket() { return _ws; }
 
 }  // namespace dsa

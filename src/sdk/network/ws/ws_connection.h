@@ -15,8 +15,9 @@
 
 namespace dsa {
 
-using tcp = boost::asio::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
-namespace websocket = boost::beast::websocket;  // from <boost/beast/websocket.hpp>
+using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
+namespace websocket =
+    boost::beast::websocket;  // from <boost/beast/websocket.hpp>
 
 typedef boost::asio::ip::tcp::socket tcp_socket;
 typedef websocket::stream<tcp::socket> websocket_stream;
@@ -47,10 +48,8 @@ class WsConnection : public Connection {
 
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
-  tcp_socket _socket;
   websocket_stream _ws;
-  
-  std::atomic_bool _socket_open{true};
+
   std::atomic_bool _ws_open{true};
 
   void on_deadline_timer_(const boost::system::error_code &error,
@@ -59,15 +58,15 @@ class WsConnection : public Connection {
   void destroy_impl() override;
 
  public:
-  WsConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
-                const string_ &path = "");
+  WsConnection(websocket_stream &ws, LinkStrandRef &strand,
+               const string_ &dsid_prefix, const string_ &path = "");
 
   void start_read(shared_ptr_<WsConnection> &&connection, size_t cur = 0,
                   size_t next = 0);
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
 
-  tcp_socket &socket();
+  websocket_stream &websocket();
 };
 
 }  // namespace dsa
