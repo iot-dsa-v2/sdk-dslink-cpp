@@ -151,6 +151,7 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size += message.size();
 }
 void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
+  connection._ws.binary(true);
   connection._ws.async_write(
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
