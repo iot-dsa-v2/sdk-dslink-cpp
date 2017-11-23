@@ -28,6 +28,7 @@ MessageCacheStream::~MessageCacheStream() {}
 void MessageCacheStream::destroy_impl() {
   _closed = true;
   _cache.reset();
+  _session.reset();
   MessageRefedStream::destroy_impl();
 }
 
@@ -69,6 +70,7 @@ MessageQueueStream::~MessageQueueStream() {}
 void MessageQueueStream::destroy_impl() {
   _closed = true;
   _queue.clear();
+  _session.reset();
   MessageRefedStream::destroy_impl();
 }
 

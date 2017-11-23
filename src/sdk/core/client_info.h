@@ -10,6 +10,7 @@ namespace dsa {
 struct ClientInfo {
   string_ dsid;
   string_ permission_token;
+  string_ responder_path;
   size_t max_session;
 
   int32_t max_queue_size = 1000000;

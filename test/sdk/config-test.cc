@@ -25,7 +25,7 @@ TEST(ConfigTest, asyncSimpleSecurityManager) {
 
   std::vector<ref_<Client>> clients;
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
-    ref_<Client> tcp_client(new Client(client_strand));
+    auto tcp_client = make_ref_<Client>(client_strand);
     tcp_client->connect();
     clients.push_back(std::move(tcp_client));
   }
@@ -52,6 +52,7 @@ TEST(ConfigTest, asyncSimpleSecurityManager) {
   if (!app.is_stopped()) {
     app.force_stop();
   }
-
+  client_strand.destroy();
+  server_strand.destroy();
   app.wait();
 }

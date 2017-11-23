@@ -26,28 +26,28 @@ SubscribeRequestMessage::SubscribeRequestMessage(const SubscribeRequestMessage& 
 
 void SubscribeRequestMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_size, size_t body_size) throw(const MessageParsingError &) {
   while (dynamic_header_size > 0) {
-    DynamicHeader *header = DynamicHeader::parse(data, dynamic_header_size);
+    auto header = DynamicHeader::parse(data, dynamic_header_size);
     data += header->size();
     dynamic_header_size -= header->size();
     switch (header->key()) {
-      case DynamicHeader::PRIORITY:priority.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+      case DynamicHeader::PRIORITY:priority.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;
-      case DynamicHeader::ALIAS_COUNT:alias_count.reset(DOWN_CAST<DynamicByteHeader *>(header));
+      case DynamicHeader::ALIAS_COUNT:alias_count.reset(DOWN_CAST<DynamicByteHeader *>(header.release()));
         break;
       case DynamicHeader::TARGET_PATH: {
-        target_path.reset(DOWN_CAST<DynamicStringHeader *>(header));
-        _parsed_target_path.reset(new Path(DOWN_CAST<DynamicStringHeader *>(header)->value()));
+        target_path.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
+        _parsed_target_path.reset(new Path(target_path->value()));
         break;
       }
-      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(DOWN_CAST<DynamicStringHeader *>(header));
+      case DynamicHeader::PERMISSION_TOKEN:permission_token.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
         break;
-      case DynamicHeader::NO_STREAM:no_stream.reset(DOWN_CAST<DynamicBoolHeader *>(header));
+      case DynamicHeader::NO_STREAM:no_stream.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;
-      case DynamicHeader::QOS:qos.reset(DOWN_CAST<DynamicByteHeader *>(header));
+      case DynamicHeader::QOS:qos.reset(DOWN_CAST<DynamicByteHeader *>(header.release()));
         break;
-      case DynamicHeader::QUEUE_SIZE:queue_size.reset(DOWN_CAST<DynamicIntHeader *>(header));
+      case DynamicHeader::QUEUE_SIZE:queue_size.reset(DOWN_CAST<DynamicIntHeader *>(header.release()));
         break;
-      case DynamicHeader::QUEUE_TIME:queue_time.reset(DOWN_CAST<DynamicIntHeader *>(header));
+      case DynamicHeader::QUEUE_TIME:queue_time.reset(DOWN_CAST<DynamicIntHeader *>(header.release()));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }

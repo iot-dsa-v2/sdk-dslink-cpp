@@ -101,6 +101,8 @@ void SimpleStorageBucket::remove(const std::string& key) {
     try {
       if (exists(p) && is_regular_file(p)) {
         fs::remove(p);
+        delete strand_map.at(key);
+        strand_map.erase(key); // erase the element from the map as well, if it is removed successfully
       }
     } catch (const fs::filesystem_error& ex) {
       ;

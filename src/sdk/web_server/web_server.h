@@ -8,9 +8,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 
-#include "network/ws/ws_server_connection.h"
-
-using tcp = boost::asio::ip::tcp;
+#include "network/ws/http_connection.h"
 
 namespace dsa {
 
@@ -24,7 +22,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<boost::asio::io_service::strand> _strand;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
-  shared_ptr_<WsServerConnection> _next_connection;
+  shared_ptr_<HttpConnection> _next_connection;
   LinkStrandRef _link_strand;
 
   void accept_loop(const boost::system::error_code& error);

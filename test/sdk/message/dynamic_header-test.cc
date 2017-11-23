@@ -48,36 +48,37 @@ TEST(DynamicHeaderTest, parse) {
     data[3] = 'p';
     data[4] = 'a';
     
-    DynamicHeader* dynamic_header = DynamicHeader::parse(data, 10);
+    auto dynamic_header = DynamicHeader::parse(data, 10);
 
     switch (test_spec[i].expected_dynamic_header_type) {
     case STRING_HEADER:
-      EXPECT_TRUE((typeid(*dynamic_header) == typeid(DynamicStringHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicByteHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicIntHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicBoolHeader)));
+      EXPECT_TRUE((typeid(*dynamic_header.get()) == typeid(DynamicStringHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicByteHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicIntHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicBoolHeader)));
       break;
     case BYTE_HEADER:
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicStringHeader)));
-      EXPECT_TRUE((typeid(*dynamic_header) == typeid(DynamicByteHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicIntHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicBoolHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicStringHeader)));
+      EXPECT_TRUE((typeid(*dynamic_header.get()) == typeid(DynamicByteHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicIntHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicBoolHeader)));
       break;
     case INT_HEADER:
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicStringHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicByteHeader)));
-      EXPECT_TRUE((typeid(*dynamic_header) == typeid(DynamicIntHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicBoolHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicStringHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicByteHeader)));
+      EXPECT_TRUE((typeid(*dynamic_header.get()) == typeid(DynamicIntHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicBoolHeader)));
       break;
     case BOOL_HEADER:
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicStringHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicByteHeader)));
-      EXPECT_FALSE((typeid(*dynamic_header) == typeid(DynamicIntHeader)));
-      EXPECT_TRUE((typeid(*dynamic_header) == typeid(DynamicBoolHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicStringHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicByteHeader)));
+      EXPECT_FALSE((typeid(*dynamic_header.get()) == typeid(DynamicIntHeader)));
+      EXPECT_TRUE((typeid(*dynamic_header.get()) == typeid(DynamicBoolHeader)));
       break;
     default:
       ;
     }
+
   }
 }
 

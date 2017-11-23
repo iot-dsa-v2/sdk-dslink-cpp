@@ -8,10 +8,10 @@
 #include <regex>
 
 #include "core/client.h"
-#include "core/session_manager.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
+#include "module/default/simple_session_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "stream/requester/incoming_invoke_stream.h"
@@ -31,7 +31,9 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
        "Broker Url")  // broker url
       ("log,l", opts::value<string_>()->default_value("info"),
        "Log Level [all,trace,debug,info,warn,error,fatal,none]")  // log level
-      ("thread,t", opts::value<size_t>()->default_value(1),
+      ("token,t", opts::value<string_>()->default_value(""),
+       "Token")  // token
+      ("thread", opts::value<size_t>()->default_value(1),
        "Number of thread")  // custom name
       ("name,n", opts::value<string_>()->default_value(link_name),
        "Override Link Name")  // custom name
@@ -60,6 +62,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   strand.reset(new EditableStrand(
       get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
+  client_token = variables["token"].as<string_>();
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
   parse_log(variables["log"].as<string_>(), *strand);
@@ -86,6 +89,9 @@ void DsLink::destroy_impl() {
     _client.reset();
   }
   _app->close();
+
+  _subscribe_mergers.clear();
+  _list_mergers.clear();
 
   WrapperStrand::destroy_impl();
 }
@@ -145,7 +151,7 @@ void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
 void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
-  strand->set_session_manager(make_ref_<SessionManager>(strand));
+  strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
   strand->set_security_manager(make_ref_<SimpleSecurityManager>());
 
   strand->set_responder_model(std::move(root_node));

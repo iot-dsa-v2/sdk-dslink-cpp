@@ -11,7 +11,7 @@
 #include "util/enable_shared.h"
 #include "ws_connection.h"
 
-namespace http = boost::beast::http;            // from <boost/beast/http.hpp>
+namespace http = boost::beast::http;  // from <boost/beast/http.hpp>
 
 namespace dsa {
 
@@ -23,8 +23,8 @@ class WsServerConnection final : public WsConnection {
   http::request<http::string_body> _req;
 
  public:
-  WsServerConnection(LinkStrandRef &strand, const string_ &dsid_prefix = "",
-                     const string_ &path = "");
+  WsServerConnection(websocket_stream &ws, LinkStrandRef &strand,
+                     const string_ &dsid_prefix = "", const string_ &path = "");
 
   void accept() final;
 

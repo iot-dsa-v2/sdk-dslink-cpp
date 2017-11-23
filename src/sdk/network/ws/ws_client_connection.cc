@@ -10,7 +10,10 @@ namespace dsa {
 WsClientConnection::WsClientConnection(LinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &host, uint16_t port)
-    : WsConnection(strand, dsid_prefix), _hostname(host), _port(port) {}
+    : WsConnection(*new websocket_stream{strand->get_io_service()}, strand,
+                   dsid_prefix),
+      _hostname(host),
+      _port(port) {}
 
 void WsClientConnection::connect(size_t reconnect_interval) {
   // connect to server
@@ -37,14 +40,14 @@ void WsClientConnection::connect(size_t reconnect_interval) {
         */
 
         // websocket handshake
-        _ws.async_handshake(_hostname, "/",
-        [ connection = share_this<WsConnection>(),
-            this ](const boost::system::error_code &error) mutable {
-            if (is_destroyed()) return;
+        _ws.async_handshake(_hostname, "/", [
+          connection = share_this<WsConnection>(), this
+        ](const boost::system::error_code &error) mutable {
+          if (is_destroyed()) return;
 
-            start_client_f0();
+          start_client_f0();
 
-            WsConnection::start_read(std::move(connection));
+          WsConnection::start_read(std::move(connection));
 
         });
 

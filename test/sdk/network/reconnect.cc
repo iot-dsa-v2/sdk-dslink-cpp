@@ -31,11 +31,10 @@ TEST(NetworkTest, ReConnect) {
         make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host, tcp_port);
     return connection;
   };
-  //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
-  ref_<Client> client(new Client(client_strand));
+  auto client = make_ref_<Client>(client_strand);
   client->connect();
 
   ASYNC_EXPECT_TRUE(500, *client_strand.strand,

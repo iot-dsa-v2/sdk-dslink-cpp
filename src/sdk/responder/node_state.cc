@@ -107,8 +107,8 @@ void NodeState::set_model(ModelRef &&model) {
     _model.reset();
     if (model == NodeModelBase::WAITING) {
       _model_status = MODEL_WAITING;
-      if (_watiging_cache == nullptr) {
-        _watiging_cache.reset(new NodeStateWaitingCache());
+      if (_waiting_cache == nullptr) {
+        _waiting_cache.reset(new NodeStateWaitingCache());
       }
     } else if (model == NodeModelBase::UNAVAILABLE) {
       _model_status = MODEL_UNAVAILABLE;
@@ -138,14 +138,14 @@ void NodeState::set_model(ModelRef &&model) {
       _model->list(*list_stream.first);
     }
     // invoke and set streams
-    if (_watiging_cache != nullptr) {
-      for (auto &invoke_stream : _watiging_cache->invokes) {
+    if (_waiting_cache != nullptr) {
+      for (auto &invoke_stream : _waiting_cache->invokes) {
         _model->invoke(std::move(invoke_stream), _parent);
       }
-      for (auto &set_stream : _watiging_cache->sets) {
+      for (auto &set_stream : _waiting_cache->sets) {
         _model->set(std::move(set_stream));
       }
-      _watiging_cache.reset();
+      _waiting_cache.reset();
     }
   }
 }
@@ -194,6 +194,9 @@ void NodeState::check_subscribe_options() {
 void NodeState::subscribe(ref_<BaseOutgoingSubscribeStream> &&stream) {
   auto p = stream.get();
   _subscription_streams[p] = std::move(stream);
+  if (_model != nullptr && _model->_cached_value != nullptr) {
+    p->send_subscribe_response(copy_ref_(_model->_cached_value));
+  }
   if (_merged_subscribe_options.mergeFrom(p->subscribe_options())) {
     if (_model_status == MODEL_CONNECTED) {
       _model->subscribe(_merged_subscribe_options);
@@ -217,9 +220,6 @@ void NodeState::subscribe(ref_<BaseOutgoingSubscribeStream> &&stream) {
       }
     }
   });
-  if (_model != nullptr && _model->_cached_value != nullptr) {
-    p->send_subscribe_response(copy_ref_(_model->_cached_value));
-  }
 }
 
 void NodeState::update_list_value(const string_ &key, BytesRef &value) {
@@ -246,7 +246,7 @@ void NodeState::invoke(ref_<OutgoingInvokeStream> &&stream) {
   if (_model != nullptr) {
     _model->invoke(std::move(stream), _parent);
   } else if (_model_status == MODEL_WAITING) {
-    _watiging_cache->invokes.emplace_back(std::move(stream));
+    _waiting_cache->invokes.emplace_back(std::move(stream));
   } else {
     auto response = make_ref_<InvokeResponseMessage>();
     if (_model_status == MODEL_UNAVAILABLE) {
@@ -261,7 +261,7 @@ void NodeState::set(ref_<OutgoingSetStream> &&stream) {
   if (_model != nullptr) {
     _model->set(std::move(stream));
   } else if (_model_status == MODEL_WAITING) {
-    _watiging_cache->sets.emplace_back(std::move(stream));
+    _waiting_cache->sets.emplace_back(std::move(stream));
   } else {
     auto response = make_ref_<SetResponseMessage>();
     if (_model_status == MODEL_UNAVAILABLE) {
@@ -279,10 +279,27 @@ void NodeState::destroy_impl() {
     _model.reset();
     _model_status = MODEL_UNKNOWN;
   }
+
+  _subscription_streams.clear();
+  _list_streams.clear();
+  for ( auto it = _children.begin(); it != _children.end(); ++it )
+    it->second->destroy();
+  _children.clear();
+  if(_waiting_cache != nullptr) {
+    _waiting_cache->invokes.clear();
+    _waiting_cache->sets.clear();
+    _waiting_cache.reset(nullptr);
+  }
+
   if (!_path.is_invalid()) {
     _owner.remove_state(_path.full_str());
   }
   _parent.reset();
+  //TODO: ali ask
+//  if(_parent != nullptr) {
+//    _parent->destroy();
+//    _parent.reset();
+//  }
 }
 
 NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,

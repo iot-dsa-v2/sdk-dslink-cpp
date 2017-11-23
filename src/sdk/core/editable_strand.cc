@@ -5,7 +5,7 @@
 #include "module/logger.h"
 #include "module/security_manager.h"
 #include "responder/node_state_manager.h"
-#include "session_manager.h"
+#include "module/session_manager.h"
 
 namespace dsa {
 EditableStrand::EditableStrand(boost::asio::io_service::strand* strand,
@@ -38,6 +38,12 @@ void EditableStrand::set_responder_model(ModelRef&& root_model,
                                      size_t timer_interval) {
   set_stream_acceptor(make_ref_<NodeStateManager>(
       *this, std::move(root_model), timer_interval));
+}
+void EditableStrand::destroy_impl() {
+  LinkStrand::destroy_impl();
+  _session_manager.reset();
+  _stream_acceptor.reset();
+  _security_manager.reset();
 }
 
 }  // namespace dsa

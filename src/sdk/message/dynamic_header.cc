@@ -15,7 +15,7 @@ DynamicHeader::DynamicHeader(DynamicKey key, size_t size) : _key(key) {
   _size = uint16_t(size);
 }
 
-DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
+std::unique_ptr<DynamicHeader> DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     const MessageParsingError &) {
   switch (*data) {
     case STATUS:
@@ -23,7 +23,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     case QOS:
     case MAX_PERMISSION: {
       if (size >= 2) {
-        return new DynamicByteHeader(data);
+        return std::unique_ptr<DynamicByteHeader>(new DynamicByteHeader(data));
       }
       throw MessageParsingError("invalid size for DynamicByteHeader");
     }
@@ -32,7 +32,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     case QUEUE_SIZE:
     case QUEUE_TIME: {
       if (size >= 5) {
-        return new DynamicIntHeader(data);
+        return std::unique_ptr<DynamicIntHeader>(new DynamicIntHeader(data));
       }
       throw MessageParsingError("invalid size for DynamicByteHeader");
     }
@@ -45,9 +45,9 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
       if (size > 0) {
         uint16_t str_size = read_16_t(data + 1);
         if (str_size + 3 <= size) {
-          return new DynamicStringHeader(
+          return std::unique_ptr<DynamicStringHeader> (new DynamicStringHeader(
               data, str_size + 3,
-              string_((char *)data + 3, (size_t)str_size));
+              string_((char *)data + 3, (size_t)str_size)));
         }
       }
       throw MessageParsingError("invalid size for DynamicStringHeader");
@@ -56,7 +56,7 @@ DynamicHeader *DynamicHeader::parse(const uint8_t *data, size_t size) throw(
     case NO_STREAM:
     case SKIPPABLE: {
       if (size >= 1) {
-        return new DynamicBoolHeader(data);
+        return std::unique_ptr<DynamicBoolHeader>(new DynamicBoolHeader(data));
       }
       throw MessageParsingError("invalid size for DynamicBoolHeader");
     }

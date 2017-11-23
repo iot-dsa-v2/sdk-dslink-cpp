@@ -39,19 +39,26 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_subscribe_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
-    stream->on_subscribe_option_change([=](MessageStream &stream,
-                                           const SubscribeOptions &old_option) {
-      if (stream.is_destroyed()) {
-        unsubscribed = true;
-        return;
-      }
-      last_subscribe_options.reset(new SubscribeOptions(stream.subscribe_options()));
-    });
+    stream->send_subscribe_response(
+        make_ref_<SubscribeResponseMessage>(Var("hello")));
+    stream->on_subscribe_option_change(
+        [=](MessageStream &stream, const SubscribeOptions &old_option) {
+          if (stream.is_destroyed()) {
+            unsubscribed = true;
+            return;
+          }
+          last_subscribe_options.reset(
+              new SubscribeOptions(stream.subscribe_options()));
+        });
   }
   void add(ref_<OutgoingListStream> &&stream) override {}
   void add(ref_<OutgoingInvokeStream> &&stream) override {}
   void add(ref_<OutgoingSetStream> &&stream) override {}
+  // TODO: keep in mind
+  void custom_destroy() {
+    last_subscribe_stream->destroy();
+    last_subscribe_stream.reset();
+  }
 };
 }
 
@@ -67,7 +74,6 @@ TEST(ResponderTest, Subscribe_Model) {
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
 
-  //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
@@ -85,12 +91,14 @@ TEST(ResponderTest, Subscribe_Model) {
   update_options.queue_duration = 0x9876;
   update_options.queue_size = 0x5432;
 
+  int msg_count = 0;
   ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "",
       [&](IncomingSubscribeStream &stream,
           ref_<const SubscribeResponseMessage> &&msg) {
         last_response = std::move(msg);  // store response
+        ++msg_count;
       },
       initial_options);
 
@@ -120,6 +128,8 @@ TEST(ResponderTest, Subscribe_Model) {
   ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return last_response->get_value().value.get_string() == "world";
   });
+
+  EXPECT_EQ(msg_count, 2);
 
   // close the subscribe stream
   subscribe_stream->close();
@@ -158,9 +168,9 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
+  WrapperStrand client_strand =
+      server_strand.get_client_wrapper_strand(app, true);
 
-  //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
@@ -178,12 +188,14 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   update_options.queue_duration = 0x9876;
   update_options.queue_size = 0x5432;
 
+  int msg_count = 0;
   ref_<const SubscribeResponseMessage> last_response;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
       "path",
       [&](IncomingSubscribeStream &stream,
           ref_<const SubscribeResponseMessage> &&msg) {
         last_response = std::move(msg);  // store response
+        ++msg_count;
       },
       initial_options);
 
@@ -193,13 +205,15 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   });
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options ==
-                mock_stream_acceptor->last_subscribe_stream->subscribe_options());
+              mock_stream_acceptor->last_subscribe_stream->subscribe_options());
 
   ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
               last_response->get_value().value.to_string() == "hello");
+
+  EXPECT_EQ(msg_count, 1);
 
   // send an new request to udpate the option of the same stream
   subscribe_stream->subscribe(update_options);
@@ -210,7 +224,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   // request option should be same as the second one
   EXPECT_TRUE(update_options == *mock_stream_acceptor->last_subscribe_options);
   EXPECT_TRUE(update_options ==
-                mock_stream_acceptor->last_subscribe_stream->subscribe_options());
+              mock_stream_acceptor->last_subscribe_stream->subscribe_options());
 
   // close the subscribe stream
   subscribe_stream->close();
@@ -223,7 +237,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->unsubscribed;
   });
-
+  subscribe_stream->destroy();
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 

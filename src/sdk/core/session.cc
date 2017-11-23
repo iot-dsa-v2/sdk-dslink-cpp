@@ -21,7 +21,7 @@ void ClientSessions::add_session(LinkStrandRef &strand,
                                  GetSessionCallback &&callback) {
   auto search = _sessions.find(session_id);
   if (search != _sessions.end()) {
-    callback(search->second);
+    callback(search->second, _info);
     return;
   }
   string_ sid = get_new_session_id(session_id);
@@ -29,11 +29,11 @@ void ClientSessions::add_session(LinkStrandRef &strand,
 
   _sessions[sid] = session;
 
-  callback(session);
+  callback(session, _info);
 }
 
 string_ ClientSessions::get_new_session_id(const string_ old_session_id) {
-  Hash hash("sha256");
+  Hash hash;
 
   std::vector<uint8_t> data(16);
   memcpy(&data[0], &_session_id_seed, sizeof(uint64_t));
@@ -49,7 +49,7 @@ string_ ClientSessions::get_new_session_id(const string_ old_session_id) {
   return get_new_session_id(old_session_id);
 }
 
-void ClientSessions::destroy() {
+void ClientSessions::destroy_impl() {
   for (auto &kv : _sessions) {
     if (kv.second != nullptr) {
       kv.second->destroy();
@@ -118,6 +118,8 @@ void Session::destroy_impl() {
   _ping_stream.reset();
   _timer.cancel();
   _on_connect = nullptr;
+  _write_streams.clear();
+  _pending_acks.clear();
 }
 
 void Session::_on_timer() {
@@ -237,8 +239,8 @@ void Session::write_loop(ref_<Session> sthis) {
 
     ++sthis->_waiting_ack;
     if (ack_callback != nullptr) {
-      sthis->_pending_acks.emplace_back(
-         sthis->_waiting_ack, std::move(ack_callback));
+      sthis->_pending_acks.emplace_back(sthis->_waiting_ack,
+                                        std::move(ack_callback));
     }
 
     LOG_TRACE(sthis->_strand->logger(),

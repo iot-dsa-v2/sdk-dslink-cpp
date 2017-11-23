@@ -18,11 +18,13 @@ class HMAC {
   bool initialized;
 
  public:
-  HMAC(const char *alg, const std::vector<uint8_t> &to_hash) throw(const std::runtime_error &);
+  HMAC(const std::vector<uint8_t> &to_hash) throw(const std::runtime_error &);
   ~HMAC();
 
-  void init(const char *alg, const std::vector<uint8_t> &to_hash) throw(const std::runtime_error &);
-  void update(const std::vector<uint8_t> &data) throw(const std::runtime_error &);
+  void init(const std::vector<uint8_t> &to_hash) throw(
+      const std::runtime_error &);
+  void update(const std::vector<uint8_t> &data) throw(
+      const std::runtime_error &);
   std::vector<uint8_t> digest() throw(const std::runtime_error &);
 };
 }  // namespace dsa

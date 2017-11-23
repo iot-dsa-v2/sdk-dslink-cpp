@@ -9,7 +9,7 @@
 #include "message/handshake/f3_message.h"
 #include "module/logger.h"
 
-#include "core/session_manager.h"
+#include "module/session_manager.h"
 
 namespace dsa {
 
@@ -64,7 +64,8 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token, f2->previous_session_id,
-          [ this, sthis = std::move(sthis) ](const ref_<Session> &session) {
+          [ this, sthis = std::move(sthis) ](const ref_<Session> &session,
+                                             const ClientInfo &info) {
             if (session != nullptr) {
               _session = session;
               _session->connected(shared_from_this());
@@ -77,6 +78,8 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
               HandshakeF3Message f3;
               f3.auth = _handshake_context.auth();
               f3.session_id = _session->session_id();
+              f3.last_ack_id = _session->last_sent_ack();
+              f3.path = info.responder_path;
 
               f3.size();  // calculate size
               auto write_buffer = get_write_buffer();

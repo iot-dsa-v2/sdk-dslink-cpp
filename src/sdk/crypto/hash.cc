@@ -3,17 +3,13 @@
 #include "hash.h"
 
 #include <regex>
-
 #include "misc.h"
 
 namespace dsa {
-Hash::Hash(const char *hash_type) throw(const std::runtime_error &) : finalized(false) {
+
+Hash::Hash() throw(const std::runtime_error &) : finalized(false) {
   mdctx = new EVP_MD_CTX;
-  const EVP_MD *md = EVP_get_digestbyname(hash_type);
-  if (md == nullptr) {
-    delete mdctx;
-    throw std::runtime_error("invalid hash type");
-  }
+  const EVP_MD *md = EVP_sha256();
   EVP_MD_CTX_init(mdctx);
   if (EVP_DigestInit_ex(mdctx, md, nullptr) <= 0) {
     delete mdctx;
@@ -21,12 +17,10 @@ Hash::Hash(const char *hash_type) throw(const std::runtime_error &) : finalized(
   }
 }
 
-Hash::~Hash() {
-  delete mdctx;
-}
+Hash::~Hash() { delete mdctx; }
 
 void Hash::update(const std::vector<uint8_t> &content) {
-  EVP_DigestUpdate(mdctx, (uint8_t*)&content[0], content.size());
+  EVP_DigestUpdate(mdctx, (uint8_t *)&content[0], content.size());
 }
 
 string_ Hash::digest_base64() throw(const std::runtime_error &) {
