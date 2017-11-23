@@ -16,8 +16,8 @@ namespace dsa {
 
 uint16_t TestConfig::_port = 4120;
 
-static ref_<EditableStrand> make_config(App &app, bool async) {
-  auto config = make_ref_<EditableStrand>(app.new_strand(), make_unique_<ECDH>());
+static ref_<EditableStrand> make_config(std::shared_ptr<App> app, bool async) {
+  auto config = make_ref_<EditableStrand>(app->new_strand(), make_unique_<ECDH>());
 
   config->set_session_manager(make_ref_<SimpleSessionManager>(config));
 
@@ -34,13 +34,14 @@ static ref_<EditableStrand> make_config(App &app, bool async) {
   return config;
 }
 
-TestConfig::TestConfig(App &app, bool async) : WrapperStrand() {
+TestConfig::TestConfig(std::shared_ptr<App> app, bool async) : WrapperStrand() {
+  this->app = app;
   strand = make_config(app, async);
 
   tcp_server_port = _port++;
 }
 
-WrapperStrand TestConfig::get_client_wrapper_strand(App &app, bool async) {
+WrapperStrand TestConfig::get_client_wrapper_strand(bool async) {
   WrapperStrand copy(*this);
 
   copy.tcp_server_port = 0;
@@ -62,7 +63,22 @@ WrapperStrand TestConfig::get_client_wrapper_strand(App &app, bool async) {
   return std::move(copy);
 }
 
+ref_<DsLink> TestConfig::create_dslink(bool async) {
+  std::string address = std::string("127.0.0.1:") + std::to_string(tcp_server_port);
+
+  const char *argv[] = {"./test", "-b", address.c_str()};
+  int argc = 3;
+  auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
+
+  return link;
+}
+
 void destroy_client_in_strand(ref_<Client> &client) {
   client->get_strand().dispatch([client]() { client->destroy(); });
 }
+
+void destroy_dslink_in_strand(ref_<DsLink> &dslink) {
+  dslink->strand->dispatch([dslink]() { dslink->destroy(); });
+}
+
 }

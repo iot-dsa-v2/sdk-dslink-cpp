@@ -13,10 +13,10 @@
 using namespace dsa;
 
 TEST(ConfigTest, asyncSimpleSecurityManager) {
-  App app;
+  auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
 
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
@@ -45,14 +45,14 @@ TEST(ConfigTest, asyncSimpleSecurityManager) {
     destroy_client_in_strand(clients[i]);
   }
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
   client_strand.destroy();
   server_strand.destroy();
-  app.wait();
+  app->wait();
 }

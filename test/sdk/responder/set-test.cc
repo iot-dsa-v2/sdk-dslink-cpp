@@ -55,7 +55,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 
 TEST(ResponderTest, Set_Model) {
   typedef responder_set_test::MockNode MockNode;
-  App app;
+  auto app = std::make_shared<App>();
   // get the configs for unit testing
   TestConfig server_strand(app);
 
@@ -63,7 +63,7 @@ TEST(ResponderTest, Set_Model) {
 
   server_strand.strand->set_responder_model(ModelRef(root_node));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
 
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
@@ -129,22 +129,22 @@ TEST(ResponderTest, Set_Model) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
 
   server_strand.destroy();
   client_strand.destroy();
-  app.wait();
+  app->wait();
 }
 
 TEST(ResponderTest, Set_Acceptor) {
   typedef responder_set_test::MockStreamAcceptor MockStreamAcceptor;
-  App app;
+  auto app = std::make_shared<App>();
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
@@ -152,7 +152,7 @@ TEST(ResponderTest, Set_Acceptor) {
   server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
   auto tcp_server = make_shared_<TcpServer>(server_strand);
   tcp_server->start();
 
@@ -193,15 +193,15 @@ TEST(ResponderTest, Set_Acceptor) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
 
   server_strand.destroy();
   client_strand.destroy();
-  app.wait();
+  app->wait();
 }

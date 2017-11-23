@@ -67,7 +67,7 @@ class MockNodeListRoot_0 : public NodeModelBase {
 };
 
 TEST(ResponderTest, model__add_child) {
-  App app;
+  auto app = std::make_shared<App>();
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
@@ -75,7 +75,7 @@ TEST(ResponderTest, model__add_child) {
   server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app, true);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
 
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
@@ -102,21 +102,21 @@ TEST(ResponderTest, model__add_child) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
 
   server_strand.destroy();
   client_strand.destroy();
-  app.wait();
+  app->wait();
 }
 
 TEST(ResponderTest, model__get_child) {
-  App app;
+  auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
 
@@ -124,7 +124,7 @@ TEST(ResponderTest, model__get_child) {
 
   server_strand.strand->set_responder_model(ref_<MockNode>(root_node));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
@@ -149,21 +149,21 @@ TEST(ResponderTest, model__get_child) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
   child_node->destroy();
   server_strand.destroy();
   client_strand.destroy();
-  app.wait();
+  app->wait();
 }
 
 TEST(ResponderTest, model__set_value) {
-  App app;
+  auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
 
@@ -171,7 +171,7 @@ TEST(ResponderTest, model__set_value) {
 
   server_strand.strand->set_responder_model(ref_<MockNode>(root_node));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
@@ -204,15 +204,15 @@ TEST(ResponderTest, model__set_value) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
 
   server_strand.destroy();
   client_strand.destroy();
-  app.wait();
+  app->wait();
 }

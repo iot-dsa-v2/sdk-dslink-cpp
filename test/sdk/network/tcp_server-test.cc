@@ -13,10 +13,10 @@
 using namespace dsa;
 
 TEST(TcpServerTest, SingleThread) {
-  App app(1);
+  auto app = std::make_shared<App>(1);
 
   TestConfig server_strand(app);
-  WrapperStrand config = server_strand.get_client_wrapper_strand(app);
+  WrapperStrand config = server_strand.get_client_wrapper_strand();
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
 
@@ -26,7 +26,7 @@ TEST(TcpServerTest, SingleThread) {
   const uint32_t NUM_CLIENT = 2;
 
   std::vector<ref_<Client>> clients;
-  boost::asio::deadline_timer timer(app.io_service(),
+  boost::asio::deadline_timer timer(app->io_service(),
                                     boost::posix_time::milliseconds(20));
   int waited = 0;
   std::function<void(const boost::system::error_code&)> wait_for_connected;
@@ -43,7 +43,7 @@ TEST(TcpServerTest, SingleThread) {
       ++waited;
       if (waited > 20) {  // waited for too long
         EXPECT_TRUE(false);
-        app.force_stop();
+        app->force_stop();
         return;
       }
       for (auto& client : clients) {
@@ -61,19 +61,19 @@ TEST(TcpServerTest, SingleThread) {
       server_strand.destroy();
       config.destroy();
       clients.clear();
-      app.close();
+      app->close();
     };
     timer.async_wait(wait_for_connected);
 
   });
-  app.wait();
+  app->wait();
 }
 
 TEST(TcpServerTest, SingleStrand) {
-  App app;
+  auto app = std::make_shared<App>();
 
   TestConfig testConfig = TestConfig(app);
-  WrapperStrand config = testConfig.get_client_wrapper_strand(app);
+  WrapperStrand config = testConfig.get_client_wrapper_strand();
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
 
@@ -104,23 +104,23 @@ TEST(TcpServerTest, SingleStrand) {
     destroy_client_in_strand(clients[i]);
   }
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
   config.destroy();
   testConfig.destroy();
-  app.wait();
+  app->wait();
 }
 
 TEST(TcpServerTest, MultiStrand) {
-  App app;
+  auto app = std::make_shared<App>(1);
 
   TestConfig server_strand(app);
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
@@ -150,14 +150,14 @@ TEST(TcpServerTest, MultiStrand) {
     destroy_client_in_strand(clients[i]);
   }
 
-  app.close();
+  app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
   server_strand.destroy();
   client_strand.destroy();
-  app.wait();
+  app->wait();
 }

@@ -24,7 +24,7 @@ namespace fs = boost::filesystem;
 namespace dsa {
 
 DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
-               const string_ &version) {
+               const string_ &version, std::shared_ptr<App> app) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
       ("broker,b", opts::value<string_>()->default_value("127.0.0.1"),
@@ -57,7 +57,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     exit(0);
   }
 
-  parse_thread(variables["thread"].as<size_t>());
+  _app = app;
+  if(_app.get() != nullptr) {
+    std::cout << "App object already given, so ignoring thread choice in args\n";
+  } else{
+    parse_thread(variables["thread"].as<size_t>());
+  }
 
   strand.reset(new EditableStrand(
       get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
@@ -90,7 +95,16 @@ void DsLink::destroy_impl() {
   }
   _app->close();
 
+  for(auto it = _subscribe_mergers.begin(); it != _subscribe_mergers.end(); it++)
+  {
+    it->second->destroy();
+  }
   _subscribe_mergers.clear();
+
+  for(auto it = _list_mergers.begin(); it != _list_mergers.end(); it++)
+  {
+    it->second->destroy();
+  }
   _list_mergers.clear();
 
   WrapperStrand::destroy_impl();
@@ -143,9 +157,9 @@ void DsLink::parse_url(const string_ &url) {
 }
 
 void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto *logger = new ConsoleLogger();
-  config.set_logger(std::unique_ptr<Logger>(logger));
+  auto logger = std::unique_ptr<Logger>(new ConsoleLogger());
   logger->level = Logger::parse(log);
+  config.set_logger(std::move(logger));
 }
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
@@ -191,8 +205,8 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
     _client = make_ref_<Client>(*this);
     _client->connect(std::move(on_connect), callback_type);
   });
-  _app->wait();
-  destroy();
+//  _app->wait();
+//  destroy();
 }
 
 // requester features

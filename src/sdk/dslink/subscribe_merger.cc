@@ -15,7 +15,9 @@ IncomingSubscribeCache::IncomingSubscribeCache(
       _callback(std::move(callback)),
       _options(options) {}
 void IncomingSubscribeCache::destroy_impl() {
-  _merger->remove(get_ref());
+  // we shouldn't do this!
+  //_merger->remove(get_ref());
+  _merger.reset();
   _callback= nullptr;
 }
 
@@ -30,16 +32,24 @@ void SubscribeMerger::destroy_impl() {
     _stream->close();
     _stream.reset();
   }
-  _link->_subscribe_mergers.erase(_path);
+  // while link also trying to delete
+  // it is also delete itself from link
+  // causing exception so commented
+  //_link->_subscribe_mergers.erase(_path);
   _link.reset();
   _cached_value.reset();
+
+  for(auto it=caches.begin(); it!=caches.end(); it++){
+    it->get()->destroy();
+  }
+  caches.clear();
 }
 
 ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
     IncomingSubscribeCache::Callback&& callback,
     const SubscribeOptions& options) {
-  IncomingSubscribeCache* cache =
-      new IncomingSubscribeCache(get_ref(), std::move(callback), options);
+  auto cache = make_ref_<IncomingSubscribeCache>(get_ref(), std::move(callback), options);
+
   caches.emplace(cache);
 
   if (_stream == nullptr) {
@@ -57,6 +67,7 @@ ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
   if (_cached_value != nullptr) {
     cache->_callback(*cache, _cached_value);
   }
+
   return std::move(cache);
 }
 
@@ -80,6 +91,7 @@ void SubscribeMerger::check_subscribe_options() {
 }
 
 void SubscribeMerger::remove(const ref_<IncomingSubscribeCache>& cache) {
+  cache->destroy();
   caches.erase(cache);
   if (caches.empty()) {
     destroy();
