@@ -7,7 +7,9 @@
 #include "module/default/console_logger.h"
 
 namespace dsa {
-ModuleLoader::ModuleLoader(ref_<BrokerConfig> config) {}
+ModuleLoader::ModuleLoader(ref_<BrokerConfig> config) {
+  // TODO : check ./module folder and load dll files or so files
+}
 
 std::unique_ptr<Logger> ModuleLoader::new_logger(App& app,
                                                  ref_<LinkStrand> strand) {
