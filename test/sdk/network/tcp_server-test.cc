@@ -117,7 +117,7 @@ TEST(TcpServerTest, SingleStrand) {
 }
 
 TEST(TcpServerTest, MultiStrand) {
-  auto app = std::make_shared<App>(1);
+  auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
