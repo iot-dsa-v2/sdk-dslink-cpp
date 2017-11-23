@@ -80,7 +80,7 @@ TEST(LinkTest, Subscribe_Test) {
 
   // connection
   bool is_connected = false;
-  link->run(std::bind(SubscribeCallbackTest::connection_callback, std::placeholders::_1, &is_connected));
+  link->connect(std::bind(SubscribeCallbackTest::connection_callback, std::placeholders::_1, &is_connected));
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() {return is_connected;});
 
   // add a callback when connected to broker
@@ -127,7 +127,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
 
   // connection
   bool is_connected = false;
-  link->run(std::bind(SubscribeCallbackTest::connection_callback, std::placeholders::_1, &is_connected));
+  link->connect(std::bind(SubscribeCallbackTest::connection_callback, std::placeholders::_1, &is_connected));
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() {return is_connected;});
 
   // Initial Subcribe

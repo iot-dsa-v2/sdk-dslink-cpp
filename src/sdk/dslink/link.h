@@ -57,6 +57,12 @@ class DsLink final : public WrapperStrand {
   // the on_connect callback will always be called from main strand
   void run(OnConnectCallback &&on_connect = nullptr,
            uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
+  // if app is wanted to be used later,
+  // only connect should be called and
+  // app->wait should  be called manually again and
+  // dslink should be destroyed in strand
+  void connect(OnConnectCallback &&on_connect = nullptr,
+           uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
   // requester functions
  private:

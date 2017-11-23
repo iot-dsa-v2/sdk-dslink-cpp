@@ -171,7 +171,7 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
   strand->set_responder_model(std::move(root_node));
 }
 
-void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
+void DsLink::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
   }
@@ -190,13 +190,13 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
       } else {
         client_connection_maker =
             [
-              dsid_prefix = dsid_prefix, tcp_host = tcp_host,
-              tcp_port = tcp_port
+                dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+                tcp_port = tcp_port
             ](LinkStrandRef & strand, const string_ &previous_session_id,
               int32_t last_ack_id) {
-          return make_shared_<TcpClientConnection>(strand, dsid_prefix,
-                                                   tcp_host, tcp_port);
-        };
+              return make_shared_<TcpClientConnection>(strand, dsid_prefix,
+                                                       tcp_host, tcp_port);
+            };
       }
     } else if (ws_port > 0) {
       // TODO, implement ws client
@@ -205,8 +205,13 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
     _client = make_ref_<Client>(*this);
     _client->connect(std::move(on_connect), callback_type);
   });
-//  _app->wait();
-//  destroy();
+
+}
+
+void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
+  connect(std::move(on_connect),callback_type);
+  _app->wait();
+  destroy();
 }
 
 // requester features
