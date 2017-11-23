@@ -208,7 +208,7 @@ TEST(DSLinkTest, log_param8) {
 
 TEST(DSLinkTest, thread_param1) {
 
-  const char *argv[] = {"./test", "-t", "0"};
+  const char *argv[] = {"./test", "--thread", "0"};
   int argc = 3;
   CREATE_TEST_DSLINK
 
@@ -218,7 +218,7 @@ TEST(DSLinkTest, thread_param1) {
 
 TEST(DSLinkTest, thread_param2) {
 
-  const char *argv[] = {"./test", "-t", "1"};
+  const char *argv[] = {"./test", "--thread", "1"};
   int argc = 3;
   CREATE_TEST_DSLINK
 
@@ -228,7 +228,7 @@ TEST(DSLinkTest, thread_param2) {
 
 TEST(DSLinkTest, thread_param3) {
 
-  const char *argv[] = {"./test", "-t", "2"};
+  const char *argv[] = {"./test", "--thread", "2"};
   int argc = 3;
   CREATE_TEST_DSLINK
 
@@ -260,7 +260,7 @@ TEST(DSLinkTest, tcp_server_port_param) {
 TEST(DSLinkTest, general_param) {
 
   const char
-      *argv[] = {"./test", "--broker", "wss://192.168.1.12:142", "-l", "info", "-t", "2", "--server-port", "132"};
+      *argv[] = {"./test", "--broker", "wss://192.168.1.12:142", "-l", "info", "--thread", "2", "--server-port", "132"};
   int argc = 9;
   CREATE_TEST_DSLINK
 
