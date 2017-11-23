@@ -25,7 +25,7 @@ namespace opts = boost::program_options;
 
 class TestConfigExt : public TestConfig {
  public:
-  TestConfigExt(App &app, std::string host_ip_address, bool async = false)
+  TestConfigExt(std::shared_ptr<App> app, std::string host_ip_address, bool async = false)
       : TestConfig(app, async) {
     tcp_host = host_ip_address;
   }
@@ -83,7 +83,7 @@ int main(int argc, const char *argv[]) {
   std::cout << "benchmark with " << client_count << " clients (" << num_thread
             << " threads)" << std::endl;
 
-  App app(num_thread);
+  auto app = std::make_shared<App>(num_thread);
 
   TestConfigExt server_strand(app, host_ip_address);
 
@@ -108,7 +108,7 @@ int main(int argc, const char *argv[]) {
   int64_t msg_per_second = 300000;
 
   boost::posix_time::milliseconds interval(10);
-  boost::asio::deadline_timer timer(app.io_service(), interval);
+  boost::asio::deadline_timer timer(app->io_service(), interval);
 
   auto ts = high_resolution_clock::now();
   int total_ms = 0;
@@ -159,16 +159,16 @@ int main(int argc, const char *argv[]) {
 
   tcp_server->destroy_in_strand(tcp_server);
 
-  app.close();
+  app->close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  wait_for_bool(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
 
   server_strand.destroy();
-  app.wait();
+  app->wait();
 
   return 0;
 }

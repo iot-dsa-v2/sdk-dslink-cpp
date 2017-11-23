@@ -23,7 +23,7 @@ namespace opts = boost::program_options;
 
 class TestConfigExt : public TestConfig {
  public:
-  TestConfigExt(App &app, std::string host_ip_address, bool async = false)
+  TestConfigExt(std::shared_ptr<App> app, std::string host_ip_address, bool async = false)
       : TestConfig(app, async) {
     tcp_host = host_ip_address;
   }
@@ -71,7 +71,7 @@ int main(int argc, const char *argv[]) {
   int min_send_num = variables["num-message"].as<int>();
   int num_thread = variables["num-thread"].as<int>();
 
-  App app(num_thread);
+  auto app = std::make_shared<App>(num_thread);
 
   std::cout << std::endl << "host ip address: " << host_ip_address;
   std::cout << std::endl
@@ -96,7 +96,7 @@ int main(int argc, const char *argv[]) {
   initial_options.queue_size = 655360;
 
   for (int i = 0; i < client_count; ++i) {
-    client_strands.emplace_back(server_strand.get_client_wrapper_strand(app));
+    client_strands.emplace_back(server_strand.get_client_wrapper_strand());
     clients.emplace_back(make_ref_<Client>(client_strands[i]));
     clients[i]->connect();
 
@@ -133,7 +133,7 @@ int main(int argc, const char *argv[]) {
   int64_t msg_per_second = 300000;
 
   boost::posix_time::milliseconds interval(10);
-  boost::asio::deadline_timer timer(app.io_service(), interval);
+  boost::asio::deadline_timer timer(app->io_service(), interval);
 
   int print_count = 0;  // print every 100 timer visit;
 
@@ -194,17 +194,17 @@ int main(int argc, const char *argv[]) {
     destroy_client_in_strand(clients[i]);
   }
 
-  app.close();
+  app->close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  wait_for_bool(500, [&]() { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
   server_strand.destroy();
   for (int i = 0; i < client_count; ++i) {
     client_strands[i].destroy();
   }
-  app.wait();
+  app->wait();
   return 0;
 }
