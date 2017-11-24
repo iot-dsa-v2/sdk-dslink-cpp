@@ -88,7 +88,7 @@ void Session::connected(shared_ptr_<Connection> connection) {
   write_loop(get_ref());
 
   if (_on_connect != nullptr) {
-    _on_connect(_connection);
+    _on_connect(*this, _connection);
   }
 
   // start the 20 seconds timer
@@ -103,7 +103,7 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   }
   if (_on_connect != nullptr && _connection == nullptr) {
     // disconnect event
-    _on_connect(_connection);
+    _on_connect(*this, _connection);
   }
 }
 

@@ -60,13 +60,17 @@ struct AckHolder {
       : ack(ack), callback(std::move(callback)){};
 };
 
-typedef std::function<void(const shared_ptr_<Connection> &)> OnConnectCallback;
+class Session;
 
 // maintain request and response streams
 class Session final : public DestroyableRef<Session> {
   friend class Connection;
   friend class Responder;
   friend class MessageStream;
+
+ public:
+  typedef std::function<void(Session &, const shared_ptr_<Connection> &)>
+      OnConnectCallback;
 
  public:
   // call back on connect

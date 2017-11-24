@@ -7,7 +7,6 @@
 #include <fstream>
 #include <regex>
 
-#include "core/client.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
@@ -157,7 +156,7 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
   strand->set_responder_model(std::move(root_node));
 }
 
-void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
+void DsLink::run(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
   }

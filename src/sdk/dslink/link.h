@@ -5,6 +5,7 @@
 #pragma once
 #endif
 
+#include "core/client.h"
 #include "core/editable_strand.h"
 #include "core/session.h"
 #include "list_merger.h"
@@ -13,7 +14,6 @@
 namespace dsa {
 class App;
 class TcpServer;
-class Client;
 
 class DsLink final : public WrapperStrand {
   friend class SubscribeMerger;
@@ -55,7 +55,7 @@ class DsLink final : public WrapperStrand {
   }
 
   // the on_connect callback will always be called from main strand
-  void run(OnConnectCallback &&on_connect = nullptr,
+  void run(Client::OnConnectCallback &&on_connect = nullptr,
            uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
   // requester functions
