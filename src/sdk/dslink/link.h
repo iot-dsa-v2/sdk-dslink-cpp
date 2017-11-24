@@ -39,6 +39,7 @@ class DsLink final : public WrapperStrand {
   ref_<Client> _client;
 
   bool _running = false;
+  bool _connected = false;
 
   // initialization
   void parse_thread(size_t thread);
@@ -59,8 +60,7 @@ class DsLink final : public WrapperStrand {
            uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
   // if app is wanted to be used later,
   // only connect should be called and
-  // app->wait should  be called manually again and
-  // dslink should be destroyed in strand
+  // run should  be called manually again and
   void connect(OnConnectCallback &&on_connect = nullptr,
            uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 

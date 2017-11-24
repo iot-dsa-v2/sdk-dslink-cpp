@@ -172,10 +172,10 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
 }
 
 void DsLink::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {
-  if (_running) {
-    LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
+  if (_connected) {
+    LOG_FATAL(LOG << "DsLink::connect(), Dslink is already requested for connection");
   }
-  _running = true;
+  _connected = true;
 
   strand->dispatch([ =, on_connect = std::move(on_connect) ]() mutable {
 
@@ -209,7 +209,15 @@ void DsLink::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {
 }
 
 void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
-  connect(std::move(on_connect),callback_type);
+  if (_running) {
+    LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
+  }
+  _running = true;
+  if(!_connected) {
+    connect(std::move(on_connect),callback_type);
+  } else {
+    std::cout << "DsLink on_connect callback ignored since it was connected before\n";
+  }
   _app->wait();
   destroy();
 }

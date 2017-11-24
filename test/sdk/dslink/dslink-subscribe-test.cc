@@ -154,7 +154,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
                                 &messages_updated), update_options);
   WAIT(500);
 
-  // Check resturn messages
+  // TODO: How to Check return messages
   EXPECT_TRUE(messages_initial.size() != 0);
   for( auto it=messages_initial.begin(); it != messages_initial.end(); it++)
     EXPECT_EQ(*it, "hello");
@@ -165,7 +165,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);
-  destroy_dslink_in_strand(link);
+//  destroy_dslink_in_strand(link);
 
   app->close();
   WAIT(500);
@@ -176,6 +176,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
 
   server_strand.destroy();
 
-  app->wait();
+//  app->wait();
+  link->run();
 };
 
