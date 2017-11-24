@@ -26,7 +26,7 @@ void ListMerger::destroy_impl() {
     _stream->close();
     _stream.reset();
   }
-  _link->_list_mergers.erase(_path);
+  //_link->_list_mergers.erase(_path);
   _link.reset();
   caches.clear();
   _changes.clear();

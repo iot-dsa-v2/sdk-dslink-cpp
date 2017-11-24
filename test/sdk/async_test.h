@@ -2,6 +2,7 @@
 #define DSA_ASYNC_TEST_H
 
 #include <functional>
+#include <algorithm>
 
 #include "core/link_strand.h"
 
@@ -21,5 +22,8 @@ int wait_in_thread(int wait_time);
 // Added for syntax coloring, it helps to see test steps
 #define WAIT(wait_time)\
    wait_in_thread(wait_time);
+
+#define EXPECT_CONTAIN(iteratable, value) \
+  EXPECT_TRUE(std::find(iteratable.begin(), iteratable.end(), value) != iteratable.end());
 
 #endif  // PROJECT_ASYNC_TEST_H
