@@ -16,10 +16,10 @@ TEST(ConfigTest, asyncSimpleSecurityManager) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
-
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
 
   const uint32_t NUM_CLIENT = 2;
 

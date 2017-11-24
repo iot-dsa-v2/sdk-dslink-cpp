@@ -17,6 +17,10 @@ TEST(NetworkTest, ReConnect) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
+
+  auto tcp_server = server_strand.create_server();
+  tcp_server->start();
+
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
   shared_ptr_<Connection> connection;
@@ -31,8 +35,6 @@ TEST(NetworkTest, ReConnect) {
         make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host, tcp_port);
     return connection;
   };
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
-  tcp_server->start();
 
   auto client = make_ref_<Client>(client_strand);
   client->connect();

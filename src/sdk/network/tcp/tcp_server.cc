@@ -17,6 +17,10 @@ TcpServer::TcpServer(WrapperStrand &config)
           tcp::endpoint(
               boost::asio::ip::address::from_string(config.server_host),
               config.tcp_server_port))) {
+  // It means auto select so update port
+  if(_port == 0){
+    _port = _acceptor->local_endpoint().port();
+  }
   LOG_INFO(_strand->logger(),
            LOG << "Bind to TCP server port: " << config.tcp_server_port);
 }
@@ -51,6 +55,9 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
   } else {
     destroy();
   }
+}
+int TcpServer::get_port() {
+  return _port;
 }
 
 }  // namespace dsa

@@ -63,10 +63,10 @@ TEST(ResponderTest, Set_Model) {
 
   server_strand.strand->set_responder_model(ModelRef(root_node));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
-
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
 
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
@@ -152,9 +152,10 @@ TEST(ResponderTest, Set_Acceptor) {
   server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(true);
 
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();

@@ -43,6 +43,7 @@ class MockNode : public NodeModelBase {
       set_value(Var("world"));
     }
   }
+
 };
 
 boost::mutex global_lock;
@@ -64,7 +65,7 @@ struct SubscribeCallbackTest {
 
 }
 
-TEST(LinkTest, Subscribe_Test) {
+TEST(DSLinkTest, Subscribe_Test) {
   typedef link_subscribe_test::MockNode MockNode;
   typedef link_subscribe_test::SubscribeCallbackTest SubscribeCallbackTest;
 
@@ -72,7 +73,7 @@ TEST(LinkTest, Subscribe_Test) {
   TestConfig server_strand(app);
   MockNode *root_node = new MockNode(server_strand.strand);
   server_strand.strand->set_responder_model(ModelRef(root_node));
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
 
   // Create link
@@ -119,7 +120,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
   TestConfig server_strand(app);
   MockNode *root_node = new MockNode(server_strand.strand);
   server_strand.strand->set_responder_model(ModelRef(root_node));
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
 
   // Create link

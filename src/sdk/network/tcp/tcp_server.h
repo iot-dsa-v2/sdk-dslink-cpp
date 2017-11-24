@@ -32,6 +32,8 @@ class TcpServer : public Server {
   void start() override;
   void destroy_impl() override;
   string_ type() override { return "TCP"; }
+
+  int get_port();
 };
 
 typedef shared_ptr_<TcpServer> TcpServerPtr;

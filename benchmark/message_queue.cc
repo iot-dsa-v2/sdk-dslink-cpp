@@ -55,8 +55,7 @@ int main(int argc, const char *argv[]) {
   server_strand.strand->set_responder_model(
       ref_<MockNode>(root_node));
 
-  //  auto tcp_server(new TcpServer(server_strand));
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();

@@ -12,13 +12,13 @@ class Client;
 class TestConfig : public WrapperStrand {
  private:
   std::shared_ptr<App> app;
-  static uint16_t _port;
 
  public:
   explicit TestConfig(std::shared_ptr<App> app, bool async = false);
 
   WrapperStrand get_client_wrapper_strand(bool async = false);
 
+  std::shared_ptr<TcpServer> create_server();
   ref_<DsLink> create_dslink(bool async = true);
 };
 

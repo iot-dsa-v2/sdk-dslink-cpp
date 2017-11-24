@@ -16,12 +16,12 @@ TEST(TcpServerTest, SingleThread) {
   auto app = std::make_shared<App>(1);
 
   TestConfig server_strand(app);
+  auto tcp_server = server_strand.create_server();
+  tcp_server->start();
+
   WrapperStrand config = server_strand.get_client_wrapper_strand();
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
-
-  auto tcp_server = make_shared_<TcpServer>(config);
-  tcp_server->start();
 
   const uint32_t NUM_CLIENT = 2;
 
@@ -73,12 +73,12 @@ TEST(TcpServerTest, SingleStrand) {
   auto app = std::make_shared<App>();
 
   TestConfig testConfig = TestConfig(app);
+  auto tcp_server = testConfig.create_server();
+  tcp_server->start();
+
   WrapperStrand config = testConfig.get_client_wrapper_strand();
   // use same config/strand for server and client
   config.tcp_server_port = config.tcp_port;
-
-  auto tcp_server = make_shared_<TcpServer>(config);
-  tcp_server->start();
 
   const uint32_t NUM_CLIENT = 2;
 
@@ -120,11 +120,11 @@ TEST(TcpServerTest, MultiStrand) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
-  //  auto tcp_server(new TcpServer(server_strand));
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
   const uint32_t NUM_CLIENT = 2;
 

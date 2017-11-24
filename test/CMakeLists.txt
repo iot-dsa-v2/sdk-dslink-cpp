@@ -73,6 +73,11 @@ add_executable("test-playground" sdk/playground/test.cc sdk/async_test.cc sdk/te
 target_link_libraries("test-playground" ${TEST_LIBS})
 add_test(NAME "test-playground" COMMAND "test-playground")
 
-add_executable("test-dslink" sdk/dslink/dslink-config-test.cc sdk/dslink/dslink-subscribe-test.cc sdk/dslink/dslink-list-test.cc sdk/test_config.cc sdk/async_test.cc)
+add_executable("test-dslink" sdk/dslink/dslink-config-test.cc
+                             sdk/dslink/dslink-subscribe-test.cc
+                             sdk/dslink/dslink-list-test.cc
+                             sdk/dslink/dslink-list-test.cc
+                             sdk/test_config.cc sdk/async_test.cc)
+
 target_link_libraries("test-dslink" ${TEST_LIBS})
 add_test(NAME "test-dslink" COMMAND "test-dslink")
