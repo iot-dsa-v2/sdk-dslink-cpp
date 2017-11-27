@@ -142,7 +142,7 @@ TEST(ResponderTest, ListTest) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

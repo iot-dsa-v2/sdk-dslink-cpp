@@ -147,7 +147,7 @@ TEST(ResponderTest, Subscribe_Model) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -243,7 +243,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

@@ -161,7 +161,7 @@ int main(int argc, const char *argv[]) {
 
   app->close();
 
-  wait_for_bool(500, [&]() { return app->is_stopped(); });
+  wait_for_bool(500, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
