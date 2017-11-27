@@ -77,8 +77,10 @@ boost::function<T> ModuleLoader::get_create_function(string_ module_name, string
     shared_library_path = module_paths[0];
 
   if(module_paths.size() > 1)
+  {
     std::cout<< "There is more than one module for "<< module_name << "so we can't decide which one will be used"<< std::endl;
-
+    exit(1);
+  }
   if(shared_library_path.empty()) return default_function;
 
   // we found our shared lib, get create function from it
