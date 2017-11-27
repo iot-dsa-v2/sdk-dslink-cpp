@@ -30,6 +30,7 @@ SubscribeMerger::~SubscribeMerger() {}
 void SubscribeMerger::destroy_impl() {
   if (_stream != nullptr) {
     _stream->close();
+    _stream->destroy();
     _stream.reset();
   }
   // while link also trying to delete

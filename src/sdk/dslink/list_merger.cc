@@ -24,6 +24,7 @@ ListMerger::~ListMerger() {}
 void ListMerger::destroy_impl() {
   if (_stream != nullptr) {
     _stream->close();
+    _stream->destroy();
     _stream.reset();
   }
   //_link->_list_mergers.erase(_path);
