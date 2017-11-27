@@ -90,7 +90,8 @@ TEST(DSLinkTest, Subscribe_Test) {
   link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
                                 std::placeholders::_1, std::placeholders::_2,
                                 &messages));
-  WAIT(500);
+  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
+                    [&]() { return messages.size() == 1; });
 
   EXPECT_TRUE(messages.size() == 1);
   EXPECT_EQ(messages.at(0), "hello");
@@ -100,7 +101,7 @@ TEST(DSLinkTest, Subscribe_Test) {
   destroy_dslink_in_strand(link);
 
   app->close();
-  WAIT(500);
+  WAIT_EXPECT_TRUE(500, [&]() -> bool  { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -141,7 +142,8 @@ TEST(LinkTest, Subscribe_Multi_Test) {
   link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
                                 std::placeholders::_1, std::placeholders::_2,
                                 &messages_initial), initial_options);
-  WAIT(500);
+  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
+                    [&]() { return messages_initial.size() == 1; });
 
   // Subscribe update
   std::vector<std::string> messages_updated;
@@ -153,23 +155,23 @@ TEST(LinkTest, Subscribe_Multi_Test) {
   link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
                                 std::placeholders::_1, std::placeholders::_2,
                                 &messages_updated), update_options);
-  WAIT(500);
+
+  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
+                    [&]() { return messages_initial.size() == 2; });
 
   // TODO: How to Check return messages
-  EXPECT_TRUE(messages_initial.size() != 0);
-  for( auto it=messages_initial.begin(); it != messages_initial.end(); it++)
-    EXPECT_EQ(*it, "hello");
-
-  EXPECT_TRUE(messages_updated.size() != 0);
-  for( auto it=messages_updated.begin(); it != messages_updated.end(); it++)
-    EXPECT_EQ(*it, "world");
+  EXPECT_EQ(messages_updated.size(), 2);
+  EXPECT_STREQ(messages_initial.at(0).c_str(), "hello"); // received for the first subscribe request
+  EXPECT_STREQ(messages_initial.at(1).c_str(), "world"); // received after value changed in the second request
+  EXPECT_STREQ(messages_updated.at(0).c_str(), "hello"); // received just after the second subscribe request
+  EXPECT_STREQ(messages_updated.at(1).c_str(), "world"); // received after value changed in the second request
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);
-//  destroy_dslink_in_strand(link);
+  destroy_dslink_in_strand(link);
 
   app->close();
-  WAIT(500);
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -177,7 +179,6 @@ TEST(LinkTest, Subscribe_Multi_Test) {
 
   server_strand.destroy();
 
-//  app->wait();
-  link->run();
+  app->wait();
 };
 
