@@ -95,6 +95,7 @@ class Session final : public DestroyableRef<Session> {
 
   const string_ &dsid() const { return _dsid; }
   const string_ &session_id() const { return _session_id; }
+  void update_session_id(const string_ &new_id) { _session_id = new_id; }
   bool is_connected() const { return _connection != nullptr; }
 
   int32_t last_sent_ack();

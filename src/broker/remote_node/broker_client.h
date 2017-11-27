@@ -1,15 +1,16 @@
-#ifndef DSA_BROKER_SESSION_MANAGER_H
-#define DSA_BROKER_SESSION_MANAGER_H
+#ifndef DSA_BROKER_CLIENT_H
+#define DSA_BROKER_CLIENT_H
 
 #if defined(_MSC_VER)
 #pragma once
 #endif
 
-#include "module/session_manager.h"
+#include "core/session.h"
 
 namespace dsa {
 
 class BrokerSessionManager;
+class RemoteRootNode;
 
 /// one client (a dsid) can have multiple sessions at same time
 /// these sessions are grouped in ClientSessions class
@@ -21,9 +22,13 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
   uint64_t _session_id_count = 0;
 
   ref_<BrokerSessionManager> _manager;
-
+  ref_<RemoteRootNode> _node;
   ClientInfo _info;
+
+  // for multiple sessions
   std::unordered_map<string_, ref_<Session>> _sessions;
+  // for single session
+  ref_<Session> _single_session;
 
   void destroy_impl() final;
 
@@ -32,31 +37,13 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
   void session_destroyed(Session &session);
 
  public:
-  BrokerClient() = default;
   BrokerClient(ref_<BrokerSessionManager> &&manager, const ClientInfo &info);
+  BrokerClient();
+  ~BrokerClient();
+
   const ClientInfo &info() const { return _info; };
   void add_session(LinkStrandRef &strand, const string_ &session_id,
                    Session::GetSessionCallback &&callback);
 };
-
-class BrokerSessionManager final : public SessionManager {
-  friend class BrokerClient;
-
-  std::unordered_map<string_, ref_<BrokerClient>> _clients;
-
-  LinkStrandRef _strand;
-
-  void client_destroyed(BrokerClient &client);
-
- protected:
-  void destroy_impl() final;
-
- public:
-  explicit BrokerSessionManager(LinkStrandRef strand);
-  void get_session(const string_ &dsid, const string_ &auth_token,
-                   const string_ &session_id,
-                   Session::GetSessionCallback &&callback) final;
-};
 }
-
-#endif  // DSA_BROKER_SESSION_MANAGER_H
+#endif  // DSA_BROKER_CLIENT_H

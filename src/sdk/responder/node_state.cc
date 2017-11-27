@@ -158,9 +158,10 @@ bool NodeState::periodic_check(size_t ts) {
     }
   }
 
-  if ((_model == nullptr ||
-       _model->periodic_check(ts))  // check if model is still in use
-      && _children.empty() && _subscription_streams.empty()) {
+  if (_subscription_streams.empty() && _list_streams.empty() &&
+      _children.empty() &&
+      // check if model is still in use
+      (_model == nullptr || _model->periodic_check(ts))) {
     destroy();
     return true;
   }
@@ -282,10 +283,10 @@ void NodeState::destroy_impl() {
 
   _subscription_streams.clear();
   _list_streams.clear();
-  for ( auto it = _children.begin(); it != _children.end(); ++it )
+  for (auto it = _children.begin(); it != _children.end(); ++it)
     it->second->destroy();
   _children.clear();
-  if(_waiting_cache != nullptr) {
+  if (_waiting_cache != nullptr) {
     _waiting_cache->invokes.clear();
     _waiting_cache->sets.clear();
     _waiting_cache.reset(nullptr);
@@ -295,11 +296,11 @@ void NodeState::destroy_impl() {
     _owner.remove_state(_path.full_str());
   }
   _parent.reset();
-  //TODO: ali ask
-//  if(_parent != nullptr) {
-//    _parent->destroy();
-//    _parent.reset();
-//  }
+  // TODO: ali ask
+  //  if(_parent != nullptr) {
+  //    _parent->destroy();
+  //    _parent.reset();
+  //  }
 }
 
 NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,

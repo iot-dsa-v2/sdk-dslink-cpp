@@ -10,6 +10,7 @@
 namespace dsa {
 
 class Session;
+class Connection;
 
 class RemoteNode : public NodeModelBase {
   const string_ _remote_path;
@@ -22,10 +23,12 @@ class RemoteNode : public NodeModelBase {
 
   // when return true, destroy() will be called by NodeState
   // and model will be removed from the node tree
-  bool periodic_check(size_t ts) override;
+  bool periodic_check(size_t ts) override { return true; }
 
   bool allows_runtime_child_change() override { return true; }
   ModelRef on_demand_create_child(const Path &path) override;
+
+  void on_session(Session &session, const shared_ptr_<Connection> &connection);
 
   /// subscribe
 
