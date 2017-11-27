@@ -15,9 +15,15 @@ class SecurityManager;
 class Config;
 
 class SimpleSessionManager final : public SessionManager {
-  std::unordered_map<string_, ref_<ClientSessions>> _clients;
+  std::unordered_map<string_, ref_<Session>> _sessions;
 
   LinkStrandRef _strand;
+  ClientInfo _last_client;
+
+  uint64_t _session_seed = 0;
+
+  uint _count_to_check = 0;
+  void check_destroyed_session();
 
  protected:
   void destroy_impl() final;
@@ -26,7 +32,10 @@ class SimpleSessionManager final : public SessionManager {
   explicit SimpleSessionManager(LinkStrandRef strand);
   void get_session(const string_ &dsid, const string_ &auth_token,
                    const string_ &session_id,
-                   ClientSessions::GetSessionCallback &&callback) final;
+                   Session::GetSessionCallback &&callback) final;
+  // a lazy way to clean up unused sessions: after creating 100 new sessions,
+  // check if any existing sessions are destroyed and release the reference
+  uint memory_check_interval = 100;
 };
 
 }  // namespace dsa
