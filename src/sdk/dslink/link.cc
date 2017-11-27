@@ -58,9 +58,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   }
 
   _app = app;
-  if(_app.get() != nullptr) {
-    std::cout << "App object already given, so ignoring thread choice in args\n";
-  } else{
+  //If app object is already given, thread option is ignored in args
+  if(_app.get() == nullptr) {
     parse_thread(variables["thread"].as<size_t>());
   }
 
@@ -216,7 +215,8 @@ void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
   if(!_connected) {
     connect(std::move(on_connect),callback_type);
   } else {
-    std::cout << "DsLink on_connect callback ignored since it was connected before\n";
+    LOG_INFO(strand.get()->logger(),
+              LOG << "DsLink on_connect callback ignored since it was connected before\n");
   }
   _app->wait();
   destroy();
