@@ -46,7 +46,7 @@ template<typename T>
 boost::function<T> ModuleLoader::get_create_function(string_ module_name, string_ function_name,
                                                      boost::function<T> default_function)
 {
-  bf::path lib_path("./module");
+  bf::path lib_path("./libs");
   auto module_suffix = boost::dll::shared_library::suffix();
 
   // There is no module directory returning default function
