@@ -38,6 +38,7 @@ TEST(DSLinkTest, default_param) {
   EXPECT_STREQ("", link.get()->ws_host.c_str());
   EXPECT_EQ(0, link.get()->ws_port);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, url_param1) {
@@ -50,6 +51,7 @@ TEST(DSLinkTest, url_param1) {
   EXPECT_EQ(DEFAULT_DS_PORT, link.get()->tcp_port);
   EXPECT_FALSE(link.get()->secure);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, url_param2) {
@@ -62,6 +64,7 @@ TEST(DSLinkTest, url_param2) {
   EXPECT_EQ(DEFAULT_DS_PORT, link.get()->tcp_port);
   EXPECT_FALSE(link.get()->secure);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, url_param3) {
@@ -74,6 +77,7 @@ TEST(DSLinkTest, url_param3) {
   EXPECT_EQ(DEFAULT_DSS_PORT, link.get()->tcp_port);
   EXPECT_TRUE(link.get()->secure);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, url_param4) {
@@ -86,6 +90,7 @@ TEST(DSLinkTest, url_param4) {
   EXPECT_EQ(132, link.get()->tcp_port);
   EXPECT_TRUE(link.get()->secure);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, url_param5) {
@@ -100,6 +105,7 @@ TEST(DSLinkTest, url_param5) {
   EXPECT_STREQ("", link.get()->tcp_host.c_str());
   EXPECT_EQ(0, link.get()->tcp_port);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, url_param6) {
@@ -112,6 +118,7 @@ TEST(DSLinkTest, url_param6) {
   EXPECT_EQ(DEFAULT_WSS_PORT, link.get()->ws_port);
   EXPECT_TRUE(link.get()->secure);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, url_param7) {
@@ -124,6 +131,7 @@ TEST(DSLinkTest, url_param7) {
   EXPECT_EQ(132, link.get()->ws_port);
   EXPECT_TRUE(link.get()->secure);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param1) {
@@ -134,6 +142,7 @@ TEST(DSLinkTest, log_param1) {
 
   EXPECT_EQ(Logger::INFO__, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param2) {
@@ -144,6 +153,7 @@ TEST(DSLinkTest, log_param2) {
 
   EXPECT_EQ(Logger::ALL___, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param3) {
@@ -154,6 +164,7 @@ TEST(DSLinkTest, log_param3) {
 
   EXPECT_EQ(Logger::TRACE_, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param4) {
@@ -164,6 +175,7 @@ TEST(DSLinkTest, log_param4) {
 
   EXPECT_EQ(Logger::DEBUG_, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param5) {
@@ -174,6 +186,7 @@ TEST(DSLinkTest, log_param5) {
 
   EXPECT_EQ(Logger::ERROR_, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param6) {
@@ -184,6 +197,7 @@ TEST(DSLinkTest, log_param6) {
 
   EXPECT_EQ(Logger::WARN__, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param7) {
@@ -194,6 +208,7 @@ TEST(DSLinkTest, log_param7) {
 
   EXPECT_EQ(Logger::FATAL_, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, log_param8) {
@@ -204,6 +219,7 @@ TEST(DSLinkTest, log_param8) {
 
   EXPECT_EQ(Logger::NONE__, link.get()->strand.get()->logger().level);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, thread_param1) {
@@ -214,6 +230,7 @@ TEST(DSLinkTest, thread_param1) {
 
   EXPECT_EQ(0, link.get()->get_app().get_thread_size());
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, thread_param2) {
@@ -224,6 +241,7 @@ TEST(DSLinkTest, thread_param2) {
 
   EXPECT_EQ(0, link.get()->get_app().get_thread_size());
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, thread_param3) {
@@ -234,6 +252,7 @@ TEST(DSLinkTest, thread_param3) {
 
   EXPECT_EQ(2, link.get()->get_app().get_thread_size());
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, thread_param4) {
@@ -245,6 +264,7 @@ TEST(DSLinkTest, thread_param4) {
   EXPECT_LE(link.get()->get_app().get_thread_size(), 16);
   EXPECT_LE(link.get()->get_app().get_thread_size(), std::thread::hardware_concurrency());
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, tcp_server_port_param) {
@@ -255,6 +275,7 @@ TEST(DSLinkTest, tcp_server_port_param) {
 
   EXPECT_EQ(link.get()->tcp_server_port, 132);
   link.get()->destroy();
+  link.reset();
 }
 
 TEST(DSLinkTest, general_param) {
@@ -274,4 +295,5 @@ TEST(DSLinkTest, general_param) {
   EXPECT_STREQ("192.168.1.12", link.get()->ws_host.c_str());
   EXPECT_EQ(142, link.get()->ws_port);
   link.get()->destroy();
+  link.reset();
 }
