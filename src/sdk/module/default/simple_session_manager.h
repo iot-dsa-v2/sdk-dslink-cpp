@@ -20,9 +20,9 @@ class SimpleSessionManager final : public SessionManager {
   LinkStrandRef _strand;
   ClientInfo _last_client;
 
-  uint64_t _session_seed = 0;
+  uint64_t _session_seed{0};
 
-  uint _count_to_check = 0;
+  unsigned int _count_to_check{0};
   void check_destroyed_session();
 
  protected:
@@ -35,7 +35,7 @@ class SimpleSessionManager final : public SessionManager {
                    Session::GetSessionCallback &&callback) final;
   // a lazy way to clean up unused sessions: after creating 100 new sessions,
   // check if any existing sessions are destroyed and release the reference
-  uint memory_check_interval = 100;
+  unsigned int memory_check_interval{100};
 };
 
 }  // namespace dsa
