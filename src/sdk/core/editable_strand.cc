@@ -31,7 +31,7 @@ void EditableStrand::set_session_manager(ref_<SessionManager> p) {
 
 void EditableStrand::set_logger(std::unique_ptr<Logger> p) {
   __logger = p.get();
-  _logger = std::move(p);
+  _logger.swap(p);
 };
 
 void EditableStrand::set_responder_model(ModelRef&& root_model,

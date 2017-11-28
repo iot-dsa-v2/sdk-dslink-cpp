@@ -35,7 +35,7 @@ class ConnectionWriteBuffer {
   virtual size_t max_next_size() const = 0;
   virtual void add(const Message &msg, int32_t rid, int32_t ack_id) = 0;
   virtual void write(WriteHandler &&callback) = 0;
-  virtual ~ConnectionWriteBuffer()=default;
+  virtual ~ConnectionWriteBuffer() = default;
 };
 
 class Connection : public SharedDestroyable<Connection> {

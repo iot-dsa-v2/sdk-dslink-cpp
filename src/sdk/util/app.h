@@ -41,6 +41,8 @@ class App {
   void sleep(unsigned int milliseconds);
 
   boost::asio::io_service::strand *new_strand();
+
+  size_t get_thread_size();
 };
 }  // namespace dsa
 

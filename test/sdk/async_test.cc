@@ -41,3 +41,8 @@ int wait_for_bool(int wait_time, dsa::LinkStrand& strand,
   }
   return -1;
 }
+
+int wait_in_thread(int wait_time)
+{
+  boost::this_thread::sleep(boost::posix_time::milliseconds(wait_time));
+}

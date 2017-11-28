@@ -7,6 +7,7 @@
 #include <fstream>
 #include <regex>
 
+#include "core/client.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
@@ -23,7 +24,7 @@ namespace fs = boost::filesystem;
 namespace dsa {
 
 DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
-               const string_ &version) {
+               const string_ &version, std::shared_ptr<App> app) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
       ("broker,b", opts::value<string_>()->default_value("127.0.0.1"),
@@ -56,7 +57,11 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     exit(0);
   }
 
-  parse_thread(variables["thread"].as<size_t>());
+  _app = app;
+  //If app object is already given, thread option is ignored in args
+  if(_app.get() == nullptr) {
+    parse_thread(variables["thread"].as<size_t>());
+  }
 
   strand.reset(new EditableStrand(
       get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
@@ -89,7 +94,16 @@ void DsLink::destroy_impl() {
   }
   _app->close();
 
+  for(auto it = _subscribe_mergers.begin(); it != _subscribe_mergers.end(); it++)
+  {
+    it->second->destroy();
+  }
   _subscribe_mergers.clear();
+
+  for(auto it = _list_mergers.begin(); it != _list_mergers.end(); it++)
+  {
+    it->second->destroy();
+  }
   _list_mergers.clear();
 
   WrapperStrand::destroy_impl();
@@ -142,9 +156,9 @@ void DsLink::parse_url(const string_ &url) {
 }
 
 void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto *logger = new ConsoleLogger();
-  config.set_logger(std::unique_ptr<Logger>(logger));
+  auto logger = std::unique_ptr<Logger>(new ConsoleLogger());
   logger->level = Logger::parse(log);
+  config.set_logger(std::move(logger));
 }
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
@@ -156,11 +170,11 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
   strand->set_responder_model(std::move(root_node));
 }
 
-void DsLink::run(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
-  if (_running) {
-    LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
+void DsLink::connect(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
+  if (_connected) {
+    LOG_FATAL(LOG << "DsLink::connect(), Dslink is already requested for connection");
   }
-  _running = true;
+  _connected = true;
 
   strand->dispatch([ =, on_connect = std::move(on_connect) ]() mutable {
 
@@ -175,13 +189,13 @@ void DsLink::run(Client::OnConnectCallback &&on_connect, uint8_t callback_type) 
       } else {
         client_connection_maker =
             [
-              dsid_prefix = dsid_prefix, tcp_host = tcp_host,
-              tcp_port = tcp_port
+                dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+                tcp_port = tcp_port
             ](LinkStrandRef & strand, const string_ &previous_session_id,
               int32_t last_ack_id) {
-          return make_shared_<TcpClientConnection>(strand, dsid_prefix,
-                                                   tcp_host, tcp_port);
-        };
+              return make_shared_<TcpClientConnection>(strand, dsid_prefix,
+                                                       tcp_host, tcp_port);
+            };
       }
     } else if (ws_port > 0) {
       // TODO, implement ws client
@@ -190,6 +204,20 @@ void DsLink::run(Client::OnConnectCallback &&on_connect, uint8_t callback_type) 
     _client = make_ref_<Client>(*this);
     _client->connect(std::move(on_connect), callback_type);
   });
+
+}
+
+void DsLink::run(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
+  if (_running) {
+    LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
+  }
+  _running = true;
+  if(!_connected) {
+    connect(std::move(on_connect),callback_type);
+  } else {
+    LOG_INFO(strand.get()->logger(),
+              LOG << "DsLink on_connect callback ignored since it was connected before\n");
+  }
   _app->wait();
   destroy();
 }

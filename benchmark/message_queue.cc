@@ -46,7 +46,7 @@ int main(int argc, const char *argv[]) {
 
   int num_message = variables["num-message"].as<int>();
 
-  App app;
+  auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
 
@@ -55,11 +55,10 @@ int main(int argc, const char *argv[]) {
   server_strand.strand->set_responder_model(
       ref_<MockNode>(root_node));
 
-  //  auto tcp_server(new TcpServer(server_strand));
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
 
-  WrapperStrand client_strand = server_strand.get_client_wrapper_strand(app);
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
   ref_<Client> client = make_ref_<Client>(client_strand);
   client->connect();
 
@@ -106,17 +105,17 @@ int main(int argc, const char *argv[]) {
 
     tcp_server->destroy_in_strand(tcp_server);
     destroy_client_in_strand(client);
-    app.close();
+    app->close();
 
-    wait_for_bool(500, [&]() { return app.is_stopped(); });
+    wait_for_bool(500, [&]() -> bool { return app->is_stopped(); });
 
-    if (!app.is_stopped()) {
-      app.force_stop();
+    if (!app->is_stopped()) {
+      app->force_stop();
     }
   });
 
   server_strand.destroy();
   client_strand.destroy();
-  app.wait();
+  app->wait();
   return 0;
 }

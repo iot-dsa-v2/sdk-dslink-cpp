@@ -62,7 +62,7 @@ int main(int argc, const char *argv[]) {
 
   std::cout << std::endl << "benchmark with " << client_count << " clients";
 
-  App app;
+  auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
 
@@ -72,7 +72,7 @@ int main(int argc, const char *argv[]) {
       ref_<MockNode>(root_node));
 
   //  auto tcp_server(new TcpServer(server_strand));
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
 
   std::vector<WrapperStrand> client_strands;
@@ -84,7 +84,7 @@ int main(int argc, const char *argv[]) {
   initial_options.queue_size = 655360;
 
   for (int i = 0; i < client_count; ++i) {
-    client_strands.emplace_back(server_strand.get_client_wrapper_strand(app));
+    client_strands.emplace_back(server_strand.get_client_wrapper_strand());
     clients.emplace_back(make_ref_<Client>(client_strands[i]));
     clients[i]->connect();
 
@@ -110,7 +110,7 @@ int main(int argc, const char *argv[]) {
   int64_t msg_per_second = 300000;
 
   boost::posix_time::milliseconds interval(10);
-  boost::asio::deadline_timer timer(app.io_service(), interval);
+  boost::asio::deadline_timer timer(app->io_service(), interval);
 
   int print_count = 0;  // print every 100 timer visit;
 
@@ -193,18 +193,18 @@ int main(int argc, const char *argv[]) {
     destroy_client_in_strand(clients[i]);
   }
 
-  app.close();
+  app->close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  wait_for_bool(500, [&]() -> bool { return app->is_stopped(); });
 
-  if (!app.is_stopped()) {
-    app.force_stop();
+  if (!app->is_stopped()) {
+    app->force_stop();
   }
 
   server_strand.destroy();
   for (int i = 0; i < client_count; ++i) {
     client_strands[i].destroy();
   }
-  app.wait();
+  app->wait();
   return 0;
 }

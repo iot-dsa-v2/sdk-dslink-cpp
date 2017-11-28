@@ -26,7 +26,7 @@ class DsLink final : public WrapperStrand {
 
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
-         const string_ &version);
+         const string_ &version, std::shared_ptr<App> app = nullptr);
   ~DsLink();
   App &get_app();
 
@@ -39,6 +39,7 @@ class DsLink final : public WrapperStrand {
   ref_<Client> _client;
 
   bool _running = false;
+  bool _connected = false;
 
   // initialization
   void parse_thread(size_t thread);
@@ -56,6 +57,11 @@ class DsLink final : public WrapperStrand {
 
   // the on_connect callback will always be called from main strand
   void run(Client::OnConnectCallback &&on_connect = nullptr,
+           uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
+  // if app is wanted to be used later,
+  // only connect should be called and
+  // run should  be called manually again and
+  void connect(Client::OnConnectCallback &&on_connect = nullptr,
            uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
   // requester functions
