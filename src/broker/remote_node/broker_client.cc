@@ -17,21 +17,27 @@ BrokerClient::BrokerClient(ref_<BrokerSessionManager> &&manager,
 BrokerClient::BrokerClient() = default;
 BrokerClient::~BrokerClient() = default;
 
+ref_<Session> &BrokerClient::create_single_session(LinkStrandRef &strand) {
+  _single_session =
+      make_ref_<Session>(strand->get_ref(), get_new_session_id(""));
+  _single_session->set_on_connect([ this, keep_ref = get_ref() ](
+      Session & session1, const shared_ptr_<Connection> &conn) {
+    if (_node != nullptr) {
+      // notify the downstream node about the session change
+      _node->on_session(session1, conn);
+    }
+    if (session1.is_destroyed()) {
+      session_destroyed(session1);
+    }
+  });
+  return _single_session;
+}
 void BrokerClient::add_session(LinkStrandRef &strand, const string_ &session_id,
                                Session::GetSessionCallback &&callback) {
   if (_info.max_session == 1) {
     if (_single_session == nullptr) {
-      _single_session = make_ref_<Session>(strand->get_ref(), get_new_session_id(session_id));
-      _single_session->set_on_connect([ this, keep_ref = get_ref() ](
-        Session & session1, const shared_ptr_<Connection> &conn) {
-        if (_node != nullptr) {
-          // notify the downstream node about the session change
-          _node->on_session(session1, conn);
-        }
-        if (session1.is_destroyed()) {
-          session_destroyed(session1);
-        }
-      });
+      create_single_session(strand);
+
     } else if (session_id != _single_session->session_id()) {
       _single_session->update_session_id(get_new_session_id(session_id));
     }
@@ -57,6 +63,10 @@ void BrokerClient::add_session(LinkStrandRef &strand, const string_ &session_id,
 }
 
 void BrokerClient::session_destroyed(Session &session) {
+  if (&session == _single_session.get()) {
+    destroy();
+    return;
+  }
   auto search = _sessions.find(session.session_id());
   if (search != _sessions.end() && search->second.get() == &session) {
     _sessions.erase(search);

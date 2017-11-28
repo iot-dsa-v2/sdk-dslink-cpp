@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-static bool invalid_name(const string_ &name, bool is_meta) {
+bool PathData::invalid_name(const string_ &name, bool is_meta) {
   if (name.empty()) return true;
   if (!is_meta && (name[0] == '@' || name[0] == '$')) {
     // attribute and metadata name can not show up in parent node
@@ -94,7 +94,7 @@ const string_ Path::remain_str() const {
 }
 
 const Path Path::get_child_path(const string_ &name) {
-  if (!invalid_name(name, false)) {
+  if (!PathData::invalid_name(name, false)) {
     std::vector<string_> new_names = _data->names;
     new_names.push_back(name);
     return Path(ref_<PathData>(new PathData(std::move(new_names))), 0);

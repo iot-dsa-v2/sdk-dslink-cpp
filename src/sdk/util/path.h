@@ -17,6 +17,7 @@ class PathData : public EnableRef<PathData> {
   friend class Path;
 
  public:
+  static bool invalid_name(const string_ &name, bool is_meta = false);
   string_ str;
   std::vector<string_> names;
   bool is_root = false;

@@ -9,13 +9,14 @@
 
 namespace dsa {
 class RemoteRootNode;
+class Session;
 struct ClientInfo;
 
 class DownstreamRoot : public NodeModel {
  public:
   explicit DownstreamRoot(LinkStrandRef &&strand);
 
-  ref_<RemoteRootNode> get_root_for_client(const ClientInfo & info);
+  ref_<RemoteRootNode> get_root_for_client(const ClientInfo & info, Session & session);
 };
 }
 

@@ -36,6 +36,8 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
 
   void session_destroyed(Session &session);
 
+  ref_<Session> &create_single_session(LinkStrandRef &strand);
+
  public:
   BrokerClient(ref_<BrokerSessionManager> &&manager, const ClientInfo &info);
   BrokerClient();
