@@ -46,7 +46,7 @@ protected:
   /// list
  protected:
   std::unordered_map<string_, BytesRef> _list_cache;
-  ref_<IncomingSubscribeStream> _remote_list_stream;
+  ref_<IncomingListStream> _remote_list_stream;
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
   void on_unlist() override;

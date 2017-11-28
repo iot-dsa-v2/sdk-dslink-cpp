@@ -9,7 +9,7 @@
 
 namespace dsa {
 class RemoteRootNode;
-class ClientInfo;
+struct ClientInfo;
 
 class DownstreamRoot : public NodeModel {
  public:
