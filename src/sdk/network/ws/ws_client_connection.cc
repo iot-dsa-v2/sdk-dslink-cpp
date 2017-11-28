@@ -6,12 +6,18 @@
 
 #include "module/logger.h"
 
+using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
+namespace websocket =
+    boost::beast::websocket;  // from <boost/beast/websocket.hpp>
+
+typedef websocket::stream<tcp::socket> websocket_stream;
+
 namespace dsa {
 WsClientConnection::WsClientConnection(LinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &host, uint16_t port)
-    : WsConnection(*new websocket_stream{strand->get_io_service()}, strand,
-                   dsid_prefix),
+    : WsConnection(*make_shared_<websocket_stream>(strand->get_io_service()),
+                   strand, dsid_prefix),
       _hostname(host),
       _port(port) {}
 

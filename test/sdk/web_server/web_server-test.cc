@@ -1,4 +1,5 @@
 #include "dsa_common.h"
+#include "core/session.h"
 #include "network/ws/ws_client_connection.h"
 #include "util/app.h"
 #include "util/enable_shared.h"
@@ -29,6 +30,7 @@ TEST(WebServerTest, basic_flow) {
 
   auto client = make_shared_<WsClientConnection>(link_strand, dsid_prefix, ws_host,
                                            ws_port);
+  //  client->set_session(make_ref_<Session>(link_strand, ""));
   client->connect(60);
 
 #if 0

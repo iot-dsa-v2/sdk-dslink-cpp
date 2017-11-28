@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NETWORK_CONNECTION_WS_SERVER_CONNECTION_H_
-#define DSA_SDK_NETWORK_CONNECTION_WS_SERVER_CONNECTION_H_
+#ifndef DSA_SDK_NETWORK_WS_SERVER_CONNECTION_H_
+#define DSA_SDK_NETWORK_WS_SERVER_CONNECTION_H_
 
 #if defined(_MSC_VER)
 #pragma once
@@ -8,7 +8,6 @@
 #include <boost/beast/core/flat_buffer.hpp>
 
 #include "../connection.h"
-#include "util/enable_shared.h"
 #include "ws_connection.h"
 
 namespace http = boost::beast::http;  // from <boost/beast/http.hpp>
@@ -32,4 +31,4 @@ class WsServerConnection final : public WsConnection {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_NETWORK_CONNECTION_WS_SERVER_CONNECTION_H_
+#endif  // DSA_SDK_NETWORK_WS_SERVER_CONNECTION_H_

@@ -17,7 +17,6 @@ class App;
 class WebServer : public std::enable_shared_from_this<WebServer> {
  private:
   uint16_t _port;
-  string_ _doc_root;
 
   shared_ptr_<boost::asio::io_service> _io_service;
   shared_ptr_<boost::asio::io_service::strand> _strand;

@@ -23,7 +23,6 @@ WebServer::WebServer(App& app)
 
   // TODO -
   _port = 8080;
-  _doc_root = ".";
 }
 
 void WebServer::start() {
@@ -40,14 +39,16 @@ void WebServer::accept_loop(const boost::system::error_code& error) {
     _next_connection = make_shared_<HttpConnection>(*_io_service);
     _acceptor->async_accept(_next_connection->socket(), [
       this, sthis = shared_from_this()
-    ](const boost::system::error_code& err) { accept_loop(err); });
+    ](const boost::system::error_code& error) { accept_loop(error); });
   } else {
     destroy();
   }
 }
 
-void WebServer::destroy() {}
+void WebServer::destroy() {
+  _acceptor->close();
+}
 
-WebServer::~WebServer() {}
+WebServer::~WebServer() = default;
 
 }  // namespace dsa

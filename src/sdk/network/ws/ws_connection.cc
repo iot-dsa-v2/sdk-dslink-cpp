@@ -23,13 +23,12 @@ void WsConnection::on_deadline_timer_(const boost::system::error_code &error,
 }
 
 void WsConnection::destroy_impl() {
-  /*
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");
-  if (_socket_open.exchange(false)) {
-    _socket.close();
+  if (_ws_open.exchange(false)) {
+    _ws.next_layer().shutdown(tcp::socket::shutdown_both);
+    _ws.next_layer().close();
   }
   Connection::destroy_impl();
-  */
 }
 
 void WsConnection::start_read(shared_ptr_<WsConnection> &&connection,

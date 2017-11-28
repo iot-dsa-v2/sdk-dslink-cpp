@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_WEB_SERVER_X_CONNECTION_H_
-#define DSA_SDK_WEB_SERVER_X_CONNECTION_H_
+#ifndef DSA_SDK_NETWORK_HTTP_CONNECTION_H_
+#define DSA_SDK_NETWORK_HTTP_CONNECTION_H_
 
 #if defined(_MSC_VER)
 #pragma once
@@ -39,4 +39,4 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_WEB_SERVER_X_CONNECTION_H_
+#endif  // DSA_SDK_NETWORK_HTTP_CONNECTION_H_

@@ -17,7 +17,7 @@ void HttpConnection::accept() {
   http::async_read(
       _socket, _buffer, _req,
       // TODO: run within the strand?
-      [ sthis = shared_from_this(), this ](
+      [ this, sthis = shared_from_this()](
           const boost::system::error_code &error, size_t bytes_transferred) {
 
         // TODO: check error/termination conditions
