@@ -14,15 +14,17 @@ namespace dsa {
 
 class Connection;
 class Session;
-typedef std::function<void(const shared_ptr_<Connection> &)> OnConnectCallback;
 
 class Client : public DestroyableRef<Client> {
  public:
+  typedef std::function<void(const shared_ptr_<Connection> &)>
+      OnConnectCallback;
+
   enum : uint8_t {
     FIRST_CONNECTION = 1,
     BROKER_INFO_CHANGE = 2,
     EVERY_CONNECTION = 4,
-    DISCONNECTION = 128,
+    DISCONNECTION = 64,
   };
 
  protected:
@@ -48,7 +50,6 @@ class Client : public DestroyableRef<Client> {
   string_ _last_remote_path;
 
   void _on_connect(const shared_ptr_<Connection> &connection);
-
 
   // reconnection related fields
 

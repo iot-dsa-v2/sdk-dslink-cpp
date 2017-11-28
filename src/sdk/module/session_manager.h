@@ -15,7 +15,7 @@ class SessionManager : public DestroyableRef<SessionManager> {
   virtual ~SessionManager() = default;
   virtual void get_session(const string_ &dsid, const string_ &auth_token,
                            const string_ &session_id,
-                           ClientSessions::GetSessionCallback &&callback) = 0;
+                           Session::GetSessionCallback &&callback) = 0;
 };
 
 }  // namespace dsa

@@ -8,10 +8,18 @@
 #include "responder/node_model.h"
 
 namespace dsa {
+class DownstreamRoot;
+class DsBroker;
 
 class BrokerRoot : public NodeModel {
+  friend class DsBroker;
+  ref_<DownstreamRoot> _downstream_root;
+
  public:
   explicit BrokerRoot(LinkStrandRef &&strand);
+  ~BrokerRoot();
+ protected:
+  void destroy_impl() final;
 };
 }
 

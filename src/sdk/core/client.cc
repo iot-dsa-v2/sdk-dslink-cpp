@@ -38,7 +38,11 @@ void Client::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {
     _user_on_connect_type = callback_type;
   }
   _session->set_on_connect([ this, keep_ref = get_ref() ](
-      const shared_ptr_<Connection> &connection) { _on_connect(connection); });
+      Session & session, const shared_ptr_<Connection> &connection) {
+    if (!session.is_destroyed()) {
+      _on_connect(connection);
+    }
+  });
 
   make_new_connection();
 }

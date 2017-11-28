@@ -3,60 +3,12 @@
 #include "session.h"
 
 #include "client.h"
-#include "crypto/hash.h"
-#include "crypto/misc.h"
 #include "module/logger.h"
 #include "server.h"
 #include "stream/ack_stream.h"
 #include "stream/ping_stream.h"
 
 namespace dsa {
-
-ClientSessions::ClientSessions(const ClientInfo &info) : _info(info) {
-  gen_salt(reinterpret_cast<uint8_t *>(&_session_id_seed), sizeof(uint64_t));
-};
-
-void ClientSessions::add_session(LinkStrandRef &strand,
-                                 const string_ &session_id,
-                                 GetSessionCallback &&callback) {
-  auto search = _sessions.find(session_id);
-  if (search != _sessions.end()) {
-    callback(search->second, _info);
-    return;
-  }
-  string_ sid = get_new_session_id(session_id);
-  auto session = make_ref_<Session>(strand->get_ref(), sid);
-
-  _sessions[sid] = session;
-
-  callback(session, _info);
-}
-
-string_ ClientSessions::get_new_session_id(const string_ old_session_id) {
-  Hash hash;
-
-  std::vector<uint8_t> data(16);
-  memcpy(&data[0], &_session_id_seed, sizeof(uint64_t));
-  memcpy(&data[8], &_session_id_count, sizeof(uint64_t));
-  _session_id_count++;
-
-  hash.update(data);
-
-  string_ result = base64_url_convert(hash.digest_base64());
-  if (result != old_session_id || _sessions.find(result) == _sessions.end()) {
-    return std::move(result);
-  }
-  return get_new_session_id(old_session_id);
-}
-
-void ClientSessions::destroy_impl() {
-  for (auto &kv : _sessions) {
-    if (kv.second != nullptr) {
-      kv.second->destroy();
-    }
-  }
-  _sessions.clear();
-}
 
 Session::Session(LinkStrandRef strand, const string_ &session_id)
     : _strand(std::move(strand)),
@@ -88,7 +40,7 @@ void Session::connected(shared_ptr_<Connection> connection) {
   write_loop(get_ref());
 
   if (_on_connect != nullptr) {
-    _on_connect(_connection);
+    _on_connect(*this, _connection);
   }
 
   // start the 20 seconds timer
@@ -103,7 +55,7 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   }
   if (_on_connect != nullptr && _connection == nullptr) {
     // disconnect event
-    _on_connect(_connection);
+    _on_connect(*this, _connection);
   }
 }
 
@@ -120,6 +72,9 @@ void Session::destroy_impl() {
   _on_connect = nullptr;
   _write_streams.clear();
   _pending_acks.clear();
+  if (_on_connect != nullptr) {
+    _on_connect(*this, _connection);
+  }
 }
 
 void Session::_on_timer() {

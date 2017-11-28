@@ -98,7 +98,7 @@ class NodeState : public DestroyableRef<NodeState> {
 
   void subscribe(ref_<BaseOutgoingSubscribeStream> &&stream);
 
-  void update_list_value(const string_ &key, BytesRef &value);
+  void update_list_value(const string_ &key, const BytesRef &value);
 
   void list(ref_<BaseOutgoingListStream> &&stream);
 

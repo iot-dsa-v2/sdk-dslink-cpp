@@ -25,7 +25,7 @@ void OutgoingListStream::destroy_impl() {
 }
 
 void OutgoingListStream::update_list_value(const string_ &key,
-                                           BytesRef &value) {
+                                           const BytesRef &value) {
   _cached_map[key] = value;
   send_message();
 }

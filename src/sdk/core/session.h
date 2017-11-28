@@ -24,35 +24,6 @@ class OutgoingMessageStream;
 class Connection;
 class SessionManager;
 
-/// one client (a dsid) can have multiple sessions at same time
-/// these sessions are grouped in ClientSessions class
-class ClientSessions final : public DestroyableRef<ClientSessions> {
-  friend class SessionManager;
-
- public:
-  typedef std::function<void(const ref_<Session> &session,
-                             const ClientInfo &info)>
-      GetSessionCallback;
-
- protected:
-  uint64_t _session_id_seed;
-  uint64_t _session_id_count = 0;
-
-  ClientInfo _info;
-  std::unordered_map<string_, ref_<Session>> _sessions;
-
-  void destroy_impl() final;
-
-  string_ get_new_session_id(const string_ old_id = "");
-
- public:
-  ClientSessions() = default;
-  explicit ClientSessions(const ClientInfo &info);
-  const ClientInfo &info() const { return _info; };
-  void add_session(LinkStrandRef &strand, const string_ &session_id,
-                   GetSessionCallback &&callback);
-};
-
 struct AckHolder {
   int32_t ack;
   AckCallback callback;
@@ -60,13 +31,21 @@ struct AckHolder {
       : ack(ack), callback(std::move(callback)){};
 };
 
-typedef std::function<void(const shared_ptr_<Connection> &)> OnConnectCallback;
+class Session;
 
 // maintain request and response streams
 class Session final : public DestroyableRef<Session> {
   friend class Connection;
   friend class Responder;
   friend class MessageStream;
+
+ public:
+  typedef std::function<void(const ref_<Session> &session,
+                             const ClientInfo &info)>
+      GetSessionCallback;
+
+  typedef std::function<void(Session &, const shared_ptr_<Connection> &)>
+      OnConnectCallback;
 
  public:
   // call back on connect
@@ -116,6 +95,7 @@ class Session final : public DestroyableRef<Session> {
 
   const string_ &dsid() const { return _dsid; }
   const string_ &session_id() const { return _session_id; }
+  void update_session_id(const string_ &new_id) { _session_id = new_id; }
   bool is_connected() const { return _connection != nullptr; }
 
   int32_t last_sent_ack();

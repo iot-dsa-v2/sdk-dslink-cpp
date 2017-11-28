@@ -4,11 +4,13 @@
 
 #include "config/broker_config.h"
 #include "config/module_loader.h"
-#include "module/broker_session_manager.h"
 #include "module/logger.h"
 #include "module/security_manager.h"
 #include "network/tcp/tcp_server.h"
 #include "node/broker_root.h"
+#include "node/downstream/downstream_root.h"
+#include "remote_node/broker_session_manager.h"
+#include "remote_node/remote_root_node.h"
 #include "responder/node_state_manager.h"
 #include "util/app.h"
 
@@ -48,12 +50,14 @@ void DsBroker::init(ModuleLoader& modules) {
   // init security manager
   strand->set_security_manager(modules.new_security_manager(*_app, strand));
 
-  // init session manager
-  strand->set_session_manager(make_ref_<BrokerSessionManager>(strand));
-
+  auto broker_root = make_ref_<BrokerRoot>(strand->get_ref());
   // init responder
   strand->set_stream_acceptor(
-      make_ref_<NodeStateManager>(*strand, make_ref_<BrokerRoot>(strand->get_ref())));
+      make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
+
+  // init session manager
+  strand->set_session_manager(
+      make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
 }
 void DsBroker::run() {
   strand->dispatch([this]() {

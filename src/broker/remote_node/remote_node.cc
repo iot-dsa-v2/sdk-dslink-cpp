@@ -3,6 +3,9 @@
 #include "remote_node.h"
 
 #include "core/session.h"
+#include "message/response/list_response_message.h"
+#include "stream/requester/incoming_list_stream.h"
+#include "stream/requester/incoming_subscribe_stream.h"
 
 namespace dsa {
 
@@ -13,21 +16,64 @@ RemoteNode::RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
       _remote_session(std::move(session)) {}
 RemoteNode::~RemoteNode() = default;
 
-bool RemoteNode::periodic_check(size_t ts) { return false; }
-
 ModelRef RemoteNode::on_demand_create_child(const Path &path) {
   return ModelRef();
 }
 
-void RemoteNode::on_subscribe(const SubscribeOptions &options,
-                              bool first_request) {}
-void RemoteNode::on_unsubscribe() {}
+void RemoteNode::destroy_impl() { NodeModelBase::destroy_impl(); }
 
-void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {}
-void RemoteNode::on_unlist() {}
+void RemoteNode::on_subscribe(const SubscribeOptions &options,
+                              bool first_request) {
+  if (first_request) {
+    _remote_subscribe_stream = _remote_session->requester.subscribe(
+        _remote_path, [ this, keep_ref = get_ref() ](
+                          IncomingSubscribeStream &,
+                          ref_<const SubscribeResponseMessage> && msg) {
+          set_message(std::move(msg));
+        },
+        options);
+  } else {
+    _remote_subscribe_stream->subscribe(options);
+  }
+}
+void RemoteNode::on_unsubscribe() {
+  if (_remote_subscribe_stream != nullptr) {
+    _remote_subscribe_stream->close();
+    _remote_subscribe_stream.reset();
+  }
+  _cached_value.reset();
+}
+
+void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
+  if (first_request) {
+    _remote_list_stream = _remote_session->requester.list(_remote_path, [
+      this, keep_ref = get_ref()
+    ](IncomingListStream &, ref_<const ListResponseMessage> && msg) {
+      for (auto &it : msg->get_map()) {
+        _list_cache.emplace(it);
+        _state->update_list_value(it.first, it.second);
+      }
+    });
+  } else {
+    for (auto &it : _list_cache) {
+      stream.update_list_value(it.first, it.second);
+    }
+  }
+}
+void RemoteNode::on_unlist() {
+  if (_remote_subscribe_stream != nullptr) {
+    _remote_list_stream->close();
+    _remote_list_stream.reset();
+  }
+  _list_cache.clear();
+}
 
 void RemoteNode::invoke(ref_<OutgoingInvokeStream> &&stream,
-                        ref_<NodeState> &parent) {}
+                        ref_<NodeState> &parent) {
+  // TODO
+}
 
-void RemoteNode::set(ref_<OutgoingSetStream> &&stream) {}
+void RemoteNode::set(ref_<OutgoingSetStream> &&stream) {
+  // TODO
+}
 }

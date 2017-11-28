@@ -29,7 +29,7 @@ class OutgoingListStream final : public MessageRefedStream {
 
   void on_list_close(ListCloseCallback &&callback) final;
 
-  void update_list_value(const string_ &key, BytesRef &value) final;
+  void update_list_value(const string_ &key, const BytesRef &value) final;
 
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback &) final;
