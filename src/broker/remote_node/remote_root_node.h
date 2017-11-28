@@ -20,7 +20,8 @@ public:
                  ref_<Session> &&session);
   ~RemoteRootNode() override;
 
-
+  // updated the status of connection changes
+  void on_session(Session &session, const shared_ptr_<Connection> &connection);
 
 };
 }

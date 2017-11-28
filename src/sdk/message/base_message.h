@@ -177,7 +177,7 @@ class MessageStream : public DestroyableRef<MessageStream> {
   // interface for fake outgoing list stream
 
   typedef std::function<void(MessageStream&)> ListCloseCallback;
-  virtual void update_list_value(const string_& key, BytesRef& value) {}
+  virtual void update_list_value(const string_& key, const BytesRef& value) {}
   virtual void on_list_close(ListCloseCallback&& callback){};
 
   // interface for fake outgoing subscribe stream

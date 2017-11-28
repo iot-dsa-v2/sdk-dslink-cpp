@@ -8,4 +8,8 @@ namespace dsa {
 RemoteRootNode::RemoteRootNode(LinkStrandRef &&strand, ref_<Session> &&session)
     : RemoteNode(std::move(strand), "", std::move(session)) {}
 RemoteRootNode::~RemoteRootNode() = default;
+
+void RemoteRootNode::on_session(Session &session, const shared_ptr_<Connection> &connection) {
+
+}
 }
