@@ -61,7 +61,7 @@ class DsLink final : public WrapperStrand {
   // if app is wanted to be used later,
   // only connect should be called and
   // run should  be called manually again and
-  void connect(OnConnectCallback &&on_connect = nullptr,
+  void connect(Client::OnConnectCallback &&on_connect = nullptr,
            uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
   // requester functions

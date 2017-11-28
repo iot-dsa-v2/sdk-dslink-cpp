@@ -170,7 +170,7 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
   strand->set_responder_model(std::move(root_node));
 }
 
-void DsLink::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {
+void DsLink::connect(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
   if (_connected) {
     LOG_FATAL(LOG << "DsLink::connect(), Dslink is already requested for connection");
   }
@@ -207,7 +207,7 @@ void DsLink::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {
 
 }
 
-void DsLink::run(OnConnectCallback &&on_connect, uint8_t callback_type) {
+void DsLink::run(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
   }
