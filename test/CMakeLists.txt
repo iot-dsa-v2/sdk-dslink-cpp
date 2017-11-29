@@ -46,6 +46,7 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 set(TEST_LIBS ${TEST_LIBS} ${OPENSSL_LIBRARIES})
 
 include_directories("../src/sdk")
+include_directories("../src/broker")
 include_directories("../include")
 include_directories("../deps/beast/include")
 
@@ -68,7 +69,6 @@ add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
 
 
 
-
 add_executable("test-playground" sdk/playground/test.cc sdk/async_test.cc sdk/test_config.cc)
 target_link_libraries("test-playground" ${TEST_LIBS})
 add_test(NAME "test-playground" COMMAND "test-playground")
@@ -80,3 +80,8 @@ add_executable("test-dslink" sdk/dslink/dslink-config-test.cc
 
 target_link_libraries("test-dslink" ${TEST_LIBS})
 add_test(NAME "test-dslink" COMMAND "test-dslink")
+
+
+# broker tests
+set(BROKER_TEST_LIBS ${TEST_LIBS} dsa_broker)
+include(./broker/CMakeListsInclude.txt)

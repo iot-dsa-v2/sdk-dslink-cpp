@@ -8,14 +8,12 @@ set(BROKER_LIBS ${BROKER_LIBS} ${OPENSSL_LIBRARIES})
 
 include_directories("../sdk")
 
-
 #
 if (UNIX)
     set(BROKER_LIBS dsa_sdk ${BROKER_LIBS} dl)
 else ()
     set(BROKER_LIBS dsa_sdk ${BROKER_LIBS})
 endif ()
-
 
 
 set(SOURCES broker_main.cc
@@ -34,5 +32,11 @@ set(SOURCES broker_main.cc
         node/home/home_root.cc
         node/sys/sys_root.cc
         node/pub/pub_root.cc)
-add_executable(broker ${SOURCES})
+
+add_library(dsa_broker ${SOURCES})
+target_link_libraries(dsa_broker ${BROKER_LIBS})
+
+set(BROKER_LIBS ${BROKER_LIBS} dsa_broker)
+
+add_executable(broker broker_main.cc)
 target_link_libraries(broker ${BROKER_LIBS})

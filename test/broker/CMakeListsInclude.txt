@@ -1,0 +1,12 @@
+#
+set(BROKER_TEST_SOURCES
+    broker/util/broker_runner.cc
+    broker/node/downstream.cc
+)
+
+
+set(BROKER_TEST_NAME "broker-test")
+add_executable(${BROKER_TEST_NAME} ${BROKER_TEST_SOURCES})
+target_link_libraries(${BROKER_TEST_NAME} ${BROKER_TEST_LIBS})
+
+
