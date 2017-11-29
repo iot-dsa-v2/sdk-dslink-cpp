@@ -6,7 +6,7 @@
 
 namespace dsa {
 shared_ptr_<DsBroker> create_broker() {
-  const char* empty_argv[0];
+  const char* empty_argv[1];
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
   ModuleLoader modules(broker_config);
   return make_shared_<DsBroker>(std::move(broker_config), modules);

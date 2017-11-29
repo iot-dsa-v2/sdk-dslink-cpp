@@ -3,7 +3,7 @@
 #include "../util/broker_runner.h"
 using namespace dsa;
 
-TEST(DateTime, DateTime) {
+TEST(BrokerNode, Downstream) {
   auto broker = create_broker();
   broker->run();
 }
