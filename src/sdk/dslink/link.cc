@@ -24,7 +24,7 @@ namespace fs = boost::filesystem;
 namespace dsa {
 
 DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
-               const string_ &version, std::shared_ptr<App> app) {
+               const string_ &version, const shared_ptr_<App> &app) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
       ("broker,b", opts::value<string_>()->default_value("127.0.0.1"),
@@ -58,8 +58,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   }
 
   _app = app;
-  //If app object is already given, thread option is ignored in args
-  if(_app.get() == nullptr) {
+  // If app object is already given, thread option is ignored in args
+  if (_app.get() == nullptr) {
     parse_thread(variables["thread"].as<size_t>());
   }
 
@@ -94,14 +94,13 @@ void DsLink::destroy_impl() {
   }
   _app->close();
 
-  for(auto it = _subscribe_mergers.begin(); it != _subscribe_mergers.end(); it++)
-  {
+  for (auto it = _subscribe_mergers.begin(); it != _subscribe_mergers.end();
+       it++) {
     it->second->destroy();
   }
   _subscribe_mergers.clear();
 
-  for(auto it = _list_mergers.begin(); it != _list_mergers.end(); it++)
-  {
+  for (auto it = _list_mergers.begin(); it != _list_mergers.end(); it++) {
     it->second->destroy();
   }
   _list_mergers.clear();
@@ -170,9 +169,11 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
   strand->set_responder_model(std::move(root_node));
 }
 
-void DsLink::connect(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
+void DsLink::connect(Client::OnConnectCallback &&on_connect,
+                     uint8_t callback_type) {
   if (_connected) {
-    LOG_FATAL(LOG << "DsLink::connect(), Dslink is already requested for connection");
+    LOG_FATAL(
+        LOG << "DsLink::connect(), Dslink is already requested for connection");
   }
   _connected = true;
 
@@ -189,13 +190,13 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect, uint8_t callback_ty
       } else {
         client_connection_maker =
             [
-                dsid_prefix = dsid_prefix, tcp_host = tcp_host,
-                tcp_port = tcp_port
+              dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+              tcp_port = tcp_port
             ](LinkStrandRef & strand, const string_ &previous_session_id,
               int32_t last_ack_id) {
-              return make_shared_<TcpClientConnection>(strand, dsid_prefix,
-                                                       tcp_host, tcp_port);
-            };
+          return make_shared_<TcpClientConnection>(strand, dsid_prefix,
+                                                   tcp_host, tcp_port);
+        };
       }
     } else if (ws_port > 0) {
       // TODO, implement ws client
@@ -204,19 +205,20 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect, uint8_t callback_ty
     _client = make_ref_<Client>(*this);
     _client->connect(std::move(on_connect), callback_type);
   });
-
 }
 
-void DsLink::run(Client::OnConnectCallback &&on_connect, uint8_t callback_type) {
+void DsLink::run(Client::OnConnectCallback &&on_connect,
+                 uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
   }
   _running = true;
-  if(!_connected) {
-    connect(std::move(on_connect),callback_type);
+  if (!_connected) {
+    connect(std::move(on_connect), callback_type);
   } else {
-    LOG_INFO(strand.get()->logger(),
-              LOG << "DsLink on_connect callback ignored since it was connected before\n");
+    LOG_INFO(strand.get()->logger(), LOG << "DsLink on_connect callback "
+                                            "ignored since it was connected "
+                                            "before\n");
   }
   _app->wait();
   destroy();

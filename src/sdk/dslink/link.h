@@ -26,7 +26,7 @@ class DsLink final : public WrapperStrand {
 
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
-         const string_ &version, std::shared_ptr<App> app = nullptr);
+         const string_ &version, const shared_ptr_<App> & app = nullptr);
   ~DsLink();
   App &get_app();
 
