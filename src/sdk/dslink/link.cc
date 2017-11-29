@@ -94,17 +94,23 @@ void DsLink::destroy_impl() {
   }
   _app->close();
 
-  for(auto it = _subscribe_mergers.begin(); it != _subscribe_mergers.end(); it++)
-  {
-    it->second->destroy();
+  // child remove itself from array
+  while(!_subscribe_mergers.empty()) {
+    // If you dont create lvalue from it
+    // gets heap usage after free error because
+    // reference count drops zero in destroy
+    auto p = _subscribe_mergers.begin()->second;
+    p->destroy();
   }
-  _subscribe_mergers.clear();
 
-  for(auto it = _list_mergers.begin(); it != _list_mergers.end(); it++)
-  {
-    it->second->destroy();
+  // child remove itself from array
+  while(!_list_mergers.empty()) {
+    // If you dont create lvalue from it
+    // gets heap usage after free error because
+    // reference count drops zero in destroy
+    auto p = _list_mergers.begin()->second;
+    p->destroy();
   }
-  _list_mergers.clear();
 
   WrapperStrand::destroy_impl();
 }

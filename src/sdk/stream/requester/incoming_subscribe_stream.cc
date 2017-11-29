@@ -33,6 +33,7 @@ void IncomingSubscribeStream::close() {
   if (_closed) return;
   _closed = true;
   _callback = nullptr;
+  // TODO: maybe wait to send message before destroying it
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE_REQUEST), true);
 }
 
