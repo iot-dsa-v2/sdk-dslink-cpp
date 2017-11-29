@@ -90,7 +90,7 @@ std::shared_ptr<TcpServer> TestConfig::create_server() {
 }
 
 void destroy_client_in_strand(ref_<Client> &client) {
-  client->get_strand().dispatch([client]() { client->destroy(); });
+  client->get_strand().post([client]() { client->destroy(); });
 }
 
 void destroy_dslink_in_strand(ref_<DsLink> &dslink) {

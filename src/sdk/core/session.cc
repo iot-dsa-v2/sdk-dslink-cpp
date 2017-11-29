@@ -96,7 +96,7 @@ void Session::_on_timer() {
   _timer.async_wait([ this, keep_ref = get_ref() ](
       const boost::system::error_code &error) mutable {
     if (error != boost::asio::error::operation_aborted) {
-      _strand->dispatch([ this, keep_ref = std::move(keep_ref) ]() {
+      _strand->post([ this, keep_ref = std::move(keep_ref) ]() {
         if (_connection == nullptr) return;
         _on_timer();
       });
