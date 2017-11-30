@@ -1,5 +1,6 @@
 #
 set(BROKER_TEST_SOURCES
+    sdk/test_config.cc
     broker/util/broker_runner.cc
     broker/node/downstream.cc
 )

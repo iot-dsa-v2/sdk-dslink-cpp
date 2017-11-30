@@ -5,11 +5,12 @@
 #pragma once
 #endif
 
+#include "../../sdk/test_config.h"
 #include "broker.h"
 
 namespace dsa {
-  shared_ptr_<DsBroker> create_broker();
+shared_ptr_<DsBroker> create_broker();
+WrapperStrand get_client_wrapper_strand(const shared_ptr_<DsBroker> &broker);
 }
 
-
-#endif //BROKER_TEST_BROKER_RUNNER_H
+#endif  // BROKER_TEST_BROKER_RUNNER_H

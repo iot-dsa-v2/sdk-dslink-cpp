@@ -2,28 +2,30 @@
 
 #include "test_config.h"
 
-#include "util/app.h"
 #include "core/client.h"
-#include "module/default/simple_session_manager.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_security_manager.h"
+#include "module/default/simple_session_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
+#include "util/app.h"
 
 #include "responder/model_base.h"
 #include "responder/node_state_manager.h"
 
 namespace dsa {
 
-static ref_<EditableStrand> make_config(std::shared_ptr<App> app, bool async) {
-  auto config = make_ref_<EditableStrand>(app->new_strand(), make_unique_<ECDH>());
+ref_<EditableStrand> TestConfig::make_editable_strand(
+    const shared_ptr_<App> &app, bool async) {
+  auto config =
+      make_ref_<EditableStrand>(app->new_strand(), make_unique_<ECDH>());
 
   config->set_session_manager(make_ref_<SimpleSessionManager>(config));
 
   if (async) {
     config->set_security_manager(
-      make_ref_<AsyncSimpleSecurityManager>(config->get_ref()));
+        make_ref_<AsyncSimpleSecurityManager>(config->get_ref()));
   } else {
     config->set_security_manager(make_ref_<SimpleSecurityManager>());
   }
@@ -36,15 +38,13 @@ static ref_<EditableStrand> make_config(std::shared_ptr<App> app, bool async) {
 
 TestConfig::TestConfig(std::shared_ptr<App> app, bool async) : WrapperStrand() {
   this->app = app;
-  strand = make_config(app, async);
+  strand = make_editable_strand(app, async);
 
   tcp_server_port = 0;
 }
 
-
-
 WrapperStrand TestConfig::get_client_wrapper_strand(bool async) {
-  if(tcp_server_port == 0) {
+  if (tcp_server_port == 0) {
     throw "There is no server to connect right now. Please create a server first";
   }
 
@@ -54,7 +54,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand(bool async) {
   copy.tcp_host = "127.0.0.1";
   copy.tcp_port = tcp_server_port;
 
-  copy.strand = make_config(app, async);
+  copy.strand = make_editable_strand(app, async);
   copy.strand->logger().level = strand->logger().level;
   copy.client_connection_maker =
       [
@@ -63,18 +63,19 @@ WrapperStrand TestConfig::get_client_wrapper_strand(bool async) {
       ](LinkStrandRef & strand, const string_ &previous_session_id,
         int32_t last_ack_id) {
     return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                          tcp_port);
+                                             tcp_port);
   };
 
   return std::move(copy);
 }
 
 ref_<DsLink> TestConfig::create_dslink(bool async) {
-  if(tcp_server_port == 0) {
+  if (tcp_server_port == 0) {
     throw "There is no server to connect right now. Please create a server first";
   }
 
-  std::string address = std::string("127.0.0.1:") + std::to_string(tcp_server_port);
+  std::string address =
+      std::string("127.0.0.1:") + std::to_string(tcp_server_port);
 
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
@@ -96,5 +97,4 @@ void destroy_client_in_strand(ref_<Client> &client) {
 void destroy_dslink_in_strand(ref_<DsLink> &dslink) {
   dslink->strand->dispatch([dslink]() { dslink->destroy(); });
 }
-
 }

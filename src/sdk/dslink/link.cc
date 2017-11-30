@@ -92,7 +92,6 @@ void DsLink::destroy_impl() {
     _client->destroy();
     _client.reset();
   }
-  _app->close();
 
   for (auto it = _subscribe_mergers.begin(); it != _subscribe_mergers.end();
        it++) {
@@ -106,6 +105,7 @@ void DsLink::destroy_impl() {
   _list_mergers.clear();
 
   WrapperStrand::destroy_impl();
+  _app->close();
 }
 
 void DsLink::parse_thread(size_t thread) {

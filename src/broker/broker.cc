@@ -15,19 +15,23 @@
 #include "util/app.h"
 
 namespace dsa {
-DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules)
-    : _config(std::move(config)) {
+DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
+                   const shared_ptr_<App>& app)
+    : _config(std::move(config)), _app(app) {
   init(modules);
 }
 DsBroker::~DsBroker() {}
 
 void DsBroker::init(ModuleLoader& modules) {
-  // init app
-  size_t thread = static_cast<size_t>(_config->thread().get_value().get_int());
-  if (thread < 1 || thread > 16) {
-    thread = 1;
+  if (_app == nullptr) {
+    // init app
+    size_t thread =
+        static_cast<size_t>(_config->thread().get_value().get_int());
+    if (thread < 1 || thread > 16) {
+      thread = 1;
+    }
+    _app.reset(new App(thread));
   }
-  _app.reset(new App(thread));
 
   server_host = _config->host().get_value().get_string();
   tcp_server_port =
@@ -58,6 +62,16 @@ void DsBroker::init(ModuleLoader& modules) {
   // init session manager
   strand->set_session_manager(
       make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
+}
+void DsBroker::destroy_impl() {
+  if (_tcp_server != nullptr) {
+    _tcp_server->destroy();
+    _tcp_server.reset();
+  }
+  _config.reset();
+
+  WrapperStrand::destroy_impl();
+  _app->close();
 }
 void DsBroker::run() {
   strand->dispatch([this]() {
