@@ -12,7 +12,11 @@ IncomingListCache::IncomingListCache(){};
 IncomingListCache::IncomingListCache(ref_<ListMerger>&& merger,
                                      IncomingListCache::Callback&& callback)
     : _merger(std::move(merger)), _callback(std::move(callback)) {}
-void IncomingListCache::destroy_impl() { _merger->remove(get_ref()); }
+
+void IncomingListCache::destroy_impl() {
+  _merger->remove(get_ref());
+  _merger.reset();
+  _callback= nullptr; }
 
 const VarMap& IncomingListCache::get_map() const { return _merger->_map; }
 MessageStatus IncomingListCache::get_status() const { return _merger->_last_status; }
@@ -22,14 +26,24 @@ ListMerger::ListMerger(ref_<DsLink>&& link, const string_& path)
 ListMerger::~ListMerger() {}
 
 void ListMerger::destroy_impl() {
+  _link->_list_mergers.erase(_path);
+  _link.reset();
+
   if (_stream != nullptr) {
     _stream->close();
     _stream->destroy();
     _stream.reset();
   }
-  //_link->_list_mergers.erase(_path);
-  _link.reset();
-  caches.clear();
+
+  // child remove itself from array
+  while(!caches.empty()) {
+    // If you dont create lvalue from it
+    // gets heap usage after free error because
+    // reference count drops zero in destroy
+    auto p = *caches.begin();
+    p->destroy();
+  }
+
   _changes.clear();
 }
 
