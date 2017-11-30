@@ -18,7 +18,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
  private:
   uint16_t _port;
 
-  shared_ptr_<boost::asio::io_service> _io_service;
+  boost::asio::io_service& _io_service;
   shared_ptr_<boost::asio::io_service::strand> _strand;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   shared_ptr_<HttpConnection> _next_connection;

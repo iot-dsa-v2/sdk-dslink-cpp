@@ -10,9 +10,9 @@ namespace dsa {
 using tcp = boost::asio::ip::tcp;
 
 WebServer::WebServer(App& app)
-    : _io_service(&app.io_service()),
-      _strand(make_shared_<boost::asio::io_service::strand>(*_io_service)),
-      _acceptor(new tcp::acceptor(*_io_service,
+    : _io_service(app.io_service()),
+      _strand(make_shared_<boost::asio::io_service::strand>(_io_service)),
+      _acceptor(new tcp::acceptor(_io_service,
 // TODO - server port
 #if defined(__CYGWIN__)
                                   tcp::endpoint(tcp::v4(), 8080))) {
@@ -26,7 +26,7 @@ WebServer::WebServer(App& app)
 }
 
 void WebServer::start() {
-  _next_connection = make_shared_<HttpConnection>(*_io_service);
+  _next_connection = make_shared_<HttpConnection>(_io_service);
 
   _acceptor->async_accept(_next_connection->socket(), [
     this, sthis = shared_from_this()
@@ -36,7 +36,8 @@ void WebServer::start() {
 void WebServer::accept_loop(const boost::system::error_code& error) {
   if (!error) {
     _next_connection->accept();
-    _next_connection = make_shared_<HttpConnection>(*_io_service);
+    
+    _next_connection = make_shared_<HttpConnection>(_io_service);
     _acceptor->async_accept(_next_connection->socket(), [
       this, sthis = shared_from_this()
     ](const boost::system::error_code& error) { accept_loop(error); });
@@ -46,7 +47,9 @@ void WebServer::accept_loop(const boost::system::error_code& error) {
 }
 
 void WebServer::destroy() {
-  _acceptor->close();
+  if (_acceptor->is_open()) {
+    _acceptor->close();
+  }
 }
 
 WebServer::~WebServer() = default;
