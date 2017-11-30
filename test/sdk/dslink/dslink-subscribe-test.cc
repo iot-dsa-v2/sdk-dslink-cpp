@@ -33,10 +33,6 @@ class MockNode : public NodeModelBase {
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)) {};
 
-  void force_to_change_value() {
-    set_value(Var("!"));
-  }
-
   void on_subscribe(const SubscribeOptions &options,
                     bool first_request) override {
     if (first_request) {
@@ -50,28 +46,10 @@ class MockNode : public NodeModelBase {
 
 };
 
-boost::mutex global_lock;
-
-struct SubscribeCallbackTest {
-
-  static void subscribe_callback(IncomingSubscribeCache &a, ref_<const SubscribeResponseMessage> message,
-                                 std::vector<std::string> *messages) {
-    global_lock.lock();
-    messages->push_back(message->get_value().value.get_string());
-    global_lock.unlock();
-  };
-
-  static void connection_callback(const shared_ptr_<Connection> connection,
-                                  bool* is_connected) {
-    *is_connected = true;
-  };
-};
-
 }
 
 TEST(DSLinkTest, Subscribe_Test) {
   typedef link_subscribe_test::MockNode MockNode;
-  typedef link_subscribe_test::SubscribeCallbackTest SubscribeCallbackTest;
 
   shared_ptr<App> app = make_shared<App>();
   TestConfig server_strand(app);
@@ -85,34 +63,22 @@ TEST(DSLinkTest, Subscribe_Test) {
 
   // connection
   bool is_connected = false;
-  link->connect(std::bind(SubscribeCallbackTest::connection_callback, std::placeholders::_1, &is_connected));
+  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
+
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() {return is_connected;});
 
   // add a callback when connected to broker
   std::vector<std::string> messages;
 
-  auto subscribe_stream = link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
-                                std::placeholders::_1, std::placeholders::_2,
-                                &messages));
+  link->subscribe("",
+                  [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
+                      messages.push_back(message->get_value().value.get_string()); });
+
   ASYNC_EXPECT_TRUE(500, *link.get()->strand,
                     [&]() { return messages.size() == 1; });
 
   EXPECT_TRUE(messages.size() == 1);
   EXPECT_EQ(messages.at(0), "hello");
-
-  // unsubscribe
-  link->strand->post([&]() {subscribe_stream->close();});
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand, [&]() -> bool {
-    return subscribe_stream->is_destroyed() &&
-        subscribe_stream->ref_count() == 1;
-  });
-
-  messages.clear();
-  link->strand->post([&]() {root_node->force_to_change_value();});
-
-  WAIT(500);
-  EXPECT_TRUE(messages.size() == 0);
-
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);
@@ -133,7 +99,6 @@ TEST(DSLinkTest, Subscribe_Test) {
 
 TEST(LinkTest, Subscribe_Multi_Test) {
   typedef link_subscribe_test::MockNode MockNode;
-  typedef link_subscribe_test::SubscribeCallbackTest SubscribeCallbackTest;
 
   auto app = make_shared<App>();
   TestConfig server_strand(app);
@@ -147,7 +112,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
 
   // connection
   bool is_connected = false;
-  link->connect(std::bind(SubscribeCallbackTest::connection_callback, std::placeholders::_1, &is_connected));
+  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() {return is_connected;});
 
   // Initial Subcribe
@@ -157,9 +122,10 @@ TEST(LinkTest, Subscribe_Multi_Test) {
   initial_options.queue_duration = 0x1234;
   initial_options.queue_size = 0x5678;
 
-  link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
-                                std::placeholders::_1, std::placeholders::_2,
-                                &messages_initial), initial_options);
+  link->subscribe("",
+                  [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
+                      messages_initial.push_back(message->get_value().value.get_string()); },
+                  initial_options);
   ASYNC_EXPECT_TRUE(500, *link.get()->strand,
                     [&]() { return messages_initial.size() == 1; });
 
@@ -170,9 +136,10 @@ TEST(LinkTest, Subscribe_Multi_Test) {
   update_options.queue_duration = 0x9876;
   update_options.queue_size = 0x5432;
 
-  link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
-                                std::placeholders::_1, std::placeholders::_2,
-                                &messages_updated), update_options);
+  link->subscribe("",
+                  [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
+                      messages_updated.push_back(message->get_value().value.get_string()); },
+                  update_options);
 
   ASYNC_EXPECT_TRUE(500, *link.get()->strand,
                     [&]() { return messages_initial.size() == 2; });
