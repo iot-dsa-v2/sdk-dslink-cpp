@@ -12,7 +12,8 @@ shared_ptr_<DsBroker> create_broker() {
   ModuleLoader modules(broker_config);
   return make_shared_<DsBroker>(std::move(broker_config), modules);
 }
-WrapperStrand get_client_wrapper_strand(const shared_ptr_<DsBroker>& broker) {
+WrapperStrand get_client_wrapper_strand(const shared_ptr_<DsBroker>& broker,
+                                        const string_& dsid_prefix) {
   shared_ptr_<App>& app = broker->get_app();
 
   WrapperStrand client_strand;
@@ -22,10 +23,11 @@ WrapperStrand get_client_wrapper_strand(const shared_ptr_<DsBroker>& broker) {
   client_strand.strand = TestConfig::make_editable_strand(app);
   client_strand.client_connection_maker =
       [
-        dsid_prefix = "test", tcp_host = client_strand.tcp_host,
+        dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
         tcp_port = client_strand.tcp_port
       ](LinkStrandRef & strand, const string_& previous_session_id,
-        int32_t last_ack_id) {
+        int32_t last_ack_id)
+          ->shared_ptr_<Connection> {
     return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                              tcp_port);
   };
