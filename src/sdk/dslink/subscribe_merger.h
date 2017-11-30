@@ -35,6 +35,8 @@ class IncomingSubscribeCache : public DestroyableRef<IncomingSubscribeCache> {
   IncomingSubscribeCache(ref_<SubscribeMerger>&& merger,
                          IncomingSubscribeCache::Callback&& callback,
                          const SubscribeOptions& options);
+
+  void close();
 };
 // when multiple subscribe request is made on same path, SubscribeMerger merge
 // the subscription into one request

@@ -33,6 +33,10 @@ class MockNode : public NodeModelBase {
 
   explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)) {};
 
+  void force_to_change_value() {
+    set_value(Var("!"));
+  }
+
   void on_subscribe(const SubscribeOptions &options,
                     bool first_request) override {
     if (first_request) {
@@ -87,7 +91,7 @@ TEST(DSLinkTest, Subscribe_Test) {
   // add a callback when connected to broker
   std::vector<std::string> messages;
 
-  link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
+  auto subscribe_stream = link->subscribe("", std::bind(SubscribeCallbackTest::subscribe_callback,
                                 std::placeholders::_1, std::placeholders::_2,
                                 &messages));
   ASYNC_EXPECT_TRUE(500, *link.get()->strand,
@@ -95,6 +99,20 @@ TEST(DSLinkTest, Subscribe_Test) {
 
   EXPECT_TRUE(messages.size() == 1);
   EXPECT_EQ(messages.at(0), "hello");
+
+  // unsubscribe
+  link->strand->post([&]() {subscribe_stream->close();});
+  ASYNC_EXPECT_TRUE(500, *link.get()->strand, [&]() -> bool {
+    return subscribe_stream->is_destroyed() &&
+        subscribe_stream->ref_count() == 1;
+  });
+
+  messages.clear();
+  link->strand->post([&]() {root_node->force_to_change_value();});
+
+  WAIT(500);
+  EXPECT_TRUE(messages.size() == 0);
+
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);

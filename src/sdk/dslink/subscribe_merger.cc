@@ -14,36 +14,43 @@ IncomingSubscribeCache::IncomingSubscribeCache(
     : _merger(std::move(merger)),
       _callback(std::move(callback)),
       _options(options) {}
+
 void IncomingSubscribeCache::destroy_impl() {
-  // we shouldn't do this!
-  //_merger->remove(get_ref());
+  _merger->remove(get_ref());
   _merger.reset();
   _callback= nullptr;
+}
+
+void IncomingSubscribeCache::close() {
+  destroy();
 }
 
 SubscribeMerger::SubscribeMerger(ref_<DsLink>&& link, const string_& path)
     : _link(std::move(link)),
       _path(path),
       _merged_subscribe_options(QosLevel::_0, -1) {}
+
 SubscribeMerger::~SubscribeMerger() {}
 
 void SubscribeMerger::destroy_impl() {
+  _link->_subscribe_mergers.erase(_path);
+  _link.reset();
+  _cached_value.reset();
+
+  // child remove itself from array
+  while(!caches.empty()) {
+    // If you dont create lvalue from it
+    // gets heap usage after free error because
+    // reference count drops zero in destroy
+    auto p = *caches.begin();
+    p->destroy();
+  }
+
   if (_stream != nullptr) {
     _stream->close();
     _stream->destroy();
     _stream.reset();
   }
-  // while link also trying to delete
-  // it is also delete itself from link
-  // causing exception so commented
-  //_link->_subscribe_mergers.erase(_path);
-  _link.reset();
-  _cached_value.reset();
-
-  for(auto it=caches.begin(); it!=caches.end(); it++){
-    it->get()->destroy();
-  }
-  caches.clear();
 }
 
 ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
