@@ -93,9 +93,6 @@ void DsLink::destroy_impl() {
     _client.reset();
   }
 
-  for (auto it = _subscribe_mergers.begin(); it != _subscribe_mergers.end();
-       it++) {
-    it->second->destroy();
   // child remove itself from array
   while(!_subscribe_mergers.empty()) {
     // If you dont create lvalue from it
@@ -105,8 +102,6 @@ void DsLink::destroy_impl() {
     p->destroy();
   }
 
-  for (auto it = _list_mergers.begin(); it != _list_mergers.end(); it++) {
-    it->second->destroy();
   // child remove itself from array
   while(!_list_mergers.empty()) {
     // If you dont create lvalue from it
