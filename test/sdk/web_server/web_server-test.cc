@@ -38,18 +38,13 @@ TEST(WebServerTest, basic_flow) {
     if (client->session()->is_connected()) {
       return true;
     }
+    return false;
   });
 
   app->close();
 
-  //  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-
-  if (!app->is_stopped()) {
-    app->force_stop();
-  }
-
   test_config.destroy();
-  app->wait();
+  //  app->wait();
 
     /*
   web_server->listen(port = 80);
