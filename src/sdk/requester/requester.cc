@@ -13,7 +13,12 @@ namespace dsa {
 Requester::Requester(Session &session) : _session(session) {}
 Requester::~Requester() {}
 
-void Requester::destroy_impl() { _incoming_streams.clear(); }
+void Requester::destroy_impl() {
+  for (auto &it : _incoming_streams) {
+    it.second->destroy();
+  }
+  _incoming_streams.clear();
+}
 
 int32_t Requester::next_rid() {
   while (_incoming_streams.find(++_next_rid) != _incoming_streams.end()) {

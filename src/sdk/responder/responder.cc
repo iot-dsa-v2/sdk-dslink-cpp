@@ -20,7 +20,12 @@ namespace dsa {
 
 Responder::Responder(Session &session) : _session(session) {}
 
-void Responder::destroy_impl() { _outgoing_streams.clear(); }
+void Responder::destroy_impl() {
+  for (auto &it : _outgoing_streams) {
+    it.second->destroy();
+  }
+  _outgoing_streams.clear();
+}
 
 void Responder::receive_message(ref_<Message> &&message) {
   auto find_stream = _outgoing_streams.find(message->get_rid());
@@ -150,7 +155,7 @@ void Responder::on_set_request(ref_<SetRequestMessage> &&message,
   _session._strand->stream_acceptor().add(std::move(stream));
 }
 
-bool Responder::remove_stream(int32_t rid) {
+bool Responder::destroy_stream(int32_t rid) {
   auto search = _outgoing_streams.find(rid);
   if (search != _outgoing_streams.end()) {
     auto &stream = search->second;

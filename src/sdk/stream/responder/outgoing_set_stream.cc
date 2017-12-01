@@ -47,7 +47,7 @@ void OutgoingSetStream::send_response(ref_<SetResponseMessage> &&message) {
 bool OutgoingSetStream::check_close_message(MessageCRef &message) {
   if (DOWN_CAST<const ResponseMessage *>(message.get())->get_status() >=
       MessageStatus::CLOSED) {
-    _session->responder.remove_stream(rid);
+    _session->responder.destroy_stream(rid);
     return true;
   }
   return false;
