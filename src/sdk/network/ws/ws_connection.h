@@ -15,10 +15,6 @@
 
 namespace dsa {
 
-  //using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
-  //namespace websocket =
-    boost::beast::websocket;  // from <boost/beast/websocket.hpp>
-
 typedef boost::asio::ip::tcp::socket tcp_socket;
 typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> websocket_stream;
 

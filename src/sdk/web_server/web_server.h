@@ -8,7 +8,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 
-#include "network/ws/http_connection.h"
+#include "http_connection.h"
 
 namespace dsa {
 
