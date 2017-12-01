@@ -19,7 +19,7 @@ class AckStream final : public MessageRefedStream {
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback& callback) final;
 
-  void receive_message(MessageCRef&& msg) final {}
+  void receive_message(ref_<Message>&& msg) final {}
 
   void add_ack(int32_t ack);
   int32_t get_ack() const { return _message->get_ack(); };

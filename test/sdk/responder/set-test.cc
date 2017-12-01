@@ -101,11 +101,9 @@ TEST(ResponderTest, Set_Model) {
 
   // send set request
   auto set_stream1 = tcp_client->get_session().requester.set(
-      "",
       [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
       std::move(first_request));
   auto set_stream2 = tcp_client->get_session().requester.set(
-      "",
       [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
       std::move(second_request));
 
@@ -172,7 +170,6 @@ TEST(ResponderTest, Set_Acceptor) {
   ref_<const SetResponseMessage> last_response;
   // test invalid path scenario
   auto set_stream = tcp_client->get_session().requester.set(
-      "",
       [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {
         last_response = std::move(msg);
       },

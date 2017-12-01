@@ -7,9 +7,9 @@
 
 #include <unordered_map>
 
-#include "util/enable_ref.h"
-#include "stream/stream_callbacks.h"
 #include "message/message_options.h"
+#include "stream/stream_callbacks.h"
+#include "util/enable_ref.h"
 
 namespace dsa {
 
@@ -37,19 +37,16 @@ class Requester {
 
   ref_<IncomingSubscribeStream> subscribe(
       const string_ &path, IncomingSubscribeStreamCallback &&callback,
-      const SubscribeOptions &options =
-      SubscribeOptions::default_options);
+      const SubscribeOptions &options = SubscribeOptions::default_options);
 
   ref_<IncomingListStream> list(
       const string_ &path, IncomingListStreamCallback &&callback,
       const ListOptions &options = ListOptions::default_options);
 
-  ref_<IncomingInvokeStream> invoke(const string_ &path,
-                                    IncomingInvokeStreamCallback &&callback,
+  ref_<IncomingInvokeStream> invoke(IncomingInvokeStreamCallback &&callback,
                                     ref_<const InvokeRequestMessage> &&message);
 
-  ref_<IncomingSetStream> set(const string_ &path,
-                              IncomingSetStreamCallback &&callback,
+  ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
                               ref_<const SetRequestMessage> &&message);
 
   bool remove_stream(int32_t rid);

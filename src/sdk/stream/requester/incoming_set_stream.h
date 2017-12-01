@@ -25,7 +25,7 @@ class IncomingSetStream final : public MessageCacheStream {
   IncomingSetStream(ref_<Session>&& session, const Path& path, uint32_t rid,
                     Callback&& callback);
 
-  void receive_message(MessageCRef&& msg) final;
+  void receive_message(ref_<Message>&& msg) final;
 
   void set(ref_<const SetRequestMessage>&& msg);
 };

@@ -17,7 +17,7 @@ class PingStream final : public MessageRefedStream {
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback& callbping) final;
 
-  void receive_message(MessageCRef&& msg) final {}
+  void receive_message(ref_<Message>&& msg) final {}
 
   void add_ping();
 };

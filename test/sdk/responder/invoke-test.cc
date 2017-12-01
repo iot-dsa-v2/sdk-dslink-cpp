@@ -94,7 +94,6 @@ TEST(ResponderTest, Invoke_Model) {
   ref_<const InvokeResponseMessage> last_response;
 
   auto invoke_stream = tcp_client->get_session().requester.invoke(
-      "",
       [&](IncomingInvokeStream &stream,
           ref_<const InvokeResponseMessage> &&msg) {
         last_response = std::move(msg);
@@ -176,7 +175,6 @@ TEST(ResponderTest, Invoke_Acceptor) {
 
   ref_<const InvokeResponseMessage> last_response;
   auto invoke_stream = tcp_client->get_session().requester.invoke(
-      "",
       [&](IncomingInvokeStream &stream,
           ref_<const InvokeResponseMessage> &&msg) {
         last_response = std::move(msg);

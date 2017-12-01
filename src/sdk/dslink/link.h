@@ -26,7 +26,7 @@ class DsLink final : public WrapperStrand {
 
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
-         const string_ &version, const shared_ptr_<App> & app = nullptr);
+         const string_ &version, const shared_ptr_<App> &app = nullptr);
   ~DsLink();
   App &get_app();
 
@@ -62,7 +62,7 @@ class DsLink final : public WrapperStrand {
   // only connect should be called and
   // run should  be called manually again and
   void connect(Client::OnConnectCallback &&on_connect = nullptr,
-           uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
+               uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
   // requester functions
  private:
@@ -77,12 +77,10 @@ class DsLink final : public WrapperStrand {
   ref_<IncomingListCache> list(const string_ &path,
                                IncomingListCache::Callback &&callback);
 
-  ref_<IncomingInvokeStream> invoke(const string_ &path,
-                                    IncomingInvokeStreamCallback &&callback,
+  ref_<IncomingInvokeStream> invoke(IncomingInvokeStreamCallback &&callback,
                                     ref_<const InvokeRequestMessage> &&message);
 
-  ref_<IncomingSetStream> set(const string_ &path,
-                              IncomingSetStreamCallback &&callback,
+  ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
                               ref_<const SetRequestMessage> &&message);
 };
 }

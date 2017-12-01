@@ -9,19 +9,19 @@ namespace dsa {
 
 OutgoingInvokeStream::OutgoingInvokeStream(
     ref_<Session> &&session, const Path &path, uint32_t rid,
-    ref_<const InvokeRequestMessage> &&mesage)
+    ref_<InvokeRequestMessage> &&mesage)
     : MessageQueueStream(std::move(session), path, rid) {
   _waiting_requests.emplace_back(std::move(mesage));
 }
 
 void OutgoingInvokeStream::destroy_impl() {
   if (_callback != nullptr) {
-    std::move(_callback)(*this, ref_<const InvokeRequestMessage>());
+    std::move(_callback)(*this, ref_<InvokeRequestMessage>());
   }
   MessageQueueStream::destroy_impl();
 }
 
-void OutgoingInvokeStream::receive_message(MessageCRef &&mesage) {
+void OutgoingInvokeStream::receive_message(ref_<Message> &&mesage) {
   if (_callback != nullptr) {
     _callback(*this, std::move(mesage));
   } else {

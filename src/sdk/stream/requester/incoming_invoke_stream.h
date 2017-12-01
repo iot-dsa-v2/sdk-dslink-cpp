@@ -25,7 +25,7 @@ class IncomingInvokeStream final : public MessageQueueStream {
   IncomingInvokeStream(ref_<Session>&& session, const Path& path, uint32_t rid,
                        Callback&& callback);
 
-  void receive_message(MessageCRef&& msg) final;
+  void receive_message(ref_<Message>&& msg) final;
 
   void invoke(ref_<const InvokeRequestMessage>&& msg);
 

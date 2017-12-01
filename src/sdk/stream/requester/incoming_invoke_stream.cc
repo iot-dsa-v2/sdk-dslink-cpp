@@ -14,7 +14,7 @@ IncomingInvokeStream::IncomingInvokeStream(ref_<Session>&& session,
     : MessageQueueStream(std::move(session), path, rid),
       _callback(std::move(callback)) {}
 
-void IncomingInvokeStream::receive_message(MessageCRef&& mesage) {
+void IncomingInvokeStream::receive_message(ref_<Message>&& mesage) {
   if (mesage->type() == MessageType::INVOKE_RESPONSE) {
     if (_callback != nullptr) {
       if (DOWN_CAST<const InvokeResponseMessage*>(mesage.get())->get_status() >=

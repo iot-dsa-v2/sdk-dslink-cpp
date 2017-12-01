@@ -13,7 +13,7 @@ IncomingListStream::IncomingListStream(ref_<Session>&& session,
                                        Callback&& callback)
     : MessageCacheStream(std::move(session), path, rid),
       _callback(std::move(callback)) {}
-void IncomingListStream::receive_message(MessageCRef&& msg) {
+void IncomingListStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::LIST_RESPONSE) {
     if (_callback != nullptr) {
       _callback(*this, std::move(msg));

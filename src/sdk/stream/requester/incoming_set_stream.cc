@@ -13,7 +13,7 @@ IncomingSetStream::IncomingSetStream(ref_<Session>&& session,
   : MessageCacheStream(std::move(session), path, rid),
     _callback(std::move(callback)) {}
 
-void IncomingSetStream::receive_message(MessageCRef&& msg) {
+void IncomingSetStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::SET_RESPONSE) {
     if (_callback != nullptr) {
       _callback(*this, std::move(msg));

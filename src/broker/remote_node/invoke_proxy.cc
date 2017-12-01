@@ -17,7 +17,7 @@ RemoteInvokeProxy::RemoteInvokeProxy(ref_<OutgoingInvokeStream>&& stream,
     : _out_stream(std::move(stream)), _node(std::move(node)) {
   // check request message
   _out_stream->on_request([ this, keep_ref = get_ref() ](
-      OutgoingInvokeStream&, ref_<const InvokeRequestMessage> && req_msg) {
+      OutgoingInvokeStream&, ref_<InvokeRequestMessage> && req_msg) {
 
     if (req_msg == nullptr) {
       // out stream is closed by requester
@@ -26,8 +26,8 @@ RemoteInvokeProxy::RemoteInvokeProxy(ref_<OutgoingInvokeStream>&& stream,
       destroy();
     } else if (_in_stream == nullptr) {
       // forward the request
+      req_msg->set_target_path(_node->_remote_path);
       _in_stream = _node->_remote_session->requester.invoke(
-          _node->_remote_path,
           [ this, keep_ref = get_ref() ](
               IncomingInvokeStream& in_stream,
               ref_<const InvokeResponseMessage> && resp_msg) {

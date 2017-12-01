@@ -82,7 +82,7 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   return message->get_ref();
 }
 
-void OutgoingListStream::receive_message(MessageCRef &&mesage) {
+void OutgoingListStream::receive_message(ref_<Message> &&mesage) {
   LOG_ERROR(_session->get_strand()->logger(),
             LOG << "unexpected request update on list stream");
 }

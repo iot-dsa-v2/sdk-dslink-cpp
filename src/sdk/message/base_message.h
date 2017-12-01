@@ -168,7 +168,7 @@ class MessageStream : public DestroyableRef<MessageStream> {
   virtual MessageCRef get_next_message(AckCallback&) = 0;
 
   // read message from remote
-  virtual void receive_message(MessageCRef&& msg) = 0;
+  virtual void receive_message(ref_<Message>&& msg) = 0;
 
   // because fake stream also need to extend ref_ , define the following
   // interface here make things simpler. in other programing language these

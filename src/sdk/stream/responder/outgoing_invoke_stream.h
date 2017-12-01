@@ -17,21 +17,21 @@ class InvokeRequestMessage;
 class OutgoingInvokeStream final : public MessageQueueStream {
  public:
   typedef std::function<void(OutgoingInvokeStream &,
-                             ref_<const InvokeRequestMessage> &&)>
+                             ref_<InvokeRequestMessage> &&)>
       Callback;
 
  protected:
   Callback _callback;
 
-  std::vector<ref_<const InvokeRequestMessage> > _waiting_requests;
+  std::vector<ref_<InvokeRequestMessage> > _waiting_requests;
 
   void destroy_impl() final;
 
  public:
   OutgoingInvokeStream(ref_<Session> &&session, const Path &path, uint32_t rid,
-                       ref_<const InvokeRequestMessage> &&msg);
+                       ref_<InvokeRequestMessage> &&msg);
 
-  void receive_message(MessageCRef &&mesage) final;
+  void receive_message(ref_<Message> &&mesage) final;
 
   void on_request(Callback &&callback);
 

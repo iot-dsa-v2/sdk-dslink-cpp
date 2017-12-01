@@ -3,6 +3,8 @@
 #include "requester.h"
 
 #include "core/session.h"
+#include "message/request/invoke_request_message.h"
+#include "message/request/set_request_message.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
 #include "stream/requester/incoming_set_stream.h"
@@ -72,11 +74,12 @@ ref_<IncomingListStream> Requester::list(const string_ &path,
 }
 
 ref_<IncomingInvokeStream> Requester::invoke(
-    const string_ &path, IncomingInvokeStreamCallback &&callback,
+    IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   int32_t rid = next_rid();
-  auto stream = make_ref_<IncomingInvokeStream>(_session.get_ref(), Path(path),
-                                                rid, std::move(callback));
+  auto stream = make_ref_<IncomingInvokeStream>(
+      _session.get_ref(), Path(message->get_target_path()), rid,
+      std::move(callback));
   _incoming_streams[rid] = stream;
 
   stream->invoke(std::move(message));
@@ -85,10 +88,11 @@ ref_<IncomingInvokeStream> Requester::invoke(
 }
 
 ref_<IncomingSetStream> Requester::set(
-    const string_ &path, IncomingSetStreamCallback &&callback,
+    IncomingSetStreamCallback &&callback,
     ref_<const SetRequestMessage> &&message) {
   int32_t rid = next_rid();
-  auto stream = make_ref_<IncomingSetStream>(_session.get_ref(), Path(path),
+  auto stream = make_ref_<IncomingSetStream>(_session.get_ref(),
+                                             Path(message->get_target_path()),
                                              rid, std::move(callback));
   _incoming_streams[rid] = stream;
 

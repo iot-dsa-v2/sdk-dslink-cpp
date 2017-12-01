@@ -94,7 +94,7 @@ void DsLink::destroy_impl() {
   }
 
   // child remove itself from array
-  while(!_subscribe_mergers.empty()) {
+  while (!_subscribe_mergers.empty()) {
     // If you dont create lvalue from it
     // gets heap usage after free error because
     // reference count drops zero in destroy
@@ -103,7 +103,7 @@ void DsLink::destroy_impl() {
   }
 
   // child remove itself from array
-  while(!_list_mergers.empty()) {
+  while (!_list_mergers.empty()) {
     // If you dont create lvalue from it
     // gets heap usage after free error because
     // reference count drops zero in destroy
@@ -223,9 +223,10 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_INFO(strand.get()->logger(), LOG << "DsLink on_connect callback "
-                                            "ignored since it was connected "
-                                            "before\n");
+    LOG_INFO(strand.get()->logger(),
+             LOG << "DsLink on_connect callback "
+                    "ignored since it was connected "
+                    "before\n");
   }
   _app->wait();
   destroy();
@@ -251,16 +252,15 @@ ref_<IncomingListCache> DsLink::list(const string_ &path,
   return merger->list(std::move(callback));
 }
 ref_<IncomingInvokeStream> DsLink::invoke(
-    const string_ &path, IncomingInvokeStreamCallback &&callback,
+    IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
-  return _client->get_session().requester.invoke(path, std::move(callback),
+  return _client->get_session().requester.invoke(std::move(callback),
                                                  std::move(message));
 }
 
-ref_<IncomingSetStream> DsLink::set(const string_ &path,
-                                    IncomingSetStreamCallback &&callback,
+ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
                                     ref_<const SetRequestMessage> &&message) {
-  return _client->get_session().requester.set(path, std::move(callback),
+  return _client->get_session().requester.set(std::move(callback),
                                               std::move(message));
 }
 }

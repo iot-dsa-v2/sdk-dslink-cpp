@@ -31,7 +31,7 @@ class OutgoingSetStream final : public MessageCacheStream {
   OutgoingSetStream(ref_<Session> &&session, const Path &path, uint32_t rid,
                     ref_<const SetRequestMessage> &&message);
 
-  void receive_message(MessageCRef &&mesage) final;
+  void receive_message(ref_<Message> &&mesage) final;
 
   void on_request(Callback &&callback);
 

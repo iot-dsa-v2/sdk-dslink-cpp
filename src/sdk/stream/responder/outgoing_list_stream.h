@@ -34,7 +34,7 @@ class OutgoingListStream final : public MessageRefedStream {
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback &) final;
 
-  void receive_message(MessageCRef &&mesage) final;
+  void receive_message(ref_<Message> &&mesage) final;
 };
 }
 

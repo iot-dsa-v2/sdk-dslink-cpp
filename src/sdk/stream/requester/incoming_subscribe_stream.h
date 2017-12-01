@@ -26,7 +26,7 @@ class IncomingSubscribeStream final : public MessageCacheStream {
   explicit IncomingSubscribeStream(ref_<Session>&& session, const Path& path,
                                    uint32_t rid, Callback&& callback);
 
-  void receive_message(MessageCRef&& msg) final;
+  void receive_message(ref_<Message>&& msg) final;
 
   // send subscription request and update of subscription options
   void subscribe(const SubscribeOptions& options);

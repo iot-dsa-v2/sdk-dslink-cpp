@@ -19,7 +19,7 @@ void OutgoingSetStream::destroy_impl() {
   }
 }
 
-void OutgoingSetStream::receive_message(MessageCRef &&mesage) {
+void OutgoingSetStream::receive_message(ref_<Message> &&mesage) {
   if (_callback != nullptr) {
     _callback(*this, std::move(mesage));
   } else {

@@ -67,7 +67,7 @@ void OutgoingSubscribeStream::set_options(SubscribeOptions &&options) {
   }
 }
 
-void OutgoingSubscribeStream::receive_message(MessageCRef &&message) {
+void OutgoingSubscribeStream::receive_message(ref_<Message> &&message) {
   auto request_message =
       DOWN_CAST<const SubscribeRequestMessage *>(message.get());
   SubscribeOptions old_options = std::move(_options);
