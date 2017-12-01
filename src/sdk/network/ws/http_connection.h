@@ -17,25 +17,22 @@
 
 #include "util/enable_shared.h"
 
-using tcp = boost::asio::ip::tcp;
-namespace http = boost::beast::http;  // from <boost/beast/http.hpp>
-
 namespace dsa {
 
 // Web server side connection.
 // Handles server side of DSA handshake and starts read loop.
 class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
  private:
-  tcp::socket _socket;
+  boost::asio::ip::tcp::socket _socket;
   boost::beast::flat_buffer _buffer;
-  http::request<http::string_body> _req;
+  boost::beast::http::request<boost::beast::http::string_body> _req;
   boost::asio::io_service& _io_service;
 
  public:
   HttpConnection(boost::asio::io_service& io_service)
       : _io_service(io_service), _socket(io_service) {}
   void accept();
-  tcp::socket& socket() { return _socket; }
+  boost::asio::ip::tcp::socket& socket() { return _socket; }
 };
 }  // namespace dsa
 
