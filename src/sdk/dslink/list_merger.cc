@@ -38,14 +38,10 @@ void ListMerger::destroy_impl() {
     _stream.reset();
   }
 
-  // child remove itself from array
-  while (!caches.empty()) {
-    // If you dont create lvalue from it
-    // gets heap usage after free error because
-    // reference count drops zero in destroy
-    auto p = *caches.begin();
-    p->destroy();
+  for(auto it:caches) {
+    it->destroy();
   }
+  caches.clear();
 
   _changes.clear();
 }
