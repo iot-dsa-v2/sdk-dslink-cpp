@@ -6,5 +6,6 @@
 #include "responder/node_model.h"
 #include "responder/node_state_manager.h"
 #include "responder/node_state.h"
+#include "responder/invoke_node_model.h"
 
 #endif  // DSA_RESPONDER_H_

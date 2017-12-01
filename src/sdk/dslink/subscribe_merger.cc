@@ -18,12 +18,10 @@ IncomingSubscribeCache::IncomingSubscribeCache(
 void IncomingSubscribeCache::destroy_impl() {
   _merger->remove(get_ref());
   _merger.reset();
-  _callback= nullptr;
+  _callback = nullptr;
 }
 
-void IncomingSubscribeCache::close() {
-  destroy();
-}
+void IncomingSubscribeCache::close() { destroy(); }
 
 SubscribeMerger::SubscribeMerger(ref_<DsLink>&& link, const string_& path)
     : _link(std::move(link)),
@@ -38,7 +36,7 @@ void SubscribeMerger::destroy_impl() {
   _cached_value.reset();
 
   // child remove itself from array
-  while(!caches.empty()) {
+  while (!caches.empty()) {
     // If you dont create lvalue from it
     // gets heap usage after free error because
     // reference count drops zero in destroy
@@ -48,7 +46,7 @@ void SubscribeMerger::destroy_impl() {
 
   if (_stream != nullptr) {
     _stream->close();
-    _stream->destroy();
+    // stream can't be destroyed here to make sure the request is canceled
     _stream.reset();
   }
 }
@@ -56,7 +54,8 @@ void SubscribeMerger::destroy_impl() {
 ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
     IncomingSubscribeCache::Callback&& callback,
     const SubscribeOptions& options) {
-  auto cache = make_ref_<IncomingSubscribeCache>(get_ref(), std::move(callback), options);
+  auto cache = make_ref_<IncomingSubscribeCache>(get_ref(), std::move(callback),
+                                                 options);
 
   caches.emplace(cache);
 
@@ -99,7 +98,7 @@ void SubscribeMerger::check_subscribe_options() {
 }
 
 void SubscribeMerger::remove(const ref_<IncomingSubscribeCache>& cache) {
-  cache->destroy();
+  if (is_destroyed()) return;
   caches.erase(cache);
   if (caches.empty()) {
     destroy();

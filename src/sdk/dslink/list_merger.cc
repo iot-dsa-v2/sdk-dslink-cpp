@@ -16,10 +16,13 @@ IncomingListCache::IncomingListCache(ref_<ListMerger>&& merger,
 void IncomingListCache::destroy_impl() {
   _merger->remove(get_ref());
   _merger.reset();
-  _callback= nullptr; }
+  _callback = nullptr;
+}
 
 const VarMap& IncomingListCache::get_map() const { return _merger->_map; }
-MessageStatus IncomingListCache::get_status() const { return _merger->_last_status; }
+MessageStatus IncomingListCache::get_status() const {
+  return _merger->_last_status;
+}
 
 ListMerger::ListMerger(ref_<DsLink>&& link, const string_& path)
     : _link(std::move(link)), _path(path) {}
@@ -31,12 +34,12 @@ void ListMerger::destroy_impl() {
 
   if (_stream != nullptr) {
     _stream->close();
-    _stream->destroy();
+    // stream can't be destroyed here to make sure the request is canceled
     _stream.reset();
   }
 
   // child remove itself from array
-  while(!caches.empty()) {
+  while (!caches.empty()) {
     // If you dont create lvalue from it
     // gets heap usage after free error because
     // reference count drops zero in destroy
@@ -100,6 +103,8 @@ void ListMerger::new_list_response(ref_<const ListResponseMessage>&& message) {
 }
 
 void ListMerger::remove(const ref_<IncomingListCache>& cache) {
+  if (is_destroyed()) return;
+
   caches.erase(cache);
   if (caches.empty()) {
     destroy();

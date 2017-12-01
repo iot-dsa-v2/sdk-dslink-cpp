@@ -6,6 +6,8 @@
 #endif
 
 #include <unordered_map>
+
+#include "invoke_proxy.h"
 #include "responder/model_base.h"
 
 namespace dsa {
@@ -16,6 +18,8 @@ class IncomingSubscribeStream;
 class IncomingListStream;
 
 class RemoteNode : public NodeModelBase {
+  friend class RemoteInvokeProxy;
+
   const string_ _remote_path;
   ref_<Session> _remote_session;
 
@@ -31,7 +35,7 @@ class RemoteNode : public NodeModelBase {
   bool allows_runtime_child_change() override { return true; }
   ModelRef on_demand_create_child(const Path &path) override;
 
-protected:
+ protected:
   void destroy_impl() override;
 
   /// subscribe
@@ -52,6 +56,11 @@ protected:
   void on_unlist() override;
 
   /// invoke
+ protected:
+  std::unordered_map<RemoteInvokeProxy *, ref_<RemoteInvokeProxy>>
+      _invoke_streams;
+  void remove_invoke(RemoteInvokeProxy *invoke_proxy);
+
  public:
   void invoke(ref_<OutgoingInvokeStream> &&stream,
               ref_<NodeState> &parent) override;

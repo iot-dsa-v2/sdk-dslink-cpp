@@ -41,7 +41,7 @@ class Responder {
  public:
   explicit Responder(Session &session);
 
-  bool remove_stream(int32_t rid);
+  bool destroy_stream(int32_t rid);
 };
 
 }  // namespace dsa

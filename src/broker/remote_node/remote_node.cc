@@ -4,8 +4,11 @@
 
 #include "core/session.h"
 #include "message/response/list_response_message.h"
+#include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
+#include "stream/responder/outgoing_invoke_stream.h"
+#include "message/request/invoke_request_message.h"
 
 namespace dsa {
 
@@ -20,7 +23,17 @@ ModelRef RemoteNode::on_demand_create_child(const Path &path) {
   return ModelRef();
 }
 
-void RemoteNode::destroy_impl() { NodeModelBase::destroy_impl(); }
+void RemoteNode::destroy_impl() {
+  if (_remote_list_stream != nullptr) {
+    _remote_list_stream->close();
+    _remote_list_stream.reset();
+  }
+  if (_remote_subscribe_stream != nullptr) {
+    _remote_subscribe_stream->close();
+    _remote_subscribe_stream.reset();
+  }
+  NodeModelBase::destroy_impl();
+}
 
 void RemoteNode::on_subscribe(const SubscribeOptions &options,
                               bool first_request) {
@@ -70,9 +83,16 @@ void RemoteNode::on_unlist() {
 
 void RemoteNode::invoke(ref_<OutgoingInvokeStream> &&stream,
                         ref_<NodeState> &parent) {
-  // TODO
+  RemoteInvokeProxy *p = new RemoteInvokeProxy(std::move(stream), get_ref());
+  _invoke_streams.emplace(p, p->get_ref());
 }
-
+void RemoteNode::remove_invoke(RemoteInvokeProxy *invoke_proxy) {
+  if (is_destroyed()) return;
+  auto search = _invoke_streams.find(invoke_proxy);
+  if (search != _invoke_streams.end()) {
+    _invoke_streams.erase(search);
+  }
+}
 void RemoteNode::set(ref_<OutgoingSetStream> &&stream) {
   // TODO
 }
