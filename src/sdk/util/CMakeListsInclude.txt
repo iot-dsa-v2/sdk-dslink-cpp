@@ -7,7 +7,8 @@ list(APPEND UtilSourceFiles
         enable_ref.h
         enable_shared.h
         exception.h
-        little_endian.h)
+        little_endian.h
+        string.h)
 
 foreach (file ${UtilSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_UTIL}/${file})

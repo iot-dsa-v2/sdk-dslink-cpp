@@ -3,12 +3,13 @@
 #include "remote_node.h"
 
 #include "core/session.h"
+#include "message/request/invoke_request_message.h"
 #include "message/response/list_response_message.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
-#include "message/request/invoke_request_message.h"
+#include "util/string.h"
 
 namespace dsa {
 
@@ -20,7 +21,9 @@ RemoteNode::RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
 RemoteNode::~RemoteNode() = default;
 
 ModelRef RemoteNode::on_demand_create_child(const Path &path) {
-  return ModelRef();
+  return make_ref_<RemoteNode>(_strand->get_ref(),
+                               str_join_path(_remote_path, path.remain_str()),
+                               _remote_session->get_ref());
 }
 
 void RemoteNode::destroy_impl() {

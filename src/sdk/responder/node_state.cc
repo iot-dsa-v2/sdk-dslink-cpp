@@ -68,10 +68,10 @@ ref_<NodeState> NodeState::create_child(const Path &path,
     if (path.is_last()) {
       new_state->_path = path;
       if (_model_status == MODEL_UNKNOWN) {
-        set_model(last_modeled_state._model->on_demand_create_child(
+        new_state->set_model(last_modeled_state._model->on_demand_create_child(
             path.move_pos(last_modeled_state._path.current_pos() + 1)));
       } else if (_model_status == MODEL_CONNECTED) {
-        set_model(_model->on_demand_create_child(path));
+        new_state->set_model(_model->on_demand_create_child(path));
       } else {
         new_state->_model_status = _model_status;
       }

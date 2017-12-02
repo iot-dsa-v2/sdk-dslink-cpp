@@ -9,20 +9,18 @@
 #include "module/logger.h"
 #include "responder/invoke_node_model.h"
 #include "responder/node_model.h"
+#include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
-#include "stream/requester/incoming_invoke_stream.h"
 
 using namespace dsa;
 
 namespace broker_downstream_test {
 
-class MockNodeRoot : public InvokeNodeModel {
+class MockNodeAction : public InvokeNodeModel {
  public:
-  explicit MockNodeRoot(LinkStrandRef strand)
-      : InvokeNodeModel(std::move(strand)) {
-    set_value(Var("hello world"));
-  };
+  explicit MockNodeAction(LinkStrandRef strand)
+      : InvokeNodeModel(std::move(strand)){};
 
   void on_invoke(ref_<OutgoingInvokeStream>&& stream,
                  ref_<NodeState>& parent) final {
@@ -39,6 +37,20 @@ class MockNodeRoot : public InvokeNodeModel {
     });
   }
 };
+
+class MockNodeValue : public NodeModel {
+ public:
+  explicit MockNodeValue(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+    set_value(Var("hello world"));
+  };
+};
+class MockNodeRoot : public NodeModel {
+ public:
+  explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+    add_list_child("value", make_ref_<MockNodeValue>(_strand));
+    add_list_child("action", make_ref_<MockNodeAction>(_strand));
+  };
+};
 }
 
 TEST(BrokerDownstreamTest, Subscribe) {
@@ -53,7 +65,7 @@ TEST(BrokerDownstreamTest, Subscribe) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test", [&](IncomingSubscribeStream& stream,
+        "downstream/test/value", [&](IncomingSubscribeStream& stream,
                                ref_<const SubscribeResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
 
@@ -82,9 +94,8 @@ TEST(BrokerDownstreamTest, Invoke) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
-    ref_<InvokeRequestMessage> invoke_req =
-        make_ref_<InvokeRequestMessage>();
-    invoke_req->set_target_path("downstream/test");
+    ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
+    invoke_req->set_target_path("downstream/test/action");
     invoke_req->set_value(Var("hello"));
 
     tcp_client->get_session().requester.invoke(
