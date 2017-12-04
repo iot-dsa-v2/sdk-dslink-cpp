@@ -20,7 +20,7 @@ WrapperStrand get_client_wrapper_strand(const shared_ptr_<DsBroker>& broker,
   client_strand.tcp_host = "127.0.0.1";
   client_strand.tcp_port = broker->get_config()->port().get_value().get_int();
 
-  client_strand.strand = TestConfig::make_editable_strand(app);
+  client_strand.strand = EditableStrand::make_default(app);
   client_strand.client_connection_maker =
       [
         dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,

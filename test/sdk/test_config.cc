@@ -16,34 +16,15 @@
 
 namespace dsa {
 
-ref_<EditableStrand> TestConfig::make_editable_strand(
-    const shared_ptr_<App> &app, bool async) {
-  auto config =
-      make_ref_<EditableStrand>(app->new_strand(), make_unique_<ECDH>());
-
-  config->set_session_manager(make_ref_<SimpleSessionManager>(config));
-
-  if (async) {
-    config->set_security_manager(
-        make_ref_<AsyncSimpleSecurityManager>(config->get_ref()));
-  } else {
-    config->set_security_manager(make_ref_<SimpleSecurityManager>());
-  }
-
-  config->set_logger(make_unique_<ConsoleLogger>());
-  config->logger().level = Logger::WARN__;
-
-  return config;
-}
-
-TestConfig::TestConfig(std::shared_ptr<App> app, bool async) : WrapperStrand() {
+TestConfig::TestConfig(std::shared_ptr<App> &app, bool async)
+    : WrapperStrand() {
   this->app = app;
-  strand = make_editable_strand(app, async);
+  strand = EditableStrand::make_default(app);
 
   tcp_server_port = 0;
 }
 
-WrapperStrand TestConfig::get_client_wrapper_strand(bool async) {
+WrapperStrand TestConfig::get_client_wrapper_strand() {
   if (tcp_server_port == 0) {
     throw "There is no server to connect right now. Please create a server first";
   }
@@ -54,7 +35,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand(bool async) {
   copy.tcp_host = "127.0.0.1";
   copy.tcp_port = tcp_server_port;
 
-  copy.strand = make_editable_strand(app, async);
+  copy.strand = EditableStrand::make_default(app);
   copy.strand->logger().level = strand->logger().level;
   copy.client_connection_maker =
       [

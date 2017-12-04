@@ -1,17 +1,15 @@
+#include "dsa/message.h"
+#include "dsa/responder.h"
+#include "dsa/stream.h"
+#include "dsa/util.h"
 
 #include "../util/broker_runner.h"
 #include "broker.h"
 #include "config/broker_config.h"
-#include "dsa/util.h"
 #include "gtest/gtest.h"
-#include "message/request/invoke_request_message.h"
-#include "message/response/invoke_response_message.h"
+
 #include "module/logger.h"
-#include "responder/invoke_node_model.h"
-#include "responder/node_model.h"
-#include "stream/requester/incoming_invoke_stream.h"
-#include "stream/requester/incoming_subscribe_stream.h"
-#include "stream/responder/outgoing_invoke_stream.h"
+#include "core/client.h"
 
 using namespace dsa;
 
@@ -54,7 +52,7 @@ class MockNodeRoot : public NodeModel {
 }
 
 TEST(BrokerDownstreamTest, Subscribe) {
-  using MockNodeRoot = broker_downstream_test::MockNodeRoot;
+  typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
@@ -65,8 +63,9 @@ TEST(BrokerDownstreamTest, Subscribe) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test/value", [&](IncomingSubscribeStream& stream,
-                               ref_<const SubscribeResponseMessage>&& msg) {
+        "downstream/test/value",
+        [&](IncomingSubscribeStream& stream,
+            ref_<const SubscribeResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
 
           // end the test
@@ -83,7 +82,7 @@ TEST(BrokerDownstreamTest, Subscribe) {
 }
 
 TEST(BrokerDownstreamTest, Invoke) {
-  using MockNodeRoot = broker_downstream_test::MockNodeRoot;
+  typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();

@@ -14,11 +14,9 @@ class TestConfig : public WrapperStrand {
   std::shared_ptr<App> app;
 
  public:
-  static ref_<EditableStrand> make_editable_strand(const shared_ptr_<App> &app,
-                                                   bool async = false);
-  explicit TestConfig(std::shared_ptr<App> app, bool async = false);
+  explicit TestConfig(std::shared_ptr<App>& app, bool async = false);
 
-  WrapperStrand get_client_wrapper_strand(bool async = false);
+  WrapperStrand get_client_wrapper_strand();
 
   std::shared_ptr<TcpServer> create_server();
   ref_<DsLink> create_dslink(bool async = true);

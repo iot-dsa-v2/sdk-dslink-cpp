@@ -23,7 +23,6 @@ set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_test_util>)
 
 #
 add_library(dsa_test_config OBJECT
-              config-test.cc
            )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_test_config>)
 

@@ -172,7 +172,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   tcp_server->start();
 
   WrapperStrand client_strand =
-      server_strand.get_client_wrapper_strand(true);
+      server_strand.get_client_wrapper_strand();
 
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();

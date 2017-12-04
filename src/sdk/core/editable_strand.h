@@ -14,6 +14,7 @@ namespace dsa {
 
 class NodeModelBase;
 class Connection;
+class App;
 
 typedef ref_<NodeModelBase> ModelRef;
 
@@ -32,6 +33,9 @@ class EditableStrand : public LinkStrand {
   std::unique_ptr<Logger> _logger;
 
  public:
+  // simple version for testing purpose
+  static ref_<EditableStrand> make_default(shared_ptr_<App> app);
+
   explicit EditableStrand(boost::asio::io_service::strand* strand,
                       std::unique_ptr<ECDH>&& ecdh);
   ~EditableStrand() override;

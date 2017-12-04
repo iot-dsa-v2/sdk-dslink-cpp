@@ -5,7 +5,6 @@
 #pragma once
 #endif
 
-#include "../../sdk/test_config.h"
 #include "broker.h"
 
 namespace dsa {
