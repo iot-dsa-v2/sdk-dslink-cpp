@@ -22,11 +22,6 @@ add_library(dsa_test_util OBJECT
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_test_util>)
 
 #
-add_library(dsa_test_config OBJECT
-           )
-set(SOURCES ${SOURCES} $<TARGET_OBJECTS:dsa_test_config>)
-
-#
 set(SOURCES ${SOURCES} PARENT_SCOPE)
 
 set(TARGET_NAME "sdk-test")
