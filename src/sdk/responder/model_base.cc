@@ -80,7 +80,7 @@ void NodeModelBase::set_value(MessageValue &&value) {
     _state->new_subscribe_response(copy_ref_(_cached_value));
   }
 }
-void NodeModelBase::set_message(SubscribeResponseMessageCRef &&message) {
+void NodeModelBase::set_subscribe_response(SubscribeResponseMessageCRef &&message) {
   _cached_value = std::move(message);
   if (_need_subscribe) {
     _state->new_subscribe_response(copy_ref_(_cached_value));

@@ -171,7 +171,7 @@ int main(int argc, const char *argv[]) {
             }
           } else {
             for (int i = 0; i < num_message; ++i) {
-              root_node->set_message(copy_ref_(cached_message));
+              root_node->set_subscribe_response(copy_ref_(cached_message));
             }
           }
         }

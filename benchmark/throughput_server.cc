@@ -25,7 +25,7 @@ namespace opts = boost::program_options;
 
 class TestConfigExt : public TestConfig {
  public:
-  TestConfigExt(std::shared_ptr<App> app, std::string host_ip_address, bool async = false)
+  TestConfigExt(std::shared_ptr<App> &app, std::string host_ip_address, bool async = false)
       : TestConfig(app, async) {
     tcp_host = host_ip_address;
   }

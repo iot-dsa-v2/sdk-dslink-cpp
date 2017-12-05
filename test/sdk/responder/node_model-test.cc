@@ -198,7 +198,7 @@ TEST(ResponderTest, model__set_value) {
 
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Var(0));
-  root_node->set_message(copy_ref_(cached_message));
+  root_node->set_subscribe_response(copy_ref_(cached_message));
 
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);

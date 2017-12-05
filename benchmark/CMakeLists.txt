@@ -19,11 +19,10 @@ endif ()
 
 #
 foreach (name "throughput"
-              "throughput_server"
-              "throughput_client"
-              "message_queue"
- #             "broker_responder"
- #             "broker_requester"
+#              "throughput_server"
+#              "throughput_client"
+#              "message_queue"
+              "broker_throughput"
 )
     set(SOURCES "${name}.cc" $<TARGET_OBJECTS:dsa_test_util>)
     add_executable(${name} ${SOURCES})

@@ -68,7 +68,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
  public:
   void set_value(Var &&value);
   void set_value(MessageValue &&value);
-  void set_message(SubscribeResponseMessageCRef &&message);
+  void set_subscribe_response(SubscribeResponseMessageCRef &&message);
 
   /// list
  protected:

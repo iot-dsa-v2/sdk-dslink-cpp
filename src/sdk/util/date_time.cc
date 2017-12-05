@@ -5,9 +5,8 @@
 #include <chrono>
 #include <iomanip>
 
-
 #if _MSC_VER
-#define localtime_r(a,b) localtime_s(b,a)
+#define localtime_r(a, b) localtime_s(b, a)
 #endif
 
 namespace dsa {
@@ -49,5 +48,11 @@ const string_& DateTime::get_ts() {
     update_ts(now);
   }
   return _last_ts;
+}
+int64_t DateTime::time_since_epoch() {
+  auto now = std::chrono::system_clock::now();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+             now.time_since_epoch())
+      .count();
 }
 }

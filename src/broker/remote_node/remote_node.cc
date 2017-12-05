@@ -45,7 +45,7 @@ void RemoteNode::on_subscribe(const SubscribeOptions &options,
         _remote_path, [ this, keep_ref = get_ref() ](
                           IncomingSubscribeStream &,
                           ref_<const SubscribeResponseMessage> && msg) {
-          set_message(std::move(msg));
+        set_subscribe_response(std::move(msg));
         },
         options);
   } else {
