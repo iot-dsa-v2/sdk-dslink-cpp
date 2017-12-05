@@ -22,29 +22,46 @@ TEST(WebServerTest, basic_flow) {
   web_server->start();
 
   // client
-  const string_ dsid_prefix = "ws_";
-  const string_ ws_host = "127.0.0.1";
-  uint16_t ws_port = 8080;
   TestConfig test_config(app, false);
-  LinkStrandRef link_strand(std::move(test_config.strand));
+  WrapperStrand config;
+  const string_ dsid_prefix = "ws_";
+  config.ws_host = "127.0.0.1";
+  config.ws_port = 8080;
+  config.ws_path = "/";
 
-  // Simplified websocket client
-  auto client = make_shared_<WsClientConnection>(link_strand, dsid_prefix, ws_host,
-                                           ws_port);
-  client->set_session(make_ref_<Session>(link_strand, ""));
-  client->connect(60);
+  config.strand = EditableStrand::make_default(app);
+  config.strand->logger().level = test_config.strand->logger().level;
+  config.client_connection_maker =
+      [
+        dsid_prefix = dsid_prefix, ws_host = config.ws_host,
+        ws_port = config.ws_port
+      ](LinkStrandRef & strand, const string_ &previous_session_id,
+        int32_t last_ack_id) {
+    return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
+                                             ws_port);
+  };
 
-  ASYNC_EXPECT_TRUE(500, *link_strand, [&]() {
-    if (client->session()->is_connected()) {
-      return true;
+  ref_<Client> client(new Client(config));
+  client->connect();
+
+  ASYNC_EXPECT_TRUE(500, *config.strand, [&]() {
+    if (!client->get_session().is_connected()) {
+      return false;
     }
-    return false;
+    return true;
   });
 
   app->close();
 
+  //  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+
+  config.destroy();
   test_config.destroy();
-  //  app->wait();
+  app->wait();
 
     /*
   web_server->listen(port = 80);
