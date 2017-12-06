@@ -9,6 +9,7 @@
 #include <boost/asio/strand.hpp>
 
 #include "http_connection.h"
+#include "listener.h"
 
 namespace dsa {
 
@@ -16,15 +17,9 @@ class App;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  private:
-  uint16_t _port;
-
   boost::asio::io_service& _io_service;
-  shared_ptr_<boost::asio::io_service::strand> _strand;
-  std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
-  shared_ptr_<HttpConnection> _next_connection;
-  LinkStrandRef _link_strand;
-
-  void accept_loop(const boost::system::error_code& error);
+  uint16_t _port;
+  std::unique_ptr<Listener> _listener;
 
  public:
   typedef std::function<void(WebServer&)> HttpCallback;
@@ -33,6 +28,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   WebServer(App& app);
   ~WebServer();
 
+  void listen(uint16_t port = 80);
   void start();
   void destroy();
 

@@ -19,6 +19,7 @@ TEST(WebServerTest, basic_flow) {
 
   // server
   auto web_server = std::make_shared<WebServer>(*app);
+  web_server->listen(8080);
   web_server->start();
 
   // client
