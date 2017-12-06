@@ -25,8 +25,8 @@ option(INCLUDE_BROKER "build dsa broker" ON)
 
 option(INCLUDE_MODULE_PACK "Include set additional modules" OFF)
 
-add_subdirectory("${CMAKE_SOURCE_DIR}/deps/msgpack-build")
-add_subdirectory("${CMAKE_SOURCE_DIR}/deps/jansson-build")
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/msgpack-build")
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/jansson-build")
 add_subdirectory("./src")
 add_subdirectory("./test")
 add_subdirectory("./benchmark")

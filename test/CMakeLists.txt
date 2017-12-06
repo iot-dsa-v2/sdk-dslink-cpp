@@ -1,6 +1,6 @@
 if (UNIX)
     # Download and unpack googletest-download at configure time
-    configure_file(CMakeLists.txt.in lib/googletest-download/CMakeLists.txt)
+    configure_file(CMakeLists.txt.in ${CMAKE_BINARY_DIR}/test/lib/googletest-download/CMakeLists.txt)
     execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
             RESULT_VARIABLE result
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/lib/googletest-download)
