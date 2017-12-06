@@ -18,7 +18,7 @@ class Listener : public std::enable_shared_from_this<Listener> {
  private:
   uint16_t _port;
   boost::asio::io_service& _io_service;
-  std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
+  std::shared_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   std::shared_ptr<HttpConnection> _next_connection;
 
  public:

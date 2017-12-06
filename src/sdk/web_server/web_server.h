@@ -19,7 +19,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
  private:
   boost::asio::io_service& _io_service;
   uint16_t _port;
-  std::unique_ptr<Listener> _listener;
+  std::shared_ptr<Listener> _listener;
 
  public:
   typedef std::function<void(WebServer&)> HttpCallback;

@@ -16,7 +16,9 @@ void WebServer::listen(uint16_t port) {
 }
 
 void WebServer::start() {
-  _listener->run();
+  if (_listener != nullptr) {
+    _listener->run();
+  }
 }
 
 WebServer::~WebServer() = default;

@@ -20,7 +20,6 @@
 namespace dsa {
 
 // Web server side connection.
-// Handles server side of DSA handshake and starts read loop.
 class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
  private:
   boost::asio::ip::tcp::socket _socket;
