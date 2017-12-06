@@ -17,5 +17,5 @@ add_library(${TARGET_NAME} OBJECT
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)
 
-include_directories(${CMAKE_SOURCE_DIR}/deps/msgpack/include)
+include_directories(${SDK_PROJECT_SOURCE_DIR}/deps/msgpack/include)
 

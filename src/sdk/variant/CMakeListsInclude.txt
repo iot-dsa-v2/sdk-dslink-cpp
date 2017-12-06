@@ -7,7 +7,6 @@ list(APPEND VariantSourceFiles
 foreach(file ${VariantSourceFiles})
   list(APPEND ProjectSourceFiles ${LIB_VARIANT}/${file})
 endforeach()
-
-include_directories(${CMAKE_SOURCE_DIR}/deps/msgpack/include)
-include_directories(${CMAKE_SOURCE_DIR}/deps/jansson/src)
-include_directories(${CMAKE_BINARY_DIR}/deps/jansson-build/include)
+include_directories(${SDK_PROJECT_SOURCE_DIR}/deps/msgpack/include)
+include_directories(${SDK_PROJECT_SOURCE_DIR}/deps/jansson/src)
+include_directories(${SDK_PROJECT_BINARY_DIR}/deps/jansson-build/include)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6.2)
 project(sdk-dslink-cpp)
 
-include_directories(${PROJECT_INCLUDE_DIR})
+include_directories(${SDK_PROJECT_INCLUDE_DIR})
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/sdk")
 
