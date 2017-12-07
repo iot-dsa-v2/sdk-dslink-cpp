@@ -39,7 +39,7 @@ class WsConnection : public Connection {
   };
 
  protected:
-  void read_loop_(shared_ptr_<WsConnection> &&connection, size_t from_prev,
+  void read_loop_(shared_ptr_<Connection> &&connection, size_t from_prev,
                   const boost::system::error_code &error,
                   size_t bytes_transferred);
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
@@ -48,7 +48,6 @@ class WsConnection : public Connection {
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
   websocket_stream _ws;
-
   std::atomic_bool _ws_open{true};
 
   void on_deadline_timer_(const boost::system::error_code &error,
@@ -60,7 +59,7 @@ class WsConnection : public Connection {
   WsConnection(websocket_stream &ws, LinkStrandRef &strand,
                const string_ &dsid_prefix, const string_ &path = "");
 
-  void start_read(shared_ptr_<WsConnection> &&connection, size_t cur = 0,
+  void start_read(shared_ptr_<Connection> &&connection, size_t cur = 0,
                   size_t next = 0);
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
