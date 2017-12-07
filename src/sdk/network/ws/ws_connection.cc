@@ -35,9 +35,9 @@ void WsConnection::destroy_impl() {
   Connection::destroy_impl();
 }
 
-void WsConnection::start_read(shared_ptr_<WsConnection> &&connection,
+void WsConnection::start_read(shared_ptr_<Connection> &&connection,
                               size_t cur, size_t next) {
-  std::vector<uint8_t> &buffer = connection->_read_buffer;
+  std::vector<uint8_t> &buffer = _read_buffer;
   size_t partial_size = next - cur;
   if (cur > 0) {
     std::copy(buffer.data() + cur, buffer.data() + next, buffer.data());
@@ -45,8 +45,7 @@ void WsConnection::start_read(shared_ptr_<WsConnection> &&connection,
   if (next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
-  websocket_stream &ws = connection->_ws;
-  ws.async_read_some(
+  _ws.async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
       [ this, connection = std::move(connection), partial_size ](
           const boost::system::error_code &err, size_t transferred) mutable {
@@ -54,7 +53,7 @@ void WsConnection::start_read(shared_ptr_<WsConnection> &&connection,
       });
 }
 
-void WsConnection::read_loop_(shared_ptr_<WsConnection> &&connection,
+void WsConnection::read_loop_(shared_ptr_<Connection> &&connection,
                               size_t from_prev,
                               const boost::system::error_code &error,
                               size_t bytes_transferred) {
