@@ -5,10 +5,10 @@
 #pragma once
 #endif
 
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/strand.hpp>
+#include <boost/beast/http.hpp>
 
-#include "http_connection.h"
 #include "listener.h"
 
 #include <map>
@@ -57,7 +57,6 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   WsCallback&& ws_handler(const string_& path);
 
   // util functions
- public:
   void send_error(int error_code, const string_ msg = "");
 };
 

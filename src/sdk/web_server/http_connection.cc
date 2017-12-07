@@ -1,10 +1,9 @@
 #include "dsa_common.h"
 
 #include <boost/asio/strand.hpp>
+#include <boost/beast/websocket.hpp>
 
 #include "http_connection.h"
-#include "module/default/simple_session_manager.h"
-#include "network/ws/ws_server_connection.h"
 #include "web_server.h"
 
 namespace websocket =
@@ -12,9 +11,13 @@ namespace websocket =
 
 namespace dsa {
 
+HttpConnection::HttpConnection(WebServer& web_server)
+      : _web_server(web_server), 
+        _socket(_web_server.io_service()) {}
+
 void HttpConnection::accept() {
   // Read a request
-  http::async_read(
+  boost::beast::http::async_read(
       _socket, _buffer, _req,
       // TODO: run within the strand?
       [ this, sthis = shared_from_this() ](

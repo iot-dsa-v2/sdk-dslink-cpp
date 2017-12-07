@@ -74,13 +74,4 @@ TEST(WebServerTest, basic_flow) {
   config.destroy();
   test_config.destroy();
   //  app->wait();
-
-  /*
-web_server->listen(port = 80);
-web_server->listen_secure(port=443);
-
-
-web_server->add_ws_handler(.... [](){
-new WsConnection();
-  */
 }

@@ -3,7 +3,6 @@
 #include "web_server.h"
 
 #include "util/app.h"
-#include "util/enable_shared.h"
 
 namespace dsa {
 
@@ -11,7 +10,7 @@ WebServer::WebServer(App& app) : _io_service(app.io_service()) {}
 
 void WebServer::listen(uint16_t port) {
   _port = port;
-  _listener = std::shared_ptr<Listener>(new Listener(*this, _io_service, port));
+  _listener = std::shared_ptr<Listener>(new Listener(*this, port));
 }
 
 void WebServer::start() {
