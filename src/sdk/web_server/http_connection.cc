@@ -1,11 +1,11 @@
 #include "dsa_common.h"
 
-#include "http_connection.h"
-
 #include <boost/asio/strand.hpp>
 
-#include "network/ws/ws_server_connection.h"
+#include "http_connection.h"
 #include "module/default/simple_session_manager.h"
+#include "network/ws/ws_server_connection.h"
+#include "web_server.h"
 
 namespace websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
@@ -23,31 +23,9 @@ void HttpConnection::accept() {
         // TODO: check error/termination conditions
 
         if (websocket::is_upgrade(_req)) {
-          // accept the websocket handshake
-
-          auto *config = new EditableStrand(
-              new boost::asio::io_service::strand(_io_service),
-              make_unique_<ECDH>());
-          config->set_session_manager(make_ref_<SimpleSessionManager>(config));
-          config->set_security_manager(make_ref_<SimpleSecurityManager>());
-          config->set_logger(make_unique_<ConsoleLogger>());
-          config->logger().level = Logger::WARN__;
-
-          LinkStrandRef _link_strand;
-
-          _link_strand.reset(config);
-
-          auto conn = make_shared_<WsServerConnection>(
-              *new websocket_stream{std::move(_socket)}, _link_strand);
-
-          conn->websocket().async_accept(
-              _req, [conn, this](const boost::system::error_code &error) {
-
-                // TODO: run within the strand?
-                conn->accept();
-
-                return;
-              });  // async_accept
+          // call corresponding server's callback
+          _web_server.ws_handler(_req.target().to_string())(
+              _web_server, std::move(_socket), std::move(_req));
         }
         return;
       });  // async_read

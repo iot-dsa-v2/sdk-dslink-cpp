@@ -11,20 +11,36 @@
 #include "http_connection.h"
 #include "listener.h"
 
+#include <map>
+
 namespace dsa {
 
 class App;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
+ public:
+  typedef std::function<void(
+      WebServer&, 
+      boost::asio::ip::tcp::socket&&,
+      boost::beast::http::request<boost::beast::http::string_body>)>
+      HttpCallback;
+  typedef std::function<void(
+      WebServer&,
+      boost::asio::ip::tcp::socket&&,
+      boost::beast::http::request<boost::beast::http::string_body>)>
+      WsCallback;
+
  private:
   boost::asio::io_service& _io_service;
   uint16_t _port;
   std::shared_ptr<Listener> _listener;
 
- public:
-  typedef std::function<void(WebServer&)> HttpCallback;
-  typedef std::function<void(WebServer&)> WsCallback;
+  // http/ws callbacks
+  typedef std::pair<const string_, WsCallback&&> WsCallbackPair;
+  typedef std::map<const string_, WsCallback&&> WsCallbackMap;
+  WsCallbackMap _ws_callback_map;
 
+ public:
   WebServer(App& app);
   ~WebServer();
 
@@ -32,9 +48,13 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   void start();
   void destroy();
 
+  //
+  boost::asio::io_service& io_service() { return _io_service; }
   // HTTP server specific methods
   void add_http_handler(const string_& path, HttpCallback&& callback);
   void add_ws_handler(const string_& path, WsCallback&& callback);
+  HttpCallback& http_handler(const string_& path);
+  WsCallback&& ws_handler(const string_& path);
 
   // util functions
  public:

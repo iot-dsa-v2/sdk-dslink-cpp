@@ -1,5 +1,8 @@
 #include "dsa_common.h"
-#include "core/session.h"
+
+#include <boost/beast/http.hpp>
+
+#include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
 #include "util/app.h"
 #include "util/enable_shared.h"
@@ -15,12 +18,20 @@ using namespace dsa;
 TEST(WebServerTest, basic_flow) {
   auto app = make_shared_<App>();
 
-// auto web_server = make_shared_<WebServer>(&app, cert);
+  // auto web_server = make_shared_<WebServer>(&app, cert);
 
   // server
   auto web_server = std::make_shared<WebServer>(*app);
   web_server->listen(8080);
   web_server->start();
+  WebServer::WsCallback root_cb = [](
+      WebServer& web_server,
+      boost::asio::ip::tcp::socket&& socket,
+      boost::beast::http::request<boost::beast::http::string_body> req) {
+    DsaWsCallback()(web_server.io_service(), std::move(socket), std::move(req));
+  };
+
+  web_server->add_ws_handler("/", std::move(root_cb));
 
   // client
   TestConfig test_config(app, false);
@@ -36,10 +47,10 @@ TEST(WebServerTest, basic_flow) {
       [
         dsid_prefix = dsid_prefix, ws_host = config.ws_host,
         ws_port = config.ws_port
-      ](LinkStrandRef & strand, const string_ &previous_session_id,
+      ](LinkStrandRef & strand, const string_& previous_session_id,
         int32_t last_ack_id) {
     return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                             ws_port);
+                                            ws_port);
   };
 
   ref_<Client> client(new Client(config));
@@ -64,13 +75,12 @@ TEST(WebServerTest, basic_flow) {
   test_config.destroy();
   //  app->wait();
 
-    /*
-  web_server->listen(port = 80);
-  web_server->listen_secure(port=443);
+  /*
+web_server->listen(port = 80);
+web_server->listen_secure(port=443);
 
 
-  web_server->add_ws_handler(.... [](){
-  new WsConnection();
-    */
+web_server->add_ws_handler(.... [](){
+new WsConnection();
+  */
 }
-
