@@ -31,7 +31,7 @@ WebServer::WsCallback&& WebServer::ws_handler(const string_& path) {
   if (_ws_callback_map.count(path)) {
     return std::move(_ws_callback_map.at(path));
   }
-  return std::move(nullptr);
+  return WebServer::WsCallback();
 }
 
 WebServer::~WebServer() = default;

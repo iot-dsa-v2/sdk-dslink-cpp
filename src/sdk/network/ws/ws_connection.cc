@@ -71,9 +71,7 @@ void WsConnection::read_loop_(shared_ptr_<WsConnection> &&connection,
       if (is_destroyed()) {
         return;
       }
-      // connection post messages to main strand in batch
-      // need a null message in the end to actually send all messages
-      bool need_null_end = false;
+
       while (cur < total_bytes) {
         if (total_bytes - cur < sizeof(uint32_t)) {
           // not enough data to check size
@@ -100,7 +98,7 @@ void WsConnection::read_loop_(shared_ptr_<WsConnection> &&connection,
 
         if (on_read_message != nullptr) {
           try {
-            need_null_end = on_read_message(
+            on_read_message(
                 Message::parse_message(&buffer[cur], message_size));
           } catch (const MessageParsingError &err) {
             LOG_DEBUG(_strand->logger(),
@@ -119,8 +117,9 @@ void WsConnection::read_loop_(shared_ptr_<WsConnection> &&connection,
         cur += message_size;
       }
 
-      if (need_null_end) {
-        on_read_message(MessageRef());
+      if (!_batch_post.empty()) {
+        do_batch_post(std::move(connection));
+        return;
       }
     }
     start_read(std::move(connection), 0, 0);

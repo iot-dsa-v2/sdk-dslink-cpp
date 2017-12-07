@@ -31,9 +31,9 @@ void TcpConnection::destroy_impl() {
   Connection::destroy_impl();
 }
 
-void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
-                               size_t cur, size_t next) {
-  std::vector<uint8_t> &buffer = connection->_read_buffer;
+void TcpConnection::start_read(shared_ptr_<Connection> &&connection, size_t cur,
+                               size_t next) {
+  std::vector<uint8_t> &buffer = _read_buffer;
   size_t partial_size = next - cur;
   if (cur > 0) {
     std::copy(buffer.data() + cur, buffer.data() + next, buffer.data());
@@ -41,8 +41,7 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
   if (next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
-  tcp_socket &socket = connection->_socket;
-  socket.async_read_some(
+  _socket.async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
       [ this, connection = std::move(connection), partial_size ](
           const boost::system::error_code &err, size_t transferred) mutable {
@@ -50,7 +49,7 @@ void TcpConnection::start_read(shared_ptr_<TcpConnection> &&connection,
       });
 }
 
-void TcpConnection::read_loop_(shared_ptr_<TcpConnection> &&connection,
+void TcpConnection::read_loop_(shared_ptr_<Connection> &&connection,
                                size_t from_prev,
                                const boost::system::error_code &error,
                                size_t bytes_transferred) {
@@ -67,9 +66,7 @@ void TcpConnection::read_loop_(shared_ptr_<TcpConnection> &&connection,
       if (is_destroyed()) {
         return;
       }
-      // connection post messages to main strand in batch
-      // need a null message in the end to actually send all messages
-      bool need_null_end = false;
+
       while (cur < total_bytes) {
         if (total_bytes - cur < sizeof(uint32_t)) {
           // not enough data to check size
@@ -96,8 +93,7 @@ void TcpConnection::read_loop_(shared_ptr_<TcpConnection> &&connection,
 
         if (on_read_message != nullptr) {
           try {
-            need_null_end = on_read_message(
-                Message::parse_message(&buffer[cur], message_size));
+            on_read_message(Message::parse_message(&buffer[cur], message_size));
           } catch (const MessageParsingError &err) {
             LOG_DEBUG(_strand->logger(),
                       LOG << "invalid message received, close connection : "
@@ -115,8 +111,9 @@ void TcpConnection::read_loop_(shared_ptr_<TcpConnection> &&connection,
         cur += message_size;
       }
 
-      if (need_null_end) {
-        on_read_message(MessageRef());
+      if (!_batch_post.empty()) {
+        do_batch_post(std::move(connection));
+        return;
       }
     }
     start_read(std::move(connection), 0, 0);

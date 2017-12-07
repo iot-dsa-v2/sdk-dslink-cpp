@@ -90,6 +90,8 @@ class Connection : public SharedDestroyable<Connection> {
 
   std::vector<MessageRef> _batch_post;
   bool post_message(MessageRef &&msg);
+  void do_batch_post(shared_ptr_<Connection> &&sthis);
+  virtual void continue_read_loop(shared_ptr_<Connection> &&sthis) = 0;
 
   boost::asio::deadline_timer _deadline;
   virtual void on_deadline_timer_(const boost::system::error_code &error,

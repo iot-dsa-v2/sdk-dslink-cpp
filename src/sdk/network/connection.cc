@@ -2,9 +2,9 @@
 
 #include "connection.h"
 
-#include "util/app.h"
 #include "core/session.h"
 #include "crypto/hmac.h"
+#include "util/app.h"
 
 namespace dsa {
 Connection::Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
@@ -46,24 +46,23 @@ void Connection::destroy_impl() {
 }
 
 bool Connection::post_message(MessageRef &&message) {
-  if (message == nullptr) {
-    if (_session != nullptr && !_batch_post.empty()) {
-      std::vector<MessageRef> copy;
-      _batch_post.swap(copy);
-      _strand->post(
-          [ sthis = shared_from_this(), messages = std::move(copy) ]() mutable {
-            if (sthis->session() != nullptr) {
-              auto session = sthis->session();
-              for (auto &it : messages) {
-                session->receive_message(std::move(it));
-              }
-            }
-          });
-    }
-    return false;
-  } else {
-    _batch_post.emplace_back(std::move(message));
-    return true;
+  _batch_post.emplace_back(std::move(message));
+  return true;
+}
+void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
+  if (_session != nullptr && !_batch_post.empty()) {
+    std::vector<MessageRef> copy;
+    _batch_post.swap(copy);
+    _strand->post([
+      this, sthis = std::move(sthis), messages = std::move(copy)
+    ]() mutable {
+      continue_read_loop(std::move(sthis));
+      if (_session != nullptr) {
+        for (auto &it : messages) {
+          _session->receive_message(std::move(it));
+        }
+      }
+    });
   }
 }
 }  // namespace dsa

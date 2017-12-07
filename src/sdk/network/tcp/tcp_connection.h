@@ -40,10 +40,12 @@ class TcpConnection : public Connection {
   };
 
  protected:
-  void read_loop_(shared_ptr_<TcpConnection> &&connection, size_t from_prev,
+  void read_loop_(shared_ptr_<Connection> &&connection, size_t from_prev,
                   const boost::system::error_code &error,
                   size_t bytes_transferred);
-
+  void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
+    start_read(std::move(sthis));
+  }
   std::vector<uint8_t> _read_buffer;
   std::vector<uint8_t> _write_buffer;
   tcp_socket _socket;
@@ -58,7 +60,7 @@ class TcpConnection : public Connection {
   TcpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                 const string_ &path = "");
 
-  void start_read(shared_ptr_<TcpConnection> &&connection, size_t cur = 0,
+  void start_read(shared_ptr_<Connection> &&connection, size_t cur = 0,
                   size_t next = 0);
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
