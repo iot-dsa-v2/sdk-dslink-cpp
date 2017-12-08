@@ -10,15 +10,20 @@ namespace dsa {
 using tcp = boost::asio::ip::tcp;
 TcpServer::TcpServer(WrapperStrand &config)
     : Server(config),
-      _port(config.tcp_port),
-      _acceptor(new tcp::acceptor(
-          _strand->get_io_service(),
+      _port(config.tcp_port) {
 
-          tcp::endpoint(
-              boost::asio::ip::address::from_string(config.server_host),
-              config.tcp_server_port))) {
+  try {
+    _acceptor = make_unique_<boost::asio::ip::tcp::acceptor>(tcp::acceptor(
+        _strand->get_io_service(),
+        tcp::endpoint(
+            boost::asio::ip::address::from_string(config.server_host),
+            config.tcp_server_port), false));
+  } catch (boost::exception &e) {
+    LOG_FATAL(LOG << "Bind Error: server port is already in use\n");
+  }
+
   // It means auto select so update port
-  if(_port == 0){
+  if (_port == 0) {
     _port = _acceptor->local_endpoint().port();
   }
   LOG_INFO(_strand->logger(),
