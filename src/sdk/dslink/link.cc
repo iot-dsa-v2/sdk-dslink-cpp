@@ -179,8 +179,8 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
 void DsLink::connect(Client::OnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
-    LOG_SYSTEM(strand.get()->logger(),
-               LOG << "DsLink::connect(), Dslink is already requested for connection");
+    LOG_FATAL(
+        LOG << "DsLink::connect(), Dslink is already requested for connection");
     return;
   }
   _connected = true;
@@ -219,7 +219,7 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
 void DsLink::run(Client::OnConnectCallback &&on_connect,
                  uint8_t callback_type) {
   if (_running) {
-    LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink::run(), Dslink is already running");
+    LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
     return;
   }
   _running = true;
