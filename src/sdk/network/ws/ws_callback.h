@@ -24,22 +24,16 @@ namespace websocket =
 namespace dsa {
 
 class DsaWsCallback {
+ private:
+  LinkStrandRef& _link_strand;
+
  public:
+  DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
+
   void operator()(boost::asio::io_service &io_service,
          boost::asio::ip::tcp::socket&& socket,
          boost::beast::http::request<boost::beast::http::string_body>&& req)
   {
-    auto *config = new EditableStrand(
-        new boost::asio::io_service::strand(io_service), make_unique_<ECDH>());
-    config->set_session_manager(make_ref_<SimpleSessionManager>(config));
-    config->set_security_manager(make_ref_<SimpleSecurityManager>());
-    config->set_logger(make_unique_<ConsoleLogger>());
-    config->logger().level = Logger::WARN__;
-
-    LinkStrandRef _link_strand;
-
-    _link_strand.reset(config);
-
     auto conn = make_shared_<WsServerConnection>(
         *new websocket_stream{std::move(socket)}, _link_strand);
 

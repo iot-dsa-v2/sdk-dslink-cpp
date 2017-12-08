@@ -27,8 +27,21 @@ TEST(WebServerTest, basic_flow) {
   WebServer::WsCallback root_cb = [](
       WebServer& web_server,
       boost::asio::ip::tcp::socket&& socket,
-      boost::beast::http::request<boost::beast::http::string_body> req) {
-    DsaWsCallback()(web_server.io_service(), std::move(socket), std::move(req));
+      boost::beast::http::request<boost::beast::http::string_body> req)
+  {
+
+    auto *config = new EditableStrand(
+        new boost::asio::io_service::strand(web_server.io_service()), make_unique_<ECDH>());
+    config->set_session_manager(make_ref_<SimpleSessionManager>(config));
+    config->set_security_manager(make_ref_<SimpleSecurityManager>());
+    config->set_logger(make_unique_<ConsoleLogger>());
+    config->logger().level = Logger::WARN__;
+
+    LinkStrandRef _link_strand;
+    _link_strand.reset(config);
+
+    DsaWsCallback dsa_ws_callback(_link_strand);
+    dsa_ws_callback(web_server.io_service(), std::move(socket), std::move(req));
   };
 
   web_server->add_ws_handler("/", std::move(root_cb));
