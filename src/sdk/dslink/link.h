@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CONFIG_LOADER_H
-#define DSA_SDK_CONFIG_LOADER_H
+#ifndef DSA_DSLINK_LINK_H
+#define DSA_DSLINK_LINK_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -85,4 +85,4 @@ class DsLink final : public WrapperStrand {
 };
 }
 
-#endif  // DSA_SDK_CONFIG_LOADER_H
+#endif  // DSA_DSLINK_LINK_H

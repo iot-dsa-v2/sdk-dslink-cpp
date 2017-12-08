@@ -8,10 +8,11 @@
 #include "responder/node_model.h"
 
 namespace dsa {
+class DsBroker;
 
 class SysRoot : public NodeModel {
  public:
-  explicit SysRoot(LinkStrandRef &&strand);
+  SysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker);
 };
 }
 

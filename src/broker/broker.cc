@@ -54,7 +54,7 @@ void DsBroker::init(ModuleLoader& modules) {
   // init security manager
   strand->set_security_manager(modules.new_security_manager(*_app, strand));
 
-  auto broker_root = make_ref_<BrokerRoot>(strand->get_ref());
+  auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder
   strand->set_stream_acceptor(
       make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));

@@ -15,8 +15,9 @@ class InvokeNodeModel : public NodeModel {
   void invoke_require_permission(PermissionLevel permission_level);
 
  public:
-  InvokeNodeModel(LinkStrandRef &&strand,
-                  PermissionLevel require_permission = PermissionLevel::WRITE);
+  explicit InvokeNodeModel(
+      LinkStrandRef &&strand,
+      PermissionLevel require_permission = PermissionLevel::WRITE);
 
  protected:
   // if you need to override invoke, extends from NodeModel instead of
@@ -26,6 +27,21 @@ class InvokeNodeModel : public NodeModel {
 
   virtual void on_invoke(ref_<OutgoingInvokeStream> &&stream,
                          ref_<NodeState> &parent){};
+};
+
+class SimpleInvokeNode : public InvokeNodeModel {
+ public:
+  // return int Var for a error status
+  // return other type for normal invoke response
+  typedef std::function<Var(Var&&)> Callback;
+
+  SimpleInvokeNode(LinkStrandRef &&strand, Callback &&callback,
+                   PermissionLevel require_permission = PermissionLevel::WRITE);
+
+ protected:
+  Callback _callback;
+  void on_invoke(ref_<OutgoingInvokeStream> &&stream,
+                 ref_<NodeState> &parent) final;
 };
 
 }  // namespace dsa

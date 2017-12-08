@@ -14,10 +14,12 @@ class DsBroker;
 class BrokerRoot : public NodeModel {
   friend class DsBroker;
   ref_<DownstreamRoot> _downstream_root;
+  ref_<DsBroker> _broker;
 
  public:
-  explicit BrokerRoot(LinkStrandRef &&strand);
+  BrokerRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker);
   ~BrokerRoot();
+
  protected:
   void destroy_impl() final;
 };
