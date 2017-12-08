@@ -23,8 +23,6 @@ namespace websocket =
 
 namespace dsa {
 
-// need to keep this, shared_from_this??? alive
-
 class DsaWsCallback {
  public:
   void operator()(boost::asio::io_service &io_service,

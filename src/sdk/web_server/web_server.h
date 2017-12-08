@@ -5,6 +5,9 @@
 #pragma once
 #endif
 
+// TODO - to be deleted
+#include <iostream>
+
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast/http.hpp>
@@ -47,17 +50,31 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   void listen(uint16_t port = 80);
   void start();
   void destroy();
-
-  //
   boost::asio::io_service& io_service() { return _io_service; }
+
   // HTTP server specific methods
   void add_http_handler(const string_& path, HttpCallback&& callback);
   void add_ws_handler(const string_& path, WsCallback&& callback);
   HttpCallback& http_handler(const string_& path);
-  WsCallback&& ws_handler(const string_& path);
+  WsCallback& ws_handler(const string_& path);
 
   // util functions
   void send_error(int error_code, const string_ msg = "");
+};
+
+class ErrorCallback {
+ private:
+  uint16_t _error_code;
+
+ public:
+  ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
+
+  void operator()(boost::asio::io_service &io_service,
+         boost::asio::ip::tcp::socket&& socket,
+         boost::beast::http::request<boost::beast::http::string_body>&& req)
+  {
+    std::cerr << _error_code << std::endl;
+  }
 };
 
 }  // namespace dsa

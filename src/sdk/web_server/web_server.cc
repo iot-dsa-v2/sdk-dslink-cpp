@@ -26,11 +26,22 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
   // TODO: report error/warning otherwise
 }
 
-WebServer::WsCallback&& WebServer::ws_handler(const string_& path) {
+WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
   if (_ws_callback_map.count(path)) {
-    return std::move(_ws_callback_map.at(path));
+    return _ws_callback_map.at(path);
   }
-  return WebServer::WsCallback();
+
+  uint16_t error_code = 404;
+  static WebServer::WsCallback error_callback = [error_code](
+      WebServer& web_server,
+      boost::asio::ip::tcp::socket&& socket,
+      boost::beast::http::request<boost::beast::http::string_body> req) {
+
+    ErrorCallback error_callback_detail(error_code);
+    error_callback_detail(web_server.io_service(), std::move(socket), std::move(req));
+  };
+
+  return error_callback;
 }
 
 WebServer::~WebServer() = default;
