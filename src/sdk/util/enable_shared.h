@@ -9,6 +9,8 @@
 #include <mutex>
 #include <memory>
 
+#include "dsa_common.h"
+
 namespace dsa {
 
 template <class T, typename... Args>
