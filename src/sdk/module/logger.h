@@ -18,7 +18,8 @@ class Logger {
     INFO__ = 0x30,
     WARN__ = 0x40,
     ERROR_ = 0x50,
-    FATAL_ = 0x60,
+    SYS___ = 0x60,
+    FATAL_ = 0x70,
     NONE__ = 0xFF,
   };
 
@@ -52,6 +53,8 @@ class Logger {
 #define LOG_WARN(logger, stream_exp) DSA_LOG(WARN__, logger, stream_exp)
 
 #define LOG_INFO(logger, stream_exp) DSA_LOG(INFO__, logger, stream_exp)
+
+#define LOG_SYSTEM(logger, stream_exp) DSA_LOG(SYS___, logger, stream_exp)
 
 #define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG_, logger, stream_exp)
 

@@ -4,6 +4,7 @@
 
 #include "../../broker.h"
 #include "responder/invoke_node_model.h"
+#include "module/logger.h"
 
 namespace dsa {
 
@@ -12,6 +13,7 @@ SysRoot::SysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
   add_list_child("stop", make_ref_<SimpleInvokeNode>(
                               _strand->get_ref(),
                               [broker = std::move(broker)](Var && v) {
+                                LOG_SYSTEM(broker.get()->strand.get()->logger(), LOG << "DsBroker stopped");
                                 broker->destroy();
                                 return Var();
                               },

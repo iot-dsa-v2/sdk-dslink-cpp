@@ -46,9 +46,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    std::cout
-        << "Invalid input, please check available parameters with --help\n";
-    exit(1);
+    LOG_FATAL(LOG << "Invalid input, please check available parameters with --help\n");
   }
 
   // show help and exit
@@ -71,6 +69,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   parse_name(variables["name"].as<string_>());
   parse_log(variables["log"].as<string_>(), *strand);
   parse_server_port(variables["server-port"].as<uint16_t>());
+
+  LOG_SYSTEM(strand.get()->logger(), LOG << "DSLink initialized successfully");
 }
 DsLink::~DsLink() {}
 
@@ -179,8 +179,9 @@ void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
 void DsLink::connect(Client::OnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
-    LOG_FATAL(
-        LOG << "DsLink::connect(), Dslink is already requested for connection");
+    LOG_SYSTEM(strand.get()->logger(),
+               LOG << "DsLink::connect(), Dslink is already requested for connection");
+    return;
   }
   _connected = true;
 
@@ -211,23 +212,26 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
 
     _client = make_ref_<Client>(*this);
     _client->connect(std::move(on_connect), callback_type);
+    LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink connection requested");
   });
 }
 
 void DsLink::run(Client::OnConnectCallback &&on_connect,
                  uint8_t callback_type) {
   if (_running) {
-    LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
+    LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink::run(), Dslink is already running");
+    return;
   }
   _running = true;
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_INFO(strand.get()->logger(),
+    LOG_SYSTEM(strand.get()->logger(),
              LOG << "DsLink on_connect callback "
                     "ignored since it was connected "
                     "before\n");
   }
+  LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink running");
   _app->wait();
   destroy();
 }
