@@ -23,13 +23,11 @@ class App;
 class WebServer : public std::enable_shared_from_this<WebServer> {
  public:
   typedef std::function<void(
-      WebServer&, 
-      boost::asio::ip::tcp::socket&&,
+      WebServer&, boost::asio::ip::tcp::socket&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       HttpCallback;
   typedef std::function<void(
-      WebServer&,
-      boost::asio::ip::tcp::socket&&,
+      WebServer&, boost::asio::ip::tcp::socket&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       WsCallback;
 
@@ -69,10 +67,10 @@ class ErrorCallback {
  public:
   ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
-  void operator()(boost::asio::io_service &io_service,
-         boost::asio::ip::tcp::socket&& socket,
-         boost::beast::http::request<boost::beast::http::string_body>&& req)
-  {
+  void operator()(
+      boost::asio::io_service& io_service,
+      boost::asio::ip::tcp::socket&& socket,
+      boost::beast::http::request<boost::beast::http::string_body>&& req) {
     std::cerr << _error_code << std::endl;
   }
 };

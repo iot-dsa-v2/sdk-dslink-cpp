@@ -2,8 +2,8 @@
 
 #include "listener.h"
 
-#include "util/enable_shared.h"
 #include "http_connection.h"
+#include "util/enable_shared.h"
 #include "web_server.h"
 
 namespace dsa {

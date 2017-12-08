@@ -30,15 +30,15 @@ class DsaWsCallback {
  public:
   DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
 
-  void operator()(boost::asio::io_service &io_service,
-         boost::asio::ip::tcp::socket&& socket,
-         boost::beast::http::request<boost::beast::http::string_body>&& req)
-  {
+  void operator()(
+      boost::asio::io_service& io_service,
+      boost::asio::ip::tcp::socket&& socket,
+      boost::beast::http::request<boost::beast::http::string_body>&& req) {
     auto conn = make_shared_<WsServerConnection>(
         *new websocket_stream{std::move(socket)}, _link_strand);
 
     conn->websocket().async_accept(
-        req, [conn, this](const boost::system::error_code &error) {
+        req, [conn, this](const boost::system::error_code& error) {
 
           // TODO: run within the strand?
           conn->accept();

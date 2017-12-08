@@ -12,8 +12,7 @@ namespace websocket =
 namespace dsa {
 
 HttpConnection::HttpConnection(WebServer& web_server)
-      : _web_server(web_server), 
-        _socket(_web_server.io_service()) {}
+    : _web_server(web_server), _socket(_web_server.io_service()) {}
 
 void HttpConnection::accept() {
   // Read a request
@@ -21,7 +20,7 @@ void HttpConnection::accept() {
       _socket, _buffer, _req,
       // TODO: run within the strand?
       [ this, sthis = shared_from_this() ](
-          const boost::system::error_code &error, size_t bytes_transferred) {
+          const boost::system::error_code& error, size_t bytes_transferred) {
 
         // TODO: check error/termination conditions
 

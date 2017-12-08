@@ -35,8 +35,8 @@ void WsConnection::destroy_impl() {
   Connection::destroy_impl();
 }
 
-void WsConnection::start_read(shared_ptr_<Connection> &&connection,
-                              size_t cur, size_t next) {
+void WsConnection::start_read(shared_ptr_<Connection> &&connection, size_t cur,
+                              size_t next) {
   std::vector<uint8_t> &buffer = _read_buffer;
   size_t partial_size = next - cur;
   if (cur > 0) {
@@ -97,8 +97,7 @@ void WsConnection::read_loop_(shared_ptr_<Connection> &&connection,
 
         if (on_read_message != nullptr) {
           try {
-            on_read_message(
-                Message::parse_message(&buffer[cur], message_size));
+            on_read_message(Message::parse_message(&buffer[cur], message_size));
           } catch (const MessageParsingError &err) {
             LOG_DEBUG(_strand->logger(),
                       LOG << "invalid message received, close connection : "
