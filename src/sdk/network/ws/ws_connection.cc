@@ -2,8 +2,6 @@
 
 #include "ws_connection.h"
 
-#include <boost/asio/write.hpp>
-
 #include "module/logger.h"
 #include "util/little_endian.h"
 
