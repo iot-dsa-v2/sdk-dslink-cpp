@@ -78,6 +78,7 @@ void DsBroker::run() {
     if (tcp_server_port > 0) {
       _tcp_server = make_shared_<TcpServer>(*this);
       _tcp_server->start();
+      LOG_SYSTEM(strand.get()->logger(), LOG << "DsBroker started");
     }
   });
   _app->wait();
