@@ -25,7 +25,7 @@ class ExampleNodeRoot : public NodeModel {
 
 int main(int argc, const char* argv[]) {
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
-  link->init_responder_main<ExampleNodeRoot>();
+  link->init_responder<ExampleNodeRoot>();
   // link->run();
 
   // add a callback when connected to broker

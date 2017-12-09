@@ -35,7 +35,7 @@ TEST(DSLinkTest, Server_Test) {
       *argv[] = {"./testResp", "--broker", "ds://127.0.0.1:4120", "-l", "info", "--thread", "4", "--server-port", "4121"};
   int argc = 9;
   auto linkResp = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
-  linkResp->init_responder_main<ExampleNodeRoot>();
+  linkResp->init_responder<ExampleNodeRoot>();
   linkResp->connect([&](const shared_ptr_<Connection> connection) {});
 
 // Create link

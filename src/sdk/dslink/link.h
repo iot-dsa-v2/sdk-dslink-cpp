@@ -51,10 +51,14 @@ class DsLink final : public WrapperStrand {
   void parse_server_port(uint16_t port);
 
  public:
-  void init_responder_main(ref_<NodeModelBase> &&main_node = nullptr);
+  // init raw responder root node, the dslink won't have the default standard
+  // node structure
+  void init_responder_raw(ref_<NodeModelBase> &&root_node);
+  // init the responder's main node;
+  void init_responder(ref_<NodeModelBase> &&main_node = nullptr);
   template <class NodeClass>
-  void init_responder_main() {
-    init_responder_main(make_ref_<NodeClass>(strand));
+  void init_responder() {
+    init_responder(make_ref_<NodeClass>(strand));
   }
 
   // the on_connect callback will always be called from main strand

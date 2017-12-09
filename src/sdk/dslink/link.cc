@@ -172,16 +172,17 @@ void DsLink::parse_log(const string_ &log, EditableStrand &config) {
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
-void DsLink::init_responder_main(ref_<NodeModelBase> &&main_node) {
+void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node) {
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
   strand->set_security_manager(make_ref_<SimpleSecurityManager>());
-
+  strand->set_responder_model(std::move(root_node));
+}
+void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
   _root = make_ref_<LinkRoot>(strand->get_ref(), get_ref());
-  strand->set_responder_model(_root->get_ref());
-
   if (main_node != nullptr) {
     _root->set_main(std::move(main_node));
   }
+  init_responder_raw(_root->get_ref());
 }
 
 void DsLink::connect(Client::OnConnectCallback &&on_connect,
