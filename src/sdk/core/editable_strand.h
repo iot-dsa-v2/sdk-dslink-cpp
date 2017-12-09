@@ -37,7 +37,7 @@ class EditableStrand : public LinkStrand {
   static ref_<EditableStrand> make_default(shared_ptr_<App> app);
 
   explicit EditableStrand(boost::asio::io_service::strand* strand,
-                      std::unique_ptr<ECDH>&& ecdh);
+                          std::unique_ptr<ECDH>&& ecdh);
   ~EditableStrand() override;
 
   void set_security_manager(ref_<SecurityManager> p);
@@ -57,6 +57,8 @@ typedef std::function<shared_ptr_<Connection>(
 
 class WrapperStrand : public DestroyableRef<WrapperStrand> {
  public:
+  virtual ~WrapperStrand() = default;
+
   ref_<EditableStrand> strand;
   string_ dsid_prefix;
 

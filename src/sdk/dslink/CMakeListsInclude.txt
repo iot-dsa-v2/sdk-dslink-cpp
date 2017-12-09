@@ -2,6 +2,9 @@ list(APPEND DsLinkSourceFiles
         link.cc
         subscribe_merger.cc
         list_merger.cc
+        node/link_root.cc
+        node/sys_root.cc
+        node/pub_root.cc
       )
 
 foreach (file ${DsLinkSourceFiles})

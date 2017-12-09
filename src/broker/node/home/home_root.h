@@ -9,9 +9,9 @@
 
 namespace dsa {
 
-class HomeRoot : public NodeModel {
+class BrokerHomeRoot : public NodeModel {
  public:
-  explicit HomeRoot(LinkStrandRef &&strand);
+  explicit BrokerHomeRoot(LinkStrandRef &&strand);
 };
 }
 

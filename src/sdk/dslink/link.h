@@ -14,6 +14,7 @@
 namespace dsa {
 class App;
 class TcpServer;
+class LinkRoot;
 
 class DsLink final : public WrapperStrand {
   friend class SubscribeMerger;
@@ -27,7 +28,7 @@ class DsLink final : public WrapperStrand {
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
          const string_ &version, const shared_ptr_<App> &app = nullptr);
-  ~DsLink();
+  ~DsLink() final;
   App &get_app();
 
  protected:
@@ -37,6 +38,7 @@ class DsLink final : public WrapperStrand {
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
   ref_<Client> _client;
+  ref_<LinkRoot> _root;
 
   bool _running = false;
   bool _connected = false;
@@ -49,10 +51,10 @@ class DsLink final : public WrapperStrand {
   void parse_server_port(uint16_t port);
 
  public:
-  void init_responder(ref_<NodeModelBase> &&root_node);
+  void init_responder_main(ref_<NodeModelBase> &&main_node = nullptr);
   template <class NodeClass>
-  void init_responder() {
-    init_responder(make_ref_<NodeClass>(strand));
+  void init_responder_main() {
+    init_responder_main(make_ref_<NodeClass>(strand));
   }
 
   // the on_connect callback will always be called from main strand

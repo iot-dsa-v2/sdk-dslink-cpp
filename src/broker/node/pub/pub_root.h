@@ -9,9 +9,9 @@
 
 namespace dsa {
 
-class PubRoot : public NodeModel {
+class BrokerPubRoot : public NodeModel {
  public:
-  explicit PubRoot(LinkStrandRef &&strand);
+  explicit BrokerPubRoot(LinkStrandRef &&strand);
 };
 }
 

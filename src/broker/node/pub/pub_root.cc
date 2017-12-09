@@ -3,7 +3,7 @@
 #include "pub_root.h"
 
 namespace dsa {
-PubRoot::PubRoot(LinkStrandRef &&strand)
+BrokerPubRoot::BrokerPubRoot(LinkStrandRef &&strand)
   : NodeModel(std::move(strand)) {
 
 }

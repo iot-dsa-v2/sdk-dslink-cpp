@@ -14,6 +14,7 @@
 #include "module/default/simple_session_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
+#include "node/link_root.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
@@ -46,7 +47,9 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL(LOG << "Invalid input, please check available parameters with --help\n");
+    LOG_FATAL(
+        LOG
+        << "Invalid input, please check available parameters with --help\n");
   }
 
   // show help and exit
@@ -169,11 +172,16 @@ void DsLink::parse_log(const string_ &log, EditableStrand &config) {
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
-void DsLink::init_responder(ref_<NodeModelBase> &&root_node) {
+void DsLink::init_responder_main(ref_<NodeModelBase> &&main_node) {
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
   strand->set_security_manager(make_ref_<SimpleSecurityManager>());
 
-  strand->set_responder_model(std::move(root_node));
+  _root = make_ref_<LinkRoot>(strand->get_ref(), get_ref());
+  strand->set_responder_model(_root->get_ref());
+
+  if (main_node != nullptr) {
+    _root->set_main(std::move(main_node));
+  }
 }
 
 void DsLink::connect(Client::OnConnectCallback &&on_connect,
@@ -227,9 +235,9 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
     connect(std::move(on_connect), callback_type);
   } else {
     LOG_SYSTEM(strand.get()->logger(),
-             LOG << "DsLink on_connect callback "
-                    "ignored since it was connected "
-                    "before\n");
+               LOG << "DsLink on_connect callback "
+                      "ignored since it was connected "
+                      "before\n");
   }
   LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink running");
   _app->wait();

@@ -10,9 +10,9 @@
 namespace dsa {
 class DsBroker;
 
-class SysRoot : public NodeModel {
+class BrokerSysRoot : public NodeModel {
  public:
-  SysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker);
+  BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker);
 };
 }
 

@@ -143,7 +143,7 @@ int main(int argc, const char* argv[]) {
     strands.emplace_back(strand.strand);
   }
 
-  int interval_ms = 20;
+  int interval_ms = 5;
   int msg_per_interval = num_message * interval_ms / 1000;
 
   if (msg_per_interval == 0) {

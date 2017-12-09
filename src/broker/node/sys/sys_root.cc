@@ -8,7 +8,7 @@
 
 namespace dsa {
 
-SysRoot::SysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
+BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
     : NodeModel(std::move(strand)) {
   add_list_child("stop", make_ref_<SimpleInvokeNode>(
                               _strand->get_ref(),
