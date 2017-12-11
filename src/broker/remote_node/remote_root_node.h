@@ -23,6 +23,7 @@ public:
   // updated the status of connection changes
   void on_session(Session &session, const shared_ptr_<Connection> &connection);
 
+  BytesRef &get_summary() override;
 };
 }
 #endif  // DSA_BROKER_REMOTE_ROOT_NODE_H

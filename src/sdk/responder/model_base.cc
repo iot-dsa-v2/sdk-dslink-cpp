@@ -80,7 +80,8 @@ void NodeModelBase::set_value(MessageValue &&value) {
     _state->new_subscribe_response(copy_ref_(_cached_value));
   }
 }
-void NodeModelBase::set_subscribe_response(SubscribeResponseMessageCRef &&message) {
+void NodeModelBase::set_subscribe_response(
+    SubscribeResponseMessageCRef &&message) {
   _cached_value = std::move(message);
   if (_need_subscribe) {
     _state->new_subscribe_response(copy_ref_(_cached_value));
@@ -98,9 +99,9 @@ void NodeModelBase::unlist() {
     on_unlist();
   }
 }
-static BytesRef blank_bytes;
+static BytesRef blank_bytes(new RefCountBytes());
 BytesRef &NodeModelBase::get_summary() {
-  LOG_WARN(_strand->logger(), LOG << "::get_summary not implemented");
+  LOG_ERROR(_strand->logger(), LOG << "::get_summary not implemented");
   return blank_bytes;
 }
 

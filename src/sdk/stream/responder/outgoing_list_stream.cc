@@ -41,7 +41,7 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
   size += it->first.size() + it->second->size() + 4;
   if (size > available) return size;
 
-  for (; it != _cached_map.end(); ++it) {
+  for (++it; it != _cached_map.end(); ++it) {
     size_t this_size = it->first.size() + it->second->size() + 4;
     if (this_size + size > available) {
       break;
@@ -78,6 +78,8 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
       break;
     }
   }
+  //
+  body.resize(pos);
   message->set_body(new RefCountBytes(std::move(body)));
   return message->get_ref();
 }
