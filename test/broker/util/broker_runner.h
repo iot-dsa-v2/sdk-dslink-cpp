@@ -8,8 +8,8 @@
 #include "broker.h"
 
 namespace dsa {
-shared_ptr_<DsBroker> create_broker();
-WrapperStrand get_client_wrapper_strand(const shared_ptr_<DsBroker> &broker,
+ref_<DsBroker> create_broker();
+WrapperStrand get_client_wrapper_strand(const ref_<DsBroker> &broker,
                                         const string_ &dsid_prefix = "test");
 }
 

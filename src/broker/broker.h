@@ -24,7 +24,7 @@ class DsBroker final : public WrapperStrand {
  public:
   DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
            const shared_ptr_<App>& app = nullptr);
-  ~DsBroker();
+  ~DsBroker() final;
 
   void run();
   shared_ptr_<App>& get_app() { return _app; }
