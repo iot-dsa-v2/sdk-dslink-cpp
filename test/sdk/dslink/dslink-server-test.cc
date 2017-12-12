@@ -57,7 +57,7 @@ TEST(DSLinkTest, Server_Test) {
 // add a callback when connected to broker
   std::vector<std::string> messages;
 
-  link->subscribe("child_a",
+  link->subscribe("main/child_a",
                   [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
                     messages.push_back(message->get_value().value.get_string());
                   });
