@@ -31,6 +31,9 @@ void OutgoingListStream::update_list_value(const string_ &key,
 }
 void OutgoingListStream::update_list_status(MessageStatus status) {
   _status = status;
+  if (_status != MessageStatus::OK) {
+    send_message();
+  }
 }
 void OutgoingListStream::update_list_refreshed() {
   _refreshed = true;
@@ -41,7 +44,7 @@ void OutgoingListStream::update_list_base_path(const string_ &path) {
 }
 size_t OutgoingListStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
-  if (_cached_map.empty()) return 0;
+  if (_cached_map.empty() && _status == MessageStatus::OK) return 0;
 
   size_t size = StaticHeaders::TOTAL_SIZE;
 
@@ -74,7 +77,6 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   ListResponseMessage *message = new ListResponseMessage();
   if (_status != MessageStatus::OK) {
     message->set_status(_status);
-    _status = MessageStatus::OK;
   }
   if (_refreshed) {
     message->set_refreshed(true);

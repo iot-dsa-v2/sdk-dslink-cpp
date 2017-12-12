@@ -27,9 +27,7 @@ class RemoteRootNode : public RemoteNode {
   void set_override_meta(const string_ &field, Var &&v);
 
  protected:
-  bool _first_list_response = true;
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
-
 
 };
 }

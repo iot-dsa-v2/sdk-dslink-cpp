@@ -20,8 +20,14 @@ VarBytesRef &RemoteRootNode::get_summary() { return default_summary; }
 
 void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
                              bool first_request) {
+  if (!_remote_session->is_connected()) {
+    // when link is not connected, send a temp update for the
+    stream.update_list_status(MessageStatus::NOT_AVAILABLE);
+    for (auto &it : _override_metas) {
+      stream.update_list_value(it.first, it.second);
+    }
+  }
   if (first_request) {
-    _first_list_response = true;
     _remote_list_stream = _remote_session->requester.list(_remote_path, [
       this, keep_ref = get_ref()
     ](IncomingListStream &, ref_<const ListResponseMessage> && msg) {
@@ -29,14 +35,11 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
         _state->update_list_refreshed();
         _list_cache.clear();
         send_all_override_metas();
-      } else if (_first_list_response) {
+      } else if (_list_cache.empty() && !_override_metas.empty()) {
         // send all override meta with the first list response
         send_all_override_metas();
       }
-      _first_list_response = false;
-      if (msg->get_status() != MessageStatus::OK) {
-        _state->update_list_status(msg->get_status());
-      }
+      _state->update_list_status(msg->get_status());
 
       for (auto &it : msg->get_map()) {
         if (it.first.empty()) return;
@@ -58,8 +61,10 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
 void RemoteRootNode::set_override_meta(const string_ &field, Var &&v) {
   auto ref = make_ref_<VarBytes>(std::move(v));
   _override_metas[field] = ref;
-  _list_cache[field] = ref;
-  if (_state != nullptr) {
+  // since root node always has some override metadata
+  // list cache can't be empty when there is a on going list stream
+  if (!_list_cache.empty()) {
+    _list_cache[field] = ref;
     _state->update_list_value(field, ref);
   }
 }

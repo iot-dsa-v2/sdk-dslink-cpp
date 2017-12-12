@@ -121,27 +121,65 @@ TEST(BrokerDownstreamTest, List) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker);
-  client_strand.strand->set_responder_model(
-      ModelRef(new MockNodeRoot(client_strand.strand)));
-  auto tcp_client = make_ref_<Client>(client_strand);
-  tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
+  WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
+  client_strand1.strand->set_responder_model(
+      ModelRef(new MockNodeRoot(client_strand1.strand)));
+  auto tcp_client1 = make_ref_<Client>(client_strand1);
 
-    tcp_client->get_session().requester.list(
-        "downstream/test",
+  WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2");
+  auto tcp_client2 = make_ref_<Client>(client_strand2);
+
+  // after client1 disconnected, list update should show it's disconnected
+  auto test_disconnection_list = [&]() {
+    tcp_client2->get_session().requester.list(
+        "downstream/test1",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
-          auto map = msg->get_map();
-          EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
-                    tcp_client->get_session().dsid());
+          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
           // end the test
-          client_strand.strand->post([tcp_client, &client_strand]() {
-            tcp_client->destroy();
-            client_strand.destroy();
+
+          client_strand2.strand->post([tcp_client2, &client_strand2]() {
+            tcp_client2->destroy();
+            client_strand2.destroy();
           });
+
           broker->strand->post([broker]() { broker->destroy(); });
         });
+  };
 
-  });
+  // downstream should has test1 and test2 nodes
+  auto test_downstream_list = [&]() {
+    tcp_client2->get_session().requester.list(
+        "downstream",
+        [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
+          auto map = msg->get_map();
+          EXPECT_TRUE(map["test1"]->get_value().is_map());
+          EXPECT_TRUE(map["test2"]->get_value().is_map());
+          test_disconnection_list();
+        });
+  };
+
+  // when list on downstream/test1 it should have a metadata for test1's dsid
+  auto test_downstream_child_list =
+      [&](const shared_ptr_<Connection>& connection) {
+        tcp_client1->get_session().requester.list(
+            "downstream/test1",
+            [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
+              auto map = msg->get_map();
+              EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
+                        tcp_client1->get_session().dsid());
+
+              client_strand1.strand->post([tcp_client1, &client_strand1]() {
+                tcp_client1->destroy();
+                client_strand1.destroy();
+              });
+              test_downstream_list();
+            });
+
+      };
+
+  tcp_client1->connect(std::move(test_downstream_child_list));
+  tcp_client2->connect();
+
   broker->run();
   EXPECT_TRUE(broker->is_destroyed());
 }
