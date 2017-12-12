@@ -12,7 +12,7 @@
 #include "message/message_options.h"
 
 namespace dsa {
-class Var;
+class VarBytes;
 
 class OutgoingListStream final : public MessageRefedStream {
  protected:
@@ -20,7 +20,7 @@ class OutgoingListStream final : public MessageRefedStream {
 
   void destroy_impl() final;
 
-  std::unordered_map<string_, BytesRef> _cached_map;
+  std::unordered_map<string_, ref_<VarBytes>> _cached_map;
   size_t _next_size;
 
  public:
@@ -29,7 +29,7 @@ class OutgoingListStream final : public MessageRefedStream {
 
   void on_list_close(ListCloseCallback &&callback) final;
 
-  void update_list_value(const string_ &key, const BytesRef &value) final;
+  void update_list_value(const string_ &key, const ref_<VarBytes> &value) final;
 
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback &) final;

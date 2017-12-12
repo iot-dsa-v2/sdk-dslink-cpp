@@ -55,7 +55,8 @@ void ListResponseMessage::parse() {
       data += sizeof(uint16_t);
       size -= sizeof(uint16_t);
       if (size < value_size) return;
-      _raw_map[key] = make_ref_<const RefCountBytes>(data, data + value_size);
+      _raw_map[key] =
+          make_ref_<VarBytes>(new RefCountBytes(data, data + value_size));
       data += value_size;
       size -= value_size;
     }
@@ -66,7 +67,7 @@ ref_<VarMap> ListResponseMessage::get_parsed_map() const {
   VarMap* map = new VarMap();
 
   for (auto& it : _raw_map) {
-    (*map)[it.first] = Var::from_msgpack(it.second->data(), it.second->size());
+    (*map)[it.first] = it.second->get_value();
   }
 
   return map->get_ref();

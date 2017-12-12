@@ -25,7 +25,7 @@ void OutgoingListStream::destroy_impl() {
 }
 
 void OutgoingListStream::update_list_value(const string_ &key,
-                                           const BytesRef &value) {
+                                           const VarBytesRef &value) {
   _cached_map[key] = value;
   send_message();
 }
@@ -61,16 +61,17 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   RefCountBytes body{availible_size};
   size_t pos = 0;
   for (auto it = _cached_map.begin(); it != _cached_map.end();) {
-    size_t this_size = it->first.size() + it->second->size() + 4;
+    auto &bytes = it->second->get_bytes();
+    size_t this_size = it->first.size() + bytes->size() + 4;
     if (this_size <= availible_size) {
       availible_size -= this_size;
       // write key
       pos += write_str_with_len(body.data() + pos, it->first);
       // write value
-      pos += write_16_t(body.data() + pos, it->second->size());
+      pos += write_16_t(body.data() + pos, bytes->size());
 
-      std::copy(it->second->begin(), it->second->end(), body.data() + pos);
-      pos += it->second->size();
+      std::copy(bytes->begin(), bytes->end(), body.data() + pos);
+      pos += bytes->size();
 
       // remove and move to next iterator
       it = _cached_map.erase(it);

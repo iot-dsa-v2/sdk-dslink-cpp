@@ -99,8 +99,8 @@ void NodeModelBase::unlist() {
     on_unlist();
   }
 }
-static BytesRef blank_bytes(new RefCountBytes());
-BytesRef &NodeModelBase::get_summary() {
+static VarBytesRef blank_bytes(new VarBytes());
+VarBytesRef &NodeModelBase::get_summary() {
   LOG_ERROR(_strand->logger(), LOG << "::get_summary not implemented");
   return blank_bytes;
 }

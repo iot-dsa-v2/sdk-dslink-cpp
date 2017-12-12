@@ -7,12 +7,14 @@
 
 #include <unordered_map>
 
-#include "../../util/buffer.h"
+#include "util/buffer.h"
 #include "../base_message.h"
+#include "variant/variant.h"
 
 namespace dsa {
 
 class VarMap;
+
 
 class ListResponseMessage final : public ResponseMessage {
  public:
@@ -33,7 +35,7 @@ class ListResponseMessage final : public ResponseMessage {
   std::unique_ptr<DynamicStringHeader> base_path;
   std::unique_ptr<DynamicBoolHeader> refreshed;
 
-  std::unordered_map<string_, BytesRef> _raw_map;
+  std::unordered_map<string_, VarBytesRef> _raw_map;
 
   void parse();
 
@@ -44,8 +46,10 @@ class ListResponseMessage final : public ResponseMessage {
   const bool get_refreshed() const;
   void set_refreshed(bool value);
 
-  std::unordered_map<string_, BytesRef>& get_map() { return _raw_map; };
-  const std::unordered_map<string_, BytesRef>& get_map() const { return _raw_map; };
+  std::unordered_map<string_, VarBytesRef>& get_map() { return _raw_map; };
+  const std::unordered_map<string_, VarBytesRef>& get_map() const {
+    return _raw_map;
+  };
 
   ref_<VarMap> get_parsed_map() const;
 };

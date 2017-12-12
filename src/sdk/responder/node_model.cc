@@ -10,32 +10,6 @@
 #include "stream/responder/outgoing_set_stream.h"
 
 namespace dsa {
-ModelProperty::ModelProperty()
-    : _bytes(new RefCountBytes()), _value_ready(false) {}
-ModelProperty::ModelProperty(BytesRef &bytes)
-    : _bytes(bytes), _value_ready(false) {}
-ModelProperty::ModelProperty(Var &&value)
-    : _value(std::move(value)), _value_ready(true) {}
-
-BytesRef &ModelProperty::get_bytes() const {
-  if (_bytes == nullptr && _value_ready) {
-    _bytes.reset(new RefCountBytes(_value.to_msgpack()));
-  }
-  return _bytes;
-}
-
-const Var &ModelProperty::get_value() const {
-  if (!_value_ready) {
-#ifdef DSA_DEBUG
-    if (_bytes->empty()) {
-      LOG_FATAL(LOG << "invalid value in ModelProperty");
-    }
-#endif
-    _value = Var::from_msgpack(_bytes->data(), _bytes->size());
-    _value_ready = true;
-  }
-  return _value;
-}
 
 static const std::vector<string_> default_summary_metas = {
     "$is", "$type", "$writable", "$invokable"};
@@ -49,11 +23,11 @@ void NodeModel::set_value_require_permission(PermissionLevel permission_level) {
   if (permission_level >= PermissionLevel::WRITE &&
       permission_level <= PermissionLevel::CONFIG) {
     _set_value_require_permission = permission_level;
-    _metas["$writable"] = Var(to_string(permission_level));
+    update_property("$writable", Var(to_string(permission_level)));
   }
 }
 
-BytesRef &NodeModel::get_summary() {
+VarBytesRef &NodeModel::get_summary() {
   if (_summary == nullptr) {
     Var v = Var::new_map();
     VarMap &map = v.get_map();
@@ -61,11 +35,11 @@ BytesRef &NodeModel::get_summary() {
     for (auto &key : default_summary_metas) {
       auto find = _metas.find(key);
       if (find != _metas.end()) {
-        map[key] = find->second.get_value();
+        map[key] = find->second->get_value();
       }
     }
 
-    _summary = new RefCountBytes(v.to_msgpack());
+    _summary.reset(new VarBytes(std::move(v)));
   }
   return _summary;
 }
@@ -92,10 +66,10 @@ void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
 
 void NodeModel::send_props_list(BaseOutgoingListStream &stream) {
   for (auto &it : _metas) {
-    stream.update_list_value(it.first, it.second.get_bytes());
+    stream.update_list_value(it.first, it.second);
   }
   for (auto &it : _attributes) {
-    stream.update_list_value(it.first, it.second.get_bytes());
+    stream.update_list_value(it.first, it.second);
   }
 }
 void NodeModel::send_children_list(BaseOutgoingListStream &stream) {
@@ -104,7 +78,7 @@ void NodeModel::send_children_list(BaseOutgoingListStream &stream) {
   }
 }
 
-void NodeModel::update_property(const string_ &field, ModelProperty &&value) {
+void NodeModel::update_property(const string_ &field, VarBytesRef &&value) {
   if (!field.empty()) {
     if (field[0] == '$') {
       _metas[field] = value;
@@ -114,7 +88,7 @@ void NodeModel::update_property(const string_ &field, ModelProperty &&value) {
       return;
     }
     if (_need_list && _state != nullptr) {
-      _state->update_list_value(field, value.get_bytes());
+      _state->update_list_value(field, value);
     }
   }
 }

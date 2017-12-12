@@ -17,7 +17,7 @@ void InvokeNodeModel::invoke_require_permission(
   if (permission_level >= PermissionLevel::LIST &&
       permission_level <= PermissionLevel::CONFIG) {
     _invoke_require_permission = permission_level;
-    _metas["$invokable"] = Var(to_string(permission_level));
+    update_property("$invokable", Var(to_string(permission_level)));
   }
 }
 

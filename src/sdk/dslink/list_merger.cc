@@ -38,7 +38,7 @@ void ListMerger::destroy_impl() {
     _stream.reset();
   }
 
-  for(auto it:caches) {
+  for (auto it : caches) {
     it->destroy();
   }
   caches.clear();
@@ -78,10 +78,10 @@ void ListMerger::new_list_response(ref_<const ListResponseMessage>&& message) {
     return;
   }
   for (auto& it : map) {
-    if (it.second->size() > 0) {
-      _map[it.first] = Var::from_msgpack(it.second->data(), it.second->size());
-    } else {
+    if (it.second->is_blank()) {
       _map.erase(it.first);
+    } else {
+      _map[it.first] = it.second->get_value();
     }
     if (!refreshed) {
       if (std::find(_changes.begin(), _changes.end(), it.first) ==

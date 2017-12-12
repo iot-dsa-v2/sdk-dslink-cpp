@@ -80,7 +80,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   void unlist();
 
   // get the summery Map when it's listed in a parent node
-  virtual BytesRef &get_summary();
+  virtual VarBytesRef &get_summary();
 
   /// invoke
  public:

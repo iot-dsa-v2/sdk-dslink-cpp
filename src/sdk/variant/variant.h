@@ -163,7 +163,6 @@ class Var : public BaseVariant {
   bool operator==(const Var &lhs) const;
   bool operator!=(const Var &lhs) const;
 
-
   // msgpack encoding and decoding
  public:
   static Var from_msgpack(const uint8_t *data, size_t size);
@@ -176,6 +175,43 @@ class Var : public BaseVariant {
   static Var to_variant(const msgpack_object &obj);
   static Var to_variant(json_t *obj);
 };
+
+// VarByte is used to decode and encode Var on demand
+class VarBytes : public EnableRef<VarBytes> {
+  mutable BytesRef _bytes;
+  mutable Var _v;
+
+ public:
+  VarBytes() : _bytes(new RefCountBytes()) {}
+  VarBytes(Var &&v) : _v(std::move(v)) {}
+  VarBytes(BytesRef bytes) : _bytes(std::move(bytes)) {}
+  VarBytes(std::vector<uint8_t> &&bytes)
+      : _bytes(new RefCountBytes(std::move(bytes))) {}
+
+  BytesRef &get_bytes() const {
+    if (_bytes == nullptr) {
+      _bytes.reset(new RefCountBytes(_v.to_msgpack()));
+    }
+    return _bytes;
+  }
+  Var &get_value() const {
+    if (_v.is_null() && _bytes != nullptr && _bytes->size() != 0) {
+      _v = Var::from_msgpack(&(*_bytes)[0], _bytes->size());
+    }
+    return _v;
+  }
+  // blank
+  inline bool is_blank() const {
+    return _bytes != nullptr && _bytes->size() == 0;
+  }
+  inline size_t size() const { return get_bytes()->size(); }
+  bool operator==(const Var &other) const { return other == get_value(); };
+  bool operator==(const VarBytes &other) const {
+    return other.get_value() == get_value();
+  };
+};
+
+typedef ref_<VarBytes> VarBytesRef;
 
 typedef std::function<bool(const Var &)> VarValidator;
 

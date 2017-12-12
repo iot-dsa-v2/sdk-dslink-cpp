@@ -11,32 +11,17 @@
 
 namespace dsa {
 
-class ModelProperty {
-  mutable BytesRef _bytes;
-  mutable Var _value;
-  mutable bool _value_ready;
-
- public:
-  ModelProperty();
-  explicit ModelProperty(BytesRef &bytes);
-  ModelProperty(Var &&value);
-
-  BytesRef &get_bytes() const;
-  const Var &get_value() const;
-  bool valid() const { return _bytes != nullptr || _value_ready; }
-};
-
 class NodeModel : public NodeModelBase {
  private:
   PermissionLevel _set_value_require_permission = PermissionLevel::NEVER;
   void set_value_require_permission(PermissionLevel permission_level);
 
  protected:
-  std::unordered_map<string_, ModelProperty> _metas;
-  std::unordered_map<string_, ModelProperty> _attributes;
+  std::unordered_map<string_, VarBytesRef> _metas;
+  std::unordered_map<string_, VarBytesRef> _attributes;
   std::unordered_map<string_, ref_<NodeModelBase>> _list_children;
 
-  BytesRef _summary;
+  VarBytesRef _summary;
 
   void destroy_impl() override;
 
@@ -49,12 +34,14 @@ class NodeModel : public NodeModelBase {
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
 
-  void update_property(const string_ &field, ModelProperty &&value);
-
+  void update_property(const string_ &field, VarBytesRef &&value);
+  void update_property(const string_ &field, Var &&value) {
+    update_property(field, make_ref_<VarBytes>(std::move(value)));
+  }
   ref_<NodeModelBase> add_list_child(const string_ &name,
                                      ref_<NodeModelBase> &&model);
 
-  BytesRef &get_summary() override;
+  VarBytesRef &get_summary() override;
 
  protected:
   void send_props_list(BaseOutgoingListStream &stream);

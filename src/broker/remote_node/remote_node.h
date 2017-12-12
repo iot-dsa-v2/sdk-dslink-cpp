@@ -20,9 +20,6 @@ class IncomingListStream;
 class RemoteNode : public NodeModelBase {
   friend class RemoteInvokeProxy;
 
-  const string_ _remote_path;
-  ref_<Session> _remote_session;
-
  public:
   RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
              ref_<Session> &&session);
@@ -36,6 +33,8 @@ class RemoteNode : public NodeModelBase {
   ModelRef on_demand_create_child(const Path &path) override;
 
  protected:
+  const string_ _remote_path;
+  ref_<Session> _remote_session;
   void destroy_impl() override;
 
   /// subscribe
@@ -49,7 +48,7 @@ class RemoteNode : public NodeModelBase {
 
   /// list
  protected:
-  std::unordered_map<string_, BytesRef> _list_cache;
+  std::unordered_map<string_, VarBytesRef> _list_cache;
   ref_<IncomingListStream> _remote_list_stream;
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
