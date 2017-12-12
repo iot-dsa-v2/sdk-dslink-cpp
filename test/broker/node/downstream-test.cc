@@ -131,7 +131,7 @@ TEST(BrokerDownstreamTest, List) {
         "downstream/test",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
           auto map = msg->get_map();
-          EXPECT_EQ(map["$$dsId"]->get_value().to_string(),
+          EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
                     tcp_client->get_session().dsid());
           // end the test
           client_strand.strand->post([tcp_client, &client_strand]() {

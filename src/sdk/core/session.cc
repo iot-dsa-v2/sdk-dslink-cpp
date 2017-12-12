@@ -10,10 +10,10 @@
 
 namespace dsa {
 
-Session::Session(LinkStrandRef strand, const string_ &dsId,
+Session::Session(LinkStrandRef strand, const string_ &dsid,
                  const string_ &session_id)
     : _strand(std::move(strand)),
-      _dsid(dsId),
+      _dsid(dsid),
       _session_id(session_id),
       requester(*this),
       responder(*this),

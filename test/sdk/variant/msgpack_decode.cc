@@ -57,7 +57,7 @@ TEST(VariantTest, MsgpackDecodingMap) {
 
     msgpack_pack_map(&pk, 2);
     msgpack_pack_str(&pk, 4);
-    msgpack_pack_str_body(&pk, "dsId", 4);
+    msgpack_pack_str_body(&pk, "dsid", 4);
     msgpack_pack_int(&pk, 1);
     msgpack_pack_str(&pk, 4);
     msgpack_pack_str_body(&pk, "path", 4);
@@ -74,8 +74,8 @@ TEST(VariantTest, MsgpackDecodingMap) {
 
   EXPECT_EQ(2, map.size());
 
-  EXPECT_TRUE(map["dsId"].is_int());
-  EXPECT_EQ(1, map["dsId"].get_int());
+  EXPECT_TRUE(map["dsid"].is_int());
+  EXPECT_EQ(1, map["dsid"].get_int());
 
   EXPECT_TRUE(map["path"].is_string());
   EXPECT_EQ("/path/name", map["path"].get_string());

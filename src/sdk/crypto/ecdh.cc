@@ -215,15 +215,15 @@ std::vector<uint8_t> ECDH::compute_secret(
   return std::move(out);
 }
 
-const string_ &ECDH::get_dsId(const string_ &prefix) {
-  if (prefix != _dsId_cached_prefix || _dsId_cache.empty()) {
-    _dsId_cached_prefix = prefix;
+const string_ &ECDH::get_dsid(const string_ &prefix) {
+  if (prefix != _dsid_cached_prefix || _dsid_cache.empty()) {
+    _dsid_cached_prefix = prefix;
     Hash hash;
     hash.update(get_public_key());
-    _dsId_cache = prefix + base64_url_convert(hash.digest_base64());
+    _dsid_cache = prefix + base64_url_convert(hash.digest_base64());
   }
 
-  return _dsId_cache;
+  return _dsid_cache;
 }
 
 }  // namespace dsa

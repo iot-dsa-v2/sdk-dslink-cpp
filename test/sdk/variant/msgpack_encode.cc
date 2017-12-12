@@ -198,7 +198,7 @@ TEST(VariantTest, MsgpackEncodingNestedArray) {
     msgpack_pack_str_body(&pk, "example", 7);
     msgpack_pack_map(&pk, 2);
     msgpack_pack_str(&pk, 4);
-    msgpack_pack_str_body(&pk, "dsId", 4);
+    msgpack_pack_str_body(&pk, "dsid", 4);
     msgpack_pack_int(&pk, 1);
     msgpack_pack_str(&pk, 4);
     msgpack_pack_str_body(&pk, "path", 4);
@@ -247,8 +247,8 @@ TEST(VariantTest, MsgpackEncodingNestedArray) {
   EXPECT_TRUE(vec[3].is_map());
   VarMap &map = vec[3].get_map();
 
-  EXPECT_TRUE(map["dsId"].is_int());
-  EXPECT_EQ(1, map["dsId"].get_int());
+  EXPECT_TRUE(map["dsid"].is_int());
+  EXPECT_EQ(1, map["dsid"].get_int());
 
   EXPECT_TRUE(map["path"].is_string());
   EXPECT_EQ("/path/name", map["path"].get_string());
@@ -270,7 +270,7 @@ TEST(VariantTest, MsgpackEncodingMap) {
 
     msgpack_pack_map(&pk, 2);
     msgpack_pack_str(&pk, 4);
-    msgpack_pack_str_body(&pk, "dsId", 4);
+    msgpack_pack_str_body(&pk, "dsid", 4);
     msgpack_pack_int(&pk, 1);
     msgpack_pack_str(&pk, 4);
     msgpack_pack_str_body(&pk, "path", 4);
@@ -295,8 +295,8 @@ TEST(VariantTest, MsgpackEncodingMap) {
 
   EXPECT_EQ(2, map.size());
 
-  EXPECT_TRUE(map["dsId"].is_int());
-  EXPECT_EQ(1, map["dsId"].get_int());
+  EXPECT_TRUE(map["dsid"].is_int());
+  EXPECT_EQ(1, map["dsid"].get_int());
 
   EXPECT_TRUE(map["path"].is_string());
   EXPECT_EQ("/path/name", map["path"].get_string());
@@ -317,7 +317,7 @@ TEST(VariantTest, MsgpackEncodingNestedMap) {
 
     msgpack_pack_map(&pk, 3);
     msgpack_pack_str(&pk, 4);
-    msgpack_pack_str_body(&pk, "dsId", 4);
+    msgpack_pack_str_body(&pk, "dsid", 4);
     msgpack_pack_int(&pk, 1);
     msgpack_pack_str(&pk, 4);
     msgpack_pack_str_body(&pk, "path", 4);
@@ -349,8 +349,8 @@ TEST(VariantTest, MsgpackEncodingNestedMap) {
 
   EXPECT_EQ(3, map.size());
 
-  EXPECT_TRUE(map["dsId"].is_int());
-  EXPECT_EQ(1, map["dsId"].get_int());
+  EXPECT_TRUE(map["dsid"].is_int());
+  EXPECT_EQ(1, map["dsid"].get_int());
 
   EXPECT_TRUE(map["path"].is_string());
   EXPECT_EQ("/path/name", map["path"].get_string());

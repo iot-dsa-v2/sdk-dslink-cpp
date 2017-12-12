@@ -11,7 +11,7 @@ Client::Client(WrapperStrand &config)
     : _strand(config.strand),
       _client_token(config.client_token),
       _session(make_ref_<Session>(
-          config.strand, config.strand->ecdh().get_dsId(config.dsid_prefix),
+          config.strand, config.strand->ecdh().get_dsid(config.dsid_prefix),
           "")),
       _client_connection_maker(config.client_connection_maker),
       _reconnect_timer(config.strand->get_io_service()) {}

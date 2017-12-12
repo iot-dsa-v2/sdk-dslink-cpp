@@ -10,7 +10,7 @@ namespace dsa {
 
 HandshakeContext::HandshakeContext(string_ dsid_prefix, const ECDH &ecdh)
     : _ecdh(ecdh), _salt(32) {
-  _dsid = _ecdh.get_dsId(dsid_prefix);
+  _dsid = _ecdh.get_dsid(dsid_prefix);
   //_salt = gen_salt(Connection::SALT_LENGTH);
   gen_salt(_salt.data(), _salt.size());
 }
