@@ -13,10 +13,8 @@ class Session;
 class Connection;
 
 class RemoteRootNode : public RemoteNode {
-  ref_<Session> _remote_session;
-
   std::unordered_map<string_, VarBytesRef> _override_metas;
-
+  void send_all_override_metas();
  public:
   RemoteRootNode(LinkStrandRef &&strand, ref_<Session> &&session);
   ~RemoteRootNode() override;
@@ -29,7 +27,10 @@ class RemoteRootNode : public RemoteNode {
   void set_override_meta(const string_ &field, Var &&v);
 
  protected:
+  bool _first_list_response = true;
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
+
+
 };
 }
 #endif  // DSA_BROKER_REMOTE_ROOT_NODE_H

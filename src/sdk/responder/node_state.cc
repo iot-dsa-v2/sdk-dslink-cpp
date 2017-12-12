@@ -229,9 +229,21 @@ void NodeState::update_list_value(const string_ &key,
     it.first->update_list_value(key, value);
   }
 }
-void NodeState::update_list_status(MessageStatus status, bool refreshed) {
+
+
+void NodeState::update_list_status(MessageStatus status){
   for (auto &it : _list_streams) {
-    it.first->update_list_status(status, refreshed);
+    it.first->update_list_status(status);
+  }
+}
+void NodeState::update_list_refreshed(){
+  for (auto &it : _list_streams) {
+    it.first->update_list_refreshed();
+  }
+}
+void NodeState::update_list_base_path(const string_ &path){
+  for (auto &it : _list_streams) {
+    it.first->update_list_base_path(path);
   }
 }
 

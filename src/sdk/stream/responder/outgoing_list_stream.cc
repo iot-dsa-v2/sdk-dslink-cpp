@@ -29,15 +29,16 @@ void OutgoingListStream::update_list_value(const string_ &key,
   _cached_map[key] = value;
   send_message();
 }
-void OutgoingListStream::update_list_status(MessageStatus status,
-                                            bool refreshed) {
-  if (refreshed) {
-    _refreshed = true;
-    _cached_map.clear();
-  }
+void OutgoingListStream::update_list_status(MessageStatus status) {
   _status = status;
 }
-
+void OutgoingListStream::update_list_refreshed() {
+  _refreshed = true;
+  _cached_map.clear();
+}
+void OutgoingListStream::update_list_base_path(const string_ &path) {
+  // TODO implement this
+}
 size_t OutgoingListStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
   if (_cached_map.empty()) return 0;

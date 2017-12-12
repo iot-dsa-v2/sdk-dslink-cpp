@@ -52,7 +52,7 @@ void BrokerConfig::load() {
         if (data.is_map()) {
           try {
             // allows config to be stored in different location
-            if (_file_path.empty() &&
+            if (_file_path.empty() && data.get_map().count("config-path") > 0 &&
                 !data["config-path"].to_string().empty()) {
               // load broker config from different path
               _file_path = data["config-path"].get_string();
