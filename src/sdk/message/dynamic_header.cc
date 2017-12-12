@@ -53,6 +53,7 @@ std::unique_ptr<DynamicHeader> DynamicHeader::parse(const uint8_t *data, size_t 
       throw MessageParsingError("invalid size for DynamicStringHeader");
     }
     case PRIORITY:
+    case REFRESHED:
     case NO_STREAM:
     case SKIPPABLE: {
       if (size >= 1) {

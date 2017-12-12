@@ -25,7 +25,10 @@ ref_<RemoteRootNode> DownstreamRoot::get_root_for_client(const ClientInfo &info,
       auto child_model = get_child(name);
       if (child_model == nullptr) {
         // create new downstream root node
-        child_model = make_ref_<RemoteRootNode>(_strand->get_ref(), session.get_ref());
+        auto new_root =
+            make_ref_<RemoteRootNode>(_strand->get_ref(), session.get_ref());
+        new_root->set_override_meta("$$dsId", Var(info.dsid));
+        child_model = std::move(new_root);
         add_list_child(name, child_model->get_ref());
       }
       return std::move(child_model);

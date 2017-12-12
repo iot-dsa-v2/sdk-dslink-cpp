@@ -29,16 +29,32 @@ void OutgoingListStream::update_list_value(const string_ &key,
   _cached_map[key] = value;
   send_message();
 }
+void OutgoingListStream::update_list_status(MessageStatus status,
+                                            bool refreshed) {
+  if (refreshed) {
+    _refreshed = true;
+    _cached_map.clear();
+  }
+  _status = status;
+}
 
 size_t OutgoingListStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
   if (_cached_map.empty()) return 0;
 
   size_t size = StaticHeaders::TOTAL_SIZE;
-  // TODO: dynamic headers; base_path;
 
   auto it = _cached_map.begin();
   size += it->first.size() + it->second->size() + 4;
+
+  if (_refreshed) {
+    size++;
+  }
+  if (_status != MessageStatus::OK) {
+    size += 2;
+  }
+  // TODO: count the length for other dynamic headers and base_path;
+
   if (size > available) return size;
 
   for (++it; it != _cached_map.end(); ++it) {
@@ -55,7 +71,15 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   _writing = false;
 
   ListResponseMessage *message = new ListResponseMessage();
-  // TODO: dynamic headers; base_path;
+  if (_status != MessageStatus::OK) {
+    message->set_status(_status);
+    _status = MessageStatus::OK;
+  }
+  if (_refreshed) {
+    message->set_refreshed(true);
+    _refreshed = false;
+  }
+
   size_t availible_size = _next_size - message->size();
 
   RefCountBytes body{availible_size};

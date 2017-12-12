@@ -223,9 +223,15 @@ void NodeState::subscribe(ref_<BaseOutgoingSubscribeStream> &&stream) {
   });
 }
 
-void NodeState::update_list_value(const string_ &key, const VarBytesRef &value) {
+void NodeState::update_list_value(const string_ &key,
+                                  const VarBytesRef &value) {
   for (auto &it : _list_streams) {
     it.first->update_list_value(key, value);
+  }
+}
+void NodeState::update_list_status(MessageStatus status, bool refreshed) {
+  for (auto &it : _list_streams) {
+    it.first->update_list_status(status, refreshed);
   }
 }
 

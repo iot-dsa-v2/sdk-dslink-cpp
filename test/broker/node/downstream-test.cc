@@ -8,8 +8,8 @@
 #include "config/broker_config.h"
 #include "gtest/gtest.h"
 
-#include "module/logger.h"
 #include "core/client.h"
+#include "module/logger.h"
 
 using namespace dsa;
 
@@ -109,6 +109,37 @@ TEST(BrokerDownstreamTest, Invoke) {
           broker->strand->post([broker]() { broker->destroy(); });
         },
         std::move(invoke_req));
+
+  });
+  broker->run();
+  EXPECT_TRUE(broker->is_destroyed());
+}
+
+TEST(BrokerDownstreamTest, List) {
+  typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
+
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+
+  WrapperStrand client_strand = get_client_wrapper_strand(broker);
+  client_strand.strand->set_responder_model(
+      ModelRef(new MockNodeRoot(client_strand.strand)));
+  auto tcp_client = make_ref_<Client>(client_strand);
+  tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
+
+    tcp_client->get_session().requester.list(
+        "downstream/test",
+        [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
+          auto map = msg->get_map();
+          EXPECT_EQ(map["$$dsId"]->get_value().to_string(),
+                    tcp_client->get_session().dsid());
+          // end the test
+          client_strand.strand->post([tcp_client, &client_strand]() {
+            tcp_client->destroy();
+            client_strand.destroy();
+          });
+          broker->strand->post([broker]() { broker->destroy(); });
+        });
 
   });
   broker->run();

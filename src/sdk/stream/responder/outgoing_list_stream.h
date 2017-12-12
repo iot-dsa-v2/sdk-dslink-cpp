@@ -8,11 +8,10 @@
 #include <unordered_map>
 
 #include "../message_io_stream.h"
-
 #include "message/message_options.h"
+#include "variant/variant.h"
 
 namespace dsa {
-class VarBytes;
 
 class OutgoingListStream final : public MessageRefedStream {
  protected:
@@ -23,6 +22,9 @@ class OutgoingListStream final : public MessageRefedStream {
   std::unordered_map<string_, ref_<VarBytes>> _cached_map;
   size_t _next_size;
 
+  MessageStatus _status = MessageStatus::OK;
+  bool _refreshed = true;
+
  public:
   OutgoingListStream(ref_<Session> &&session, const Path &path, uint32_t rid,
                      ListOptions &&options);
@@ -30,7 +32,8 @@ class OutgoingListStream final : public MessageRefedStream {
   void on_list_close(ListCloseCallback &&callback) final;
 
   void update_list_value(const string_ &key, const ref_<VarBytes> &value) final;
-
+  void update_list_status(MessageStatus status = MessageStatus::OK,
+                          bool refreshed = false) final;
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback &) final;
 

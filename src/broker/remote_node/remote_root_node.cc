@@ -24,6 +24,17 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
     _remote_list_stream = _remote_session->requester.list(_remote_path, [
       this, keep_ref = get_ref()
     ](IncomingListStream &, ref_<const ListResponseMessage> && msg) {
+      bool status_changed = false;
+      if (msg->get_refreshed()) {
+        _list_cache.clear();
+        for (auto &it : _override_metas) {
+          _list_cache[it.first] = it.second;
+        }
+        _state->update_list_status(msg->get_status(), true);
+      } else if (msg->get_status() != MessageStatus::OK) {
+        _state->update_list_status(msg->get_status(), false);
+      }
+
       for (auto &it : msg->get_map()) {
         if (it.first.empty()) return;
         if (it.first[0] == '$' && _override_metas.count(it.first) != 0) {
@@ -38,6 +49,15 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
     for (auto &it : _list_cache) {
       stream.update_list_value(it.first, it.second);
     }
+  }
+}
+
+void RemoteRootNode::set_override_meta(const string_ &field, Var &&v) {
+  auto ref = make_ref_<VarBytes>(std::move(v));
+  _override_metas[field] = ref;
+  _list_cache[field] = ref;
+  if (_state != nullptr) {
+    _state->update_list_value(field, ref);
   }
 }
 }

@@ -99,6 +99,8 @@ class NodeState : public DestroyableRef<NodeState> {
   void subscribe(ref_<BaseOutgoingSubscribeStream> &&stream);
 
   void update_list_value(const string_ &key, const VarBytesRef &value);
+  void update_list_status(MessageStatus status = MessageStatus::OK,
+                          bool refreshed = false);
 
   void list(ref_<BaseOutgoingListStream> &&stream);
 
