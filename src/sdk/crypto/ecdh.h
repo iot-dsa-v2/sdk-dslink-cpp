@@ -30,12 +30,17 @@ class ECDH {
 
   void init_private_key(BIGNUM *priv) throw(const std::runtime_error &);
 
+  string_ _dsId_cached_prefix;
+  string_ _dsId_cache;
+
  public:
   ECDH() throw(const std::runtime_error &);
   ECDH(uint8_t *data, size_t size);
   ECDH(const ECDH &ecdh);
   ECDH &operator=(const ECDH &ecdh);
   ~ECDH();
+
+  const string_ & get_dsId(const string_ &prefix);
 
   const std::vector<uint8_t> get_private_key() const
       throw(const std::runtime_error &);

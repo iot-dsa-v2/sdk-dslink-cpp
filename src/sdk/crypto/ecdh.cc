@@ -5,6 +5,8 @@
 #include <openssl/ecdh.h>
 #include <openssl/objects.h>
 #include <boost/filesystem.hpp>
+#include "hash.h"
+#include "misc.h"
 #include "module/logger.h"
 
 namespace fs = boost::filesystem;
@@ -211,6 +213,17 @@ std::vector<uint8_t> ECDH::compute_secret(
   }
 
   return std::move(out);
+}
+
+const string_ &ECDH::get_dsId(const string_ &prefix) {
+  if (prefix != _dsId_cached_prefix || _dsId_cache.empty()) {
+    _dsId_cached_prefix = prefix;
+    Hash hash;
+    hash.update(get_public_key());
+    _dsId_cache = prefix + base64_url_convert(hash.digest_base64());
+  }
+
+  return _dsId_cache;
 }
 
 }  // namespace dsa

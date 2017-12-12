@@ -16,24 +16,25 @@ void SimpleSessionManager::get_session(const string_ &dsid,
   if (memory_check_interval > 0 && _count_to_check >= memory_check_interval) {
     check_destroyed_session();
   }
-  _strand->security_manager().get_client(dsid, auth_token, [
-    =, callback = std::move(callback)
-  ](const ClientInfo client, bool error) mutable {
-    if (error) {
-      callback(ref_<Session>(), _last_client);  // return nullptr
-      return;
-    }
-    _last_client.dsid = dsid;
-    auto search = _sessions.find(session_id);
-    if (search != _sessions.end() && search->second->dsid() == dsid) {
-      callback(search->second, _last_client);
-      return;
-    } else {
-      string_ new_session_id = std::to_string(++_session_seed);
-      _sessions[new_session_id] = make_ref_<Session>(_strand, new_session_id);
-      callback(_sessions[new_session_id], _last_client);
-    }
-  });
+  _strand->security_manager().get_client(
+      dsid, auth_token, [ =, callback = std::move(callback) ](
+                            const ClientInfo client, bool error) mutable {
+        if (error) {
+          callback(ref_<Session>(), _last_client);  // return nullptr
+          return;
+        }
+        _last_client.dsid = dsid;
+        auto search = _sessions.find(session_id);
+        if (search != _sessions.end() && search->second->dsid() == dsid) {
+          callback(search->second, _last_client);
+          return;
+        } else {
+          string_ new_session_id = std::to_string(++_session_seed);
+          _sessions[new_session_id] =
+              make_ref_<Session>(_strand, client.dsid, new_session_id);
+          callback(_sessions[new_session_id], _last_client);
+        }
+      });
 }
 
 void SimpleSessionManager::check_destroyed_session() {

@@ -88,7 +88,7 @@ class Session final : public DestroyableRef<Session> {
   Requester requester;
   Responder responder;
 
-  Session(LinkStrandRef strand, const string_ &session_id);
+  Session(LinkStrandRef strand, const string_ &dsId, const string_ &session_id);
   ~Session();
 
   LinkStrandRef &get_strand() { return _strand; };
