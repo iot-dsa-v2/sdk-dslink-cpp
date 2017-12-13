@@ -22,8 +22,11 @@ namespace responder_set_test {
 /// define a node for the responder
 class MockNode : public NodeModel {
  public:
-  explicit MockNode(LinkStrandRef strand) // allows set value with write permission
-      : NodeModel(std::move(strand), PermissionLevel::WRITE){};
+  explicit MockNode(
+      LinkStrandRef strand)  // allows set value with write permission
+      : NodeModel(std::move(strand), PermissionLevel::WRITE) {
+    update_property("$type", Var("string"));
+  };
 
   MessageStatus on_set_attribute(const string_ &field, Var &&value) override {
     update_property(field, std::move(value));
