@@ -1,4 +1,5 @@
 #include "dsa_common.h"
+#include "dsa/stream.h"
 
 #include <boost/beast/http.hpp>
 
@@ -15,36 +16,10 @@
 
 using namespace dsa;
 
-TEST(WebServerTest, basic_flow) {
+// TODO - webserver not to run separatedly
+// TODO - stop all the work after calling app->close
+TEST(WebServerTest, ws_subscribe) {
   auto app = make_shared_<App>();
-
-  // auto web_server = make_shared_<WebServer>(&app, cert);
-
-  // server
-  auto web_server = std::make_shared<WebServer>(*app);
-  web_server->listen(8080);
-  web_server->start();
-  WebServer::WsCallback root_cb = [](
-      WebServer& web_server,
-      boost::asio::ip::tcp::socket&& socket,
-      boost::beast::http::request<boost::beast::http::string_body> req)
-  {
-
-    auto *config = new EditableStrand(
-        new boost::asio::io_service::strand(web_server.io_service()), make_unique_<ECDH>());
-    config->set_session_manager(make_ref_<SimpleSessionManager>(config));
-    config->set_security_manager(make_ref_<SimpleSecurityManager>());
-    config->set_logger(make_unique_<ConsoleLogger>());
-    config->logger().level = Logger::WARN__;
-
-    LinkStrandRef _link_strand;
-    _link_strand.reset(config);
-
-    DsaWsCallback dsa_ws_callback(_link_strand);
-    dsa_ws_callback(web_server.io_service(), std::move(socket), std::move(req));
-  };
-
-  web_server->add_ws_handler("/", std::move(root_cb));
 
   // client
   TestConfig test_config(app, false);
@@ -76,15 +51,33 @@ TEST(WebServerTest, basic_flow) {
     return true;
   });
 
+  SubscribeOptions initial_options;
+  initial_options.queue_duration = 0x1234;
+  initial_options.queue_size = 0x5678;
+
+  int msg_count = 0;
+  ref_<const SubscribeResponseMessage> last_response;
+  auto subscribe_stream = client->get_session().requester.subscribe(
+      "downstream/test/value",
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
+        last_response = std::move(msg);  // store response
+        ++msg_count;
+      },
+      initial_options);
+
+  ASYNC_EXPECT_TRUE(500, *config.strand,
+                    [&]() -> bool { return last_response != nullptr; });
+
   app->close();
 
   // WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
 
-  //  if (!app->is_stopped()) {
-  //    app->force_stop();
-  //  }
+  // if (!app->is_stopped()) {
+  //   app->force_stop();
+  // }
 
   config.destroy();
   test_config.destroy();
-  //  app->wait();
+  // app->wait();
 }

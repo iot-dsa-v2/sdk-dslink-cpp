@@ -2,17 +2,21 @@
 
 #include "broker.h"
 
+//#include "boost/asio/strand.hpp"
+
 #include "config/broker_config.h"
 #include "config/module_loader.h"
 #include "module/logger.h"
 #include "module/security_manager.h"
 #include "network/tcp/tcp_server.h"
+#include "network/ws/ws_callback.h"
 #include "node/broker_root.h"
 #include "node/downstream/downstream_root.h"
 #include "remote_node/broker_session_manager.h"
 #include "remote_node/remote_root_node.h"
 #include "responder/node_state_manager.h"
 #include "util/app.h"
+#include "web_server/web_server.h"
 
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
@@ -74,6 +78,27 @@ void DsBroker::destroy_impl() {
   _app->close();
 }
 void DsBroker::run() {
+
+  // start web_server
+  auto web_server = std::make_shared<WebServer>(*_app);
+  uint16_t http_port =
+      static_cast<uint16_t>(_config->http_port().get_value().get_int());
+  web_server->listen(http_port);
+  web_server->start();
+  WebServer::WsCallback root_cb = [this](
+      WebServer& web_server,
+      boost::asio::ip::tcp::socket&& socket,
+      boost::beast::http::request<boost::beast::http::string_body> req)
+  {
+    LinkStrandRef link_strand(strand);
+    DsaWsCallback dsa_ws_callback(link_strand);
+    dsa_ws_callback(web_server.io_service(), std::move(socket), std::move(req));
+  };
+
+  // TOOD - websocket callback setup
+  web_server->add_ws_handler("/", std::move(root_cb));
+
+  // start tcp server
   strand->dispatch([this]() {
     if (tcp_server_port > 0) {
       _tcp_server = make_shared_<TcpServer>(*this);

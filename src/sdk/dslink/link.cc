@@ -14,6 +14,7 @@
 #include "module/default/simple_session_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
+#include "network/ws/ws_client_connection.h"
 #include "node/link_root.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_set_stream.h"
@@ -216,7 +217,15 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
         };
       }
     } else if (ws_port > 0) {
-      // TODO, implement ws client
+        client_connection_maker =
+            [
+              dsid_prefix = dsid_prefix, ws_host = ws_host,
+              ws_port = ws_port
+            ](LinkStrandRef & strand, const string_& previous_session_id,
+              int32_t last_ack_id) {
+          return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
+                                            ws_port);
+        };
     }
 
     _client = make_ref_<Client>(*this);
