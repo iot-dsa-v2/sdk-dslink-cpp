@@ -75,7 +75,7 @@ TEST(ResponderTest, ListTest) {
     EXPECT_EQ(map["child_a"]["$is"].to_string(), "test_class");
     EXPECT_TRUE(map["child_b"].is_map());
     EXPECT_EQ(map["child_b"]["$is"].to_string(), "test_class");
-//    EXPECT_EQ(root_list_responses[0].size(), 2); // this  fails, because one empty string is received in the beginning
+    EXPECT_EQ(root_list_responses[0].size(), 2);
   }
 
   // list on child node
