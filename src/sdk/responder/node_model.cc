@@ -64,6 +64,15 @@ void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
   send_children_list(stream);
 }
 
+void NodeModel::on_subscribe(const SubscribeOptions &options,
+                  bool first_request) {
+  if (first_request && _cached_value == nullptr && _metas.count("$type") == 0) {
+    auto response = make_ref_<SubscribeResponseMessage>();
+    response->set_status(MessageStatus::NOT_SUPPORTED);
+    set_subscribe_response(std::move(response));
+  }
+}
+
 void NodeModel::send_props_list(BaseOutgoingListStream &stream) {
   for (auto &it : _metas) {
     stream.update_list_value(it.first, it.second);

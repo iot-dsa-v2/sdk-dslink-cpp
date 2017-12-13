@@ -44,6 +44,9 @@ class NodeModel : public NodeModelBase {
   VarBytesRef &get_summary() override;
 
  protected:
+  void on_subscribe(const SubscribeOptions &options,
+                    bool first_request) override;
+
   void send_props_list(BaseOutgoingListStream &stream);
   void send_children_list(BaseOutgoingListStream &stream);
 
