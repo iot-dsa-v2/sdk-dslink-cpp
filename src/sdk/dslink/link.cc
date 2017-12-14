@@ -82,6 +82,13 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     }
   }
 
+  try{
+    close_token = string_from_file(".close_token");
+    if(close_token.length() != 32) throw std::runtime_error("Token is not have 32 length");
+  }catch(std::exception &e){
+    close_token = "";
+  }
+
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
   parse_log(variables["log"].as<string_>(), *strand);
@@ -301,5 +308,8 @@ ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
                                     ref_<const SetRequestMessage> &&message) {
   return _client->get_session().requester.set(std::move(callback),
                                               std::move(message));
+}
+string_ DsLink::get_close_token() {
+  return close_token;
 }
 }
