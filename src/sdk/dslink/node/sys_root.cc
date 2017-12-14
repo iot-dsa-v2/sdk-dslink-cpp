@@ -1,3 +1,4 @@
+#include <iostream>
 #include "dsa_common.h"
 
 #include "sys_root.h"
@@ -9,13 +10,19 @@ namespace dsa {
 
 LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, ref_<DsLink> &&link)
     : NodeModel(std::move(strand)) {
-  add_list_child(
-      "stop", make_ref_<SimpleInvokeNode>(_strand->get_ref(),
-                                          [link = std::move(link)](Var && v) {
-                                            link->destroy();
-                                            return Var();
-                                          },
-                                          PermissionLevel::CONFIG));
+  if (link->get_close_token() != "") {
+    add_list_child(
+        "stop", make_ref_<SimpleInvokeNode>(_strand->get_ref(),
+                                            [link = std::move(link)](Var &&v) {
+                                              //Checking Token
+                                              if (v.get_type() == Var::STRING &&
+                                                  link->get_close_token() == v.get_string()) {
+                                                link->destroy();
+                                              }
+                                              return Var();
+                                            },
+                                            PermissionLevel::CONFIG));
+  }
 }
 LinkSysRoot::~LinkSysRoot() = default;
 }
