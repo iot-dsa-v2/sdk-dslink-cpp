@@ -10,6 +10,7 @@
 #include "core/client.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
+#include "module/default/dummy_stream_acceptor.h"
 #include "module/default/simple_security_manager.h"
 #include "module/default/simple_session_manager.h"
 #include "network/tcp/tcp_client_connection.h"
@@ -217,15 +218,13 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
         };
       }
     } else if (ws_port > 0) {
-        client_connection_maker =
-            [
-              dsid_prefix = dsid_prefix, ws_host = ws_host,
-              ws_port = ws_port
-            ](LinkStrandRef & strand, const string_& previous_session_id,
+      client_connection_maker =
+          [ dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port ](
+              LinkStrandRef & strand, const string_ &previous_session_id,
               int32_t last_ack_id) {
-          return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                            ws_port);
-        };
+        return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
+                                                ws_port);
+      };
     }
 
     _client = make_ref_<Client>(*this);
@@ -241,6 +240,12 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
     return;
   }
   _running = true;
+
+  if (!strand->is_responder_set()) {
+    LOG_WARN(strand->logger(), LOG << "responder is not initialized");
+    strand->set_stream_acceptor(make_ref_<DummyStreamAcceptor>());
+  }
+
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
