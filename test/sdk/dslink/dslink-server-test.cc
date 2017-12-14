@@ -5,6 +5,7 @@
 #include "../async_test.h"
 #include "../test_config.h"
 #include "gtest/gtest.h"
+#include "module/default/console_logger.h"
 
 using namespace dsa;
 using namespace std;
@@ -31,35 +32,40 @@ class ExampleNodeRoot : public NodeModel {
 TEST(DSLinkTest, Server_Test) {
   shared_ptr<App> app = make_shared<App>();
 
-  const char
-      *argv[] = {"./testResp", "--broker", "ds://127.0.0.1:4120", "-l", "info", "--thread", "4", "--server-port", "4121"};
+  const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4120",
+                        "-l",         "info",          "--thread",
+                        "4",          "--server-port", "4121"};
   int argc = 9;
   auto linkResp = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
+  // filter log for unit test
+  static_cast<ConsoleLogger &>(linkResp->strand->logger()).filter =
+      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
+
   linkResp->init_responder<ExampleNodeRoot>();
   linkResp->connect([&](const shared_ptr_<Connection> connection) {});
 
-// Create link
-  std::string address =
-      std::string("127.0.0.1:") + std::to_string(4121);
+  // Create link
+  std::string address = std::string("127.0.0.1:") + std::to_string(4121);
 
   const char *argv2[] = {"./test", "-b", address.c_str()};
   int argc2 = 3;
   auto link = make_ref_<DsLink>(argc2, argv2, "mydslink", "1.0.0", app);
 
+  // filter log for unit test
+  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
-
-// connection
+  // connection
   bool is_connected = false;
-  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
+  link->connect(
+      [&](const shared_ptr_<Connection> connection) { is_connected = true; });
 
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() { return is_connected; });
 
   std::vector<string_> list_result;
   // List test
-  link->list("",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               list_result = str;
-             });
+  link->list("", [&](IncomingListCache &cache,
+                     const std::vector<string_> &str) { list_result = str; });
   ASYNC_EXPECT_TRUE(500, *link.get()->strand,
                     [&]() { return list_result.size() == 3; });
 
@@ -67,10 +73,11 @@ TEST(DSLinkTest, Server_Test) {
   EXPECT_CONTAIN(list_result, "pub");
   EXPECT_CONTAIN(list_result, "main");
 
-// add a callback when connected to broker
+  // add a callback when connected to broker
   std::vector<std::string> messages;
   link->subscribe("main/child_a",
-                  [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
+                  [&](IncomingSubscribeCache &cache,
+                      ref_<const SubscribeResponseMessage> message) {
                     messages.push_back(message->get_value().value.get_string());
                   });
 
@@ -80,7 +87,7 @@ TEST(DSLinkTest, Server_Test) {
   EXPECT_TRUE(messages.size() == 1);
   EXPECT_EQ(messages.at(0), "test string value 1");
 
-// Cleaning test
+  // Cleaning test
   destroy_dslink_in_strand(linkResp);
   destroy_dslink_in_strand(link);
 
@@ -91,5 +98,4 @@ TEST(DSLinkTest, Server_Test) {
     app->force_stop();
   }
   app->wait();
-
 }

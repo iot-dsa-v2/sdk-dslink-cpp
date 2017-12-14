@@ -10,8 +10,10 @@
 namespace dsa {
 class ConsoleLogger : public Logger {
  public:
+  uint8_t filter = 0xFF;
+
   void write_meta(std::ostream& stream, const char* level) override;
-  void log(const string_& str) override;
+  void log(const string_& str, uint8_t level) override;
 };
 }
 

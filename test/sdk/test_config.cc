@@ -61,7 +61,8 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
-
+  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   return link;
 }
 

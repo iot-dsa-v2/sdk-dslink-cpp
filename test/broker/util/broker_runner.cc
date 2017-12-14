@@ -4,6 +4,7 @@
 
 #include "config/broker_config.h"
 #include "config/module_loader.h"
+#include "module/default/console_logger.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_client_connection.h"
 
@@ -11,9 +12,11 @@ namespace dsa {
 ref_<DsBroker> create_broker() {
   const char* empty_argv[1];
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
-  broker_config->log_level().set_value(Var("fatal"));
   ModuleLoader modules(broker_config);
-  return make_ref_<DsBroker>(std::move(broker_config), modules);
+  auto broker = make_ref_<DsBroker>(std::move(broker_config), modules);
+  // filter log for unit test
+  static_cast<ConsoleLogger&>(broker->strand->logger()).filter =
+      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 }
 WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
                                         const string_& dsid_prefix) {

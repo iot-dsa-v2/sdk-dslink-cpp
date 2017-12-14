@@ -21,7 +21,9 @@ ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
 
   config->set_security_manager(make_ref_<SimpleSecurityManager>());
 
-  config->set_logger(make_unique_<ConsoleLogger>());
+  auto logger = make_unique_<ConsoleLogger>();
+  logger->filter = Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
+  config->set_logger(std::move(logger));
   config->logger().level = Logger::WARN__;
 
   return config;
