@@ -61,30 +61,29 @@ TEST(DSLinkTest, url_param1) {
   link.reset();
 }
 
-//// comment out this test to avoid unecessary console output
-// TEST(DSLinkTest, url_param2) {
-//  const char *argv[] = {"./test", "--broker", "192.168.1.12"};
-//  int argc = 3;
-//  auto link = create_test_dslink(argc, argv);
-//
-//  EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
-//  EXPECT_EQ(DEFAULT_DS_PORT, link.get()->tcp_port);
-//  EXPECT_FALSE(link.get()->secure);
-//  link.get()->destroy();
-//  link.reset();
-//}
-//// comment out this test to avoid unecessary console output
-// TEST(DSLinkTest, url_param3) {
-//  const char *argv[] = {"./test", "--broker", "dss://192.168.1.12"};
-//  int argc = 3;
-//  auto link = create_test_dslink(argc, argv);
-//
-//  EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
-//  EXPECT_EQ(DEFAULT_DSS_PORT, link.get()->tcp_port);
-//  EXPECT_TRUE(link.get()->secure);
-//  link.get()->destroy();
-//  link.reset();
-//}
+TEST(DSLinkTest, url_param2) {
+  const char *argv[] = {"./test", "--broker", "192.168.1.12"};
+  int argc = 3;
+  auto link = create_test_dslink(argc, argv);
+
+  EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
+  EXPECT_EQ(DEFAULT_DS_PORT, link.get()->tcp_port);
+  EXPECT_FALSE(link.get()->secure);
+  link.get()->destroy();
+  link.reset();
+}
+
+TEST(DSLinkTest, url_param3) {
+  const char *argv[] = {"./test", "--broker", "dss://192.168.1.12"};
+  int argc = 3;
+  auto link = create_test_dslink(argc, argv);
+
+  EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
+  EXPECT_EQ(DEFAULT_DSS_PORT, link.get()->tcp_port);
+  EXPECT_TRUE(link.get()->secure);
+  link.get()->destroy();
+  link.reset();
+}
 
 TEST(DSLinkTest, url_param4) {
   const char *argv[] = {"./test", "--broker", "dss://192.168.1.12:132"};
@@ -146,25 +145,26 @@ TEST(DSLinkTest, log_param1) {
   link.reset();
 }
 
-TEST(DSLinkTest, log_param2) {
-  const char *argv[] = {"./test", "-l", "all"};
-  int argc = 3;
-  auto link = create_test_dslink(argc, argv);
-
-  EXPECT_EQ(Logger::ALL___, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
-}
-
-TEST(DSLinkTest, log_param3) {
-  const char *argv[] = {"./test", "-l", "trace"};
-  int argc = 3;
-  auto link = create_test_dslink(argc, argv);
-
-  EXPECT_EQ(Logger::TRACE_, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
-}
+//// comment out this test to avoid unecessary console output
+// TEST(DSLinkTest, log_param2) {
+//  const char *argv[] = {"./test", "-l", "all"};
+//  int argc = 3;
+//  auto link = create_test_dslink(argc, argv);
+//
+//  EXPECT_EQ(Logger::ALL___, link.get()->strand.get()->logger().level);
+//  link.get()->destroy();
+//  link.reset();
+//}
+//// comment out this test to avoid unecessary console output
+// TEST(DSLinkTest, log_param3) {
+//  const char *argv[] = {"./test", "-l", "trace"};
+//  int argc = 3;
+//  auto link = create_test_dslink(argc, argv);
+//
+//  EXPECT_EQ(Logger::TRACE_, link.get()->strand.get()->logger().level);
+//  link.get()->destroy();
+//  link.reset();
+//}
 
 TEST(DSLinkTest, log_param4) {
   const char *argv[] = {"./test", "-l", "debug"};
