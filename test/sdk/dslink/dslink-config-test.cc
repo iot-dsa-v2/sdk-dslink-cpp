@@ -4,6 +4,8 @@
 #include <thread>
 #include <boost/format.hpp>
 #include <module/logger.h>
+#include <boost/filesystem/operations.hpp>
+#include <util/string.h>
 #include "dsa/responder.h"
 #include "dslink.h"
 
@@ -274,6 +276,25 @@ TEST(DSLinkTest, tcp_server_port_param) {
   CREATE_TEST_DSLINK
 
   EXPECT_EQ(link.get()->tcp_server_port, 132);
+  link.get()->destroy();
+  link.reset();
+}
+
+TEST(DSLinkTest, token_file) {
+
+  string_ token("IAmATokenPleaseBelieveME!!!");
+
+  // First create token file
+  string_ token_file_name("my_test_token.txt");
+  if(!boost::filesystem::exists(token_file_name)){
+    string_to_file(token, token_file_name);
+  }
+
+  const char *argv[] = {"./test", "--token", token_file_name.c_str()};
+  int argc = 3;
+  CREATE_TEST_DSLINK
+
+  EXPECT_EQ(link.get()->client_token, token);
   link.get()->destroy();
   link.reset();
 }

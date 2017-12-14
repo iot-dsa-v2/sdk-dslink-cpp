@@ -6,6 +6,7 @@
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <regex>
+#include <util/string.h>
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
@@ -33,7 +34,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
       ("log,l", opts::value<string_>()->default_value("info"),
        "Log Level [all,trace,debug,info,warn,error,fatal,none]")  // log level
       ("token,t", opts::value<string_>()->default_value(""),
-       "Token")  // token
+       "Token file path")  // token
       ("thread", opts::value<size_t>()->default_value(1),
        "Number of thread")  // custom name
       ("name,n", opts::value<string_>()->default_value(link_name),
@@ -67,7 +68,18 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   strand.reset(new EditableStrand(
       get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
-  client_token = variables["token"].as<string_>();
+  // TOKEN from file
+  client_token = "";
+  auto client_token_path = variables["token"].as<string_>();
+  if(client_token_path.length() != 0) {
+    try{
+      client_token = string_from_file(client_token_path);
+    }catch (std::exception &e) {
+      LOG_FATAL(LOG << "Fatal loading token file " << client_token_path
+                    << " with error : "<< e.what());
+    }
+  }
+
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
   parse_log(variables["log"].as<string_>(), *strand);
