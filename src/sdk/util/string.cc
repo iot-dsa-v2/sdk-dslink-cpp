@@ -17,11 +17,11 @@ string_ string_from_file(string_ file_path){
     if (my_file.is_open()) {
       my_file >> data;
     } else {
-      throw "cannot open file";
+      throw std::runtime_error("cannot open file to read");
     }
   }
   else{
-    throw "there is no file";
+    throw std::runtime_error("there is no file");
   }
 
   return data;
@@ -33,7 +33,7 @@ void string_to_file(string_ data, string_ file_path){
   if (my_file.is_open()) {
     my_file<<data;
   } else {
-    throw "Unable to open file to write";
+    throw std::runtime_error("Unable to open file to write");
   }
 }
 
