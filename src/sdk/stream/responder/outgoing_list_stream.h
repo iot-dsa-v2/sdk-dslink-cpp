@@ -34,7 +34,7 @@ class OutgoingListStream final : public MessageRefedStream {
   void update_list_value(const string_ &key, const ref_<VarBytes> &value) final;
   void update_list_status(MessageStatus status = MessageStatus::OK) final;
   void update_list_refreshed() final;
-  void update_list_base_path(const string_& path) final;
+  void update_list_pub_path(const string_& path) final;
 
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback &) final;

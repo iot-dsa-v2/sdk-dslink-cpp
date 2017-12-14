@@ -48,6 +48,8 @@ class RemoteNode : public NodeModelBase {
 
   /// list
  protected:
+  MessageStatus _list_status_cahce = MessageStatus ::OK;
+  string_ _list_pub_path_cache;
   std::unordered_map<string_, VarBytesRef> _list_cache;
   ref_<IncomingListStream> _remote_list_stream;
 
