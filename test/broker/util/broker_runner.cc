@@ -17,6 +17,7 @@ ref_<DsBroker> create_broker() {
   // filter log for unit test
   static_cast<ConsoleLogger&>(broker->strand->logger()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
+  return std::move(broker);
 }
 WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
                                         const string_& dsid_prefix) {
