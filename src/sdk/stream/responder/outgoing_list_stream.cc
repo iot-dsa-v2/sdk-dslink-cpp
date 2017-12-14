@@ -39,7 +39,7 @@ void OutgoingListStream::update_list_refreshed() {
   _refreshed = true;
   _cached_map.clear();
 }
-void OutgoingListStream::update_list_base_path(const string_ &path) {
+void OutgoingListStream::update_list_pub_path(const string_ &path) {
   // TODO implement this
 }
 size_t OutgoingListStream::peek_next_message_size(size_t available,
@@ -57,7 +57,7 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
   if (_status != MessageStatus::OK) {
     size += 2;
   }
-  // TODO: count the length for other dynamic headers and base_path;
+  // TODO: count the length for other dynamic headers and pub_path;
 
   if (size > available) return size;
 

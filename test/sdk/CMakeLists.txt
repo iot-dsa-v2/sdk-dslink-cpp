@@ -10,6 +10,7 @@ foreach(dir
 		"./variant"
 		"./network"
 	    "./responder"
+#            "./web_server"
        )
   add_subdirectory(${dir})
 endforeach()

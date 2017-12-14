@@ -130,7 +130,7 @@ TEST(BrokerDownstreamTest, List) {
   auto tcp_client2 = make_ref_<Client>(client_strand2);
 
   // after client1 disconnected, list update should show it's disconnected
-  auto test_disconnection_list = [&]() {
+  auto step_3_disconnection_list = [&]() {
     tcp_client2->get_session().requester.list(
         "downstream/test1",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
@@ -147,19 +147,19 @@ TEST(BrokerDownstreamTest, List) {
   };
 
   // downstream should has test1 and test2 nodes
-  auto test_downstream_list = [&]() {
+  auto step_2_downstream_list = [&]() {
     tcp_client2->get_session().requester.list(
         "downstream",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
           auto map = msg->get_map();
           EXPECT_TRUE(map["test1"]->get_value().is_map());
           EXPECT_TRUE(map["test2"]->get_value().is_map());
-          test_disconnection_list();
+          step_3_disconnection_list();
         });
   };
 
   // when list on downstream/test1 it should have a metadata for test1's dsid
-  auto test_downstream_child_list =
+  auto step_1_downstream_child_list =
       [&](const shared_ptr_<Connection>& connection) {
         tcp_client1->get_session().requester.list(
             "downstream/test1",
@@ -172,12 +172,12 @@ TEST(BrokerDownstreamTest, List) {
                 tcp_client1->destroy();
                 client_strand1.destroy();
               });
-              test_downstream_list();
+              step_2_downstream_list();
             });
 
       };
 
-  tcp_client1->connect(std::move(test_downstream_child_list));
+  tcp_client1->connect(std::move(step_1_downstream_child_list));
   tcp_client2->connect();
 
   broker->run();

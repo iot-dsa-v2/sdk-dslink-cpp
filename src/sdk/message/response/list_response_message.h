@@ -32,7 +32,7 @@ class ListResponseMessage final : public ResponseMessage {
   void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,
                           size_t body_size) throw(const MessageParsingError&);
 
-  std::unique_ptr<DynamicStringHeader> base_path;
+  std::unique_ptr<DynamicStringHeader> pub_path;
   std::unique_ptr<DynamicBoolHeader> refreshed;
 
   std::unordered_map<string_, VarBytesRef> _raw_map;
@@ -40,8 +40,8 @@ class ListResponseMessage final : public ResponseMessage {
   void parse();
 
  public:
-  const string_& get_base_path() const;
-  void set_base_path(const string_& value);
+  const string_& get_pub_path() const;
+  void set_pub_path(const string_& value);
 
   const bool get_refreshed() const;
   void set_refreshed(bool value);

@@ -213,7 +213,7 @@ TEST(MessageTest, SetRequest__dynamic_structure) {
   //      request.set_qos(1); //
   //      request.set_queue_size();
   //      request.set_queue_time();
-  //      request.set_base_path();
+  //      request.set_pub_path();
   //      request.skippable();
   //      request.set_max_permission();
   request.set_permission_token("ptoken");
@@ -330,7 +330,7 @@ TEST(MessageTest, SetResponse__dynamic_structure) {
   //  response.set_qos(1); //
   //  response.set_queue_size();
   //  response.set_queue_time();
-  //  response.set_base_path();
+  //  response.set_pub_path();
   //  response.skippable();
   //  response.set_max_permission();
   //  response.set_permission_token();

@@ -11,7 +11,6 @@ list(APPEND StreamSourceFiles
         responder/outgoing_list_stream.cc
         responder/outgoing_invoke_stream.cc
         responder/outgoing_set_stream.cc
-        outgoing_stream_acceptor.h
         stream_callbacks.h)
 
 foreach(file ${StreamSourceFiles})

@@ -12,8 +12,8 @@ ListResponseMessage::ListResponseMessage(const ListResponseMessage& from)
     refreshed.reset(new DynamicBoolHeader(DynamicHeader::REFRESHED));
   if (from.sequence_id != nullptr)
     sequence_id.reset(new DynamicIntHeader(DynamicHeader::SEQUENCE_ID, from.sequence_id->value()));
-  if (from.base_path != nullptr)
-    base_path.reset(new DynamicStringHeader(DynamicHeader::BASE_PATH, from.base_path->value()));
+  if (from.pub_path != nullptr)
+    pub_path.reset(new DynamicStringHeader(DynamicHeader::PUB_PATH, from.pub_path->value()));
   if (from.source_path != nullptr)
     source_path.reset(new DynamicStringHeader(DynamicHeader::SOURCE_PATH, from.source_path->value()));
   if (from.body != nullptr)
@@ -32,7 +32,7 @@ void ListResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynamic
         break;
       case DynamicHeader::SEQUENCE_ID:sequence_id.reset(DOWN_CAST<DynamicIntHeader *>(header.release()));
         break;
-      case DynamicHeader::BASE_PATH:base_path.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
+      case DynamicHeader::PUB_PATH:pub_path.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
         break;
       case DynamicHeader::SOURCE_PATH:source_path.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
         break;
@@ -58,9 +58,9 @@ void ListResponseMessage::write_dynamic_data(uint8_t *data) const {
     sequence_id->write(data);
     data += sequence_id->size();
   }
-  if (base_path != nullptr) {
-    base_path->write(data);
-    data += base_path->size();
+  if (pub_path != nullptr) {
+    pub_path->write(data);
+    data += pub_path->size();
   }
   if (source_path != nullptr) {
     source_path->write(data);
@@ -82,8 +82,8 @@ void ListResponseMessage::update_static_header() {
   if (sequence_id != nullptr) {
     header_size += sequence_id->size();
   }
-  if (base_path != nullptr) {
-    header_size += base_path->size();
+  if (pub_path != nullptr) {
+    header_size += pub_path->size();
   }
   if (source_path != nullptr) {
     header_size += source_path->size();

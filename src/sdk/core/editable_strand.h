@@ -46,6 +46,7 @@ class EditableStrand : public LinkStrand {
   void set_logger(std::unique_ptr<Logger> p);
 
   void set_responder_model(ModelRef&& root_model, size_t timer_interval = 60);
+  bool is_responder_set() { return _stream_acceptor != nullptr; }
 
   void destroy_impl() override;
 };

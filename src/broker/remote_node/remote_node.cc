@@ -73,6 +73,9 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
         _state->update_list_refreshed();
         _list_cache.clear();
       }
+      if (!msg->get_pub_path().empty()) {
+        _list_pub_path_cache = _remote_session->map_pub_path(msg->get_pub_path());
+      }
       _state->update_list_status(msg->get_status());
 
       for (auto &it : msg->get_map()) {
@@ -82,6 +85,8 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
       }
     });
   } else {
+    stream.update_list_status(_list_status_cahce);
+    stream.update_list_pub_path(_list_pub_path_cache);
     for (auto &it : _list_cache) {
       stream.update_list_value(it.first, it.second);
     }

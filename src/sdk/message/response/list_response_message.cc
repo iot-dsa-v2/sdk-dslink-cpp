@@ -17,11 +17,11 @@ ListResponseMessage::ListResponseMessage()
 
 ListResponseMessage::~ListResponseMessage() = default;
 
-const string_& ListResponseMessage::get_base_path() const {
-  return DynamicStringHeader::read_value(base_path);
+const string_& ListResponseMessage::get_pub_path() const {
+  return DynamicStringHeader::read_value(pub_path);
 }
-void ListResponseMessage::set_base_path(const string_& value) {
-  if (DynamicStringHeader::write_value(base_path, DynamicHeader::BASE_PATH,
+void ListResponseMessage::set_pub_path(const string_& value) {
+  if (DynamicStringHeader::write_value(pub_path, DynamicHeader::PUB_PATH,
                                        value)) {
     static_headers.message_size = 0;
   }

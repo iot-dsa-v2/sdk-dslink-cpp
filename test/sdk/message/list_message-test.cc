@@ -253,7 +253,7 @@ TEST(MessageTest, ListResponse__Constructor_02) {
   source_response.set_status(MessageStatus::CLOSED);
   source_response.set_sequence_id(1234);
   source_response.set_page_id(4321);  // no effect
-  source_response.set_base_path("/base/path");
+  source_response.set_pub_path("/base/path");
   source_response.set_source_path("/source/path");
 
   source_response.size();
@@ -330,7 +330,7 @@ TEST(MessageTest, ListResponse__dynamic_structure) {
   response.set_status(MessageStatus::CLOSED);
   response.set_sequence_id(1234);
   response.set_page_id(4321);  // no effect
-  response.set_base_path("/base/path");
+  response.set_pub_path("/base/path");
   response.set_source_path("/source/path");
 
   response.size();
@@ -355,7 +355,7 @@ TEST(MessageTest, ListResponse__copy) {
   response.set_status(MessageStatus::CLOSED);
   response.set_sequence_id(1234);
   response.set_page_id(4321);  // no effect
-  response.set_base_path("/base/path");
+  response.set_pub_path("/base/path");
   response.set_source_path("/source/path");
 
   response.size();

@@ -6,6 +6,7 @@ find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 set(BROKER_LIBS ${BROKER_LIBS} ${OPENSSL_LIBRARIES})
 
+include_directories("../../deps/beast/include")
 include_directories("../sdk")
 
 #

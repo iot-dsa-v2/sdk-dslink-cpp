@@ -106,6 +106,11 @@ class Session final : public DestroyableRef<Session> {
   void destroy_impl() final;
 
   void write_stream(ref_<MessageStream> &&stream);
+
+  string_ map_pub_path(const string_ & path) {
+    // todo: implement this
+    return path;
+  }
 };
 
 }  // namespace dsa

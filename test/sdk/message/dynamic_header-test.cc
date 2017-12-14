@@ -30,7 +30,7 @@ TEST(DynamicHeaderTest, parse) {
     { DynamicHeader::QOS, BYTE_HEADER },
     { DynamicHeader::QUEUE_SIZE, INT_HEADER },
     { DynamicHeader::QUEUE_TIME, INT_HEADER },
-    { DynamicHeader::BASE_PATH, STRING_HEADER },
+    { DynamicHeader::PUB_PATH, STRING_HEADER },
     { DynamicHeader::SKIPPABLE, BOOL_HEADER },
     { DynamicHeader::MAX_PERMISSION, BYTE_HEADER },
     { DynamicHeader::ATTRIBUTE_FIELD, STRING_HEADER },

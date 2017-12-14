@@ -7,6 +7,7 @@
 
 #include "../connection.h"
 #include "ws_connection.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
 

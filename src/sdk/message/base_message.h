@@ -183,7 +183,7 @@ class MessageStream : public DestroyableRef<MessageStream> {
                                  const ref_<VarBytes>& value) {}
   virtual void update_list_status(MessageStatus status){};
   virtual void update_list_refreshed() {}
-  virtual void update_list_base_path(const string_& path) {}
+  virtual void update_list_pub_path(const string_& path) {}
 
   virtual void on_list_close(ListCloseCallback&& callback){};
 

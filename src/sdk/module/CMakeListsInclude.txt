@@ -5,11 +5,13 @@ list(APPEND ModulekSourceFiles
         default/simple_storage_bucket.cc
         default/simple_queue_bucket.cc
         default/simple_session_manager.cc
+        default/dummy_stream_acceptor.cc
         logger.cc
         logger.h
         security_manager.h
         session_manager.h
         storage.h
+        outgoing_stream_acceptor.h
         )
 
 foreach(file ${ModulekSourceFiles})
