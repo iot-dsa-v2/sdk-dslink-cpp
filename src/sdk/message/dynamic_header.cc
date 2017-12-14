@@ -37,7 +37,7 @@ std::unique_ptr<DynamicHeader> DynamicHeader::parse(const uint8_t *data, size_t 
       throw MessageParsingError("invalid size for DynamicByteHeader");
     }
 
-    case BASE_PATH:
+    case PUB_PATH:
     case ATTRIBUTE_FIELD:
     case PERMISSION_TOKEN:
     case TARGET_PATH:

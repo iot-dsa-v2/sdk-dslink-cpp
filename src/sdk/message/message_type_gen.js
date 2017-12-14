@@ -179,7 +179,7 @@ const messages = {
             new ByteHeader('Status'),
             new BoolHeader('Refreshed'),
             new IntHeader('SequenceId'),
-            new StringHeader('BasePath'),
+            new StringHeader('PubPath'),
             new StringHeader('SourcePath'),
             new BodyHeader('Body'),
         ],
