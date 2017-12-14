@@ -54,9 +54,21 @@ TEST(DSLinkTest, Server_Test) {
 
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() { return is_connected; });
 
+  std::vector<string_> list_result;
+  // List test
+  link->list("",
+             [&](IncomingListCache &cache, const std::vector<string_> &str) {
+               list_result = str;
+             });
+  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
+                    [&]() { return list_result.size() == 3; });
+
+  EXPECT_CONTAIN(list_result, "sys");
+  EXPECT_CONTAIN(list_result, "pub");
+  EXPECT_CONTAIN(list_result, "main");
+
 // add a callback when connected to broker
   std::vector<std::string> messages;
-
   link->subscribe("main/child_a",
                   [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
                     messages.push_back(message->get_value().value.get_string());
