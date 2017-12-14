@@ -39,6 +39,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
         }
         */
 
+#if 0
         // websocket handshake
         _ws.async_handshake(_hostname, "/", [
           connection = share_this<WsConnection>(), this
@@ -50,6 +51,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
           WsConnection::start_read(std::move(connection));
 
         });
+#endif
 
       });
   start_deadline_timer(reconnect_interval);
