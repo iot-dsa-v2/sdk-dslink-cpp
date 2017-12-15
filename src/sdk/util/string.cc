@@ -1,9 +1,6 @@
-//
-// Created by mk on 12/14/17.
-//
-
 #include "string.h"
 #include <boost/filesystem.hpp>
+#include "openssl/rand.h"
 
 using namespace std;
 namespace fs = boost::filesystem;
@@ -35,6 +32,36 @@ void string_to_file(string_ data, string_ file_path){
   } else {
     throw std::runtime_error("Unable to open file to write");
   }
+}
+
+std::vector<unsigned char> get_random_byte_array(int len) {
+  if(!IS_RAND_INITIALIZED) {
+    RAND_poll();
+    IS_RAND_INITIALIZED = 1;
+  }
+  std::vector<unsigned char> buffer(len);
+  RAND_bytes(buffer.data(), len);
+  return buffer;
+}
+static
+unsigned char get_random_char() {
+  while(1) {
+    unsigned char n = (unsigned char)(get_random_byte_array(1)[0] & 0x7F);
+    if ((n >= '0' && n <= '9') ||
+        (n >= 'A' && n <= 'Z') ||
+        (n >= 'a' && n <= 'z')) {
+      return n;
+    }
+  }
+}
+string_ generate_random_string(int len) {
+  string_ randStr;
+
+  for (int i = 0; i < len; ++i) {
+    randStr += get_random_char();
+  }
+
+  return randStr;
 }
 
 }
