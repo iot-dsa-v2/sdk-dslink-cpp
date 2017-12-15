@@ -15,7 +15,9 @@ void RemoteRootNode::on_session(Session &session,
                                 const shared_ptr_<Connection> &connection) {}
 
 // an empty map, default summary for all remote root node
-static VarBytesRef default_summary(new VarBytes(Var::new_map().to_msgpack()));
+static VarBytesRef default_summary(new VarBytes(std::vector<uint8_t>{
+    0x80} /* 0x80 is an empty msgpack map */));
+
 VarBytesRef &RemoteRootNode::get_summary() { return default_summary; }
 
 void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
