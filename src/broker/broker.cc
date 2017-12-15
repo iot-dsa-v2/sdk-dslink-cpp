@@ -79,6 +79,7 @@ void DsBroker::destroy_impl() {
 }
 void DsBroker::run() {
 
+#if 0
   // start web_server
   auto web_server = std::make_shared<WebServer>(*_app);
   uint16_t http_port =
@@ -95,8 +96,9 @@ void DsBroker::run() {
     dsa_ws_callback(web_server.io_service(), std::move(socket), std::move(req));
   };
 
-  // TOOD - websocket callback setup
+  // TODO - websocket callback setup
   web_server->add_ws_handler("/", std::move(root_cb));
+#endif
 
   // start tcp server
   strand->dispatch([this]() {
