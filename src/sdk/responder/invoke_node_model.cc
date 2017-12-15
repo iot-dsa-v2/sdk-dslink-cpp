@@ -41,6 +41,9 @@ void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
                                  ref_<NodeState> &parent) {
   stream->on_request(([this](OutgoingInvokeStream &s,
                              ref_<const InvokeRequestMessage> &&message) {
+    if (message == nullptr) {
+      return; // nullptr is for destroyed callback, no need to handle here
+    }
     Var result = _callback(message->get_value());
     auto response = make_ref_<InvokeResponseMessage>();
 
