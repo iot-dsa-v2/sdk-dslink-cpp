@@ -7,9 +7,9 @@
 
 namespace dsa {
 
-OutgoingInvokeStream::OutgoingInvokeStream(
-    ref_<Session> &&session, const Path &path, uint32_t rid,
-    ref_<InvokeRequestMessage> &&mesage)
+OutgoingInvokeStream::OutgoingInvokeStream(ref_<Session> &&session,
+                                           const Path &path, uint32_t rid,
+                                           ref_<InvokeRequestMessage> &&mesage)
     : MessageQueueStream(std::move(session), path, rid) {
   _waiting_requests.emplace_back(std::move(mesage));
 }
@@ -38,7 +38,15 @@ void OutgoingInvokeStream::on_request(Callback &&callback) {
     _waiting_requests.clear();
   }
 }
-
+void OutgoingInvokeStream::send_response(InvokeResponseMessageCRef &&message) {
+  if (message->get_status() >= MessageStatus::CLOSED && !_closed) {
+    _closed = true;
+    _callback = nullptr;
+    send_message(MessageCRef(std::move(message)), true);
+  } else {
+    send_message(MessageCRef(std::move(message)));
+  }
+};
 void OutgoingInvokeStream::close(MessageStatus status) {
   if (_closed) return;
   if (status < MessageStatus::CLOSED) {
