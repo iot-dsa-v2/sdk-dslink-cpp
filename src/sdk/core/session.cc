@@ -27,11 +27,26 @@ void Session::set_on_connect(OnConnectCallback &&callback) {
   _on_connect = std::move(callback);
 }
 
+bool Session::reconnect(const string_ next_session_id, int32_t last_remote_ack) {
+  if (_connection != nullptr) {
+    _connection->destroy();
+    _connection.reset();
+  }
+
+  if (!_reconnection_expired && next_session_id != _session_id ) {
+    // TODO, update all stream based on last ack, prepare for resending
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {
     _connection->destroy();
   }
   _connection = std::move(connection);
+
   // TODO, handle last ack
   // TODO, remove Ack and Ping from the write streams
 

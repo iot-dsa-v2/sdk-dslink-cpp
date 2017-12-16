@@ -2,11 +2,11 @@
 
 #include "link.h"
 
+#include <util/string.h>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <regex>
-#include <util/string.h>
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
@@ -73,12 +73,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   // TOKEN from file
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
-  if(client_token_path.length() != 0) {
-    try{
+  if (client_token_path.length() != 0) {
+    try {
       client_token = string_from_file(client_token_path);
-    }catch (std::exception &e) {
+    } catch (std::exception &e) {
       LOG_FATAL(LOG << "Fatal loading token file " << client_token_path
-                    << " with error : "<< e.what());
+                    << " with error : " << e.what());
     }
   }
 
@@ -255,6 +255,7 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
 
   if (!strand->is_responder_set()) {
     LOG_WARN(strand->logger(), LOG << "responder is not initialized");
+    _client->get_session().responder_enabled = false;
     strand->set_stream_acceptor(make_ref_<DummyStreamAcceptor>());
   }
 

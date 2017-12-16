@@ -21,6 +21,7 @@ static ClientInfo dummy_info;
 void BrokerSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
                                        const string_ &session_id,
+                                       int32_t last_ack,
                                        Session::GetSessionCallback &&callback) {
   _strand->security_manager().get_client(dsid, auth_token, [
     =, callback = std::move(callback)
@@ -40,7 +41,7 @@ void BrokerSessionManager::get_session(const string_ &dsid,
       }
       _clients[dsid] = std::move(client);
     }
-    _clients[dsid]->add_session(_strand, session_id, std::move(callback));
+    _clients[dsid]->add_session(_strand, session_id, last_ack, std::move(callback));
 
   });
 }

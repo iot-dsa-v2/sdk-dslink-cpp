@@ -5,6 +5,7 @@
 #include "broker_session_manager.h"
 #include "crypto/hash.h"
 #include "crypto/misc.h"
+#include "module/logger.h"
 #include "remote_root_node.h"
 
 namespace dsa {
@@ -33,18 +34,26 @@ ref_<Session> &BrokerClient::create_single_session(LinkStrandRef &strand) {
   return _single_session;
 }
 void BrokerClient::add_session(LinkStrandRef &strand, const string_ &session_id,
+                               int32_t last_ack,
                                Session::GetSessionCallback &&callback) {
   if (_info.max_session == 1) {
     if (_single_session == nullptr) {
       create_single_session(strand);
-
-    } else if (session_id != _single_session->session_id()) {
+    } else if (session_id != _single_session->session_id() &&
+               _single_session->reconnect(session_id, last_ack)) {
+    } else {
+      // when session reconnection expires, it might return false
+      // this can only happen on single session
       _single_session->update_session_id(get_new_session_id(session_id));
     }
     callback(_single_session, _info);
   } else {
     auto search = _sessions.find(session_id);
     if (search != _sessions.end()) {
+      // reconnect should never return false
+      if (!search->second->reconnect(session_id, last_ack)) {
+        LOG_ERROR(strand->logger(), LOG << "reconnection failed");
+      }
       callback(search->second, _info);
       return;
     }

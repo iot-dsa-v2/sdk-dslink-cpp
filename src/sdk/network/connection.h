@@ -112,8 +112,9 @@ class Connection : public SharedDestroyable<Connection> {
  protected:
   string_ _client_token;
 
-  static void on_client_connect(shared_ptr_<Connection> connection) throw(
-      const std::runtime_error &);
+  static void on_client_connect(
+      shared_ptr_<Connection> connection, const string_ &next_session_id,
+      int32_t remote_last_ack) throw(const std::runtime_error &);
 
   void start_client_f0();
   bool on_receive_f1(MessageRef &&msg);
