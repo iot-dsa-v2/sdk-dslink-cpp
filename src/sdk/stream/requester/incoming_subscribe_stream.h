@@ -21,6 +21,7 @@ class IncomingSubscribeStream final : public MessageCacheStream {
 
  protected:
   Callback _callback;
+  SubscribeOptions _options;
 
  public:
   explicit IncomingSubscribeStream(ref_<Session>&& session, const Path& path,
@@ -34,6 +35,8 @@ class IncomingSubscribeStream final : public MessageCacheStream {
   void close();
 
   bool check_close_message(MessageCRef& message) final;
+
+  bool disconnected() final;
 };
 }
 

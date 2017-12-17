@@ -32,6 +32,8 @@ class IncomingInvokeStream final : public MessageQueueStream {
   void close();
 
   bool check_close_message(MessageCRef& message) final;
+
+  bool disconnected() final;
 };
 }
 

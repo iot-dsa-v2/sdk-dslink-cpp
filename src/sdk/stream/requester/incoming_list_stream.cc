@@ -22,6 +22,7 @@ void IncomingListStream::receive_message(ref_<Message>&& msg) {
 }
 
 void IncomingListStream::list(const ListOptions& options) {
+  _options = options;
   auto msg = make_ref_<ListRequestMessage>();
   msg->set_list_option(options);
   msg->set_target_path(path.full_str());
@@ -40,6 +41,13 @@ bool IncomingListStream::check_close_message(MessageCRef& message) {
     _session->requester.remove_stream(rid);
     return true;
   }
+  return false;
+}
+
+bool IncomingListStream::disconnected() {
+  // when disconnected, list again
+  // a new request message is put in queue and will be sent when connected again
+  list(_options);
   return false;
 }
 }
