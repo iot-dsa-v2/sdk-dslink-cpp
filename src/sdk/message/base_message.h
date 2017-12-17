@@ -172,6 +172,13 @@ class MessageStream : public DestroyableRef<MessageStream> {
   // read message from remote
   virtual void receive_message(ref_<Message>&& msg) = 0;
 
+  // when remove is disconnected
+  // return true if stream is destroyed
+  virtual bool disconnected() = 0;
+
+  // all the pending ack failed
+  virtual void unack() = 0;
+
   // because fake stream also need to extend ref_ , define the following
   // interface here make things simpler. in other programing language these
   // functions should be defined in real interface

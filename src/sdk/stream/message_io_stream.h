@@ -36,6 +36,17 @@ class MessageRefedStream : public MessageStream {
   MessageRefedStream &operator=(const MessageRefedStream &other) = delete;
   MessageRefedStream &operator=(MessageRefedStream &&other) noexcept = delete;
   ~MessageRefedStream() override;
+
+  // when remove is disconnected
+  bool disconnected() override {
+    destroy();
+    return true;
+  }
+
+  // all the pending ack failed
+  void unack() override {
+    // TODO
+  }
 };
 
 /// message stream with one message cache to write

@@ -20,6 +20,18 @@ class ErrorStream final : public MessageStream {
   MessageCRef get_next_message(AckCallback& callback) final;
 
   void receive_message(ref_<Message>&& msg) final {}
+
+  // when remove is disconnected
+  bool disconnected() override {
+    destroy();
+    return true;
+  }
+
+  // all the pending ack failed
+  void unack() override {
+    // TODO
+  }
+
 };
 }
 

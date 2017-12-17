@@ -31,6 +31,8 @@ class Requester {
 
   void destroy_impl();
 
+  void disconnected();
+
  public:
   explicit Requester(Session &session);
   ~Requester();
@@ -50,6 +52,7 @@ class Requester {
                               ref_<const SetRequestMessage> &&message);
 
   bool remove_stream(int32_t rid);
+
 };
 
 }  // namespace dsa

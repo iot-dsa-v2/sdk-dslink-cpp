@@ -21,6 +21,15 @@ void Requester::destroy_impl() {
   }
   _incoming_streams.clear();
 }
+void Requester::disconnected() {
+  for (auto it = _incoming_streams.begin(); it != _incoming_streams.end();) {
+    if (it->second->disconnected()) {
+      it = _incoming_streams.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
 
 int32_t Requester::next_rid() {
   while (_incoming_streams.find(++_next_rid) != _incoming_streams.end()) {

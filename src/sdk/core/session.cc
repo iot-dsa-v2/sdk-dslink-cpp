@@ -35,8 +35,17 @@ bool Session::reconnect(const string_ next_session_id, int32_t last_remote_ack) 
 
   if (!_reconnection_expired && next_session_id != _session_id ) {
     // TODO, update all stream based on last ack, prepare for resending
-    return true;
+    // return true;
+
+    // TODO remove the following code
+    _write_streams.clear();
+    requester.disconnected();
+    responder.disconnected();
+    return false;
   } else {
+    _write_streams.clear();
+    requester.disconnected();
+    responder.disconnected();
     return false;
   }
 }
