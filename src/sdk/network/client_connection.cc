@@ -19,6 +19,7 @@ void Connection::on_client_connect(
     LOG_FATAL(LOG << "no session attached to client connection");
   }
   Connection *raw_ptr = connection.get();
+  raw_ptr->_session->reconnect(next_session_id, remote_last_ack);
   raw_ptr->_session->connected(std::move(connection));
   std::lock_guard<std::mutex> lock(raw_ptr->mutex);
   raw_ptr->on_read_message = [raw_ptr](MessageRef message) {
