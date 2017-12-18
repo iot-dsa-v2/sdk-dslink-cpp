@@ -199,17 +199,17 @@ TEST(DSLinkTest, DisconnectTest) {
 
       };
 
-  boost::shared_mutex mutex;
+  std::mutex mutex;
   bool one_of_them_connected = false;
   link_1->connect([&](const shared_ptr_<Connection> connection) {
     std::cout<<"Hello1"<<std::endl;
-    boost::shared_lock<boost::shared_mutex> lock{mutex};
+    std::lock_guard<std::mutex> lock{mutex};
     if(one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
   });
   link_2->connect([&](const shared_ptr_<Connection> connection) {
     std::cout<<"Hello2"<<std::endl;
-    boost::shared_lock<boost::shared_mutex> lock{mutex};
+    std::lock_guard<std::mutex> lock{mutex};
     if(one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
   });
