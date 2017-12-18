@@ -77,12 +77,12 @@ add_executable("test-dslink" sdk/dslink/dslink-config-test.cc
                              sdk/dslink/dslink-subscribe-test.cc
                              sdk/dslink/dslink-list-test.cc
                              sdk/dslink/dslink-server-test.cc
-                             sdk/test_config.cc sdk/async_test.cc)
-
-target_link_libraries("test-dslink" ${TEST_LIBS})
-add_test(NAME "test-dslink" COMMAND "test-dslink")
-
+                             sdk/test_config.cc sdk/async_test.cc
+                             broker/util/broker_runner.cc)
 
 # broker tests
 set(BROKER_TEST_LIBS ${TEST_LIBS} dsa_broker)
 include(./broker/CMakeListsInclude.txt)
+
+target_link_libraries("test-dslink" ${TEST_LIBS} dsa_broker)
+add_test(NAME "test-dslink" COMMAND "test-dslink")
