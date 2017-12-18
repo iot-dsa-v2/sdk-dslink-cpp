@@ -47,6 +47,11 @@ bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
 }
 
 bool IncomingSubscribeStream::disconnected() {
+  if (_callback != nullptr) {
+    auto response = make_ref_<SubscribeResponseMessage>();
+    response->set_status(MessageStatus::NOT_AVAILABLE);
+    _callback(*this, std::move(response));
+  }
   // when disconnected, subscribe again
   // a new request message is put in queue and will be sent when connected again
   subscribe(_options);

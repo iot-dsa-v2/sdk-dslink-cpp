@@ -45,6 +45,11 @@ bool IncomingListStream::check_close_message(MessageCRef& message) {
 }
 
 bool IncomingListStream::disconnected() {
+  if (_callback != nullptr) {
+    auto response = make_ref_<ListResponseMessage>();
+    response->set_status(MessageStatus::NOT_AVAILABLE);
+    _callback(*this, std::move(response));
+  }
   // when disconnected, list again
   // a new request message is put in queue and will be sent when connected again
   list(_options);
