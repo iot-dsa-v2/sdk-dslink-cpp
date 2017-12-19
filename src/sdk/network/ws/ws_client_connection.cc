@@ -10,7 +10,7 @@ namespace dsa {
 WsClientConnection::WsClientConnection(LinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &host, uint16_t port)
-    : WsConnection(*make_shared_<websocket_stream>(strand->get_io_service()),
+    : WsConnection(*make_shared_<websocket_stream>(strand->get_io_context()),
                    strand, dsid_prefix),
       _hostname(host),
       _port(port) {}
@@ -18,10 +18,12 @@ WsClientConnection::WsClientConnection(LinkStrandRef &strand,
 void WsClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(_strand->get_io_service());
+  tcp::resolver resolver(_strand->get_io_context());
   // TODO: timeout
   LOG_INFO(_strand->logger(),
            LOG << "TCP client connecting to " << _hostname << ":" << _port);
+#if 0
+  // TODO - Boost
   boost::asio::async_connect(
       _ws.next_layer(),
       resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
@@ -51,6 +53,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
 
         });
       });
+#endif
   start_deadline_timer(reconnect_interval);
 }
 

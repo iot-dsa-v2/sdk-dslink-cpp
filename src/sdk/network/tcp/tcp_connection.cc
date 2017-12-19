@@ -13,7 +13,7 @@ namespace dsa {
 TcpConnection::TcpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                              const string_ &path)
     : Connection(strand, dsid_prefix, path),
-      _socket(strand->get_io_service()),
+      _socket(strand->get_io_context()),
       _read_buffer(DEFAULT_BUFFER_SIZE),
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
 

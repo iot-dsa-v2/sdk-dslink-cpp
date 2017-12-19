@@ -17,7 +17,7 @@ Session::Session(LinkStrandRef strand, const string_ &dsid,
       _session_id(session_id),
       requester(*this),
       responder(*this),
-      _timer(_strand->get_io_service()),
+      _timer(_strand->get_io_context()),
       _ack_stream(new AckStream(get_ref())),
       _ping_stream(new PingStream(get_ref())) {}
 

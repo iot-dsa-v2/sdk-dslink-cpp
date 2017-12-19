@@ -29,7 +29,7 @@ ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
   return config;
 }
 
-EditableStrand::EditableStrand(boost::asio::io_service::strand* strand,
+EditableStrand::EditableStrand(boost::asio::io_context::strand* strand,
                                std::unique_ptr<ECDH>&& ecdh)
     : LinkStrand(strand, ecdh.get()),
       _ecdh(std::move(ecdh)){

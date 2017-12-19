@@ -16,7 +16,7 @@ TcpClientConnection::TcpClientConnection(LinkStrandRef &strand,
 void TcpClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(_strand->get_io_service());
+  tcp::resolver resolver(_strand->get_io_context());
   LOG_INFO(_strand->logger(),
            LOG << "TCP client connecting to " << _hostname << ":" << _port);
   _socket.async_connect(

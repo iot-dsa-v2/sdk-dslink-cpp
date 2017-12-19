@@ -10,7 +10,7 @@ namespace dsa {
 Connection::Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
                        const string_ &path)
     : _handshake_context(dsid_prefix, strand->ecdh()),
-      _deadline(strand->get_io_service()),
+      _deadline(strand->get_io_context()),
       _strand(strand),
       _path(path) {}
 

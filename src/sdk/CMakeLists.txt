@@ -10,18 +10,20 @@ endif ()
 find_package(OpenSSL REQUIRED)
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 
-## Boost Library v1.64
+## Boost Library v1.66
 find_package(Threads)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 if (UNIX)
     set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
     set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
 endif ()
+set(BOOST_INCLUDEDIR "/home/akiyoshi/usr/local/include")
+set(BOOST_LIBRARYDIR "/home/akiyoshi/usr/local/lib")
 find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time program_options filesystem)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # Beast
-include_directories("../../deps/beast/include")
+#include_directories("../../deps/beast/include")
 
 # Standard DSA v2 headers
 include_directories(".")
