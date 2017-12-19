@@ -30,4 +30,19 @@ void SubscribeResponseMessage::set_value(MessageValue&& value) {
   // invalidate message_size
   static_headers.message_size = 0;
 }
+
+void SubscribeResponseMessage::print_body(std::ostream& os) const {
+  if (body->size() > 0) {
+    if (body->size() < 256) {
+      MessageValue value = get_value();
+      if (value.meta.is_map()) {
+        os << " META: " << value.meta.to_json();
+      }
+      os << " VALUE: " << value.value.to_json();
+    } else {
+      os << " BODY SIZE: " << body->size();
+    }
+  }
+}
+
 }  // namespace dsa

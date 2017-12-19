@@ -46,7 +46,7 @@ class Message : public EnableRef<Message> {
   Message(const StaticHeaders& headers);
   virtual ~Message() = default;
 
-  void print_message(std::ostream& os, int32_t rid) const;
+  virtual void print_message(std::ostream& os, int32_t rid) const;
   void print_message(std::ostream& os) const { print_message(os, get_rid()); }
   virtual void print_headers(std::ostream& os) const;
   virtual void print_body(std::ostream& os) const;

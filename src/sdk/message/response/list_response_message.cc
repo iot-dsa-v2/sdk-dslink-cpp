@@ -73,4 +73,22 @@ ref_<VarMap> ListResponseMessage::get_parsed_map() const {
   return map->get_ref();
 }
 
+void ListResponseMessage::print_body(std::ostream& os) const {
+  for (auto& it : _raw_map) {
+    os << " " << it.first << ": ";
+    if (it.second == nullptr) {
+      os << "nullptr";
+      continue;
+    }
+    if (it.second->size() > 0 && it.second->size() < 128) {
+      Var& v = it.second->get_value();
+      if (!v.is_null()) {
+        os << v.to_json();
+        continue;
+      }
+    }
+    os << "SIZE:" << body->size();
+  }
+}
+
 }  // namespace dsa

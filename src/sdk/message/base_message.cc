@@ -27,7 +27,7 @@ void Message::print_message(std::ostream& os, int32_t rid) const {
 void Message::print_headers(std::ostream& os) const {}
 void Message::print_body(std::ostream& os) const {
   if (body != nullptr && body->size() > 0) {
-    if (body->size() > 128) {
+    if (body->size() < 128) {
       Var v = Var::from_msgpack(body->data(), body->size());
       if (!v.is_null()) {
         os << " BODY: " << v.to_json();
