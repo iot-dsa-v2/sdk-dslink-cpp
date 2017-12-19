@@ -150,7 +150,8 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
+  LOG_TRACE(_strand->logger(), LOG << "receive message: ";
+            message->print_message(LOG););
 
   _no_receive_in_loop = 0;
   if (message->type() == MessageType::PING) return;
@@ -228,8 +229,8 @@ void Session::write_loop(ref_<Session> sthis) {
                                         std::move(ack_callback));
     }
 
-    LOG_TRACE(sthis->_strand->logger(),
-              LOG << "send message: " << message->type());
+    LOG_TRACE(sthis->_strand->logger(), LOG << "send message: ";
+              message->print_message(LOG, stream->rid););
 
     write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
 

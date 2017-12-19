@@ -2,6 +2,8 @@
 
 #include "subscribe_request_message.h"
 
+#include <iostream>
+
 namespace dsa {
 
 SubscribeRequestMessage::SubscribeRequestMessage(const SubscribeRequestMessage& from)
@@ -119,6 +121,34 @@ void SubscribeRequestMessage::update_static_header() {
   uint32_t message_size = header_size;
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void SubscribeRequestMessage::print_headers(std::ostream &os) const {
+
+  if (priority != nullptr) {
+    os << " Priority";
+  }
+  if (alias_count != nullptr) {
+    os << " AliasCount:" << alias_count->value();
+  }
+  if (target_path != nullptr) {
+    os << " TargetPath:" << target_path->value();
+  }
+  if (permission_token != nullptr) {
+    os << " PermissionToken:" << permission_token->value();
+  }
+  if (no_stream != nullptr) {
+    os << " NoStream";
+  }
+  if (qos != nullptr) {
+    os << " Qos:" << qos->value();
+  }
+  if (queue_size != nullptr) {
+    os << " QueueSize:" << queue_size->value();
+  }
+  if (queue_time != nullptr) {
+    os << " QueueTime:" << queue_time->value();
+  }
 }
 
 }  // namespace dsa

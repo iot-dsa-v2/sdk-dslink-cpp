@@ -2,6 +2,8 @@
 
 #include "set_response_message.h"
 
+#include <iostream>
+
 namespace dsa {
 
 SetResponseMessage::SetResponseMessage(const SetResponseMessage& from)
@@ -39,6 +41,13 @@ void SetResponseMessage::update_static_header() {
   uint32_t message_size = header_size;
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void SetResponseMessage::print_headers(std::ostream &os) const {
+
+  if (status != nullptr) {
+    os << " Status:" << status->value();
+  }
 }
 
 }  // namespace dsa

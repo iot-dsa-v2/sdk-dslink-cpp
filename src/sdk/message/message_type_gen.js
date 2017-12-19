@@ -43,6 +43,13 @@ class Header {
     header_size += ${this.underName}->size();
   }`
     }
+
+    updatePrintHeadersStatement() {
+        return `
+  if (${this.underName} != nullptr) {
+    os << " ${this.name}:" << ${this.underName}->value();
+  }`
+    }
 }
 
 class BoolHeader extends Header {
@@ -54,6 +61,13 @@ class BoolHeader extends Header {
         return `
       case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;`
+    }
+
+    updatePrintHeadersStatement() {
+        return `
+  if (${this.underName} != nullptr) {
+    os << " ${this.name}";
+  }`
     }
 }
 
@@ -203,6 +217,8 @@ function gen_source(path, typename, baseTypeName, header, configs) {
 #include "${header}"`;
     data += `
 
+#include <iostream>
+
 namespace dsa {
 `;
 
@@ -281,6 +297,15 @@ void ${typename}::update_static_header() {
     data += `
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void ${typename}::print_headers(std::ostream &os) const {
+`;
+    configs.forEach(field => {
+        if (field.name !== 'Body')
+            data += field.updatePrintHeadersStatement();
+    });
+    data += `
 }
 
 }  // namespace dsa

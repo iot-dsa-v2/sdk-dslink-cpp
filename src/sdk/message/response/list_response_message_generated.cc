@@ -2,6 +2,8 @@
 
 #include "list_response_message.h"
 
+#include <iostream>
+
 namespace dsa {
 
 ListResponseMessage::ListResponseMessage(const ListResponseMessage& from)
@@ -95,6 +97,25 @@ void ListResponseMessage::update_static_header() {
   }
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void ListResponseMessage::print_headers(std::ostream &os) const {
+
+  if (status != nullptr) {
+    os << " Status:" << status->value();
+  }
+  if (refreshed != nullptr) {
+    os << " Refreshed";
+  }
+  if (sequence_id != nullptr) {
+    os << " SequenceId:" << sequence_id->value();
+  }
+  if (pub_path != nullptr) {
+    os << " PubPath:" << pub_path->value();
+  }
+  if (source_path != nullptr) {
+    os << " SourcePath:" << source_path->value();
+  }
 }
 
 }  // namespace dsa

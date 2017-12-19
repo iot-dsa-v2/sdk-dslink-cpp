@@ -2,6 +2,8 @@
 
 #include "subscribe_response_message.h"
 
+#include <iostream>
+
 namespace dsa {
 
 SubscribeResponseMessage::SubscribeResponseMessage(const SubscribeResponseMessage& from)
@@ -83,6 +85,22 @@ void SubscribeResponseMessage::update_static_header() {
   }
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void SubscribeResponseMessage::print_headers(std::ostream &os) const {
+
+  if (status != nullptr) {
+    os << " Status:" << status->value();
+  }
+  if (sequence_id != nullptr) {
+    os << " SequenceId:" << sequence_id->value();
+  }
+  if (page_id != nullptr) {
+    os << " PageId:" << page_id->value();
+  }
+  if (source_path != nullptr) {
+    os << " SourcePath:" << source_path->value();
+  }
 }
 
 }  // namespace dsa
