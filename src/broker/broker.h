@@ -12,6 +12,7 @@ namespace dsa {
 
 class App;
 class TcpServer;
+ class WebServer;
 class Client;
 class BrokerConfig;
 class ModuleLoader;
@@ -34,6 +35,7 @@ class DsBroker final : public WrapperStrand {
   bool own_app;
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
+  shared_ptr_<WebServer> _web_server;
   ref_<BrokerConfig> _config;
   // initialization
 

@@ -19,6 +19,7 @@
 namespace dsa {
 
 class App;
+class Connection;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  public:
@@ -26,7 +27,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
       WebServer&, boost::asio::ip::tcp::socket&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       HttpCallback;
-  typedef std::function<void(
+  typedef std::function<std::shared_ptr<Connection>(
       WebServer&, boost::asio::ip::tcp::socket&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       WsCallback;
@@ -60,11 +61,12 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   void send_error(int error_code, const string_ msg = "");
 };
 
+/*
 class ErrorCallback {
  private:
   uint16_t _error_code;
 
- public:
+
   ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
   void operator()(
@@ -74,6 +76,7 @@ class ErrorCallback {
     std::cerr << _error_code << std::endl;
   }
 };
+*/
 
 }  // namespace dsa
 

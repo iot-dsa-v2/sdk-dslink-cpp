@@ -44,11 +44,13 @@ void Listener::accept_loop(const boost::system::error_code& error) {
   }
 }
 
-void Listener::destroy() {}
-
-Listener::~Listener() {
+void Listener::destroy() {
   if (_acceptor->is_open()) {
     _acceptor->close();
   }
+  _next_connection->destroy();
+  _next_connection.reset();
 }
+
+Listener::~Listener() {}
 }  // namespace dsa

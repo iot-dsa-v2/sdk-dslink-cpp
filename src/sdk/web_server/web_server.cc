@@ -27,6 +27,10 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
 }
 
 WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
+
+  return _ws_callback_map.at(path);
+
+  /* TODO
   if (_ws_callback_map.count(path)) {
     return _ws_callback_map.at(path);
   }
@@ -42,6 +46,13 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
   };
 
   return error_callback;
+  */
+}
+
+void WebServer::destroy() {
+  if (_listener != nullptr) {
+    _listener->destroy();
+  }
 }
 
 WebServer::~WebServer() = default;
