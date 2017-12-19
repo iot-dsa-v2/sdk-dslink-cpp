@@ -129,25 +129,25 @@ void SubscribeRequestMessage::print_headers(std::ostream &os) const {
     os << " Priority";
   }
   if (alias_count != nullptr) {
-    os << " AliasCount:" << alias_count->value();
+    os << " AliasCount: x" << std::hex << int(alias_count->value()) << std::dec;
   }
   if (target_path != nullptr) {
-    os << " TargetPath:" << target_path->value();
+    os << " TargetPath: " << target_path->value();
   }
   if (permission_token != nullptr) {
-    os << " PermissionToken:" << permission_token->value();
+    os << " PermissionToken: " << permission_token->value();
   }
   if (no_stream != nullptr) {
     os << " NoStream";
   }
   if (qos != nullptr) {
-    os << " Qos:" << qos->value();
+    os << " Qos: x" << std::hex << int(qos->value()) << std::dec;
   }
   if (queue_size != nullptr) {
-    os << " QueueSize:" << queue_size->value();
+    os << " QueueSize: " << queue_size->value();
   }
   if (queue_time != nullptr) {
-    os << " QueueTime:" << queue_time->value();
+    os << " QueueTime: " << queue_time->value();
   }
 }
 

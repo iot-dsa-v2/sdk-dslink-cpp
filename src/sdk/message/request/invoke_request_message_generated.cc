@@ -162,22 +162,22 @@ void InvokeRequestMessage::print_headers(std::ostream &os) const {
     os << " Priority";
   }
   if (sequence_id != nullptr) {
-    os << " SequenceId:" << sequence_id->value();
+    os << " SequenceId: " << sequence_id->value();
   }
   if (page_id != nullptr) {
-    os << " PageId:" << page_id->value();
+    os << " PageId: " << page_id->value();
   }
   if (alias_count != nullptr) {
-    os << " AliasCount:" << alias_count->value();
+    os << " AliasCount: x" << std::hex << int(alias_count->value()) << std::dec;
   }
   if (target_path != nullptr) {
-    os << " TargetPath:" << target_path->value();
+    os << " TargetPath: " << target_path->value();
   }
   if (permission_token != nullptr) {
-    os << " PermissionToken:" << permission_token->value();
+    os << " PermissionToken: " << permission_token->value();
   }
   if (max_permission != nullptr) {
-    os << " MaxPermission:" << max_permission->value();
+    os << " MaxPermission: x" << std::hex << int(max_permission->value()) << std::dec;
   }
   if (no_stream != nullptr) {
     os << " NoStream";

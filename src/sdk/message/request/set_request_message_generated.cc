@@ -129,22 +129,22 @@ void SetRequestMessage::print_headers(std::ostream &os) const {
     os << " Priority";
   }
   if (page_id != nullptr) {
-    os << " PageId:" << page_id->value();
+    os << " PageId: " << page_id->value();
   }
   if (alias_count != nullptr) {
-    os << " AliasCount:" << alias_count->value();
+    os << " AliasCount: x" << std::hex << int(alias_count->value()) << std::dec;
   }
   if (target_path != nullptr) {
-    os << " TargetPath:" << target_path->value();
+    os << " TargetPath: " << target_path->value();
   }
   if (permission_token != nullptr) {
-    os << " PermissionToken:" << permission_token->value();
+    os << " PermissionToken: " << permission_token->value();
   }
   if (no_stream != nullptr) {
     os << " NoStream";
   }
   if (attribute_field != nullptr) {
-    os << " AttributeField:" << attribute_field->value();
+    os << " AttributeField: " << attribute_field->value();
   }
 }
 

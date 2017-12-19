@@ -102,19 +102,19 @@ void ListResponseMessage::update_static_header() {
 void ListResponseMessage::print_headers(std::ostream &os) const {
 
   if (status != nullptr) {
-    os << " Status:" << status->value();
+    os << " Status: x" << std::hex << int(status->value()) << std::dec;
   }
   if (refreshed != nullptr) {
     os << " Refreshed";
   }
   if (sequence_id != nullptr) {
-    os << " SequenceId:" << sequence_id->value();
+    os << " SequenceId: " << sequence_id->value();
   }
   if (pub_path != nullptr) {
-    os << " PubPath:" << pub_path->value();
+    os << " PubPath: " << pub_path->value();
   }
   if (source_path != nullptr) {
-    os << " SourcePath:" << source_path->value();
+    os << " SourcePath: " << source_path->value();
   }
 }
 

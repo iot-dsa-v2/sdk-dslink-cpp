@@ -46,7 +46,7 @@ void SetResponseMessage::update_static_header() {
 void SetResponseMessage::print_headers(std::ostream &os) const {
 
   if (status != nullptr) {
-    os << " Status:" << status->value();
+    os << " Status: x" << std::hex << int(status->value()) << std::dec;
   }
 }
 

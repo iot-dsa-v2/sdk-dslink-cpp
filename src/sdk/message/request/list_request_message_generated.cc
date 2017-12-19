@@ -82,13 +82,13 @@ void ListRequestMessage::update_static_header() {
 void ListRequestMessage::print_headers(std::ostream &os) const {
 
   if (alias_count != nullptr) {
-    os << " AliasCount:" << alias_count->value();
+    os << " AliasCount: x" << std::hex << int(alias_count->value()) << std::dec;
   }
   if (target_path != nullptr) {
-    os << " TargetPath:" << target_path->value();
+    os << " TargetPath: " << target_path->value();
   }
   if (permission_token != nullptr) {
-    os << " PermissionToken:" << permission_token->value();
+    os << " PermissionToken: " << permission_token->value();
   }
   if (no_stream != nullptr) {
     os << " NoStream";

@@ -90,16 +90,16 @@ void SubscribeResponseMessage::update_static_header() {
 void SubscribeResponseMessage::print_headers(std::ostream &os) const {
 
   if (status != nullptr) {
-    os << " Status:" << status->value();
+    os << " Status: x" << std::hex << int(status->value()) << std::dec;
   }
   if (sequence_id != nullptr) {
-    os << " SequenceId:" << sequence_id->value();
+    os << " SequenceId: " << sequence_id->value();
   }
   if (page_id != nullptr) {
-    os << " PageId:" << page_id->value();
+    os << " PageId: " << page_id->value();
   }
   if (source_path != nullptr) {
-    os << " SourcePath:" << source_path->value();
+    os << " SourcePath: " << source_path->value();
   }
 }
 

@@ -47,7 +47,7 @@ class Header {
     updatePrintHeadersStatement() {
         return `
   if (${this.underName} != nullptr) {
-    os << " ${this.name}:" << ${this.underName}->value();
+    os << " ${this.name}: " << ${this.underName}->value();
   }`
     }
 }
@@ -104,6 +104,13 @@ class ByteHeader extends Header {
         return `
       case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicByteHeader *>(header.release()));
         break;`
+    }
+
+    updatePrintHeadersStatement() {
+        return `
+  if (${this.underName} != nullptr) {
+    os << " ${this.name}: x" << std::hex << int(${this.underName}->value()) << std::dec;
+  }`
     }
 }
 

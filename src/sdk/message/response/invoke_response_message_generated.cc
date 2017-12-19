@@ -101,13 +101,13 @@ void InvokeResponseMessage::update_static_header() {
 void InvokeResponseMessage::print_headers(std::ostream &os) const {
 
   if (status != nullptr) {
-    os << " Status:" << status->value();
+    os << " Status: x" << std::hex << int(status->value()) << std::dec;
   }
   if (sequence_id != nullptr) {
-    os << " SequenceId:" << sequence_id->value();
+    os << " SequenceId: " << sequence_id->value();
   }
   if (page_id != nullptr) {
-    os << " PageId:" << page_id->value();
+    os << " PageId: " << page_id->value();
   }
   if (refreshed != nullptr) {
     os << " Refreshed";
