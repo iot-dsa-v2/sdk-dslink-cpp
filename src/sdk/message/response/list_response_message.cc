@@ -37,7 +37,8 @@ void ListResponseMessage::set_refreshed(bool value) {
   }
 }
 
-void ListResponseMessage::parse() {
+void ListResponseMessage::parse_map_to(
+    std::unordered_map<string_, VarBytesRef>& map) const {
   if (body != nullptr) {
     const uint8_t* data = body->data();
     size_t size = body->size();
@@ -55,7 +56,7 @@ void ListResponseMessage::parse() {
       data += sizeof(uint16_t);
       size -= sizeof(uint16_t);
       if (size < value_size) return;
-      _raw_map[key] =
+      map[key] =
           make_ref_<VarBytes>(new RefCountBytes(data, data + value_size));
       data += value_size;
       size -= value_size;
@@ -74,7 +75,18 @@ ref_<VarMap> ListResponseMessage::get_parsed_map() const {
 }
 
 void ListResponseMessage::print_body(std::ostream& os) const {
-  for (auto& it : _raw_map) {
+  std::unordered_map<string_, VarBytesRef> temp_map;
+  const std::unordered_map<string_, VarBytesRef>* target_map;
+
+  if (_raw_map.empty() && body != nullptr && body->size() > 0) {
+    // if map is not ready, parse it
+    parse_map_to(temp_map);
+    target_map = &temp_map;
+  } else {
+    target_map = &_raw_map;
+  }
+
+  for (auto& it : *target_map) {
     os << " " << it.first << ": ";
     if (it.second == nullptr) {
       os << "nullptr";

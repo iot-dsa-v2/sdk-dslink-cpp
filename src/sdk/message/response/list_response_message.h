@@ -7,14 +7,13 @@
 
 #include <unordered_map>
 
-#include "util/buffer.h"
 #include "../base_message.h"
+#include "util/buffer.h"
 #include "variant/variant.h"
 
 namespace dsa {
 
 class VarMap;
-
 
 class ListResponseMessage final : public ResponseMessage {
  public:
@@ -27,7 +26,7 @@ class ListResponseMessage final : public ResponseMessage {
  protected:
   // measure the size and header size
   void update_static_header() final;
-  void print_headers(std::ostream &os) const final;
+  void print_headers(std::ostream& os) const final;
   void print_body(std::ostream& os) const final;
 
   // write dynamic header and body
@@ -40,7 +39,7 @@ class ListResponseMessage final : public ResponseMessage {
 
   std::unordered_map<string_, VarBytesRef> _raw_map;
 
-  void parse();
+  void parse_map_to(std::unordered_map<string_, VarBytesRef>& map) const;
 
  public:
   const string_& get_pub_path() const;

@@ -13,6 +13,8 @@ class PingMessage final : public Message {
   PingMessage(const uint8_t* data, size_t size);
   PingMessage();
 
+  void print_message(std::ostream& os, int32_t rid) const final;
+
  protected:
   void update_static_header() final;
 };

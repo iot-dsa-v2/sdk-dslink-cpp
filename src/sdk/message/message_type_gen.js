@@ -263,7 +263,7 @@ void ${typename}::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_
             data+=`
   if ( body_size > 0) {
       body.reset(new RefCountBytes(data, data + body_size));
-      parse(); // parse the map right after decoding
+      parse_map_to(_raw_map); // parse the map right after decoding
   }`;
         } else {
             data+=`
