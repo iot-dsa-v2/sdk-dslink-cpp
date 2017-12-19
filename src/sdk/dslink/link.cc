@@ -61,10 +61,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     exit(0);
   }
 
+  own_app = false;
   _app = app;
   // If app object is already given, thread option is ignored in args
   if (_app.get() == nullptr) {
     parse_thread(variables["thread"].as<size_t>());
+    own_app = true;
   }
 
   strand.reset(new EditableStrand(
@@ -136,7 +138,7 @@ void DsLink::destroy_impl() {
   }
 
   WrapperStrand::destroy_impl();
-  _app->close();
+  if(own_app) { _app->close(); }
 }
 
 void DsLink::parse_thread(size_t thread) {

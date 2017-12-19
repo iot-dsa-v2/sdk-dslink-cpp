@@ -22,6 +22,7 @@ namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
                    const shared_ptr_<App>& app)
     : _config(std::move(config)), _app(app) {
+  own_app = false;
   init(modules);
 }
 DsBroker::~DsBroker() {}
@@ -35,6 +36,7 @@ void DsBroker::init(ModuleLoader& modules) {
       thread = 1;
     }
     _app.reset(new App(thread));
+    own_app = true;
   }
 
   server_host = _config->host().get_value().get_string();
@@ -75,7 +77,7 @@ void DsBroker::destroy_impl() {
   _config.reset();
 
   WrapperStrand::destroy_impl();
-  _app->close();
+  if (own_app) { _app->close(); }
 }
 void DsBroker::run() {
 

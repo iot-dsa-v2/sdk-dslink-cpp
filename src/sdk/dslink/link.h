@@ -36,6 +36,7 @@ class DsLink final : public WrapperStrand {
   void destroy_impl() final;
 
  private:
+  bool own_app;
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
   ref_<Client> _client;

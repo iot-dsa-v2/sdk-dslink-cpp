@@ -31,6 +31,7 @@ class DsBroker final : public WrapperStrand {
   const ref_<BrokerConfig>& get_config() const { return _config; };
 
  protected:
+  bool own_app;
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
   ref_<BrokerConfig> _config;
