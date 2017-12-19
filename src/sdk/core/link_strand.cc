@@ -15,7 +15,7 @@ LinkStrand::LinkStrand(void* strand, ECDH* ecdh)
     : __strand(strand), __ecdh(ecdh) {}
 LinkStrand::~LinkStrand() {
   if(__strand != nullptr) {
-    delete static_cast<boost::asio::io_service::strand*>(__strand);
+    delete static_cast<boost::asio::io_context::strand*>(__strand);
     __strand = nullptr;
   }
 }
@@ -32,15 +32,15 @@ void LinkStrand::destroy_impl() {
   }
 }
 
-boost::asio::io_service& LinkStrand::get_io_service() {
-  return static_cast<boost::asio::io_service::strand*>(__strand)
-      ->get_io_service();
+boost::asio::io_context& LinkStrand::get_io_context() {
+  return static_cast<boost::asio::io_context::strand*>(__strand)
+      ->get_io_context();
 }
 void LinkStrand::post(std::function<void()>&& callback) {
-  static_cast<boost::asio::io_service::strand*>(__strand)->post(callback);
+  static_cast<boost::asio::io_context::strand*>(__strand)->post(callback);
 }
 
 void LinkStrand::dispatch(std::function<void()>&& callback) {
-  static_cast<boost::asio::io_service::strand*>(__strand)->dispatch(callback);
+  static_cast<boost::asio::io_context::strand*>(__strand)->dispatch(callback);
 }
 }

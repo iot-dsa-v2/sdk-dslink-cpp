@@ -12,7 +12,7 @@ TcpServer::TcpServer(WrapperStrand &config)
     : Server(config), _port(config.tcp_port) {
   try {
     _acceptor = make_unique_<boost::asio::ip::tcp::acceptor>(tcp::acceptor(
-        _strand->get_io_service(),
+        _strand->get_io_context(),
         tcp::endpoint(boost::asio::ip::address::from_string(config.server_host),
                       config.tcp_server_port),
         false));

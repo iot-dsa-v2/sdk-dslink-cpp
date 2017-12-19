@@ -9,7 +9,7 @@
 
 namespace boost {
 namespace asio {
-class io_service;
+class io_context;
 }
 }
 
@@ -44,7 +44,7 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   virtual ~LinkStrand();
 
   void *asio_strand() { return __strand; }
-  boost::asio::io_service &get_io_service();
+  boost::asio::io_context &get_io_context();
   void post(std::function<void()> &&);
   void dispatch(std::function<void()> &&);
 

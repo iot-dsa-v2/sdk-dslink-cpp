@@ -7,7 +7,7 @@
 
 #include "link_strand.h"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <memory>
 
 namespace dsa {
@@ -36,7 +36,7 @@ class EditableStrand : public LinkStrand {
   // simple version for testing purpose
   static ref_<EditableStrand> make_default(shared_ptr_<App> app);
 
-  explicit EditableStrand(boost::asio::io_service::strand* strand,
+  explicit EditableStrand(boost::asio::io_context::strand* strand,
                           std::unique_ptr<ECDH>&& ecdh);
   ~EditableStrand() override;
 

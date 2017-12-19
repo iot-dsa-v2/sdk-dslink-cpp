@@ -17,7 +17,7 @@ namespace dsa {
 NodeStateManager::NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                                    size_t timer_interval)
     : _root(new NodeStateRoot(*this, std::move(root_model))),
-      _timer(strand.get_io_service(),
+      _timer(strand.get_io_context(),
              boost::posix_time::seconds(timer_interval)) {}
 
 void NodeStateManager::destroy_impl() {

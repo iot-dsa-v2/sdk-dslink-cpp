@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <ctime>
+#include <iostream>
 #include "core/client.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"
