@@ -9,16 +9,17 @@
 #include "network/tcp/tcp_client_connection.h"
 
 namespace dsa {
-ref_<DsBroker> create_broker() {
+ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
   const char* empty_argv[1];
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
   ModuleLoader modules(broker_config);
-  auto broker = make_ref_<DsBroker>(std::move(broker_config), modules);
+  auto broker = make_ref_<DsBroker>(std::move(broker_config), modules, app);
   // filter log for unit test
   static_cast<ConsoleLogger&>(broker->strand->logger()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   return std::move(broker);
 }
+
 WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
                                         const string_& dsid_prefix) {
   shared_ptr_<App>& app = broker->get_app();

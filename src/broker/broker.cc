@@ -113,9 +113,9 @@ void DsBroker::run() {
     }
   });
 
-  if (false) {
-  _app->wait();
-  destroy();
+  if (own_app) {
+    _app->wait();
+    destroy();
   }
 }
 }

@@ -8,7 +8,7 @@
 #include "broker.h"
 
 namespace dsa {
-ref_<DsBroker> create_broker();
+ref_<DsBroker> create_broker(std::shared_ptr<App> app = nullptr);
 WrapperStrand get_client_wrapper_strand(const ref_<DsBroker> &broker,
                                         const string_ &dsid_prefix = "test");
 }
