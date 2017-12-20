@@ -37,8 +37,6 @@ if (WIN32)
     set(TEST_LIBS ${GTEST_LIBRARIES})
 endif (WIN32)
 
-set(BOOST_INCLUDEDIR "/home/akiyoshi/usr/local/include")
-set(BOOST_LIBRARYDIR "/home/akiyoshi/usr/local/lib")
 find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time filesystem program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
