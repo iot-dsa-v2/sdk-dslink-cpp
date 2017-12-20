@@ -22,11 +22,11 @@ void WsClientConnection::connect(size_t reconnect_interval) {
   // TODO: timeout
   LOG_INFO(_strand->logger(),
            LOG << "TCP client connecting to " << _hostname << ":" << _port);
-#if 0
-  // TODO - Boost
+
+  tcp::resolver::results_type results =
+      resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port)));
   boost::asio::async_connect(
-      _ws.next_layer(),
-      resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port))),
+      _ws.next_layer(), results.begin(), results.end(),
       // capture shared_ptr to keep the instance
       // capture this to access protected member
       [ connection = share_this<WsConnection>(), this ](
@@ -53,7 +53,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
 
         });
       });
-#endif
+
   start_deadline_timer(reconnect_interval);
 }
 

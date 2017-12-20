@@ -31,7 +31,7 @@ class DsaWsCallback {
   DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
 
   auto operator()(
-      boost::asio::io_service& io_service,
+      boost::asio::io_context& io_context,
       boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
     auto connection = make_shared_<WsServerConnection>(
