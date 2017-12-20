@@ -21,6 +21,7 @@ class IncomingListStream final : public MessageCacheStream {
 
  protected:
   Callback _callback;
+  ListOptions _options;
 
  public:
   explicit IncomingListStream(ref_<Session>&& session, const Path& path,
@@ -33,6 +34,8 @@ class IncomingListStream final : public MessageCacheStream {
   void close();
 
   bool check_close_message(MessageCRef& message) final;
+
+  bool disconnected() final;
 };
 }
 

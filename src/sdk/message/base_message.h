@@ -46,6 +46,11 @@ class Message : public EnableRef<Message> {
   Message(const StaticHeaders& headers);
   virtual ~Message() = default;
 
+  virtual void print_message(std::ostream& os, int32_t rid) const;
+  void print_message(std::ostream& os) const { print_message(os, get_rid()); }
+  virtual void print_headers(std::ostream& os) const;
+  virtual void print_body(std::ostream& os) const;
+
   const int64_t created_ts;
   int32_t size() const;
 
@@ -66,7 +71,7 @@ class Message : public EnableRef<Message> {
   }
   bool need_ack() { return static_cast<uint8_t>(static_headers.type) < 0xF0; }
 
-  int32_t get_rid() { return static_headers.rid; }
+  int32_t get_rid() const { return static_headers.rid; }
   void set_rid(int32_t rid) { static_headers.rid = rid; }
 
   int32_t get_ack_id() const { return static_headers.ack_id; }
@@ -171,6 +176,13 @@ class MessageStream : public DestroyableRef<MessageStream> {
 
   // read message from remote
   virtual void receive_message(ref_<Message>&& msg) = 0;
+
+  // when remove is disconnected
+  // return true if stream is destroyed
+  virtual bool disconnected() = 0;
+
+  // all the pending ack failed
+  virtual void unack() = 0;
 
   // because fake stream also need to extend ref_ , define the following
   // interface here make things simpler. in other programing language these

@@ -30,15 +30,15 @@ class DsaWsCallback {
  public:
   DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
 
-  void operator()(
+  auto operator()(
       boost::asio::io_service& io_service,
       boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
-    auto conn = make_shared_<WsServerConnection>(
+    auto connection = make_shared_<WsServerConnection>(
         *new websocket_stream{std::move(socket)}, _link_strand);
 
-    conn->websocket().async_accept(
-        req, [conn, this](const boost::system::error_code& error) {
+    connection->websocket().async_accept(
+        req, [conn = connection, this](const boost::system::error_code& error) {
 
           // TODO: run within the strand?
           conn->accept();
@@ -46,10 +46,9 @@ class DsaWsCallback {
           return;
         });
 
-    return;
+    return connection;
   }
 };
-
 }  // namespace dsa
 
 #endif  // DSA_SDK_WS_CALLBACK_H_

@@ -2,8 +2,6 @@
 
 #include "broker.h"
 
-//#include "boost/asio/strand.hpp"
-
 #include "config/broker_config.h"
 #include "config/module_loader.h"
 #include "module/logger.h"
@@ -22,6 +20,7 @@ namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
                    const shared_ptr_<App>& app)
     : _config(std::move(config)), _app(app) {
+  own_app = false;
   init(modules);
 }
 DsBroker::~DsBroker() {}
@@ -35,6 +34,7 @@ void DsBroker::init(ModuleLoader& modules) {
       thread = 1;
     }
     _app.reset(new App(thread));
+    own_app = true;
   }
 
   server_host = _config->host().get_value().get_string();
@@ -72,31 +72,37 @@ void DsBroker::destroy_impl() {
     _tcp_server->destroy();
     _tcp_server.reset();
   }
+  if (_web_server != nullptr) {
+    _web_server->destroy();
+    _web_server.reset();
+  }
   _config.reset();
 
   WrapperStrand::destroy_impl();
-  _app->close();
+  if (own_app) { _app->close(); }
 }
 void DsBroker::run() {
 
-  // start web_server
-  auto web_server = std::make_shared<WebServer>(*_app);
-  uint16_t http_port =
-      static_cast<uint16_t>(_config->http_port().get_value().get_int());
-  web_server->listen(http_port);
-  web_server->start();
-  WebServer::WsCallback root_cb = [this](
-      WebServer& web_server,
-      boost::asio::ip::tcp::socket&& socket,
-      boost::beast::http::request<boost::beast::http::string_body> req)
-  {
-    LinkStrandRef link_strand(strand);
-    DsaWsCallback dsa_ws_callback(link_strand);
-    dsa_ws_callback(web_server.io_service(), std::move(socket), std::move(req));
-  };
+  strand->dispatch([this]() {
+    // start web_server
+    _web_server = std::make_shared<WebServer>(*_app);
+    uint16_t http_port =
+        static_cast<uint16_t>(_config->http_port().get_value().get_int());
+    _web_server->listen(http_port);
+    _web_server->start();
+    WebServer::WsCallback root_cb = [this](
+        WebServer& _web_server, boost::asio::ip::tcp::socket&& socket,
+        boost::beast::http::request<boost::beast::http::string_body> req) {
+      LinkStrandRef link_strand(strand);
+      DsaWsCallback dsa_ws_callback(link_strand);
+      return dsa_ws_callback(_web_server.io_service(), std::move(socket),
+                             std::move(req));
+    };
 
-  // TOOD - websocket callback setup
-  web_server->add_ws_handler("/", std::move(root_cb));
+    // TODO - websocket callback setup
+    _web_server->add_ws_handler("/", std::move(root_cb));
+  });
+
 
   // start tcp server
   strand->dispatch([this]() {

@@ -69,7 +69,8 @@ ref_<NodeState> NodeState::create_child(const Path &path,
       new_state->_path = path;
       if (_model_status == MODEL_UNKNOWN) {
         new_state->set_model(last_modeled_state._model->on_demand_create_child(
-            path.move_pos(last_modeled_state._path.current_pos() + 1)));
+            // use offset name from the create state's path
+            path.move_pos(last_modeled_state._path.data()->names.size())));
       } else if (_model_status == MODEL_CONNECTED) {
         new_state->set_model(_model->on_demand_create_child(path));
       } else {
@@ -230,18 +231,17 @@ void NodeState::update_list_value(const string_ &key,
   }
 }
 
-
-void NodeState::update_list_status(MessageStatus status){
+void NodeState::update_list_status(MessageStatus status) {
   for (auto &it : _list_streams) {
     it.first->update_list_status(status);
   }
 }
-void NodeState::update_list_refreshed(){
+void NodeState::update_list_refreshed() {
   for (auto &it : _list_streams) {
     it.first->update_list_refreshed();
   }
 }
-void NodeState::update_list_pub_path(const string_ &path){
+void NodeState::update_list_pub_path(const string_ &path) {
   for (auto &it : _list_streams) {
     it.first->update_list_pub_path(path);
   }

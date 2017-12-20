@@ -2,6 +2,8 @@
 
 #include "invoke_request_message.h"
 
+#include <iostream>
+
 namespace dsa {
 
 InvokeRequestMessage::InvokeRequestMessage(const InvokeRequestMessage& from)
@@ -152,6 +154,40 @@ void InvokeRequestMessage::update_static_header() {
   }
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void InvokeRequestMessage::print_headers(std::ostream &os) const {
+
+  if (priority != nullptr) {
+    os << " Priority";
+  }
+  if (sequence_id != nullptr) {
+    os << " SequenceId: " << sequence_id->value();
+  }
+  if (page_id != nullptr) {
+    os << " PageId: " << page_id->value();
+  }
+  if (alias_count != nullptr) {
+    os << " AliasCount: x" << std::hex << int(alias_count->value()) << std::dec;
+  }
+  if (target_path != nullptr) {
+    os << " TargetPath: " << target_path->value();
+  }
+  if (permission_token != nullptr) {
+    os << " PermissionToken: " << permission_token->value();
+  }
+  if (max_permission != nullptr) {
+    os << " MaxPermission: x" << std::hex << int(max_permission->value()) << std::dec;
+  }
+  if (no_stream != nullptr) {
+    os << " NoStream";
+  }
+  if (refreshed != nullptr) {
+    os << " Refreshed";
+  }
+  if (skippable != nullptr) {
+    os << " Skippable";
+  }
 }
 
 }  // namespace dsa

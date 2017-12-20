@@ -62,7 +62,7 @@ Var Var::to_variant(const msgpack_object &obj) {
       return Var(obj.via.boolean);
     case MSGPACK_OBJECT_BIN:
       return Var(reinterpret_cast<const uint8_t *>(obj.via.bin.ptr),
-                     obj.via.bin.size);
+                 obj.via.bin.size);
     default:
       // return null
       // ignore extension
@@ -73,9 +73,14 @@ Var Var::to_variant(const msgpack_object &obj) {
 Var Var::from_msgpack(const uint8_t *data, size_t size) {
   MsgpackMemPool mempool;
   msgpack_object obj;
-  msgpack_unpack(reinterpret_cast<const char *>(data), size, NULL,
-                 &mempool.zone, &obj);
-  return Var(to_variant(obj));
+  auto result = msgpack_unpack(reinterpret_cast<const char *>(data), size, NULL,
+                               &mempool.zone, &obj);
+  if (result == MSGPACK_UNPACK_SUCCESS ||
+      result == MSGPACK_UNPACK_EXTRA_BYTES) {
+    return Var(to_variant(obj));
+  } else {
+    return Var();
+  }
 }
 
 bool msgpack_pack(msgpack_packer *pk, const Var &v) {
@@ -141,7 +146,7 @@ std::vector<uint8_t> Var::to_msgpack() const throw(const EncodingError &) {
       sbuf.data = nullptr;
       sbuf.alloc = 0;
 
-      return v;
+      return std::move(v);
     }
 
     return std::vector<uint8_t>(&sbuf.data[0], &sbuf.data[sbuf_size]);

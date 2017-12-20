@@ -2,6 +2,8 @@
 
 #include "set_request_message.h"
 
+#include <iostream>
+
 namespace dsa {
 
 SetRequestMessage::SetRequestMessage(const SetRequestMessage& from)
@@ -119,6 +121,31 @@ void SetRequestMessage::update_static_header() {
   }
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void SetRequestMessage::print_headers(std::ostream &os) const {
+
+  if (priority != nullptr) {
+    os << " Priority";
+  }
+  if (page_id != nullptr) {
+    os << " PageId: " << page_id->value();
+  }
+  if (alias_count != nullptr) {
+    os << " AliasCount: x" << std::hex << int(alias_count->value()) << std::dec;
+  }
+  if (target_path != nullptr) {
+    os << " TargetPath: " << target_path->value();
+  }
+  if (permission_token != nullptr) {
+    os << " PermissionToken: " << permission_token->value();
+  }
+  if (no_stream != nullptr) {
+    os << " NoStream";
+  }
+  if (attribute_field != nullptr) {
+    os << " AttributeField: " << attribute_field->value();
+  }
 }
 
 }  // namespace dsa

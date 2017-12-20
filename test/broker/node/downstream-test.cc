@@ -46,7 +46,11 @@ class MockNodeRoot : public NodeModel {
  public:
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
     add_list_child("value", make_ref_<MockNodeValue>(_strand));
-    add_list_child("action", make_ref_<MockNodeAction>(_strand));
+
+    // add a child action
+    auto node = make_ref_<NodeModel>(_strand->get_ref());
+    add_list_child("node", node->get_ref());
+    node->add_list_child("action", make_ref_<MockNodeAction>(_strand));
   };
 };
 }
@@ -94,7 +98,7 @@ TEST(BrokerDownstreamTest, Invoke) {
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
-    invoke_req->set_target_path("downstream/test/action");
+    invoke_req->set_target_path("downstream/test/node/action");
     invoke_req->set_value(Var("hello"));
 
     tcp_client->get_session().requester.invoke(

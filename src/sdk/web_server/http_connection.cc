@@ -5,11 +5,13 @@
 
 #include "http_connection.h"
 #include "web_server.h"
+#include "network/connection.h"
 
 namespace websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
 
 namespace dsa {
+
 
 HttpConnection::HttpConnection(WebServer& web_server)
     : _web_server(web_server), _socket(_web_server.io_service()) {}
@@ -26,11 +28,18 @@ void HttpConnection::accept() {
 
         if (websocket::is_upgrade(_req)) {
           // call corresponding server's callback
-          _web_server.ws_handler(_req.target().to_string())(
+          _connection = _web_server.ws_handler(_req.target().to_string())(
               _web_server, std::move(_socket), std::move(_req));
         }
         return;
       });  // async_read
 }
 
+void HttpConnection::destroy() {
+/*
+  if(_connection != nullptr) {
+    _connection->destroy();
+  }
+*/
+}
 }  // namespace dsa

@@ -43,6 +43,13 @@ class Header {
     header_size += ${this.underName}->size();
   }`
     }
+
+    updatePrintHeadersStatement() {
+        return `
+  if (${this.underName} != nullptr) {
+    os << " ${this.name}: " << ${this.underName}->value();
+  }`
+    }
 }
 
 class BoolHeader extends Header {
@@ -54,6 +61,13 @@ class BoolHeader extends Header {
         return `
       case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;`
+    }
+
+    updatePrintHeadersStatement() {
+        return `
+  if (${this.underName} != nullptr) {
+    os << " ${this.name}";
+  }`
     }
 }
 
@@ -90,6 +104,13 @@ class ByteHeader extends Header {
         return `
       case DynamicHeader::${this.upperName}:${this.underName}.reset(DOWN_CAST<DynamicByteHeader *>(header.release()));
         break;`
+    }
+
+    updatePrintHeadersStatement() {
+        return `
+  if (${this.underName} != nullptr) {
+    os << " ${this.name}: x" << std::hex << int(${this.underName}->value()) << std::dec;
+  }`
     }
 }
 
@@ -203,6 +224,8 @@ function gen_source(path, typename, baseTypeName, header, configs) {
 #include "${header}"`;
     data += `
 
+#include <iostream>
+
 namespace dsa {
 `;
 
@@ -240,7 +263,7 @@ void ${typename}::parse_dynamic_data(const uint8_t *data, size_t dynamic_header_
             data+=`
   if ( body_size > 0) {
       body.reset(new RefCountBytes(data, data + body_size));
-      parse(); // parse the map right after decoding
+      parse_map_to(_raw_map); // parse the map right after decoding
   }`;
         } else {
             data+=`
@@ -281,6 +304,15 @@ void ${typename}::update_static_header() {
     data += `
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void ${typename}::print_headers(std::ostream &os) const {
+`;
+    configs.forEach(field => {
+        if (field.name !== 'Body')
+            data += field.updatePrintHeadersStatement();
+    });
+    data += `
 }
 
 }  // namespace dsa

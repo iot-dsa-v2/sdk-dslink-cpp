@@ -3,8 +3,10 @@
 #include "base_message.h"
 
 #include <ctime>
+#include <sstream>
 #include "message_options.h"
 #include "util/path.h"
+#include "variant/variant.h"
 
 namespace dsa {
 Message::Message(const uint8_t* data, size_t size)
@@ -13,6 +15,28 @@ Message::Message(MessageType type)
     : static_headers(0, 0, type, 0, 0), created_ts(std::time(nullptr)){};
 Message::Message(const StaticHeaders& headers)
     : static_headers(headers), created_ts(std::time(nullptr)){};
+
+void Message::print_message(std::ostream& os, int32_t rid) const {
+  os << type() << " (" << rid << ") SIZE:" << size();
+
+  os << " [";
+  print_headers(os);
+  os << " ] ";
+  print_body(os);
+}
+void Message::print_headers(std::ostream& os) const {}
+void Message::print_body(std::ostream& os) const {
+  if (body != nullptr && body->size() > 0) {
+    if (body->size() < 128) {
+      Var v = Var::from_msgpack(body->data(), body->size());
+      if (!v.is_null()) {
+        os << " BODY: " << v.to_json();
+        return;
+      }
+    }
+    os << " BODY SIZE: " << body->size();
+  }
+}
 
 int32_t Message::size() const {
   if (!static_headers.message_size) {

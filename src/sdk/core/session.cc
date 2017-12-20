@@ -27,11 +27,39 @@ void Session::set_on_connect(OnConnectCallback &&callback) {
   _on_connect = std::move(callback);
 }
 
+bool Session::reconnect(const string_ next_session_id,
+                        int32_t last_remote_ack) {
+  if (_connection != nullptr) {
+    _connection->destroy();
+    _connection.reset();
+  }
+
+  if (!_reconnection_expired && next_session_id == _session_id) {
+    // TODO, update all stream based on last ack, prepare for resending
+    // return true;
+
+    // TODO remove the following code
+    _write_streams.clear();
+    requester.disconnected();
+    responder.disconnected();
+    return false;
+  } else if (!_session_id.empty()) {
+    _session_id = next_session_id;
+    _write_streams.clear();
+    requester.disconnected();
+    responder.disconnected();
+  } else {
+    _session_id = next_session_id;
+  }
+  return false;
+}
+
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {
     _connection->destroy();
   }
   _connection = std::move(connection);
+
   // TODO, handle last ack
   // TODO, remove Ack and Ping from the write streams
 
@@ -122,7 +150,8 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE(_strand->logger(), LOG << "receive message: " << message->type());
+  LOG_TRACE(_strand->logger(), LOG << "receive message: ";
+            message->print_message(LOG););
 
   _no_receive_in_loop = 0;
   if (message->type() == MessageType::PING) return;
@@ -200,8 +229,8 @@ void Session::write_loop(ref_<Session> sthis) {
                                         std::move(ack_callback));
     }
 
-    LOG_TRACE(sthis->_strand->logger(),
-              LOG << "send message: " << message->type());
+    LOG_TRACE(sthis->_strand->logger(), LOG << "send message: ";
+              message->print_message(LOG, stream->rid););
 
     write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
 

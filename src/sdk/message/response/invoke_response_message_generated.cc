@@ -2,6 +2,8 @@
 
 #include "invoke_response_message.h"
 
+#include <iostream>
+
 namespace dsa {
 
 InvokeResponseMessage::InvokeResponseMessage(const InvokeResponseMessage& from)
@@ -94,6 +96,25 @@ void InvokeResponseMessage::update_static_header() {
   }
   static_headers.message_size = message_size;
   static_headers.header_size = (uint16_t)header_size;
+}
+
+void InvokeResponseMessage::print_headers(std::ostream &os) const {
+
+  if (status != nullptr) {
+    os << " Status: x" << std::hex << int(status->value()) << std::dec;
+  }
+  if (sequence_id != nullptr) {
+    os << " SequenceId: " << sequence_id->value();
+  }
+  if (page_id != nullptr) {
+    os << " PageId: " << page_id->value();
+  }
+  if (refreshed != nullptr) {
+    os << " Refreshed";
+  }
+  if (skippable != nullptr) {
+    os << " Skippable";
+  }
 }
 
 }  // namespace dsa

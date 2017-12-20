@@ -12,6 +12,7 @@ SimpleSessionManager::SimpleSessionManager(LinkStrandRef strand)
 void SimpleSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
                                        const string_ &session_id,
+                                       int32_t last_ack,
                                        Session::GetSessionCallback &&callback) {
   if (memory_check_interval > 0 && _count_to_check >= memory_check_interval) {
     check_destroyed_session();
@@ -26,6 +27,7 @@ void SimpleSessionManager::get_session(const string_ &dsid,
         _last_client.dsid = dsid;
         auto search = _sessions.find(session_id);
         if (search != _sessions.end() && search->second->dsid() == dsid) {
+          search->second->reconnect(session_id, last_ack);
           callback(search->second, _last_client);
           return;
         } else {

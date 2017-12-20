@@ -16,6 +16,8 @@ class AckMessage final : public Message {
   void set_ack(int32_t ack) { _ack = ack; };
   int32_t get_ack() const { return _ack; }
 
+  void print_message(std::ostream& os, int32_t rid) const final;
+
  protected:
   int32_t _ack;
 

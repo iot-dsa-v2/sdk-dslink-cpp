@@ -23,6 +23,7 @@ void IncomingSubscribeStream::receive_message(ref_<Message>&& msg) {
 }
 
 void IncomingSubscribeStream::subscribe(const SubscribeOptions& options) {
+  _options = options;
   auto msg = make_ref_<SubscribeRequestMessage>();
   msg->set_subscribe_option(options);
   msg->set_target_path(path.full_str());
@@ -44,4 +45,17 @@ bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
   }
   return false;
 }
+
+bool IncomingSubscribeStream::disconnected() {
+  if (_callback != nullptr) {
+    auto response = make_ref_<SubscribeResponseMessage>();
+    response->set_status(MessageStatus::NOT_AVAILABLE);
+    _callback(*this, std::move(response));
+  }
+  // when disconnected, subscribe again
+  // a new request message is put in queue and will be sent when connected again
+  subscribe(_options);
+  return false;
+}
+
 }

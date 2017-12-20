@@ -31,7 +31,7 @@ class SimpleSessionManager final : public SessionManager {
  public:
   explicit SimpleSessionManager(LinkStrandRef strand);
   void get_session(const string_ &dsid, const string_ &auth_token,
-                   const string_ &session_id,
+                   const string_ &session_id, int32_t last_token,
                    Session::GetSessionCallback &&callback) final;
   // a lazy way to clean up unused sessions: after creating 100 new sessions,
   // check if any existing sessions are destroyed and release the reference

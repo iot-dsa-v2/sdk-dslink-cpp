@@ -2,6 +2,7 @@
 
 #include "ping_message.h"
 
+#include <iostream>
 #include "util/little_endian.h"
 
 namespace dsa {
@@ -15,4 +16,9 @@ void PingMessage::update_static_header() {
   static_headers.message_size = StaticHeaders::SHORT_TOTAL_SIZE;
   static_headers.header_size = StaticHeaders::SHORT_TOTAL_SIZE;
 }
+
+void PingMessage::print_message(std::ostream& os, int32_t rid) const {
+  os << "PING";
+}
+
 }

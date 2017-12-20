@@ -2,6 +2,7 @@
 
 #include "ack_message.h"
 
+#include <iostream>
 #include "util/little_endian.h"
 
 namespace dsa {
@@ -21,4 +22,9 @@ void AckMessage::update_static_header() {
       StaticHeaders::SHORT_TOTAL_SIZE + sizeof(int32_t);
   static_headers.header_size = StaticHeaders::SHORT_TOTAL_SIZE;
 }
+
+void AckMessage::print_message(std::ostream& os, int32_t rid) const {
+  os << "ACK - " << _ack;
+}
+
 }

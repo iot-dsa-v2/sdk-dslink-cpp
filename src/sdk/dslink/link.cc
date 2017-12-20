@@ -2,11 +2,11 @@
 
 #include "link.h"
 
+#include <util/string.h>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <regex>
-#include <util/string.h>
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
@@ -61,10 +61,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     exit(0);
   }
 
+  own_app = false;
   _app = app;
   // If app object is already given, thread option is ignored in args
   if (_app.get() == nullptr) {
     parse_thread(variables["thread"].as<size_t>());
+    own_app = true;
   }
 
   strand.reset(new EditableStrand(
@@ -73,13 +75,20 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   // TOKEN from file
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
-  if(client_token_path.length() != 0) {
-    try{
+  if (client_token_path.length() != 0) {
+    try {
       client_token = string_from_file(client_token_path);
-    }catch (std::exception &e) {
+    } catch (std::exception &e) {
       LOG_FATAL(LOG << "Fatal loading token file " << client_token_path
-                    << " with error : "<< e.what());
+                    << " with error : " << e.what());
     }
+  }
+
+  try{
+    close_token = string_from_file(".close_token");
+    if(close_token.length() != 32) throw std::runtime_error("Token is not have 32 length");
+  }catch(std::exception &e){
+    close_token = "";
   }
 
   parse_url(variables["broker"].as<string_>());
@@ -129,7 +138,7 @@ void DsLink::destroy_impl() {
   }
 
   WrapperStrand::destroy_impl();
-  _app->close();
+  if(own_app) { _app->close(); }
 }
 
 void DsLink::parse_thread(size_t thread) {
@@ -255,6 +264,7 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
 
   if (!strand->is_responder_set()) {
     LOG_WARN(strand->logger(), LOG << "responder is not initialized");
+    _client->get_session().responder_enabled = false;
     strand->set_stream_acceptor(make_ref_<DummyStreamAcceptor>());
   }
 
@@ -301,5 +311,8 @@ ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
                                     ref_<const SetRequestMessage> &&message) {
   return _client->get_session().requester.set(std::move(callback),
                                               std::move(message));
+}
+string_ DsLink::get_close_token() {
+  return close_token;
 }
 }

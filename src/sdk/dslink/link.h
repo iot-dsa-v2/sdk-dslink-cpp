@@ -30,15 +30,19 @@ class DsLink final : public WrapperStrand {
          const string_ &version, const shared_ptr_<App> &app = nullptr);
   ~DsLink() final;
   App &get_app();
+  string_ get_close_token();
 
  protected:
   void destroy_impl() final;
 
  private:
+  bool own_app;
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
   ref_<Client> _client;
   ref_<LinkRoot> _root;
+
+  string_ close_token;
 
   bool _running = false;
   bool _connected = false;

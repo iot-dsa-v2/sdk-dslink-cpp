@@ -35,9 +35,7 @@ class OutgoingInvokeStream final : public MessageQueueStream {
 
   void on_request(Callback &&callback);
 
-  void send_response(InvokeResponseMessageCRef &&message) {
-    send_message(MessageCRef(std::move(message)));
-  };
+  void send_response(InvokeResponseMessageCRef &&message);
 
   void close(MessageStatus status = MessageStatus::CLOSED);
 

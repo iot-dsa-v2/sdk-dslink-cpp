@@ -27,6 +27,16 @@ void Responder::destroy_impl() {
   _outgoing_streams.clear();
 }
 
+void Responder::disconnected() {
+  for (auto it = _outgoing_streams.begin(); it != _outgoing_streams.end();) {
+    if (it->second->disconnected()) {
+      it = _outgoing_streams.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+
 void Responder::receive_message(ref_<Message> &&message) {
   auto find_stream = _outgoing_streams.find(message->get_rid());
   if (find_stream != _outgoing_streams.end()) {

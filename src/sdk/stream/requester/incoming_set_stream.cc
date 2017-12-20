@@ -7,11 +7,10 @@
 
 namespace dsa {
 
-IncomingSetStream::IncomingSetStream(ref_<Session>&& session,
-                                           const Path& path, uint32_t rid,
-                                           Callback&& callback)
-  : MessageCacheStream(std::move(session), path, rid),
-    _callback(std::move(callback)) {}
+IncomingSetStream::IncomingSetStream(ref_<Session>&& session, const Path& path,
+                                     uint32_t rid, Callback&& callback)
+    : MessageCacheStream(std::move(session), path, rid),
+      _callback(std::move(callback)) {}
 
 void IncomingSetStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::SET_RESPONSE) {
@@ -23,5 +22,15 @@ void IncomingSetStream::receive_message(ref_<Message>&& msg) {
 
 void IncomingSetStream::set(ref_<const SetRequestMessage>&& msg) {
   send_message(MessageCRef(std::move(msg)));
+}
+
+bool IncomingSetStream::disconnected() {
+  if (_callback != nullptr) {
+    auto response = make_ref_<SetResponseMessage>();
+    response->set_status(MessageStatus::DISCONNECTED);
+    _callback(*this, std::move(response));
+  }
+  destroy();
+  return true;
 }
 }

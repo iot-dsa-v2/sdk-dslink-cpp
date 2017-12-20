@@ -11,7 +11,7 @@ using namespace dsa;
 int main(int argc, const char* argv[]) {
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(argc, argv);
   ModuleLoader modules(broker_config);
-  DsBroker broker(std::move(broker_config), modules);
-  broker.run();
+  auto broker = make_ref_<DsBroker>(std::move(broker_config), modules);
+  broker->run();
   return 0;
 }

@@ -27,10 +27,11 @@ class BrokerSessionManager final : public SessionManager {
   void destroy_impl() final;
 
  public:
-  BrokerSessionManager(LinkStrandRef strand, ref_<DownstreamRoot> downstream_root);
+  BrokerSessionManager(LinkStrandRef strand,
+                       ref_<DownstreamRoot> downstream_root);
   ~BrokerSessionManager() final;
   void get_session(const string_ &dsid, const string_ &auth_token,
-                   const string_ &session_id,
+                   const string_ &session_id, int32_t last_token,
                    Session::GetSessionCallback &&callback) final;
 };
 }

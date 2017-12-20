@@ -12,12 +12,14 @@
 
 namespace dsa {
 
-void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
-    const std::runtime_error &) {
+void Connection::on_client_connect(
+    shared_ptr_<Connection> connection, const string_ &next_session_id,
+    int32_t remote_last_ack) throw(const std::runtime_error &) {
   if (connection->_session == nullptr) {
     LOG_FATAL(LOG << "no session attached to client connection");
   }
   Connection *raw_ptr = connection.get();
+  raw_ptr->_session->reconnect(next_session_id, remote_last_ack);
   raw_ptr->_session->connected(std::move(connection));
   std::lock_guard<std::mutex> lock(raw_ptr->mutex);
   raw_ptr->on_read_message = [raw_ptr](MessageRef message) {
@@ -58,11 +60,9 @@ bool Connection::on_receive_f1(MessageRef &&msg) {
 
   HandshakeF2Message f2;
   f2.auth = _handshake_context.auth();
-  // TODO:
-  // f2.is_requester = true;
-  // f2.is_responder = true;
-  // f2.session_id =
-  // f2.token =
+  f2.is_responder = _session->responder_enabled;
+  f2.previous_session_id = _session->session_id();
+  f2.token = _session->client_token;
 
   auto write_buffer = get_write_buffer();
   write_buffer->add(f2, 0, 0);
@@ -95,8 +95,12 @@ bool Connection::on_receive_f3(MessageRef &&msg) {
                  _handshake_context.remote_auth().end(), f3->auth.begin())) {
     _deadline.cancel();
     _remote_path = f3->path;
-    _strand->post([sthis = shared_from_this()]() mutable {
-      on_client_connect(std::move(sthis));
+
+    _strand->post([
+      sthis = shared_from_this(), next_session_id = f3->session_id,
+      remote_last_ack = f3->last_ack_id
+    ]() mutable {
+      on_client_connect(std::move(sthis), next_session_id, remote_last_ack);
     });
   } else {
     LOG_ERROR(_strand->logger(), LOG << "invalid handshake auth");

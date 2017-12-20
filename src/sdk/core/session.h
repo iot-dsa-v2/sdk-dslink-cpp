@@ -60,6 +60,7 @@ class Session final : public DestroyableRef<Session> {
   string_ _dsid;
   string_ _session_id;
   shared_ptr_<Connection> _connection;
+  bool _reconnection_expired = false;
 
   ref_<AckStream> _ack_stream;
   ref_<PingStream> _ping_stream;
@@ -88,6 +89,11 @@ class Session final : public DestroyableRef<Session> {
   Requester requester;
   Responder responder;
 
+  // client session features
+
+  bool responder_enabled = true;
+  string_ client_token;
+
   Session(LinkStrandRef strand, const string_ &dsid, const string_ &session_id);
   ~Session();
 
@@ -100,6 +106,7 @@ class Session final : public DestroyableRef<Session> {
 
   int32_t last_sent_ack();
 
+  bool reconnect(const string_ next_session_id, int32_t last_remote_ack);
   void connected(shared_ptr_<Connection> connection);
   void disconnected(const shared_ptr_<Connection> &connection);
 
@@ -107,7 +114,7 @@ class Session final : public DestroyableRef<Session> {
 
   void write_stream(ref_<MessageStream> &&stream);
 
-  string_ map_pub_path(const string_ & path) {
+  string_ map_pub_path(const string_ &path) {
     // todo: implement this
     return path;
   }
