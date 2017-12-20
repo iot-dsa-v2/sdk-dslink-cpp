@@ -20,9 +20,6 @@ endif ()
 find_package(Boost 1.6 REQUIRED COMPONENTS system thread date_time program_options filesystem)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
-# Beast
-#include_directories("../../deps/beast/include")
-
 # Standard DSA v2 headers
 include_directories(".")
 
