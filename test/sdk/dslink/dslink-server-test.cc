@@ -152,12 +152,15 @@ TEST(DSLinkTest, CloseTest) {
   close_request_with_wrong_token->set_value(Var("wrongtoken"));
   close_request_with_wrong_token->set_target_path("sys/stop");
 
+  ref_<const InvokeResponseMessage> response_invoke_failed;
   link->invoke([&](IncomingInvokeStream &stream,
                    ref_<const InvokeResponseMessage> &&msg) {
+                 response_invoke_failed = std::move(msg);
                },
                copy_ref_(close_request_with_wrong_token));
 
-  WAIT(1000);
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return response_invoke_failed != nullptr; });
+  EXPECT_EQ(response_invoke_failed->get_status(), MessageStatus::INVALID_PARAMETER);
   EXPECT_FALSE(linkResp->is_destroyed());
 
   auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
