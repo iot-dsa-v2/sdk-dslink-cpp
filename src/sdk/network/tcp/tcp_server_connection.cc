@@ -23,7 +23,7 @@ void TcpServerConnection::accept() {
   {
     std::lock_guard<std::mutex> lock(mutex);
     on_read_message = [this](MessageRef message) {
-      return on_receive_f0(std::move(message));
+      on_receive_f0(std::move(message));
     };
   }
   TcpConnection::start_read(share_this<TcpServerConnection>(), 0, 0);

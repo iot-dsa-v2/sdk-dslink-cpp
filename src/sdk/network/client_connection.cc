@@ -23,7 +23,7 @@ void Connection::on_client_connect(
   raw_ptr->_session->connected(std::move(connection));
   std::lock_guard<std::mutex> lock(raw_ptr->mutex);
   raw_ptr->on_read_message = [raw_ptr](MessageRef message) {
-    return raw_ptr->post_message(std::move(message));
+    raw_ptr->post_message(std::move(message));
   };
 }
 void Connection::start_client_f0() {
@@ -45,10 +45,10 @@ void Connection::start_client_f0() {
   reset_deadline_timer(15);
   std::lock_guard<std::mutex> lock(mutex);
   on_read_message = [this](MessageRef message) {
-    return on_receive_f1(std::move(message));
+    on_receive_f1(std::move(message));
   };
 }
-bool Connection::on_receive_f1(MessageRef &&msg) {
+void Connection::on_receive_f1(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE1) {
     throw MessageParsingError("invalid handshake message, expect f1");
   }
@@ -78,12 +78,11 @@ bool Connection::on_receive_f1(MessageRef &&msg) {
   reset_deadline_timer(15);
   // no need to lock, parent scope should already have the lock
   on_read_message = [this](MessageRef message) {
-    return on_receive_f3(std::move(message));
+    on_receive_f3(std::move(message));
   };
-  return false;
 }
 
-bool Connection::on_receive_f3(MessageRef &&msg) {
+void Connection::on_receive_f3(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE3) {
     throw MessageParsingError("invalid handshake message, expect f3");
   }
@@ -105,7 +104,6 @@ bool Connection::on_receive_f3(MessageRef &&msg) {
   } else {
     LOG_ERROR(_strand->logger(), LOG << "invalid handshake auth");
   }
-  return false;
 }
 
 }  // namespace dsa

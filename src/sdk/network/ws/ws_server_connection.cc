@@ -15,7 +15,7 @@ void WsServerConnection::accept() {
   {
     std::lock_guard<std::mutex> lock(mutex);
     on_read_message = [this](MessageRef message) {
-      return on_receive_f0(std::move(message));
+      on_receive_f0(std::move(message));
     };
   }
 

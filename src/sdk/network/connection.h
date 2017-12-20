@@ -50,7 +50,7 @@ class Connection : public SharedDestroyable<Connection> {
     return _strand->post(std::move(callback));
   }
 
-  std::function<bool(MessageRef)> on_read_message;
+  std::function<void(MessageRef)> on_read_message;
 
   //  virtual void write(const uint8_t *data, size_t size,
   //                     WriteHandler &&callback) = 0;
@@ -89,7 +89,7 @@ class Connection : public SharedDestroyable<Connection> {
   string_ _remote_path;
 
   std::vector<MessageRef> _batch_post;
-  bool post_message(MessageRef &&msg);
+  void post_message(MessageRef &&msg);
   void do_batch_post(shared_ptr_<Connection> &&sthis);
   virtual void continue_read_loop(shared_ptr_<Connection> &&sthis) = 0;
 
@@ -105,8 +105,8 @@ class Connection : public SharedDestroyable<Connection> {
  protected:
   //  void on_server_connect() throw(const std::runtime_error &);
 
-  bool on_receive_f0(MessageRef &&msg);
-  bool on_receive_f2(MessageRef &&msg);
+  void on_receive_f0(MessageRef &&msg);
+  void on_receive_f2(MessageRef &&msg);
 
   // client connection
  protected:
@@ -117,8 +117,8 @@ class Connection : public SharedDestroyable<Connection> {
       int32_t remote_last_ack) throw(const std::runtime_error &);
 
   void start_client_f0();
-  bool on_receive_f1(MessageRef &&msg);
-  bool on_receive_f3(MessageRef &&msg);
+  void on_receive_f1(MessageRef &&msg);
+  void on_receive_f3(MessageRef &&msg);
 };
 
 }  // namespace dsa

@@ -13,7 +13,7 @@
 
 namespace dsa {
 
-bool Connection::on_receive_f0(MessageRef &&msg) {
+void Connection::on_receive_f0(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
@@ -41,12 +41,11 @@ bool Connection::on_receive_f0(MessageRef &&msg) {
   reset_deadline_timer(15);
   // no need to lock, parent scope should already have the lock
   on_read_message = [this](MessageRef message) {
-    return on_receive_f2(std::move(message));
+    on_receive_f2(std::move(message));
   };
-  return false;
 }
 
-bool Connection::on_receive_f2(MessageRef &&msg) {
+void Connection::on_receive_f2(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
@@ -63,16 +62,17 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
     _strand->post([ msg, this, sthis = shared_from_this() ]() mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
-          _handshake_context.remote_dsid(), f2->token, f2->previous_session_id, f2->last_ack_id,
-          [ this, sthis = std::move(sthis), last_ack = f2->last_ack_id ](const ref_<Session> &session,
-                                             const ClientInfo &info) {
+          _handshake_context.remote_dsid(), f2->token, f2->previous_session_id,
+          f2->last_ack_id,
+          [ this, sthis = std::move(sthis), last_ack = f2->last_ack_id ](
+              const ref_<Session> &session, const ClientInfo &info) {
             if (session != nullptr) {
               _session = session;
               _session->connected(shared_from_this());
 
               std::lock_guard<std::mutex> lock(mutex);
               on_read_message = [this](MessageRef message) {
-                return post_message(std::move(message));
+                post_message(std::move(message));
               };
 
               HandshakeF3Message f3;
@@ -101,6 +101,5 @@ bool Connection::on_receive_f2(MessageRef &&msg) {
   } else {
     Connection::destroy_in_strand(shared_from_this());
   }
-  return false;
 }
 }

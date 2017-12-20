@@ -45,9 +45,8 @@ void Connection::destroy_impl() {
   _deadline.cancel();
 }
 
-bool Connection::post_message(MessageRef &&message) {
+void Connection::post_message(MessageRef &&message) {
   _batch_post.emplace_back(std::move(message));
-  return true;
 }
 void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
   if (_session != nullptr && !_batch_post.empty()) {
