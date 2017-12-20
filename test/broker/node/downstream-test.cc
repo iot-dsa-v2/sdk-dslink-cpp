@@ -230,7 +230,6 @@ TEST(BrokerDownstreamTest, BROKER_NOTAVAILABLE) {
                  });
 
   ASYNC_EXPECT_TRUE(500, *link.get()->strand, [&]() { return root_list_responses.size() != 0; });
-  link_new->destroy();
 
   link->strand->post([link]() {link->destroy();});
   WAIT(1000);
@@ -243,7 +242,7 @@ TEST(BrokerDownstreamTest, BROKER_NOTAVAILABLE) {
                    status = cache.get_status();
                  });
 
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand, [&]() { return status == MessageStatus::NOT_AVAILABLE; });
+  ASYNC_EXPECT_TRUE(500, *link_new.get()->strand, [&]() { return status == MessageStatus::NOT_AVAILABLE; });
 
   app->wait();
 }
