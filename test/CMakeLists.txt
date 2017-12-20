@@ -48,7 +48,6 @@ set(TEST_LIBS ${TEST_LIBS} ${OPENSSL_LIBRARIES})
 include_directories("../src/sdk")
 include_directories("../src/broker")
 include_directories("../include")
-include_directories("../deps/beast/include")
 
 #
 add_subdirectory("./sdk")
