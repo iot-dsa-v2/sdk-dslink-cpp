@@ -95,7 +95,7 @@ class Connection : public SharedDestroyable<Connection> {
 
   boost::asio::deadline_timer _deadline;
   virtual void on_deadline_timer_(const boost::system::error_code &error,
-                                  shared_ptr_<Connection> connection) {}
+                                  shared_ptr_<Connection> &&connection) {}
 
  public:
   void start_deadline_timer(size_t seconds);

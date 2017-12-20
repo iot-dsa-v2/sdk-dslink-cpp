@@ -51,7 +51,7 @@ class WsConnection : public Connection {
   std::atomic_bool _ws_open{true};
 
   void on_deadline_timer_(const boost::system::error_code &error,
-                          shared_ptr_<Connection> sthis);
+                          shared_ptr_<Connection> &&sthis);
 
   void destroy_impl() override;
 

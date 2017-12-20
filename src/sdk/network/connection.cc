@@ -23,9 +23,9 @@ void Connection::start_deadline_timer(size_t seconds) {
   if (seconds > 0) {
     _deadline.expires_from_now(boost::posix_time::seconds(seconds));
     _deadline.async_wait([sthis = shared_from_this()](
-        const boost::system::error_code &error) {
+        const boost::system::error_code &error) mutable {
       if (error != boost::asio::error::operation_aborted) {
-        sthis->on_deadline_timer_(error, sthis);
+        sthis->on_deadline_timer_(error, std::move(sthis));
       }
     });
   }

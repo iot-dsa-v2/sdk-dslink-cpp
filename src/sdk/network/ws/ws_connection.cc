@@ -19,7 +19,7 @@ WsConnection::WsConnection(websocket_stream &ws, LinkStrandRef &strand,
       _write_buffer(DEFAULT_BUFFER_SIZE) {}
 
 void WsConnection::on_deadline_timer_(const boost::system::error_code &error,
-                                      shared_ptr_<Connection> sthis) {
+                                      shared_ptr_<Connection> &&sthis) {
   LOG_WARN(_strand->logger(), LOG << "Connection timeout");
   destroy_in_strand(std::move(sthis));
 }
