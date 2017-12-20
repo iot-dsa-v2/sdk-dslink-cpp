@@ -2,6 +2,7 @@
 set(BROKER_TEST_SOURCES
     broker/util/broker_runner.cc
     broker/node/downstream-test.cc
+    sdk/async_test.cc
 )
 
 
