@@ -146,7 +146,7 @@ std::vector<uint8_t> Var::to_msgpack() const throw(const EncodingError &) {
       sbuf.data = nullptr;
       sbuf.alloc = 0;
 
-      return v;
+      return std::move(v);
     }
 
     return std::vector<uint8_t>(&sbuf.data[0], &sbuf.data[sbuf_size]);
