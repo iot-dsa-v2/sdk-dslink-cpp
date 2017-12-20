@@ -203,12 +203,12 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_na
   return link;
 }
 
-TEST(DSLinkTest, BROKER_NOTAVAILABLE) {
+TEST(BrokerDownstreamTest, BROKER_NOTAVAILABLE) {
   typedef std::vector<std::vector<string_>> ListResponses;
 
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
-
+  broker->run();
 
   bool is_connected = false;
   auto link = create_dslink(app, broker->tcp_server_port, "mydslink");
@@ -245,7 +245,5 @@ TEST(DSLinkTest, BROKER_NOTAVAILABLE) {
 
   ASYNC_EXPECT_TRUE(500, *link.get()->strand, [&]() { return status == MessageStatus::NOT_AVAILABLE; });
 
-  int a = 3;
-
-  broker->run();
+  app->wait();
 }

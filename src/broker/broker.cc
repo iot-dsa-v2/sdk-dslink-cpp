@@ -91,7 +91,7 @@ void DsBroker::run() {
     _web_server->listen(http_port);
     _web_server->start();
     WebServer::WsCallback root_cb = [this](
-        WebServer& _web_server, boost::asio::ip::tcp::socket&& socket,
+        WebServer &_web_server, boost::asio::ip::tcp::socket &&socket,
         boost::beast::http::request<boost::beast::http::string_body> req) {
       LinkStrandRef link_strand(strand);
       DsaWsCallback dsa_ws_callback(link_strand);
@@ -112,7 +112,10 @@ void DsBroker::run() {
       LOG_SYSTEM(strand->logger(), LOG << "DsBroker started");
     }
   });
+
+  if (false) {
   _app->wait();
   destroy();
+  }
 }
 }
