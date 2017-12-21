@@ -47,7 +47,9 @@ TEST(DSLinkTest, Server_Test) {
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   linkResp->init_responder<ExampleNodeRoot>();
-  linkResp->connect([&](const shared_ptr_<Connection> connection) {});
+  bool link_resp_connected = false;
+  linkResp->connect([&](const shared_ptr_<Connection> connection) {link_resp_connected=true;});
+  ASYNC_EXPECT_TRUE(500, *linkResp->strand, [&]() { return link_resp_connected; });
 
   // Create link
   std::string address = std::string("127.0.0.1:") + std::to_string(4121);
@@ -71,9 +73,7 @@ TEST(DSLinkTest, Server_Test) {
   // List test
   link->list("", [&](IncomingListCache &cache,
                      const std::vector<string_> &str) { list_result = str; });
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
-                    [&]() { return list_result.size() == 3; });
-
+  WAIT_EXPECT_TRUE(500, [&]() { return list_result.size() == 3; });
   EXPECT_CONTAIN(list_result, "sys");
   EXPECT_CONTAIN(list_result, "pub");
   EXPECT_CONTAIN(list_result, "main");
@@ -85,10 +85,7 @@ TEST(DSLinkTest, Server_Test) {
                       ref_<const SubscribeResponseMessage> message) {
                     messages.push_back(message->get_value().value.get_string());
                   });
-
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
-                    [&]() { return messages.size() == 1; });
-
+  WAIT_EXPECT_TRUE(500, [&]() { return messages.size() == 1; });
   EXPECT_TRUE(messages.size() == 1);
   EXPECT_EQ(messages.at(0), "test string value 1");
 

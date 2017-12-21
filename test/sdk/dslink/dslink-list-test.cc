@@ -67,15 +67,17 @@ TEST(ResponderTest, ListTest) {
                map = cache.get_map();
              });
 
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
-                    [&]() { return root_list_responses.size() == 1; });
+  WAIT_EXPECT_TRUE(500,
+                    [&]() -> bool { return root_list_responses.size() == 1; });
   {
-    EXPECT_CONTAIN(root_list_responses[0], "child_a");
-    EXPECT_CONTAIN(root_list_responses[0], "child_b");
     EXPECT_TRUE(map["child_a"].is_map());
     EXPECT_EQ(map["child_a"]["$is"].to_string(), "test_class");
     EXPECT_TRUE(map["child_b"].is_map());
     EXPECT_EQ(map["child_b"]["$is"].to_string(), "test_class");
+  }
+  {
+    EXPECT_CONTAIN(root_list_responses[0], "child_a");
+    EXPECT_CONTAIN(root_list_responses[0], "child_b");
     EXPECT_EQ(root_list_responses[0].size(), 2);
   }
 
@@ -88,8 +90,7 @@ TEST(ResponderTest, ListTest) {
                child_map = cache.get_map();
              });
 
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
-                    [&]() { return child_list_responses.size() == 1; });
+  WAIT_EXPECT_TRUE(500, [&]() { return child_list_responses.size() == 1; });
   {
     EXPECT_EQ(child_map["$is"].to_string(), "test_class");
     EXPECT_EQ(child_map["@unit"].to_string(), "test_unit");
@@ -99,8 +100,7 @@ TEST(ResponderTest, ListTest) {
     root_node->add_list_child("child_c",
                               new MockNodeChild(server_strand.strand));
   });
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
-                    [&]() { return root_list_responses.size() == 2; });
+  WAIT_EXPECT_TRUE(500, [&]() { return root_list_responses.size() == 2; });
   {
     EXPECT_CONTAIN(root_list_responses[1], "child_c");
     EXPECT_TRUE(map["child_c"].is_map());
@@ -116,8 +116,7 @@ TEST(ResponderTest, ListTest) {
                revisited_map = cache.get_map();
              });
 
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
-                    [&]() { return root_revisited_list_responses.size() == 1; });
+  WAIT_EXPECT_TRUE(500, [&]() { return root_revisited_list_responses.size() == 1; });
   {
     EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
     EXPECT_TRUE(revisited_map == map);
@@ -190,7 +189,7 @@ TEST(DSLinkTest, DisconnectTest) {
             "downstream/test1",
             [&](IncomingListCache &cache, const std::vector<string_> &str) {
               auto map = cache.get_map();
-              std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
+              //std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
 //              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
 
               link_1->strand->post([link_1]() {link_1->destroy();});
@@ -202,13 +201,13 @@ TEST(DSLinkTest, DisconnectTest) {
   std::mutex mutex;
   bool one_of_them_connected = false;
   link_1->connect([&](const shared_ptr_<Connection> connection) {
-    std::cout<<"Hello1"<<std::endl;
+    //std::cout<<"Hello1"<<std::endl;
     std::lock_guard<std::mutex> lock{mutex};
     if(one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
   });
   link_2->connect([&](const shared_ptr_<Connection> connection) {
-    std::cout<<"Hello2"<<std::endl;
+    //std::cout<<"Hello2"<<std::endl;
     std::lock_guard<std::mutex> lock{mutex};
     if(one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
