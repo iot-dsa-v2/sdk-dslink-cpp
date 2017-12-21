@@ -13,12 +13,7 @@
 1. run `.\bootstrap-vcpkg.bat` in vcpkg folder
 1. install packages
 ```
-.\vcpkg install boost:x64-windows
-
-.\vcpkg install openssl:x64-windows
-
-.\vcpkg install gtest:x64-windows
-
+.\vcpkg install boost:x64-windows openssl:x64-windows gtest:x64-windows
 ```
 1. run `.\vcpkg integrate install`
 1. make a copy of C:\vcpkg\installed\x64-windows\debug\lib\manual-link\gtest_maind.lib in the same folder and rename the copy to gtest_main.lib
