@@ -12,6 +12,8 @@ namespace dsa {
 class BrokerHomeRoot : public NodeModel {
  public:
   explicit BrokerHomeRoot(LinkStrandRef &&strand);
+
+  bool allows_runtime_child_change() final { return true; }
 };
 }
 

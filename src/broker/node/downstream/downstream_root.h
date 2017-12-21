@@ -16,7 +16,11 @@ class DownstreamRoot : public NodeModel {
  public:
   explicit DownstreamRoot(LinkStrandRef &&strand);
 
-  ref_<RemoteRootNode> get_root_for_client(const ClientInfo & info, Session & session);
+  bool allows_runtime_child_change() final { return true; }
+  ModelRef on_demand_create_child(const Path &path) final { return UNAVAILABLE; }
+
+  ref_<RemoteRootNode> get_root_for_client(const ClientInfo &info,
+                                           Session &session);
 };
 }
 

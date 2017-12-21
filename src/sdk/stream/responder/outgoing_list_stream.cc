@@ -27,12 +27,12 @@ void OutgoingListStream::destroy_impl() {
 void OutgoingListStream::update_list_value(const string_ &key,
                                            const VarBytesRef &value) {
   _cached_map[key] = value;
-  send_message();
+  post_message();
 }
 void OutgoingListStream::update_list_status(MessageStatus status) {
-  _status = status;
-  if (_status != MessageStatus::OK) {
-    send_message();
+  if (_status != status) {
+    _status = status;
+    post_message();
   }
 }
 void OutgoingListStream::update_list_refreshed() {
@@ -48,9 +48,6 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
 
   size_t size = StaticHeaders::TOTAL_SIZE;
 
-  auto it = _cached_map.begin();
-  size += it->first.size() + it->second->size() + 4;
-
   if (_refreshed) {
     size++;
   }
@@ -58,15 +55,19 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
     size += 2;
   }
   // TODO: count the length for other dynamic headers and pub_path;
+  if (!_cached_map.empty()) {
+    auto it = _cached_map.begin();
+    size += it->first.size() + it->second->size() + 4;
 
-  if (size > available) return size;
+    if (size > available) return size;
 
-  for (++it; it != _cached_map.end(); ++it) {
-    size_t this_size = it->first.size() + it->second->size() + 4;
-    if (this_size + size > available) {
-      break;
+    for (++it; it != _cached_map.end(); ++it) {
+      size_t this_size = it->first.size() + it->second->size() + 4;
+      if (this_size + size > available) {
+        break;
+      }
+      size += this_size;
     }
-    size += this_size;
   }
   _next_size = size;
   return size;

@@ -258,6 +258,10 @@ void NodeState::list(ref_<BaseOutgoingListStream> &&stream) {
   });
   if (_model != nullptr) {
     _model->list(*p);
+  } else if (_model_status == MODEL_INVALID){
+    p->update_list_status(MessageStatus::NOT_SUPPORTED);
+  } else {
+    p->update_list_status(MessageStatus::NOT_AVAILABLE);
   }
 }
 

@@ -99,10 +99,12 @@ class Session final : public DestroyableRef<Session> {
 
   LinkStrandRef &get_strand() { return _strand; };
 
+
   const string_ &dsid() const { return _dsid; }
   const string_ &session_id() const { return _session_id; }
   void update_session_id(const string_ &new_id) { _session_id = new_id; }
   bool is_connected() const { return _connection != nullptr; }
+  bool is_writing() const {return _is_writing;}
 
   int32_t last_sent_ack();
 

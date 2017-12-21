@@ -8,6 +8,7 @@
 #include "message/handshake/f2_message.h"
 #include "message/handshake/f3_message.h"
 #include "module/logger.h"
+#include "stream/simple_stream.h"
 
 #include "module/session_manager.h"
 
@@ -69,28 +70,22 @@ void Connection::on_receive_f2(MessageRef &&msg) {
             if (session != nullptr) {
               _session = session;
               _session->connected(shared_from_this());
+              {
+                std::lock_guard<std::mutex> lock(mutex);
+                on_read_message = [this](MessageRef &&message) {
+                  post_message(std::move(message));
+                };
+              }
 
-              std::lock_guard<std::mutex> lock(mutex);
-              on_read_message = [this](MessageRef message) {
-                post_message(std::move(message));
-              };
+              // send f3, now session owns the write loop
+              // can't send it with raw buffer
+              auto f3 = make_ref_<HandshakeF3Message>();
+              f3->auth = _handshake_context.auth();
+              f3->session_id = _session->session_id();
+              f3->last_ack_id = _session->last_sent_ack();
+              f3->path = info.responder_path;
+              _session->write_stream(make_ref_<SimpleStream>(0, std::move(f3)));
 
-              HandshakeF3Message f3;
-              f3.auth = _handshake_context.auth();
-              f3.session_id = _session->session_id();
-              f3.last_ack_id = _session->last_sent_ack();
-              f3.path = info.responder_path;
-
-              f3.size();  // calculate size
-              auto write_buffer = get_write_buffer();
-              write_buffer->add(f3, 0, 0);
-
-              write_buffer->write([ this, sthis = shared_from_this() ](
-                  const boost::system::error_code &err) mutable {
-                if (err != boost::system::errc::success) {
-                  destroy_in_strand(std::move(sthis));
-                }
-              });
             } else {
               destroy();
             }

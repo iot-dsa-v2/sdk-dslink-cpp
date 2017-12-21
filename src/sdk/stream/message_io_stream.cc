@@ -19,7 +19,20 @@ void MessageRefedStream::send_message() {
     _session->write_stream(get_ref());
   }
 }
-
+void MessageRefedStream::post_message() {
+  if (!_writing && !is_destroyed()) {
+    _writing = true;
+    if (_session->is_writing()) {
+      _session->write_stream(get_ref());
+    } else {
+      _session->get_strand()->post([ this, keepref = get_ref() ]() mutable {
+        if (!is_destroyed()) {
+          _session->write_stream(std::move(keepref));
+        }
+      });
+    }
+  }
+}
 MessageCacheStream::MessageCacheStream(ref_<Session> &&session,
                                        const Path &path, uint32_t rid)
     : MessageRefedStream(std::move(session), path, rid) {}

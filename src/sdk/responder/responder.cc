@@ -10,7 +10,7 @@
 #include "message/request/list_request_message.h"
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
-#include "stream/error_stream.h"
+#include "stream/simple_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
@@ -56,7 +56,7 @@ void Responder::receive_message(ref_<Message> &&message) {
   if (request->get_target_path().is_invalid()) {
     MessageType response_type = Message::get_response_type(request->type());
     if (response_type != MessageType::INVALID) {
-      _session.write_stream(make_ref_<ErrorStream>(
+      _session.write_stream(make_ref_<SimpleStream>(
           request->get_rid(), response_type, MessageStatus::INVALID_MESSAGE));
     }
     return;
@@ -100,7 +100,7 @@ void Responder::receive_message(ref_<Message> &&message) {
 void Responder::on_subscribe_request(ref_<SubscribeRequestMessage> &&message,
                                      PermissionLevel permission_level) {
   if (permission_level < PermissionLevel::READ) {
-    _session.write_stream(make_ref_<ErrorStream>(
+    _session.write_stream(make_ref_<SimpleStream>(
         message->get_rid(), MessageType::SUBSCRIBE_RESPONSE,
         MessageStatus::PERMISSION_DENIED));
     return;
@@ -118,7 +118,7 @@ void Responder::on_list_request(ref_<ListRequestMessage> &&message,
                                 PermissionLevel permission_level) {
   if (permission_level < PermissionLevel::LIST) {
     _session.write_stream(
-        make_ref_<ErrorStream>(message->get_rid(), MessageType::LIST_RESPONSE,
+        make_ref_<SimpleStream>(message->get_rid(), MessageType::LIST_RESPONSE,
                                MessageStatus::PERMISSION_DENIED));
     return;
   }
@@ -135,7 +135,7 @@ void Responder::on_invoke_request(ref_<InvokeRequestMessage> &&message,
                                   PermissionLevel permission_level) {
   if (permission_level < PermissionLevel::READ) {
     _session.write_stream(
-        make_ref_<ErrorStream>(message->get_rid(), MessageType::INVOKE_RESPONSE,
+        make_ref_<SimpleStream>(message->get_rid(), MessageType::INVOKE_RESPONSE,
                                MessageStatus::PERMISSION_DENIED));
     return;
   }
@@ -152,7 +152,7 @@ void Responder::on_set_request(ref_<SetRequestMessage> &&message,
                                PermissionLevel permission_level) {
   if (permission_level < PermissionLevel::WRITE) {
     _session.write_stream(
-        make_ref_<ErrorStream>(message->get_rid(), MessageType::SET_RESPONSE,
+        make_ref_<SimpleStream>(message->get_rid(), MessageType::SET_RESPONSE,
                                MessageStatus::PERMISSION_DENIED));
     return;
   }
