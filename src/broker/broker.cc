@@ -82,7 +82,7 @@ void DsBroker::destroy_impl() {
   if (own_app) { _app->close(); }
 }
 void DsBroker::run() {
-
+#if 0
   strand->dispatch([this]() {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app);
@@ -102,6 +102,7 @@ void DsBroker::run() {
     // TODO - websocket callback setup
     _web_server->add_ws_handler("/", std::move(root_cb));
   });
+#endif
 
 
   // start tcp server
