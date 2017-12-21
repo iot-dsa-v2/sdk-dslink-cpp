@@ -27,9 +27,9 @@ void Responder::destroy_impl() {
   _outgoing_streams.clear();
 }
 
-void Responder::disconnected() {
+void Responder::connection_changed() {
   for (auto it = _outgoing_streams.begin(); it != _outgoing_streams.end();) {
-    if (it->second->disconnected()) {
+    if (it->second->connection_changed()) {
       it = _outgoing_streams.erase(it);
     } else {
       ++it;

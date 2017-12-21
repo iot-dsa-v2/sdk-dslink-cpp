@@ -11,6 +11,9 @@
 #include "core/client.h"
 #include "module/logger.h"
 
+//#include "../../sdk/async_test.h"
+#include "dslink.h"
+
 using namespace dsa;
 
 namespace broker_downstream_test {
@@ -187,3 +190,155 @@ TEST(BrokerDownstreamTest, List) {
   broker->run();
   EXPECT_TRUE(broker->is_destroyed());
 }
+
+TEST(BrokerDownstreamTest, Downstream_not_available) {
+  typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
+
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+
+  WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
+  auto tcp_client1 = make_ref_<Client>(client_strand1);
+
+  WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2");
+  client_strand2.strand->set_responder_model(
+    ModelRef(new MockNodeRoot(client_strand2.strand)));
+  auto tcp_client2 = make_ref_<Client>(client_strand2);
+
+  // after client1 disconnected, list update should show it's disconnected
+  auto step_2_list_on_disconnected_link = [&]() {
+    tcp_client1->get_session().requester.list(
+        "downstream/test2",
+        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+
+          // end the test
+          client_strand2.strand->post([tcp_client2, &client_strand2]() {
+            tcp_client2->destroy();
+            client_strand2.destroy();
+          });
+
+          broker->strand->post([broker]() { broker->destroy(); });
+        });
+  };
+
+  int step = 0;
+  // when list on downstream/test1 it should have a metadata for test1's dsid
+  auto unavailable_child_list = [&](const shared_ptr_<Connection>& connection) {
+    tcp_client1->get_session().requester.list(
+        "downstream/test2",
+        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+          step++;
+          switch (step) {
+            case 1: {
+              // step 1, connect client 2
+              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              tcp_client2->connect();
+              break;
+            }
+            case 2: {
+              // step 2, disconnect client 2
+              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              client_strand2.strand->post([tcp_client2, &client_strand2]() {
+                tcp_client2->destroy();
+                client_strand2.destroy();
+              });
+              break;
+            }
+
+            default: {  //   case 3:{
+              // step 3, end test
+              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              client_strand1.strand->post([tcp_client1, &client_strand1]() {
+                tcp_client1->destroy();
+                client_strand1.destroy();
+              });
+              broker->strand->post([broker]() { broker->destroy(); });
+            }
+          }
+
+        });
+  };
+
+  tcp_client1->connect(std::move(unavailable_child_list));
+
+  broker->run();
+  EXPECT_TRUE(broker->is_destroyed());
+}
+
+//
+// ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_
+// dslink_name) {
+//  std::string address =
+//      std::string("127.0.0.1:") + std::to_string(port);
+//
+//  const char *argv[] = {"./test", "-b", address.c_str()};
+//  int argc = 3;
+//  auto link = make_ref_<DsLink>(argc, argv, dslink_name, "1.0.0", app);
+//  link->init_responder();
+//
+//  return link;
+//}
+//
+// TEST(BrokerDownstreamTest, BROKER_NOTAVAILABLE) {
+//  typedef std::vector<std::vector<string_>> ListResponses;
+//
+//  auto app = make_shared_<App>();
+//
+//  auto broker = create_broker(app);
+//  //broker->strand->logger().level = Logger::ALL___;
+//  broker->run();
+//
+//  bool is_connected_1 = false;
+//  auto link_1 = create_dslink(app, broker->tcp_server_port, "mydslink");
+//  //link_1->strand->logger().level = Logger::ALL___;
+//  link_1->connect([&](const shared_ptr_<Connection> connection) {
+//  is_connected_1 = true; });
+//  ASYNC_EXPECT_TRUE(2000, *link_1->strand, [&]() { return is_connected_1; });
+//
+//  bool is_connected_2 = false;
+//  auto link_2 = create_dslink(app, broker->tcp_server_port, "mydslink_new");
+//  //link_2->strand->logger().level = Logger::ALL___;
+//  link_2->connect([&](const shared_ptr_<Connection> connection) {
+//  is_connected_2 = true; });
+//  ASYNC_EXPECT_TRUE(2000, *link_2->strand, [&]() { return is_connected_2; });
+//
+//  // list on root node
+//  ListResponses root_list_responses;
+//  VarMap map;
+//  link_2->list("downstream/mydslink",
+//                 [&](IncomingListCache &cache, const std::vector<string_>
+//                 &str) {
+//                   root_list_responses.push_back(str);
+//                   map = cache.get_map();
+//                 });
+//
+//  ASYNC_EXPECT_TRUE(500, *link_1.get()->strand, [&]() { return
+//  root_list_responses.size() != 0; });
+//
+//  link_1->strand->post([link_1]() {link_1->destroy();});
+//
+//  WAIT_EXPECT_TRUE(1000, [&](){return link_1->is_destroyed();});
+//
+//  auto status = MessageStatus::PERMISSION_DENIED;
+//
+//  link_2->list("downstream/mydslink",
+//                 [&](IncomingListCache &cache, const std::vector<string_>
+//                 &str) {
+//                   status = cache.get_status();
+//                 });
+//
+//  ASYNC_EXPECT_TRUE(1000, *link_2.get()->strand, [&]() { return status ==
+//  MessageStatus::NOT_AVAILABLE; });
+//
+//  link_2->strand->post([link_2]() {link_2->destroy();});
+//  broker->strand->post([broker]() {broker->destroy();});
+//
+//  app->close();
+//  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+//
+//  if (!app->is_stopped()) {
+//    app->force_stop();
+//  }
+//  app->wait();
+//}

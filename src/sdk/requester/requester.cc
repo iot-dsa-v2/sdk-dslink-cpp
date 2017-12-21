@@ -21,13 +21,19 @@ void Requester::destroy_impl() {
   }
   _incoming_streams.clear();
 }
-void Requester::disconnected() {
+void Requester::connection_changed() {
   for (auto it = _incoming_streams.begin(); it != _incoming_streams.end();) {
-    if (it->second->disconnected()) {
+    if (it->second->connection_changed()) {
       it = _incoming_streams.erase(it);
     } else {
       ++it;
     }
+  }
+}
+
+void Requester::disconnected() {
+  for (auto it = _incoming_streams.begin(); it != _incoming_streams.end(); ++it) {
+    it->second->update_response_status(MessageStatus::NOT_AVAILABLE);
   }
 }
 

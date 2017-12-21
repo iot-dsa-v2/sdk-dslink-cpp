@@ -26,7 +26,7 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
                              bool first_request) {
   if (!_remote_session->is_connected()) {
     // when link is not connected, send a temp update for the
-    stream.update_list_status(MessageStatus::NOT_AVAILABLE);
+    stream.update_response_status(MessageStatus::NOT_AVAILABLE);
     for (auto &it : _override_metas) {
       stream.update_list_value(it.first, it.second);
     }
@@ -40,7 +40,7 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
         _list_cache.clear();
         send_all_override_metas();
       }
-      _state->update_list_status(msg->get_status());
+      _state->update_response_status(msg->get_status());
 
       for (auto &it : msg->get_map()) {
         if (it.first.empty()) return;

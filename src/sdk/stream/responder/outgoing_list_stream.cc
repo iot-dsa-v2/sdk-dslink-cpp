@@ -29,7 +29,7 @@ void OutgoingListStream::update_list_value(const string_ &key,
   _cached_map[key] = value;
   post_message();
 }
-void OutgoingListStream::update_list_status(MessageStatus status) {
+void OutgoingListStream::update_response_status(MessageStatus status) {
   if (_status != status) {
     _status = status;
     post_message();
@@ -84,15 +84,15 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
     _refreshed = false;
   }
 
-  size_t availible_size = _next_size - message->size();
+  size_t available_size = _next_size - message->size();
 
-  RefCountBytes body{availible_size};
+  RefCountBytes body{available_size};
   size_t pos = 0;
   for (auto it = _cached_map.begin(); it != _cached_map.end();) {
     auto &bytes = it->second->get_bytes();
     size_t this_size = it->first.size() + bytes->size() + 4;
-    if (this_size <= availible_size) {
-      availible_size -= this_size;
+    if (this_size <= available_size) {
+      available_size -= this_size;
       // write key
       pos += write_str_with_len(body.data() + pos, it->first);
       // write value

@@ -40,14 +40,14 @@ bool Session::reconnect(const string_ next_session_id,
 
     // TODO remove the following code
     _write_streams.clear();
-    requester.disconnected();
-    responder.disconnected();
+    requester.connection_changed();
+    responder.connection_changed();
     return false;
   } else if (!_session_id.empty()) {
     _session_id = next_session_id;
     _write_streams.clear();
-    requester.disconnected();
-    responder.disconnected();
+    requester.connection_changed();
+    responder.connection_changed();
   } else {
     _session_id = next_session_id;
   }
@@ -67,6 +67,7 @@ void Session::connected(shared_ptr_<Connection> connection) {
   // assume there was message second in previous 20 seconds
   // to avoid a extra ping message
   _sent_in_loop = true;
+  // TODO, what if previous write loop is not finished
   write_loop(get_ref());
 
   if (_on_connect != nullptr) {
@@ -82,6 +83,7 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
     _connection.reset();
     _timer.cancel();
+    requester.disconnected();
   }
   if (_on_connect != nullptr && _connection == nullptr) {
     // disconnect event
@@ -183,10 +185,10 @@ ref_<MessageStream> Session::get_next_ready_stream(int64_t time) {
   return ref_<MessageStream>();
 }
 
-size_t Session::peek_next_message(size_t availible, int64_t time) {
+size_t Session::peek_next_message(size_t available, int64_t time) {
   while (!_write_streams.empty()) {
     ref_<MessageStream> &stream = _write_streams.front();
-    size_t size = stream->peek_next_message_size(availible, time);
+    size_t size = stream->peek_next_message_size(available, time);
     if (size > 0) {
       return size;
     }

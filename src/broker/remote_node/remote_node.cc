@@ -63,7 +63,7 @@ void RemoteNode::on_unsubscribe() {
 void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
   if (!_remote_session->is_connected()) {
     // when link is not connected, send a temp update for the status
-    stream.update_list_status(MessageStatus::NOT_AVAILABLE);
+    stream.update_response_status(MessageStatus::NOT_AVAILABLE);
   }
   if (first_request) {
     _remote_list_stream = _remote_session->requester.list(_remote_path, [
@@ -76,7 +76,7 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
       if (!msg->get_pub_path().empty()) {
         _list_pub_path_cache = _remote_session->map_pub_path(msg->get_pub_path());
       }
-      _state->update_list_status(msg->get_status());
+      _state->update_response_status(msg->get_status());
 
       for (auto &it : msg->get_map()) {
         if (it.first.empty()) return;
@@ -85,7 +85,7 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
       }
     });
   } else {
-    stream.update_list_status(_list_status_cahce);
+    stream.update_response_status(_list_status_cahce);
     stream.update_list_pub_path(_list_pub_path_cache);
     for (auto &it : _list_cache) {
       stream.update_list_value(it.first, it.second);

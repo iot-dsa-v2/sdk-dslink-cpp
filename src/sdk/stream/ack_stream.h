@@ -24,13 +24,10 @@ class AckStream final : public MessageRefedStream {
   void add_ack(int32_t ack);
   int32_t get_ack() const { return _message->get_ack(); };
 
-  // when remove is disconnected
-  bool disconnected() override {
-    destroy();
+  bool connection_changed() final {
+    _writing = false;
     return true;
   }
-
-
 };
 }
 

@@ -3,6 +3,7 @@
 #include "outgoing_subscribe_stream.h"
 
 #include <ctime>
+#include "core/session.h"
 #include "util/date_time.h"
 
 namespace dsa {
@@ -74,6 +75,53 @@ void OutgoingSubscribeStream::receive_message(ref_<Message> &&message) {
   set_options(request_message->get_subscribe_options());
   if (_option_callback != nullptr) {
     _option_callback(*this, old_options);
+  }
+}
+
+MessageCRef OutgoingSubscribeStream::get_next_message(AckCallback &callback) {
+  _writing = false;
+  if (is_destroyed() || _queue.empty()) {
+    return MessageCRef();
+  }
+  MessageCRef msg = std::move(_queue.front());
+  _queue.pop_front();
+  _current_queue_size -= msg->size();
+  if (!_queue.empty()) {
+    _current_queue_time = _queue.front()->created_ts;
+    _writing = true;
+    _session->write_stream(get_ref());
+  } else if (static_cast<const SubscribeResponseMessage *>(msg.get())
+                 ->get_status() != _current_status) {
+    // if the current status is not same as last message, add a status update
+    send_status_response();
+  }
+  return std::move(msg);
+}
+
+void OutgoingSubscribeStream::send_subscribe_response(
+    SubscribeResponseMessageCRef &&message) {
+  if (message->get_status() < MessageStatus::CLOSED) {
+    update_response_status(message->get_status());
+    if (message->get_body() == nullptr) {
+      // if it's pure status update, no need to add to the queue
+      // this allows status update to be skipped
+      return;
+    }
+  }
+  send_message(MessageCRef(std::move(message)));
+}
+
+void OutgoingSubscribeStream::send_status_response() {
+  auto status_message = make_ref_<SubscribeResponseMessage>();
+  status_message->set_status(_current_status);
+  send_message(std::move(status_message));
+}
+void OutgoingSubscribeStream::update_response_status(MessageStatus status) {
+  if (status != _current_status) {
+    _current_status = status;
+    if (_queue.empty()) {
+      send_status_response();
+    }
   }
 }
 }

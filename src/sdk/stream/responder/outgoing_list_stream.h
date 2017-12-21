@@ -31,8 +31,8 @@ class OutgoingListStream final : public MessageRefedStream {
 
   void on_list_close(ListCloseCallback &&callback) final;
 
+  void update_response_status(MessageStatus status = MessageStatus::OK) final;
   void update_list_value(const string_ &key, const ref_<VarBytes> &value) final;
-  void update_list_status(MessageStatus status = MessageStatus::OK) final;
   void update_list_refreshed() final;
   void update_list_pub_path(const string_& path) final;
 

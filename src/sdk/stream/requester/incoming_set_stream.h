@@ -29,7 +29,7 @@ class IncomingSetStream final : public MessageCacheStream {
 
   void set(ref_<const SetRequestMessage>&& msg);
 
-  bool disconnected() final;
+  bool connection_changed() final;
 };
 }
 

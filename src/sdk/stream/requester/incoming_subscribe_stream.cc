@@ -46,16 +46,19 @@ bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
   return false;
 }
 
-bool IncomingSubscribeStream::disconnected() {
-  if (_callback != nullptr) {
-    auto response = make_ref_<SubscribeResponseMessage>();
-    response->set_status(MessageStatus::NOT_AVAILABLE);
-    _callback(*this, std::move(response));
-  }
+bool IncomingSubscribeStream::connection_changed() {
   // when disconnected, subscribe again
   // a new request message is put in queue and will be sent when connected again
+  _writing = false;
   subscribe(_options);
   return false;
 }
 
+void IncomingSubscribeStream::update_response_status(MessageStatus status) {
+  if (_callback != nullptr) {
+    auto response = make_ref_<SubscribeResponseMessage>();
+    response->set_status(status);
+    _callback(*this, std::move(response));
+  }
+}
 }
