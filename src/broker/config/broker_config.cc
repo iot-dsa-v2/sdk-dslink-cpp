@@ -31,8 +31,8 @@ void BrokerConfig::init() {
   });
   add_item("port", Var(4120), VarValidatorInt(1, 65535));
   add_item("secure-port", Var(4128), VarValidatorInt(1, 65535));
-  add_item("http-port", Var(80), VarValidatorInt(1, 65535));
-  add_item("https-port", Var(443), VarValidatorInt(1, 65535));
+  add_item("http-port", Var(8080), VarValidatorInt(1, 65535));
+  add_item("https-port", Var(8443), VarValidatorInt(1, 65535));
   add_item("log-level", Var("warn"), [](const Var& var) {
     string_ str = var.to_string();
     return str == "trace" || str == "debug" || str == "info" || str == "warn" ||
