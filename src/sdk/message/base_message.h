@@ -177,9 +177,9 @@ class MessageStream : public DestroyableRef<MessageStream> {
   // read message from remote
   virtual void receive_message(ref_<Message>&& msg) = 0;
 
-  // when remove is disconnected
+  // when the previous connection is lost
   // return true if stream is destroyed
-  virtual bool disconnected() = 0;
+  virtual bool connection_changed() = 0;
 
   // all the pending ack failed
   virtual void unack() = 0;
@@ -188,12 +188,16 @@ class MessageStream : public DestroyableRef<MessageStream> {
   // interface here make things simpler. in other programing language these
   // functions should be defined in real interface
 
+  // update a status to local callback
+  // for incomming message, it sends a status response to callback
+  // for outgoing message, it send a status response to network
+  virtual void update_response_status(MessageStatus status){};
+
   // interface for fake outgoing list stream
 
   typedef std::function<void(MessageStream&)> ListCloseCallback;
   virtual void update_list_value(const string_& key,
                                  const ref_<VarBytes>& value) {}
-  virtual void update_list_status(MessageStatus status){};
   virtual void update_list_refreshed() {}
   virtual void update_list_pub_path(const string_& path) {}
 

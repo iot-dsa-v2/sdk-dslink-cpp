@@ -18,7 +18,7 @@ void DummyStreamAcceptor::add(ref_<OutgoingSubscribeStream> &&stream) {
   stream->send_subscribe_response(std::move(response));
 }
 void DummyStreamAcceptor::add(ref_<OutgoingListStream> &&stream) {
-  stream->update_list_status(MessageStatus::NOT_SUPPORTED);
+  stream->update_response_status(MessageStatus::NOT_SUPPORTED);
 }
 void DummyStreamAcceptor::add(ref_<OutgoingInvokeStream> &&stream) {
   stream->close(MessageStatus::NOT_SUPPORTED);

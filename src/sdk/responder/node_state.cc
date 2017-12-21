@@ -231,9 +231,9 @@ void NodeState::update_list_value(const string_ &key,
   }
 }
 
-void NodeState::update_list_status(MessageStatus status) {
+void NodeState::update_response_status(MessageStatus status) {
   for (auto &it : _list_streams) {
-    it.first->update_list_status(status);
+    it.first->update_response_status(status);
   }
 }
 void NodeState::update_list_refreshed() {
@@ -259,9 +259,9 @@ void NodeState::list(ref_<BaseOutgoingListStream> &&stream) {
   if (_model != nullptr) {
     _model->list(*p);
   } else if (_model_status == MODEL_INVALID){
-    p->update_list_status(MessageStatus::NOT_SUPPORTED);
+    p->update_response_status(MessageStatus::NOT_SUPPORTED);
   } else {
-    p->update_list_status(MessageStatus::NOT_AVAILABLE);
+    p->update_response_status(MessageStatus::NOT_AVAILABLE);
   }
 }
 

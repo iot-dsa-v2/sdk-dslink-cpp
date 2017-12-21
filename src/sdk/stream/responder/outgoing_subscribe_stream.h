@@ -23,6 +23,10 @@ class OutgoingSubscribeStream final : public MessageQueueStream {
 
   void destroy_impl() final;
 
+  MessageStatus _current_status = MessageStatus::OK;
+  void send_status_response();
+  MessageCRef get_next_message(AckCallback &callback) final;
+
  public:
   const SubscribeOptions &subscribe_options() final { return _options; }
 
@@ -35,9 +39,10 @@ class OutgoingSubscribeStream final : public MessageQueueStream {
 
   void receive_message(ref_<Message> &&mesage) final;
 
-  void send_subscribe_response(SubscribeResponseMessageCRef &&message) final {
-    send_message(MessageCRef(std::move(message)));
-  }
+  void send_subscribe_response(SubscribeResponseMessageCRef &&message) final;
+
+  void update_response_status(MessageStatus status = MessageStatus::OK) final;
+
 };
 }
 

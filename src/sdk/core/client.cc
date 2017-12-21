@@ -21,12 +21,12 @@ Client::Client(WrapperStrand &config)
 Client::~Client() = default;
 
 void Client::destroy_impl() {
+  _session->destroy();
+  _session.reset();
   if (_connection != nullptr) {
     _connection->destroy();
     _connection.reset();
   }
-  _session->destroy();
-  _session.reset();
   _reconnect_timer.cancel();
   _user_on_connect = nullptr;
 }

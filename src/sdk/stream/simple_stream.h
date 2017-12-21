@@ -23,7 +23,7 @@ class SimpleStream final : public MessageStream {
   void receive_message(ref_<Message>&& msg) final {}
 
   // when remove is disconnected
-  bool disconnected() override {
+  bool connection_changed() override {
     destroy();
     return true;
   }

@@ -36,7 +36,8 @@ class IncomingSubscribeStream final : public MessageCacheStream {
 
   bool check_close_message(MessageCRef& message) final;
 
-  bool disconnected() final;
+  bool connection_changed() final;
+  void update_response_status(MessageStatus status = MessageStatus::OK) final;
 };
 }
 

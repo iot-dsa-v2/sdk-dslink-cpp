@@ -24,7 +24,7 @@ void IncomingSetStream::set(ref_<const SetRequestMessage>&& msg) {
   send_message(MessageCRef(std::move(msg)));
 }
 
-bool IncomingSetStream::disconnected() {
+bool IncomingSetStream::connection_changed() {
   if (_callback != nullptr) {
     auto response = make_ref_<SetResponseMessage>();
     response->set_status(MessageStatus::DISCONNECTED);

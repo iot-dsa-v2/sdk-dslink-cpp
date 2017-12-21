@@ -31,6 +31,8 @@ class MessageRefedStream : public MessageStream {
   // queue the sending, but not send message at once
   void post_message();
 
+  // when return true, message will be closed
+  // in that case the function itself should remove the stream from the rid map
   virtual bool check_close_message(MessageCRef &message) { return false; };
 
   MessageRefedStream(const MessageRefedStream &other) = delete;
@@ -40,7 +42,7 @@ class MessageRefedStream : public MessageStream {
   ~MessageRefedStream() override;
 
   // when remove is disconnected
-  bool disconnected() override {
+  bool connection_changed() override {
     destroy();
     return true;
   }
