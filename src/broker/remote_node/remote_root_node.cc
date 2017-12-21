@@ -11,8 +11,10 @@ RemoteRootNode::RemoteRootNode(LinkStrandRef &&strand, ref_<Session> &&session)
     : RemoteNode(std::move(strand), "", std::move(session)) {}
 RemoteRootNode::~RemoteRootNode() = default;
 
-void RemoteRootNode::on_session(Session &session,
-                                const shared_ptr_<Connection> &connection) {}
+//void RemoteRootNode::on_session(Session &session,
+//                                const shared_ptr_<Connection> &connection) {
+//
+//}
 
 // an empty map, default summary for all remote root node
 static VarBytesRef default_summary(new VarBytes(std::vector<uint8_t>{
@@ -36,9 +38,6 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
       if (msg->get_refreshed()) {
         _state->update_list_refreshed();
         _list_cache.clear();
-        send_all_override_metas();
-      } else if (_list_cache.empty() && !_override_metas.empty()) {
-        // send all override meta with the first list response
         send_all_override_metas();
       }
       _state->update_list_status(msg->get_status());

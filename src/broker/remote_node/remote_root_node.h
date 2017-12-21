@@ -19,8 +19,8 @@ class RemoteRootNode : public RemoteNode {
   RemoteRootNode(LinkStrandRef &&strand, ref_<Session> &&session);
   ~RemoteRootNode() override;
 
-  // updated the status of connection changes
-  void on_session(Session &session, const shared_ptr_<Connection> &connection);
+  // updated the status of connection changes, not used yet
+  // void on_session(Session &session, const shared_ptr_<Connection> &connection);
 
   VarBytesRef &get_summary() override;
 

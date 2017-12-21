@@ -12,6 +12,8 @@ namespace dsa {
 class BrokerPubRoot : public NodeModel {
  public:
   explicit BrokerPubRoot(LinkStrandRef &&strand);
+
+  bool allows_runtime_child_change() final { return true; }
 };
 }
 

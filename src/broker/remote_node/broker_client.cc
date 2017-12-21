@@ -23,10 +23,6 @@ ref_<Session> &BrokerClient::create_single_session(LinkStrandRef &strand) {
       make_ref_<Session>(strand->get_ref(), _info.dsid, get_new_session_id(""));
   _single_session->set_on_connect([ this, keep_ref = get_ref() ](
       Session & session1, const shared_ptr_<Connection> &conn) {
-    if (_node != nullptr) {
-      // notify the downstream node about the session change
-      _node->on_session(session1, conn);
-    }
     if (session1.is_destroyed()) {
       session_destroyed(session1);
     }

@@ -28,6 +28,8 @@ class MessageRefedStream : public MessageStream {
                               uint32_t rid = 0);
 
   void send_message();
+  // queue the sending, but not send message at once
+  void post_message();
 
   virtual bool check_close_message(MessageCRef &message) { return false; };
 

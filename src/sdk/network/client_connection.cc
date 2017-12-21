@@ -21,10 +21,6 @@ void Connection::on_client_connect(
   Connection *raw_ptr = connection.get();
   raw_ptr->_session->reconnect(next_session_id, remote_last_ack);
   raw_ptr->_session->connected(std::move(connection));
-  std::lock_guard<std::mutex> lock(raw_ptr->mutex);
-  raw_ptr->on_read_message = [raw_ptr](MessageRef message) {
-    raw_ptr->post_message(std::move(message));
-  };
 }
 void Connection::start_client_f0() {
   HandshakeF0Message f0;
@@ -83,10 +79,10 @@ void Connection::on_receive_f1(MessageRef &&msg) {
 }
 
 void Connection::on_receive_f3(MessageRef &&msg) {
-  if (msg->type() != MessageType::HANDSHAKE3) {
+   if (msg->type() != MessageType::HANDSHAKE3) {
     throw MessageParsingError("invalid handshake message, expect f3");
   }
-  LOG_DEBUG(_strand->logger(), LOG << "f3 received");
+  LOG_DEBUG(_strand->logger(), LOG << "f3 received ");
 
   auto *f3 = DOWN_CAST<HandshakeF3Message *>(msg.get());
 
@@ -101,6 +97,9 @@ void Connection::on_receive_f3(MessageRef &&msg) {
     ]() mutable {
       on_client_connect(std::move(sthis), next_session_id, remote_last_ack);
     });
+    on_read_message = [this](MessageRef &&message) {
+      post_message(std::move(message));
+    };
   } else {
     LOG_ERROR(_strand->logger(), LOG << "invalid handshake auth");
   }

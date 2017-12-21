@@ -23,7 +23,7 @@ class OutgoingListStream final : public MessageRefedStream {
   size_t _next_size;
 
   MessageStatus _status = MessageStatus::OK;
-  bool _refreshed = false;
+  bool _refreshed = true;
 
  public:
   OutgoingListStream(ref_<Session> &&session, const Path &path, uint32_t rid,
