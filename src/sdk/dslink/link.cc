@@ -84,10 +84,11 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     }
   }
 
-  try{
+  try {
     close_token = string_from_file(".close_token");
-    if(close_token.length() != 32) throw std::runtime_error("Token is not have 32 length");
-  }catch(std::exception &e){
+    if (close_token.length() != 32)
+      throw std::runtime_error("Token is not have 32 length");
+  } catch (std::exception &e) {
     close_token = "";
   }
 
@@ -138,7 +139,9 @@ void DsLink::destroy_impl() {
   }
 
   WrapperStrand::destroy_impl();
-  if(own_app) { _app->close(); }
+  if (own_app) {
+    _app->close();
+  }
 }
 
 void DsLink::parse_thread(size_t thread) {
@@ -277,8 +280,10 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
                       "before\n");
   }
   LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink running");
-  _app->wait();
-  destroy();
+  if (own_app) {
+    _app->wait();
+    destroy();
+  }
 }
 
 // requester features
@@ -312,7 +317,5 @@ ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
   return _client->get_session().requester.set(std::move(callback),
                                               std::move(message));
 }
-string_ DsLink::get_close_token() {
-  return close_token;
-}
+string_ DsLink::get_close_token() { return close_token; }
 }
