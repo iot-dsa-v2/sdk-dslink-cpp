@@ -1,14 +1,15 @@
 #include "dsa/message.h"
-#include "dsa/stream.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
+#include "dsa/stream.h"
 
 #include "../async_test.h"
 #include "../test_config.h"
 #include "gtest/gtest.h"
 
-#include "network/tcp/tcp_server.h"
 #include "../../broker/util/broker_runner.h"
+#include "module/default/console_logger.h"
+#include "network/tcp/tcp_server.h"
 
 using namespace dsa;
 
@@ -30,11 +31,11 @@ class MockNodeRoot : public NodeModel {
     add_list_child("child_b", make_ref_<MockNodeChild>(_strand));
   };
 
-//  void on_list(BaseOutgoingListStream &stream, bool first_request) override {
-//    //std::cout<<"First Request : "<< first_request<<std::endl;
-//  }
+  //  void on_list(BaseOutgoingListStream &stream, bool first_request) override
+  //  {
+  //    //std::cout<<"First Request : "<< first_request<<std::endl;
+  //  }
 };
-
 }
 
 TEST(ResponderTest, ListTest) {
@@ -55,7 +56,8 @@ TEST(ResponderTest, ListTest) {
 
   bool is_connected = false;
   auto link = server_strand.create_dslink(true);
-  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
+  link->connect(
+      [&](const shared_ptr_<Connection> connection) { is_connected = true; });
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() { return is_connected; });
 
   // list on root node
@@ -116,7 +118,8 @@ TEST(ResponderTest, ListTest) {
                revisited_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() { return root_revisited_list_responses.size() == 1; });
+  WAIT_EXPECT_TRUE(500,
+                   [&]() { return root_revisited_list_responses.size() == 1; });
   {
     EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
     EXPECT_TRUE(revisited_map == map);
@@ -141,75 +144,74 @@ TEST(ResponderTest, ListTest) {
   app->wait();
 }
 
-
-
-
 TEST(DSLinkTest, DisconnectTest) {
   // First Create Broker
   auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
+  shared_ptr_<App> &app = broker->get_app();
 
-  std::string address = std::string("127.0.0.1:") + std::to_string(broker->tcp_server_port);
+  std::string address =
+      std::string("127.0.0.1:") + std::to_string(broker->tcp_server_port);
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link_1 = make_ref_<DsLink>(argc, argv, "test1", "1.0.0", app);
+  static_cast<ConsoleLogger &>(link_1->strand->logger()).filter =
+      Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
   link_1->init_responder();
 
   auto link_2 = make_ref_<DsLink>(argc, argv, "test2", "1.0.0", app);
+  static_cast<ConsoleLogger &>(link_2->strand->logger()).filter =
+      Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
   link_2->init_responder();
 
   // after client1 disconnected, list update should show it's disconnected
   auto step_3_disconnection_list = [&]() {
-    link_2->list(
-        "downstream/test1",
-        [&](IncomingListCache &cache, const std::vector<string_> &str) {
-          EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
-          // end the test
+    link_2->list("downstream/test1", [&](IncomingListCache &cache,
+                                         const std::vector<string_> &str) {
+      EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
+      // end the test
 
-          link_2->strand->post([link_2]() { link_2->destroy(); });
-          broker->strand->post([broker]() { broker->destroy(); });
-        });
+      link_2->strand->post([link_2]() { link_2->destroy(); });
+      broker->strand->post([broker]() { broker->destroy(); });
+    });
   };
 
   // downstream should has test1 and test2 nodes
   auto step_2_downstream_list = [&]() {
-    link_2->list(
-        "downstream",
-        [&](IncomingListCache &cache, const std::vector<string_> &str) {
-          auto map = cache.get_map();
-          EXPECT_TRUE(map["test1"].is_map());
-          EXPECT_TRUE(map["test2"].is_map());
-          step_3_disconnection_list();
-        });
+    link_2->list("downstream", [&](IncomingListCache &cache,
+                                   const std::vector<string_> &str) {
+      auto map = cache.get_map();
+      EXPECT_TRUE(map["test1"].is_map());
+      EXPECT_TRUE(map["test2"].is_map());
+      step_3_disconnection_list();
+    });
   };
 
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_downstream_child_list = [&]() {
-        link_1->list(
-            "downstream/test1",
-            [&](IncomingListCache &cache, const std::vector<string_> &str) {
-              auto map = cache.get_map();
-              //std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
-//              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
+    link_1->list("downstream/test1", [&](IncomingListCache &cache,
+                                         const std::vector<string_> &str) {
+      auto map = cache.get_map();
+      // std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
+      //              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
 
-              link_1->strand->post([link_1]() {link_1->destroy();});
-              step_2_downstream_list();
-            });
+      link_1->strand->post([link_1]() { link_1->destroy(); });
+      step_2_downstream_list();
+    });
 
-      };
+  };
 
   std::mutex mutex;
   bool one_of_them_connected = false;
   link_1->connect([&](const shared_ptr_<Connection> connection) {
-    //std::cout<<"Hello1"<<std::endl;
+    // std::cout<<"Hello1"<<std::endl;
     std::lock_guard<std::mutex> lock{mutex};
-    if(one_of_them_connected) step_1_downstream_child_list();
+    if (one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
   });
   link_2->connect([&](const shared_ptr_<Connection> connection) {
-    //std::cout<<"Hello2"<<std::endl;
+    // std::cout<<"Hello2"<<std::endl;
     std::lock_guard<std::mutex> lock{mutex};
-    if(one_of_them_connected) step_1_downstream_child_list();
+    if (one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
   });
 
