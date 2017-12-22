@@ -47,9 +47,7 @@ TEST(DSLinkTest, Server_Test) {
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   linkResp->init_responder<ExampleNodeRoot>();
-  bool link_resp_connected = false;
-  linkResp->connect([&](const shared_ptr_<Connection> connection) {link_resp_connected=true;});
-  ASYNC_EXPECT_TRUE(500, *linkResp->strand, [&]() { return link_resp_connected; });
+  linkResp->connect();
 
   // Create link
   std::string address = std::string("127.0.0.1:") + std::to_string(4121);
@@ -71,12 +69,13 @@ TEST(DSLinkTest, Server_Test) {
 
   std::vector<string_> list_result;
   // List test
+  auto map = VarMap();
   link->list("", [&](IncomingListCache &cache,
-                     const std::vector<string_> &str) { list_result = str; });
-  WAIT_EXPECT_TRUE(500, [&]() { return list_result.size() == 3; });
-  EXPECT_CONTAIN(list_result, "sys");
-  EXPECT_CONTAIN(list_result, "pub");
-  EXPECT_CONTAIN(list_result, "main");
+                     const std::vector<string_> &str) { map = cache.get_map();});
+  WAIT_EXPECT_TRUE(500, [&]() { return map.size() != 0; });
+  EXPECT_NE(map["sys"].get_type(), 0);
+  EXPECT_NE(map["pub"].get_type(), 0);
+  EXPECT_NE(map["main"].get_type(), 0);
 
   // add a callback when connected to broker
   std::vector<std::string> messages;
