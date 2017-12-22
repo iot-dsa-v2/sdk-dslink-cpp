@@ -67,42 +67,42 @@ TEST(ResponderTest, ListTest) {
                map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500,
-                    [&]() -> bool { return root_list_responses.size() == 1; });
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return map.size() != 0; });
   {
+    EXPECT_TRUE(root_list_responses.size() == 1);
+    EXPECT_TRUE(root_list_responses[0].size() == 0);
     EXPECT_TRUE(map["child_a"].is_map());
     EXPECT_EQ(map["child_a"]["$is"].to_string(), "test_class");
     EXPECT_TRUE(map["child_b"].is_map());
     EXPECT_EQ(map["child_b"]["$is"].to_string(), "test_class");
   }
-  {
-    EXPECT_CONTAIN(root_list_responses[0], "child_a");
-    EXPECT_CONTAIN(root_list_responses[0], "child_b");
-    EXPECT_EQ(root_list_responses[0].size(), 2);
-  }
 
   // list on child node
-  ListResponses child_list_responses;
   VarMap child_map;
   link->list("child_a",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               child_list_responses.push_back(str);
                child_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() { return child_list_responses.size() == 1; });
+  WAIT_EXPECT_TRUE(500, [&]() { return child_map.size() != 0; });
   {
     EXPECT_EQ(child_map["$is"].to_string(), "test_class");
     EXPECT_EQ(child_map["@unit"].to_string(), "test_unit");
   }
+
   // update root child
+  map.clear();
+  root_list_responses.clear();
+
   server_strand.strand->post([&]() {
     root_node->add_list_child("child_c",
                               new MockNodeChild(server_strand.strand));
   });
-  WAIT_EXPECT_TRUE(500, [&]() { return root_list_responses.size() == 2; });
+  WAIT_EXPECT_TRUE(500, [&]() { return root_list_responses.size() != 0; });
   {
-    EXPECT_CONTAIN(root_list_responses[1], "child_c");
+    EXPECT_TRUE(root_list_responses.size() == 1);
+    EXPECT_TRUE(root_list_responses[0].size() == 1);
+    EXPECT_TRUE(root_list_responses[0][0] == "child_c");
     EXPECT_TRUE(map["child_c"].is_map());
     EXPECT_EQ(map["child_c"]["$is"].to_string(), "test_class");
   }
