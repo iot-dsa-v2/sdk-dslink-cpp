@@ -12,12 +12,14 @@ class DsLink;
 
 class LinkRoot : public NodeModel {
   friend class DsLink;
+  ref_<NodeModel> _main_node;
 
  public:
   LinkRoot(LinkStrandRef &&strand, ref_<DsLink> &&link);
   ~LinkRoot();
 
   void set_main(ref_<NodeModelBase> &&main_node);
+  void add_main(string_ name, ref_<NodeModelBase> &&main_node);
 
  protected:
   void destroy_impl() final;
