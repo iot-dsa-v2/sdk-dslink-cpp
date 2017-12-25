@@ -2,8 +2,47 @@
 
 using namespace dsa;
 
+////////////
+// This test works
+///////////
+TEST(BROKER_DSLINK_TEST, Reconnect_Without_List) {
+  auto app = make_shared_<App>();
 
-TEST(BROKER_DSLINK_TEST, Reconnect) {
+  auto broker = broker_dslink_test::create_broker(app);
+  broker->run();
+
+  for(int i = 0; i < 25; i++) {
+    std::cout<<"Hello "<<std::endl;
+    auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test1");
+
+    bool is_connected = false;
+    link_1->connect([&](const shared_ptr_<Connection> connection) {
+      is_connected = true;
+    });
+
+    WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_connected;});
+
+    link_1->strand->post([&](){link_1->destroy();});
+    WAIT(500);
+  }
+
+  broker->strand->post([&](){broker->destroy();});
+
+  app->close();
+
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+
+  app->wait();
+}
+
+////////////
+// This test is not working, it couldn't reconnect to the broker after disconnect
+///////////
+TEST(BROKER_DSLINK_TEST, Reconnect_Same_Name_List) {
   auto app = make_shared_<App>();
 
   auto broker = broker_dslink_test::create_broker(app);
@@ -33,6 +72,83 @@ TEST(BROKER_DSLINK_TEST, Reconnect) {
 
     // 2. CHECK IF CONNECTION IS OK
     auto list_path = "downstream/test1";
+
+    MessageStatus status = MessageStatus::ALIAS_LOOP;
+    auto downstream_list = main_link->list(
+        list_path,
+        [&](IncomingListCache &cache, const std::vector<string_> &str) {
+          status = cache.get_status();
+        });
+
+    WAIT_EXPECT_TRUE(1000, [&]()->bool {return status == MessageStatus::OK;});
+    downstream_list->destroy();
+
+    // 3. CHECK DISCONNECT
+    link_1->strand->post([&](){link_1->destroy();});
+    WAIT(500);
+
+    status = MessageStatus::ALIAS_LOOP;
+    downstream_list = main_link->list(
+        list_path,
+        [&](IncomingListCache &cache, const std::vector<string_> &str) {
+          status = cache.get_status();
+        });
+
+    WAIT_EXPECT_TRUE(1000, [&]()->bool {return status == MessageStatus::NOT_AVAILABLE;});
+    downstream_list->destroy();
+
+    WAIT(500);
+  }
+
+  main_link->strand->post([&](){main_link->destroy();});
+  broker->strand->post([&](){broker->destroy();});
+
+  app->close();
+
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+
+  app->wait();
+}
+
+////////////
+// If you change dslink name in every iteration you can reconnect again
+///////////
+TEST(BROKER_DSLINK_TEST, Reconnect_Different_Name_List) {
+  auto app = make_shared_<App>();
+
+  auto broker = broker_dslink_test::create_broker(app);
+  auto main_link = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "mainlink");
+  broker->run();
+
+  bool is_main_connected = false;
+  main_link->connect([&](const shared_ptr_<Connection> connection) {
+    is_main_connected = true;
+  });
+
+  WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_main_connected;});
+
+
+  for(int i = 0; i < 25; i++) {
+    std::cout<<"Hello "<<i<<std::endl;
+
+    auto link_name = std::string("test") + std::to_string(i);
+
+    auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, link_name);
+
+    // 1. CONNECT
+    bool is_connected = false;
+    link_1->connect([&](const shared_ptr_<Connection> connection) {
+      is_connected = true;
+    });
+
+    WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_connected;});
+
+    // 2. CHECK IF CONNECTION IS OK
+    auto list_path = "downstream/" + link_name;
 
     MessageStatus status = MessageStatus::ALIAS_LOOP;
     auto downstream_list = main_link->list(
