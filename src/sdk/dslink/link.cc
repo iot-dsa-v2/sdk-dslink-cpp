@@ -208,6 +208,10 @@ void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
   init_responder_raw(_root->get_ref());
 }
 
+void DsLink::add_to_main_node(string_ name, ref_<NodeModel>&& node) {
+  _root->add_main(name,node);
+}
+
 void DsLink::connect(Client::OnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {

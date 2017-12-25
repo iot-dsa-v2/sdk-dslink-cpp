@@ -18,6 +18,12 @@ void LinkRoot::destroy_impl() {
 }
 
 void LinkRoot::set_main(ref_<NodeModelBase> &&main_node) {
-  add_list_child("main", std::move(main_node));
+
+  _main_node = add_list_child("main", std::move(main_node));
 }
+
+void LinkRoot::add_main(string_ name, ref_<NodeModelBase> &&main_node) {
+  _main_node->add_list_child(name,std::move(main_node));
+}
+
 }
