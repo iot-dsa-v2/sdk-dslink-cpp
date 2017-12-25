@@ -68,9 +68,9 @@ add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
 
 
 
-add_executable("test-playground" sdk/playground/test.cc sdk/async_test.cc sdk/test_config.cc)
-target_link_libraries("test-playground" ${TEST_LIBS})
+
 add_test(NAME "test-playground" COMMAND "test-playground")
+add_test(NAME "test-broker-dslink" COMMAND "test-broker-dslink")
 
 add_executable("test-dslink" sdk/dslink/dslink-config-test.cc
                              sdk/dslink/dslink-subscribe-test.cc
@@ -85,3 +85,17 @@ include(./broker/CMakeListsInclude.txt)
 
 target_link_libraries("test-dslink" ${TEST_LIBS} dsa_broker)
 add_test(NAME "test-dslink" COMMAND "test-dslink")
+
+add_executable("test-playground"
+        sdk/playground/test.cc
+        sdk/async_test.cc
+        sdk/test_config.cc)
+target_link_libraries("test-playground" ${TEST_LIBS} dsa_broker)
+
+add_executable("test-broker-dslink"
+        broker_dslink/broker_dslink_test.cc
+        broker_dslink/broker_dslink_list.cc
+        broker_dslink/broker_dslink_util.cc
+        sdk/async_test.cc
+        sdk/test_config.cc)
+target_link_libraries("test-broker-dslink" ${TEST_LIBS} dsa_broker)
