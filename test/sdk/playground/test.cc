@@ -81,9 +81,12 @@ ref_<DsBroker> create_broker() {
 TEST(PlayTest, SESSION) {
     auto broker = create_broker();
     shared_ptr_<App> &app = broker->get_app();
+	broker->strand->logger().level = Logger::ALL___;
 
     auto link_1 = create_dslink(app, broker->tcp_server_port, "test_1");
+	link_1->strand->logger().level = Logger::ALL___;
     auto link_2 = create_dslink(app, broker->tcp_server_port, "test_2");
+	link_2->strand->logger().level = Logger::ALL___;
 
     int step = 0;
 // when list on downstream/test1 it should have a metadata for test1's dsid
