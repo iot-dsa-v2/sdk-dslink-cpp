@@ -74,9 +74,7 @@ void ListMerger::new_list_response(ref_<const ListResponseMessage>&& message) {
     _changes.clear();
   }
   auto map = message->get_map();
-  if (map.size() == 0) {
-    return;
-  }
+
   for (auto& it : map) {
     if (it.second->is_blank()) {
       _map.erase(it.first);
