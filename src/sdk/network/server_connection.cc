@@ -69,23 +69,26 @@ void Connection::on_receive_f2(MessageRef &&msg) {
               const ref_<Session> &session, const ClientInfo &info) {
             if (session != nullptr) {
               _session = session;
+
+			  // send f3, now session owns the write loop
+			  // can't send it with raw buffer
+			  auto f3 = make_ref_<HandshakeF3Message>();
+			  f3->auth = _handshake_context.auth();
+			  f3->session_id = _session->session_id();
+			  f3->last_ack_id = _session->last_sent_ack();
+			  f3->path = info.responder_path;
+			  _session->write_critical_stream(make_ref_<SimpleStream>(0, std::move(f3)));
+
+			  // connected after adding f3 stream to the front of queue
+			  // this makes sure nothing get sent before f3
               _session->connected(shared_from_this());
+
               {
                 std::lock_guard<std::mutex> lock(mutex);
                 on_read_message = [this](MessageRef &&message) {
                   post_message(std::move(message));
                 };
               }
-
-              // send f3, now session owns the write loop
-              // can't send it with raw buffer
-              auto f3 = make_ref_<HandshakeF3Message>();
-              f3->auth = _handshake_context.auth();
-              f3->session_id = _session->session_id();
-              f3->last_ack_id = _session->last_sent_ack();
-              f3->path = info.responder_path;
-              _session->write_stream(make_ref_<SimpleStream>(0, std::move(f3)));
-
             } else {
               destroy();
             }

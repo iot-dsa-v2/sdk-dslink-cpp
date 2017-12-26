@@ -256,4 +256,11 @@ void Session::write_stream(ref_<MessageStream> &&stream) {
   }
 }
 
+void Session::write_critical_stream(ref_<MessageStream> &&stream) {
+  _write_streams.push_front(std::move(stream));
+  if (!_is_writing && _connection != nullptr) {
+    write_loop(get_ref());
+  }
+}
+
 }  // namespace dsa
