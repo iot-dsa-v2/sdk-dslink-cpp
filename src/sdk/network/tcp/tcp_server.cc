@@ -15,7 +15,7 @@ TcpServer::TcpServer(WrapperStrand &config)
         _strand->get_io_context(),
         tcp::endpoint(boost::asio::ip::address::from_string(config.server_host),
                       config.tcp_server_port),
-        false));
+        true)); //TODO: true means port reusable
   } catch (boost::exception &e) {
     LOG_FATAL(LOG << "Bind Error: server port is already in use\n");
   }
