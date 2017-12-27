@@ -19,7 +19,7 @@ class LinkRoot : public NodeModel {
   ~LinkRoot();
 
   void set_main(ref_<NodeModelBase> &&main_node);
-  void add_main(string_ name, ref_<NodeModelBase> &&main_node);
+  ref_<NodeModelBase> add_to_main(string_ name, ref_<NodeModelBase> &&node);
 
  protected:
   void destroy_impl() final;
