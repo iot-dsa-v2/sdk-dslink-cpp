@@ -208,8 +208,8 @@ void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
   init_responder_raw(_root->get_ref());
 }
 
-void DsLink::add_to_main_node(string_ name, ref_<NodeModel>&& node) {
-  _root->add_main(name,node);
+ref_<NodeModelBase> DsLink::add_to_main_node(string_ name, ref_<NodeModel>&& node) {
+  return std::move(_root->add_to_main(name,std::move(node)));
 }
 
 void DsLink::connect(Client::OnConnectCallback &&on_connect,
