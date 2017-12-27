@@ -25,16 +25,16 @@ BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
                 boost::posix_time::seconds(1));
             // keep raw pointer because of std::move
             auto temp_p_timer = timer.get();
-            temp_p_timer->async_wait(
-                [broker](const boost::system::error_code &error) mutable {
-                  if (error != boost::asio::error::operation_aborted) {
-                    broker->strand->post([broker]() {
-                      LOG_SYSTEM(broker.get()->strand.get()->logger(),
-                                 LOG << "DsBroker stopped");
-                      broker->destroy();
-                    });
-                  }
+            temp_p_timer->async_wait([ broker, timer = std::move(timer) ](
+                const boost::system::error_code &error) mutable {
+              if (error != boost::asio::error::operation_aborted) {
+                broker->strand->post([broker]() {
+                  LOG_SYSTEM(broker.get()->strand.get()->logger(),
+                             LOG << "DsBroker stopped");
+                  broker->destroy();
                 });
+              }
+            });
 
             stream.close();
             // make sure the close message is sent asap
