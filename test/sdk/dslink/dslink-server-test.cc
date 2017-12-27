@@ -168,7 +168,7 @@ TEST(DSLinkTest, CloseTest) {
                },
                copy_ref_(close_request_with_valid_token));
 
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return linkResp->is_destroyed(); });
+  WAIT_EXPECT_TRUE(2000, [&]() -> bool { return linkResp->is_destroyed(); });
 
   destroy_dslink_in_strand(link);
 

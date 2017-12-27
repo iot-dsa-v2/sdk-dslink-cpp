@@ -51,6 +51,10 @@ class MessageRefedStream : public MessageStream {
   void unack() override {
     // TODO
   }
+
+  // force the stream to be the 1st in write queue
+  // the existing item in queue won't be removed
+  void make_critical();
 };
 
 /// message stream with one message cache to write

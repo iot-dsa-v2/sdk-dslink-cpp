@@ -5,6 +5,8 @@
 #pragma once
 #endif
 
+#include <functional>
+
 #include "node_model.h"
 
 namespace dsa {
@@ -33,13 +35,21 @@ class SimpleInvokeNode : public InvokeNodeModel {
  public:
   // return int Var for a error status
   // return other type for normal invoke response
-  typedef std::function<Var(Var&&)> Callback;
+  typedef std::function<Var(Var &&)> SimpleCallback;
 
-  SimpleInvokeNode(LinkStrandRef &&strand, Callback &&callback,
+  typedef std::function<void(Var &&, SimpleInvokeNode &,
+                             OutgoingInvokeStream &)>
+      FullCallback;
+
+  SimpleInvokeNode(LinkStrandRef &&strand, SimpleCallback &&callback,
+                   PermissionLevel require_permission = PermissionLevel::WRITE);
+  SimpleInvokeNode(LinkStrandRef &&strand, FullCallback &&callback,
                    PermissionLevel require_permission = PermissionLevel::WRITE);
 
  protected:
-  Callback _callback;
+  SimpleCallback _simple_callback;
+  FullCallback _full_callback;
+
   void on_invoke(ref_<OutgoingInvokeStream> &&stream,
                  ref_<NodeState> &parent) final;
 };

@@ -101,12 +101,12 @@ void Session::destroy_impl() {
   _ack_stream.reset();
   _ping_stream.reset();
   _timer.cancel();
-  _on_connect = nullptr;
   _write_streams.clear();
   _pending_acks.clear();
   if (_on_connect != nullptr) {
     _on_connect(*this, _connection);
-  }
+	_on_connect = nullptr;
+  } 
 }
 
 void Session::_on_timer() {
