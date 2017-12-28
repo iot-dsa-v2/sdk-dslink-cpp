@@ -11,6 +11,8 @@ include_directories("../sdk")
 #
 if (UNIX)
     set(BROKER_LIBS dsa_sdk ${BROKER_LIBS} dl)
+elseif (WIN32)
+    set(BROKER_LIBS dsa_sdk ${BROKER_LIBS} wsock32 ws2_32 mswsock)
 else ()
     set(BROKER_LIBS dsa_sdk ${BROKER_LIBS})
 endif ()
