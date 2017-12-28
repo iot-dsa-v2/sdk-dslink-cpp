@@ -53,7 +53,7 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   boost::asio::io_context &get_io_context();
   void post(std::function<void()> &&);
   void dispatch(std::function<void()> &&);
-  ref_<StrandTimer> add_timer(int32_t interval, TimerCallback &&callback);
+  ref_<StrandTimer> add_timer(int32_t interval_ms, TimerCallback &&callback);
 
   SecurityManager &security_manager() { return *__security_manager; };
 

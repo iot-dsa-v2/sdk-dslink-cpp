@@ -15,16 +15,17 @@ class StrandTimer final : public DestroyableRef<StrandTimer> {
   friend class LinkStrand;
 
  public:
-  int32_t interval;
+  int32_t interval_ms;
   LinkStrand::TimerCallback callback;
-  StrandTimer(LinkStrandRef&& strand, int32_t interval,
-              LinkStrand::TimerCallback&& callback);
-
-  void operator()(const boost::system::error_code& error);
 
  protected:
   LinkStrandRef _strand;
   std::unique_ptr<boost::asio::deadline_timer> _timer;
+
+  StrandTimer(LinkStrandRef&& strand, int32_t interval_ms,
+              LinkStrand::TimerCallback&& callback);
+
+  void schedule(ref_<StrandTimer>&& rthis);
 
   void destroy_impl() final;
 };

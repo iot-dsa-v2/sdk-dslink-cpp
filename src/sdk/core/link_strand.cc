@@ -45,8 +45,9 @@ void LinkStrand::dispatch(std::function<void()>&& callback) {
   static_cast<boost::asio::io_context::strand*>(__strand)->dispatch(callback);
 }
 
-ref_<StrandTimer> LinkStrand::add_timer(int32_t interval,
+ref_<StrandTimer> LinkStrand::add_timer(int32_t interval_ms,
                                         TimerCallback&& callback) {
-  return make_ref_<StrandTimer>(get_ref(), interval, std::move(callback));
+  return ref_<StrandTimer>(
+      new StrandTimer(get_ref(), interval_ms, std::move(callback)));
 }
 }
