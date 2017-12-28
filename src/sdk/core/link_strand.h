@@ -20,8 +20,14 @@ class SessionManager;
 class OutgoingStreamAcceptor;
 class ECDH;
 class Logger;
+class StrandTimer;
 
 class LinkStrand : public DestroyableRef<LinkStrand> {
+ public:
+  // input : canceled
+  // output : need repeat
+  typedef std::function<bool(bool)> TimerCallback;
+
  protected:
   // managed pointer by LinkStrand
   // void pointer because there is no way to forward declare the strand type
@@ -47,6 +53,7 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   boost::asio::io_context &get_io_context();
   void post(std::function<void()> &&);
   void dispatch(std::function<void()> &&);
+  ref_<StrandTimer> add_timer(int32_t interval, TimerCallback &&callback);
 
   SecurityManager &security_manager() { return *__security_manager; };
 

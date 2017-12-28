@@ -116,6 +116,12 @@ class ref_ {
   // operator! is redundant, but some compilers need it
   bool operator!() const BOOST_NOEXCEPT { return px == 0; }
 
+  // forward functor
+  template <typename... Args>
+  void operator()(Args &&... args) const {
+    return (*px)(std::forward<Args>(args)...);
+  };
+
   void swap(ref_ &rhs) BOOST_NOEXCEPT {
     T *tmp = px;
     px = rhs.px;
