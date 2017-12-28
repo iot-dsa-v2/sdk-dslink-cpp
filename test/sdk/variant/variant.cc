@@ -375,6 +375,20 @@ TEST(VariantTest, equality) {
   EXPECT_TRUE(v_shared_str_1_a == v_shared_str_1_a);
   EXPECT_TRUE(v_shared_str_1_a == v_shared_str_1_b);
   EXPECT_FALSE(v_shared_str_1_a == v_shared_str_2_a);
+}
 
+TEST(VariantTest, Binary) {
+  string_ test_str = "HELLO WORLD!";
+  string_ _base64 = base64_encode((uint8_t*)test_str.data(), test_str.size());
 
+  string_ json_string("{\"binary\":\"\\u001B" + _base64 + "\"}");
+
+  Var v = Var::from_json(json_string);
+  EXPECT_TRUE(v["binary"].is_binary());
+  auto bin = v["binary"].get_binary();
+
+  auto string_from_var = std::string((char*)bin.data(), bin.size());
+
+  EXPECT_EQ(test_str, string_from_var);
+  EXPECT_EQ(json_string, v.to_json());
 }
