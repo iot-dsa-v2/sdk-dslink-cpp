@@ -54,10 +54,10 @@ string_ base64_decode(string_ const &encoded_string) {
   BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
   BIO_push(b64, bio);
 
-  BIO_read(b64, buffer, in_len);
+  size_t out_len = BIO_read(b64, buffer, in_len);
   BIO_flush(b64);
 
-  string_ ret = string_((const char *)buffer, in_len);
+  string_ ret = string_((const char *)buffer, out_len);
 
   delete[] buffer;
 
