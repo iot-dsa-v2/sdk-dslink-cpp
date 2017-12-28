@@ -1,3 +1,4 @@
+#include <dsa/crypto.h>
 #include "dsa/variant.h"
 #include "gtest/gtest.h"
 
