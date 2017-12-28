@@ -58,7 +58,7 @@ Var Var::from_json(const string_ &data) {
 
   json_obj = json_loads(data.c_str(), 0, &error);
 
-  if (!json_obj || !json_is_object(json_obj)) {
+  if (!json_obj) {
     // error handling
     return Var();
   }
