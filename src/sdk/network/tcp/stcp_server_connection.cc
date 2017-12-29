@@ -14,21 +14,29 @@ StcpServerConnection::StcpServerConnection(LinkStrandRef &strand,
     : StcpConnection(strand, context, dsid_prefix, path) {}
 
 void StcpServerConnection::accept() {
-  boost::system::error_code ec;
-  _socket.handshake(boost::asio::ssl::stream_base::server, ec);
-  if (ec) {
-    LOG_FATAL(LOG << "Failed to establish SSL handshake");
-  }
+  _socket.async_handshake(boost::asio::ssl::stream_base::server, [
+    this, sthis = shared_from_this()
+  ](const boost::system::error_code &error)->void {
+    return handle_handshake(error);
+  });
+}
 
-  {
-    std::lock_guard<std::mutex> lock(mutex);
-    on_read_message = [this](MessageRef message) {
-      on_receive_f0(std::move(message));
-    };
-  }
+void StcpServerConnection::handle_handshake(
+    const boost::system::error_code &error) {
+  if (error != boost::system::errc::success) {
+    LOG_ERROR(_strand->logger(),
+              LOG << "Server SSL handshake failed: " << error << "\n");
+  } else {
+    {
+      std::lock_guard<std::mutex> lock(mutex);
+      on_read_message = [this](MessageRef message) {
+        on_receive_f0(std::move(message));
+      };
+    }
 
-  StcpConnection::start_read(share_this<StcpServerConnection>(), 0, 0);
-  start_deadline_timer(15);
+    StcpConnection::start_read(share_this<StcpServerConnection>(), 0, 0);
+    start_deadline_timer(15);
+  }
 }
 
 }  // namespace dsa
