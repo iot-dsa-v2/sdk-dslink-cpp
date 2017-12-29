@@ -382,7 +382,7 @@ TEST(VariantTest, Binary) {
   string_ test_str = "HELLO WORLD!";
   string_ _base64 = base64_encode((uint8_t*)test_str.data(), test_str.size());
 
-  string_ json_string("{\"binary\":\"\\u001B" + _base64 + "\"}");
+  string_ json_string("{\"binary\":\"\\u001Bbytes:" + _base64 + "\"}");
 
   Var v = Var::from_json(json_string);
   EXPECT_TRUE(v["binary"].is_binary());
