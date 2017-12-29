@@ -2,8 +2,8 @@
 
 #include <boost/asio/connect.hpp>
 
-#include "stcp_client_connection.h"
 #include "module/logger.h"
+#include "stcp_client_connection.h"
 
 namespace dsa {
 
@@ -40,24 +40,25 @@ void StcpClientConnection::connect(size_t reconnect_interval) {
           const boost::system::error_code& error,
           tcp::resolver::iterator) mutable {
         if (is_destroyed()) return;
-        /* TODO
         if (error != boost::system::errc::success) {
-          TcpConnection::destroy_in_strand(std::move(connection));
+          destroy_in_strand(std::move(connection));
           // TODO: log or return the error?
           return;
         }
-        */
 
-        boost::system::error_code ec;
-        _socket.handshake(boost::asio::ssl::stream_base::client, ec);
+        _socket.async_handshake(boost::asio::ssl::stream_base::client, [
+          connection = connection, this
+        ](const boost::system::error_code& error) mutable {
+          if (error != boost::system::errc::success) {
+            destroy_in_strand(std::move(connection));
+            LOG_ERROR(_strand->logger(), LOG << "Client SSL handshake failed");
+            return;
+          }
 
-        if (ec) {
-          LOG_FATAL(LOG << "client handshake failed");
-        }
+          start_client_f0();
 
-        start_client_f0();
-
-        StcpConnection::start_read(std::move(connection));
+          StcpConnection::start_read(std::move(connection));
+        });
       });
   // use half of the reconnection time to resolve host
   start_deadline_timer((reconnect_interval >> 1) + 1);

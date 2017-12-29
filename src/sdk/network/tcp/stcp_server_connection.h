@@ -25,6 +25,8 @@ class StcpServerConnection final : public StcpConnection {
   void accept() final;
 
   string_ name() final { return "StcpServerConnection"; }
+
+  void handle_handshake(const boost::system::error_code &error);
 };
 }  // namespace dsa
 
