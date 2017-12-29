@@ -27,8 +27,12 @@
 
 
 namespace std {
+#ifndef __APPLE__
 template <typename T>
 class shared_ptr;
+#else
+#include <memory>
+#endif
 class runtime_error;
 }
 
