@@ -1,8 +1,6 @@
-find_package(Boost 1.66 REQUIRED COMPONENTS system thread date_time program_options filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 set(BROKER_LIBS ${BROKER_LIBS} ${Boost_LIBRARIES})
 
-find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 set(BROKER_LIBS ${BROKER_LIBS} ${OPENSSL_LIBRARIES})
 
@@ -11,8 +9,6 @@ include_directories("../sdk")
 #
 if (UNIX)
     set(BROKER_LIBS dsa_sdk ${BROKER_LIBS} dl)
-elseif (WIN32)
-    set(BROKER_LIBS dsa_sdk ${BROKER_LIBS} wsock32 ws2_32 mswsock)
 else ()
     set(BROKER_LIBS dsa_sdk ${BROKER_LIBS})
 endif ()

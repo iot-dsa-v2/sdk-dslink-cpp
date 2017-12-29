@@ -1,13 +1,5 @@
 cmake_minimum_required(VERSION 3.6.2)
 
-# DEPENDENCIES
-## OpenSSL v1.0.2l
-if (MACOSX)
-    set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
-elseif (UNIX)
-    set(OPENSSL_ROOT_DIR "/usr/local/ssl")
-endif ()
-find_package(OpenSSL REQUIRED)
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 
 ## Boost Library v1.66
@@ -17,7 +9,6 @@ if (UNIX)
     set(BOOST_INCLUDEDIR "/usr/local/Cellar/boost/1.64.0_1/include")
     set(BOOST_LIBRARYDIR "/usr/local/Cellar/boost/1.64.0_1/lib")
 endif ()
-find_package(Boost 1.66 REQUIRED COMPONENTS system thread date_time program_options filesystem)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # Standard DSA v2 headers

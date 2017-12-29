@@ -36,6 +36,22 @@ option(INCLUDE_BROKER "build dsa broker" ON)
 
 option(INCLUDE_MODULE_PACK "Include set additional modules" OFF)
 
+# DEPENDENCIES
+# Boost 1.66.0
+find_package(Boost 1.66 REQUIRED COMPONENTS system thread date_time program_options filesystem)
+if (MINGW)
+    # Boost doesn't include winsock libraries on MinGW platform
+    set(Boost_LIBRARIES ${Boost_LIBRARIES} wsock32 ws2_32 mswsock)
+endif()
+
+## OpenSSL v1.0.2l
+if (MACOSX)
+    set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
+elseif (UNIX)
+    set(OPENSSL_ROOT_DIR "/usr/local/ssl")
+endif ()
+find_package(OpenSSL REQUIRED)
+
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/msgpack-build")
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/jansson-build")
 add_subdirectory("./src")
