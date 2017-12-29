@@ -32,7 +32,7 @@ void SubscribeResponseMessage::set_value(MessageValue&& value) {
 }
 
 void SubscribeResponseMessage::print_body(std::ostream& os) const {
-  if (body->size() > 0) {
+  if (body != nullptr && body->size() > 0) {
     if (body->size() < 256) {
       MessageValue value = get_value();
       if (value.meta.is_map()) {
