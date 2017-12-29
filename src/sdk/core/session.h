@@ -14,6 +14,7 @@
 #include "client_info.h"
 #include "requester/requester.h"
 #include "responder/responder.h"
+#include "strand_timer.h"
 
 namespace dsa {
 class MessageStream;
@@ -81,9 +82,11 @@ class Session final : public DestroyableRef<Session> {
 
   // a timer to check if connection is disconnected and send ping message
   int _no_receive_in_loop = 0;
-  bool _sent_in_loop = false;
-  boost::asio::deadline_timer _timer;
-  void _on_timer();
+  int _no_sent_in_loop = 0;
+  TimerRef _timer;
+  // runs every 15 seconds when connected
+  // control ping message and connection timeout
+  bool _on_timer();
 
  public:
   Requester requester;

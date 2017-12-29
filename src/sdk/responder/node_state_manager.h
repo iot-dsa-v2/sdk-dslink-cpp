@@ -8,11 +8,9 @@
 #include <string>
 #include <unordered_map>
 
-#include <boost/asio/deadline_timer.hpp>
-
 #include "core/link_strand.h"
-#include "node_state.h"
 #include "module/outgoing_stream_acceptor.h"
+#include "node_state.h"
 
 namespace dsa {
 
@@ -25,14 +23,15 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   ref_<NodeState> get_state(const Path &path);
   ref_<NodeState> check_state(const Path &path);
 
-  boost::asio::deadline_timer _timer;
+  TimerRef _timer;
 
  protected:
   void destroy_impl() final;
 
  public:
   NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
-                            size_t timer_interval = 60);
+                   size_t timer_interval = 60);
+  ~NodeStateManager() final;
 
   void remove_state(const string_ &path) final;
 

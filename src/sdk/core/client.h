@@ -5,8 +5,6 @@
 #pragma once
 #endif
 
-#include <boost/asio/deadline_timer.hpp>
-
 #include "editable_strand.h"
 #include "util/enable_ref.h"
 
@@ -58,7 +56,7 @@ class Client : public DestroyableRef<Client> {
   // initially reconnect interval
   int _reconnect_interval_s = 1;
 
-  boost::asio::deadline_timer _reconnect_timer;
+  TimerRef _reconnect_timer;
   void _reconnect();
   void make_new_connection();
 

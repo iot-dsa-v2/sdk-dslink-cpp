@@ -5,20 +5,22 @@
 #include <boost/algorithm/string.hpp>
 
 #include "core/session.h"
+#include "core/strand_timer.h"
+#include "message/response/list_response_message.h"
 #include "model_base.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
-#include "message/response/list_response_message.h"
 
 namespace dsa {
 
 NodeStateManager::NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                                    size_t timer_interval)
     : _root(new NodeStateRoot(*this, std::move(root_model))),
-      _timer(strand.get_io_context(),
-             boost::posix_time::seconds(timer_interval)) {}
+      // TODO check node state change and clear unused node states
+      _timer(strand.add_timer(0, nullptr)) {}
+NodeStateManager::~NodeStateManager() = default;
 
 void NodeStateManager::destroy_impl() {
   _root->destroy();

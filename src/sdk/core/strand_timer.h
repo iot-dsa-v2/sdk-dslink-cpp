@@ -15,17 +15,21 @@ class StrandTimer final : public DestroyableRef<StrandTimer> {
   friend class LinkStrand;
 
  public:
-  int32_t interval_ms;
-  LinkStrand::TimerCallback callback;
+  // change interval_ms won't affect the current waiting callback
+  // it affects the next one when timer repeat
+  int32_t repeat_interval_ms;
+  // reschedule the timer, this won't affect the repeat interval
+  void reschedule(int32_t interval_ms);
 
  protected:
   LinkStrandRef _strand;
   std::unique_ptr<boost::asio::deadline_timer> _timer;
+  LinkStrand::TimerCallback _callback;
 
   StrandTimer(LinkStrandRef&& strand, int32_t interval_ms,
               LinkStrand::TimerCallback&& callback);
 
-  void schedule(ref_<StrandTimer>&& rthis);
+  void schedule(ref_<StrandTimer>&& rthis, int32_t interval_ms);
 
   void destroy_impl() final;
 };

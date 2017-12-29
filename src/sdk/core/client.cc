@@ -3,6 +3,7 @@
 #include "client.h"
 
 #include "core/session.h"
+#include "core/strand_timer.h"
 #include "module/logger.h"
 #include "network/connection.h"
 
@@ -14,7 +15,7 @@ Client::Client(WrapperStrand &config)
           config.strand, config.strand->ecdh().get_dsid(config.dsid_prefix),
           "")),
       _client_connection_maker(config.client_connection_maker),
-      _reconnect_timer(config.strand->get_io_context()) {
+      _reconnect_timer() {
   _session->client_token = config.client_token;
 }
 
@@ -27,7 +28,10 @@ void Client::destroy_impl() {
     _connection->destroy();
     _connection.reset();
   }
-  _reconnect_timer.cancel();
+  if (_reconnect_timer != nullptr) {
+    _reconnect_timer->destroy();
+    _reconnect_timer.reset();
+  }
   _user_on_connect = nullptr;
 }
 
@@ -110,18 +114,14 @@ void Client::_reconnect() {
   LOG_DEBUG(_strand->logger(),
             LOG << "Disconnected, reconnect in " << _reconnect_interval_s
                 << " seconds");
-
-  _reconnect_timer.expires_from_now(
-      boost::posix_time::seconds(_reconnect_interval_s));
-  _reconnect_timer.async_wait([ this, keep_ref = get_ref() ](
-      const boost::system::error_code &error) mutable {
-    if (error != boost::asio::error::operation_aborted) {
-      _strand->dispatch([ this, keep_ref = std::move(keep_ref) ]() {
-        if (is_destroyed()) return;
-        make_new_connection();
-      });
-    }
-  });
+  _reconnect_timer =
+      _strand->add_timer(_reconnect_interval_s * 1000,
+                         [ this, keep_ref = get_ref() ](bool canceled) {
+                           if (!(is_destroyed() || canceled)) {
+                             make_new_connection();
+                           }
+                           return false;
+                         });
 }
 
 void Client::make_new_connection() {

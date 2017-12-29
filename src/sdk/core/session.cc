@@ -17,7 +17,7 @@ Session::Session(LinkStrandRef strand, const string_ &dsid,
       _session_id(session_id),
       requester(*this),
       responder(*this),
-      _timer(_strand->get_io_context()),
+      _timer(_strand->add_timer(0, nullptr)),
       _ack_stream(new AckStream(get_ref())),
       _ping_stream(new PingStream(get_ref())) {}
 
@@ -63,10 +63,6 @@ void Session::connected(shared_ptr_<Connection> connection) {
   // TODO, handle last ack
   // TODO, remove Ack and Ping from the write streams
 
-  // start write loop
-  // assume there was message second in previous 20 seconds
-  // to avoid a extra ping message
-  _sent_in_loop = true;
   // TODO, what if previous write loop is not finished
   write_loop(get_ref());
 
@@ -74,15 +70,22 @@ void Session::connected(shared_ptr_<Connection> connection) {
     _on_connect(*this, _connection);
   }
 
+  _timer->destroy();
   // start the 20 seconds timer
   _no_receive_in_loop = 0;
-  _timer.cancel();
-  _on_timer();
+  _no_sent_in_loop = 0;
+  _timer =
+      _strand->add_timer(15000, [ this, keep_ref = get_ref() ](bool canceled) {
+        if (canceled) {
+          return false;
+        }
+        return _on_timer();
+      });
 }
 void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
     _connection.reset();
-    _timer.cancel();
+    _timer->destroy();
     requester.disconnected();
   }
   if (_on_connect != nullptr && _connection == nullptr) {
@@ -100,40 +103,33 @@ void Session::destroy_impl() {
   }
   _ack_stream.reset();
   _ping_stream.reset();
-  _timer.cancel();
+  _timer->destroy();
   _write_streams.clear();
   _pending_acks.clear();
   if (_on_connect != nullptr) {
     _on_connect(*this, _connection);
-	_on_connect = nullptr;
-  } 
+    _on_connect = nullptr;
+  }
 }
 
-void Session::_on_timer() {
-  _no_receive_in_loop++;
-  if (_no_receive_in_loop > 3) {
-    // haven't received message in 3 loop (60 seconds)
-    _connection->destroy();
-    return;
+bool Session::_on_timer() {
+  if (_connection == nullptr) {
+    return false;
   }
-  if (!_sent_in_loop) {
-    // haven't sent any message in 20 seconds
+  _no_receive_in_loop++;
+  if (_no_receive_in_loop >= 4) {
+    // haven't received message in 4 loop (60 seconds)
+    _connection->destroy();
+    return false;
+  }
+  _no_sent_in_loop++;
+  if (_no_sent_in_loop >= 2) {
+    // haven't sent any message in 30 seconds
     // send a ping so connection won't be dropped
     _ping_stream->add_ping();
-  } else {
-    _sent_in_loop = false;
+    _no_sent_in_loop = 0;
   }
-
-  _timer.expires_from_now(boost::posix_time::seconds(20));
-  _timer.async_wait([ this, keep_ref = get_ref() ](
-      const boost::system::error_code &error) mutable {
-    if (error != boost::asio::error::operation_aborted) {
-      _strand->post([ this, keep_ref = std::move(keep_ref) ]() {
-        if (_connection == nullptr) return;
-        _on_timer();
-      });
-    }
-  });
+  return true;
 }
 
 int32_t Session::last_sent_ack() { return _ack_stream->get_ack(); }
@@ -215,7 +211,7 @@ void Session::write_loop(ref_<Session> sthis) {
     sthis->_is_writing = false;
     return;
   }
-  sthis->_sent_in_loop = true;
+  sthis->_no_sent_in_loop = 0;
   sthis->_is_writing = true;
 
   size_t total_size = 0;

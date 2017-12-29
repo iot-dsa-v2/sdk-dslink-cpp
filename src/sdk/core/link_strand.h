@@ -21,6 +21,7 @@ class OutgoingStreamAcceptor;
 class ECDH;
 class Logger;
 class StrandTimer;
+typedef ref_<StrandTimer> TimerRef;
 
 class LinkStrand : public DestroyableRef<LinkStrand> {
  public:
