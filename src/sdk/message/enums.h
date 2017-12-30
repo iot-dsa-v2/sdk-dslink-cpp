@@ -30,6 +30,10 @@ enum class MessageType : uint8_t {
 
   ACK = 0xF8,
   PING = 0xF9,
+
+  // invalid message types
+  // these message types is not allowed in network
+  PAGED = 0xFE,
   INVALID = 0xFF
 };
 std::ostream &operator<<(std::ostream &os, dsa::MessageType type);

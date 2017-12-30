@@ -60,9 +60,6 @@ void Message::write(uint8_t* data, int32_t rid, int32_t ack_id) const
   write_dynamic_data(static_headers.write(data, rid, ack_id));
 }
 
-int32_t Message::get_sequence_id() const {
-  return DynamicIntHeader::read_value(sequence_id);
-}
 void Message::set_sequence_id(int32_t value) {
   if (DynamicIntHeader::write_value(sequence_id, DynamicHeader::SEQUENCE_ID,
                                     value)) {
@@ -70,9 +67,6 @@ void Message::set_sequence_id(int32_t value) {
   }
 }
 
-int32_t Message::get_page_id() const {
-  return DynamicIntHeader::read_value(page_id);
-}
 void Message::set_page_id(int32_t value) {
   if (DynamicIntHeader::write_value(page_id, DynamicHeader::PAGE_ID, value)) {
     static_headers.message_size = 0;
@@ -159,9 +153,6 @@ void ResponseMessage::set_source_path(const string_& value) {
   }
 }
 
-MessageStatus ResponseMessage::get_status() const {
-  return MessageStatus(DynamicByteHeader::read_value(status));
-}
 void ResponseMessage::set_status(MessageStatus value) {
   if (DynamicByteHeader::write_value(status, DynamicHeader::STATUS,
                                      uint8_t(value))) {

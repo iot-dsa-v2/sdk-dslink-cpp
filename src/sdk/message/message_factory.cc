@@ -57,7 +57,9 @@ MessageRef Message::parse_message(const uint8_t* data, size_t size) throw(
       return MessageRef(new HandshakeF2Message(data, size));
     case MessageType::HANDSHAKE3:
       return MessageRef(new HandshakeF3Message(data, size));
-    case MessageType::INVALID:
+    // case MessageType::PAGED:
+    // case MessageType::INVALID:
+    default:
       break;
   }
   throw MessageParsingError("invalid message type");

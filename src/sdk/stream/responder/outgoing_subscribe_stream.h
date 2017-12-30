@@ -39,7 +39,7 @@ class OutgoingSubscribeStream final : public MessageQueueStream {
 
   void receive_message(ref_<Message> &&mesage) final;
 
-  void send_subscribe_response(SubscribeResponseMessageCRef &&message) final;
+  void send_subscribe_response(MessageCRef &&message) final;
 
   void update_response_status(MessageStatus status = MessageStatus::OK) final;
 

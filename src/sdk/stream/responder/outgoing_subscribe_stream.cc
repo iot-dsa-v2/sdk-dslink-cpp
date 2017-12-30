@@ -99,7 +99,7 @@ MessageCRef OutgoingSubscribeStream::get_next_message(AckCallback &callback) {
 }
 
 void OutgoingSubscribeStream::send_subscribe_response(
-    SubscribeResponseMessageCRef &&message) {
+    MessageCRef &&message) {
   if (message->get_status() < MessageStatus::CLOSED) {
     update_response_status(message->get_status());
     if (message->get_body() == nullptr) {

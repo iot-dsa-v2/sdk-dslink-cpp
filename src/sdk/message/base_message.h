@@ -53,28 +53,34 @@ class Message : public EnableRef<Message> {
 
   const int64_t created_ts;
   int32_t size() const;
+  // used by message queue to calculate size of paged message group
+  virtual int32_t total_size() const { return size(); }
 
   // update_static_header must be called before write
   // void write(uint8_t* data) const throw(const MessageParsingError&);
   void write(uint8_t* data, int32_t rid = 0, int32_t ack_id = 0) const
       throw(const MessageParsingError&);
 
-  int32_t get_sequence_id() const;
+  inline int32_t get_sequence_id() const {
+    return DynamicIntHeader::read_value(sequence_id);
+  }
   void set_sequence_id(int32_t value);
 
-  int32_t get_page_id() const;
+  inline int32_t get_page_id() const {
+    return DynamicIntHeader::read_value(page_id);
+  }
   void set_page_id(int32_t value);
 
-  MessageType type() const { return static_headers.type; }
+  inline MessageType type() const { return static_headers.type; }
   bool is_request() const {
     return static_cast<uint8_t>(static_headers.type) < 0x80;
   }
   bool need_ack() { return static_cast<uint8_t>(static_headers.type) < 0xF0; }
 
-  int32_t get_rid() const { return static_headers.rid; }
+  inline int32_t get_rid() const { return static_headers.rid; }
   void set_rid(int32_t rid) { static_headers.rid = rid; }
 
-  int32_t get_ack_id() const { return static_headers.ack_id; }
+  inline int32_t get_ack_id() const { return static_headers.ack_id; }
   void set_ack_rid(int32_t ack_id) { static_headers.ack_id = ack_id; }
 
   void set_body(RefCountBytes* b) {
@@ -82,6 +88,9 @@ class Message : public EnableRef<Message> {
     body.reset(b);
   }
   BytesRef get_body() const { return body; }
+
+  void set_next_page(ref_<const Message>&& msg) { _next_page = msg; }
+  ref_<const Message> get_next_page() { return _next_page; }
 
  protected:
   // measure the size and header size
@@ -92,6 +101,7 @@ class Message : public EnableRef<Message> {
   StaticHeaders static_headers;
 
   BytesRef body;
+  ref_<const Message> _next_page;
 
   std::unique_ptr<DynamicIntHeader> sequence_id;
   std::unique_ptr<DynamicIntHeader> page_id;
@@ -152,7 +162,9 @@ class ResponseMessage : public Message {
   const string_& get_source_path() const;
   void set_source_path(const string_& value);
 
-  MessageStatus get_status() const;
+  inline MessageStatus get_status() const {
+    return MessageStatus(DynamicByteHeader::read_value(status));
+  };
   void set_status(MessageStatus value);
 };
 
@@ -207,8 +219,7 @@ class MessageStream : public DestroyableRef<MessageStream> {
 
   typedef std::function<void(MessageStream&, const SubscribeOptions&)>
       SubOptionChangeCallback;
-  virtual void send_subscribe_response(
-      ref_<const SubscribeResponseMessage>&& message) {}
+  virtual void send_subscribe_response(MessageCRef&& message) {}
   virtual const SubscribeOptions& subscribe_options();
   virtual void on_subscribe_option_change(SubOptionChangeCallback&& callback){};
 };

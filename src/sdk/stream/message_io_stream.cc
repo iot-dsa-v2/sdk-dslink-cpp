@@ -3,6 +3,7 @@
 #include "message_io_stream.h"
 
 #include "core/session.h"
+#include "message/message_page_group.h"
 
 namespace dsa {
 
