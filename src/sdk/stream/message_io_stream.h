@@ -103,8 +103,8 @@ class MessageQueueStream : public MessageRefedStream {
   // clear all element but the last
   void purge();
 
-  virtual void check_queue_time(int64_t time) { purge(); }
-  virtual void check_queue_size() { purge(); }
+  virtual void check_queue_time(int64_t time);
+  virtual void check_queue_size();
 
  public:
   explicit MessageQueueStream(ref_<Session> &&session, const Path &path,

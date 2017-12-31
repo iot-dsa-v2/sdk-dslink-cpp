@@ -67,6 +67,8 @@ class Var : public BaseVariant {
     SHARED_BINARY
   };
 
+  static const size_t DEFAULT_PAGE_BODY_SIZE = 0xC000;
+
   Var();
 
   explicit Var(int64_t v);
@@ -167,6 +169,10 @@ class Var : public BaseVariant {
  public:
   static Var from_msgpack(const uint8_t *data, size_t size);
   std::vector<uint8_t> to_msgpack() const throw(const EncodingError &);
+
+  static Var from_msgpack_pages(std::vector<BytesRef> pages);
+  std::vector<BytesRef> to_msgpack_pages(size_t first_page_size = DEFAULT_PAGE_BODY_SIZE) const
+      throw(const EncodingError &);
 
   static Var from_json(const string_ &data);
   string_ to_json(size_t indent = 0) const throw(const EncodingError &);

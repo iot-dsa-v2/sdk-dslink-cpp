@@ -100,15 +100,27 @@ void MessageQueueStream::destroy_impl() {
   MessageRefedStream::destroy_impl();
 }
 
-void MessageQueueStream::purge() {
-  if (_queue.size() > 1) {
-    MessageCRef last = std::move(_queue.back());
-    _queue.clear();
-    _current_queue_size = last->size();
-    _current_queue_time = last->created_ts;
-    _queue.emplace_back(std::move(last));
+inline void MessageQueueStream::purge() {
+  if (_queue.size() > 2) {
+    if (_queue.size() == 3) {
+      // remove the one in the middle
+      MessageCRef last = std::move(_queue.back());
+      _queue.pop_back();
+      _queue.pop_back();
+      _current_queue_size =
+          GET_REMAIN_SIZE(*_queue.begin()) + GET_REMAIN_SIZE(last);
+      _queue.emplace_back(std::move(last));
+    } else {
+      MessageCRef last = std::move(_queue.back());
+      _queue.clear();
+      _current_queue_size = GET_REMAIN_SIZE(last);
+      _current_queue_time = last->created_ts;
+      _queue.emplace_back(std::move(last));
+    }
   }
 }
+void MessageQueueStream::check_queue_time(int64_t time) { purge(); }
+void MessageQueueStream::check_queue_size() { purge(); }
 
 void MessageQueueStream::send_message(MessageCRef &&msg, bool close) {
   if (msg == nullptr) return;

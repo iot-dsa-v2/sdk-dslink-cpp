@@ -155,4 +155,45 @@ std::vector<uint8_t> Var::to_msgpack() const throw(const EncodingError &) {
   throw EncodingError("Failed to pack Var to msgpack");
 }
 
+Var Var::from_msgpack_pages(std::vector<BytesRef> pages) {
+  size_t len = 0;
+  for (auto &page : pages) {
+    len += page->size();
+  }
+  std::vector<uint8_t> data;
+  data.reserve(len);
+  for (auto &page : pages) {
+    data.insert(data.end(), page->begin(), page->end());
+  }
+  return Var::from_msgpack(data.data(), data.size());
+}
+
+std::vector<BytesRef> Var::to_msgpack_pages(size_t first_page_size) const
+    throw(const EncodingError &) {
+  std::vector<uint8_t> data = to_msgpack();
+  std::vector<BytesRef> result;
+  if (data.size() <= first_page_size) {
+    result.emplace_back(make_ref_<RefCountBytes>(std::move(data)));
+  } else {
+    size_t remain_size = data.size();
+    const uint8_t *pdata = data.data();
+    if (first_page_size < DEFAULT_PAGE_BODY_SIZE) {
+      // first page might need to save some space for message metadata
+      result.emplace_back(
+          make_ref_<RefCountBytes>(pdata, pdata + first_page_size));
+      remain_size -= first_page_size;
+      pdata += first_page_size;
+    }
+    while (remain_size > DEFAULT_PAGE_BODY_SIZE) {
+      result.emplace_back(
+          make_ref_<RefCountBytes>(pdata, pdata + DEFAULT_PAGE_BODY_SIZE));
+      remain_size -= DEFAULT_PAGE_BODY_SIZE;
+      pdata += DEFAULT_PAGE_BODY_SIZE;
+    }
+    // remain_size won't be 0
+    result.emplace_back(make_ref_<RefCountBytes>(pdata, pdata + remain_size));
+  }
+  return std::move(result);
+}
+
 }  // namespace dsa

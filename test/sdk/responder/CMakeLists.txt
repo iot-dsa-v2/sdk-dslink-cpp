@@ -7,6 +7,7 @@ add_library(${TARGET_NAME} OBJECT
         list-test.cc
         set-test.cc
         node_model-test.cc
+        page-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)
 
