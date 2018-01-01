@@ -28,7 +28,7 @@ set(LIB_MODULE "./module")
 set(LIB_DSLINK "./dslink")
 set(LIB_WEBSERVER "./web_server")
 # SOURCE FILES
-set(ProjectSourceFiles core/link_strand.cc core/link_strand.h dsa_common.cc dsa_common.h)
+set(ProjectSourceFiles dsa_common.cc dsa_common.h)
 
 # EXTERNAL LIBRARIES
 set(ExtraLibs)

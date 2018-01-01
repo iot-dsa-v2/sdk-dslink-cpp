@@ -11,7 +11,7 @@
 namespace dsa {
 class Var;
 
-class InvokeResponseMessage final : public ResponseMessage, PagedMessageMixin {
+class InvokeResponseMessage final : public ResponseMessage {
  public:
   InvokeResponseMessage(const uint8_t* data, size_t size);
   InvokeResponseMessage();

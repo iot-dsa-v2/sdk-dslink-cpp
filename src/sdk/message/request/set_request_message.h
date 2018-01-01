@@ -12,7 +12,7 @@
 
 namespace dsa {
 
-class SetRequestMessage final : public RequestMessage, PagedMessageMixin {
+class SetRequestMessage final : public RequestMessage {
  public:
   SetRequestMessage(const uint8_t* data, size_t size);
   SetRequestMessage();

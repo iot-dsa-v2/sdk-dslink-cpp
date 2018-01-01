@@ -31,6 +31,18 @@ void SubscribeResponseMessage::set_value(MessageValue&& value) {
   static_headers.message_size = 0;
 }
 
+MergeQueueResult SubscribeResponseMessage::merge_queue(
+    ref_<const Message>& next) {
+  if (body == nullptr) {
+    return MergeQueueResult::SKIP_THIS;
+  } else if (next->get_body() == nullptr &&
+             static_cast<const ResponseMessage*>(next.get())->get_status() ==
+                 get_status()) {
+    return MergeQueueResult::SKIP_NEXT;
+  }
+  return MergeQueueResult::NORMAL;
+}
+
 void SubscribeResponseMessage::print_body(std::ostream& os) const {
   if (body != nullptr && body->size() > 0) {
     if (body->size() < 256) {

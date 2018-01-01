@@ -11,7 +11,7 @@
 
 namespace dsa {
 
-class SubscribeResponseMessage final : public ResponseMessage, PagedMessageMixin {
+class SubscribeResponseMessage final : public ResponseMessage {
  public:
   explicit SubscribeResponseMessage(const uint8_t* data, size_t size);
   SubscribeResponseMessage(const SubscribeResponseMessage&);
@@ -22,6 +22,8 @@ class SubscribeResponseMessage final : public ResponseMessage, PagedMessageMixin
 
   MessageValue get_value() const;
   void set_value(MessageValue&& value);
+
+  MergeQueueResult merge_queue(ref_<const Message>& next) final;
 
  protected:
   // measure the size and header size

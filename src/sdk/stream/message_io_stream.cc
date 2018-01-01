@@ -4,8 +4,16 @@
 
 #include "core/session.h"
 #include "message/message_page_group.h"
+#include "module/logger.h"
 
 namespace dsa {
+
+static inline int32_t GET_REMAIN_SIZE(const ref_<const Message> &msg) {
+  if (msg->type() == MessageType::PAGED) {
+    return static_cast<const OutgoingPages *>(msg.get())->remain_size();
+  }
+  return msg->size();
+}
 
 MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
                                        const Path &path, uint32_t rid)
@@ -108,14 +116,63 @@ void MessageQueueStream::send_message(MessageCRef &&msg, bool close) {
     return;
   }
   int64_t current_time = msg->created_ts;
-  if (_queue.empty()) {
-    _current_queue_time = current_time;
-    _current_queue_size = msg->size();
-  } else {
-    _current_queue_size += msg->size();
+
+  if (_waiting_page_group != nullptr) {
+    if (_waiting_page_group->check_add(msg)) {
+      _current_queue_size += msg->size();
+
+      // TODO update current queue time?
+
+      if (_waiting_page_group->is_ready()) {
+        // no longer waiting
+        _waiting_page_group.reset();
+      }
+      // skip the message adding logic
+      // this message is already handled by queue
+      goto CHECK_QUEUE;
+    } else {
+      _current_queue_size -= _waiting_page_group->remain_size();
+      if (*(_queue.rbegin()) == _waiting_page_group) {
+        _queue.pop_back();  // remove it from the queue
+      } else {
+        LOG_FATAL(
+            LOG << "_waiting_page_group is not the last message in queue");
+      }
+      _waiting_page_group->drop();
+      _waiting_page_group.reset();
+    }
   }
 
+  {
+    // put these in scope to safely jump(goto) over them
+    int32_t page_id = msg->get_page_id();
+    if (page_id != 0) {
+      if (page_id < 0) {
+        // first page
+        _waiting_page_group.reset(new OutgoingPages(std::move(msg)));
+        msg = _waiting_page_group;
+
+        if (_waiting_page_group->is_ready()) {
+          // not waiting from the beginning
+          // TODO, special optimization for the big message?
+          _waiting_page_group.reset();
+        }
+      } else {
+        // message group is dropped, ignore
+        return;
+      }
+    }
+  }
+  if (_queue.empty()) {
+    _current_queue_time = current_time;
+    _current_queue_size = GET_REMAIN_SIZE(msg);
+  } else {
+    _current_queue_size += GET_REMAIN_SIZE(msg);
+  }
   _queue.emplace_back(std::move(msg));
+
+CHECK_QUEUE:
+
   if (_current_queue_size > _max_queue_size) {
     check_queue_size();
   }
@@ -138,6 +195,16 @@ size_t MessageQueueStream::peek_next_message_size(size_t available,
   if (time - _max_queue_duration > _current_queue_time) {
     check_queue_time(time);
   }
+  if (_queue.front()->type() == MessageType::PAGED) {
+    auto *pages = static_cast<const OutgoingPages *>(_queue.front().get());
+    if (pages->is_ready() && pages->get_next_send() == nullptr) {
+      // all pages are sent, remove from queue
+      _queue.pop_front();
+      // check the next message
+      return peek_next_message_size(available, time);
+    }
+    return pages->next_size();
+  }
   return _queue.front()->size();
 }
 MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
@@ -145,11 +212,23 @@ MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
   if (is_destroyed() || _queue.empty()) {
     return MessageCRef();
   }
-  MessageCRef msg = std::move(_queue.front());
-  _queue.pop_front();
+  MessageCRef msg;
+  if (_queue.front()->type() == MessageType::PAGED) {
+    // OutgoingPages won't be shared between streams
+    // so it's safe to do const_cast
+    auto *cpages = static_cast<const OutgoingPages *>(_queue.front().get());
+    auto *pages = const_cast<OutgoingPages *>(cpages);
+    msg = pages->remove_next_send();
+    // pages might be empty, handle this in the next peak_next_message_size call
+  } else {
+    msg = std::move(_queue.front());
+    _queue.pop_front();
+  }
+
   _current_queue_size -= msg->size();
   if (check_close_message(msg)) {
   } else if (!_queue.empty()) {
+    // the queue might contain 1 or more empty OutgoingPages
     _current_queue_time = _queue.front()->created_ts;
     _writing = true;
     _session->write_stream(get_ref());

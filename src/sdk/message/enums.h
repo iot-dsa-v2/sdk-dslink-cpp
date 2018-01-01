@@ -15,7 +15,7 @@ enum class MessageType : uint8_t {
   LIST_REQUEST = 0x02,
   INVOKE_REQUEST = 0x03,
   SET_REQUEST = 0x04,
-  
+
   CLOSE_REQUEST = 0x0F,
 
   SUBSCRIBE_RESPONSE = 0x81,
@@ -67,9 +67,9 @@ enum class PermissionLevel : uint8_t {
   UNKNOWN = 0xff
 };
 
-const char* to_string(PermissionLevel permission_level);
+enum class MergeQueueResult { NORMAL, SKIP_THIS, SKIP_NEXT };
 
-
+const char *to_string(PermissionLevel permission_level);
 
 }  // namespace dsa
 

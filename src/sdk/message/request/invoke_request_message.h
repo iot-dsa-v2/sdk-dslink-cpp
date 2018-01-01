@@ -12,7 +12,7 @@
 namespace dsa {
 class Var;
 
-class InvokeRequestMessage final : public RequestMessage, PagedMessageMixin {
+class InvokeRequestMessage final : public RequestMessage {
  public:
   InvokeRequestMessage(const uint8_t* data, size_t size);
   InvokeRequestMessage();
@@ -26,7 +26,7 @@ class InvokeRequestMessage final : public RequestMessage, PagedMessageMixin {
 
   // measure the size and header size
   void update_static_header() final;
-  void print_headers(std::ostream &os) const final;
+  void print_headers(std::ostream& os) const final;
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const final;
   void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,

@@ -11,6 +11,7 @@
 namespace dsa {
 
 class Session;
+class OutgoingPages;
 
 class MessageRefedStream : public MessageStream {
  protected:
@@ -80,12 +81,13 @@ class MessageCacheStream : public MessageRefedStream {
 class MessageQueueStream : public MessageRefedStream {
  public:
   enum : int32_t {
-    DEFAULT_MAX_QUEUE_SIZE = 65536,
+    DEFAULT_MAX_QUEUE_SIZE = 0x100000,  // 1MB
     DEFAULT_MAX_QUEUE_TIME = 120
   };
 
  protected:
   std::deque<MessageCRef> _queue;
+  ref_<OutgoingPages> _waiting_page_group;
 
   void destroy_impl() override;
 
@@ -95,8 +97,8 @@ class MessageQueueStream : public MessageRefedStream {
   int32_t _max_queue_size = DEFAULT_MAX_QUEUE_SIZE;
   int32_t _current_queue_size = 0;
 
-  int64_t _current_queue_time = DEFAULT_MAX_QUEUE_TIME;
-  int32_t _max_queue_duration = 0;
+  int32_t _max_queue_duration = DEFAULT_MAX_QUEUE_TIME;
+  int64_t _current_queue_time = 0;
 
   // clear all element but the last
   void purge();

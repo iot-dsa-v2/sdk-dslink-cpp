@@ -51,10 +51,8 @@ class Message : public EnableRef<Message> {
   virtual void print_headers(std::ostream& os) const;
   virtual void print_body(std::ostream& os) const;
 
-  const int64_t created_ts;
+  int64_t created_ts;
   int32_t size() const;
-  // used by message queue to calculate size of paged message group
-  virtual int32_t total_size() const { return size(); }
 
   // update_static_header must be called before write
   // void write(uint8_t* data) const throw(const MessageParsingError&);
@@ -87,10 +85,15 @@ class Message : public EnableRef<Message> {
     static_headers.message_size = 0;  // invalidate message_size
     body.reset(b);
   }
-  BytesRef get_body() const { return body; }
+  inline const BytesRef& get_body() const { return body; }
 
   void set_next_page(ref_<const Message>&& msg) { _next_page = msg; }
-  ref_<const Message> get_next_page() { return _next_page; }
+  const ref_<const Message>& get_next_page() const { return _next_page; }
+
+  // merge this message with the next message in queue
+  virtual MergeQueueResult merge_queue(ref_<const Message>& next) {
+    return MergeQueueResult::NORMAL;
+  }
 
  protected:
   // measure the size and header size
@@ -108,15 +111,6 @@ class Message : public EnableRef<Message> {
 };
 typedef ref_<Message> MessageRef;
 typedef ref_<const Message> MessageCRef;
-
-class PagedMessageMixin {
- public:
-  PagedMessageMixin();
-
- protected:
-  std::vector<ref_<Message>> other_pages;
-  size_t current_page;
-};
 
 class RequestMessage : public Message {
  protected:
@@ -219,7 +213,8 @@ class MessageStream : public DestroyableRef<MessageStream> {
 
   typedef std::function<void(MessageStream&, const SubscribeOptions&)>
       SubOptionChangeCallback;
-  virtual void send_subscribe_response(MessageCRef&& message) {}
+  virtual void send_subscribe_response(
+      ref_<const SubscribeResponseMessage>&& message) {}
   virtual const SubscribeOptions& subscribe_options();
   virtual void on_subscribe_option_change(SubOptionChangeCallback&& callback){};
 };

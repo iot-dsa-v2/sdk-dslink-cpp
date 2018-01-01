@@ -73,8 +73,6 @@ void Message::set_page_id(int32_t value) {
   }
 }
 
-PagedMessageMixin::PagedMessageMixin() : current_page(SIZE_MAX) {}
-
 RequestMessage::RequestMessage(const uint8_t* data, size_t size)
     : Message(data, size){};
 RequestMessage::RequestMessage(MessageType type) : Message(type){};
