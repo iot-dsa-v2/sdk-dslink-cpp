@@ -22,6 +22,8 @@ class DsBroker final : public WrapperStrand {
   friend class ListMerger;
 
  private:
+  string_ close_token;
+
  public:
   DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
            const shared_ptr_<App>& app = nullptr);
@@ -30,6 +32,8 @@ class DsBroker final : public WrapperStrand {
   void run();
   shared_ptr_<App>& get_app() { return _app; }
   const ref_<BrokerConfig>& get_config() const { return _config; };
+
+  string_ get_close_token(){return close_token;}
 
  protected:
   bool own_app;

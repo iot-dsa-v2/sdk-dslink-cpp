@@ -1,3 +1,4 @@
+#include <util/string.h>
 #include "dsa_common.h"
 
 #include "broker.h"
@@ -57,6 +58,14 @@ void DsBroker::init(ModuleLoader& modules) {
 
   // init security manager
   strand->set_security_manager(modules.new_security_manager(*_app, strand));
+
+  try {
+    close_token = string_from_file(".close_token");
+    if (close_token.length() != 32)
+      throw std::runtime_error("Token is not have 32 length");
+  } catch (std::exception &e) {
+    close_token = "";
+  }
 
   auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder
