@@ -33,7 +33,7 @@ ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
 }
 
 
-ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_name) {
+ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_name, bool connect) {
   std::string address =
       std::string("127.0.0.1:") + std::to_string(port);
 
@@ -43,6 +43,15 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_na
   static_cast<ConsoleLogger &>(link->strand->logger()).filter =
       Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
   link->init_responder();
+
+  if(connect){
+    bool connected = false;
+    link->connect([&](const shared_ptr_<Connection> connection) {
+      connected = true;
+    });
+
+    WAIT_EXPECT_TRUE(500, [&]()->bool{return connected;});
+  }
 
   return link;
 }

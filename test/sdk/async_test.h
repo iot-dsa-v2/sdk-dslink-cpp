@@ -26,4 +26,7 @@ void wait_in_thread(int wait_time);
 #define EXPECT_CONTAIN(iteratable, value) \
   EXPECT_TRUE(std::find(iteratable.begin(), iteratable.end(), value) != iteratable.end());
 
+#define EXPECT_NOT_CONTAIN(iteratable, value) \
+  EXPECT_TRUE(std::find(iteratable.begin(), iteratable.end(), value) == iteratable.end());
+
 #endif  // PROJECT_ASYNC_TEST_H

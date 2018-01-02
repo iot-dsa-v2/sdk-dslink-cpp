@@ -2,73 +2,22 @@
 
 using namespace dsa;
 
-////////////
-// This test works
-///////////
-TEST(BROKER_DSLINK_TEST, Reconnect_Without_List) {
+TEST(BROKER_DSLINK_TEST, Reconnect) {
   auto app = make_shared_<App>();
 
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
 
-  for(int i = 0; i < 25; i++) {
-    std::cout<<"Hello "<<std::endl;
-    auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test1");
+  for(int i = 0; i < 3; i++) {
+    // Constant name main link
+    auto main_link = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "main_link", true);
 
-    bool is_connected = false;
-    link_1->connect([&](const shared_ptr_<Connection> connection) {
-      is_connected = true;
-    });
+    // Changing name
+    auto changing_name = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "changing_name_link" + i, true);
+    changing_name->strand->post([&](){changing_name->destroy();});
 
-    WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_connected;});
-
-    link_1->strand->post([&](){link_1->destroy();});
-    WAIT(500);
-  }
-
-  broker->strand->post([&](){broker->destroy();});
-
-  app->close();
-
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-
-  if (!app->is_stopped()) {
-    app->force_stop();
-  }
-
-  app->wait();
-}
-
-////////////
-// This test is not working, it couldn't reconnect to the broker after disconnect
-///////////
-TEST(BROKER_DSLINK_TEST, Reconnect_Same_Name_List) {
-  auto app = make_shared_<App>();
-
-  auto broker = broker_dslink_test::create_broker(app);
-  auto main_link = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "mainlink");
-  broker->run();
-
-  bool is_main_connected = false;
-  main_link->connect([&](const shared_ptr_<Connection> connection) {
-    is_main_connected = true;
-  });
-
-  WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_main_connected;});
-
-
-  for(int i = 0; i < 25; i++) {
-    std::cout<<"Hello "<<i<<std::endl;
-
-    auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test1");
-
-    // 1. CONNECT
-    bool is_connected = false;
-    link_1->connect([&](const shared_ptr_<Connection> connection) {
-      is_connected = true;
-    });
-
-    WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_connected;});
+    // Constant name with listing
+    auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test1", true);
 
     // 2. CHECK IF CONNECTION IS OK
     auto list_path = "downstream/test1";
@@ -97,87 +46,11 @@ TEST(BROKER_DSLINK_TEST, Reconnect_Same_Name_List) {
     WAIT_EXPECT_TRUE(1000, [&]()->bool {return status == MessageStatus::NOT_AVAILABLE;});
     downstream_list->destroy();
 
-    WAIT(500);
-  }
-
-  main_link->strand->post([&](){main_link->destroy();});
-  broker->strand->post([&](){broker->destroy();});
-
-  app->close();
-
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-
-  if (!app->is_stopped()) {
-    app->force_stop();
-  }
-
-  app->wait();
-}
-
-////////////
-// If you change dslink name in every iteration you can reconnect again
-///////////
-TEST(BROKER_DSLINK_TEST, Reconnect_Different_Name_List) {
-  auto app = make_shared_<App>();
-
-  auto broker = broker_dslink_test::create_broker(app);
-  auto main_link = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "mainlink");
-  broker->run();
-
-  bool is_main_connected = false;
-  main_link->connect([&](const shared_ptr_<Connection> connection) {
-    is_main_connected = true;
-  });
-
-  WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_main_connected;});
-
-
-  for(int i = 0; i < 25; i++) {
-    std::cout<<"Hello "<<i<<std::endl;
-
-    auto link_name = std::string("test") + std::to_string(i);
-
-    auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, link_name);
-
-    // 1. CONNECT
-    bool is_connected = false;
-    link_1->connect([&](const shared_ptr_<Connection> connection) {
-      is_connected = true;
-    });
-
-    WAIT_EXPECT_TRUE(1000, [&]()->bool{return is_connected;});
-
-    // 2. CHECK IF CONNECTION IS OK
-    auto list_path = "downstream/" + link_name;
-
-    MessageStatus status = MessageStatus::ALIAS_LOOP;
-    auto downstream_list = main_link->list(
-        list_path,
-        [&](IncomingListCache &cache, const std::vector<string_> &str) {
-          status = cache.get_status();
-        });
-
-    WAIT_EXPECT_TRUE(1000, [&]()->bool {return status == MessageStatus::OK;});
-    downstream_list->destroy();
-
-    // 3. CHECK DISCONNECT
-    link_1->strand->post([&](){link_1->destroy();});
-    WAIT(500);
-
-    status = MessageStatus::ALIAS_LOOP;
-    downstream_list = main_link->list(
-        list_path,
-        [&](IncomingListCache &cache, const std::vector<string_> &str) {
-          status = cache.get_status();
-        });
-
-    WAIT_EXPECT_TRUE(1000, [&]()->bool {return status == MessageStatus::NOT_AVAILABLE;});
-    downstream_list->destroy();
+    main_link->strand->post([main_link](){main_link->destroy();});
 
     WAIT(500);
   }
 
-  main_link->strand->post([&](){main_link->destroy();});
   broker->strand->post([&](){broker->destroy();});
 
   app->close();
@@ -289,4 +162,84 @@ TEST(BROKER_DSLINK_TEST, STOP_TEST) {
 
   broker->run();
   EXPECT_TRUE(broker->is_destroyed());
+}
+
+TEST(BROKER_DSLINK_TEST, SYS_LIST_WITH_CLOSE_TOKEN) {
+  std::string close_token = "12345678901234567890123456789012";
+  string_to_file(close_token, ".close_token");
+
+  auto app = make_shared_<App>();
+
+  auto broker = broker_dslink_test::create_broker(app);
+  broker->run();
+
+  auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test_1", true);
+
+  VarMap vm;
+  bool is_invoked = false;
+  link_1->list(
+      "sys",
+      [&](IncomingListCache &cache, const std::vector<string_>) {
+        vm = cache.get_map();
+        is_invoked = true;
+      });
+
+  WAIT_EXPECT_TRUE(1000, [&](){return is_invoked;});
+  EXPECT_TRUE(vm["stop"].get_type() != Var::NUL);
+
+  // Closing
+
+  link_1->strand->post([&](){link_1->destroy();});
+
+  broker->strand->post([&](){broker->destroy();});
+
+  app->close();
+
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+
+  app->wait();
+}
+
+
+TEST(BROKER_DSLINK_TEST, SYS_LIST_WITHOUT_CLOSE_TOKEN) {
+  // we force to not have close
+  std::remove(".close_token");
+
+  auto app = make_shared_<App>();
+
+  auto broker = broker_dslink_test::create_broker(app);
+  broker->run();
+
+  auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test_1", true);
+
+  VarMap vm;
+  bool is_invoked = false;
+  link_1->list(
+      "sys",
+      [&](IncomingListCache &cache, const std::vector<string_>) {
+        vm = cache.get_map();
+        is_invoked = true;
+      });
+
+  WAIT_EXPECT_TRUE(1000, [&](){return is_invoked;});
+  EXPECT_TRUE(vm["stop"].get_type() == Var::NUL);
+
+  // Closing
+  link_1->strand->post([&](){link_1->destroy();});
+
+  broker->strand->post([&](){broker->destroy();});
+
+  app->close();
+
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+
+  app->wait();
 }

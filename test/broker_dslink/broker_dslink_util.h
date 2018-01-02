@@ -30,7 +30,7 @@ class MockNodeRoot : public NodeModel {
 };
 
 ref_<DsBroker> create_broker(std::shared_ptr<App> app = nullptr);
-ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_name);
+ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_name, bool connect=false);
 ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port, string_ dslink_name);
 
 }
