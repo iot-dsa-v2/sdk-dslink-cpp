@@ -47,6 +47,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   ModelRef get_child(const string_ &name);
 
   ModelRef add_child(const string_ &name, ModelRef &&model);
+  ModelRef remove_child(const string_ &name, ModelRef &&model);
 
   // when return true, destroy() will be called by NodeState
   // and model will be removed from the node tree
