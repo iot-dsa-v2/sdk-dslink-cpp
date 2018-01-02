@@ -62,7 +62,7 @@ const char *to_string(PermissionLevel permission_level) {
   }
 }
 
-const char *to_string_message_status(MessageStatus status) {
+const char *to_string(MessageStatus status) {
   switch (status) {
     case MessageStatus::OK:
       return "OK";

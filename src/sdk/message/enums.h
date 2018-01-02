@@ -70,6 +70,7 @@ enum class PermissionLevel : uint8_t {
 enum class MergeQueueResult { NORMAL, SKIP_THIS, SKIP_NEXT };
 
 const char *to_string(PermissionLevel permission_level);
+const char *to_string(MessageStatus status);
 
 }  // namespace dsa
 
