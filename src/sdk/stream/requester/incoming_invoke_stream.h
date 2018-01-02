@@ -30,7 +30,6 @@ class IncomingInvokeStream final : public MessageQueueStream {
   void invoke(ref_<const InvokeRequestMessage>&& msg);
 
   void close();
-
   bool check_close_message(MessageCRef& message) final;
 
   bool connection_changed() final;

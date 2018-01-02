@@ -4,18 +4,19 @@
 
 #include "core/session.h"
 #include "message/request/set_request_message.h"
+#include "module/logger.h"
 
 namespace dsa {
 
 OutgoingSetStream::OutgoingSetStream(ref_<Session> &&session, const Path &path,
                                      uint32_t rid,
-                                     ref_<const SetRequestMessage> &&message)
+                                     ref_<SetRequestMessage> &&message)
     : MessageCacheStream(std::move(session), path, rid),
       _waiting_request(std::move(message)) {}
 
 void OutgoingSetStream::destroy_impl() {
   if (_callback != nullptr) {
-    std::move(_callback)(*this, ref_<const SetRequestMessage>());
+    std::move(_callback)(*this, ref_<SetRequestMessage>());
   }
 }
 
@@ -34,12 +35,12 @@ void OutgoingSetStream::on_request(Callback &&callback) {
   }
 }
 
-void OutgoingSetStream::send_response(ref_<SetResponseMessage> &&message) {
+void OutgoingSetStream::send_response(ref_<const SetResponseMessage> &&message) {
   if (_closed) return;
   _closed = true;
   _callback = nullptr;
   if (message->get_status() < MessageStatus::CLOSED) {
-    message->set_status(MessageStatus::CLOSED);
+    LOG_ERROR(_session->get_strand()->logger(), LOG << "set response must have closed or error status");
   }
   send_message(MessageCRef(std::move(message)), true);
 };

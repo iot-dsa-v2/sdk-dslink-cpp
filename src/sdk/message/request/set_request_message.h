@@ -17,6 +17,7 @@ class SetRequestMessage final : public RequestMessage {
   SetRequestMessage(const uint8_t* data, size_t size);
   SetRequestMessage();
   SetRequestMessage(const SetRequestMessage&);
+  SetRequestMessage(const string_& path, Var && value);
 
   std::unique_ptr<DynamicStringHeader> attribute_field;
 

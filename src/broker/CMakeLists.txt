@@ -25,6 +25,7 @@ set(SOURCES broker_main.cc
         remote_node/remote_node.cc
         remote_node/remote_root_node.cc
         remote_node/invoke_proxy.cc
+        remote_node/set_proxy.cc
         node/broker_root.cc
         node/downstream/downstream_root.cc
         node/upstream/upstream_root.cc

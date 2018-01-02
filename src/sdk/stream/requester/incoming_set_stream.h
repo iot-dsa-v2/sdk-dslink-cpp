@@ -29,6 +29,9 @@ class IncomingSetStream final : public MessageCacheStream {
 
   void set(ref_<const SetRequestMessage>&& msg);
 
+  void close();
+  bool check_close_message(MessageCRef& message) final;
+
   bool connection_changed() final;
 };
 }

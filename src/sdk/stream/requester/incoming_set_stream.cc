@@ -2,6 +2,7 @@
 
 #include "incoming_set_stream.h"
 
+#include "core/session.h"
 #include "message/request/set_request_message.h"
 #include "message/response/set_response_message.h"
 
@@ -22,6 +23,21 @@ void IncomingSetStream::receive_message(ref_<Message>&& msg) {
 
 void IncomingSetStream::set(ref_<const SetRequestMessage>&& msg) {
   send_message(MessageCRef(std::move(msg)));
+}
+
+void IncomingSetStream::close() {
+  if (_closed) return;
+  _closed = true;
+  _callback = nullptr;
+  send_message(make_ref_<RequestMessage>(MessageType::CLOSE_REQUEST), true);
+}
+
+bool IncomingSetStream::check_close_message(MessageCRef& message) {
+  if (message->type() == MessageType::CLOSE_REQUEST) {
+    _session->requester.remove_stream(rid);
+    return true;
+  }
+  return false;
 }
 
 bool IncomingSetStream::connection_changed() {

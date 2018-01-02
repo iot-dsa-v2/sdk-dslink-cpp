@@ -9,6 +9,7 @@
 
 #include "invoke_proxy.h"
 #include "responder/model_base.h"
+#include "set_proxy.h"
 
 namespace dsa {
 
@@ -19,6 +20,7 @@ class IncomingListStream;
 
 class RemoteNode : public NodeModelBase {
   friend class RemoteInvokeProxy;
+  friend class RemoteSetProxy;
 
  public:
   RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
@@ -48,7 +50,7 @@ class RemoteNode : public NodeModelBase {
 
   /// list
  protected:
-  MessageStatus _list_status_cahce = MessageStatus ::OK;
+  MessageStatus _list_status_cahce = MessageStatus::OK;
   string_ _list_pub_path_cache;
   std::unordered_map<string_, VarBytesRef> _list_cache;
   ref_<IncomingListStream> _remote_list_stream;
@@ -67,6 +69,10 @@ class RemoteNode : public NodeModelBase {
               ref_<NodeState> &parent) override;
 
   /// set
+ protected:
+  std::unordered_map<RemoteSetProxy *, ref_<RemoteSetProxy>> _set_streams;
+  void remove_set(RemoteSetProxy *set_proxy);
+
  public:
   void set(ref_<OutgoingSetStream> &&stream) override;
 };

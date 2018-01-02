@@ -13,6 +13,12 @@ SetRequestMessage::SetRequestMessage(const uint8_t* data, size_t size)
 SetRequestMessage::SetRequestMessage()
     : RequestMessage(MessageType::SET_REQUEST) {}
 
+SetRequestMessage::SetRequestMessage(const string_& path, Var&& value)
+    : RequestMessage(MessageType::SET_REQUEST) {
+  set_target_path(path);
+  set_value(std::move(value));
+}
+
 MessageValue SetRequestMessage::get_value() const {
   return MessageValue(body->data(), body->size());
 }

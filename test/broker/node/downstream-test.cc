@@ -41,7 +41,8 @@ class MockNodeAction : public InvokeNodeModel {
 
 class MockNodeValue : public NodeModel {
  public:
-  explicit MockNodeValue(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockNodeValue(LinkStrandRef strand)
+      : NodeModel(std::move(strand), PermissionLevel::WRITE) {
     set_value(Var("hello world"));
   };
 };
@@ -122,6 +123,55 @@ TEST(BrokerDownstreamTest, Invoke) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
+TEST(BrokerDownstreamTest, Set) {
+  typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
+
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+
+  WrapperStrand client_strand = get_client_wrapper_strand(broker);
+  client_strand.strand->set_responder_model(
+      ModelRef(new MockNodeRoot(client_strand.strand)));
+  auto tcp_client = make_ref_<Client>(client_strand);
+
+  int step = 0;
+
+  tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
+    tcp_client->get_session().requester.subscribe(
+        "downstream/test/value",
+        [&](IncomingSubscribeStream& stream,
+            ref_<const SubscribeResponseMessage>&& msg) {
+          ++step;
+          switch (step) {
+            case 1: {
+              EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
+              tcp_client->get_session().requester.set(
+                  [](IncomingSetStream&,
+                     ref_<const SetResponseMessage>&& set_response) {
+
+                  },
+                  make_ref_<SetRequestMessage>("downstream/test/value",
+                                               Var("dsa")));
+              break;
+            }
+            default: {
+              EXPECT_EQ(msg->get_value().value.to_string(), "dsa");
+
+              // end the test
+              client_strand.strand->post([tcp_client, &client_strand]() {
+                tcp_client->destroy();
+                client_strand.destroy();
+              });
+              broker->strand->post([broker]() { broker->destroy(); });
+            }
+          }
+        });
+
+  });
+  broker->run();
+  EXPECT_TRUE(broker->is_destroyed());
+}
+
 TEST(BrokerDownstreamTest, List) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
@@ -191,7 +241,6 @@ TEST(BrokerDownstreamTest, List) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-
 TEST(BrokerDownstreamTest, Downstream_not_available) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
@@ -203,7 +252,7 @@ TEST(BrokerDownstreamTest, Downstream_not_available) {
 
   WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2");
   client_strand2.strand->set_responder_model(
-    ModelRef(new MockNodeRoot(client_strand2.strand)));
+      ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
 
   // after client1 disconnected, list update should show it's disconnected

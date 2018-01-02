@@ -16,26 +16,25 @@ class SetRequestMessage;
 
 class OutgoingSetStream final : public MessageCacheStream {
  public:
-  typedef std::function<void(OutgoingSetStream &,
-                             ref_<const SetRequestMessage> &&)>
+  typedef std::function<void(OutgoingSetStream &, ref_<SetRequestMessage> &&)>
       Callback;
 
  protected:
   Callback _callback;
 
-  ref_<const SetRequestMessage> _waiting_request;
+  ref_<SetRequestMessage> _waiting_request;
 
   void destroy_impl() final;
 
  public:
   OutgoingSetStream(ref_<Session> &&session, const Path &path, uint32_t rid,
-                    ref_<const SetRequestMessage> &&message);
+                    ref_<SetRequestMessage> &&message);
 
   void receive_message(ref_<Message> &&mesage) final;
 
   void on_request(Callback &&callback);
 
-  void send_response(ref_<SetResponseMessage> &&message);
+  void send_response(ref_<const SetResponseMessage> &&message);
 
   bool check_close_message(MessageCRef &message) final;
 };

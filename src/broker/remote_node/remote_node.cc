@@ -4,11 +4,14 @@
 
 #include "core/session.h"
 #include "message/request/invoke_request_message.h"
+#include "message/request/set_request_message.h"
 #include "message/response/list_response_message.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
+#include "stream/requester/incoming_set_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "stream/responder/outgoing_set_stream.h"
 #include "util/string.h"
 
 namespace dsa {
@@ -35,6 +38,15 @@ void RemoteNode::destroy_impl() {
     _remote_subscribe_stream->close();
     _remote_subscribe_stream.reset();
   }
+  for (auto &it : _invoke_streams) {
+    it.first->destroy();
+  }
+  _invoke_streams.clear();
+  for (auto &it : _set_streams) {
+    it.first->destroy();
+  }
+  _set_streams.clear();
+
   NodeModelBase::destroy_impl();
 }
 
@@ -74,7 +86,8 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
         _list_cache.clear();
       }
       if (!msg->get_pub_path().empty()) {
-        _list_pub_path_cache = _remote_session->map_pub_path(msg->get_pub_path());
+        _list_pub_path_cache =
+            _remote_session->map_pub_path(msg->get_pub_path());
       }
       _state->update_response_status(msg->get_status());
 
@@ -113,6 +126,14 @@ void RemoteNode::remove_invoke(RemoteInvokeProxy *invoke_proxy) {
   }
 }
 void RemoteNode::set(ref_<OutgoingSetStream> &&stream) {
-  // TODO
+  RemoteSetProxy *p = new RemoteSetProxy(std::move(stream), get_ref());
+  _set_streams.emplace(p, p->get_ref());
+}
+void RemoteNode::remove_set(RemoteSetProxy *set_proxy) {
+  if (is_destroyed()) return;
+  auto search = _set_streams.find(set_proxy);
+  if (search != _set_streams.end()) {
+    _set_streams.erase(search);
+  }
 }
 }
