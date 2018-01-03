@@ -112,14 +112,12 @@ ref_<NodeModelBase> NodeModel::add_list_child(const string_ &name,
   }
   return std::move(model);
 }
-ref_<NodeModelBase> NodeModel::remove_list_child(const string_ name,
-                       ref_<NodeModelBase> &&model) {
+void NodeModel::remove_list_child(const string_ name) {
   _list_children.erase(name);
   if (_state != nullptr) {
-    model = remove_child(name, std::move(model));
+    remove_child(name);
     _state->update_list_refreshed();
   }
-  return std::move(model);
 }
 
 void NodeModel::set(ref_<OutgoingSetStream> &&stream) {

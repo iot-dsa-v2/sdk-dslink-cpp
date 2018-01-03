@@ -68,7 +68,7 @@ class DsLink final : public WrapperStrand {
   }
 
   ref_<NodeModelBase> add_to_main_node(string_ name, ref_<NodeModel>&& node);
-  ref_<NodeModelBase> remove_from_main_node(string_ name, ref_<NodeModel>&& node);
+  void remove_from_main_node(string_ name);
 
   // the on_connect callback will always be called from main strand
   void run(Client::OnConnectCallback &&on_connect = nullptr,

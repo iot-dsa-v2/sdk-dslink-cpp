@@ -25,8 +25,8 @@ void LinkRoot::set_main(ref_<NodeModelBase> &&main_node) {
 ref_<NodeModelBase> LinkRoot::add_to_main(string_ name, ref_<NodeModelBase> &&node) {
   return std::move(_main_node->add_list_child(name,std::move(node)));
 }
-ref_<NodeModelBase> LinkRoot::remove_from_main(string_ name, ref_<NodeModelBase> &&node) {
-  return std::move(_main_node->remove_list_child(name,std::move(node)));
+void LinkRoot::remove_from_main(string_ name) {
+  _main_node->remove_list_child(name);
 }
 
 }

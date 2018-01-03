@@ -40,8 +40,7 @@ class NodeModel : public NodeModelBase {
   }
   ref_<NodeModelBase> add_list_child(const string_ &name,
                                      ref_<NodeModelBase> &&model);
-  ref_<NodeModelBase> remove_list_child(const string_ name,
-                         ref_<NodeModelBase> &&model);
+  void remove_list_child(const string_ name);
 
   VarBytesRef &get_summary() override;
 

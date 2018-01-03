@@ -20,7 +20,7 @@ class LinkRoot : public NodeModel {
 
   void set_main(ref_<NodeModelBase> &&main_node);
   ref_<NodeModelBase> add_to_main(string_ name, ref_<NodeModelBase> &&node);
-  ref_<NodeModelBase> remove_from_main(string_ name, ref_<NodeModelBase> &&node);
+  void remove_from_main(string_ name);
 
  protected:
   void destroy_impl() final;
