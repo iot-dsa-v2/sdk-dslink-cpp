@@ -6,6 +6,7 @@ namespace dsa {
 
 OutgoingPages::OutgoingPages(MessageCRef&& msg)
     : Message(MessageType::PAGED),
+      _rid(msg->get_rid()),
       _sequence_id(msg->get_sequence_id()),
       _total_page(-msg->get_page_id()),
       _next_send(std::move(msg)) {
@@ -15,12 +16,8 @@ OutgoingPages::OutgoingPages(MessageCRef&& msg)
     do {
       ++_waiting_page;
       _remain_size += p->size();
-      p = _next_send->get_next_page().get();
+      p = p->get_next_page().get();
     } while (p != nullptr);
-  }
-  if (is_ready()) {
-    // a new generated message is not counted in the queue size
-    _remain_size = 0;
   }
 }
 
@@ -32,7 +29,7 @@ int32_t OutgoingPages::next_size() const {
 }
 
 bool OutgoingPages::check_add(MessageCRef& msg) {
-  if (msg->get_sequence_id() != _sequence_id ||
+  if (msg->get_rid() != _rid || msg->get_sequence_id() != _sequence_id ||
       msg->get_page_id() != _waiting_page) {
     return false;
   }
@@ -64,5 +61,22 @@ void OutgoingPages::drop() {
   _total_page = 0;
   _waiting_page = 0;
   _remain_size = 0;
+}
+
+IncomingPages::IncomingPages(ref_<Message>& msg)
+    : _rid(msg->get_rid()),
+      _sequence_id(msg->get_sequence_id()),
+      _total_page(-msg->get_page_id()),
+      first(msg),
+      _current(msg) {}
+
+bool IncomingPages::check_add(ref_<Message>& msg) {
+  if (msg->get_rid() != _rid || msg->get_sequence_id() != _sequence_id ||
+      msg->get_page_id() != _waiting_page) {
+    return false;
+  }
+  ++_waiting_page;
+  _current = msg;
+  return true;
 }
 }

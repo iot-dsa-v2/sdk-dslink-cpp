@@ -11,6 +11,7 @@
 namespace dsa {
 
 class OutgoingPages final : public Message {
+  int32_t _rid;
   int32_t _sequence_id;
   int32_t _total_page;
   int32_t _waiting_page = 1;
@@ -38,6 +39,22 @@ class OutgoingPages final : public Message {
   void drop();
 };
 
-class IncommingPages {};
+class IncomingPages final : public EnableRef<IncomingPages> {
+  int32_t _rid;
+  int32_t _sequence_id;
+  int32_t _total_page;
+  int32_t _waiting_page = 1;
+
+  MessageCRef _current;
+
+ public:
+  const MessageCRef first;
+
+  IncomingPages(ref_<Message> &msg);
+  // return true when message is accepted
+  bool check_add(ref_<Message> &msg);
+  // all message received
+  bool is_ready() const { return _waiting_page >= _total_page; }
+};
 }
 #endif  // DSA_SDK_MESSAGE_PAGE_GROUP_H

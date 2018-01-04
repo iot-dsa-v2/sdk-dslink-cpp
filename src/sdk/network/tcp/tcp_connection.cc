@@ -135,13 +135,13 @@ size_t TcpConnection::WriteBuffer::max_next_size() const {
 void TcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                      int32_t ack_id) {
   size_t total_size = size + message.size();
-  if (total_size > connection._write_buffer.size()) {
-    if (total_size <= MAX_BUFFER_SIZE) {
-      connection._write_buffer.resize(connection._write_buffer.size() * 4);
-    } else {
-      LOG_FATAL(LOG << "message is bigger than max buffer size: "
-                    << MAX_BUFFER_SIZE);
-    }
+  if (total_size > MAX_BUFFER_SIZE) {
+    LOG_FATAL(LOG << "message is bigger than max buffer size: "
+                  << MAX_BUFFER_SIZE);
+  }
+
+  while (total_size > connection._write_buffer.size()) {
+    connection._write_buffer.resize(connection._write_buffer.size() * 4);
   }
   message.write(&connection._write_buffer[size], rid, ack_id);
   size += message.size();

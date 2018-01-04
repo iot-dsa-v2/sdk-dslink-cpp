@@ -49,6 +49,16 @@ void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
     if (message == nullptr) {
       return;  // nullptr is for destroyed callback, no need to handle here
     }
+    if (message->get_page_id() != 0) {
+      auto msg = s.get_first_page_when_ready();
+      if (msg == nullptr) {
+        return;
+      } else {
+        // this is a paged message, callback should receive the first page
+        message.reset(message.get());
+      }
+    }
+
     if (_simple_callback != nullptr) {
       Var result = _simple_callback(message->get_value());
       auto response = make_ref_<InvokeResponseMessage>();

@@ -10,6 +10,7 @@
 #include "../message_io_stream.h"
 
 #include "message/response/invoke_response_message.h"
+#include "message/message_page_group.h"
 
 namespace dsa {
 class InvokeRequestMessage;
@@ -24,6 +25,7 @@ class OutgoingInvokeStream final : public MessageQueueStream {
   Callback _callback;
 
   std::vector<ref_<InvokeRequestMessage> > _waiting_requests;
+  ref_<IncomingPages> _waiting_pages;
 
   void destroy_impl() final;
 
@@ -40,6 +42,9 @@ class OutgoingInvokeStream final : public MessageQueueStream {
   void close(MessageStatus status = MessageStatus::CLOSED);
 
   bool check_close_message(MessageCRef &message) final;
+
+  // return nullptr when page is not ready
+  MessageCRef get_first_page_when_ready();
 };
 }
 
