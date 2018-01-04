@@ -112,7 +112,7 @@ ref_<NodeModelBase> NodeModel::add_list_child(const string_ &name,
   }
   return std::move(model);
 }
-void NodeModel::remove_list_child(const string_ name) {
+void NodeModel::remove_list_child(const string_ &name) {
   _list_children.erase(name);
   if (_state != nullptr) {
     remove_child(name);
