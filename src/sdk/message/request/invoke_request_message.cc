@@ -40,7 +40,15 @@ bool InvokeRequestMessage::set_value(const Var& value, int32_t sequence_id) {
   }
 }
 Var InvokeRequestMessage::get_value() const {
-  if (body != nullptr && !body->empty()) {
+  if (_next_page != nullptr && get_page_id() < 0) {
+    std::vector<BytesRef> pages;
+    const Message* current = this;
+    while (current != nullptr) {
+      pages.emplace_back(current->get_body());
+      current = current->get_next_page().get();
+    }
+    return Var::from_msgpack_pages(pages);
+  } else if (body != nullptr && !body->empty()) {
     return Var::from_msgpack(body->data(), body->size());
   }
   return Var();
