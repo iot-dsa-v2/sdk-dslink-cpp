@@ -2,6 +2,7 @@
 #ifndef PROJECT_CLOSE_TOKEN_H
 #define PROJECT_CLOSE_TOKEN_H
 
+#include "util/string.h"
 
 
 namespace dsa{
