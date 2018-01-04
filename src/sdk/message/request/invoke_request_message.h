@@ -33,7 +33,8 @@ class InvokeRequestMessage final : public RequestMessage {
                           size_t body_size) throw(const MessageParsingError&);
 
  public:
-  void set_value(const Var& value);
+  // return true when it's a multi-page message
+  bool set_value(const Var& value, int32_t sequence_id = 0);
   Var get_value() const;
 
   const bool get_skippable() const;

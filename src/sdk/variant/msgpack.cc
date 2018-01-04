@@ -171,28 +171,35 @@ Var Var::from_msgpack_pages(std::vector<BytesRef> pages) {
 std::vector<BytesRef> Var::to_msgpack_pages(size_t first_page_size) const
     throw(const EncodingError &) {
   std::vector<uint8_t> data = to_msgpack();
-  std::vector<BytesRef> result;
+
   if (data.size() <= first_page_size) {
+    std::vector<BytesRef> result;
     result.emplace_back(make_ref_<RefCountBytes>(std::move(data)));
+    return std::move(result);
   } else {
-    size_t remain_size = data.size();
-    const uint8_t *pdata = data.data();
-    if (first_page_size < DEFAULT_PAGE_BODY_SIZE) {
-      // first page might need to save some space for message metadata
-      result.emplace_back(
-          make_ref_<RefCountBytes>(pdata, pdata + first_page_size));
-      remain_size -= first_page_size;
-      pdata += first_page_size;
-    }
-    while (remain_size > DEFAULT_PAGE_BODY_SIZE) {
-      result.emplace_back(
-          make_ref_<RefCountBytes>(pdata, pdata + DEFAULT_PAGE_BODY_SIZE));
-      remain_size -= DEFAULT_PAGE_BODY_SIZE;
-      pdata += DEFAULT_PAGE_BODY_SIZE;
-    }
-    // remain_size won't be 0
-    result.emplace_back(make_ref_<RefCountBytes>(pdata, pdata + remain_size));
+    return split_pages(data);
   }
+}
+std::vector<BytesRef> Var::split_pages(const std::vector<uint8_t> &data,
+                                       size_t first_page_size) {
+  std::vector<BytesRef> result;
+  size_t remain_size = data.size();
+  const uint8_t *pdata = data.data();
+  if (first_page_size < MAX_PAGE_BODY_SIZE) {
+    // first page might need to save some space for message metadata
+    result.emplace_back(
+        make_ref_<RefCountBytes>(pdata, pdata + first_page_size));
+    remain_size -= first_page_size;
+    pdata += first_page_size;
+  }
+  while (remain_size > MAX_PAGE_BODY_SIZE) {
+    result.emplace_back(
+        make_ref_<RefCountBytes>(pdata, pdata + MAX_PAGE_BODY_SIZE));
+    remain_size -= MAX_PAGE_BODY_SIZE;
+    pdata += MAX_PAGE_BODY_SIZE;
+  }
+  // remain_size won't be 0
+  result.emplace_back(make_ref_<RefCountBytes>(pdata, pdata + remain_size));
   return std::move(result);
 }
 

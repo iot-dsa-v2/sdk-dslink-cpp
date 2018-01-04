@@ -85,6 +85,10 @@ class Message : public EnableRef<Message> {
     static_headers.message_size = 0;  // invalidate message_size
     body.reset(b);
   }
+  void set_body(BytesRef&& b) {
+    static_headers.message_size = 0;  // invalidate message_size
+    body = std::move(b);
+  }
   inline const BytesRef& get_body() const { return body; }
 
   void set_next_page(ref_<const Message>&& msg) { _next_page = msg; }
