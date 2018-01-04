@@ -64,4 +64,21 @@ string_ generate_random_string(int len) {
   return randStr;
 }
 
+string_ get_close_token_from_file(string_ path_str, bool force_to_generate_one){
+  try {
+    string_ token = string_from_file(path_str);
+    if(token.length() != 32) throw std::runtime_error("invalid token length != 32 in file");
+    return token;
+
+  } catch (std::exception &e) {
+    if(!force_to_generate_one) return "";
+  }
+
+  auto new_token = generate_random_string(32);
+  string_to_file(new_token, path_str);
+
+  return new_token;
+}
+
+
 }

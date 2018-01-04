@@ -21,7 +21,7 @@
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
-#include "util/close_token.h"
+#include "util/string.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;

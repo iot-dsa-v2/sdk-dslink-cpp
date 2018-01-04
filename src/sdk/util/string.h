@@ -33,6 +33,8 @@ void string_to_file(string_ data, string_ file_path);
 
 static int IS_RAND_INITIALIZED = 0;
 string_ generate_random_string(int len);
+
+string_ get_close_token_from_file(string_ path_str=".close_token", bool force_to_generate_one = false);
 }
 
 #endif  // DSA_UTIL_STRING_H

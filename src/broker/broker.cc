@@ -15,7 +15,7 @@
 #include "remote_node/remote_root_node.h"
 #include "responder/node_state_manager.h"
 #include "util/app.h"
-#include "util/close_token.h"
+#include "util/string.h"
 #include "web_server/web_server.h"
 
 namespace dsa {
