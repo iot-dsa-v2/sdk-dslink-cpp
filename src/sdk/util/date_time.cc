@@ -52,6 +52,20 @@ static void update_ts(std::chrono::system_clock::time_point now) {
 #endif
 
   string_ str(buf, str_size);
+
+#ifndef __MINGW32__
+  // set milli second
+  auto ms = _last_ms.count() % 1000;
+  str[20] = static_cast<char>((ms / 100) + '0');
+  str[21] = static_cast<char>(((ms % 100) / 10) + '0');
+  str[22] = static_cast<char>((ms % 10) + '0');
+
+  // fix format of timezone;
+  str[28] = str[27];
+  str[27] = str[26];
+  str[26] = ':';
+#endif
+
   _last_ts = std::move(str);
 }
 
