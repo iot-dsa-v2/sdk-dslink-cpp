@@ -15,6 +15,7 @@
 #include "remote_node/remote_root_node.h"
 #include "responder/node_state_manager.h"
 #include "util/app.h"
+#include "util/close_token.h"
 #include "web_server/web_server.h"
 
 namespace dsa {
@@ -59,13 +60,7 @@ void DsBroker::init(ModuleLoader& modules) {
   // init security manager
   strand->set_security_manager(modules.new_security_manager(*_app, strand));
 
-  try {
-    close_token = string_from_file(".close_token");
-    if (close_token.length() != 32)
-      throw std::runtime_error("Token is not have 32 length");
-  } catch (std::exception &e) {
-    close_token = "";
-  }
+  close_token = get_close_token_from_file();
 
   auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder

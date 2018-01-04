@@ -21,6 +21,7 @@
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
+#include "util/close_token.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
@@ -84,13 +85,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     }
   }
 
-  try {
-    close_token = string_from_file(".close_token");
-    if (close_token.length() != 32)
-      throw std::runtime_error("Token is not have 32 length");
-  } catch (std::exception &e) {
-    close_token = "";
-  }
+  close_token = get_close_token_from_file();
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
