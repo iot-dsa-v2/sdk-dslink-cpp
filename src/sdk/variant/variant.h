@@ -170,7 +170,7 @@ class Var : public BaseVariant {
   static Var from_msgpack(const uint8_t *data, size_t size);
   std::vector<uint8_t> to_msgpack() const throw(const EncodingError &);
 
-  static Var from_msgpack_pages(std::vector<BytesRef> pages);
+  static Var from_msgpack_pages(std::vector<BytesRef> &pages);
   std::vector<BytesRef> to_msgpack_pages(
       size_t first_page_size = MAX_PAGE_BODY_SIZE) const
       throw(const EncodingError &);

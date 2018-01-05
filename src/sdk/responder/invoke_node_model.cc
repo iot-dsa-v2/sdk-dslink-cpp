@@ -55,7 +55,7 @@ void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
         return;
       } else {
         // this is a paged message, callback should receive the first page
-        message.reset(message.get());
+        message.reset(static_cast<const InvokeRequestMessage *>(msg.get()));
       }
     }
 

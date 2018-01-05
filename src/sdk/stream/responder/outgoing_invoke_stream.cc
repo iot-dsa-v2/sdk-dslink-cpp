@@ -11,6 +11,9 @@ OutgoingInvokeStream::OutgoingInvokeStream(ref_<Session> &&session,
                                            const Path &path, uint32_t rid,
                                            ref_<InvokeRequestMessage> &&mesage)
     : MessageQueueStream(std::move(session), path, rid) {
+  if (mesage->get_page_id() < 0) {
+    _waiting_pages = make_ref_<IncomingPages>(mesage);
+  }
   _waiting_requests.emplace_back(std::move(mesage));
 }
 

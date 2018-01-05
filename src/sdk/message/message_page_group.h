@@ -45,14 +45,14 @@ class IncomingPages final : public EnableRef<IncomingPages> {
   int32_t _total_page;
   int32_t _waiting_page = 1;
 
-  MessageCRef _current;
+  MessageRef _current;
 
  public:
   const MessageCRef first;
 
-  IncomingPages(ref_<Message> &msg);
+  IncomingPages(const ref_<Message> &msg);
   // return true when message is accepted
-  bool check_add(ref_<Message> &msg);
+  bool check_add(const ref_<Message> &msg);
   // all message received
   bool is_ready() const { return _waiting_page >= _total_page; }
 };

@@ -17,17 +17,15 @@
 using namespace dsa;
 
 TEST(ResponderTest, Paged_Invoke_Request) {
-  return;
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
-  server_strand.strand->logger().level = Logger::ALL___;
   Var last_request;
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
       server_strand.strand,
-      [&, link = std::move(link) ](Var && v, SimpleInvokeNode & node,
-                                   OutgoingInvokeStream & stream) {
+      [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream) {
         last_request = std::move(v);
+        stream.close();
       });
 
   server_strand.strand->set_responder_model(ModelRef(root_node));
@@ -51,7 +49,7 @@ TEST(ResponderTest, Paged_Invoke_Request) {
   big_str2.resize(big_str_size);
   for (int32_t i = 0; i < big_str_size; ++i) {
     big_str1[i] = static_cast<char>(i % 26 + 'a');
-    big_str1[i] = static_cast<char>((i + 13) % 26 + 'a');
+    big_str2[i] = static_cast<char>((i + 13) % 26 + 'a');
   }
   auto first_request = make_ref_<InvokeRequestMessage>();
   first_request->set_value(Var(big_str1));
@@ -72,11 +70,13 @@ TEST(ResponderTest, Paged_Invoke_Request) {
   ASYNC_EXPECT_TRUE(500, *server_strand.strand,
                     [&]() -> bool { return !last_request.is_null(); });
   // received request option should be same as the original one
-  EXPECT_TRUE(last_request.to_string() == big_str1);
+  string_ s_result = last_request.to_string();
+
+  EXPECT_TRUE(s_result == big_str1);
 
   ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
-  EXPECT_TRUE(last_response->get_value().to_string() == "dsa");
+  EXPECT_TRUE(last_response->get_status() == MessageStatus::CLOSED);
 
   // close the invoke stream
   last_response.reset();

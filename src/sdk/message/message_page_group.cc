@@ -63,18 +63,19 @@ void OutgoingPages::drop() {
   _remain_size = 0;
 }
 
-IncomingPages::IncomingPages(ref_<Message>& msg)
+IncomingPages::IncomingPages(const ref_<Message>& msg)
     : _rid(msg->get_rid()),
       _sequence_id(msg->get_sequence_id()),
       _total_page(-msg->get_page_id()),
       first(msg),
       _current(msg) {}
 
-bool IncomingPages::check_add(ref_<Message>& msg) {
+bool IncomingPages::check_add(const ref_<Message>& msg) {
   if (msg->get_rid() != _rid || msg->get_sequence_id() != _sequence_id ||
       msg->get_page_id() != _waiting_page) {
     return false;
   }
+  _current->set_next_page(ref_<Message>(msg));
   ++_waiting_page;
   _current = msg;
   return true;
