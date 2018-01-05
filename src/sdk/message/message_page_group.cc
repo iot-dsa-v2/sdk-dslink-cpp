@@ -4,7 +4,7 @@
 
 namespace dsa {
 
-OutgoingPages::OutgoingPages(MessageCRef&& msg)
+OutgoingPages::OutgoingPages(MessageCRef &&msg)
     : Message(MessageType::PAGED),
       _rid(msg->get_rid()),
       _sequence_id(msg->get_sequence_id()),
@@ -12,7 +12,7 @@ OutgoingPages::OutgoingPages(MessageCRef&& msg)
       _next_send(std::move(msg)) {
   _remain_size = _next_send->size();
   if (_next_send->get_next_page() != nullptr) {
-    const Message* p = _next_send->get_next_page().get();
+    const Message *p = _next_send->get_next_page().get();
     do {
       ++_waiting_page;
       _remain_size += p->size();
@@ -28,7 +28,7 @@ int32_t OutgoingPages::next_size() const {
   return 0;
 }
 
-bool OutgoingPages::check_add(MessageCRef& msg) {
+bool OutgoingPages::check_add(MessageCRef &msg) {
   if (msg->get_rid() != _rid || msg->get_sequence_id() != _sequence_id ||
       msg->get_page_id() != _waiting_page) {
     return false;
@@ -63,21 +63,20 @@ void OutgoingPages::drop() {
   _remain_size = 0;
 }
 
-IncomingPages::IncomingPages(const ref_<Message>& msg)
+IncomingPagesMerger::IncomingPagesMerger(const ref_<Message> &msg)
     : _rid(msg->get_rid()),
       _sequence_id(msg->get_sequence_id()),
       _total_page(-msg->get_page_id()),
-      first(msg),
       _current(msg) {}
 
-bool IncomingPages::check_add(const ref_<Message>& msg) {
+bool IncomingPagesMerger::check_merge(const ref_<Message> &msg) {
   if (msg->get_rid() != _rid || msg->get_sequence_id() != _sequence_id ||
       msg->get_page_id() != _waiting_page) {
-    return false;
+    return true;  // return true when it's invalid
   }
   _current->set_next_page(ref_<Message>(msg));
   ++_waiting_page;
   _current = msg;
-  return true;
+  return _waiting_page >= _total_page;
 }
 }

@@ -24,8 +24,10 @@ class OutgoingInvokeStream final : public MessageQueueStream {
  protected:
   Callback _callback;
 
+  // messages received but not send to callback
   std::vector<ref_<InvokeRequestMessage> > _waiting_requests;
-  ref_<IncomingPages> _waiting_pages;
+  // paged message that's partially received
+  ref_<IncomingPagesMerger> _waiting_pages;
 
   void destroy_impl() final;
 
@@ -42,9 +44,6 @@ class OutgoingInvokeStream final : public MessageQueueStream {
   void close(MessageStatus status = MessageStatus::CLOSED);
 
   bool check_close_message(MessageCRef &message) final;
-
-  // return nullptr when page is not ready
-  MessageCRef get_first_page_when_ready();
 };
 }
 

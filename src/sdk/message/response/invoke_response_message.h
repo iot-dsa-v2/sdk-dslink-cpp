@@ -23,14 +23,15 @@ class InvokeResponseMessage final : public ResponseMessage {
 
   // measure the size and header size
   void update_static_header() final;
-  void print_headers(std::ostream &os) const final;
+  void print_headers(std::ostream& os) const final;
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const final;
   void parse_dynamic_data(const uint8_t* data, size_t dynamic_header_size,
                           size_t body_size) throw(const MessageParsingError&);
 
  public:
-  void set_value(const Var& value);
+  // return true when it's a multi-page message
+  bool set_value(const Var& value, int32_t sequence_id = 0);
   Var get_value() const;
 
   const bool get_skippable() const;

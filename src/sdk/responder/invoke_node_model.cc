@@ -44,47 +44,46 @@ SimpleInvokeNode::SimpleInvokeNode(LinkStrandRef &&strand,
 
 void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
                                  ref_<NodeState> &parent) {
-  stream->on_request(([this](OutgoingInvokeStream &s,
-                             ref_<const InvokeRequestMessage> &&message) {
-    if (message == nullptr) {
-      return;  // nullptr is for destroyed callback, no need to handle here
-    }
-    if (message->get_page_id() != 0) {
-      auto msg = s.get_first_page_when_ready();
-      if (msg == nullptr) {
-        return;
-      } else {
-        // this is a paged message, callback should receive the first page
-        message.reset(static_cast<const InvokeRequestMessage *>(msg.get()));
-      }
-    }
+  stream->on_request(
+      ([ this, paged_cache = ref_<IncomingPageCache<InvokeRequestMessage>>() ](
+          OutgoingInvokeStream & s,
+          ref_<const InvokeRequestMessage> && message) mutable {
+        if (message == nullptr) {
+          return;  // nullptr is for destroyed callback, no need to handle here
+        }
+        message = IncomingPageCache<InvokeRequestMessage>::get_first_page(
+            paged_cache, std::move(message));
+        if (message == nullptr) {
+          // paged message is not ready
+          return;
+        }
 
-    if (_simple_callback != nullptr) {
-      Var result = _simple_callback(message->get_value());
-      auto response = make_ref_<InvokeResponseMessage>();
+        if (_simple_callback != nullptr) {
+          Var result = _simple_callback(message->get_value());
+          auto response = make_ref_<InvokeResponseMessage>();
 
-      if (result.is_int()) {
-        // return int means status code
-        int64_t rslt_int = result.get_int();
-        if (rslt_int >= static_cast<int64_t>(MessageStatus::CLOSED) &&
-            rslt_int <= 0xFF) {
-          response->set_status(static_cast<MessageStatus>(rslt_int));
+          if (result.is_int()) {
+            // return int means status code
+            int64_t rslt_int = result.get_int();
+            if (rslt_int >= static_cast<int64_t>(MessageStatus::CLOSED) &&
+                rslt_int <= 0xFF) {
+              response->set_status(static_cast<MessageStatus>(rslt_int));
+            } else {
+              response->set_status(MessageStatus::CLOSED);
+            }
+          } else {
+            if (!result.is_null()) {
+              response->set_value(result);
+            }
+            response->set_status(MessageStatus::CLOSED);
+          }
+          s.send_response(std::move(response));
+        } else if (_full_callback != nullptr) {
+          // callback handles everything
+          _full_callback(message->get_value(), *this, s);
         } else {
-          response->set_status(MessageStatus::CLOSED);
+          s.close();
         }
-      } else {
-        if (!result.is_null()) {
-          response->set_value(result);
-        }
-        response->set_status(MessageStatus::CLOSED);
-      }
-      s.send_response(std::move(response));
-    } else if (_full_callback != nullptr) {
-      // callback handles everything
-      _full_callback(message->get_value(), *this, s);
-    } else {
-      s.close();
-    }
-  }));
+      }));
 }
 }

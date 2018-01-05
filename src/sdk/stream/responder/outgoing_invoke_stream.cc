@@ -12,7 +12,7 @@ OutgoingInvokeStream::OutgoingInvokeStream(ref_<Session> &&session,
                                            ref_<InvokeRequestMessage> &&mesage)
     : MessageQueueStream(std::move(session), path, rid) {
   if (mesage->get_page_id() < 0) {
-    _waiting_pages = make_ref_<IncomingPages>(mesage);
+    _waiting_pages = make_ref_<IncomingPagesMerger>(mesage);
   }
   _waiting_requests.emplace_back(std::move(mesage));
 }
@@ -26,14 +26,7 @@ void OutgoingInvokeStream::destroy_impl() {
 
 void OutgoingInvokeStream::receive_message(ref_<Message> &&mesage) {
   if (mesage != nullptr) {
-    if (mesage->get_page_id() < 0) {
-      _waiting_pages = make_ref_<IncomingPages>(mesage);
-    } else if (_waiting_pages != nullptr) {
-      if (!_waiting_pages->check_add(mesage)) {
-        // invalid page, drop the waiting pages
-        _waiting_pages = nullptr;
-      }
-    }
+    IncomingPagesMerger::check_merge(_waiting_pages, mesage);
   }
   if (_callback != nullptr) {
     _callback(*this, std::move(mesage));
@@ -41,12 +34,7 @@ void OutgoingInvokeStream::receive_message(ref_<Message> &&mesage) {
     _waiting_requests.emplace_back(std::move(mesage));
   }
 };
-MessageCRef OutgoingInvokeStream::get_first_page_when_ready() {
-  if (_waiting_pages != nullptr && _waiting_pages->is_ready()) {
-    return _waiting_pages->first;
-  }
-  return MessageCRef();
-}
+
 void OutgoingInvokeStream::on_request(Callback &&callback) {
   _callback = std::move(callback);
   if (_callback != nullptr && !_waiting_requests.empty()) {

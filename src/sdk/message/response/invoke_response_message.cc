@@ -15,11 +15,40 @@ InvokeResponseMessage::InvokeResponseMessage(const uint8_t* data, size_t size)
 InvokeResponseMessage::InvokeResponseMessage()
     : ResponseMessage(MessageType::INVOKE_RESPONSE) {}
 
-void InvokeResponseMessage::set_value(const Var& value) {
-  set_body(new RefCountBytes(value.to_msgpack()));
+
+bool InvokeResponseMessage::set_value(const Var& value, int32_t sequence_id) {
+  auto msgpack = value.to_msgpack();
+  if (msgpack.size() > Var::MAX_PAGE_BODY_SIZE) {
+    std::vector<BytesRef> pages = Var::split_pages(msgpack);
+    set_body(std::move(*pages.begin()));
+    set_page_id(-pages.size());
+    set_sequence_id(sequence_id);
+    auto* current = this;
+    for (int32_t i = 1; i < pages.size(); ++i) {
+      auto next = make_ref_<InvokeResponseMessage>();
+      next->set_body(std::move(pages[i]));
+      next->set_page_id(i);
+      next->set_sequence_id(sequence_id);
+      auto* p_next = next.get();
+      current->set_next_page(std::move(next));
+      current = p_next;
+    }
+    return true;
+  } else {
+    set_body(new RefCountBytes(std::move(msgpack)));
+    return false;
+  }
 }
 Var InvokeResponseMessage::get_value() const {
-  if (body != nullptr && !body->empty()) {
+  if (_next_page != nullptr && get_page_id() < 0) {
+    std::vector<BytesRef> pages;
+    const Message* current = this;
+    while (current != nullptr) {
+      pages.emplace_back(current->get_body());
+      current = current->get_next_page().get();
+    }
+    return Var::from_msgpack_pages(pages);
+  } else if (body != nullptr && !body->empty()) {
     return Var::from_msgpack(body->data(), body->size());
   }
   return Var();

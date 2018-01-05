@@ -6,6 +6,7 @@
 #endif
 
 #include "../message_io_stream.h"
+#include "message/message_page_group.h"
 
 namespace dsa {
 
@@ -20,6 +21,8 @@ class IncomingInvokeStream final : public MessageQueueStream {
 
  protected:
   Callback _callback;
+
+  ref_<IncomingPagesMerger> _waiting_pages;
 
  public:
   IncomingInvokeStream(ref_<Session>&& session, const Path& path, uint32_t rid,

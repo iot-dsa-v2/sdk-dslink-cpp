@@ -16,6 +16,7 @@ IncomingInvokeStream::IncomingInvokeStream(ref_<Session>&& session,
 
 void IncomingInvokeStream::receive_message(ref_<Message>&& mesage) {
   if (mesage->type() == MessageType::INVOKE_RESPONSE) {
+    IncomingPagesMerger::check_merge(_waiting_pages, mesage);
     if (_callback != nullptr) {
       if (DOWN_CAST<const InvokeResponseMessage*>(mesage.get())->get_status() >=
           MessageStatus::CLOSED) {
