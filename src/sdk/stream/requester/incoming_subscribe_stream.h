@@ -8,6 +8,7 @@
 #include "../message_io_stream.h"
 
 #include "message/message_options.h"
+#include "message/message_page_group.h"
 
 namespace dsa {
 
@@ -20,6 +21,8 @@ class IncomingSubscribeStream final : public MessageCacheStream {
       Callback;
 
  protected:
+  // paged message that's partially received
+  ref_<IncomingPagesMerger> _waiting_pages;
   Callback _callback;
   SubscribeOptions _options;
 

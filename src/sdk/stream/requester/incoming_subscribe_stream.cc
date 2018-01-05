@@ -16,6 +16,7 @@ IncomingSubscribeStream::IncomingSubscribeStream(ref_<Session>&& session,
 
 void IncomingSubscribeStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::SUBSCRIBE_RESPONSE) {
+    IncomingPagesMerger::check_merge(_waiting_pages, msg);
     if (_callback != nullptr) {
       _callback(*this, std::move(msg));
     }

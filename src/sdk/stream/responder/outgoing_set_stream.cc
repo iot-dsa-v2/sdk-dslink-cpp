@@ -21,6 +21,7 @@ void OutgoingSetStream::destroy_impl() {
 }
 
 void OutgoingSetStream::receive_message(ref_<Message> &&mesage) {
+  IncomingPagesMerger::check_merge(_waiting_pages, mesage);
   if (_callback != nullptr) {
     _callback(*this, std::move(mesage));
   } else {
@@ -35,12 +36,14 @@ void OutgoingSetStream::on_request(Callback &&callback) {
   }
 }
 
-void OutgoingSetStream::send_response(ref_<const SetResponseMessage> &&message) {
+void OutgoingSetStream::send_response(
+    ref_<const SetResponseMessage> &&message) {
   if (_closed) return;
   _closed = true;
   _callback = nullptr;
   if (message->get_status() < MessageStatus::CLOSED) {
-    LOG_ERROR(_session->get_strand()->logger(), LOG << "set response must have closed or error status");
+    LOG_ERROR(_session->get_strand()->logger(),
+              LOG << "set response must have closed or error status");
   }
   send_message(MessageCRef(std::move(message)), true);
 };

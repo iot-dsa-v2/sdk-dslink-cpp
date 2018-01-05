@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "../message_io_stream.h"
-
+#include "message/message_page_group.h"
 #include "message/response/set_response_message.h"
 
 namespace dsa {
@@ -20,6 +20,9 @@ class OutgoingSetStream final : public MessageCacheStream {
       Callback;
 
  protected:
+  // paged message that's partially received
+  ref_<IncomingPagesMerger> _waiting_pages;
+
   Callback _callback;
 
   ref_<SetRequestMessage> _waiting_request;
