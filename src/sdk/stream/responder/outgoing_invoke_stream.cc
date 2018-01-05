@@ -9,12 +9,12 @@ namespace dsa {
 
 OutgoingInvokeStream::OutgoingInvokeStream(ref_<Session> &&session,
                                            const Path &path, uint32_t rid,
-                                           ref_<InvokeRequestMessage> &&mesage)
+                                           ref_<InvokeRequestMessage> &&message)
     : MessageQueueStream(std::move(session), path, rid) {
-  if (mesage->get_page_id() < 0) {
-    _waiting_pages = make_ref_<IncomingPagesMerger>(mesage);
+  if (message->get_page_id() < 0) {
+    _waiting_pages = make_ref_<IncomingPagesMerger>(message);
   }
-  _waiting_requests.emplace_back(std::move(mesage));
+  _waiting_requests.emplace_back(std::move(message));
 }
 
 void OutgoingInvokeStream::destroy_impl() {
@@ -24,14 +24,14 @@ void OutgoingInvokeStream::destroy_impl() {
   MessageQueueStream::destroy_impl();
 }
 
-void OutgoingInvokeStream::receive_message(ref_<Message> &&mesage) {
-  if (mesage != nullptr) {
-    IncomingPagesMerger::check_merge(_waiting_pages, mesage);
+void OutgoingInvokeStream::receive_message(ref_<Message> &&message) {
+  if (message != nullptr) {
+    IncomingPagesMerger::check_merge(_waiting_pages, message);
   }
   if (_callback != nullptr) {
-    _callback(*this, std::move(mesage));
+    _callback(*this, std::move(message));
   } else {
-    _waiting_requests.emplace_back(std::move(mesage));
+    _waiting_requests.emplace_back(std::move(message));
   }
 };
 

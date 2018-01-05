@@ -14,15 +14,15 @@ IncomingInvokeStream::IncomingInvokeStream(ref_<Session>&& session,
     : MessageQueueStream(std::move(session), path, rid),
       _callback(std::move(callback)) {}
 
-void IncomingInvokeStream::receive_message(ref_<Message>&& mesage) {
-  if (mesage->type() == MessageType::INVOKE_RESPONSE) {
-    IncomingPagesMerger::check_merge(_waiting_pages, mesage);
+void IncomingInvokeStream::receive_message(ref_<Message>&& message) {
+  if (message->type() == MessageType::INVOKE_RESPONSE) {
+    IncomingPagesMerger::check_merge(_waiting_pages, message);
     if (_callback != nullptr) {
-      if (DOWN_CAST<const InvokeResponseMessage*>(mesage.get())->get_status() >=
+      if (DOWN_CAST<const InvokeResponseMessage*>(message.get())->get_status() >=
           MessageStatus::CLOSED) {
         _closed = true;
       }
-      _callback(*this, std::move(mesage));
+      _callback(*this, std::move(message));
     }
   }
 }

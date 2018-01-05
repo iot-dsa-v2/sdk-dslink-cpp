@@ -20,12 +20,12 @@ void OutgoingSetStream::destroy_impl() {
   }
 }
 
-void OutgoingSetStream::receive_message(ref_<Message> &&mesage) {
-  IncomingPagesMerger::check_merge(_waiting_pages, mesage);
+void OutgoingSetStream::receive_message(ref_<Message> &&message) {
+  IncomingPagesMerger::check_merge(_waiting_pages, message);
   if (_callback != nullptr) {
-    _callback(*this, std::move(mesage));
+    _callback(*this, std::move(message));
   } else {
-    _waiting_request = std::move(mesage);
+    _waiting_request = std::move(message);
   }
 };
 

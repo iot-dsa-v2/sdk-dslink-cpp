@@ -33,7 +33,7 @@ class OutgoingSubscribeStream final : public MessageQueueStream {
     _option_callback = callback;
   }
 
-  void receive_message(ref_<Message> &&mesage) final;
+  void receive_message(ref_<Message> &&message) final;
 
   void send_subscribe_response(
       ref_<const SubscribeResponseMessage> &&message) final {
