@@ -149,6 +149,7 @@ TEST(ResponderTest, Paged_Invoke_Response) {
   auto invoke_stream = tcp_client->get_session().requester.invoke(
       [&](IncomingInvokeStream &stream,
           ref_<const InvokeResponseMessage> &&msg) {
+        //cache the first response and last response
         if (first_response == nullptr) {
           first_response = msg;
         }

@@ -49,6 +49,9 @@ void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
           OutgoingInvokeStream & s,
           ref_<const InvokeRequestMessage> && message) mutable {
         if (message == nullptr) {
+          if (_full_callback != nullptr) {
+            _full_callback(Var(), *this, s);
+          }
           return;  // nullptr is for destroyed callback, no need to handle here
         }
         message = IncomingPageCache<InvokeRequestMessage>::get_first_page(
