@@ -9,10 +9,9 @@
 
 namespace dsa {
 
-class MessageValue {
- public:
-  enum : size_t { MAX_META_SIZE = 0x7FFF };
+class Message;
 
+class MessageValue {
  public:
   Var meta;
   Var value;
@@ -22,13 +21,13 @@ class MessageValue {
   explicit MessageValue(const Var& value);
   MessageValue(Var&& value);
 
-  MessageValue(const uint8_t* data, size_t size);
+  MessageValue(const Message* message);
 
   MessageValue(Var&& value, const string_& ts);
 
-  void parse(const uint8_t* data, size_t size);
-
-  BytesRef to_msgpack() const;
+  void parse(const Message* message);
+  template <class MessageClass>
+  bool write(MessageClass* message, int32_t sequence_id = 0) const;
 
   bool is_empty() const { return meta.is_null() && value.is_null(); }
   bool has_value() const { return !(value.is_null()); }

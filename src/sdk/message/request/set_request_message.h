@@ -34,7 +34,7 @@ class SetRequestMessage final : public RequestMessage {
 
  public:
   MessageValue get_value() const;
-  void set_value(MessageValue&& value);
+  void set_value(MessageValue&& value, int32_t sequence_id = 0);
 
   const string_& get_attribute_field() const;
   void set_attribute_field(const string_& value);

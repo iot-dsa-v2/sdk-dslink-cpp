@@ -155,13 +155,18 @@ std::vector<uint8_t> Var::to_msgpack() const throw(const EncodingError &) {
   throw EncodingError("Failed to pack Var to msgpack");
 }
 
-Var Var::from_msgpack_pages(std::vector<BytesRef> &pages) {
-  size_t len = 0;
+Var Var::from_msgpack_pages(std::vector<BytesRef> &pages,
+                            const uint8_t *extra_first_page,
+                            size_t first_size) {
+  size_t len = first_size;
   for (auto &page : pages) {
     len += page->size();
   }
   std::vector<uint8_t> data;
   data.reserve(len);
+  if (first_size) {
+    data.assign(extra_first_page, extra_first_page + first_size);
+  }
   for (auto &page : pages) {
     data.insert(data.end(), page->begin(), page->end());
   }

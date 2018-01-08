@@ -21,7 +21,7 @@ class SubscribeResponseMessage final : public ResponseMessage {
  public:
 
   MessageValue get_value() const;
-  void set_value(MessageValue&& value);
+  void set_value(MessageValue&& value, int32_t sequence_id = 0);
 
   MergeQueueResult merge_queue(ref_<const Message>& next) final;
 

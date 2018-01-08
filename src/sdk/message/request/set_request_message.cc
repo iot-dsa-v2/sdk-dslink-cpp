@@ -19,12 +19,9 @@ SetRequestMessage::SetRequestMessage(const string_& path, Var&& value)
   set_value(std::move(value));
 }
 
-MessageValue SetRequestMessage::get_value() const {
-  return MessageValue(body->data(), body->size());
-}
-void SetRequestMessage::set_value(MessageValue&& value) {
-  body = value.to_msgpack();
-
+MessageValue SetRequestMessage::get_value() const { return MessageValue(this); }
+void SetRequestMessage::set_value(MessageValue&& value, int32_t sequence_id) {
+  value.write(this, sequence_id);
   // invalidate message_size
   static_headers.message_size = 0;
 }

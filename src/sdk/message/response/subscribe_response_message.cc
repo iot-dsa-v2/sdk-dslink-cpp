@@ -22,10 +22,11 @@ SubscribeResponseMessage::SubscribeResponseMessage(Var&& value)
 }
 
 MessageValue SubscribeResponseMessage::get_value() const {
-  return MessageValue(body->data(), body->size());
+  return MessageValue(this);
 }
-void SubscribeResponseMessage::set_value(MessageValue&& value) {
-  body = value.to_msgpack();
+void SubscribeResponseMessage::set_value(MessageValue&& value,
+                                         int32_t sequence_id) {
+  value.write(this, sequence_id);
 
   // invalidate message_size
   static_headers.message_size = 0;
