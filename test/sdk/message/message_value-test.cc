@@ -54,8 +54,11 @@ TEST(MessageValueTest, Constructor_01) {
                &sbuf.data[sbuf.size]);
     msgpack_sbuffer_destroy(&sbuf);
   }
+  // not a valid SUBSCRIBE_RESPONSE message, but is enough for this test
+  ResponseMessage msg(MessageType::SUBSCRIBE_RESPONSE);
+  msg.set_body(new RefCountBytes(std::move(buf)));
 
-  MessageValue mv(buf.data(), buf.size());
+  MessageValue mv(&msg);
 
   EXPECT_TRUE(mv.meta.is_string());
   EXPECT_EQ("timestamp", mv.meta.get_string());
