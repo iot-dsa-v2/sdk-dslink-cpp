@@ -33,6 +33,9 @@ bool InvokeResponseMessage::set_value(const Var& value, int32_t sequence_id) {
       current->set_next_page(std::move(next));
       current = p_next;
     }
+    // move the status to the last
+    current->set_status(get_status());
+    set_status(MessageStatus::OK);
     return true;
   } else {
     set_body(new RefCountBytes(std::move(msgpack)));

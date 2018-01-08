@@ -27,7 +27,8 @@ class MessageValue {
 
   void parse(const Message* message);
   template <class MessageClass>
-  bool write(MessageClass* message, int32_t sequence_id = 0) const;
+  // if message is paged return last page, otherwise return nullptr
+  MessageClass* write(MessageClass* message, int32_t sequence_id = 0) const;
 
   bool is_empty() const { return meta.is_null() && value.is_null(); }
   bool has_value() const { return !(value.is_null()); }

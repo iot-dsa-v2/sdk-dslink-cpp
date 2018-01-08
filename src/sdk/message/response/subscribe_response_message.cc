@@ -26,7 +26,12 @@ MessageValue SubscribeResponseMessage::get_value() const {
 }
 void SubscribeResponseMessage::set_value(MessageValue&& value,
                                          int32_t sequence_id) {
-  value.write(this, sequence_id);
+  SubscribeResponseMessage* last_page = value.write(this, sequence_id);
+  if (last_page != nullptr) {
+    // move the status to the last page
+    last_page->set_status(get_status());
+    set_status(MessageStatus::OK);
+  }
 
   // invalidate message_size
   static_headers.message_size = 0;

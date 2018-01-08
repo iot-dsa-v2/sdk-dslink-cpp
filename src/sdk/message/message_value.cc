@@ -52,7 +52,8 @@ void MessageValue::parse(const Message* message) {
   }
 }
 template <class MessageClass>
-bool MessageValue::write(MessageClass* message, int32_t sequence_id) const {
+MessageClass* MessageValue::write(MessageClass* message,
+                                  int32_t sequence_id) const {
   std::vector<uint8_t> meta_bytes;
   std::vector<uint8_t> value_bytes;
 
@@ -64,8 +65,8 @@ bool MessageValue::write(MessageClass* message, int32_t sequence_id) const {
     meta_bytes = meta.to_msgpack();
   }
 
-  // return false for single page
-  bool result = false;
+  // return nullptr for single page
+  MessageClass* result = nullptr;
 
   if (value_bytes.size() + meta_bytes.size() + 2 > Var::MAX_PAGE_BODY_SIZE) {
     if (meta_bytes.size() > Var::MAX_PAGE_BODY_SIZE) {
@@ -76,17 +77,16 @@ bool MessageValue::write(MessageClass* message, int32_t sequence_id) const {
     // update value_bytes to reuse same logic to encode first page
     value_bytes = std::move(const_cast<RefCountBytes&>(*pages[0]));
 
-    MessageClass* current = message;
+    MessageClass* result = message;
     for (int32_t i = 1; i < pages.size(); ++i) {
       auto next = make_ref_<MessageClass>();
       next->set_body(std::move(pages[i]));
       next->set_page_id(i);
       next->set_sequence_id(sequence_id);
       auto* p_next = next.get();
-      current->set_next_page(std::move(next));
-      current = p_next;
+      result->set_next_page(std::move(next));
+      result = p_next;
     }
-    result = true;
   }
 
   auto merged = new RefCountBytes();
