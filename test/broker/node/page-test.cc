@@ -45,7 +45,7 @@ TEST(BrokerPageTest, Invoke_Request) {
   }
 
   auto broker = create_broker();
-  broker->strand->logger().level = Logger::ALL___;
+
   shared_ptr_<App>& app = broker->get_app();
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);

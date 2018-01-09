@@ -27,14 +27,12 @@ class Responder {
 
   std::unordered_map<int32_t, ref_<MessageStream> > _outgoing_streams;
 
-  void on_invoke_request(ref_<InvokeRequestMessage> &&request,
-                         PermissionLevel permission_level);
-  void on_list_request(ref_<ListRequestMessage> &&request,
-                       PermissionLevel permission_level);
-  void on_set_request(ref_<SetRequestMessage> &&request,
-                      PermissionLevel permission_level);
-  void on_subscribe_request(ref_<SubscribeRequestMessage> &&request,
-                            PermissionLevel permission_level);
+  ref_<OutgoingInvokeStream> on_invoke_request(
+      ref_<InvokeRequestMessage> &&request);
+  ref_<OutgoingListStream> on_list_request(ref_<ListRequestMessage> &&request);
+  ref_<OutgoingSetStream> on_set_request(ref_<SetRequestMessage> &&request);
+  ref_<OutgoingSubscribeStream> on_subscribe_request(
+      ref_<SubscribeRequestMessage> &&request);
 
   void receive_message(ref_<Message> &&message);
 
@@ -47,8 +45,7 @@ class Responder {
   // even the reconnection happens, it won't reuse cached stream
   void connection_changed();
 
-
-public:
+ public:
   explicit Responder(Session &session);
 
   bool destroy_stream(int32_t rid);
