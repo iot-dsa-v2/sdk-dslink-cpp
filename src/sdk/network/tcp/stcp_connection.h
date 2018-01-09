@@ -45,7 +45,7 @@ class StcpConnection : public BaseSocketConnection {
                  const string_ &dsid_prefix, const string_ &path = "");
 
   void start_read(shared_ptr_<Connection> &&connection, size_t cur = 0,
-                  size_t next = 0) override;
+                  size_t next = 0) final;
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
 
