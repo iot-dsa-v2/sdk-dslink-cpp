@@ -22,6 +22,7 @@ class OutgoingListStream final : public MessageRefedStream {
   std::unordered_map<string_, ref_<VarBytes>> _cached_map;
   size_t _next_size;
 
+  bool _status_changed = false;
   MessageStatus _status = MessageStatus::INITIALIZING;
   bool _refreshed = true;
 

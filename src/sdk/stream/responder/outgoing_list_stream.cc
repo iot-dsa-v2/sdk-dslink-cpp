@@ -31,6 +31,7 @@ void OutgoingListStream::update_list_value(const string_ &key,
 }
 void OutgoingListStream::update_response_status(MessageStatus status) {
   if (_status != status) {
+    _status_changed = true;
     _status = status;
     post_message();
   }
@@ -44,7 +45,7 @@ void OutgoingListStream::update_list_pub_path(const string_ &path) {
 }
 size_t OutgoingListStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
-  if (_cached_map.empty() && _status == MessageStatus::OK) return 0;
+  if (_cached_map.empty() && !_status_changed) return 0;
 
   size_t size = StaticHeaders::TOTAL_SIZE;
 

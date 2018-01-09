@@ -38,11 +38,13 @@ boost::asio::io_context& LinkStrand::get_io_context() {
       ->get_io_context();
 }
 void LinkStrand::post(std::function<void()>&& callback) {
-  static_cast<boost::asio::io_context::strand*>(__strand)->post(callback);
+  static_cast<boost::asio::io_context::strand*>(__strand)->post(
+      std::move(callback));
 }
 
 void LinkStrand::dispatch(std::function<void()>&& callback) {
-  static_cast<boost::asio::io_context::strand*>(__strand)->dispatch(callback);
+  static_cast<boost::asio::io_context::strand*>(__strand)->dispatch(
+      std::move(callback));
 }
 
 ref_<StrandTimer> LinkStrand::add_timer(int32_t interval_ms,
