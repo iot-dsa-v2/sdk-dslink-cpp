@@ -12,7 +12,7 @@ else()
     set(CMAKE_CXX_STANDARD 11)
 endif ()
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDSA_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DSA_DEBUG")
 
 if (CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=return-type -Wno-deprecated")
@@ -37,6 +37,12 @@ set(SDK_PROJECT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 option(INCLUDE_BROKER "build dsa broker" ON)
 
 option(INCLUDE_MODULE_PACK "Include set additional modules" OFF)
+
+option(DSA_STRAND_CHECK "check the thread safty of strand" OFF)
+if(DSA_STRAND_CHECK)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DSA_STRAND_CHECK")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DSA_STRAND_CHECK")
+endif()
 
 # DEPENDENCIES
 # Boost 1.66.0

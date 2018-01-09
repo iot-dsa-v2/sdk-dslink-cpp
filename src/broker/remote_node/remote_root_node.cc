@@ -11,7 +11,7 @@ RemoteRootNode::RemoteRootNode(LinkStrandRef &&strand, ref_<Session> &&session)
     : RemoteNode(std::move(strand), "", std::move(session)) {}
 RemoteRootNode::~RemoteRootNode() = default;
 
-//void RemoteRootNode::on_session(Session &session,
+// void RemoteRootNode::on_session(Session &session,
 //                                const shared_ptr_<Connection> &connection) {
 //
 //}
@@ -40,7 +40,9 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
         _list_cache.clear();
         send_all_override_metas();
       }
-      _state->update_response_status(msg->get_status());
+
+      _list_status_cache = (msg->get_status());
+      _state->update_response_status(_list_status_cache);
 
       for (auto &it : msg->get_map()) {
         if (it.first.empty()) return;
@@ -56,6 +58,7 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
     for (auto &it : _list_cache) {
       stream.update_list_value(it.first, it.second);
     }
+    stream.update_response_status(_list_status_cache);
   }
 }
 
