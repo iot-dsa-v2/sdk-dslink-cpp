@@ -19,7 +19,8 @@ OutgoingInvokeStream::OutgoingInvokeStream(ref_<Session> &&session,
 
 void OutgoingInvokeStream::destroy_impl() {
   if (_callback != nullptr) {
-    std::move(_callback)(*this, ref_<InvokeRequestMessage>());
+    _callback(*this, ref_<InvokeRequestMessage>());
+    _callback= nullptr;
   }
   MessageQueueStream::destroy_impl();
 }

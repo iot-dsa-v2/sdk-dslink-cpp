@@ -20,7 +20,8 @@ void OutgoingListStream::on_list_close(ListCloseCallback &&callback) {
 
 void OutgoingListStream::destroy_impl() {
   if (_close_callback != nullptr) {
-    std::move(_close_callback)(*this);
+    _close_callback(*this);
+    _close_callback= nullptr;
   };
 }
 

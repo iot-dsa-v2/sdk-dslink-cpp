@@ -108,7 +108,7 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
   }
 }
 void RemoteNode::on_unlist() {
-  if (_remote_subscribe_stream != nullptr) {
+  if (_remote_list_stream != nullptr) {
     _remote_list_stream->close();
     _remote_list_stream.reset();
   }
