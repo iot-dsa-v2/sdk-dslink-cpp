@@ -81,7 +81,7 @@ class MessageCacheStream : public MessageRefedStream {
 class MessageQueueStream : public MessageRefedStream {
  public:
   enum : int32_t {
-    DEFAULT_MAX_QUEUE_SIZE = 0x100000,  // 1MB
+    DEFAULT_MAX_QUEUE_SIZE = 0x10000,  // 64K
     DEFAULT_MAX_QUEUE_TIME = 120
   };
 

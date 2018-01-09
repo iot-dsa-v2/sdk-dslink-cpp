@@ -100,7 +100,7 @@ void MessageQueueStream::destroy_impl() {
   MessageRefedStream::destroy_impl();
 }
 
-inline void MessageQueueStream::purge() {
+void MessageQueueStream::purge() {
   if (_queue.size() > 2) {
     if (_queue.size() == 3) {
       // remove the one in the middle
