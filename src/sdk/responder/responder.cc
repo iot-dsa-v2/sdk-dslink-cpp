@@ -95,7 +95,7 @@ void Responder::receive_message(ref_<Message> &&message) {
   switch (message->type()) {
     case MessageType::INVOKE_REQUEST: {
       auto stream =
-          on_invoke_request(ref_<InvokeRequestMessage>(std::move(message)));
+          on_invoke_request(ref_<InvokeRequestMessage>(message->get_ref()));
       callback = [stream, this](PermissionLevel permission_level) mutable {
         // it's possible stream is closed before permission check
         if (stream->is_destroyed()) return;
@@ -116,7 +116,7 @@ void Responder::receive_message(ref_<Message> &&message) {
     }
     case MessageType::SUBSCRIBE_REQUEST: {
       auto stream = on_subscribe_request(
-          ref_<SubscribeRequestMessage>(std::move(message)));
+          ref_<SubscribeRequestMessage>(message->get_ref()));
       callback = [stream, this](PermissionLevel permission_level) mutable {
         // it's possible stream is closed before permission check
         if (stream->is_destroyed()) return;
@@ -137,7 +137,7 @@ void Responder::receive_message(ref_<Message> &&message) {
     }
     case MessageType::LIST_REQUEST: {
       auto stream =
-          on_list_request(ref_<ListRequestMessage>(std::move(message)));
+          on_list_request(ref_<ListRequestMessage>(message->get_ref()));
       callback = [stream, this](PermissionLevel permission_level) mutable {
         // it's possible stream is closed before permission check
         if (stream->is_destroyed()) return;
@@ -155,7 +155,7 @@ void Responder::receive_message(ref_<Message> &&message) {
       break;
     }
     case MessageType::SET_REQUEST: {
-      auto stream = on_set_request(ref_<SetRequestMessage>(std::move(message)));
+      auto stream = on_set_request(ref_<SetRequestMessage>(message->get_ref()));
       callback = [stream, this](PermissionLevel permission_level) mutable {
         // it's possible stream is closed before permission check
         if (stream->is_destroyed()) return;
