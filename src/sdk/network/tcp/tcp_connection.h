@@ -7,26 +7,17 @@
 
 #include <boost/asio/ip/tcp.hpp>
 
-#include "../connection.h"
-#include "crypto/handshake_context.h"
-#include "message/base_message.h"
+#include "../base_socket_connection.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
-class TcpServer;
-class Client;
 
 typedef boost::asio::ip::tcp::socket tcp_socket;
 
-// Base TCP connection. Used for DSA connections over TCP.
+// TCP connection. Used for DSA connections over TCP.
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.
-class TcpConnection : public Connection {
-  // write buffer will have 2/32 unusable part by default
-  // which seems to improve the performance
-  static const size_t DEFAULT_BUFFER_SIZE = 8196;
-  static const size_t MAX_BUFFER_SIZE = DEFAULT_BUFFER_SIZE * 15;
-
+class TcpConnection : public BaseSocketConnection {
   class WriteBuffer : public ConnectionWriteBuffer {
     TcpConnection &connection;
     size_t size = 0;
@@ -40,19 +31,10 @@ class TcpConnection : public Connection {
   };
 
  protected:
-  void read_loop_(shared_ptr_<Connection> &&connection, size_t from_prev,
-                  const boost::system::error_code &error,
-                  size_t bytes_transferred);
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
     start_read(std::move(sthis));
   }
-  std::vector<uint8_t> _read_buffer;
-  std::vector<uint8_t> _write_buffer;
   tcp_socket _socket;
-  std::atomic_bool _socket_open{true};
-
-  void on_deadline_timer_(const boost::system::error_code &error,
-                          shared_ptr_<Connection> &&sthis);
 
   void destroy_impl() override;
 
@@ -61,7 +43,7 @@ class TcpConnection : public Connection {
                 const string_ &path = "");
 
   void start_read(shared_ptr_<Connection> &&connection, size_t cur = 0,
-                  size_t next = 0);
+                  size_t next = 0) override;
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
 
