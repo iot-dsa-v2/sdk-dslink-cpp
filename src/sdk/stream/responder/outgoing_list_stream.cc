@@ -80,6 +80,7 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   if (_status != MessageStatus::OK) {
     message->set_status(_status);
   }
+  _status_changed = false;
   if (_refreshed) {
     message->set_refreshed(true);
     _refreshed = false;
