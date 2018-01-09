@@ -62,6 +62,7 @@ void NodeModel::initialize() {
 void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
   send_props_list(stream);
   send_children_list(stream);
+  stream.update_response_status(MessageStatus::OK);
 }
 
 void NodeModel::on_subscribe(const SubscribeOptions &options,
