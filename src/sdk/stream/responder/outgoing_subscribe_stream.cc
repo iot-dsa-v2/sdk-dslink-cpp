@@ -28,24 +28,24 @@ void OutgoingSubscribeStream::check_queue_time(int64_t time) {
   if (_queue.size() <= 1) return;
 
   int64_t target_time = time - _max_queue_duration;
-  for (auto it = _queue.begin(); it != _queue.end(); ++it) {
+  for (auto it = _queue.begin(); it != _queue.end(); ) {
     if ((*it)->created_ts >= target_time) {
-      // clear all the data from the begin of the queue
-      _queue.erase(_queue.begin(), it);
       _current_queue_time = (*it)->created_ts;
       return;
     }
     _current_queue_size -= (*it)->size();
+    ++it;
+    _queue.pop_front();
   }
   // all message before target time, but still need to keep the last one
   purge();
 }
 void OutgoingSubscribeStream::check_queue_size() {
-  for (auto it = _queue.begin(); it != _queue.end(); ++it) {
+  for (auto it = _queue.begin(); it != _queue.end();) {
     _current_queue_size -= (*it)->size();
+    ++it;
+    _queue.pop_front();
     if (_current_queue_size <= _max_queue_size) {
-      // clear all the data from the begin of the queue
-      _queue.erase(_queue.begin(), ++it);
       if (it != _queue.end()) {
         _current_queue_time = (*it)->created_ts;
       }
