@@ -43,7 +43,7 @@ void DsBroker::init(ModuleLoader& modules) {
   tcp_server_port =
       static_cast<uint16_t>(_config->port().get_value().get_int());
   tcp_secure_port =
-      static_cast<uint16_t>(_config->secure_port().get_value().get_int());
+      static_cast<int32_t>(_config->secure_port().get_value().get_int());
   uint16_t http_port =
       static_cast<uint16_t>(_config->http_port().get_value().get_int());
   uint16_t https_port =

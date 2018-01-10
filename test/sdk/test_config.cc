@@ -22,6 +22,7 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async)
   strand = EditableStrand::make_default(app);
 
   tcp_server_port = 0;
+  //tcp_secure_port = 4128;
 }
 
 WrapperStrand TestConfig::get_client_wrapper_strand() {
@@ -56,7 +57,8 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
   }
 
   std::string address =
-      std::string("127.0.0.1:") + std::to_string(tcp_server_port);
+        std::string("ds://127.0.0.1:") + std::to_string(tcp_server_port);
+//        std::string("dss://127.0.0.1:") + std::to_string(tcp_secure_port);
 
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
@@ -69,6 +71,7 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
 std::shared_ptr<TcpServer> TestConfig::create_server() {
   auto tcp_server = std::make_shared<TcpServer>(*this);
   tcp_server_port = tcp_server->get_port();
+  tcp_secure_port = tcp_server->get_secure_port();
   return tcp_server;
 }
 

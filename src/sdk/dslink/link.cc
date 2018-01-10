@@ -14,6 +14,7 @@
 #include "module/default/dummy_stream_acceptor.h"
 #include "module/default/simple_security_manager.h"
 #include "module/default/simple_session_manager.h"
+#include "network/tcp/stcp_client_connection.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_client_connection.h"
@@ -232,7 +233,23 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
 
     if (tcp_port > 0) {
       if (secure) {
-        // TODO implement secure client
+        static boost::asio::ssl::context context(
+            boost::asio::ssl::context::sslv23);
+        boost::system::error_code error;
+        context.load_verify_file("certificate.pem", error);
+        if (error) {
+          LOG_FATAL(LOG << "Failed to verify cetificate");
+        }
+
+        client_connection_maker =
+            [
+              &context, dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+              tcp_port = tcp_port
+            ](LinkStrandRef & strand, const string_ &previous_session_id,
+              int32_t last_ack_id) {
+          return make_shared_<StcpClientConnection>(
+              strand, context, dsid_prefix, tcp_host, tcp_port);
+        };
       } else {
         client_connection_maker =
             [
