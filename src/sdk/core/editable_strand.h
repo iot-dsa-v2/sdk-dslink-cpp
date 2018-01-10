@@ -66,7 +66,7 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
   // server features
   string_ server_host{"0.0.0.0"};
   uint16_t tcp_server_port{0};
-  int16_t tcp_secure_port{-1};
+  int32_t tcp_secure_port{-1};
 
   // client features
   bool secure = false;
