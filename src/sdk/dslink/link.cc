@@ -243,7 +243,7 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
 
         client_connection_maker =
             [
-              &context, dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+              dsid_prefix = dsid_prefix, tcp_host = tcp_host,
               tcp_port = tcp_port
             ](LinkStrandRef & strand, const string_ &previous_session_id,
               int32_t last_ack_id) {
