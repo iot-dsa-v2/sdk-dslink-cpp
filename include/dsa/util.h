@@ -3,6 +3,7 @@
 
 #include "dsa_common.h"
 #include "util/buffer.h"
+#include "util/certificate.h"
 #include "util/enable_shared.h"
 #include "util/date_time.h"
 #include "util/little_endian.h"
