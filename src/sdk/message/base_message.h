@@ -36,6 +36,11 @@ class Message : public EnableRef<Message> {
   static const uint8_t SALT_LENGTH = 32;
   static const uint8_t AUTH_LENGTH = 32;
 
+  // when set to true, all value will be decoded in the reading thread
+  // this would improve the performance when running in multi-thread mode
+  // not applicable for broker, because broker doesn't need all value
+  static bool decode_all;
+
  public:
   static ref_<Message> parse_message(const uint8_t* data, size_t size) throw(
       const MessageParsingError&);

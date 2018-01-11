@@ -8,6 +8,9 @@ SetRequestMessage::SetRequestMessage(const uint8_t* data, size_t size)
   parse_dynamic_data(data + StaticHeaders::TOTAL_SIZE,
                      static_headers.header_size - StaticHeaders::TOTAL_SIZE,
                      size - static_headers.header_size);
+  if (decode_all && get_page_id() == 0) {
+    _cached_value.reset(new MessageValue(this));
+  }
 }
 
 SetRequestMessage::SetRequestMessage()
@@ -19,7 +22,14 @@ SetRequestMessage::SetRequestMessage(const string_& path, Var&& value)
   set_value(std::move(value));
 }
 
-MessageValue SetRequestMessage::get_value() const { return MessageValue(this); }
+MessageValue SetRequestMessage::get_value() const {
+  if (_cached_value != nullptr) {
+    MessageValue result = std::move(*_cached_value);
+    _cached_value.reset();
+    return std::move(result);
+  }
+  return MessageValue(this);
+}
 void SetRequestMessage::set_value(MessageValue&& value, int32_t sequence_id) {
   value.write(this, sequence_id);
   // invalidate message_size

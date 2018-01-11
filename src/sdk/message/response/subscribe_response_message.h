@@ -26,6 +26,8 @@ class SubscribeResponseMessage final : public ResponseMessage {
   MergeQueueResult merge_queue(ref_<const Message>& next) final;
 
  protected:
+  mutable std::unique_ptr<MessageValue> _cached_value;
+
   // measure the size and header size
   void update_static_header() final;
   void print_headers(std::ostream &os) const final;

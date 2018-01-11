@@ -22,6 +22,7 @@ class SetRequestMessage final : public RequestMessage {
   std::unique_ptr<DynamicStringHeader> attribute_field;
 
  protected:
+  mutable std::unique_ptr<MessageValue> _cached_value;
   // measure the size and header size
   void update_static_header() final;
   void print_headers(std::ostream &os) const final;

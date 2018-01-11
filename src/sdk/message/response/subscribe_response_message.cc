@@ -11,6 +11,9 @@ SubscribeResponseMessage::SubscribeResponseMessage(const uint8_t* data,
   parse_dynamic_data(data + StaticHeaders::TOTAL_SIZE,
                      static_headers.header_size - StaticHeaders::TOTAL_SIZE,
                      size - static_headers.header_size);
+  if (decode_all && get_page_id() == 0) {
+    _cached_value.reset(new MessageValue(this));
+  }
 }
 
 SubscribeResponseMessage::SubscribeResponseMessage()
@@ -22,6 +25,11 @@ SubscribeResponseMessage::SubscribeResponseMessage(Var&& value)
 }
 
 MessageValue SubscribeResponseMessage::get_value() const {
+  if (_cached_value != nullptr) {
+    MessageValue result = std::move(*_cached_value);
+    _cached_value.reset();
+    return std::move(result);
+  }
   return MessageValue(this);
 }
 void SubscribeResponseMessage::set_value(MessageValue&& value,

@@ -146,6 +146,10 @@ void DsLink::parse_thread(size_t thread) {
   } else if (thread > 16) {
     thread = 16;
   }
+  if (thread > 1) {
+    // decode values in reading thread to improve multi-thread performance
+    Message::decode_all = true;
+  }
   _app.reset(new App(thread));
 }
 void DsLink::parse_url(const string_ &url) {

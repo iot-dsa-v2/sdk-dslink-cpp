@@ -9,6 +9,8 @@
 #include "variant/variant.h"
 
 namespace dsa {
+bool Message::decode_all = false;
+
 Message::Message(const uint8_t* data, size_t size)
     : static_headers(data), created_ts(std::time(nullptr)){};
 Message::Message(MessageType type)

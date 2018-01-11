@@ -84,8 +84,6 @@ int main(int argc, const char* argv[]) {
        "Number of Points per Client")  //
       ("num-message,n", opts::value<int>()->default_value(10),
        "Message per second per Point")  //
-      ("encode-value,e", opts::bool_switch(),
-       "Encode value before sending")  //
       ("decode-value,d", opts::bool_switch(),
        "Decode value after receiving")  //
       ;
@@ -102,8 +100,7 @@ int main(int argc, const char* argv[]) {
   int client_count = variables["client"].as<int>();
   int point_count = variables["point"].as<int>();
   int num_message = variables["num-message"].as<int>();
-  bool encode_value = variables["encode-value"].as<bool>();
-  bool decode_value = variables["decode-value"].as<bool>();
+  Message::decode_all = variables["decode-value"].as<bool>();
 
   auto app = std::make_shared<App>(8);
 
