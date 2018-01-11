@@ -11,6 +11,7 @@
 #include "network/tcp/tcp_server.h"
 #include "util/date_time.h"
 
+#include <math.h>
 #include <atomic>
 
 #include <boost/program_options.hpp>
@@ -25,14 +26,16 @@ using namespace dsa;
 namespace broker_benchmark {
 
 class BenchmarkNodeValue : public NodeModel {
-public:
+ public:
   explicit BenchmarkNodeValue(LinkStrandRef strand)
-    : NodeModel(std::move(strand)){};
+      : NodeModel(std::move(strand)) {
+    update_property("$type", Var("number"));
+  };
 };
 class BenchmarkNodeRoot : public NodeModel {
-public:
+ public:
   explicit BenchmarkNodeRoot(LinkStrandRef strand, int num_point)
-    : NodeModel(std::move(strand)) {
+      : NodeModel(std::move(strand)) {
     for (int i = 0; i < num_point; ++i) {
       add_list_child("v" + std::to_string(i),
                      make_ref_<BenchmarkNodeValue>(_strand));
@@ -58,15 +61,15 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
 
   client_strand.strand = EditableStrand::make_default(app);
   client_strand.client_connection_maker =
-    [
-      dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-      tcp_port = client_strand.tcp_port
-    ](LinkStrandRef & strand, const string_& previous_session_id,
-      int32_t last_ack_id)
-      ->shared_ptr_<Connection> {
-      return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                               tcp_port);
-    };
+      [
+        dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+        tcp_port = client_strand.tcp_port
+      ](LinkStrandRef & strand, const string_& previous_session_id,
+        int32_t last_ack_id)
+          ->shared_ptr_<Connection> {
+    return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
+                                             tcp_port);
+  };
   return std::move(client_strand);
 }
 
@@ -75,17 +78,17 @@ int main(int argc, const char* argv[]) {
 
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
-    ("client,c", opts::value<int>()->default_value(2),
-     "Number of Clients")  //
-    ("point,p", opts::value<int>()->default_value(2),
-     "Number of Points per Client")  //
-    ("num-message,n", opts::value<int>()->default_value(100),
-     "Message per second per Point")  //
-    ("encode-value,e", opts::bool_switch(),
-     "Encode value before sending")  //
-    ("decode-value,d", opts::bool_switch(),
-     "Decode value after receiving")  //
-    ;
+      ("client,c", opts::value<int>()->default_value(1),
+       "Number of Clients")  //
+      ("point,p", opts::value<int>()->default_value(1),
+       "Number of Points per Client")  //
+      ("num-message,n", opts::value<int>()->default_value(1),
+       "Message per second per Point")  //
+      ("encode-value,e", opts::bool_switch(),
+       "Encode value before sending")  //
+      ("decode-value,d", opts::bool_switch(),
+       "Decode value after receiving")  //
+      ;
 
   opts::variables_map variables;
   opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -115,7 +118,7 @@ int main(int argc, const char* argv[]) {
     message_receive_count.emplace_back(0);
 
     WrapperStrand strand =
-      get_client_wrapper_strand(app, "benchmark" + std::to_string(i));
+        get_client_wrapper_strand(app, "benchmark" + std::to_string(i));
     auto client = make_shared_<Client>(strand);
     auto root_node = make_ref_<BenchmarkNodeRoot>(strand.strand, point_count);
     root_nodes.emplace_back(root_node);
@@ -123,8 +126,8 @@ int main(int argc, const char* argv[]) {
     clients.emplace_back(client);
 
     client->connect([
-                      =, &count = message_receive_count[i], &client = clients[i]
-                    ](const shared_ptr_<Connection>&) {
+      =, &count = message_receive_count[i], &client = clients[i]
+    ](const shared_ptr_<Connection>&) {
 
       SubscribeOptions options;
       options.qos = QosLevel::_1;
@@ -133,10 +136,10 @@ int main(int argc, const char* argv[]) {
         for (int b = 0; b < point_count; ++b) {
           string_ point_path = node_path + "/v" + std::to_string(b);
           client->get_session().requester.subscribe(
-            point_path,
-            [&count](IncomingSubscribeStream&,
-                     ref_<const SubscribeResponseMessage>&&) { ++count; },
-            options);
+              point_path,
+              [&count](IncomingSubscribeStream&,
+                       ref_<const SubscribeResponseMessage>&&) { ++count; },
+              options);
         }
       }
     });
@@ -154,41 +157,39 @@ int main(int argc, const char* argv[]) {
   boost::posix_time::milliseconds interval(interval_ms);
   boost::asio::deadline_timer timer(app->io_service(), interval);
 
-  
-
   int64_t last_count = 0;
   int64_t last_time = DateTime::time_since_epoch();
   std::function<void(const boost::system::error_code&)> timer_callback =
-    [&](const boost::system::error_code& error) {
-      try {
-        int64_t current_time = DateTime::time_since_epoch();
-        int64_t count = 0;
-        for (int i = 0; i < client_count; ++i) {
-          count += message_receive_count[i];
-        }
-        if (current_time - last_time > 1000) {
-          std::cout << std::endl
-                    << "per second: "
-                    << (count - last_count) * 1000 / (current_time - last_time)
-                    << " total: " << count;
-          last_time = current_time;
-          last_count = count;
-        }
-        for (int i = 0; i < client_count; ++i) {
-          strands[i]->dispatch([&,i]() {
-            auto& node = root_nodes[i];
-            for (int j = 0; j < msg_per_interval; ++j) {
-              node->new_value();
-            }
-          });
-        }
+      [&](const boost::system::error_code& error) {
+        try {
+          int64_t current_time = DateTime::time_since_epoch();
+          int64_t count = 0;
+          for (int i = 0; i < client_count; ++i) {
+            count += message_receive_count[i];
+          }
+          if (current_time - last_time > 1000) {
+            std::cout << std::endl
+                      << "per second: " << ceil((count - last_count) * 1000.0 /
+                                                (current_time - last_time))
+                      << " total: " << count;
+            last_time = current_time;
+            last_count = count;
+          }
+          for (int i = 0; i < client_count; ++i) {
+            strands[i]->dispatch([&, i]() {
+              auto& node = root_nodes[i];
+              for (int j = 0; j < msg_per_interval; ++j) {
+                node->new_value();
+              }
+            });
+          }
 
-      } catch (std::exception& e) {
-        std::cout << std::endl << e.what();
-      }
-      timer.expires_from_now(interval);
-      timer.async_wait(timer_callback);
-    };
+        } catch (std::exception& e) {
+          std::cout << std::endl << e.what();
+        }
+        timer.expires_from_now(interval);
+        timer.async_wait(timer_callback);
+      };
   timer.async_wait(timer_callback);
   app->wait();
 }
