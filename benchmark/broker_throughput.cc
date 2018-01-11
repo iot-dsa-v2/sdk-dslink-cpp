@@ -102,7 +102,7 @@ int main(int argc, const char* argv[]) {
   bool encode_value = variables["encode-value"].as<bool>();
   bool decode_value = variables["decode-value"].as<bool>();
 
-  auto app = std::make_shared<App>();
+  auto app = std::make_shared<App>(8);
 
   std::vector<shared_ptr_<Client>> clients;
   std::vector<ref_<EditableStrand>> strands;

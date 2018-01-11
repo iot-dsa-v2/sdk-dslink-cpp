@@ -55,6 +55,9 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
     _strand->post([
       this, sthis = std::move(sthis), messages = std::move(copy)
     ]() mutable {
+      // a special protection to give writing higher priority than reading
+      _strand->check_injected();
+
       continue_read_loop(std::move(sthis));
       if (_session != nullptr) {
         for (auto &it : messages) {

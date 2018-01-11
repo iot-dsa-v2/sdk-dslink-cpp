@@ -9,6 +9,8 @@
 
 #include <boost/asio/io_context.hpp>
 #include <memory>
+#include <mutex>
+#include <vector>
 
 namespace dsa {
 
@@ -32,6 +34,10 @@ class EditableStrand : public LinkStrand {
   ref_<SessionManager> _session_manager;
   std::unique_ptr<Logger> _logger;
 
+  std::mutex _inject_mutex;
+  std::vector<std::function<void()>> _inject_queue;
+  bool _inject_pending = false;
+
  public:
   // simple version for testing purpose
   static ref_<EditableStrand> make_default(shared_ptr_<App> app);
@@ -49,6 +55,9 @@ class EditableStrand : public LinkStrand {
   bool is_responder_set() { return _stream_acceptor != nullptr; }
 
   void destroy_impl() override;
+
+  void inject(std::function<void()>&&) override;
+  void check_injected() override;
 };
 
 typedef std::function<shared_ptr_<Connection>(
