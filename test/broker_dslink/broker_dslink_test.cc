@@ -68,12 +68,12 @@ TEST(BROKER_DSLINK_TEST, Reconnect) {
 TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
-  broker->strand->logger().level = Logger::ALL___;
+  //broker->strand->logger().level = Logger::ALL___;
 
   auto link_1 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test_1");
-  link_1->strand->logger().level = Logger::ALL___;
+  //link_1->strand->logger().level = Logger::ALL___;
   auto link_2 = broker_dslink_test::create_dslink(app, broker->tcp_server_port, "test_2");
-  link_2->strand->logger().level = Logger::ALL___;
+  //link_2->strand->logger().level = Logger::ALL___;
 
   int step = 0;
 // when list on downstream/test1 it should have a metadata for test1's dsid

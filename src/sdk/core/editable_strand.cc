@@ -67,35 +67,27 @@ void EditableStrand::destroy_impl() {
   _security_manager.reset();
 }
 
+void EditableStrand::check_injected() {
+  if (_inject_queue.empty()) return;
+  std::vector<std::function<void()>> temp;
+  {
+    std::lock_guard<std::mutex> lock(_inject_mutex);
+    std::swap(_inject_queue, temp);
+  }
+  for (auto& callback_it : temp) {
+    callback_it();
+  }
+}
+
 void EditableStrand::inject(std::function<void()>&& callback) {
   std::lock_guard<std::mutex> lock(_inject_mutex);
   _inject_queue.emplace_back(std::move(callback));
   if (!_inject_pending) {
     _inject_pending = true;
     post([ this, keep_ref = get_ref() ]() {
-      std::vector<std::function<void()>> temp;
-      {
-        std::lock_guard<std::mutex> lock(_inject_mutex);
-        _inject_pending = false;
-        if (_inject_queue.empty()) return;
-        std::swap(_inject_queue, temp);
-      }
-      for (auto& callback_it : temp) {
-        callback_it();
-      }
-
+      _inject_pending = false;
+      check_injected();
     });
-  }
-}
-void EditableStrand::check_injected() {
-  std::vector<std::function<void()>> temp;
-  {
-    std::lock_guard<std::mutex> lock(_inject_mutex);
-    if (_inject_queue.empty()) return;
-    std::swap(_inject_queue, temp);
-  }
-  for (auto& callback_it : temp) {
-    callback_it();
   }
 }
 
