@@ -76,9 +76,9 @@ void EditableStrand::inject(std::function<void()>&& callback) {
       std::vector<std::function<void()>> temp;
       {
         std::lock_guard<std::mutex> lock(_inject_mutex);
+        _inject_pending = false;
         if (_inject_queue.empty()) return;
         std::swap(_inject_queue, temp);
-        _inject_pending = false;
       }
       for (auto& callback_it : temp) {
         callback_it();

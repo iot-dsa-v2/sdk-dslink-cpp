@@ -78,11 +78,11 @@ int main(int argc, const char* argv[]) {
 
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
-      ("client,c", opts::value<int>()->default_value(1),
+      ("client,c", opts::value<int>()->default_value(2),
        "Number of Clients")  //
-      ("point,p", opts::value<int>()->default_value(1),
+      ("point,p", opts::value<int>()->default_value(1000),
        "Number of Points per Client")  //
-      ("num-message,n", opts::value<int>()->default_value(1),
+      ("num-message,n", opts::value<int>()->default_value(10),
        "Message per second per Point")  //
       ("encode-value,e", opts::bool_switch(),
        "Encode value before sending")  //
