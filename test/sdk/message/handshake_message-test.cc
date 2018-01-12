@@ -154,7 +154,7 @@ TEST(MessageTest, HandshakeF2) {
   message.write(buf);
 
   string_ expected_values(
-      "450000000700f2130073616d706c655f746f6b656e5f737472696e670100000000000000"
+      "430000000700f2130073616d706c655f746f6b656e5f737472696e67010000000000"
       "00f58c10e212a82bf327a020679c424fc63e852633a53253119df74114fac8b2ba");
   size_t length = expected_values.length();
 
@@ -201,9 +201,8 @@ TEST(MessageTest, HandshakeF3) {
   message.write(buf);
 
   string_ expected_values(
-      "530000000700f301110073616d70652d73657373696f6e2d3030310000000012002f646f"
-      "776e73747265616d2f6d6c696e6b31e709059f1ebb84cfb8c34d53fdba7fbf20b1fe3dff"
-      "8c343050d2b5c7c62be85a");
+      "400000000700f3010000000012002f646f776e73747265616d2f6d6c696e6b31e709059f"
+      "1ebb84cfb8c34d53fdba7fbf20b1fe3dff8c343050d2b5c7c62be85a");
   size_t length = expected_values.length();
 
   std::stringstream ss;
