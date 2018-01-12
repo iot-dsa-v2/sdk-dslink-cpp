@@ -15,7 +15,6 @@ class HandshakeF2Message final : public Message {
   bool is_responder;
 
   string_ token;
-  string_ previous_session_id;
   int32_t last_ack_id;
   string_ path;
   std::vector<uint8_t> auth;
@@ -26,7 +25,7 @@ class HandshakeF2Message final : public Message {
  protected:
   // measure the size and header size
   void update_static_header() final;
-  //TODO void print_headers(std::ostream &os) const final;
+  // TODO void print_headers(std::ostream &os) const final;
   // write dynamic header and body
   void write_dynamic_data(uint8_t* data) const final;
   void parse_dynamic_headers(const uint8_t* data,

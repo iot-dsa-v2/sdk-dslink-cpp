@@ -60,9 +60,8 @@ class EditableStrand : public LinkStrand {
   void check_injected() override;
 };
 
-typedef std::function<shared_ptr_<Connection>(
-    LinkStrandRef& strand, const string_& previous_session_id,
-    int32_t last_ack_id)>
+typedef std::function<shared_ptr_<Connection>(LinkStrandRef& strand,
+                                              int32_t last_ack_id)>
     ClientConnectionMaker;
 
 class WrapperStrand : public DestroyableRef<WrapperStrand> {

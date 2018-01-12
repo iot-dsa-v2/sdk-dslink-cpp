@@ -170,7 +170,6 @@ TEST(MessageTest, HandshakeF3) {
   HandshakeF3Message message;
 
   message.path = "/downstream/mlink1";
-  message.session_id = "sampe-session-001";
 
   // var brokerSharedSecret = brokerECDH.computeSecret(clientPublic);
   // var brokerAuth = crypto.createHmac('sha256',

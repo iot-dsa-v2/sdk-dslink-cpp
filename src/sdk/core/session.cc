@@ -10,11 +10,9 @@
 
 namespace dsa {
 
-Session::Session(LinkStrandRef strand, const string_ &dsid,
-                 const string_ &session_id)
+Session::Session(LinkStrandRef strand, const string_ &dsid)
     : _strand(std::move(strand)),
       _dsid(dsid),
-      _session_id(session_id),
       requester(*this),
       responder(*this),
       _timer(_strand->add_timer(0, nullptr)),
@@ -27,32 +25,32 @@ void Session::set_on_connect(OnConnectCallback &&callback) {
   _on_connect = std::move(callback);
 }
 
-bool Session::reconnect(const string_ next_session_id,
-                        int32_t last_remote_ack) {
-  if (_connection != nullptr) {
-    _connection->destroy();
-    _connection.reset();
-  }
-
-  if (!_reconnection_expired && next_session_id == _session_id) {
-    // TODO, update all stream based on last ack, prepare for resending
-    // return true;
-
-    // TODO remove the following code
-    _write_streams.clear();
-    requester.connection_changed();
-    responder.connection_changed();
-    return false;
-  } else if (!_session_id.empty()) {
-    _session_id = next_session_id;
-    _write_streams.clear();
-    requester.connection_changed();
-    responder.connection_changed();
-  } else {
-    _session_id = next_session_id;
-  }
-  return false;
-}
+// bool Session::reconnect(const string_ next_session_id,
+//                        int32_t last_remote_ack) {
+//  if (_connection != nullptr) {
+//    _connection->destroy();
+//    _connection.reset();
+//  }
+//
+//  if (!_reconnection_expired && next_session_id == _session_id) {
+//    // TODO, update all stream based on last ack, prepare for resending
+//    // return true;
+//
+//    // TODO remove the following code
+//    _write_streams.clear();
+//    requester.connection_changed();
+//    responder.connection_changed();
+//    return false;
+//  } else if (!_session_id.empty()) {
+//    _session_id = next_session_id;
+//    _write_streams.clear();
+//    requester.connection_changed();
+//    responder.connection_changed();
+//  } else {
+//    _session_id = next_session_id;
+//  }
+//  return false;
+//}
 
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {

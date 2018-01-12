@@ -31,7 +31,7 @@ class BrokerSessionManager final : public SessionManager {
                        ref_<DownstreamRoot> downstream_root);
   ~BrokerSessionManager() final;
   void get_session(const string_ &dsid, const string_ &auth_token,
-                   const string_ &session_id, int32_t last_token,
+                   int32_t last_token,
                    Session::GetSessionCallback &&callback) final;
 };
 }

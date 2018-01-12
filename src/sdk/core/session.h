@@ -59,7 +59,6 @@ class Session final : public DestroyableRef<Session> {
   void check_pending_acks(int32_t ack);
 
   string_ _dsid;
-  string_ _session_id;
   shared_ptr_<Connection> _connection;
   bool _reconnection_expired = false;
 
@@ -97,21 +96,18 @@ class Session final : public DestroyableRef<Session> {
   bool responder_enabled = true;
   string_ client_token;
 
-  Session(LinkStrandRef strand, const string_ &dsid, const string_ &session_id);
+  Session(LinkStrandRef strand, const string_ &dsid);
   ~Session();
 
   LinkStrandRef &get_strand() { return _strand; };
 
-
   const string_ &dsid() const { return _dsid; }
-  const string_ &session_id() const { return _session_id; }
-  void update_session_id(const string_ &new_id) { _session_id = new_id; }
+
   bool is_connected() const { return _connection != nullptr; }
-  bool is_writing() const {return _is_writing;}
+  bool is_writing() const { return _is_writing; }
 
   int32_t last_sent_ack();
 
-  bool reconnect(const string_ next_session_id, int32_t last_remote_ack);
   void connected(shared_ptr_<Connection> connection);
   void disconnected(const shared_ptr_<Connection> &connection);
 

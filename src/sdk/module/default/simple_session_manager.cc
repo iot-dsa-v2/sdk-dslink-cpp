@@ -11,7 +11,6 @@ SimpleSessionManager::SimpleSessionManager(LinkStrandRef strand)
 
 void SimpleSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
-                                       const string_ &session_id,
                                        int32_t last_ack,
                                        Session::GetSessionCallback &&callback) {
   if (memory_check_interval > 0 && _count_to_check >= memory_check_interval) {
@@ -25,17 +24,11 @@ void SimpleSessionManager::get_session(const string_ &dsid,
           return;
         }
         _last_client.dsid = dsid;
-        auto search = _sessions.find(session_id);
-        if (search != _sessions.end() && search->second->dsid() == dsid) {
-          search->second->reconnect(session_id, last_ack);
-          callback(search->second, _last_client);
-          return;
-        } else {
-          string_ new_session_id = std::to_string(++_session_seed);
-          _sessions[new_session_id] =
-              make_ref_<Session>(_strand, client.dsid, new_session_id);
-          callback(_sessions[new_session_id], _last_client);
-        }
+        auto session = make_ref_<Session>(_strand, client.dsid);
+        _sessions[session.get()] = session;
+
+        callback(session, _last_client);
+
       });
 }
 

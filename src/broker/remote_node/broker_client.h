@@ -18,21 +18,16 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
   friend class BrokerSessionManager;
 
  protected:
-  uint64_t _session_id_seed;
-  uint64_t _session_id_count = 0;
-
   ref_<BrokerSessionManager> _manager;
   ref_<RemoteRootNode> _node;
   ClientInfo _info;
 
   // for multiple sessions
-  std::unordered_map<string_, ref_<Session>> _sessions;
+  std::unordered_map<Session *, ref_<Session>> _sessions;
   // for single session
   ref_<Session> _single_session;
 
   void destroy_impl() final;
-
-  string_ get_new_session_id(const string_ &old_id = "");
 
   void session_destroyed(Session &session);
 
@@ -44,7 +39,7 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
   ~BrokerClient();
 
   const ClientInfo &info() const { return _info; };
-  void add_session(LinkStrandRef &strand, const string_ &session_id, int32_t last_ack,
+  void add_session(LinkStrandRef &strand, int32_t last_ack,
                    Session::GetSessionCallback &&callback);
 };
 }

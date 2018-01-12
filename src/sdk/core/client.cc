@@ -12,8 +12,7 @@ Client::Client(WrapperStrand &config)
     : _strand(config.strand),
       _client_token(config.client_token),
       _session(make_ref_<Session>(
-          config.strand, config.strand->ecdh().get_dsid(config.dsid_prefix),
-          "")),
+          config.strand, config.strand->ecdh().get_dsid(config.dsid_prefix))),
       _client_connection_maker(config.client_connection_maker),
       _reconnect_timer() {
   _session->client_token = config.client_token;
@@ -129,8 +128,7 @@ void Client::make_new_connection() {
     _connection->destroy();
     _connection.reset();
   }
-  _connection = _client_connection_maker(_strand, _session->session_id(),
-                                         _session->last_sent_ack());
+  _connection = _client_connection_maker(_strand, _session->last_sent_ack());
   _connection->set_session(_session);
 
   _connection->connect(_reconnect_interval_s);
