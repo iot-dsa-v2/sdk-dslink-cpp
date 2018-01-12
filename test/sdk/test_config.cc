@@ -10,9 +10,12 @@
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "util/app.h"
+#include "util/certificate.h"
 
 #include "responder/model_base.h"
 #include "responder/node_state_manager.h"
+
+#include <boost/filesystem.hpp>
 
 namespace dsa {
 
@@ -23,6 +26,15 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async)
 
   tcp_server_port = 0;
   // tcp_secure_port = 4128;
+
+  std::vector<std::string> pem_files = {"key.pem", "certificate.pem"};
+  namespace fs = boost::filesystem;
+  for (auto pem_file : pem_files) {
+    if (!fs::exists(pem_file)) {
+      dsa::generate_certificate();
+      break;
+    }
+  }
 }
 
 WrapperStrand TestConfig::get_client_wrapper_strand() {
