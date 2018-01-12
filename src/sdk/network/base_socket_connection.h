@@ -24,7 +24,12 @@ class BaseSocketConnection : public Connection {
   static const size_t DEFAULT_BUFFER_SIZE = 8196;
   static const size_t MAX_BUFFER_SIZE = DEFAULT_BUFFER_SIZE * 15;
 
+  // current pos of reading data
+  size_t _read_current = 0;
+  // next pos to start read (end of partial reading data)
+  size_t _read_next = 0;
   std::vector<uint8_t> _read_buffer;
+
   std::vector<uint8_t> _write_buffer;
 
   void read_loop_(shared_ptr_<Connection> &&connection, size_t from_prev,
@@ -39,8 +44,7 @@ class BaseSocketConnection : public Connection {
   BaseSocketConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                        const string_ &path = "");
 
-  virtual void start_read(shared_ptr_<Connection> &&connection, size_t cur = 0,
-                          size_t next = 0) = 0;
+  virtual void start_read(shared_ptr_<Connection> &&connection) = 0;
 };
 
 }  // namespace dsa

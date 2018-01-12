@@ -56,9 +56,8 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   void dispatch(std::function<void()> &&);
 
   // inject a function and run it as soon as possible
-  // inject must be called out of the strand
   virtual void inject(std::function<void()> &&) = 0;
-  // must be called within the strand
+  // run all the injected callbacks
   virtual void check_injected() = 0;
 
   ref_<StrandTimer> add_timer(int32_t interval_ms, TimerCallback &&callback);

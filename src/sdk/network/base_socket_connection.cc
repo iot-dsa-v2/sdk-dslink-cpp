@@ -35,12 +35,14 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
       if (is_destroyed()) {
         return;
       }
-
+      _read_current = 0;
+      _read_next = 0;
       while (cur < total_bytes) {
         if (total_bytes - cur < sizeof(uint32_t)) {
           // not enough data to check size
-          start_read(std::move(connection), cur, total_bytes);
-          return;
+          _read_current = cur;
+          _read_next = total_bytes;
+          break;
         }
         // TODO: check if message_size is valid;
         int32_t message_size = read_32_t(&buffer[cur]);
@@ -54,8 +56,9 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
         }
         if (message_size > total_bytes - cur) {
           // not enough data to parse message
-          start_read(std::move(connection), cur, total_bytes);
-          return;
+          _read_current = cur;
+          _read_next = total_bytes;
+          break;
         }
 
         // post job with message buffer
@@ -85,7 +88,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
         return;
       }
     }
-    start_read(std::move(connection), 0, 0);
+    start_read(std::move(connection));
   } else {
     // TODO: send error
     destroy_in_strand(std::move(connection));

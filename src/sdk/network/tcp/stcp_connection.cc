@@ -28,14 +28,14 @@ void StcpConnection::destroy_impl() {
   Connection::destroy_impl();
 }
 
-void StcpConnection::start_read(shared_ptr_<Connection> &&connection,
-                                size_t cur, size_t next) {
+void StcpConnection::start_read(shared_ptr_<Connection> &&connection) {
   std::vector<uint8_t> &buffer = _read_buffer;
-  size_t partial_size = next - cur;
-  if (cur > 0) {
-    std::copy(buffer.data() + cur, buffer.data() + next, buffer.data());
+  size_t partial_size = _read_next - _read_current;
+  if (_read_current > 0) {
+    std::copy(buffer.data() + _read_current, buffer.data() + _read_next,
+              buffer.data());
   }
-  if (next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
+  if (_read_next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
   _socket.async_read_some(

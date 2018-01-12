@@ -26,7 +26,7 @@ void TcpServerConnection::accept() {
       on_receive_f0(std::move(message));
     };
   }
-  TcpConnection::start_read(share_this<TcpServerConnection>(), 0, 0);
+  TcpConnection::start_read(share_this<TcpServerConnection>());
   start_deadline_timer(15);
 }
 

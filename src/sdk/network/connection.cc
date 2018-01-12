@@ -5,6 +5,7 @@
 #include "core/session.h"
 #include "crypto/hmac.h"
 #include "util/app.h"
+#include "module/logger.h"
 
 namespace dsa {
 Connection::Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
@@ -55,6 +56,7 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
     _strand->post([
       this, sthis = std::move(sthis), messages = std::move(copy)
     ]() mutable {
+
       // a special protection to give writing higher priority than reading
       _strand->check_injected();
 
@@ -65,6 +67,8 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
         }
       }
     });
+  } else if (_session == nullptr) {
+    LOG_ERROR(_session->_strand->logger(), "Session is null in connection message reading");
   }
 }
 }  // namespace dsa
