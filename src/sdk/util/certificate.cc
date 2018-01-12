@@ -10,6 +10,10 @@ using std::unique_ptr;
 #include <random>
 #include <string>
 
+#if defined(_MSC_VER)
+#include <openssl/applink.c>
+#endif
+
 #include <openssl/bio.h>
 #include <openssl/bn.h>
 #include <openssl/pem.h>
