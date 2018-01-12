@@ -20,12 +20,15 @@ class StrandTimer final : public DestroyableRef<StrandTimer> {
   int32_t repeat_interval_ms;
   // reschedule the timer, this won't affect the repeat interval
   void reschedule(int32_t interval_ms);
+  void restart(int32_t interval_ms);
+  bool is_running() {return _running;}
+
 
  protected:
   LinkStrandRef _strand;
   std::unique_ptr<boost::asio::deadline_timer> _timer;
   LinkStrand::TimerCallback _callback;
-
+  bool _running = false;
   StrandTimer(LinkStrandRef&& strand, int32_t interval_ms,
               LinkStrand::TimerCallback&& callback);
 
