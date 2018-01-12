@@ -34,7 +34,7 @@ void StcpServerConnection::handle_handshake(
       };
     }
 
-    StcpConnection::start_read(share_this<StcpServerConnection>(), 0, 0);
+    StcpConnection::start_read(share_this<StcpServerConnection>());
     start_deadline_timer(15);
   }
 }
