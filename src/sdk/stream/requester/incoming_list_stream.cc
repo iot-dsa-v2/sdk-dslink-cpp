@@ -43,13 +43,14 @@ bool IncomingListStream::check_close_message(MessageCRef& message) {
   }
   return false;
 }
-
-bool IncomingListStream::connection_changed() {
-  // when disconnected, list again
-  // a new request message is put in queue and will be sent when connected again
+bool IncomingListStream::disconnected() {
   _writing = false;
-  list(_options);
   return false;
+}
+void IncomingListStream::reconnected() {
+  if (!_writing) {
+    list(_options);
+  }
 }
 
 void IncomingListStream::update_response_status(MessageStatus status) {

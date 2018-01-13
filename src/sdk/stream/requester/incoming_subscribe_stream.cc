@@ -47,12 +47,14 @@ bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
   return false;
 }
 
-bool IncomingSubscribeStream::connection_changed() {
-  // when disconnected, subscribe again
-  // a new request message is put in queue and will be sent when connected again
+bool IncomingSubscribeStream::disconnected() {
   _writing = false;
-  subscribe(_options);
   return false;
+}
+void IncomingSubscribeStream::reconnected() {
+  if (!_writing) {
+    subscribe(_options);
+  }
 }
 
 void IncomingSubscribeStream::update_response_status(MessageStatus status) {

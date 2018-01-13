@@ -27,14 +27,12 @@ void Responder::destroy_impl() {
   _outgoing_streams.clear();
 }
 
-void Responder::connection_changed() {
-  for (auto it = _outgoing_streams.begin(); it != _outgoing_streams.end();) {
-    if (it->second->connection_changed()) {
-      it = _outgoing_streams.erase(it);
-    } else {
-      ++it;
-    }
+void Responder::disconnected() {
+  for (auto it = _outgoing_streams.begin(); it != _outgoing_streams.end();
+       ++it) {
+    it->second->disconnected();
   }
+  _outgoing_streams.clear();
 }
 
 inline ref_<OutgoingSubscribeStream> Responder::on_subscribe_request(

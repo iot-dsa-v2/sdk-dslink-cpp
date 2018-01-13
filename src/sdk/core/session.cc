@@ -68,8 +68,10 @@ void Session::connected(shared_ptr_<Connection> connection) {
     _on_connect(*this, _connection);
   }
 
+  requester.connected();
+
   _timer->destroy();
-  // start the 20 seconds timer
+  // start the 15 seconds timer
   _no_receive_in_loop = 0;
   _no_sent_in_loop = 0;
   _timer =
@@ -85,6 +87,7 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
     _connection.reset();
     _timer->destroy();
     requester.disconnected();
+    responder.disconnected();
   }
   if (_on_connect != nullptr && _connection == nullptr) {
     // disconnect event

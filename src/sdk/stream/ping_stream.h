@@ -20,11 +20,6 @@ class PingStream final : public MessageRefedStream {
   void receive_message(ref_<Message>&& msg) final {}
 
   void add_ping();
-
-  bool connection_changed() final {
-    _writing = false;
-    return true;
-  }
 };
 }
 

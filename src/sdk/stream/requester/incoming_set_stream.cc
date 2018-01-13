@@ -40,7 +40,7 @@ bool IncomingSetStream::check_close_message(MessageCRef& message) {
   return false;
 }
 
-bool IncomingSetStream::connection_changed() {
+bool IncomingSetStream::disconnected() {
   if (_callback != nullptr) {
     auto response = make_ref_<SetResponseMessage>();
     response->set_status(MessageStatus::DISCONNECTED);

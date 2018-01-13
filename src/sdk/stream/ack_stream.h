@@ -24,7 +24,7 @@ class AckStream final : public MessageRefedStream {
   void add_ack(int32_t ack);
   int32_t get_ack() const { return _message->get_ack(); };
 
-  bool connection_changed() final {
+  bool disconnected() final {
     _writing = false;
     return true;
   }

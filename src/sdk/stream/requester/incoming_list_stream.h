@@ -35,8 +35,9 @@ class IncomingListStream final : public MessageCacheStream {
 
   bool check_close_message(MessageCRef& message) final;
 
-  bool connection_changed() final;
-  void update_response_status(MessageStatus status = MessageStatus::OK) final;
+  bool disconnected() final;
+  void reconnected() final;
+  void update_response_status(MessageStatus status) final;
 };
 }
 

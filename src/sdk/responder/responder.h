@@ -39,11 +39,7 @@ class Responder {
   void destroy_impl();
 
   // temporary disconnection, might be reconnected
-  // TODO: void disconnected();
-
-  // previous connection is lost
-  // even the reconnection happens, it won't reuse cached stream
-  void connection_changed();
+  void disconnected();
 
  public:
   explicit Responder(Session &session);

@@ -31,11 +31,10 @@ class Requester {
 
   void destroy_impl();
 
+  void connected();
   // temporary disconnection, might be reconnected
   void disconnected();
-  // previous connection is lost
-  // even the reconnection happens, it won't reuse cached stream
-  void connection_changed();
+
 
  public:
   explicit Requester(Session &session);

@@ -16,22 +16,13 @@ class SimpleStream final : public MessageStream {
 
  public:
   SimpleStream(int32_t rid, MessageType type, MessageStatus status);
-  SimpleStream(int32_t rid, MessageRef &&msg);
+  SimpleStream(int32_t rid, MessageRef&& msg);
   size_t peek_next_message_size(size_t available, int64_t time) final;
   MessageCRef get_next_message(AckCallback& callback) final;
 
   void receive_message(ref_<Message>&& msg) final {}
 
   // when remove is disconnected
-  bool connection_changed() override {
-    destroy();
-    return true;
-  }
-
-  // all the pending ack failed
-  void unack() override {
-    // TODO
-  }
 
 };
 }

@@ -42,17 +42,6 @@ class MessageRefedStream : public MessageStream {
   MessageRefedStream &operator=(MessageRefedStream &&other) noexcept = delete;
   ~MessageRefedStream() override;
 
-  // when remove is disconnected
-  bool connection_changed() override {
-    destroy();
-    return true;
-  }
-
-  // all the pending ack failed
-  void unack() override {
-    // TODO
-  }
-
   // force the stream to be the 1st in write queue
   // the existing item in queue won't be removed
   void make_critical();

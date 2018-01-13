@@ -46,7 +46,7 @@ bool IncomingInvokeStream::check_close_message(MessageCRef& message) {
   return false;
 }
 
-bool IncomingInvokeStream::connection_changed() {
+bool IncomingInvokeStream::disconnected() {
   if (_callback != nullptr) {
     auto response = make_ref_<InvokeResponseMessage>();
     response->set_status(MessageStatus::DISCONNECTED);
