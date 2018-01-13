@@ -58,6 +58,8 @@ void Session::connected(shared_ptr_<Connection> connection) {
   }
   _connection = std::move(connection);
 
+  requester.connected();
+
   // TODO, handle last ack
   // TODO, remove Ack and Ping from the write streams
 
@@ -67,8 +69,6 @@ void Session::connected(shared_ptr_<Connection> connection) {
   if (_on_connect != nullptr) {
     _on_connect(*this, _connection);
   }
-
-  requester.connected();
 
   _timer->destroy();
   // start the 15 seconds timer
