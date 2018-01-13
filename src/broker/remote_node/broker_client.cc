@@ -29,7 +29,7 @@ ref_<Session> &BrokerClient::create_single_session(LinkStrandRef &strand) {
   });
   return _single_session;
 }
-void BrokerClient::add_session(LinkStrandRef &strand, int32_t last_ack,
+void BrokerClient::add_session(LinkStrandRef &strand,
                                Session::GetSessionCallback &&callback) {
   if (_info.max_session == 1) {
     if (_single_session == nullptr) {

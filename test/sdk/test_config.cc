@@ -53,7 +53,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
   copy.client_connection_maker = [
     dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
     tcp_port = copy.tcp_port
-  ](LinkStrandRef & strand, int32_t last_ack_id) {
+  ](LinkStrandRef & strand) {
     return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                              tcp_port);
   };

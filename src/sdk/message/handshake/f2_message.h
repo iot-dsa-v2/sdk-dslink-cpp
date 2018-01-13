@@ -15,7 +15,6 @@ class HandshakeF2Message final : public Message {
   bool is_responder;
 
   string_ token;
-  int32_t last_ack_id;
   string_ path;
   std::vector<uint8_t> auth;
 

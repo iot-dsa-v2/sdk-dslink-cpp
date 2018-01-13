@@ -50,7 +50,7 @@ TEST(NetworkTest, ReConnect) {
       [
         &connection, dsid_prefix = client_strand.dsid_prefix,
         tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
-      ](LinkStrandRef & strand, int32_t last_ack_id)
+      ](LinkStrandRef & strand)
           ->shared_ptr_<Connection> {
     connection = make_shared_<TcpClientConnection>(strand, dsid_prefix,
                                                    tcp_host, tcp_port);

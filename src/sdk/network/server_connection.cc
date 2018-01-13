@@ -63,8 +63,8 @@ void Connection::on_receive_f2(MessageRef &&msg) {
     _strand->post([ msg, this, sthis = shared_from_this() ]() mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
-          _handshake_context.remote_dsid(), f2->token, f2->last_ack_id,
-          [ this, sthis = std::move(sthis), last_ack = f2->last_ack_id ](
+          _handshake_context.remote_dsid(), f2->token,
+          [ this, sthis = std::move(sthis) ](
               const ref_<Session> &session, const ClientInfo &info) {
             if (session != nullptr) {
               _session = session;
@@ -73,7 +73,6 @@ void Connection::on_receive_f2(MessageRef &&msg) {
               // can't send it with raw buffer
               auto f3 = make_ref_<HandshakeF3Message>();
               f3->auth = _handshake_context.auth();
-              f3->last_ack_id = _session->last_sent_ack();
               f3->path = info.responder_path;
               _session->write_critical_stream(
                   make_ref_<SimpleStream>(0, std::move(f3)));

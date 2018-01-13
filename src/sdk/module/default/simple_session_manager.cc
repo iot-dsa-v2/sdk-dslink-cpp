@@ -11,7 +11,6 @@ SimpleSessionManager::SimpleSessionManager(LinkStrandRef strand)
 
 void SimpleSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
-                                       int32_t last_ack,
                                        Session::GetSessionCallback &&callback) {
   if (memory_check_interval > 0 && _count_to_check >= memory_check_interval) {
     check_destroyed_session();

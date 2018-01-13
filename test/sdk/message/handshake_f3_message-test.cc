@@ -13,9 +13,6 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t auth[] = "auth5678901234567890123456789012";
   message.auth = std::vector<uint8_t>(auth, auth + Message::AUTH_LENGTH);
 
-  // last_ack_id = 0xa1b2c3d4
-  message.last_ack_id = 2712847316;
-
   message.allow_requester = true;
 
   message.size();
@@ -23,9 +20,9 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   uint8_t buf[1024];
   message.write(buf);
 
-  uint8_t expected_values[78];
+  uint8_t expected_values[74];
 
-  uint32_t message_size = 78;
+  uint32_t message_size = 74;
   uint16_t header_size = StaticHeaders::SHORT_TOTAL_SIZE;
   MessageType type = MessageType::HANDSHAKE3;
   uint32_t request_id = 0;
@@ -43,15 +40,12 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
               sizeof(ack_id));
 
   uint8_t AllowRequesterOffset = StaticHeaders::SHORT_TOTAL_SIZE;
-  uint8_t LastAckIdOffset = AllowRequesterOffset + sizeof(bool);
-  uint8_t PathLengthOffset = LastAckIdOffset + sizeof(uint32_t);
+  uint8_t PathLengthOffset = AllowRequesterOffset + sizeof(bool);
   uint8_t PathOffset = PathLengthOffset + sizeof(uint16_t);
   uint8_t AuthOffset = PathOffset + path_length;
 
   std::memcpy(&expected_values[AllowRequesterOffset], &message.allow_requester,
               sizeof(bool));
-  std::memcpy(&expected_values[LastAckIdOffset], &message.last_ack_id,
-              sizeof(uint32_t));
   std::memcpy(&expected_values[PathLengthOffset], &path_length,
               sizeof(path_length));
   std::memcpy(&expected_values[PathOffset], message.path.data(),

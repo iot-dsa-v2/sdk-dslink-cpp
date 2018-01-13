@@ -13,8 +13,7 @@
 namespace dsa {
 
 void Connection::on_client_connect(
-    shared_ptr_<Connection> connection,
-    int32_t remote_last_ack) throw(const std::runtime_error &) {
+    shared_ptr_<Connection> connection) throw(const std::runtime_error &) {
   if (connection->_session == nullptr) {
     LOG_FATAL(LOG << "no session attached to client connection");
   }
@@ -90,10 +89,9 @@ void Connection::on_receive_f3(MessageRef &&msg) {
     _remote_path = f3->path;
 
     _strand->post([
-      sthis = shared_from_this(),
-      remote_last_ack = f3->last_ack_id
+      sthis = shared_from_this()
     ]() mutable {
-      on_client_connect(std::move(sthis), remote_last_ack);
+      on_client_connect(std::move(sthis));
     });
     on_read_message = [this](MessageRef &&message) {
       post_message(std::move(message));

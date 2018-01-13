@@ -247,7 +247,7 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
 
         client_connection_maker = [
           dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
-        ](LinkStrandRef & strand, int32_t last_ack_id) {
+        ](LinkStrandRef & strand) {
           return make_shared_<StcpClientConnection>(
               strand, context, dsid_prefix, tcp_host, tcp_port);
         };
@@ -256,8 +256,7 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
             [
               dsid_prefix = dsid_prefix, tcp_host = tcp_host,
               tcp_port = tcp_port
-            ](LinkStrandRef & strand,
-              int32_t last_ack_id) {
+            ](LinkStrandRef & strand) {
           return make_shared_<TcpClientConnection>(strand, dsid_prefix,
                                                    tcp_host, tcp_port);
         };
@@ -265,8 +264,7 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
     } else if (ws_port > 0) {
       client_connection_maker =
           [ dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port ](
-              LinkStrandRef & strand,
-              int32_t last_ack_id) {
+              LinkStrandRef & strand) {
         return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
                                                 ws_port);
       };

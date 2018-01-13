@@ -128,7 +128,7 @@ void Client::make_new_connection() {
     _connection->destroy();
     _connection.reset();
   }
-  _connection = _client_connection_maker(_strand, _session->last_sent_ack());
+  _connection = _client_connection_maker(_strand);
   _connection->set_session(_session);
 
   _connection->connect(_reconnect_interval_s);

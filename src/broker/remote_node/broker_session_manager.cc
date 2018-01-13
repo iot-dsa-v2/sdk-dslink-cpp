@@ -20,7 +20,6 @@ static ClientInfo dummy_info;
 
 void BrokerSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
-                                       int32_t last_ack,
                                        Session::GetSessionCallback &&callback) {
   _strand->security_manager().get_client(dsid, auth_token, [
     =, callback = std::move(callback)
@@ -36,16 +35,16 @@ void BrokerSessionManager::get_session(const string_ &dsid,
       if (client_info.max_session == 1 && !client_info.responder_path.empty()) {
         // init single session of the client
         client->create_single_session(_strand);
-        client->add_session(_strand, last_ack, std::move(callback));
+        client->add_session(_strand, std::move(callback));
 
         // init the downstream node after session get connected
         _downstream_root->get_root_for_client(client_info,
                                               *client->_single_session);
       } else {
-        client->add_session(_strand, last_ack, std::move(callback));
+        client->add_session(_strand, std::move(callback));
       }
     } else {
-      _clients[dsid]->add_session(_strand, last_ack, std::move(callback));
+      _clients[dsid]->add_session(_strand, std::move(callback));
     }
 
   });

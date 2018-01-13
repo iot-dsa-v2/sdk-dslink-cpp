@@ -39,7 +39,7 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
   ~BrokerClient();
 
   const ClientInfo &info() const { return _info; };
-  void add_session(LinkStrandRef &strand, int32_t last_ack,
+  void add_session(LinkStrandRef &strand,
                    Session::GetSessionCallback &&callback);
 };
 }
