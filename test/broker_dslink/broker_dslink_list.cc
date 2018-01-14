@@ -16,7 +16,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
 
   bool is_connected = false;
   link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
-  ASYNC_EXPECT_TRUE(500, *link->strand, [&]() { return is_connected; });
+  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
   // list on root node
   ListResponses root_list_responses;

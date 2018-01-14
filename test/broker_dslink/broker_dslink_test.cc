@@ -85,14 +85,14 @@ TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
           switch (step) {
             case 1: {
               // step 1, connect client 2
-              std::cout<<"Step 1"<<std::endl;
+              //std::cout<<"Step 1"<<std::endl;
               EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
               link_2->connect();
               break;
             }
             case 2: {
               // step 2, disconnect client 2
-              std::cout<<"Step 2"<<std::endl;
+              //std::cout<<"Step 2"<<std::endl;
               EXPECT_EQ(cache.get_status(), MessageStatus::OK);
               link_2->strand->post([link_2]() {
                 link_2->destroy();
@@ -102,7 +102,7 @@ TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
 
             default: {  //   case 3:{
               // step 3, end test
-              std::cout<<"Step 3"<<std::endl;
+              //std::cout<<"Step 3"<<std::endl;
               EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
               link_1->strand->post([link_1]() {
                 link_1->destroy();
