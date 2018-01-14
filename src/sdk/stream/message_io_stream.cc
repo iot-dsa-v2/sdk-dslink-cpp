@@ -24,13 +24,11 @@ inline void MessageRefedStream::destroy_impl() { _session.reset(); }
 
 void MessageRefedStream::send_message() {
   if (!_writing && !is_destroyed()) {
-    _writing = true;
     _session->write_stream(get_ref());
   }
 }
 void MessageRefedStream::post_message() {
   if (!_writing && !is_destroyed()) {
-    _writing = true;
     if (_session->is_writing()) {
       _session->write_stream(get_ref());
     } else {
@@ -65,7 +63,6 @@ void MessageCacheStream::send_message(MessageCRef &&msg, bool close) {
   }
   _cache = std::move(msg);
   if (!_writing && _cache != nullptr) {
-    _writing = true;
     _session->write_stream(get_ref());
   }
 }
@@ -73,13 +70,11 @@ void MessageCacheStream::send_message(MessageCRef &&msg, bool close) {
 size_t MessageCacheStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
   if (is_destroyed() || _cache == nullptr) {
-    _writing = false;
     return 0;
   }
   return _cache->size();
 }
 MessageCRef MessageCacheStream::get_next_message(AckCallback &callback) {
-  _writing = false;
   if (is_destroyed() || _cache == nullptr) {
     return MessageCRef();
   }
@@ -193,7 +188,6 @@ CHECK_QUEUE:
   }
 
   if (!_writing) {
-    _writing = true;
     _session->write_stream(get_ref());
   }
 }
@@ -201,7 +195,6 @@ CHECK_QUEUE:
 size_t MessageQueueStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
   if (is_destroyed() || _queue.empty()) {
-    _writing = false;
     return 0;
   }
   if (time - _max_queue_duration > _current_queue_time) {
@@ -220,7 +213,6 @@ size_t MessageQueueStream::peek_next_message_size(size_t available,
   return _queue.front()->size();
 }
 MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
-  _writing = false;
   if (is_destroyed() || _queue.empty()) {
     return MessageCRef();
   }
@@ -242,7 +234,6 @@ MessageCRef MessageQueueStream::get_next_message(AckCallback &callback) {
   } else if (!_queue.empty()) {
     // the queue might contain 1 or more empty OutgoingPages
     _current_queue_time = _queue.front()->created_ts;
-    _writing = true;
     _session->write_stream(get_ref());
   }
   return std::move(msg);

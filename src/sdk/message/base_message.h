@@ -173,11 +173,18 @@ class ResponseMessage : public Message {
 
 typedef std::function<void(bool)> AckCallback;
 
+class Requester;
 class SubscribeResponseMessage;
 class VarBytes;
 struct SubscribeOptions;
 
 class MessageStream : public DestroyableRef<MessageStream> {
+  friend class Session;
+  friend class Requester;
+
+ protected:
+  bool _writing = false;
+
  public:
   const int32_t rid;
   PermissionLevel allowed_permission;

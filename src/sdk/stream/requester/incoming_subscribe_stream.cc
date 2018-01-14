@@ -47,21 +47,21 @@ bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
   return false;
 }
 
-bool IncomingSubscribeStream::disconnected() {
-  _writing = false;
-  return false;
-}
-void IncomingSubscribeStream::reconnected() {
-  if (!_writing) {
-    subscribe(_options);
-  }
-}
-
 void IncomingSubscribeStream::update_response_status(MessageStatus status) {
   if (_callback != nullptr) {
     auto response = make_ref_<SubscribeResponseMessage>();
     response->set_status(status);
     _callback(*this, std::move(response));
+  }
+}
+
+bool IncomingSubscribeStream::disconnected() {
+  update_response_status(MessageStatus::NOT_AVAILABLE);
+  return false;
+}
+void IncomingSubscribeStream::reconnected() {
+  if (!_writing) {
+    subscribe(_options);
   }
 }
 }

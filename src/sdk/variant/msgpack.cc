@@ -20,7 +20,9 @@ struct MsgpackSbuffer : public msgpack_sbuffer {
     msgpack_sbuffer_init(this);
     msgpack_packer_init(&pk, this, msgpack_sbuffer_write);
   }
-  ~MsgpackSbuffer() { msgpack_sbuffer_destroy(this); }
+  ~MsgpackSbuffer() {
+    if (data != nullptr) free(data);
+  }
 };
 
 thread_local MsgpackSbuffer sbuf;

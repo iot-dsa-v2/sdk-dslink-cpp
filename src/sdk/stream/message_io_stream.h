@@ -16,7 +16,6 @@ class OutgoingPages;
 class MessageRefedStream : public MessageStream {
  protected:
   ref_<Session> _session;
-  bool _writing = false;
   bool _closed = false;
 
   void destroy_impl() override;

@@ -21,7 +21,7 @@ void OutgoingListStream::on_list_close(ListCloseCallback &&callback) {
 void OutgoingListStream::destroy_impl() {
   if (_close_callback != nullptr) {
     _close_callback(*this);
-    _close_callback= nullptr;
+    _close_callback = nullptr;
   };
 }
 
@@ -75,8 +75,6 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
   return size;
 }
 MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
-  _writing = false;
-
   ListResponseMessage *message = new ListResponseMessage();
   if (_status != MessageStatus::OK) {
     message->set_status(_status);

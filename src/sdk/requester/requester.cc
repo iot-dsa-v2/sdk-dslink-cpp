@@ -33,6 +33,7 @@ void Requester::disconnected() {
     if (it->second->disconnected()) {
       it = _incoming_streams.erase(it);
     } else {
+      it->second->_writing = false;
       ++it;
     }
   }

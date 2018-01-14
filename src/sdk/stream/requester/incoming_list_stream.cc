@@ -43,21 +43,22 @@ bool IncomingListStream::check_close_message(MessageCRef& message) {
   }
   return false;
 }
-bool IncomingListStream::disconnected() {
-  _writing = false;
-  return false;
-}
-void IncomingListStream::reconnected() {
-  if (!_writing) {
-    list(_options);
-  }
-}
 
 void IncomingListStream::update_response_status(MessageStatus status) {
   if (_callback != nullptr) {
     auto response = make_ref_<ListResponseMessage>();
     response->set_status(status);
     _callback(*this, std::move(response));
+  }
+}
+
+bool IncomingListStream::disconnected() {
+  update_response_status(MessageStatus::NOT_AVAILABLE);
+  return false;
+}
+void IncomingListStream::reconnected() {
+  if (!_writing) {
+    list(_options);
   }
 }
 }
