@@ -108,7 +108,6 @@ void DsBroker::run() {
   });
 #endif
 
-
   // start tcp server
   strand->dispatch([this]() {
     if (tcp_server_port > 0) {

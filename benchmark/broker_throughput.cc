@@ -15,6 +15,8 @@
 #include "module/default/simple_session_manager.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"
+#include "network/ws/ws_callback.h"
+#include "network/ws/ws_client_connection.h"
 #include "util/date_time.h"
 
 using high_resolution_clock = std::chrono::high_resolution_clock;
@@ -55,7 +57,8 @@ class BenchmarkNodeRoot : public NodeModel {
 }
 
 WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
-                                        const string_& dsid_prefix) {
+                                        const string_& dsid_prefix,
+                                        const string_& protocol) {
   WrapperStrand client_strand;
   client_strand.tcp_host = "127.0.0.1";
   client_strand.tcp_port = 4120;
@@ -76,13 +79,28 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
   client_strand.strand->set_logger(std::move(logger));
 
   client_strand.strand->logger().level = Logger::ERROR_;
-  client_strand.client_connection_maker = [
-    dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-    tcp_port = client_strand.tcp_port
-  ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-    return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                             tcp_port);
-  };
+
+  if (!protocol.compare("ws")) {
+    client_strand.ws_host = "127.0.0.1";
+    client_strand.ws_port = 8080;
+    client_strand.ws_path = "/";
+
+    client_strand.client_connection_maker = [
+      dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
+      ws_port = client_strand.ws_port
+    ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
+                                              ws_port);
+    };
+  } else {
+    client_strand.client_connection_maker = [
+      dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+      tcp_port = client_strand.tcp_port
+    ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
+                                               tcp_port);
+    };
+  }
   return std::move(client_strand);
 }
 
@@ -95,8 +113,10 @@ int main(int argc, const char* argv[]) {
        "Number of Clients")  //
       ("point,p", opts::value<int>()->default_value(1000),
        "Number of Points per Client")  //
-      ("num-message,n", opts::value<int>()->default_value(10),
-       "Message per second per Point")  //
+      ("protocol", opts::value<string_>()->default_value("ds"),
+       "Protocol(ds/dss/ws/wss")("num-message,n",
+                                 opts::value<int>()->default_value(10),
+                                 "Message per second per Point")  //
       ("decode-value,d", opts::bool_switch(),
        "Decode value after receiving")  //
       ;
@@ -112,6 +132,7 @@ int main(int argc, const char* argv[]) {
 
   int client_count = variables["client"].as<int>();
   int point_count = variables["point"].as<int>();
+  string_ protocol = variables["protocol"].as<string_>();
   int num_message = variables["num-message"].as<int>();
   Message::decode_all = variables["decode-value"].as<bool>();
 
@@ -127,8 +148,8 @@ int main(int argc, const char* argv[]) {
   for (int i = 0; i < client_count; ++i) {
     message_receive_count.emplace_back(0);
 
-    WrapperStrand strand =
-        get_client_wrapper_strand(app, "benchmark" + std::to_string(i));
+    WrapperStrand strand = get_client_wrapper_strand(
+        app, "benchmark" + std::to_string(i), protocol);
     auto client = make_shared_<Client>(strand);
     auto root_node = make_ref_<BenchmarkNodeRoot>(strand.strand, point_count);
     root_nodes.emplace_back(root_node);

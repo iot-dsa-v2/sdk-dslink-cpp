@@ -1,5 +1,5 @@
-#include "dsa_common.h"
 #include "dsa/stream.h"
+#include "dsa_common.h"
 
 #include <boost/beast/http.hpp>
 
@@ -31,12 +31,10 @@ TEST(WebServerTest, ws_subscribe) {
 
   config.strand = EditableStrand::make_default(app);
   config.strand->logger().level = test_config.strand->logger().level;
-  config.client_connection_maker =
-      [
-        dsid_prefix = dsid_prefix, ws_host = config.ws_host,
-        ws_port = config.ws_port
-      ](LinkStrandRef & strand, const string_& previous_session_id,
-        int32_t last_ack_id) {
+  config.client_connection_maker = [
+    dsid_prefix = dsid_prefix, ws_host = config.ws_host,
+    ws_port = config.ws_port
+  ](LinkStrandRef & strand) {
     return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
                                             ws_port);
   };

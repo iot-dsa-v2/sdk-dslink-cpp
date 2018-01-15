@@ -67,8 +67,9 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
   }
 
   std::string address =
-      std::string("ds://127.0.0.1:") + std::to_string(tcp_server_port);
-  //        std::string("dss://127.0.0.1:") + std::to_string(tcp_secure_port);
+        std::string("ds://127.0.0.1:") + std::to_string(tcp_server_port);
+  //    std::string("dss://127.0.0.1:") + std::to_string(tcp_secure_port);
+  //    std::string("ws://127.0.0.1:") + std::to_string(8080);
 
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
