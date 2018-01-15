@@ -37,7 +37,7 @@ class DsaWsCallback {
     auto connection = make_shared_<WsServerConnection>(
         *new websocket_stream{std::move(socket)}, _link_strand);
 
-    connection->websocket().async_accept(
+    connection->socket().async_accept(
         req, [conn = connection, this](const boost::system::error_code& error) {
 
           // TODO: run within the strand?

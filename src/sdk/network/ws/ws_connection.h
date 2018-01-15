@@ -8,9 +8,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast/websocket.hpp>
 
-#include "../connection.h"
-#include "crypto/handshake_context.h"
-#include "message/base_message.h"
+#include "../base_socket_connection.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -19,13 +17,7 @@ typedef boost::asio::ip::tcp::socket tcp_socket;
 typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket>
     websocket_stream;
 
-// Base WS connection. Used for DSA connections over WS.
-class WsConnection : public Connection {
-  // write buffer will have 1/16 unusable part by default
-  // which seems to improve the performance
-  static const size_t DEFAULT_BUFFER_SIZE = 8192;
-  static const size_t MAX_BUFFER_SIZE = DEFAULT_BUFFER_SIZE * 15;
-
+class WsConnection : public BaseSocketConnection {
   class WriteBuffer : public ConnectionWriteBuffer {
     WsConnection &connection;
     size_t size = 0;
@@ -39,19 +31,10 @@ class WsConnection : public Connection {
   };
 
  protected:
-  void read_loop_(shared_ptr_<Connection> &&connection, size_t from_prev,
-                  const boost::system::error_code &error,
-                  size_t bytes_transferred);
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
     start_read(std::move(sthis));
   }
-  std::vector<uint8_t> _read_buffer;
-  std::vector<uint8_t> _write_buffer;
-  websocket_stream _ws;
-  std::atomic_bool _ws_open{true};
-
-  void on_deadline_timer_(const boost::system::error_code &error,
-                          shared_ptr_<Connection> &&sthis);
+  websocket_stream _socket;
 
   void destroy_impl() override;
 
@@ -59,12 +42,11 @@ class WsConnection : public Connection {
   WsConnection(websocket_stream &ws, LinkStrandRef &strand,
                const string_ &dsid_prefix, const string_ &path = "");
 
-  void start_read(shared_ptr_<Connection> &&connection, size_t cur = 0,
-                  size_t next = 0);
+  void start_read(shared_ptr_<Connection> &&connection) final;
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
 
-  websocket_stream &websocket();
+  websocket_stream &socket();
 };
 
 }  // namespace dsa
