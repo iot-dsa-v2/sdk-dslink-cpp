@@ -19,7 +19,7 @@ void WsServerConnection::accept() {
     };
   }
 
-  WsConnection::start_read(share_this<WsServerConnection>(), 0, 0);
+  WsConnection::start_read(share_this<WsServerConnection>());
   start_deadline_timer(15);
 }
 
