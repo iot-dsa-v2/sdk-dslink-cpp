@@ -66,6 +66,8 @@ class NodeState : public DestroyableRef<NodeState> {
 
   SubscribeOptions _merged_subscribe_options;
   void check_subscribe_options();
+  // check unavailable children that need to get model from new parent
+  void connect_unavailable_children(NodeState &modeled_state);
 
   void destroy_impl() override;
 
@@ -89,6 +91,11 @@ class NodeState : public DestroyableRef<NodeState> {
   // Getters
   //////////////////////////
   const string_ &path() { return _path.full_str(); }
+
+  inline bool is_idle() {
+    return _subscription_streams.empty() && _list_streams.empty() &&
+           _waiting_cache == nullptr && _children.empty();
+  }
 
   bool periodic_check(size_t ts);
   /////////////////////////

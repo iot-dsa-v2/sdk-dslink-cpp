@@ -70,15 +70,17 @@ ref_<NodeState> NodeState::create_child(const Path &path,
       if (_model_status == MODEL_UNKNOWN) {
         new_state->set_model(last_modeled_state._model->on_demand_create_child(
             // use offset name from the create state's path
-            path.move_pos(last_modeled_state._path.data()->names.size())));
+            path.rest_part(last_modeled_state._path)));
       } else if (_model_status == MODEL_CONNECTED) {
         new_state->set_model(_model->on_demand_create_child(path));
       } else {
         new_state->_model_status = _model_status;
       }
       return new_state;
+    } else {
+      new_state->_path = path.copy_to_pos(path.current_pos());
     }
-    return _children[name]->create_child(path.next(), last_modeled_state, true);
+    return new_state->create_child(path.next(), last_modeled_state, true);
   }
   // not found, return a nullptr
   return ref_<NodeState>();
@@ -141,15 +143,45 @@ void NodeState::set_model(ModelRef &&model) {
     // invoke and set streams
     if (_waiting_cache != nullptr) {
       for (auto &invoke_stream : _waiting_cache->invokes) {
-        _model->invoke(std::move(invoke_stream), _parent);
+        if (!invoke_stream->is_destroyed()) {
+          _model->invoke(std::move(invoke_stream), _parent);
+        }
       }
       for (auto &set_stream : _waiting_cache->sets) {
-        _model->set(std::move(set_stream));
+        if (!set_stream->is_destroyed()) {
+          _model->set(std::move(set_stream));
+        }
       }
       _waiting_cache.reset();
     }
+
+    // find children at unavailable state and try getting it from parent
+    connect_unavailable_children(*this);
   }
 }
+
+void NodeState::connect_unavailable_children(NodeState &nearest_modeled_state) {
+  for (auto it = _children.begin(); it != _children.end(); ++it) {
+    switch (it->second->_model_status) {
+      case MODEL_UNAVAILABLE:
+        if (!is_idle()) {
+          it->second->set_model(
+              nearest_modeled_state._model->on_demand_create_child(
+                  it->second->_path.rest_part(nearest_modeled_state._path)));
+          if (it->second->_model_status == MODEL_CONNECTED) {
+            it->second->connect_unavailable_children(*it->second);
+            return;
+          }
+        } else {
+          // it's availible, not not used
+          it->second->_model_status = MODEL_UNKNOWN;
+        }
+      case MODEL_UNKNOWN:
+        it->second->connect_unavailable_children(nearest_modeled_state);
+    }
+  }
+}
+
 bool NodeState::periodic_check(size_t ts) {
   for (auto it = _children.begin(); it != _children.end();) {
     if (it->second->periodic_check(ts)) {
@@ -158,11 +190,8 @@ bool NodeState::periodic_check(size_t ts) {
       it++;
     }
   }
-
-  if (_subscription_streams.empty() && _list_streams.empty() &&
-      _children.empty() &&
-      // check if model is still in use
-      (_model == nullptr || _model->periodic_check(ts))) {
+  // check if model is still in use
+  if (is_idle() && (_model == nullptr || _model->periodic_check(ts))) {
     destroy();
     return true;
   }
@@ -258,7 +287,7 @@ void NodeState::list(ref_<BaseOutgoingListStream> &&stream) {
   });
   if (_model != nullptr) {
     _model->list(*p);
-  } else if (_model_status == MODEL_INVALID){
+  } else if (_model_status == MODEL_INVALID) {
     p->update_response_status(MessageStatus::NOT_SUPPORTED);
   } else {
     p->update_response_status(MessageStatus::NOT_AVAILABLE);
@@ -314,9 +343,8 @@ void NodeState::destroy_impl() {
     _waiting_cache.reset(nullptr);
   }
 
-  if (!_path.is_invalid()) {
-    _owner.remove_state(_path.full_str());
-  }
+  _owner.remove_state(_path.full_str());
+
   _parent.reset();
   // TODO: ali ask
   //  if(_parent != nullptr) {

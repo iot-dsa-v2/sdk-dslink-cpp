@@ -38,7 +38,7 @@ class Path {
   Path() = default;
   explicit Path(const string_ &path);
 
-  const ref_<const PathData> &data() { return _data; }
+  const ref_<const PathData> &data() const { return _data; }
 
   bool is_invalid() const { return _data == nullptr || _data->invalid; }
   bool is_root() const { return _data->is_root; }
@@ -61,14 +61,20 @@ class Path {
 
   const Path next() const { return Path(_data, _current + 1); }
   const Path previous() const { return Path(_data, _current - 1); }
-  const Path move_pos(size_t pos) const { return Path(_data, pos); }
+  const Path rest_part(const Path &base) const {
+    return Path(_data, base._data->names.size());
+  }
 
   const Path get_child_path(const string_ &name);
 
   const Path get_parent_path();
 
   // deep copy the path to share with other thread
-  const Path deep_copy();
+  const Path deep_copy() const;
+
+  // pos is the inclusive position of the name
+  // i.e. if pos==2, the path will have total size of 3
+  const Path copy_to_pos(size_t pos) const;
 };
 }
 

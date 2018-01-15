@@ -241,7 +241,7 @@ TEST(BrokerDownstreamTest, List) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BrokerDownstreamTest, Downstream_not_available) {
+TEST(BrokerDownstreamTest, ListDownStreamDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
   auto broker = create_broker();
@@ -254,23 +254,7 @@ TEST(BrokerDownstreamTest, Downstream_not_available) {
   client_strand2.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
-
-  // after client1 disconnected, list update should show it's disconnected
-  auto step_2_list_on_disconnected_link = [&]() {
-    tcp_client1->get_session().requester.list(
-        "downstream/test2",
-        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-
-          // end the test
-          client_strand2.strand->post([tcp_client2, &client_strand2]() {
-            tcp_client2->destroy();
-            client_strand2.destroy();
-          });
-
-          broker->strand->post([broker]() { broker->destroy(); });
-        });
-  };
+  shared_ptr_<Connection> connection2;
 
   int step = 0;
   // when list on downstream/test1 it should have a metadata for test1's dsid
@@ -283,25 +267,105 @@ TEST(BrokerDownstreamTest, Downstream_not_available) {
             case 1: {
               // step 1, connect client 2
               EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-              tcp_client2->connect();
+              tcp_client2->connect(
+                  [&](const shared_ptr_<Connection>& conn) {
+                    connection2 = conn;
+                  });
               break;
             }
             case 2: {
               // step 2, disconnect client 2
               EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              connection2->destroy_in_strand(connection2);
+              break;
+            }
+
+            case 3: {
+              // step 3, disconnected
+              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              break;
+            }
+
+            default: {
+              // step 3, reconnected
+              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              client_strand1.strand->post([tcp_client1, &client_strand1]() {
+                tcp_client1->destroy();
+                client_strand1.destroy();
+              });
               client_strand2.strand->post([tcp_client2, &client_strand2]() {
                 tcp_client2->destroy();
                 client_strand2.destroy();
               });
+              broker->strand->post([broker]() { broker->destroy(); });
+            }
+          }
+
+        });
+  };
+
+  tcp_client1->connect(std::move(unavailable_child_list));
+
+  broker->run();
+  EXPECT_TRUE(broker->is_destroyed());
+}
+
+
+TEST(BrokerDownstreamTest, ListDownStreamChildDisconnect) {
+  typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
+
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+
+  WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
+  auto tcp_client1 = make_ref_<Client>(client_strand1);
+
+  WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2");
+  client_strand2.strand->set_responder_model(
+      ModelRef(new MockNodeRoot(client_strand2.strand)));
+  auto tcp_client2 = make_ref_<Client>(client_strand2);
+  shared_ptr_<Connection> connection2;
+
+  int step = 0;
+  // when list on downstream/test1 it should have a metadata for test1's dsid
+  auto unavailable_child_list = [&](const shared_ptr_<Connection>& connection) {
+    tcp_client1->get_session().requester.list(
+        "downstream/test2/value",
+        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+          step++;
+          switch (step) {
+            case 1: {
+              // step 1, connect client 2
+              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              tcp_client2->connect(
+                  [&](const shared_ptr_<Connection>& conn) {
+                    connection2 = conn;
+                  });
+              break;
+            }
+            case 2: {
+              // step 2, disconnect client 2
+              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              connection2->destroy_in_strand(connection2);
               break;
             }
 
-            default: {  //   case 3:{
-              // step 3, end test
+            case 3: {
+              // step 3, disconnected
               EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              break;
+            }
+
+            default: {
+              // step 3, reconnected
+              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
               client_strand1.strand->post([tcp_client1, &client_strand1]() {
                 tcp_client1->destroy();
                 client_strand1.destroy();
+              });
+              client_strand2.strand->post([tcp_client2, &client_strand2]() {
+                tcp_client2->destroy();
+                client_strand2.destroy();
               });
               broker->strand->post([broker]() { broker->destroy(); });
             }

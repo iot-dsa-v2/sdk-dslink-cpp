@@ -111,7 +111,12 @@ const Path Path::get_parent_path() {
     return Path();
   }
 }
-const Path Path::deep_copy() {
+const Path Path::deep_copy() const {
   return Path(make_ref_<PathData>(*_data), _current);
+}
+const Path Path::copy_to_pos(size_t pos) const {
+  return Path(make_ref_<PathData>(std::vector<string_>(
+                  _data->names.data(), _data->names.data() + pos + 1)),
+              pos);
 }
 }
