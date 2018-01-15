@@ -11,7 +11,7 @@
 #include "core/client.h"
 #include "module/logger.h"
 
-//#include "../../sdk/async_test.h"
+#include "../../sdk/async_test.h"
 #include "dslink.h"
 
 using namespace dsa;
@@ -44,9 +44,12 @@ TEST(BrokerPageTest, Invoke_Request) {
     big_str1[i] = static_cast<char>(i % 26 + 'a');
   }
 
-  auto broker = create_broker();
 
-  shared_ptr_<App>& app = broker->get_app();
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->run();
+  WAIT_EXPECT_TRUE(500,
+                   [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -74,6 +77,10 @@ TEST(BrokerPageTest, Invoke_Request) {
         std::move(invoke_req));
 
   });
-  broker->run();
+  app->close();
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  if (!app->is_stopped()) { app->force_stop(); }
+  app->wait();
+  broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }

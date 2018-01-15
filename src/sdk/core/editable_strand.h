@@ -79,7 +79,7 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
   bool secure = false;
 
   string_ tcp_host;
-  uint16_t tcp_port{0};
+  int32_t tcp_port{0};
 
   string_ ws_host;
   uint16_t ws_port{0};

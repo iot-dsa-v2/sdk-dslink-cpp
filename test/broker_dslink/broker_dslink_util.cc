@@ -18,13 +18,10 @@ MockNodeRoot::MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) 
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
   const char* empty_argv[1];
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
+  broker_config->port().set_value(Var(0));
   ModuleLoader modules(broker_config);
 
-  ref_<DsBroker> broker;
-  if(app != nullptr)
-    broker = make_ref_<DsBroker>(std::move(broker_config), modules, app);
-  else
-    broker = make_ref_<DsBroker>(std::move(broker_config), modules);
+  auto broker = make_ref_<DsBroker>(std::move(broker_config), modules, app);
 
   static_cast<ConsoleLogger &>(broker->strand->logger()).filter =
       Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
