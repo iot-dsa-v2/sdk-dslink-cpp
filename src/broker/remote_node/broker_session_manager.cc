@@ -32,16 +32,11 @@ void BrokerSessionManager::get_session(const string_ &dsid,
       // create the client and add the current session to it
       auto client = make_ref_<BrokerClient>(get_ref(), client_info);
       _clients[dsid] = client;
+      client->add_session(_strand, std::move(callback));
       if (client_info.max_session == 1 && !client_info.responder_path.empty()) {
-        // init single session of the client
-        client->create_single_session(_strand);
-        client->add_session(_strand, std::move(callback));
-
         // init the downstream node after session get connected
         _downstream_root->get_root_for_client(client_info,
                                               *client->_single_session);
-      } else {
-        client->add_session(_strand, std::move(callback));
       }
     } else {
       _clients[dsid]->add_session(_strand, std::move(callback));

@@ -68,7 +68,7 @@ ECDH::ECDH(const ECDH &ecdh) {
   cache_public_key();
 }
 
-ECDH::ECDH(uint8_t *data, size_t size) {
+ECDH::ECDH(const uint8_t *data, size_t size) {
   int nid = OBJ_sn2nid(curve_name);
   key = EC_KEY_new_by_curve_name(nid);
   group = EC_KEY_get0_group(key);

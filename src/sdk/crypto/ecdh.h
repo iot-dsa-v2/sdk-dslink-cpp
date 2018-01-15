@@ -35,7 +35,7 @@ class ECDH {
 
  public:
   ECDH() throw(const std::runtime_error &);
-  ECDH(uint8_t *data, size_t size);
+  ECDH(const uint8_t *data, size_t size);
   ECDH(const ECDH &ecdh);
   ECDH &operator=(const ECDH &ecdh);
   ~ECDH();

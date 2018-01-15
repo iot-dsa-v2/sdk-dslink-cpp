@@ -3,18 +3,19 @@
 #include "dsa/responder.h"
 #include "dsa/stream.h"
 
+#include <math.h>
+#include <atomic>
+#include <boost/program_options.hpp>
 #include <chrono>
 #include <ctime>
 #include <iostream>
 #include "core/client.h"
+#include "module/default/console_logger.h"
+#include "module/default/simple_security_manager.h"
+#include "module/default/simple_session_manager.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"
 #include "util/date_time.h"
-
-#include <math.h>
-#include <atomic>
-
-#include <boost/program_options.hpp>
 
 using high_resolution_clock = std::chrono::high_resolution_clock;
 using time_point = std::chrono::high_resolution_clock::time_point;
@@ -59,13 +60,26 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
   client_strand.tcp_host = "127.0.0.1";
   client_strand.tcp_port = 4120;
 
-  client_strand.strand = EditableStrand::make_default(app);
-  client_strand.client_connection_maker =
-      [
-        dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-        tcp_port = client_strand.tcp_port
-      ](LinkStrandRef & strand)
-          ->shared_ptr_<Connection> {
+  const uint8_t private_key[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  client_strand.strand = make_ref_<EditableStrand>(
+      app->new_strand(), make_unique_<ECDH>(private_key, 32));
+
+  client_strand.strand->set_session_manager(
+      make_ref_<SimpleSessionManager>(client_strand.strand));
+
+  client_strand.strand->set_security_manager(
+      make_ref_<SimpleSecurityManager>());
+
+  auto logger = make_unique_<ConsoleLogger>();
+  client_strand.strand->set_logger(std::move(logger));
+
+  client_strand.strand->logger().level = Logger::ERROR_;
+  client_strand.client_connection_maker = [
+    dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+    tcp_port = client_strand.tcp_port
+  ](LinkStrandRef & strand)->shared_ptr_<Connection> {
     return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                              tcp_port);
   };
