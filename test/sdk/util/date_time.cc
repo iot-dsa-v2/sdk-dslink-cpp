@@ -1,5 +1,5 @@
 #include "dsa/util.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 TEST(DateTime, DateTime) {
   std::string str0 = dsa::DateTime::get_ts();

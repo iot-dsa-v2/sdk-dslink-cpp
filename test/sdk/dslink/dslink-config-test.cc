@@ -1,11 +1,11 @@
 #include "dsa/crypto.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
-#include <module/logger.h>
-#include <util/string.h>
 #include <boost/filesystem/operations.hpp>
 #include <boost/format.hpp>
 #include <thread>
+#include "module/logger.h"
+#include "util/string.h"
 #include "dsa/responder.h"
 #include "dslink.h"
 #include "module/default/console_logger.h"

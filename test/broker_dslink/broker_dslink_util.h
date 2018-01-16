@@ -1,8 +1,8 @@
-#include <broker.h>
-#include <config/broker_config.h>
-#include <config/module_loader.h>
-#include <module/default/console_logger.h>
-#include <util/string.h>
+#include "broker.h"
+#include "config/broker_config.h"
+#include "config/module_loader.h"
+#include "module/default/console_logger.h"
+#include "util/string.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
 #include "dsa/requester.h"
@@ -11,8 +11,8 @@
 
 #include "../sdk/async_test.h"
 #include "../sdk/test_config.h"
-#include "gtest/gtest.h"
 #include "module/logger.h"
+#include <gtest/gtest.h>
 
 using namespace dsa;
 

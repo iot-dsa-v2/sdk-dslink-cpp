@@ -4,7 +4,7 @@
 
 #include "../async_test.h"
 #include "../test_config.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "network/tcp/tcp_server.h"
 
 using namespace dsa;

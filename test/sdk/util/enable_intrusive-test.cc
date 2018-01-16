@@ -1,5 +1,5 @@
 #include "dsa/util.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace {
 class RefCheck : public dsa::EnableRef<RefCheck> {

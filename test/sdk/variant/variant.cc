@@ -1,6 +1,6 @@
-#include <dsa/crypto.h>
+#include "dsa/crypto.h"
 #include "dsa/variant.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace dsa;
 

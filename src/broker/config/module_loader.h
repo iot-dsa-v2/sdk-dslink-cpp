@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "boost/function.hpp"
+#include <boost/function.hpp>
 #include "util/enable_ref.h"
 
 namespace dsa {

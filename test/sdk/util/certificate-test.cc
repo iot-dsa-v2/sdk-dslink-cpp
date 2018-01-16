@@ -1,6 +1,6 @@
 #include "dsa/util.h"
-#include "gtest/gtest.h"
 
+#include <gtest/gtest.h>
 #include <boost/filesystem.hpp>
 
 TEST(SSLTest, generate_certificate) {
