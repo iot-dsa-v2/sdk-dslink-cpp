@@ -57,7 +57,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 };
 }
 
-TEST(ResponderTest, Set_Model) {
+TEST(ResponderTest, SetModel) {
   typedef responder_set_test::MockNode MockNode;
   auto app = std::make_shared<App>();
   // get the configs for unit testing
@@ -144,7 +144,7 @@ TEST(ResponderTest, Set_Model) {
   app->wait();
 }
 
-TEST(ResponderTest, Set_Acceptor) {
+TEST(ResponderTest, SetAcceptor) {
   typedef responder_set_test::MockStreamAcceptor MockStreamAcceptor;
   auto app = std::make_shared<App>();
 

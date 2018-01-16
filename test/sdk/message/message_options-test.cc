@@ -3,7 +3,7 @@
 
 using namespace dsa;
 
-TEST(MessageOptionsTest, mergeFrom) {
+TEST(MessageOptionsTest, MergeFrom) {
   {
     SubscribeOptions initial_option;
     initial_option.priority = false;

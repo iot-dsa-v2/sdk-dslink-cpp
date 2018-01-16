@@ -62,7 +62,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 };
 }
 
-TEST(ResponderTest, Subscribe_Model) {
+TEST(ResponderTest, SubscribeModel) {
   typedef responder_subscribe_test::MockNode MockNode;
   auto app = std::make_shared<App>();
 
@@ -158,7 +158,7 @@ TEST(ResponderTest, Subscribe_Model) {
   app->wait();
 }
 
-TEST(ResponderTest, Subscribe_Acceptor) {
+TEST(ResponderTest, SubscribeAcceptor) {
   typedef responder_subscribe_test::MockStreamAcceptor MockStreamAcceptor;
   auto app = std::make_shared<App>();
 

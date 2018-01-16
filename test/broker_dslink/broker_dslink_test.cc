@@ -2,7 +2,7 @@
 
 using namespace dsa;
 
-TEST(BROKER_DSLINK_TEST, Reconnect) {
+TEST(BrokerDsLinkTest, Reconnect) {
   auto app = make_shared_<App>();
 
   auto broker = broker_dslink_test::create_broker(app);
@@ -70,7 +70,7 @@ TEST(BROKER_DSLINK_TEST, Reconnect) {
   app->wait();
 }
 
-TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
+TEST(BrokerDsLinkTest, NotAvailableStep3) {
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
   broker->run(false);
@@ -125,7 +125,7 @@ TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BROKER_DSLINK_TEST, STOP_TEST) {
+TEST(BrokerDsLinkTest, StopTest) {
   std::string close_token = "12345678901234567890123456789012";
   string_to_file(close_token, ".close_token");
 
@@ -160,7 +160,7 @@ TEST(BROKER_DSLINK_TEST, STOP_TEST) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BROKER_DSLINK_TEST, SYS_LIST_WITH_CLOSE_TOKEN) {
+TEST(BrokerDsLinkTest, SysListWithCloseToken) {
   std::string close_token = "12345678901234567890123456789012";
   string_to_file(close_token, ".close_token");
 
@@ -201,7 +201,7 @@ TEST(BROKER_DSLINK_TEST, SYS_LIST_WITH_CLOSE_TOKEN) {
   app->wait();
 }
 
-TEST(BROKER_DSLINK_TEST, SYS_LIST_WITHOUT_CLOSE_TOKEN) {
+TEST(BrokerDsLinkTest, SysListWithoutCloseToken) {
   // we force to not have close
   std::remove(".close_token");
 

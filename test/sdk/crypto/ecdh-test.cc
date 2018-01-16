@@ -7,7 +7,7 @@ using boost::format;
 
 using namespace dsa;
 
-TEST(ECDHTest, get_private_key) {
+TEST(ECDHTest, GetPrivateKey) {
   ECDH ecdh1;
   ECDH ecdh2;
 
@@ -27,7 +27,7 @@ TEST(ECDHTest, get_private_key) {
 //  EXPECT_EQ(0, 0);
 //}
 
-TEST(ECDHTest, get_public_key) {
+TEST(ECDHTest, GetPublicKey) {
   ECDH ecdh1;
   ECDH ecdh2;
 
@@ -48,14 +48,14 @@ TEST(ECDHTest, get_public_key) {
 //  EXPECT_EQ(0, 0);
 //}
 
-TEST(ECDHTest, set_private_key_hex_MemoryLeak) {
+TEST(ECDHTest, SetPrivateKeyHexMemoryLeak) {
   ECDH ecdh;
 
   const char data[128] = "0123456789abcdefABCDEF";
   ecdh.set_private_key_hex(data);
 }
 
-TEST(ECDHTest, set_private_key_hex_Exception) {
+TEST(ECDHTest, SetPrivateKeyHexException) {
   ECDH ecdh;
 
   EXPECT_THROW(
@@ -71,7 +71,7 @@ TEST(ECDHTest, set_private_key_hex_Exception) {
       std::runtime_error);
 }
 
-TEST(ECDHTest, compute_secret) {
+TEST(ECDHTest, ComputeSecret) {
   ECDH A_ecdh;
   ECDH B_ecdh;
 

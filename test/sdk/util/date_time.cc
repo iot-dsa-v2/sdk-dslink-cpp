@@ -1,7 +1,7 @@
 #include "dsa/util.h"
 #include <gtest/gtest.h>
 
-TEST(DateTime, DateTime) {
+TEST(DateTimeTest, DateTime) {
   std::string str0 = dsa::DateTime::get_ts();
 
   size_t count = 0;

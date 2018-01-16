@@ -19,7 +19,7 @@ using namespace dsa;
 
 static const int32_t big_str_size = 100000;
 
-TEST(ResponderTest, Paged_Invoke_Request) {
+TEST(ResponderTest, PagedInvokeRequest) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
@@ -106,7 +106,7 @@ TEST(ResponderTest, Paged_Invoke_Request) {
   app->wait();
 }
 
-TEST(ResponderTest, Paged_Invoke_Response) {
+TEST(ResponderTest, PagedInvokeResponse) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);

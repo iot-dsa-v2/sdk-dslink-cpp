@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <boost/filesystem.hpp>
 
-TEST(SSLTest, generate_certificate) {
+TEST(SSLTest, GenerateCertificate) {
 
   dsa::generate_certificate();
 

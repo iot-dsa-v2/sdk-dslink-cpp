@@ -3,7 +3,7 @@
 
 using namespace dsa;
 
-TEST(BufferTest, output) {
+TEST(BufferTest, Output) {
 
   std::vector<uint8_t> v = {0x01, 0x02, 0x03, 0x04};
   RefCountBytes ib(v);

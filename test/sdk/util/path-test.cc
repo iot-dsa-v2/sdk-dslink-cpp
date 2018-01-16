@@ -3,9 +3,9 @@
 
 using namespace dsa;
 
-TEST(PathTest, Path__invalid_name) {}
+TEST(PathTest, PathInvalidName) {}
 
-TEST(PathTest, Path__is_invalid) {
+TEST(PathTest, PathIsValid) {
   {
     Path p("/");
     EXPECT_TRUE(p.is_invalid());
@@ -98,7 +98,7 @@ TEST(PathTest, Path__is_invalid) {
   }
 }
 
-TEST(PathTest, Path__is_root) {
+TEST(PathTest, PathIsRoot) {
   {
     Path p("");
 
@@ -107,7 +107,7 @@ TEST(PathTest, Path__is_root) {
 
 }
 
-TEST(PathTest, Path__is_node) {
+TEST(PathTest, PathIsNode) {
   {
     Path p("path/to/dsa$conf");
     EXPECT_FALSE(p.is_invalid());
@@ -146,7 +146,7 @@ TEST(PathTest, Path__is_node) {
   }
 }
 
-//TEST(PathTest, Path__is_metadata) {
+//TEST(PathTest, PathIsMetadata) {
 //  {
 //    Path p("$");
 //    EXPECT_TRUE(p.is_metadata());
@@ -169,7 +169,7 @@ TEST(PathTest, Path__is_node) {
 //  }
 //}
 
-//TEST(PathTest, Path__is_attribute) {
+//TEST(PathTest, PathIsAttribute) {
 //  {
 //    Path p("@");
 //    EXPECT_TRUE(p.is_attribute());
@@ -193,7 +193,7 @@ TEST(PathTest, Path__is_node) {
 //  }
 //}
 
-TEST(PathTest, Path__current__next__last) {
+TEST(PathTest, PathCurrentNextLast) {
   Path path("path/to/dsa");
 
   EXPECT_EQ("path", path.current_name());
@@ -208,7 +208,7 @@ TEST(PathTest, Path__current__next__last) {
   
 }
 
-TEST(PathTest, Path__copy) {
+TEST(PathTest, PathCopy) {
   {
     Path src_path("p1/p2/p3");
     Path des_path = src_path.deep_copy();

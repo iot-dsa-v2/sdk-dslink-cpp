@@ -35,7 +35,7 @@ class MockNode : public NodeModelBase {
 
 }
 
-TEST(DSLinkTest, Subscribe_Test) {
+TEST(DslinkTest, SubscribeTest) {
   typedef link_subscribe_test::MockNode MockNode;
 
   shared_ptr<App> app = make_shared<App>();
@@ -84,7 +84,7 @@ TEST(DSLinkTest, Subscribe_Test) {
 
 };
 
-TEST(LinkTest, Subscribe_Multi_Test) {
+TEST(DslinkTest, SubscribeMultiTest) {
   typedef link_subscribe_test::MockNode MockNode;
 
   auto app = make_shared<App>();

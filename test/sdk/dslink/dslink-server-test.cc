@@ -32,7 +32,7 @@ class ExampleNodeRoot : public NodeModel {
   };
 };
 
-TEST(DSLinkTest, Server_Test) {
+TEST(DslinkTest, ServerTest) {
   shared_ptr<App> app = make_shared<App>();
 
   const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4120",
@@ -101,7 +101,7 @@ TEST(DSLinkTest, Server_Test) {
   app->wait();
 }
 
-TEST(DSLinkTest, CloseTest) {
+TEST(DslinkTest, CloseTest) {
   shared_ptr<App> app = make_shared<App>();
 
   // first create .close_token

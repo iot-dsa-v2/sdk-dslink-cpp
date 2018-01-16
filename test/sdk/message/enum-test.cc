@@ -3,7 +3,7 @@
 
 using namespace dsa;
 
-TEST(EnumTest, enum) {
+TEST(EnumTest, Enum) {
   {
     std::stringstream ss;
     ss << MessageType::CLOSE_REQUEST;

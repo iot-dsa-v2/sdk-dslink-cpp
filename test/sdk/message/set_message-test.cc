@@ -12,7 +12,7 @@ bool check_static_headers(SetRequestMessage& message, uint8_t* expected_values,
   return (memcmp(expected_values, buf, size) == 0);
 }
 
-TEST(MessageTest, SetRequest__Constructor_01) {
+TEST(MessageTest, SetRequestConstructor01) {
   // public methods
   // SetRequestMessage();
 
@@ -32,7 +32,7 @@ TEST(MessageTest, SetRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, SetRequest__Constructor_02) {
+TEST(MessageTest, SetRequestConstructor02) {
   //   SetRequestMessage(const SetRequestMessage&);
 
   const SetRequestMessage src__request;
@@ -60,7 +60,7 @@ TEST(MessageTest, SetRequest__Constructor_02) {
   EXPECT_EQ(29, target__request.size());
 }
 
-TEST(MessageTest, SetRequest__Constructor_03) {
+TEST(MessageTest, SetRequestConstructor03) {
   //   SetRequestMessage(const uint8_t* data, size_t size);
 
   const uint8_t data[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0, 0x4, 0x0,
@@ -83,7 +83,7 @@ TEST(MessageTest, SetRequest__Constructor_03) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, SetRequest__Constructor_04) {
+TEST(MessageTest, SetRequestConstructor04) {
   //   SetRequestMessage(const uint8_t* data, size_t size);
 
   SetRequestMessage request;
@@ -108,7 +108,7 @@ TEST(MessageTest, SetRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
-TEST(MessageTest, SetResponse__Constructor_05) {
+TEST(MessageTest, SetResponseConstructor05) {
   SetRequestMessage source_request;
 
   source_request.set_sequence_id(1234);  // no effect
@@ -138,7 +138,7 @@ TEST(MessageTest, SetResponse__Constructor_05) {
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
-TEST(MessageTest, SetRequest__update_static_header) {
+TEST(MessageTest, SetRequestUpdateStaticHeader) {
   // void update_static_header();
   SetRequestMessage request;
   request.size();
@@ -148,7 +148,7 @@ TEST(MessageTest, SetRequest__update_static_header) {
                                    sizeof(expect_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SetRequest__priority) {
+TEST(MessageTest, SetRequestPriority) {
   SetRequestMessage request;
 
   EXPECT_FALSE(request.get_priority());
@@ -156,7 +156,7 @@ TEST(MessageTest, SetRequest__priority) {
   EXPECT_TRUE(request.get_priority());
 }
 
-TEST(MessageTest, SetRequest__target_path) {
+TEST(MessageTest, SetRequestTargetPath) {
   SetRequestMessage request;
 
   EXPECT_EQ("", request.get_target_path().full_str());
@@ -164,7 +164,7 @@ TEST(MessageTest, SetRequest__target_path) {
   EXPECT_EQ("path/to/node", request.get_target_path().full_str());
 }
 
-TEST(MessageTest, SetRequest__permission_token) {
+TEST(MessageTest, SetRequestPermissionToken) {
   // TODO: to be implemented
   SetRequestMessage request;
 
@@ -173,7 +173,7 @@ TEST(MessageTest, SetRequest__permission_token) {
   EXPECT_EQ("permission-token", request.get_permission_token());
 }
 
-TEST(MessageTest, SetRequest__no_stream) {
+TEST(MessageTest, SetRequestNoStream) {
   SetRequestMessage request;
 
   EXPECT_FALSE(request.get_no_stream());
@@ -181,7 +181,7 @@ TEST(MessageTest, SetRequest__no_stream) {
   EXPECT_TRUE(request.get_no_stream());
 }
 
-TEST(MessageTest, SetRequest__write) {
+TEST(MessageTest, SetRequestWrite) {
   SetRequestMessage request;
 
   request.set_target_path("path/to/dsa");
