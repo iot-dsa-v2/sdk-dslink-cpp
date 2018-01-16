@@ -71,6 +71,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   void set_value(MessageValue &&value);
   void set_subscribe_response(SubscribeResponseMessageCRef &&message);
 
+  MessageValue get_cached_value() const;
   /// list
  protected:
   bool _need_list = false;

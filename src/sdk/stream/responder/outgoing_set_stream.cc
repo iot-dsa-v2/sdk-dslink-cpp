@@ -12,7 +12,11 @@ OutgoingSetStream::OutgoingSetStream(ref_<Session> &&session, const Path &path,
                                      uint32_t rid,
                                      ref_<SetRequestMessage> &&message)
     : MessageCacheStream(std::move(session), path, rid),
-      _waiting_request(std::move(message)) {}
+      _waiting_request(std::move(message)) {
+  if (_waiting_request->get_page_id() < 0) {
+    _waiting_pages = make_ref_<IncomingPagesMerger>(_waiting_request);
+  }
+}
 
 void OutgoingSetStream::destroy_impl() {
   if (_callback != nullptr) {

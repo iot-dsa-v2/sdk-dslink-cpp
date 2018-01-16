@@ -10,7 +10,7 @@ namespace dsa {
 
 IncomingSetStream::IncomingSetStream(ref_<Session>&& session, const Path& path,
                                      uint32_t rid, Callback&& callback)
-    : MessageCacheStream(std::move(session), path, rid),
+    : MessageQueueStream(std::move(session), path, rid),
       _callback(std::move(callback)) {}
 
 void IncomingSetStream::receive_message(ref_<Message>&& msg) {

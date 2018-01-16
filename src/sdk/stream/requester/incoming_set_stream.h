@@ -12,7 +12,7 @@ namespace dsa {
 class SetRequestMessage;
 class SetResponseMessage;
 
-class IncomingSetStream final : public MessageCacheStream {
+class IncomingSetStream final : public MessageQueueStream {
  public:
   typedef std::function<void(IncomingSetStream&,
                              ref_<const SetResponseMessage>&&)>

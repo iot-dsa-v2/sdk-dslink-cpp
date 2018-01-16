@@ -69,6 +69,13 @@ void NodeModelBase::unsubscribe() {
   }
 }
 
+MessageValue NodeModelBase::get_cached_value() const {
+  if (_cached_value != nullptr) {
+    return _cached_value->get_value();
+  }
+  return MessageValue();
+};
+
 void NodeModelBase::set_value(Var &&value) {
   _cached_value = make_ref_<SubscribeResponseMessage>(std::move(value));
   if (_need_subscribe) {

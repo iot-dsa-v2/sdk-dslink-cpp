@@ -1,3 +1,4 @@
+#include "dsa/message.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
 #include "dsa/stream.h"
@@ -112,10 +113,8 @@ TEST(ResponderTest, Paged_Invoke_Response) {
 
   string_ big_str1;
   big_str1.resize(big_str_size);
-  // big_str2.resize(big_str_size);
   for (int32_t i = 0; i < big_str_size; ++i) {
     big_str1[i] = static_cast<char>(i % 26 + 'a');
-    // big_str2[i] = static_cast<char>((i + 13) % 26 + 'a');
   }
 
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
@@ -200,10 +199,8 @@ TEST(ResponderTest, PagedSubscribeResponse) {
 
   string_ big_str1;
   big_str1.resize(big_str_size);
-  // big_str2.resize(big_str_size);
   for (int32_t i = 0; i < big_str_size; ++i) {
     big_str1[i] = static_cast<char>(i % 26 + 'a');
-    // big_str2[i] = static_cast<char>((i + 13) % 26 + 'a');
   }
 
   NodeModel *root_node =
@@ -254,6 +251,78 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&
            subscribe_stream->ref_count() == 1;
+  });
+
+  tcp_server->destroy_in_strand(tcp_server);
+  destroy_client_in_strand(tcp_client);
+
+  app->close();
+
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+
+  server_strand.destroy();
+  client_strand.destroy();
+  app->wait();
+}
+
+TEST(ResponderTest, PagedSetRequest) {
+  auto app = std::make_shared<App>();
+
+  TestConfig server_strand(app);
+
+  string_ big_str1;
+  big_str1.resize(big_str_size);
+  for (int32_t i = 0; i < big_str_size; ++i) {
+    big_str1[i] = static_cast<char>(i % 26 + 'a');
+  }
+
+  NodeModel *root_node =
+      new NodeModel(server_strand.strand->get_ref(), PermissionLevel::WRITE);
+  root_node->set_value(Var(big_str1));
+
+  server_strand.strand->set_responder_model(ModelRef(root_node));
+
+  //  auto tcp_server(new TcpServer(server_strand));
+  auto tcp_server = server_strand.create_server();
+  tcp_server->start();
+
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
+
+  auto tcp_client = make_ref_<Client>(client_strand);
+  tcp_client->connect();
+
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+                    [&]() { return tcp_client->get_session().is_connected(); });
+
+  auto request = make_ref_<SetRequestMessage>();
+  request->set_value(MessageValue(Var(big_str1)));
+
+  ref_<const SetResponseMessage> last_response;
+
+  auto set_stream = tcp_client->get_session().requester.set(
+      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&message) {
+        last_response = std::move(message);
+      },
+      request);
+
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+    return last_response != nullptr &&
+           last_response->get_status() == MessageStatus::CLOSED;
+  });
+
+  string_ response_str1 = root_node->get_cached_value().value.to_string();
+
+  EXPECT_TRUE(response_str1 == big_str1);
+
+  // close the stream
+  last_response.reset();
+
+  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+    return set_stream->is_destroyed() && set_stream->ref_count() == 1;
   });
 
   tcp_server->destroy_in_strand(tcp_server);

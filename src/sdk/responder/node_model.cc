@@ -66,7 +66,7 @@ void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
 }
 
 void NodeModel::on_subscribe(const SubscribeOptions &options,
-                  bool first_request) {
+                             bool first_request) {
   if (first_request && _cached_value == nullptr && _metas.count("$type") == 0) {
     auto response = make_ref_<SubscribeResponseMessage>();
     response->set_status(MessageStatus::NOT_SUPPORTED);
@@ -124,8 +124,12 @@ void NodeModel::remove_list_child(const string_ &name) {
 void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
   OutgoingSetStream *raw_stream_pat = stream.get();
   raw_stream_pat->on_request([
-    this, ref = get_ref(), stream = std::move(stream)
-  ](OutgoingSetStream & s, ref_<const SetRequestMessage> && message) {
+    this, ref = get_ref(), stream = std::move(stream),
+    paged_cache = ref_<IncomingPageCache<SetRequestMessage>>()
+  ](OutgoingSetStream & s, ref_<const SetRequestMessage> && message) mutable {
+    if (message == nullptr) {
+      return;  // nullptr is for destroyed callback, no need to handle here
+    }
     auto field = message->get_attribute_field();
     MessageStatus status;
     if (field.empty()) {
@@ -133,8 +137,17 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
         status = MessageStatus::NOT_SUPPORTED;
       } else if (stream->allowed_permission < _set_value_require_permission) {
         status = MessageStatus::PERMISSION_DENIED;
+      } else {
+        // try merging paged group
+        message = IncomingPageCache<SetRequestMessage>::get_first_page(
+            paged_cache, std::move(message));
+        if (message == nullptr) {
+          // paged message is not ready
+          return;
+        }
+        status = on_set_value(message->get_value());
       }
-      status = on_set_value(message->get_value());
+
     } else {
       status = on_set_attribute(field, std::move(message->get_value().value));
     }
