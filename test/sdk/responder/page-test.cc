@@ -194,11 +194,10 @@ TEST(ResponderTest, Paged_Invoke_Response) {
 }
 
 TEST(ResponderTest, PagedSubscribeResponse) {
-  return;
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
-  server_strand.strand->logger().level = Logger::ALL___;
+
   string_ big_str1;
   big_str1.resize(big_str_size);
   // big_str2.resize(big_str_size);
@@ -225,21 +224,17 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   ASYNC_EXPECT_TRUE(500, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
-
   ref_<const SubscribeResponseMessage> first_response;
   ref_<const SubscribeResponseMessage> last_response;
 
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "",
-      [&](IncomingSubscribeStream &stream,
-          ref_<const SubscribeResponseMessage> &&msg) {
+      "", [&](IncomingSubscribeStream &stream,
+              ref_<const SubscribeResponseMessage> &&msg) {
         if (first_response == nullptr) {
           first_response = msg;
         }
         last_response = std::move(msg);
-      }
-  );
-
+      });
 
   ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
     // check if last page is received
@@ -251,14 +246,14 @@ TEST(ResponderTest, PagedSubscribeResponse) {
 
   EXPECT_TRUE(response_str1 == big_str1);
 
-
   // close the stream
   first_response.reset();
   last_response.reset();
   subscribe_stream->close();
 
   ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
-    return subscribe_stream->is_destroyed() && subscribe_stream->ref_count() == 1;
+    return subscribe_stream->is_destroyed() &&
+           subscribe_stream->ref_count() == 1;
   });
 
   tcp_server->destroy_in_strand(tcp_server);

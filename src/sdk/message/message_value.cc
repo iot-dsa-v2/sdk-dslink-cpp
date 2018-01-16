@@ -76,7 +76,7 @@ MessageClass* MessageValue::write(MessageClass* message,
         value_bytes, Var::MAX_PAGE_BODY_SIZE - meta_bytes.size() - 2);
     // update value_bytes to reuse same logic to encode first page
     value_bytes = std::move(const_cast<RefCountBytes&>(*pages[0]));
-
+    message->set_page_id(-pages.size());
     last_page = message;
     for (int32_t i = 1; i < pages.size(); ++i) {
       auto next = make_ref_<MessageClass>();
