@@ -35,6 +35,9 @@ class DsBroker final : public WrapperStrand {
 
   string_ get_close_token(){return close_token;}
 
+  //not from config, coming from tcp_server's active server port
+  int32_t get_active_server_port();
+
  protected:
   bool own_app;
   shared_ptr_<App> _app;

@@ -11,7 +11,7 @@
 #include "core/client.h"
 #include "module/logger.h"
 
-//#include "../../sdk/async_test.h"
+#include "../../sdk/async_test.h"
 #include "dslink.h"
 
 using namespace dsa;
@@ -62,8 +62,11 @@ class MockNodeRoot : public NodeModel {
 TEST(BrokerDownstreamTest, Subscribe) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->run();
+  WAIT_EXPECT_TRUE(500,
+                   [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -85,15 +88,22 @@ TEST(BrokerDownstreamTest, Subscribe) {
         });
 
   });
-  broker->run();
+  app->close();
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  if (!app->is_stopped()) { app->force_stop(); }
+  app->wait();
+  broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, Invoke) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->run();
+  WAIT_EXPECT_TRUE(500,
+                   [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -119,15 +129,22 @@ TEST(BrokerDownstreamTest, Invoke) {
         std::move(invoke_req));
 
   });
-  broker->run();
+  app->close();
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  if (!app->is_stopped()) { app->force_stop(); }
+  app->wait();
+  broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, Set) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->run();
+  WAIT_EXPECT_TRUE(500,
+                   [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -168,15 +185,22 @@ TEST(BrokerDownstreamTest, Set) {
         });
 
   });
-  broker->run();
+  app->close();
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  if (!app->is_stopped()) { app->force_stop(); }
+  app->wait();
+  broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, List) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->run();
+  WAIT_EXPECT_TRUE(500,
+                   [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   client_strand1.strand->set_responder_model(
@@ -237,15 +261,22 @@ TEST(BrokerDownstreamTest, List) {
   tcp_client1->connect(std::move(step_1_downstream_child_list));
   tcp_client2->connect();
 
-  broker->run();
+  app->close();
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  if (!app->is_stopped()) { app->force_stop(); }
+  app->wait();
+  broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, ListDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->run();
+  WAIT_EXPECT_TRUE(2000,
+                   [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   auto tcp_client1 = make_ref_<Client>(client_strand1);
@@ -408,7 +439,12 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
 
   tcp_client1->connect(std::move(step_1_to_4));
 
-  broker->run();
+
+  app->close();
+  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  if (!app->is_stopped()) { app->force_stop(); }
+  app->wait();
+  broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }
 

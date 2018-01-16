@@ -6,6 +6,8 @@
 #include "stcp_server_connection.h"
 #include "tcp_server_connection.h"
 
+#include <iostream>
+
 namespace dsa {
 
 using tcp = boost::asio::ip::tcp;
@@ -28,6 +30,7 @@ TcpServer::TcpServer(WrapperStrand &config)
   if (_port == 0) {
     _port = _acceptor->local_endpoint().port();
   }
+
   LOG_INFO(_strand->logger(),
            LOG << "Bind to TCP server port: " << config.tcp_server_port);
 

@@ -12,6 +12,7 @@ namespace dsa {
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
   const char* empty_argv[1];
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
+  broker_config->port().set_value(Var(0));
   ModuleLoader modules(broker_config);
   auto broker = make_ref_<DsBroker>(std::move(broker_config), modules, app);
   // filter log for unit test
@@ -27,14 +28,16 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
   WrapperStrand client_strand;
   client_strand.dsid_prefix = dsid_prefix;
   client_strand.tcp_host = "127.0.0.1";
-  client_strand.tcp_port = broker->get_config()->port().get_value().get_int();
+  if (broker->get_config()->port().get_value().get_int() != 0)
+    client_strand.tcp_port = broker->get_config()->port().get_value().get_int();
+  else
+    client_strand.tcp_port = broker->get_active_server_port();
+
   client_strand.strand = EditableStrand::make_default(app);
-  client_strand.client_connection_maker =
-      [
-        dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-        tcp_port = client_strand.tcp_port
-      ](LinkStrandRef & strand)
-          ->shared_ptr_<Connection> {
+  client_strand.client_connection_maker = [
+    dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+    tcp_port = client_strand.tcp_port
+  ](LinkStrandRef & strand)->shared_ptr_<Connection> {
     return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                              tcp_port);
   };

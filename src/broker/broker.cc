@@ -110,7 +110,7 @@ void DsBroker::run() {
 
   // start tcp server
   strand->dispatch([this]() {
-    if (tcp_server_port > 0) {
+    if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
       _tcp_server = make_shared_<TcpServer>(*this);
       _tcp_server->start();
       LOG_SYSTEM(strand->logger(), LOG << "DsBroker started");
@@ -121,5 +121,11 @@ void DsBroker::run() {
     _app->wait();
     destroy();
   }
+}
+int32_t DsBroker::get_active_server_port() {
+  if(_tcp_server.get() == nullptr)
+    return 0;
+  else
+    return _tcp_server->get_port();
 }
 }
