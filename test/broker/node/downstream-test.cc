@@ -241,7 +241,7 @@ TEST(BrokerDownstreamTest, List) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BrokerDownstreamTest, ListDownStreamDisconnect) {
+TEST(BrokerDownstreamTest, ListDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
   auto broker = create_broker();
@@ -311,7 +311,7 @@ TEST(BrokerDownstreamTest, ListDownStreamDisconnect) {
 }
 
 
-TEST(BrokerDownstreamTest, ListDownStreamChildDisconnect) {
+TEST(BrokerDownstreamTest, ListChildDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
   auto broker = create_broker();

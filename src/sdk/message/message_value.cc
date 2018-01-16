@@ -66,7 +66,7 @@ MessageClass* MessageValue::write(MessageClass* message,
   }
 
   // return nullptr for single page
-  MessageClass* result = nullptr;
+  MessageClass* last_page = nullptr;
 
   if (value_bytes.size() + meta_bytes.size() + 2 > Var::MAX_PAGE_BODY_SIZE) {
     if (meta_bytes.size() > Var::MAX_PAGE_BODY_SIZE) {
@@ -77,15 +77,15 @@ MessageClass* MessageValue::write(MessageClass* message,
     // update value_bytes to reuse same logic to encode first page
     value_bytes = std::move(const_cast<RefCountBytes&>(*pages[0]));
 
-    MessageClass* result = message;
+    last_page = message;
     for (int32_t i = 1; i < pages.size(); ++i) {
       auto next = make_ref_<MessageClass>();
       next->set_body(std::move(pages[i]));
       next->set_page_id(i);
       next->set_sequence_id(sequence_id);
       auto* p_next = next.get();
-      result->set_next_page(std::move(next));
-      result = p_next;
+      last_page->set_next_page(std::move(next));
+      if (p_next) last_page = p_next;
     }
   }
 
@@ -97,7 +97,7 @@ MessageClass* MessageValue::write(MessageClass* message,
   merged->insert(merged->end(), meta_bytes.begin(), meta_bytes.end());
   merged->insert(merged->end(), value_bytes.begin(), value_bytes.end());
   message->set_body(std::move(merged));
-  return result;
+  return last_page;
 }
 
 // implement template functions
