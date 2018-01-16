@@ -66,7 +66,7 @@ class MockNodeListRoot_0 : public NodeModelBase {
   }
 };
 
-TEST(ResponderTest, model__add_child) {
+TEST(ResponderTest, ModelAddChild) {
   auto app = std::make_shared<App>();
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
@@ -114,7 +114,7 @@ TEST(ResponderTest, model__add_child) {
   app->wait();
 }
 
-TEST(ResponderTest, model__get_child) {
+TEST(ResponderTest, ModelGetChild) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);
@@ -161,7 +161,7 @@ TEST(ResponderTest, model__get_child) {
   app->wait();
 }
 
-TEST(ResponderTest, model__set_value) {
+TEST(ResponderTest, ModelSetValue) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);

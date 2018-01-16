@@ -7,7 +7,7 @@
 
 using namespace dsa;
 
-TEST(MessageValueTest, Constructor_01) {
+TEST(MessageValueTest, Constructor01) {
   //    MessageValue(const uint8_t* data, size_t size);
 
   std::vector<uint8_t> buf;
@@ -66,7 +66,7 @@ TEST(MessageValueTest, Constructor_01) {
   EXPECT_EQ("hello", mv.value.get_string());
 }
 
-TEST(MessageValueTest, Constructor_02) {
+TEST(MessageValueTest, Constructor02) {
   //  MessageValue(Var value);
   {
     Var v(123);
@@ -108,7 +108,7 @@ TEST(MessageValueTest, Constructor_02) {
   }
 }
 
-TEST(MessageValueTest, Constructor_03) {
+TEST(MessageValueTest, Constructor03) {
   const char* timestamp = "2000-01-01T00:00:00.000+00:00";
 
   //  MessageValue(Var value, const string_& ts);

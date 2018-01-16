@@ -269,7 +269,7 @@ TEST(BrokerDownstreamTest, List) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BrokerDownstreamTest, Downstream_not_available) {
+TEST(BrokerDownstreamTest, DownstreamNotAvailable) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
   auto app = std::make_shared<App>();

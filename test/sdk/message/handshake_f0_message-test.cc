@@ -5,7 +5,7 @@
 
 using namespace dsa;
 
-TEST(MessageTest, HandshakeF0__Constructor_01) {
+TEST(MessageTest, HandshakeF0Constructor01) {
   HandshakeF0Message message;
 
   message.dsid = "dsid";
@@ -62,7 +62,7 @@ TEST(MessageTest, HandshakeF0__Constructor_01) {
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
 }
 
-TEST(MessageTest, HandshakeF0__get_response_type) {
+TEST(MessageTest, HandshakeF0GetResponseType) {
   HandshakeF0Message message;
 
   EXPECT_EQ(MessageType::INVALID, message.get_response_type(MessageType::HANDSHAKE0));

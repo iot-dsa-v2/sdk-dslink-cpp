@@ -3,7 +3,7 @@
 
 using namespace dsa;
 
-TEST(MessageTest, HandshakeF2__Constructor_01) {
+TEST(MessageTest, HandshakeF2Constructor01) {
   HandshakeF2Message message;
 
   string_ token(
@@ -61,7 +61,7 @@ TEST(MessageTest, HandshakeF2__Constructor_01) {
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
 }
 
-TEST(MessageTest, HandshakeF2__get_response_type) {
+TEST(MessageTest, HandshakeF2GetResponseType) {
   HandshakeF2Message message;
 
   EXPECT_EQ(MessageType::INVALID,

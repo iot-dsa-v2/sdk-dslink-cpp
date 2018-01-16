@@ -12,7 +12,7 @@ bool check_static_headers(SubscribeRequestMessage& message,
   return (memcmp(expected_values, buf, size) == 0);
 }
 
-TEST(MessageTest, subscribe_request_message) {
+TEST(MessageTest, SubscribeRequestMessage) {
   SubscribeRequestMessage subscribe_request;
 
   EXPECT_EQ(0, subscribe_request.get_qos());
@@ -46,7 +46,7 @@ TEST(MessageTest, subscribe_request_message) {
   EXPECT_EQ(path, subscribe_request2.get_target_path().full_str());
 }
 
-TEST(MessageTest, SubscribeRequest__Constructor_01) {
+TEST(MessageTest, SubscribeRequestConstructor01) {
   // public methods
   // SubscribeRequestMessage();
 
@@ -66,7 +66,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, SubscribeRequest__Constructor_02) {
+TEST(MessageTest, SubscribeRequestConstructor02) {
   //   SubscribeRequestMessage(const SubscribeRequestMessage&);
 
   const SubscribeRequestMessage src__request;
@@ -94,7 +94,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_02) {
   EXPECT_EQ(29, target__request.size());
 }
 
-TEST(MessageTest, SubscribeRequest__Constructor_03) {
+TEST(MessageTest, SubscribeRequestConstructor03) {
   //   SubscribeRequestMessage(const uint8_t* data, size_t size);
 
   const uint8_t data[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0, 0x1, 0x0,
@@ -117,7 +117,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_03) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, SubscribeRequest__Constructor_04) {
+TEST(MessageTest, SubscribeRequestConstructor04) {
   //   SubscribeRequestMessage(const uint8_t* data, size_t size);
 
   SubscribeRequestMessage request;
@@ -142,7 +142,7 @@ TEST(MessageTest, SubscribeRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
-TEST(MessageTest, SubscribeRequest__get_subscribe_options) {
+TEST(MessageTest, SubscribeRequestGetSubscribeOptions) {
   //   SubscribeOptions get_subscribe_options() const;
 
   SubscribeRequestMessage request;
@@ -157,7 +157,7 @@ TEST(MessageTest, SubscribeRequest__get_subscribe_options) {
   EXPECT_EQ(QosLevel::_2, option.qos);
 }
 
-TEST(MessageTest, SubscribeRequest__update_static_header) {
+TEST(MessageTest, SubscribeRequestUpdateStaticHeader) {
   // void update_static_header();
   SubscribeRequestMessage request;
   request.size();
@@ -167,7 +167,7 @@ TEST(MessageTest, SubscribeRequest__update_static_header) {
                                    sizeof(expect_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SubscribeRequest__priority) {
+TEST(MessageTest, SubscribeRequestPriority) {
   SubscribeRequestMessage request;
 
   EXPECT_FALSE(request.get_priority());
@@ -175,7 +175,7 @@ TEST(MessageTest, SubscribeRequest__priority) {
   EXPECT_TRUE(request.get_priority());
 }
 
-TEST(MessageTest, SubscribeRequest__target_path) {
+TEST(MessageTest, SubscribeRequestTargetPath) {
   SubscribeRequestMessage request;
 
   EXPECT_EQ("", request.get_target_path().full_str());
@@ -183,7 +183,7 @@ TEST(MessageTest, SubscribeRequest__target_path) {
   EXPECT_EQ("path/to/node", request.get_target_path().full_str());
 }
 
-TEST(MessageTest, SubscribeRequest__permission_token) {
+TEST(MessageTest, SubscribeRequestPermissionToken) {
   // TODO: to be implemented
   SubscribeRequestMessage request;
 
@@ -192,7 +192,7 @@ TEST(MessageTest, SubscribeRequest__permission_token) {
   EXPECT_EQ("permission-token", request.get_permission_token());
 }
 
-TEST(MessageTest, SubscribeRequest__no_stream) {
+TEST(MessageTest, SubscribeRequestNoStream) {
   SubscribeRequestMessage request;
 
   EXPECT_FALSE(request.get_no_stream());
@@ -200,7 +200,7 @@ TEST(MessageTest, SubscribeRequest__no_stream) {
   EXPECT_TRUE(request.get_no_stream());
 }
 
-TEST(MessageTest, SubscribeRequest__write) {
+TEST(MessageTest, SubscribeRequestWrite) {
   SubscribeRequestMessage request;
 
   request.set_target_path("path/to/dsa");
@@ -220,7 +220,7 @@ TEST(MessageTest, SubscribeRequest__write) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SubscribeRequest__dynamic_structure) {
+TEST(MessageTest, SubscribeRequestDynamicStructure) {
   SubscribeRequestMessage request;
 
   //    request.set_status(MessageStatus::CLOSED);
@@ -251,7 +251,7 @@ TEST(MessageTest, SubscribeRequest__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SubscribeResponse__Constructor_01) {
+TEST(MessageTest, SubscribeResponseConstructor01) {
   SubscribeResponseMessage response;
 
   EXPECT_EQ(15, response.size());
@@ -264,7 +264,7 @@ TEST(MessageTest, SubscribeResponse__Constructor_01) {
             response.get_response_type(MessageType::SUBSCRIBE_REQUEST));
 }
 
-TEST(MessageTest, SubscribeResponse__Constructor_02) {
+TEST(MessageTest, SubscribeResponseConstructor02) {
   SubscribeResponseMessage source_response;
 
   source_response.set_status(MessageStatus::CLOSED);
@@ -289,7 +289,7 @@ TEST(MessageTest, SubscribeResponse__Constructor_02) {
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
-TEST(MessageTest, SubscribeResponse__source_path) {
+TEST(MessageTest, SubscribeResponseSourcePath) {
   SubscribeResponseMessage response;
 
   EXPECT_EQ("", response.get_source_path());
@@ -297,7 +297,7 @@ TEST(MessageTest, SubscribeResponse__source_path) {
   EXPECT_EQ("/source/path", response.get_source_path());
 }
 
-TEST(MessageTest, SubscribeResponse__status) {
+TEST(MessageTest, SubscribeResponseStatus) {
   SubscribeResponseMessage response;
 
   static const MessageStatus message_status_all[]{
@@ -320,7 +320,7 @@ TEST(MessageTest, SubscribeResponse__status) {
   }
 }
 
-TEST(MessageTest, SubscribeResponse__write) {
+TEST(MessageTest, SubscribeResponseWrite) {
   SubscribeResponseMessage response;
 
   response.set_source_path("source/path");
@@ -340,7 +340,7 @@ TEST(MessageTest, SubscribeResponse__write) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SubscribeResponse__dynamic_structure) {
+TEST(MessageTest, SubscribeResponseDynamicStructure) {
   SubscribeResponseMessage response;
 
   response.set_status(MessageStatus::CLOSED);
@@ -363,7 +363,7 @@ TEST(MessageTest, SubscribeResponse__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, SubscribeResponse__copy) {
+TEST(MessageTest, SubscribeResponseCopy) {
   SubscribeResponseMessage response;
 
   response.set_status(MessageStatus::CLOSED);

@@ -31,7 +31,7 @@ static ref_<DsLink> create_test_dslink(int argc, const char *argv[]) {
   return std::move(link);
 }
 
-TEST(DSLinkTest, default_param) {
+TEST(DslinkTest, DefaultParam) {
   const char *argv[] = {"./test"};
   int argc = 1;
   auto link = create_test_dslink(argc, argv);
@@ -49,7 +49,7 @@ TEST(DSLinkTest, default_param) {
   link.reset();
 }
 
-TEST(DSLinkTest, url_param1) {
+TEST(DslinkTest, UrlParam1) {
   const char *argv[] = {"./test", "-b", "192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -61,7 +61,7 @@ TEST(DSLinkTest, url_param1) {
   link.reset();
 }
 
-TEST(DSLinkTest, url_param2) {
+TEST(DslinkTest, UrlParam2) {
   const char *argv[] = {"./test", "--broker", "192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -73,7 +73,7 @@ TEST(DSLinkTest, url_param2) {
   link.reset();
 }
 
-TEST(DSLinkTest, url_param3) {
+TEST(DslinkTest, UrlParam3) {
   const char *argv[] = {"./test", "--broker", "dss://192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -85,7 +85,7 @@ TEST(DSLinkTest, url_param3) {
   link.reset();
 }
 
-TEST(DSLinkTest, url_param4) {
+TEST(DslinkTest, url_param4) {
   const char *argv[] = {"./test", "--broker", "dss://192.168.1.12:132"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -97,7 +97,7 @@ TEST(DSLinkTest, url_param4) {
   link.reset();
 }
 
-TEST(DSLinkTest, url_param5) {
+TEST(DslinkTest, UrlParam5) {
   const char *argv[] = {"./test", "--broker", "ws://192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -111,7 +111,7 @@ TEST(DSLinkTest, url_param5) {
   link.reset();
 }
 
-TEST(DSLinkTest, url_param6) {
+TEST(DslinkTest, UrlParam6) {
   const char *argv[] = {"./test", "--broker", "wss://192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -123,7 +123,7 @@ TEST(DSLinkTest, url_param6) {
   link.reset();
 }
 
-TEST(DSLinkTest, url_param7) {
+TEST(DslinkTest, UrlParam7) {
   const char *argv[] = {"./test", "--broker", "wss://192.168.1.12:132"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -135,7 +135,7 @@ TEST(DSLinkTest, url_param7) {
   link.reset();
 }
 
-TEST(DSLinkTest, log_param1) {
+TEST(DslinkTest, LogParam1) {
   const char *argv[] = {"./test", "-l", "invalid_val"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -146,7 +146,7 @@ TEST(DSLinkTest, log_param1) {
 }
 
 //// comment out this test to avoid unecessary console output
-// TEST(DSLinkTest, log_param2) {
+// TEST(DslinkTest, log_param2) {
 //  const char *argv[] = {"./test", "-l", "all"};
 //  int argc = 3;
 //  auto link = create_test_dslink(argc, argv);
@@ -156,7 +156,7 @@ TEST(DSLinkTest, log_param1) {
 //  link.reset();
 //}
 //// comment out this test to avoid unecessary console output
-// TEST(DSLinkTest, log_param3) {
+// TEST(DslinkTest, log_param3) {
 //  const char *argv[] = {"./test", "-l", "trace"};
 //  int argc = 3;
 //  auto link = create_test_dslink(argc, argv);
@@ -166,7 +166,7 @@ TEST(DSLinkTest, log_param1) {
 //  link.reset();
 //}
 
-TEST(DSLinkTest, log_param4) {
+TEST(DslinkTest, LogParam4) {
   const char *argv[] = {"./test", "-l", "debug"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -176,7 +176,7 @@ TEST(DSLinkTest, log_param4) {
   link.reset();
 }
 
-TEST(DSLinkTest, log_param5) {
+TEST(DslinkTest, LogParam5) {
   const char *argv[] = {"./test", "-l", "error"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -186,7 +186,7 @@ TEST(DSLinkTest, log_param5) {
   link.reset();
 }
 
-TEST(DSLinkTest, log_param6) {
+TEST(DslinkTest, LogParam6) {
   const char *argv[] = {"./test", "-l", "warn"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -196,7 +196,7 @@ TEST(DSLinkTest, log_param6) {
   link.reset();
 }
 
-TEST(DSLinkTest, log_param7) {
+TEST(DslinkTest, LogParam7) {
   const char *argv[] = {"./test", "-l", "fatal"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -206,7 +206,7 @@ TEST(DSLinkTest, log_param7) {
   link.reset();
 }
 
-TEST(DSLinkTest, log_param8) {
+TEST(DslinkTest, LogParam8) {
   const char *argv[] = {"./test", "-l", "none"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -216,7 +216,7 @@ TEST(DSLinkTest, log_param8) {
   link.reset();
 }
 
-TEST(DSLinkTest, thread_param1) {
+TEST(DslinkTest, ThreadParam1) {
   const char *argv[] = {"./test", "--thread", "0"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -226,7 +226,7 @@ TEST(DSLinkTest, thread_param1) {
   link.reset();
 }
 
-TEST(DSLinkTest, thread_param2) {
+TEST(DslinkTest, ThreadParam2) {
   const char *argv[] = {"./test", "--thread", "1"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -236,7 +236,7 @@ TEST(DSLinkTest, thread_param2) {
   link.reset();
 }
 
-TEST(DSLinkTest, thread_param3) {
+TEST(DslinkTest, ThreadParam3) {
   const char *argv[] = {"./test", "--thread", "2"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -246,7 +246,7 @@ TEST(DSLinkTest, thread_param3) {
   link.reset();
 }
 
-TEST(DSLinkTest, thread_param4) {
+TEST(DslinkTest, ThreadParam4) {
   const char *argv[] = {"./test", "--thread", "20"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -258,7 +258,7 @@ TEST(DSLinkTest, thread_param4) {
   link.reset();
 }
 
-TEST(DSLinkTest, tcp_server_port_param) {
+TEST(DslinkTest, TCPServerPortParam) {
   const char *argv[] = {"./test", "--server-port", "132"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
@@ -268,7 +268,7 @@ TEST(DSLinkTest, tcp_server_port_param) {
   link.reset();
 }
 
-TEST(DSLinkTest, token_file) {
+TEST(DslinkTest, TokenFile) {
   string_ token("IAmATokenPleaseBelieveME!!!");
 
   // First create token file
@@ -286,7 +286,7 @@ TEST(DSLinkTest, token_file) {
   link.reset();
 }
 
-TEST(DSLinkTest, general_param) {
+TEST(DslinkTest, GeneralParam) {
   const char *argv[] = {"./test", "--broker",      "wss://192.168.1.12:142",
                         "-l",     "info",          "--thread",
                         "2",      "--server-port", "132"};

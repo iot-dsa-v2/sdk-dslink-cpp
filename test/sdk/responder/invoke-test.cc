@@ -61,7 +61,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 };
 }
 
-TEST(ResponderTest, Invoke_Model) {
+TEST(ResponderTest, InvokeModel) {
   typedef responder_invoke_test::MockNode MockNode;
   auto app = std::make_shared<App>();
 
@@ -143,7 +143,7 @@ TEST(ResponderTest, Invoke_Model) {
   app->wait();
 }
 
-TEST(ResponderTest, Invoke_Acceptor) {
+TEST(ResponderTest, InvokeAcceptor) {
   typedef responder_invoke_test::MockStreamAcceptor MockStreamAcceptor;
   auto app = std::make_shared<App>();
 

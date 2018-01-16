@@ -18,7 +18,7 @@ using namespace dsa;
 
 // TODO - webserver not to run separatedly
 // TODO - stop all the work after calling app->close
-TEST(WebServerTest, ws_subscribe) {
+TEST(WebServerTest, WSSubscribe) {
   auto app = make_shared_<App>();
 
   // client

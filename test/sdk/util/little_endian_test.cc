@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 
-TEST(LittleEndian, Write) {
+TEST(LittleEndianTest, Write) {
   std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6, 7};
 
   std::vector<uint8_t> expect16 = {1, 0x22, 0x11, 4, 5, 6, 7};
@@ -20,7 +20,7 @@ TEST(LittleEndian, Write) {
   EXPECT_TRUE(std::equal(data.begin(), data.end(), expect32.begin()));
 }
 
-TEST(LittleEndian, Read) {
+TEST(LittleEndianTest, Read) {
   std::vector<uint8_t> data = {1, 0x22, 0x11, 0x66, 0x55, 0x44, 0x33};
 
   EXPECT_EQ(0x1122, dsa::read_16_t(&data[1]));

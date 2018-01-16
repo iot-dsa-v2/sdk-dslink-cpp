@@ -18,7 +18,7 @@ struct TestSpec {
 };
 
 
-TEST(DynamicHeaderTest, parse) {
+TEST(DynamicHeaderTest, Parse) {
 
   TestSpec test_spec[] = {
     { DynamicHeader::STATUS, BYTE_HEADER },

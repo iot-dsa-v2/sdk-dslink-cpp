@@ -35,7 +35,7 @@ class MockNodeRoot : public NodeModel {
 Var MockNodeRoot::last_request;
 }
 
-TEST(BrokerPageTest, Invoke_Request) {
+TEST(BrokerPageTest, InvokeRequest) {
   typedef broker_page_test::MockNodeRoot MockNodeRoot;
 
   string_ big_str1;

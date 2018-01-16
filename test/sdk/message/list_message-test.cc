@@ -11,7 +11,7 @@ bool check_static_headers(ListRequestMessage& message, uint8_t* expected_values,
   return (memcmp(expected_values, buf, size) == 0);
 }
 
-TEST(MessageTest, ListRequest__Constructor_01) {
+TEST(MessageTest, ListRequestConstructor01) {
   // public methods
   // ListRequestMessage();
 
@@ -31,7 +31,7 @@ TEST(MessageTest, ListRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, ListRequest__Constructor_02) {
+TEST(MessageTest, ListRequestConstructor02) {
   //   ListRequestMessage(const ListRequestMessage&);
 
   const ListRequestMessage src__request;
@@ -59,7 +59,7 @@ TEST(MessageTest, ListRequest__Constructor_02) {
   EXPECT_EQ(29, target__request.size());
 }
 
-TEST(MessageTest, ListRequest__Constructor_03) {
+TEST(MessageTest, ListRequestConstructor03) {
   //   ListRequestMessage(const uint8_t* data, size_t size);
 
   const uint8_t data[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0, 0x2, 0x0,
@@ -82,7 +82,7 @@ TEST(MessageTest, ListRequest__Constructor_03) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, ListRequest__Constructor_04) {
+TEST(MessageTest, ListRequestConstructor04) {
   //   ListRequestMessage(const uint8_t* data, size_t size);
 
   ListRequestMessage request;
@@ -107,7 +107,7 @@ TEST(MessageTest, ListRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
-TEST(MessageTest, ListRequest__Constructor_05) {
+TEST(MessageTest, ListRequestConstructor05) {
   ListRequestMessage source_request;
 
   source_request.set_sequence_id(1234);  // no effect
@@ -136,7 +136,7 @@ TEST(MessageTest, ListRequest__Constructor_05) {
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
-TEST(MessageTest, ListRequest__get_list_options) {
+TEST(MessageTest, ListRequestGetListOptions) {
   //   SetOptions get_list_options() const;
 
   ListRequestMessage request;
@@ -145,7 +145,7 @@ TEST(MessageTest, ListRequest__get_list_options) {
   EXPECT_EQ(1, sizeof(options));
 }
 
-TEST(MessageTest, ListRequest__update_static_header) {
+TEST(MessageTest, ListRequestUpdateStaticHeader) {
   // void update_static_header();
   ListRequestMessage request;
   request.size();
@@ -155,7 +155,7 @@ TEST(MessageTest, ListRequest__update_static_header) {
                                    sizeof(expect_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, ListRequest__priority) {
+TEST(MessageTest, ListRequestPriority) {
   ListRequestMessage request;
 
   EXPECT_FALSE(request.get_priority());
@@ -163,7 +163,7 @@ TEST(MessageTest, ListRequest__priority) {
   EXPECT_TRUE(request.get_priority());
 }
 
-TEST(MessageTest, ListRequest__target_path) {
+TEST(MessageTest, ListRequestTargetPath) {
   ListRequestMessage request;
 
   EXPECT_EQ("", request.get_target_path().full_str());
@@ -171,7 +171,7 @@ TEST(MessageTest, ListRequest__target_path) {
   EXPECT_EQ("path/to/node", request.get_target_path().full_str());
 }
 
-TEST(MessageTest, ListRequest__permission_token) {
+TEST(MessageTest, ListRequestPermissionToken) {
   // TODO: to be implemented
   ListRequestMessage request;
 
@@ -180,7 +180,7 @@ TEST(MessageTest, ListRequest__permission_token) {
   EXPECT_EQ("permission-token", request.get_permission_token());
 }
 
-TEST(MessageTest, ListRequest__no_stream) {
+TEST(MessageTest, ListRequestNoStream) {
   ListRequestMessage request;
 
   EXPECT_FALSE(request.get_no_stream());
@@ -188,7 +188,7 @@ TEST(MessageTest, ListRequest__no_stream) {
   EXPECT_TRUE(request.get_no_stream());
 }
 
-TEST(MessageTest, ListRequest__write) {
+TEST(MessageTest, ListRequestWrite) {
   ListRequestMessage request;
 
   request.set_target_path("path/to/dsa");
@@ -208,7 +208,7 @@ TEST(MessageTest, ListRequest__write) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, ListRequest__dynamic_structure) {
+TEST(MessageTest, ListRequestDynamicStructure) {
   ListRequestMessage request;
 
   //    request.set_status(MessageStatus::CLOSED);
@@ -234,7 +234,7 @@ TEST(MessageTest, ListRequest__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, ListResponse__Constructor_01) {
+TEST(MessageTest, ListResponseConstructor01) {
   ListResponseMessage response;
 
   EXPECT_EQ(15, response.size());
@@ -247,7 +247,7 @@ TEST(MessageTest, ListResponse__Constructor_01) {
             response.get_response_type(MessageType::LIST_REQUEST));
 }
 
-TEST(MessageTest, ListResponse__Constructor_02) {
+TEST(MessageTest, ListResponseConstructor02) {
   ListResponseMessage source_response;
 
   source_response.set_status(MessageStatus::CLOSED);
@@ -273,7 +273,7 @@ TEST(MessageTest, ListResponse__Constructor_02) {
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
-TEST(MessageTest, ListResponse__source_path) {
+TEST(MessageTest, ListResponseSourcePath) {
   ListResponseMessage response;
 
   EXPECT_EQ("", response.get_source_path());
@@ -281,7 +281,7 @@ TEST(MessageTest, ListResponse__source_path) {
   EXPECT_EQ("/source/path", response.get_source_path());
 }
 
-TEST(MessageTest, ListResponse__status) {
+TEST(MessageTest, ListResponseStatus) {
   ListResponseMessage response;
 
   static const MessageStatus message_status_all[]{
@@ -304,7 +304,7 @@ TEST(MessageTest, ListResponse__status) {
   }
 }
 
-TEST(MessageTest, ListResponse__write) {
+TEST(MessageTest, ListResponseWrite) {
   ListResponseMessage response;
 
   response.set_source_path("source/path");
@@ -324,7 +324,7 @@ TEST(MessageTest, ListResponse__write) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, ListResponse__dynamic_structure) {
+TEST(MessageTest, ListResponseDynamicStructure) {
   ListResponseMessage response;
 
   response.set_status(MessageStatus::CLOSED);
@@ -349,7 +349,7 @@ TEST(MessageTest, ListResponse__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, ListResponse__copy) {
+TEST(MessageTest, ListResponseCopy) {
   ListResponseMessage response;
 
   response.set_status(MessageStatus::CLOSED);

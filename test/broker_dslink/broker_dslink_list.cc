@@ -2,7 +2,7 @@
 #include "broker_dslink_util.h"
 
 
-TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
+TEST(BrokerDsLinkTest, RootSysSelfList) {
   std::string close_token = "12345678901234567890123456789012";
   string_to_file(close_token, ".close_token");
 
@@ -92,7 +92,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
 
 
 
-TEST(BROKER_DSLINK_TEST, DisconnectTest) {
+TEST(BrokerDsLinkTest, Disconnect) {
 // First Create Broker
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);

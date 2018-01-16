@@ -11,7 +11,7 @@ bool check_static_headers(InvokeRequestMessage& message,
   return (memcmp(expected_values, buf, size) == 0);
 }
 
-TEST(MessageTest, InvokeRequest__Constructor_01) {
+TEST(MessageTest, InvokeRequestConstructor01) {
   // public methods
   // InvokeRequestMessage();
 
@@ -31,7 +31,7 @@ TEST(MessageTest, InvokeRequest__Constructor_01) {
   EXPECT_EQ(0, request.get_alias_count());
 }
 
-TEST(MessageTest, InvokeRequest__Constructor_02) {
+TEST(MessageTest, InvokeRequestConstructor02) {
   //   InvokeRequestMessage(const InvokeRequestMessage&);
 
   const InvokeRequestMessage src__request;
@@ -57,7 +57,7 @@ TEST(MessageTest, InvokeRequest__Constructor_02) {
   EXPECT_EQ(target_path, target__request.get_target_path().full_str());
 }
 
-TEST(MessageTest, InvokeRequest__Constructor_03) {
+TEST(MessageTest, InvokeRequestConstructor03) {
   //   InvokeRequestMessage(const uint8_t* data, size_t size);
 
   const uint8_t data[] = {0xf, 0x0, 0x0, 0x0, 0xf, 0x0, 0x3, 0x0,
@@ -84,7 +84,7 @@ TEST(MessageTest, InvokeRequest__Constructor_03) {
   request.write(buf);
 }
 
-TEST(MessageTest, InvokeRequest__Constructor_04) {
+TEST(MessageTest, InvokeRequestConstructor04) {
   //   InvokeRequestMessage(const uint8_t* data, size_t size);
 
   InvokeRequestMessage request;
@@ -109,7 +109,7 @@ TEST(MessageTest, InvokeRequest__Constructor_04) {
   EXPECT_EQ(0, other.get_alias_count());
 }
 
-TEST(MessageTest, InvokeRequest__Constructor_05) {
+TEST(MessageTest, InvokeRequestConstructor05) {
   InvokeRequestMessage source_request;
 
   source_request.set_sequence_id(1234);
@@ -140,7 +140,7 @@ TEST(MessageTest, InvokeRequest__Constructor_05) {
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
-TEST(MessageTest, InvokeRequest__update_static_header) {
+TEST(MessageTest, InvokeRequestUpdateStaticHeader) {
   // void update_static_header();
   InvokeRequestMessage request;
   request.size();
@@ -150,7 +150,7 @@ TEST(MessageTest, InvokeRequest__update_static_header) {
                                    sizeof(expect_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, InvokeRequest__priority) {
+TEST(MessageTest, InvokeRequestPriority) {
   InvokeRequestMessage request;
 
   EXPECT_FALSE(request.get_priority());
@@ -158,7 +158,7 @@ TEST(MessageTest, InvokeRequest__priority) {
   EXPECT_TRUE(request.get_priority());
 }
 
-TEST(MessageTest, InvokeRequest__target_path) {
+TEST(MessageTest, InvokeRequestTargetPath) {
   InvokeRequestMessage request;
 
   EXPECT_EQ("", request.get_target_path().full_str());
@@ -166,7 +166,7 @@ TEST(MessageTest, InvokeRequest__target_path) {
   EXPECT_EQ("path/to/node", request.get_target_path().full_str());
 }
 
-TEST(MessageTest, InvokeRequest__permission_token) {
+TEST(MessageTest, InvokeRequestPermissionToken) {
   // TODO: to be implemented
   InvokeRequestMessage request;
 
@@ -175,7 +175,7 @@ TEST(MessageTest, InvokeRequest__permission_token) {
   EXPECT_EQ("permission-token", request.get_permission_token());
 }
 
-TEST(MessageTest, InvokeRequest__no_stream) {
+TEST(MessageTest, InvokeRequestNoStream) {
   InvokeRequestMessage request;
 
   EXPECT_FALSE(request.get_no_stream());
@@ -183,7 +183,7 @@ TEST(MessageTest, InvokeRequest__no_stream) {
   EXPECT_TRUE(request.get_no_stream());
 }
 
-TEST(MessageTest, InvokeRequest__write) {
+TEST(MessageTest, InvokeRequestWrite) {
   InvokeRequestMessage request;
 
   request.set_target_path("path/to/dsa");
@@ -203,7 +203,7 @@ TEST(MessageTest, InvokeRequest__write) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, InvokeRequest__dynamic_structure) {
+TEST(MessageTest, InvokeRequestDynamicStructure) {
   InvokeRequestMessage request;
 
   request.set_sequence_id(1234);
@@ -231,7 +231,7 @@ TEST(MessageTest, InvokeRequest__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, InvokeResponse__Constructor_01) {
+TEST(MessageTest, InvokeResponseConstructor01) {
   InvokeResponseMessage response;
 
   EXPECT_EQ(15, response.size());
@@ -244,7 +244,7 @@ TEST(MessageTest, InvokeResponse__Constructor_01) {
             response.get_response_type(MessageType::INVOKE_REQUEST));
 }
 
-TEST(MessageTest, InvokeResponse__Constructor_02) {
+TEST(MessageTest, InvokeResponseConstructor02) {
   InvokeResponseMessage source_response;
 
   source_response.set_source_path("/source/path");
@@ -269,7 +269,7 @@ TEST(MessageTest, InvokeResponse__Constructor_02) {
   EXPECT_EQ(0, memcmp(src_buf, buf, buf_size));
 }
 
-TEST(MessageTest, InvokeResponse__source_path) {
+TEST(MessageTest, InvokeResponseSourcePath) {
   InvokeResponseMessage response;
 
   EXPECT_EQ("", response.get_source_path());
@@ -277,7 +277,7 @@ TEST(MessageTest, InvokeResponse__source_path) {
   EXPECT_EQ("/source/path", response.get_source_path());
 }
 
-TEST(MessageTest, InvokeResponse__status) {
+TEST(MessageTest, InvokeResponseStatus) {
   InvokeResponseMessage response;
 
   static const MessageStatus message_status_all[]{
@@ -300,7 +300,7 @@ TEST(MessageTest, InvokeResponse__status) {
   }
 }
 
-TEST(MessageTest, InvokeResponse__write) {
+TEST(MessageTest, InvokeResponseWrite) {
   InvokeResponseMessage response;
 
   response.set_source_path("source/path");  // no effect
@@ -318,7 +318,7 @@ TEST(MessageTest, InvokeResponse__write) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, InvokeResponse__dynamic_structure) {
+TEST(MessageTest, InvokeResponseDynamicStructure) {
   InvokeResponseMessage response;
 
   response.set_status(MessageStatus::CLOSED);
@@ -341,7 +341,7 @@ TEST(MessageTest, InvokeResponse__dynamic_structure) {
                       sizeof(expected_values) / sizeof(uint8_t)));
 }
 
-TEST(MessageTest, InvokeResponse__copy) {
+TEST(MessageTest, InvokeResponseCopy) {
   InvokeResponseMessage response;
 
   response.set_source_path("source/path");  // no effect

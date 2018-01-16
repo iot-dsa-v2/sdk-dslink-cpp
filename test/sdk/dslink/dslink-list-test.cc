@@ -38,7 +38,7 @@ class MockNodeRoot : public NodeModel {
 };
 }
 
-TEST(ResponderTest, ListTest) {
+TEST(DslinkTest, ListTest) {
   typedef dslink_list_test::MockNodeRoot MockNodeRoot;
   typedef dslink_list_test::MockNodeChild MockNodeChild;
   typedef std::vector<std::vector<string_>> ListResponses;

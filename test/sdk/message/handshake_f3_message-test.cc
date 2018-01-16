@@ -3,7 +3,7 @@
 
 using namespace dsa;
 
-TEST(MessageTest, HandshakeF3__Constructor_01) {
+TEST(MessageTest, HandshakeF3Constructor01) {
   HandshakeF3Message message;
 
   uint16_t path_length = 32;
@@ -56,7 +56,7 @@ TEST(MessageTest, HandshakeF3__Constructor_01) {
   EXPECT_EQ(0, memcmp(expected_values, buf, message_size));
 }
 
-TEST(MessageTest, HandshakeF3__get_response_type) {
+TEST(MessageTest, HandshakeF3GetResponseType) {
   HandshakeF3Message message;
 
   EXPECT_EQ(MessageType::INVALID,

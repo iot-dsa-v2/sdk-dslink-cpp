@@ -64,7 +64,7 @@ TEST(VariantTest, BinaryTest) {
   EXPECT_EQ(vec[1], 1);
 }
 
-TEST(VariantTest, InitializerList__Array) {
+TEST(VariantTest, InitializerListArray) {
   Var v{Var("hello"), Var(123), Var(true)};
 
   EXPECT_TRUE(v.is_array());
@@ -83,7 +83,7 @@ TEST(VariantTest, InitializerList__Array) {
   EXPECT_TRUE(vec[2].get_bool());
 }
 
-TEST(VariantTest, InitilizerList__Map) {
+TEST(VariantTest, InitilizerListMap) {
   Var v{{"string", Var("hello")},
             {"int", Var(123)},
             {"bool", Var(true)}};
@@ -104,7 +104,7 @@ TEST(VariantTest, InitilizerList__Map) {
   EXPECT_TRUE(map["bool"].get_bool());
 }
 
-TEST(VariantTest, InitilizerList__NestedMap) {
+TEST(VariantTest, InitilizerListNestedMap) {
   Var v{{"string", Var("hello")},
             {"int", Var(123)},
             {"map", {{"first", Var("one")}, {"second", Var("two")}}}};
@@ -134,7 +134,7 @@ TEST(VariantTest, InitilizerList__NestedMap) {
   EXPECT_EQ("two", nested_map["second"].get_string());
 }
 
-TEST(VariantTest, copy) {
+TEST(VariantTest, Copy) {
   {
     Var v{{"string", Var("hello")},
               {"int", Var(123)},
@@ -160,7 +160,7 @@ TEST(VariantTest, copy) {
   }
 }
 
-TEST(VariantTest, deep_copy) {
+TEST(VariantTest, DeepCopy) {
   {
     Var v = Var("12345678901234567890123456789012"
                 "12345678901234567890123456789012"
@@ -247,7 +247,7 @@ TEST(VariantTest, deep_copy) {
 }
 
 
-TEST(VariantTest, equality) {
+TEST(VariantTest, Equality) {
 
   // Blank
   Var v_blank;
