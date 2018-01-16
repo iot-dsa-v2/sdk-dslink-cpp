@@ -35,6 +35,7 @@ void IncomingInvokeStream::close() {
   if (_closed) return;
   _closed = true;
   _callback = nullptr;
+  user_callback = nullptr;
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE_REQUEST), true);
 }
 

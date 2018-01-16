@@ -25,6 +25,7 @@ class IncomingInvokeStream final : public MessageQueueStream {
   ref_<IncomingPagesMerger> _waiting_pages;
 
  public:
+  Callback user_callback;
   IncomingInvokeStream(ref_<Session>&& session, const Path& path, uint32_t rid,
                        Callback&& callback);
 

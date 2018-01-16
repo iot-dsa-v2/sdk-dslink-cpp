@@ -74,6 +74,7 @@ add_executable("test-dslink" sdk/dslink/dslink-config-test.cc
                              sdk/dslink/dslink-subscribe-test.cc
                              sdk/dslink/dslink-list-test.cc
                              sdk/dslink/dslink-server-test.cc
+                             sdk/dslink/dslink-invoke-test.cc
                              sdk/test_config.cc sdk/async_test.cc
                              broker/util/broker_runner.cc)
 

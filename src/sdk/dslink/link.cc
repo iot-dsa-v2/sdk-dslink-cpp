@@ -10,6 +10,7 @@
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
+#include "message/response/invoke_response_message.h"
 #include "module/default/console_logger.h"
 #include "module/default/dummy_stream_acceptor.h"
 #include "module/default/simple_security_manager.h"
@@ -252,19 +253,17 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
               strand, context, dsid_prefix, tcp_host, tcp_port);
         };
       } else {
-        client_connection_maker =
-            [
-              dsid_prefix = dsid_prefix, tcp_host = tcp_host,
-              tcp_port = tcp_port
-            ](LinkStrandRef & strand) {
+        client_connection_maker = [
+          dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
+        ](LinkStrandRef & strand) {
           return make_shared_<TcpClientConnection>(strand, dsid_prefix,
                                                    tcp_host, tcp_port);
         };
       }
     } else if (ws_port > 0) {
       client_connection_maker =
-          [ dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port ](
-              LinkStrandRef & strand) {
+          [ dsid_prefix = dsid_prefix, ws_host = ws_host,
+            ws_port = ws_port ](LinkStrandRef & strand) {
         return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
                                                 ws_port);
       };
@@ -324,11 +323,27 @@ ref_<IncomingListCache> DsLink::list(const string_ &path,
   auto merger = _list_mergers[path];
   return merger->list(std::move(callback));
 }
+
 ref_<IncomingInvokeStream> DsLink::invoke(
     IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
-  return _client->get_session().requester.invoke(std::move(callback),
-                                                 std::move(message));
+  auto stream = _client->get_session().requester.invoke(
+      ([ this, paged_cache = ref_<IncomingPageCache<InvokeResponseMessage>>() ](
+          IncomingInvokeStream & s,
+          ref_<const InvokeResponseMessage> && message) mutable {
+        message = IncomingPageCache<InvokeResponseMessage>::get_first_page(
+            paged_cache, std::move(message));
+        if (message == nullptr) {
+          // paged message is not ready
+          return;
+        }
+        if (s.user_callback != nullptr) {
+          s.user_callback(s, std::move(message));
+        }
+      }),
+      std::move(message));
+  stream->user_callback = std::move(callback);
+  return stream;
 }
 
 ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
