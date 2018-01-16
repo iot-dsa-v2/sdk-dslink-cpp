@@ -5,9 +5,10 @@
 #include <util/string.h>
 #include "../async_test.h"
 #include "../test_config.h"
-#include "gtest/gtest.h"
-#include "message/request/invoke_request_message.h"
+
+#include <gtest/gtest.h>
 #include "module/default/console_logger.h"
+#include "message/request/invoke_request_message.h"
 
 using namespace dsa;
 using namespace std;

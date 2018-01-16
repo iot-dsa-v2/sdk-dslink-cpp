@@ -1,6 +1,6 @@
 #include <boost/format.hpp>
 #include "dsa/crypto.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace dsa;
 using boost::format;

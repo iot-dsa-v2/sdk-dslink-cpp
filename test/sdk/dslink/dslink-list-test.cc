@@ -5,7 +5,7 @@
 
 #include "../async_test.h"
 #include "../test_config.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "../../broker/util/broker_runner.h"
 #include "module/default/console_logger.h"

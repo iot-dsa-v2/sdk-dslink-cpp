@@ -1,7 +1,7 @@
 #include "dsa/message.h"
 #include "dsa/util.h"
-#include "gtest/gtest.h"
 
+#include <gtest/gtest.h>
 #include <msgpack.h>
 #include <vector>
 

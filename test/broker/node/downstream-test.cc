@@ -6,7 +6,7 @@
 #include "../util/broker_runner.h"
 #include "broker.h"
 #include "config/broker_config.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "core/client.h"
 #include "module/logger.h"

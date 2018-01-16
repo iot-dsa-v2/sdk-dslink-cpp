@@ -8,12 +8,10 @@
 #include <config/module_loader.h>
 #include <module/default/console_logger.h>
 #include <util/string.h>
-
-
 #include "../sdk/async_test.h"
 #include "../sdk/test_config.h"
-#include <gtest/gtest.h>
 #include "module/logger.h"
+#include <gtest/gtest.h>
 
 using namespace dsa;
 

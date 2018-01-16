@@ -3,7 +3,7 @@
 #include "module/default/simple_storage.h"
 #include "util/app.h"
 #include "../test/sdk/async_test.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
 #include <functional>

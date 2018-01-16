@@ -1,7 +1,7 @@
 #ifndef DSA_TEST_MODULES_H
 #define DSA_TEST_MODULES_H
 
-#include <dslink.h>
+#include "dslink.h"
 #include "core/editable_strand.h"
 
 namespace dsa {

@@ -12,7 +12,7 @@
 #include "../async_test.h"
 #include "../test_config.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace dsa;
 

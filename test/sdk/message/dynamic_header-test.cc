@@ -1,5 +1,5 @@
 #include "dsa/message.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <typeinfo>
 

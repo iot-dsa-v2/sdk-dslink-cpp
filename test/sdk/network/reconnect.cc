@@ -12,7 +12,7 @@
 #include "network/tcp/tcp_server.h"
 #include "responder/node_model.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace dsa;
 
