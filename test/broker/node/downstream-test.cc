@@ -256,9 +256,30 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
   auto tcp_client2 = make_ref_<Client>(client_strand2);
   shared_ptr_<Connection> connection2;
 
+  // list again after previous list is closed
+  auto step_5 = [&]() {
+    tcp_client1->get_session().requester.list(
+        "downstream/test2",
+        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+
+          // end the test
+          client_strand1.strand->post([tcp_client1, &client_strand1]() {
+            tcp_client1->destroy();
+            client_strand1.destroy();
+          });
+          client_strand2.strand->post([tcp_client2, &client_strand2]() {
+            tcp_client2->destroy();
+            client_strand2.destroy();
+          });
+          broker->strand->post([broker]() { broker->destroy(); });
+        });
+
+  };
+
   int step = 0;
   // when list on downstream/test1 it should have a metadata for test1's dsid
-  auto unavailable_child_list = [&](const shared_ptr_<Connection>& connection) {
+  auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
         "downstream/test2",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
@@ -267,10 +288,9 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
             case 1: {
               // step 1, connect client 2
               EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-              tcp_client2->connect(
-                  [&](const shared_ptr_<Connection>& conn) {
-                    connection2 = conn;
-                  });
+              tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
+                connection2 = conn;
+              });
               break;
             }
             case 2: {
@@ -289,27 +309,22 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
             default: {
               // step 3, reconnected
               EXPECT_EQ(msg->get_status(), MessageStatus::OK);
-              client_strand1.strand->post([tcp_client1, &client_strand1]() {
-                tcp_client1->destroy();
-                client_strand1.destroy();
-              });
-              client_strand2.strand->post([tcp_client2, &client_strand2]() {
-                tcp_client2->destroy();
-                client_strand2.destroy();
-              });
-              broker->strand->post([broker]() { broker->destroy(); });
+
+              stream.close();
+
+              // list again
+              client_strand1.strand->post(std::move(step_5));
             }
           }
 
         });
   };
 
-  tcp_client1->connect(std::move(unavailable_child_list));
+  tcp_client1->connect(std::move(step_1_to_4));
 
   broker->run();
   EXPECT_TRUE(broker->is_destroyed());
 }
-
 
 TEST(BrokerDownstreamTest, ListChildDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
@@ -326,9 +341,31 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
   auto tcp_client2 = make_ref_<Client>(client_strand2);
   shared_ptr_<Connection> connection2;
 
+  // list again after previous list is closed
+  auto step_5 = [&]() {
+    tcp_client1->get_session().requester.list(
+        "downstream/test2/value",
+        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+
+          // end the test
+          client_strand1.strand->post([tcp_client1, &client_strand1]() {
+            tcp_client1->destroy();
+            client_strand1.destroy();
+          });
+          client_strand2.strand->post([tcp_client2, &client_strand2]() {
+            tcp_client2->destroy();
+            client_strand2.destroy();
+          });
+          broker->strand->post([broker]() { broker->destroy(); });
+        });
+
+  };
+
   int step = 0;
+
   // when list on downstream/test1 it should have a metadata for test1's dsid
-  auto unavailable_child_list = [&](const shared_ptr_<Connection>& connection) {
+  auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
         "downstream/test2/value",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
@@ -337,10 +374,9 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
             case 1: {
               // step 1, connect client 2
               EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-              tcp_client2->connect(
-                  [&](const shared_ptr_<Connection>& conn) {
-                    connection2 = conn;
-                  });
+              tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
+                connection2 = conn;
+              });
               break;
             }
             case 2: {
@@ -357,25 +393,23 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
             }
 
             default: {
-              // step 3, reconnected
+              // step 4, reconnected, close stream
               EXPECT_EQ(msg->get_status(), MessageStatus::OK);
-              client_strand1.strand->post([tcp_client1, &client_strand1]() {
-                tcp_client1->destroy();
-                client_strand1.destroy();
-              });
-              client_strand2.strand->post([tcp_client2, &client_strand2]() {
-                tcp_client2->destroy();
-                client_strand2.destroy();
-              });
-              broker->strand->post([broker]() { broker->destroy(); });
+
+              stream.close();
+
+              // list again
+              client_strand1.strand->post(std::move(step_5));
             }
           }
 
         });
   };
 
-  tcp_client1->connect(std::move(unavailable_child_list));
+  tcp_client1->connect(std::move(step_1_to_4));
 
   broker->run();
   EXPECT_TRUE(broker->is_destroyed());
 }
+
+TEST(BrokerDownstreamTest, ListChildBeforeParent) {}
