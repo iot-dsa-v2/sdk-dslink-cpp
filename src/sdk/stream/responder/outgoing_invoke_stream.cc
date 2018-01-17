@@ -4,6 +4,7 @@
 
 #include "core/session.h"
 #include "message/request/invoke_request_message.h"
+#include "module/logger.h"
 
 namespace dsa {
 
@@ -19,8 +20,9 @@ OutgoingInvokeStream::OutgoingInvokeStream(ref_<Session> &&session,
 
 void OutgoingInvokeStream::destroy_impl() {
   if (_callback != nullptr) {
+    BEFORE_CALLBACK_RUN();
     _callback(*this, ref_<InvokeRequestMessage>());
-    _callback= nullptr;
+    _callback = nullptr;
   }
   MessageQueueStream::destroy_impl();
 }
@@ -30,7 +32,9 @@ void OutgoingInvokeStream::receive_message(ref_<Message> &&message) {
     IncomingPagesMerger::check_merge(_waiting_pages, message);
   }
   if (_callback != nullptr) {
+    BEFORE_CALLBACK_RUN();
     _callback(*this, std::move(message));
+    AFTER_CALLBACK_RUN();
   } else {
     _waiting_requests.emplace_back(std::move(message));
   }
@@ -39,16 +43,20 @@ void OutgoingInvokeStream::receive_message(ref_<Message> &&message) {
 void OutgoingInvokeStream::on_request(Callback &&callback) {
   _callback = std::move(callback);
   if (_callback != nullptr && !_waiting_requests.empty()) {
+    BEFORE_CALLBACK_RUN();
     for (auto &msg : _waiting_requests) {
       _callback(*this, std::move(msg));
     }
+    AFTER_CALLBACK_RUN();
     _waiting_requests.clear();
   }
 }
 void OutgoingInvokeStream::send_response(InvokeResponseMessageCRef &&message) {
   if (message->get_status() >= MessageStatus::CLOSED && !_closed) {
     _closed = true;
-    _callback = nullptr;
+    if (!_callback_running) {
+      _callback = nullptr;
+    }
     send_message(MessageCRef(std::move(message)), true);
   } else {
     send_message(MessageCRef(std::move(message)));
@@ -60,7 +68,9 @@ void OutgoingInvokeStream::close(MessageStatus status) {
     status = MessageStatus::CLOSED;
   }
   _closed = true;
-  _callback = nullptr;
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
 
   auto message = make_ref_<InvokeResponseMessage>();
   message->set_status(status);

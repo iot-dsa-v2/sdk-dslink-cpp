@@ -20,6 +20,7 @@ OutgoingSetStream::OutgoingSetStream(ref_<Session> &&session, const Path &path,
 
 void OutgoingSetStream::destroy_impl() {
   if (_callback != nullptr) {
+    BEFORE_CALLBACK_RUN();
     _callback(*this, ref_<SetRequestMessage>());
     _callback = nullptr;
   }
@@ -28,7 +29,9 @@ void OutgoingSetStream::destroy_impl() {
 void OutgoingSetStream::receive_message(ref_<Message> &&message) {
   IncomingPagesMerger::check_merge(_waiting_pages, message);
   if (_callback != nullptr) {
+    BEFORE_CALLBACK_RUN();
     _callback(*this, std::move(message));
+    AFTER_CALLBACK_RUN();
   } else {
     _waiting_request = std::move(message);
   }
@@ -37,7 +40,9 @@ void OutgoingSetStream::receive_message(ref_<Message> &&message) {
 void OutgoingSetStream::on_request(Callback &&callback) {
   _callback = std::move(callback);
   if (_callback != nullptr && _waiting_request != nullptr) {
+    BEFORE_CALLBACK_RUN();
     _callback(*this, std::move(_waiting_request));
+    AFTER_CALLBACK_RUN();
   }
 }
 
@@ -45,7 +50,9 @@ void OutgoingSetStream::send_response(
     ref_<const SetResponseMessage> &&message) {
   if (_closed) return;
   _closed = true;
-  _callback = nullptr;
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
   if (message->get_status() < MessageStatus::CLOSED) {
     LOG_ERROR(_session->get_strand()->logger(),
               LOG << "set response must have closed or error status");

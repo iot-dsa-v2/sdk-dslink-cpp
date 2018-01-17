@@ -23,6 +23,7 @@ class OutgoingInvokeStream final : public MessageQueueStream {
 
  protected:
   Callback _callback;
+  bool _callback_running = false;
 
   // messages received but not send to callback
   std::vector<ref_<InvokeRequestMessage> > _waiting_requests;

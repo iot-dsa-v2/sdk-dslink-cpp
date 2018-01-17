@@ -24,6 +24,7 @@ class OutgoingSetStream final : public MessageCacheStream {
   ref_<IncomingPagesMerger> _waiting_pages;
 
   Callback _callback;
+  bool _callback_running = false;
 
   ref_<SetRequestMessage> _waiting_request;
 
