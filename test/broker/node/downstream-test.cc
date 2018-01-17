@@ -19,14 +19,15 @@ using namespace dsa;
 namespace broker_downstream_test {
 
 class MockNodeAction : public InvokeNodeModel {
- public:
+public:
   explicit MockNodeAction(LinkStrandRef strand)
-      : InvokeNodeModel(std::move(strand)){};
+    : InvokeNodeModel(std::move(strand)) {
+  };
 
   void on_invoke(ref_<OutgoingInvokeStream>&& stream,
-                 ref_<NodeState>& parent) final {
+    ref_<NodeState>& parent) final {
     stream->on_request([this](OutgoingInvokeStream& s,
-                              ref_<const InvokeRequestMessage>&& msg) {
+      ref_<const InvokeRequestMessage>&& msg) {
       if (msg != nullptr) {
         auto response = make_ref_<InvokeResponseMessage>();
         response->set_value(Var((msg->get_value().to_string() + " world")));
@@ -40,14 +41,14 @@ class MockNodeAction : public InvokeNodeModel {
 };
 
 class MockNodeValue : public NodeModel {
- public:
+public:
   explicit MockNodeValue(LinkStrandRef strand)
-      : NodeModel(std::move(strand), PermissionLevel::WRITE) {
+    : NodeModel(std::move(strand), PermissionLevel::WRITE) {
     set_value(Var("hello world"));
   };
 };
 class MockNodeRoot : public NodeModel {
- public:
+public:
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
     add_list_child("value", make_ref_<MockNodeValue>(_strand));
 
@@ -66,31 +67,30 @@ TEST(BrokerDownstreamTest, Subscribe) {
   auto broker = create_broker(app);
   broker->run();
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
-      ModelRef(new MockNodeRoot(client_strand.strand)));
+    ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test/value",
-        [&](IncomingSubscribeStream& stream,
-            ref_<const SubscribeResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
+      "downstream/test/value",
+      [&](IncomingSubscribeStream& stream,
+        ref_<const SubscribeResponseMessage>&& msg) {
+      EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
 
-          // end the test
-          client_strand.strand->post([tcp_client, &client_strand]() {
-            tcp_client->destroy();
-            client_strand.destroy();
-          });
-          broker->strand->post([broker]() { broker->destroy(); });
-        });
+      // end the test
+      client_strand.strand->post([tcp_client, &client_strand]() {
+        tcp_client->destroy();
+        client_strand.destroy();
+      });
+      broker->strand->post([broker]() { broker->destroy(); });
+      app->close();
+    });
 
   });
-  app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) { app->force_stop(); }
+
   app->wait();
   broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
@@ -103,11 +103,11 @@ TEST(BrokerDownstreamTest, Invoke) {
   auto broker = create_broker(app);
   broker->run();
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
-      ModelRef(new MockNodeRoot(client_strand.strand)));
+    ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
@@ -116,22 +116,21 @@ TEST(BrokerDownstreamTest, Invoke) {
     invoke_req->set_value(Var("hello"));
 
     tcp_client->get_session().requester.invoke(
-        [&](IncomingInvokeStream&, ref_<const InvokeResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_value().to_string(), "hello world");
+      [&](IncomingInvokeStream&, ref_<const InvokeResponseMessage>&& msg) {
+      EXPECT_EQ(msg->get_value().to_string(), "hello world");
 
-          // end the test
-          client_strand.strand->post([tcp_client, &client_strand]() {
-            tcp_client->destroy();
-            client_strand.destroy();
-          });
-          broker->strand->post([broker]() { broker->destroy(); });
-        },
-        std::move(invoke_req));
+      // end the test
+      client_strand.strand->post([tcp_client, &client_strand]() {
+        tcp_client->destroy();
+        client_strand.destroy();
+      });
+      broker->strand->post([broker]() { broker->destroy(); });
+      app->close();
+    },
+      std::move(invoke_req));
 
   });
-  app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) { app->force_stop(); }
+
   app->wait();
   broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
@@ -144,50 +143,51 @@ TEST(BrokerDownstreamTest, Set) {
   auto broker = create_broker(app);
   broker->run();
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
-      ModelRef(new MockNodeRoot(client_strand.strand)));
+    ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
 
   int step = 0;
 
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test/value",
-        [&](IncomingSubscribeStream& stream,
-            ref_<const SubscribeResponseMessage>&& msg) {
-          ++step;
-          switch (step) {
-            case 1: {
-              EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
-              tcp_client->get_session().requester.set(
-                  [](IncomingSetStream&,
-                     ref_<const SetResponseMessage>&& set_response) {
+      "downstream/test/value",
+      [&](IncomingSubscribeStream& stream,
+        ref_<const SubscribeResponseMessage>&& msg) {
+      ++step;
+      switch (step) {
+        case 1:
+        {
+          EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
+          tcp_client->get_session().requester.set(
+            [](IncomingSetStream&,
+              ref_<const SetResponseMessage>&& set_response) {
 
-                  },
-                  make_ref_<SetRequestMessage>("downstream/test/value",
-                                               Var("dsa")));
-              break;
-            }
-            default: {
-              EXPECT_EQ(msg->get_value().value.to_string(), "dsa");
+          },
+            make_ref_<SetRequestMessage>("downstream/test/value",
+              Var("dsa")));
+          break;
+        }
+        default:
+        {
+          EXPECT_EQ(msg->get_value().value.to_string(), "dsa");
 
-              // end the test
-              client_strand.strand->post([tcp_client, &client_strand]() {
-                tcp_client->destroy();
-                client_strand.destroy();
-              });
-              broker->strand->post([broker]() { broker->destroy(); });
-            }
-          }
-        });
+          // end the test
+          client_strand.strand->post([tcp_client, &client_strand]() {
+            tcp_client->destroy();
+            client_strand.destroy();
+          });
+          broker->strand->post([broker]() { broker->destroy(); });
+          app->close();
+        }
+      }
+    });
 
   });
-  app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) { app->force_stop(); }
+
   app->wait();
   broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
@@ -200,11 +200,11 @@ TEST(BrokerDownstreamTest, List) {
   auto broker = create_broker(app);
   broker->run();
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   client_strand1.strand->set_responder_model(
-      ModelRef(new MockNodeRoot(client_strand1.strand)));
+    ModelRef(new MockNodeRoot(client_strand1.strand)));
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
   WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2");
@@ -213,18 +213,19 @@ TEST(BrokerDownstreamTest, List) {
   // after client1 disconnected, list update should show it's disconnected
   auto step_3_disconnection_list = [&]() {
     tcp_client2->get_session().requester.list(
-        "downstream/test1",
-        [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-          // end the test
+      "downstream/test1",
+      [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
+      EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+      // end the test
 
-          client_strand2.strand->post([tcp_client2, &client_strand2]() {
-            tcp_client2->destroy();
-            client_strand2.destroy();
-          });
+      client_strand2.strand->post([tcp_client2, &client_strand2]() {
+        tcp_client2->destroy();
+        client_strand2.destroy();
+      });
 
-          broker->strand->post([broker]() { broker->destroy(); });
-        });
+      broker->strand->post([broker]() { broker->destroy(); });
+      app->close();
+    });
   };
 
   // downstream should has test1 and test2 nodes
@@ -241,29 +242,26 @@ TEST(BrokerDownstreamTest, List) {
 
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_downstream_child_list =
-      [&](const shared_ptr_<Connection>& connection) {
-        tcp_client1->get_session().requester.list(
-            "downstream/test1",
-            [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
-              auto map = msg->get_map();
-              EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
-                        tcp_client1->get_session().dsid());
+    [&](const shared_ptr_<Connection>& connection) {
+    tcp_client1->get_session().requester.list(
+      "downstream/test1",
+      [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
+      auto map = msg->get_map();
+      EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
+        tcp_client1->get_session().dsid());
 
-              client_strand1.strand->post([tcp_client1, &client_strand1]() {
-                tcp_client1->destroy();
-                client_strand1.destroy();
-              });
-              step_2_downstream_list();
-            });
+      client_strand1.strand->post([tcp_client1, &client_strand1]() {
+        tcp_client1->destroy();
+        client_strand1.destroy();
+      });
+      step_2_downstream_list();
+    });
 
-      };
+  };
 
   tcp_client1->connect(std::move(step_1_downstream_child_list));
   tcp_client2->connect();
 
-  app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) { app->force_stop(); }
   app->wait();
   broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
@@ -275,36 +273,37 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
   auto app = std::make_shared<App>();
   auto broker = create_broker(app);
   broker->run();
-  WAIT_EXPECT_TRUE(2000,
-                   [&]() { return broker->get_active_server_port() != 0; });
+  WAIT_EXPECT_TRUE(500,
+    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
   WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2");
   client_strand2.strand->set_responder_model(
-      ModelRef(new MockNodeRoot(client_strand2.strand)));
+    ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
   shared_ptr_<Connection> connection2;
 
   // list again after previous list is closed
   auto step_5 = [&]() {
     tcp_client1->get_session().requester.list(
-        "downstream/test2",
-        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+      "downstream/test2",
+      [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+      EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
-          // end the test
-          client_strand1.strand->post([tcp_client1, &client_strand1]() {
-            tcp_client1->destroy();
-            client_strand1.destroy();
-          });
-          client_strand2.strand->post([tcp_client2, &client_strand2]() {
-            tcp_client2->destroy();
-            client_strand2.destroy();
-          });
-          broker->strand->post([broker]() { broker->destroy(); });
-        });
+      // end the test
+      client_strand1.strand->post([tcp_client1, &client_strand1]() {
+        tcp_client1->destroy();
+        client_strand1.destroy();
+      });
+      client_strand2.strand->post([tcp_client2, &client_strand2]() {
+        tcp_client2->destroy();
+        client_strand2.destroy();
+      });
+      broker->strand->post([broker]() { broker->destroy(); });
+      app->close();
+    });
 
   };
 
@@ -312,84 +311,95 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
-        "downstream/test2",
-        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          step++;
-          switch (step) {
-            case 1: {
-              // step 1, connect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-              tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
-                connection2 = conn;
-              });
-              break;
-            }
-            case 2: {
-              // step 2, disconnect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
-              connection2->destroy_in_strand(connection2);
-              break;
-            }
+      "downstream/test2",
+      [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+      step++;
+      switch (step) {
+        case 1:
+        {
+          // step 1, connect client 2
+          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+          tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
+            connection2 = conn;
+          });
+          break;
+        }
+        case 2:
+        {
+          // step 2, disconnect client 2
+          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+          connection2->destroy_in_strand(connection2);
+          break;
+        }
 
-            case 3: {
-              // step 3, disconnected
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-              break;
-            }
+        case 3:
+        {
+          // step 3, disconnected
+          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+          break;
+        }
 
-            default: {
-              // step 3, reconnected
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+        case 4:
+        {
+          // step 3, reconnected
+          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
-              stream.close();
+          stream.close();
 
-              // list again
-              client_strand1.strand->post(std::move(step_5));
-            }
-          }
+          // list again
+          client_strand1.strand->post(std::move(step_5));
+          break;
+        }
+        default:
+          throw "unexpected";
+      }
 
-        });
+    });
   };
 
   tcp_client1->connect(std::move(step_1_to_4));
 
-  broker->run();
+  app->wait();
+  broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, ListChildDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
-
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->run();
+  WAIT_EXPECT_TRUE(500,
+    [&]() { return broker->get_active_server_port() != 0; });
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
   WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2");
   client_strand2.strand->set_responder_model(
-      ModelRef(new MockNodeRoot(client_strand2.strand)));
+    ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
   shared_ptr_<Connection> connection2;
 
   // list again after previous list is closed
   auto step_5 = [&]() {
     tcp_client1->get_session().requester.list(
-        "downstream/test2/value",
-        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+      "downstream/test2/value",
+      [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+      EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
-          // end the test
-          client_strand1.strand->post([tcp_client1, &client_strand1]() {
-            tcp_client1->destroy();
-            client_strand1.destroy();
-          });
-          client_strand2.strand->post([tcp_client2, &client_strand2]() {
-            tcp_client2->destroy();
-            client_strand2.destroy();
-          });
-          broker->strand->post([broker]() { broker->destroy(); });
-        });
+      // end the test
+      client_strand1.strand->post([tcp_client1, &client_strand1]() {
+        tcp_client1->destroy();
+        client_strand1.destroy();
+      });
+      client_strand2.strand->post([tcp_client2, &client_strand2]() {
+        tcp_client2->destroy();
+        client_strand2.destroy();
+      });
+      broker->strand->post([broker]() { broker->destroy(); });
+      app->close();
+    });
 
   };
 
@@ -398,54 +408,105 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
-        "downstream/test2/value",
-        [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          step++;
-          switch (step) {
-            case 1: {
-              // step 1, connect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-              tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
-                connection2 = conn;
-              });
-              break;
-            }
-            case 2: {
-              // step 2, disconnect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
-              connection2->destroy_in_strand(connection2);
-              break;
-            }
+      "downstream/test2/value",
+      [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+      step++;
+      switch (step) {
+        case 1:
+        {
+          // step 1, connect client 2
+          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+          tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
+            connection2 = conn;
+          });
+          break;
+        }
+        case 2:
+        {
+          // step 2, disconnect client 2
+          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+          connection2->destroy_in_strand(connection2);
+          break;
+        }
 
-            case 3: {
-              // step 3, disconnected
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
-              break;
-            }
+        case 3:
+        {
+          // step 3, disconnected
+          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+          break;
+        }
 
-            default: {
-              // step 4, reconnected, close stream
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+        case 4:
+        {
+          // step 4, reconnected, close stream
+          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
-              stream.close();
+          stream.close();
 
-              // list again
-              client_strand1.strand->post(std::move(step_5));
-            }
-          }
+          // list again
+          client_strand1.strand->post(step_5);
+          break;
+        }
+        default:
+          throw "unexpected";
+      }
 
-        });
+    });
   };
 
-  tcp_client1->connect(std::move(step_1_to_4));
+  tcp_client1->connect(step_1_to_4);
 
-
-  app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) { app->force_stop(); }
   app->wait();
   broker->destroy();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BrokerDownstreamTest, ListChildBeforeParent) {}
+TEST(BrokerDownstreamTest, ListChildBeforeParent) {
+  typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
+
+  auto app = std::make_shared<App>();
+  auto broker = create_broker(app);
+  broker->strand->logger().level = Logger::ALL___;
+  broker->run();
+  WAIT_EXPECT_TRUE(500,
+    [&]() { return broker->get_active_server_port() != 0; });
+
+  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test1");
+  client_strand.strand->set_responder_model(
+    ModelRef(new MockNodeRoot(client_strand.strand)));
+  client_strand.strand->logger().level = Logger::ALL___;
+  auto tcp_client = make_ref_<Client>(client_strand);
+
+  auto step_2_list_parent = [&]() {
+    tcp_client->get_session().requester.list(
+      "downstream/test1/node",
+      [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+      EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+
+      // end the test
+      client_strand.strand->post([tcp_client, &client_strand]() {
+        tcp_client->destroy();
+        client_strand.destroy();
+      });
+      broker->strand->post([broker]() { broker->destroy(); });
+    });
+
+  };
+
+  auto step_1_list_child = [&](const shared_ptr_<Connection>& connection) {
+    tcp_client->get_session().requester.list(
+      "downstream/test1/node/action",
+      [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
+      EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+      client_strand.strand->post(std::move(step_2_list_parent));
+    });
+
+  };
+
+  tcp_client->connect(std::move(step_1_list_child));
+
+  app->close();
+  app->wait();
+  broker->destroy();
+  EXPECT_TRUE(broker->is_destroyed());
+}
