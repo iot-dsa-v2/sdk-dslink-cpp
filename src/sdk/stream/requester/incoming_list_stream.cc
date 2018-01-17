@@ -17,6 +17,9 @@ void IncomingListStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::LIST_RESPONSE) {
     if (_callback != nullptr) {
       _callback(*this, std::move(msg));
+      //stream can be closed in the callback, so clear _callback here
+      if(_closed)
+        _callback = nullptr;
     }
   }
 }
@@ -29,10 +32,11 @@ void IncomingListStream::list(const ListOptions& options) {
   send_message(std::move(msg));
 }
 
-void IncomingListStream::close() {
+void IncomingListStream::close(bool clear_callback) {
   if (_closed) return;
   _closed = true;
-  _callback = nullptr;
+  if(clear_callback)
+    _callback = nullptr;
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE_REQUEST), true);
 }
 

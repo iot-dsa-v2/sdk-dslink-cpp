@@ -31,7 +31,8 @@ class IncomingListStream final : public MessageCacheStream {
   // send the list request
   void list(const ListOptions& options);
 
-  void close();
+  //do not clear callback when it is called in the callback itself
+  void close(bool clear_callback = true);
 
   bool check_close_message(MessageCRef& message) final;
 
