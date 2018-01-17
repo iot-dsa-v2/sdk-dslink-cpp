@@ -6,7 +6,7 @@ TEST(BROKER_DSLINK_TEST, Reconnect) {
   auto app = make_shared_<App>();
 
   auto broker = broker_dslink_test::create_broker(app);
-  broker->run();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -72,9 +72,9 @@ TEST(BROKER_DSLINK_TEST, Reconnect) {
 }
 
 TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
-  auto app = std::make_shared<App>();
-  auto broker = broker_dslink_test::create_broker(app);
-  broker->run();
+  auto broker = broker_dslink_test::create_broker();
+  shared_ptr_<App> &app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -123,13 +123,7 @@ TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
 
   link_1->connect(std::move(unavailable_child_list));
 
-  app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) {
-    app->force_stop();
-  }
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
@@ -137,9 +131,9 @@ TEST(BROKER_DSLINK_TEST, STOP_TEST) {
   std::string close_token = "12345678901234567890123456789012";
   string_to_file(close_token, ".close_token");
 
-  auto app = std::make_shared<App>();
-  auto broker = broker_dslink_test::create_broker(app);
-  broker->run();
+  auto broker = broker_dslink_test::create_broker();
+  shared_ptr_<App> &app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -165,13 +159,7 @@ TEST(BROKER_DSLINK_TEST, STOP_TEST) {
   WAIT_EXPECT_TRUE(2000,
                    [&]() { return link_1->is_destroyed(); });
 
-  app->close();
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) {
-    app->force_stop();
-  }
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
@@ -224,7 +212,7 @@ TEST(BROKER_DSLINK_TEST, SYS_LIST_WITHOUT_CLOSE_TOKEN) {
   auto app = make_shared_<App>();
 
   auto broker = broker_dslink_test::create_broker(app);
-  broker->run();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 

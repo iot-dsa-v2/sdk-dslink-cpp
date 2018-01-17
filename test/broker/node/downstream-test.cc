@@ -62,9 +62,9 @@ class MockNodeRoot : public NodeModel {
 TEST(BrokerDownstreamTest, Subscribe) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -85,22 +85,19 @@ TEST(BrokerDownstreamTest, Subscribe) {
             client_strand.destroy();
           });
           broker->strand->post([broker]() { broker->destroy(); });
-          app->close();
         });
 
   });
-
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, Invoke) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -124,23 +121,20 @@ TEST(BrokerDownstreamTest, Invoke) {
             client_strand.destroy();
           });
           broker->strand->post([broker]() { broker->destroy(); });
-          app->close();
         },
         std::move(invoke_req));
 
   });
-
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, Set) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -178,24 +172,21 @@ TEST(BrokerDownstreamTest, Set) {
                 client_strand.destroy();
               });
               broker->strand->post([broker]() { broker->destroy(); });
-              app->close();
             }
           }
         });
 
   });
-
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, List) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -221,7 +212,6 @@ TEST(BrokerDownstreamTest, List) {
           });
 
           broker->strand->post([broker]() { broker->destroy(); });
-          app->close();
         });
   };
 
@@ -259,17 +249,16 @@ TEST(BrokerDownstreamTest, List) {
   tcp_client1->connect(std::move(step_1_downstream_child_list));
   tcp_client2->connect();
 
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, ListDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -299,7 +288,6 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
             client_strand2.destroy();
           });
           broker->strand->post([broker]() { broker->destroy(); });
-          app->close();
         });
 
   };
@@ -352,17 +340,16 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
 
   tcp_client1->connect(std::move(step_1_to_4));
 
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, ListChildDisconnect) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
@@ -391,7 +378,6 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
             client_strand2.destroy();
           });
           broker->strand->post([broker]() { broker->destroy(); });
-          app->close();
         });
 
   };
@@ -444,18 +430,16 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
   };
 
   tcp_client1->connect(step_1_to_4);
-
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST(BrokerDownstreamTest, ListChildBeforeParent) {
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -494,8 +478,6 @@ TEST(BrokerDownstreamTest, ListChildBeforeParent) {
 
   tcp_client->connect(std::move(step_1_list_child));
 
-  app->close();
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }

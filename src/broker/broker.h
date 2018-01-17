@@ -29,7 +29,8 @@ class DsBroker final : public WrapperStrand {
            const shared_ptr_<App>& app = nullptr);
   ~DsBroker() final;
 
-  void run();
+  void run(bool wait=true);
+  void wait();
   shared_ptr_<App>& get_app() { return _app; }
   const ref_<BrokerConfig>& get_config() const { return _config; };
 

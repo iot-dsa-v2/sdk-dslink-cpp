@@ -83,9 +83,11 @@ void DsBroker::destroy_impl() {
   _config.reset();
 
   WrapperStrand::destroy_impl();
-  if (own_app) { _app->close(); }
+  if (own_app) {
+    _app->close();
+  }
 }
-void DsBroker::run() {
+void DsBroker::run(bool wait) {
 #if 0
   strand->dispatch([this]() {
     // start web_server
@@ -117,15 +119,19 @@ void DsBroker::run() {
     }
   });
 
-  if (own_app) {
+  if (own_app && wait) {
     _app->wait();
     destroy();
   }
 }
 int32_t DsBroker::get_active_server_port() {
-  if(_tcp_server.get() == nullptr)
+  if (_tcp_server.get() == nullptr)
     return 0;
   else
     return _tcp_server->get_port();
+}
+void DsBroker::wait() {
+  _app->wait();
+  destroy();
 }
 }

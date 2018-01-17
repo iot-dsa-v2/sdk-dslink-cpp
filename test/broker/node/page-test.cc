@@ -45,9 +45,9 @@ TEST(BrokerPageTest, Invoke_Request) {
   }
 
 
-  auto app = std::make_shared<App>();
-  auto broker = create_broker(app);
-  broker->run();
+  auto broker = create_broker();
+  shared_ptr_<App>& app = broker->get_app();
+  broker->run(false);
   WAIT_EXPECT_TRUE(500,
                    [&]() { return broker->get_active_server_port() != 0; });
 
@@ -77,10 +77,6 @@ TEST(BrokerPageTest, Invoke_Request) {
         std::move(invoke_req));
 
   });
-  app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
-  if (!app->is_stopped()) { app->force_stop(); }
-  app->wait();
-  broker->destroy();
+  broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
