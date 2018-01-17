@@ -28,7 +28,9 @@ void HttpConnection::accept() {
 
         if (websocket::is_upgrade(_req)) {
           // call corresponding server's callback
-          _connection = _web_server.ws_handler(_req.target().to_string())(
+//          TODO - temporary fix for issue on Windowns platform
+//          _connection = _web_server.ws_handler(_req.target().to_string())(
+          _connection = _web_server.ws_handler("/")(
               _web_server, std::move(_socket), std::move(_req));
         }
         return;
