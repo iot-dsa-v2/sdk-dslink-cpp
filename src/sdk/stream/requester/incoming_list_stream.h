@@ -19,8 +19,11 @@ class IncomingListStream final : public MessageCacheStream {
                              ref_<const ListResponseMessage>&&)>
       Callback;
 
+ private:
+  void _run_callback(ref_<Message>&& msg);
  protected:
   Callback _callback;
+  bool _callback_running = false;
   ListOptions _options;
 
  public:
@@ -31,8 +34,8 @@ class IncomingListStream final : public MessageCacheStream {
   // send the list request
   void list(const ListOptions& options);
 
-  //do not clear callback when it is called in the callback itself
-  void close(bool clear_callback = true);
+  // do not clear callback when it is called in the callback itself
+  void close();
 
   bool check_close_message(MessageCRef& message) final;
 

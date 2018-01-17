@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#ifdef DSA_DEBUG
+#ifdef _DSA_DEBUG
 
 #include <iostream>
 #include <sstream>

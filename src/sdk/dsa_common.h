@@ -9,22 +9,24 @@
 
 #endif  // _MSC_VER
 
-#ifdef DSA_DEBUG
+#ifdef _DSA_DEBUG
 
 #define DOWN_CAST dynamic_cast
-
 #define BOOST_ENABLE_ASSERT_HANDLER
+
+const bool DSA_DEBUG = true;
 
 #else  // DSA_DEBUG
 
 #define DOWN_CAST static_cast
 #define BOOST_DISABLE_ASSERTS
 
-#endif  // DSA_DEBUG
+const bool DSA_DEBUG = false;
+
+#endif  // _DSA_DEBUG
 
 #include <cstdint>
 #include <string>
-
 
 namespace std {
 #ifndef __APPLE__

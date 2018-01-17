@@ -325,7 +325,7 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
               // step 4, reconnected
               EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
-              stream.close(false);
+              stream.close();
 
               // list again
               client_strand1.strand->post(std::move(step_5));
@@ -416,7 +416,7 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
               // step 4, reconnected, close stream
               EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
-              stream.close(false);
+              stream.close();
 
               // list again
               client_strand1.strand->post(step_5);
