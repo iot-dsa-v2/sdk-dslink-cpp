@@ -5,6 +5,7 @@
 #include "core/client.h"
 #include "link.h"
 #include "message/response/list_response_message.h"
+#include "module/logger.h"
 #include "stream/requester/incoming_list_stream.h"
 
 namespace dsa {
@@ -16,7 +17,17 @@ IncomingListCache::IncomingListCache(ref_<ListMerger>&& merger,
 void IncomingListCache::destroy_impl() {
   _merger->remove(get_ref());
   _merger.reset();
-  _callback = nullptr;
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
+}
+
+void IncomingListCache::_receive_update(const std::vector<string_>& update) {
+  if (_callback != nullptr) {
+    BEFORE_CALLBACK_RUN();
+    _callback(*this, update);
+    AFTER_CALLBACK_RUN();
+  }
 }
 
 const VarMap& IncomingListCache::get_map() const { return _merger->_map; }
@@ -61,7 +72,7 @@ ref_<IncomingListCache> ListMerger::list(
   }
   if (_last_status != MessageStatus::INITIALIZING) {
     // send a fresh update
-    cache->_callback(*cache, {});
+    cache->_receive_update({});
   }
   return cache->get_ref();
 }
@@ -90,7 +101,7 @@ void ListMerger::new_list_response(ref_<const ListResponseMessage>&& message) {
   }
   if (_last_status != MessageStatus::INITIALIZING) {
     for (auto& it : caches) {
-      it->_callback(*it, _changes);
+      it->_receive_update(_changes);
     }
     _changes.clear();
   }

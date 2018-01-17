@@ -7,9 +7,9 @@
 
 #include <unordered_set>
 #include <vector>
+#include "message/enums.h"
 #include "util/enable_ref.h"
 #include "variant/variant.h"
-#include "message/enums.h"
 
 namespace dsa {
 
@@ -31,6 +31,9 @@ class IncomingListCache : public DestroyableRef<IncomingListCache> {
   void destroy_impl() final;
   ref_<ListMerger> _merger;
   Callback _callback;
+  bool _callback_running = false;
+
+  void _receive_update(const std::vector<string_>& update);
 
  public:
   IncomingListCache();
@@ -38,6 +41,9 @@ class IncomingListCache : public DestroyableRef<IncomingListCache> {
                     IncomingListCache::Callback&& callback);
   const VarMap& get_map() const;
   MessageStatus get_status() const;
+
+  void close() { destroy(); }
+  bool is_closed() { return is_destroyed(); }
 };
 // when multiple list request is made on same path, ListMerger merge
 // the subscription into one request

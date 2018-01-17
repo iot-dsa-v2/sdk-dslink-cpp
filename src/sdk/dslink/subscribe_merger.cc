@@ -4,6 +4,7 @@
 
 #include "core/client.h"
 #include "link.h"
+#include "module/logger.h"
 #include "stream/requester/incoming_subscribe_stream.h"
 
 namespace dsa {
@@ -18,10 +19,19 @@ IncomingSubscribeCache::IncomingSubscribeCache(
 void IncomingSubscribeCache::destroy_impl() {
   _merger->remove(get_ref());
   _merger.reset();
-  _callback = nullptr;
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
 }
 
-void IncomingSubscribeCache::close() { destroy(); }
+void IncomingSubscribeCache::_receive_update(
+    ref_<const SubscribeResponseMessage>& message) {
+  if (_callback != nullptr) {
+    BEFORE_CALLBACK_RUN();
+    _callback(*this, message);
+    AFTER_CALLBACK_RUN();
+  }
+}
 
 SubscribeMerger::SubscribeMerger(ref_<DsLink>&& link, const string_& path)
     : _link(std::move(link)),
@@ -35,7 +45,7 @@ void SubscribeMerger::destroy_impl() {
   _link.reset();
   _cached_value.reset();
 
-  for(auto it:caches) {
+  for (auto it : caches) {
     it->destroy();
   }
   caches.clear();
@@ -68,7 +78,7 @@ ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
     _stream->subscribe(options);
   }
   if (_cached_value != nullptr) {
-    cache->_callback(*cache, _cached_value);
+    cache->_receive_update(_cached_value);
   }
 
   return std::move(cache);
@@ -78,7 +88,7 @@ void SubscribeMerger::new_subscribe_response(
     SubscribeResponseMessageCRef&& message) {
   _cached_value = std::move(message);
   for (auto& it : caches) {
-    it->_callback(*it, _cached_value);
+    it->_receive_update(_cached_value);
   }
 }
 
