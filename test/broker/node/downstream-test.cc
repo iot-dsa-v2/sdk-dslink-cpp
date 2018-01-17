@@ -66,7 +66,7 @@ TEST(BrokerDownstreamTest, Subscribe) {
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+                   [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -99,7 +99,7 @@ TEST(BrokerDownstreamTest, Invoke) {
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+                   [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -136,7 +136,7 @@ TEST(BrokerDownstreamTest, Set) {
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+                   [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -187,8 +187,8 @@ TEST(BrokerDownstreamTest, List) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+  WAIT_EXPECT_TRUE(
+      500, [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   client_strand1.strand->set_responder_model(
@@ -260,7 +260,7 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+                   [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   auto tcp_client1 = make_ref_<Client>(client_strand1);
@@ -351,7 +351,7 @@ TEST(BrokerDownstreamTest, ListChildDisconnect) {
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+                   [&]() -> bool { return broker->get_active_server_port() != 0; });
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
@@ -441,7 +441,7 @@ TEST(BrokerDownstreamTest, ListChildBeforeParent) {
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   WAIT_EXPECT_TRUE(500,
-                   [&]() { return broker->get_active_server_port() != 0; });
+                   [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker, "test1");
   client_strand.strand->set_responder_model(
