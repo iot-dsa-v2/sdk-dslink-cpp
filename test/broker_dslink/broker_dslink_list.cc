@@ -11,8 +11,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link = broker_dslink_test::create_mock_dslink(app, broker->get_active_server_port(), "test1");
 
@@ -97,8 +96,7 @@ TEST(BROKER_DSLINK_TEST, DisconnectTest) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test1");
   auto link_2 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test2");

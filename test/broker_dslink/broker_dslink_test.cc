@@ -7,8 +7,7 @@ TEST(BROKER_DSLINK_TEST, Reconnect) {
 
   auto broker = broker_dslink_test::create_broker(app);
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   for (int i = 0; i < 3; i++) {
     // Constant name main link
@@ -75,8 +74,7 @@ TEST(BROKER_DSLINK_TEST, NOT_AVAILABLE_3_STEP) {
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   // broker->strand->logger().level = Logger::ALL___;
 
@@ -134,8 +132,7 @@ TEST(BROKER_DSLINK_TEST, STOP_TEST) {
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
       app, broker->get_active_server_port(), "test_1",true);
@@ -171,8 +168,7 @@ TEST(BROKER_DSLINK_TEST, SYS_LIST_WITH_CLOSE_TOKEN) {
 
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
       app, broker->get_active_server_port(), "test_1", true);
@@ -213,8 +209,7 @@ TEST(BROKER_DSLINK_TEST, SYS_LIST_WITHOUT_CLOSE_TOKEN) {
 
   auto broker = broker_dslink_test::create_broker(app);
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
       app, broker->get_active_server_port(), "test_1", true);

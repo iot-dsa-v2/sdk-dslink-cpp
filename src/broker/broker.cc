@@ -22,7 +22,6 @@ namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
                    const shared_ptr_<App>& app)
     : _config(std::move(config)), _app(app) {
-  own_app = false;
   init(modules);
 }
 DsBroker::~DsBroker() {}
@@ -36,7 +35,7 @@ void DsBroker::init(ModuleLoader& modules) {
       thread = 1;
     }
     _app.reset(new App(thread));
-    own_app = true;
+    _own_app = true;
   }
 
   server_host = _config->host().get_value().get_string();
@@ -83,7 +82,7 @@ void DsBroker::destroy_impl() {
   _config.reset();
 
   WrapperStrand::destroy_impl();
-  if (own_app) {
+  if (_own_app) {
     _app->close();
   }
 }
@@ -111,15 +110,14 @@ void DsBroker::run(bool wait) {
 #endif
 
   // start tcp server
-  strand->dispatch([this]() {
-    if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
-      _tcp_server = make_shared_<TcpServer>(*this);
-      _tcp_server->start();
-      LOG_SYSTEM(strand->logger(), LOG << "DsBroker started");
-    }
-  });
 
-  if (own_app && wait) {
+  if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
+    _tcp_server = make_shared_<TcpServer>(*this);
+    _tcp_server->start();
+    LOG_SYSTEM(strand->logger(), LOG << "DsBroker started");
+  }
+
+  if (_own_app && wait) {
     _app->wait();
     destroy();
   }

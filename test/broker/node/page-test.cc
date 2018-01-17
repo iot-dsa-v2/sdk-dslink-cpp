@@ -48,8 +48,7 @@ TEST(BrokerPageTest, Invoke_Request) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(

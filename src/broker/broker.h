@@ -40,7 +40,7 @@ class DsBroker final : public WrapperStrand {
   int32_t get_active_server_port();
 
  protected:
-  bool own_app;
+  bool _own_app = false;
   shared_ptr_<App> _app;
   shared_ptr_<TcpServer> _tcp_server;
   shared_ptr_<WebServer> _web_server;
