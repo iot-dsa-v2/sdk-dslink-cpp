@@ -38,16 +38,29 @@ ref_<NodeState> NodeStateManager::get_state(const Path &path) {
   if (path.is_root()) {
     return _root;
   }
-  auto result = _states.find(path.full_str());
-  if (result != _states.end()) {
-    return result->second->get_ref();
+  ref_<NodeState> state;
+
+  auto search = _states.find(path.full_str());
+  if (search != _states.end()) {
+    state = search->second->get_ref();
+  } else {
+    state = _root->create_child(path, *_root, false);
+    // register it in global map for quick access
+    if (state != nullptr) {
+      _states[path.full_str()] = state;
+    }
   }
 
-  ref_<NodeState> state = _root->create_child(path, *_root, false);
-  // register it in global map for quick access
-  if (state != nullptr) {
-    _states[path.full_str()] = state;
+  if (state != nullptr && state->_model_status == NodeState::MODEL_UNKNOWN) {
+    // check if we can attach model to the state
+    auto parent = state->_parent;
+    while (parent->_model_status != NodeState::MODEL_CONNECTED) {
+      parent = parent->_parent;
+    }
+    state->set_model(parent->_model->on_demand_create_child(
+        state->_path.rest_part(parent->_path)));
   }
+
   return std::move(state);
 }
 ref_<NodeState> NodeStateManager::check_state(const Path &path) {
