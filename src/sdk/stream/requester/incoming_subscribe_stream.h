@@ -24,6 +24,7 @@ class IncomingSubscribeStream final : public MessageCacheStream {
   // paged message that's partially received
   ref_<IncomingPagesMerger> _waiting_pages;
   Callback _callback;
+  bool _callback_running = false;
   SubscribeOptions _options;
 
  public:

@@ -5,6 +5,7 @@
 #include "core/session.h"
 #include "message/request/subscribe_request_message.h"
 #include "message/response/subscribe_response_message.h"
+#include "module/logger.h"
 
 namespace dsa {
 
@@ -18,7 +19,9 @@ void IncomingSubscribeStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::SUBSCRIBE_RESPONSE) {
     IncomingPagesMerger::check_merge(_waiting_pages, msg);
     if (_callback != nullptr) {
+      BEFORE_CALLBACK_RUN();
       _callback(*this, std::move(msg));
+      AFTER_CALLBACK_RUN();
     }
   }
 }
@@ -34,8 +37,9 @@ void IncomingSubscribeStream::subscribe(const SubscribeOptions& options) {
 void IncomingSubscribeStream::close() {
   if (_closed) return;
   _closed = true;
-  _callback = nullptr;
-  // TODO: maybe wait to send message before destroying it
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE_REQUEST), true);
 }
 
@@ -51,7 +55,9 @@ void IncomingSubscribeStream::update_response_status(MessageStatus status) {
   if (_callback != nullptr) {
     auto response = make_ref_<SubscribeResponseMessage>();
     response->set_status(status);
+    BEFORE_CALLBACK_RUN();
     _callback(*this, std::move(response));
+    AFTER_CALLBACK_RUN();
   }
 }
 

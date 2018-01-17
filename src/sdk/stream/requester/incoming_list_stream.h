@@ -19,8 +19,6 @@ class IncomingListStream final : public MessageCacheStream {
                              ref_<const ListResponseMessage>&&)>
       Callback;
 
- private:
-  void _run_callback(ref_<Message>&& msg);
  protected:
   Callback _callback;
   bool _callback_running = false;

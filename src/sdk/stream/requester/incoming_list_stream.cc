@@ -15,21 +15,12 @@ IncomingListStream::IncomingListStream(ref_<Session>&& session,
     : MessageCacheStream(std::move(session), path, rid),
       _callback(std::move(callback)) {}
 
-inline void IncomingListStream::_run_callback(ref_<Message>&& msg) {
-  if (DSA_DEBUG && _callback_running) {
-    LOG_FATAL(LOG << "recursive list response callback");
-  }
-  _callback_running = true;
-  _callback(*this, std::move(msg));
-  // stream can be closed in the callback, so clear _callback here
-  if (_closed) _callback = nullptr;
-  _callback_running = false;
-}
-
 void IncomingListStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::LIST_RESPONSE) {
     if (_callback != nullptr) {
-      _run_callback(std::move(msg));
+      BEFORE_CALLBACK_RUN();
+      _callback(*this, std::move(msg));
+      AFTER_CALLBACK_RUN();
     }
   }
 }
@@ -62,7 +53,9 @@ void IncomingListStream::update_response_status(MessageStatus status) {
   if (_callback != nullptr) {
     auto response = make_ref_<ListResponseMessage>();
     response->set_status(status);
-    _run_callback(std::move(response));
+    BEFORE_CALLBACK_RUN();
+    _callback(*this, std::move(response));
+    AFTER_CALLBACK_RUN();
   }
 }
 

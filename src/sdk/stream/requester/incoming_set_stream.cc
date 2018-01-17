@@ -5,6 +5,7 @@
 #include "core/session.h"
 #include "message/request/set_request_message.h"
 #include "message/response/set_response_message.h"
+#include "module/logger.h"
 
 namespace dsa {
 
@@ -16,7 +17,9 @@ IncomingSetStream::IncomingSetStream(ref_<Session>&& session, const Path& path,
 void IncomingSetStream::receive_message(ref_<Message>&& msg) {
   if (msg->type() == MessageType::SET_RESPONSE) {
     if (_callback != nullptr) {
+      BEFORE_CALLBACK_RUN();
       _callback(*this, std::move(msg));
+      AFTER_CALLBACK_RUN();
     }
   }
 }
@@ -28,7 +31,9 @@ void IncomingSetStream::set(ref_<const SetRequestMessage>&& msg) {
 void IncomingSetStream::close() {
   if (_closed) return;
   _closed = true;
-  _callback = nullptr;
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
   send_message(make_ref_<RequestMessage>(MessageType::CLOSE_REQUEST), true);
 }
 
@@ -44,7 +49,9 @@ bool IncomingSetStream::disconnected() {
   if (_callback != nullptr) {
     auto response = make_ref_<SetResponseMessage>();
     response->set_status(MessageStatus::DISCONNECTED);
+    BEFORE_CALLBACK_RUN();
     _callback(*this, std::move(response));
+    AFTER_CALLBACK_RUN();
   }
   destroy();
   return true;

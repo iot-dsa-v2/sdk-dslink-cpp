@@ -21,6 +21,7 @@ class IncomingInvokeStream final : public MessageQueueStream {
 
  protected:
   Callback _callback;
+  bool _callback_running = false;
 
   ref_<IncomingPagesMerger> _waiting_pages;
 

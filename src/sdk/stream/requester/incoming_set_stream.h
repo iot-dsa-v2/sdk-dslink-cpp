@@ -20,6 +20,7 @@ class IncomingSetStream final : public MessageQueueStream {
 
  protected:
   Callback _callback;
+  bool _callback_running = false;
 
  public:
   IncomingSetStream(ref_<Session>&& session, const Path& path, uint32_t rid,

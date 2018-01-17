@@ -8,6 +8,16 @@
 #include <deque>
 #include "message/base_message.h"
 
+#define BEFORE_CALLBACK_RUN()                             \
+  if (DSA_DEBUG && _callback_running) {                   \
+    LOG_FATAL(LOG << "recursive list response callback"); \
+  }                                                       \
+  _callback_running = true;
+
+#define AFTER_CALLBACK_RUN()        \
+  if (_closed) _callback = nullptr; \
+  _callback_running = false;
+
 namespace dsa {
 
 class Session;
