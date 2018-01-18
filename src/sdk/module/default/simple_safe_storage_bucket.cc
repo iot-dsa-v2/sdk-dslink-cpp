@@ -1,3 +1,4 @@
+#include "dsa_common.h"
 #include "simple_storage.h"
 
 #include <boost/asio/strand.hpp>

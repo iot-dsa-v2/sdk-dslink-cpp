@@ -1,11 +1,11 @@
-#include <gtest/gtest.h>
-
-#include "../async_test.h"
-#include "../test_config.h"
 #include "dsa/message.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
 #include "dsa/stream.h"
+#include <gtest/gtest.h>
+
+#include "../async_test.h"
+#include "../test_config.h"
 #include "network/tcp/tcp_server.h"
 
 using namespace dsa;
