@@ -3,6 +3,7 @@ list(APPEND ModulekSourceFiles
         default/console_logger.cc
         default/simple_storage.cc
         default/simple_storage_bucket.cc
+        default/simple_safe_storage_bucket.cc
         default/simple_queue_bucket.cc
         default/simple_session_manager.cc
         default/dummy_stream_acceptor.cc
