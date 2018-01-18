@@ -89,7 +89,7 @@ TEST(TcpServerTest, SingleStrand) {
     clients.push_back(std::move(tcp_client));
   }
 
-  ASYNC_EXPECT_TRUE(500, *config.strand, [&]() {
+  ASYNC_EXPECT_TRUE(1000, *config.strand, [&]() {
     for (auto& client : clients) {
       if (!client->get_session().is_connected()) {
         return false;
@@ -106,7 +106,7 @@ TEST(TcpServerTest, SingleStrand) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -135,7 +135,7 @@ TEST(TcpServerTest, MultiStrand) {
     clients.push_back(std::move(tcp_client));
   }
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() {
     for (auto& client : clients) {
       if (!client->get_session().is_connected()) {
         return false;
@@ -152,7 +152,7 @@ TEST(TcpServerTest, MultiStrand) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

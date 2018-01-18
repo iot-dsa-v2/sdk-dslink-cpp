@@ -72,7 +72,7 @@ TEST(DSLinkTest, Server_Test) {
   auto map = VarMap();
   link->list("", [&](IncomingListCache &cache,
                      const std::vector<string_> &str) { map = cache.get_map();});
-  WAIT_EXPECT_TRUE(500, [&]() { return map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return map.size() != 0; });
   EXPECT_NE(map["sys"].get_type(), 0);
   EXPECT_NE(map["pub"].get_type(), 0);
   EXPECT_NE(map["main"].get_type(), 0);
@@ -84,7 +84,7 @@ TEST(DSLinkTest, Server_Test) {
                       ref_<const SubscribeResponseMessage> message) {
                     messages.push_back(message->get_value().value.get_string());
                   });
-  WAIT_EXPECT_TRUE(500, [&]() { return messages.size() == 1; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return messages.size() == 1; });
   EXPECT_TRUE(messages.size() == 1);
   EXPECT_EQ(messages.at(0), "test string value 1");
 
@@ -93,7 +93,7 @@ TEST(DSLinkTest, Server_Test) {
   destroy_dslink_in_strand(link);
 
   app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -142,7 +142,7 @@ TEST(DSLinkTest, CloseTest) {
   bool is_connected = false;
   link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
 
-  ASYNC_EXPECT_TRUE(500, *link->strand, [&]() { return is_connected; });
+  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
   auto close_request_with_wrong_token = make_ref_<InvokeRequestMessage>();
   close_request_with_wrong_token->set_value(Var("wrongtoken"));
@@ -155,7 +155,7 @@ TEST(DSLinkTest, CloseTest) {
                },
                copy_ref_(close_request_with_wrong_token));
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return response_invoke_failed != nullptr; });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return response_invoke_failed != nullptr; });
   EXPECT_EQ(response_invoke_failed->get_status(), MessageStatus::INVALID_PARAMETER);
   EXPECT_FALSE(linkResp->is_destroyed());
 
@@ -173,7 +173,7 @@ TEST(DSLinkTest, CloseTest) {
   destroy_dslink_in_strand(link);
 
   app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

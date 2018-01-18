@@ -60,7 +60,7 @@ TEST(NetworkTest, ReConnect) {
   auto client = make_ref_<Client>(client_strand);
   client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return client->get_session().is_connected(); });
 
   // subscribe on root node value
@@ -80,7 +80,7 @@ TEST(NetworkTest, ReConnect) {
       });
 
   // waiting until list stream and subscribe stream are working
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() {
     return last_list_response != nullptr && last_subscribe_response != nullptr;
   });
 
@@ -93,7 +93,7 @@ TEST(NetworkTest, ReConnect) {
   });
 
   // it should be disconnected
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return !client->get_session().is_connected(); });
 
   // update list stream and subscribe stream
@@ -103,14 +103,14 @@ TEST(NetworkTest, ReConnect) {
   });
 
   // it should get reconnected within 5 seconds
-  ASYNC_EXPECT_TRUE(5000, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(10000, *client_strand.strand,
                     [&]() { return client->get_session().is_connected(); });
 
   // subscribe stream and list stream should get new value after reconnect
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return last_list_response != nullptr; });
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return last_subscribe_response != nullptr; });
 
   // close everything
@@ -119,7 +119,7 @@ TEST(NetworkTest, ReConnect) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

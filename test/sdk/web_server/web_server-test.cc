@@ -42,7 +42,7 @@ TEST(WebServerTest, ws_subscribe) {
   ref_<Client> client(new Client(config));
   client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *config.strand, [&]() {
+  ASYNC_EXPECT_TRUE(1000, *config.strand, [&]() {
     if (!client->get_session().is_connected()) {
       return false;
     }
@@ -64,12 +64,12 @@ TEST(WebServerTest, ws_subscribe) {
       },
       initial_options);
 
-  ASYNC_EXPECT_TRUE(500, *config.strand,
+  ASYNC_EXPECT_TRUE(1000, *config.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
   app->close();
 
-  // WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  // WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   // if (!app->is_stopped()) {
   //   app->force_stop();

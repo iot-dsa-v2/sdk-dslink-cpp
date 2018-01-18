@@ -48,7 +48,7 @@ TEST(ResponderTest, QosQueueSizeTest) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -67,7 +67,7 @@ TEST(ResponderTest, QosQueueSizeTest) {
       initial_options);
 
   // wait for root_node to receive the request
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return last_response != nullptr && last_response->get_value().has_value() &&
            last_response->get_value().value.is_int() &&
            last_response->get_value().value.get_int() == 9;
@@ -81,7 +81,7 @@ TEST(ResponderTest, QosQueueSizeTest) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

@@ -58,7 +58,7 @@ TEST(ResponderTest, ListTest) {
   auto link = server_strand.create_dslink(true);
   link->connect(
       [&](const shared_ptr_<Connection> connection) { is_connected = true; });
-  ASYNC_EXPECT_TRUE(500, *link->strand, [&]() { return is_connected; });
+  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
   // list on root node
   ListResponses root_list_responses;
@@ -69,7 +69,7 @@ TEST(ResponderTest, ListTest) {
                map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return map.size() != 0; });
   {
     EXPECT_TRUE(root_list_responses.size() == 1);
     EXPECT_TRUE(root_list_responses[0].size() == 0);
@@ -86,7 +86,7 @@ TEST(ResponderTest, ListTest) {
                child_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() { return child_map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return child_map.size() != 0; });
   {
     EXPECT_EQ(child_map["$is"].to_string(), "test_class");
     EXPECT_EQ(child_map["@unit"].to_string(), "test_unit");
@@ -100,7 +100,7 @@ TEST(ResponderTest, ListTest) {
     root_node->add_list_child("child_c",
                               new MockNodeChild(server_strand.strand));
   });
-  WAIT_EXPECT_TRUE(500, [&]() { return root_list_responses.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return root_list_responses.size() != 0; });
   {
     EXPECT_TRUE(root_list_responses.size() == 1);
     EXPECT_TRUE(root_list_responses[0].size() == 1);
@@ -118,7 +118,7 @@ TEST(ResponderTest, ListTest) {
                revisited_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500,
+  WAIT_EXPECT_TRUE(1000,
                    [&]() { return root_revisited_list_responses.size() == 1; });
   {
     EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
@@ -128,13 +128,13 @@ TEST(ResponderTest, ListTest) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_dslink_in_strand(link);
 
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *link.get()->strand, [&]() -> bool {
     return link->is_destroyed() && link->ref_count() == 1;
   });
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

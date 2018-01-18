@@ -80,7 +80,7 @@ TEST(ResponderTest, Subscribe_Model) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -103,14 +103,14 @@ TEST(ResponderTest, Subscribe_Model) {
       initial_options);
 
   // wait for root_node to receive the request
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return root_node->first_subscribe_options != nullptr;
   });
 
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options == *root_node->first_subscribe_options);
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
@@ -119,13 +119,13 @@ TEST(ResponderTest, Subscribe_Model) {
   // send an new request to update the option of the same stream
   subscribe_stream->subscribe(update_options);
 
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return root_node->second_subscribe_options != nullptr;
   });
   // request option should be same as the second one
   EXPECT_TRUE(update_options == *root_node->second_subscribe_options);
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return last_response->get_value().value.get_string() == "world";
   });
 
@@ -134,12 +134,12 @@ TEST(ResponderTest, Subscribe_Model) {
   // close the subscribe stream
   subscribe_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&
            subscribe_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand,
                     [&]() -> bool { return !root_node->need_subscribe(); });
 
   tcp_server->destroy_in_strand(tcp_server);
@@ -147,7 +147,7 @@ TEST(ResponderTest, Subscribe_Model) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -177,7 +177,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   SubscribeOptions initial_options;
@@ -200,14 +200,14 @@ TEST(ResponderTest, Subscribe_Acceptor) {
       initial_options);
 
   // wait for acceptor to receive the request
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->last_subscribe_stream != nullptr;
   });
   // received request option should be same as the original one
   EXPECT_TRUE(initial_options ==
               mock_stream_acceptor->last_subscribe_stream->subscribe_options());
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
 
   EXPECT_TRUE(last_response->get_value().has_value() &&
@@ -218,7 +218,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   // send an new request to udpate the option of the same stream
   subscribe_stream->subscribe(update_options);
 
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->last_subscribe_options != nullptr;
   });
   // request option should be same as the second one
@@ -229,12 +229,12 @@ TEST(ResponderTest, Subscribe_Acceptor) {
   // close the subscribe stream
   subscribe_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&
            subscribe_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->unsubscribed;
   });
   subscribe_stream->destroy();
@@ -243,7 +243,7 @@ TEST(ResponderTest, Subscribe_Acceptor) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

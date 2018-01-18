@@ -61,7 +61,7 @@ TEST(BROKER_DSLINK_TEST, Reconnect) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -192,7 +192,7 @@ TEST(BROKER_DSLINK_TEST, SYS_LIST_WITH_CLOSE_TOKEN) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -232,7 +232,7 @@ TEST(BROKER_DSLINK_TEST, SYS_LIST_WITHOUT_CLOSE_TOKEN) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

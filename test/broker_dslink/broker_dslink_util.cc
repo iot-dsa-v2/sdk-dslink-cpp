@@ -47,7 +47,7 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_na
       connected = true;
     });
 
-    WAIT_EXPECT_TRUE(500, [&]()->bool{return connected;});
+    WAIT_EXPECT_TRUE(1000, [&]()->bool{return connected;});
   }
 
   return link;

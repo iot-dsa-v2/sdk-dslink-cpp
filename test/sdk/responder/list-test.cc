@@ -53,7 +53,7 @@ TEST(ResponderTest, ListTest) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   // list on root node
@@ -72,7 +72,7 @@ TEST(ResponderTest, ListTest) {
         child_list_response = msg;
       });
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
@@ -86,7 +86,7 @@ TEST(ResponderTest, ListTest) {
     root_list_response.reset();
   }
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return child_list_response != nullptr; });
   {
     // check child list response
@@ -101,7 +101,7 @@ TEST(ResponderTest, ListTest) {
   // update root property
   server_strand.strand->post(
       [&]() { root_node->update_property("@int", Var(1)); });
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
@@ -117,7 +117,7 @@ TEST(ResponderTest, ListTest) {
     root_node->add_list_child("child_c",
                               new MockNodeChild(server_strand.strand));
   });
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return root_list_response != nullptr; });
   {
     // check root list response
@@ -130,11 +130,11 @@ TEST(ResponderTest, ListTest) {
   // close list stream
   list_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return list_stream->is_destroyed() && list_stream->ref_count() == 1;
   });
 
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand,
                     [&]() -> bool { return !root_node->need_list(); });
 
   tcp_server->destroy_in_strand(tcp_server);
@@ -142,7 +142,7 @@ TEST(ResponderTest, ListTest) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

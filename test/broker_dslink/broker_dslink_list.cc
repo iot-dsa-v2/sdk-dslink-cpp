@@ -28,7 +28,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
                map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return map.size() != 0; });
   {
     EXPECT_TRUE(root_list_responses.size() == 1);
     EXPECT_TRUE(root_list_responses[0].size() == 0);
@@ -46,7 +46,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
                downstream_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() { return downstream_map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return downstream_map.size() != 0; });
   {
     EXPECT_TRUE(downstream_map["test1"].is_map());
   }
@@ -58,7 +58,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
                sys_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() { return sys_map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return sys_map.size() != 0; });
   {
     EXPECT_TRUE(sys_map["stop"].is_map());
   }
@@ -70,7 +70,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
                self_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(500, [&]() { return self_map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return self_map.size() != 0; });
   {
     EXPECT_TRUE(self_map["$$dsid"].is_string());
     EXPECT_TRUE(self_map["main"].is_map());
@@ -83,7 +83,7 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) { app->force_stop(); }
   app->wait();
@@ -155,7 +155,7 @@ TEST(BROKER_DSLINK_TEST, DisconnectTest) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) { app->force_stop(); }
   app->wait();

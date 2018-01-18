@@ -65,7 +65,7 @@ TEST(BrokerDownstreamTest, Subscribe) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
+  WAIT_EXPECT_TRUE(1000,
                    [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
@@ -98,7 +98,7 @@ TEST(BrokerDownstreamTest, Invoke) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
+  WAIT_EXPECT_TRUE(1000,
                    [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
@@ -135,7 +135,7 @@ TEST(BrokerDownstreamTest, Set) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
+  WAIT_EXPECT_TRUE(1000,
                    [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
@@ -259,7 +259,7 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
+  WAIT_EXPECT_TRUE(1000,
                    [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
@@ -439,7 +439,7 @@ TEST(BrokerDownstreamTest, ListChildBeforeParent) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(500,
+  WAIT_EXPECT_TRUE(1000,
                    [&]() -> bool { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker, "test1");

@@ -42,7 +42,7 @@ TEST(ResponderTest, Paged_Invoke_Request) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   string_ big_str1;
@@ -69,7 +69,7 @@ TEST(ResponderTest, Paged_Invoke_Request) {
       copy_ref_(first_request));
 
   // wait for acceptor to receive the request
-  ASYNC_EXPECT_TRUE(500, *server_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *server_strand.strand,
                     [&]() -> bool { return !last_request.is_null(); });
   // received request option should be same as the original one
   string_ s_result = last_request.to_string();
@@ -78,7 +78,7 @@ TEST(ResponderTest, Paged_Invoke_Request) {
 
   // TODO : send second request
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
   EXPECT_TRUE(last_response->get_status() == MessageStatus::CLOSED);
 
@@ -86,7 +86,7 @@ TEST(ResponderTest, Paged_Invoke_Request) {
   last_response.reset();
   invoke_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return invoke_stream->is_destroyed() && invoke_stream->ref_count() == 1;
   });
 
@@ -95,7 +95,7 @@ TEST(ResponderTest, Paged_Invoke_Request) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -137,7 +137,7 @@ TEST(ResponderTest, Paged_Invoke_Response) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   auto first_request = make_ref_<InvokeRequestMessage>();
@@ -156,7 +156,7 @@ TEST(ResponderTest, Paged_Invoke_Response) {
       },
       copy_ref_(first_request));
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     // check if last page is received
     return last_response != nullptr &&
            last_response->get_page_id() + 1 == -first_response->get_page_id();
@@ -172,7 +172,7 @@ TEST(ResponderTest, Paged_Invoke_Response) {
   last_response.reset();
   invoke_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return invoke_stream->is_destroyed() && invoke_stream->ref_count() == 1;
   });
 
@@ -181,7 +181,7 @@ TEST(ResponderTest, Paged_Invoke_Response) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -218,7 +218,7 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   ref_<const SubscribeResponseMessage> first_response;
@@ -233,7 +233,7 @@ TEST(ResponderTest, PagedSubscribeResponse) {
         last_response = std::move(msg);
       });
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     // check if last page is received
     return last_response != nullptr &&
            last_response->get_page_id() + 1 == -first_response->get_page_id();
@@ -248,7 +248,7 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   last_response.reset();
   subscribe_stream->close();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return subscribe_stream->is_destroyed() &&
            subscribe_stream->ref_count() == 1;
   });
@@ -258,7 +258,7 @@ TEST(ResponderTest, PagedSubscribeResponse) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -295,7 +295,7 @@ TEST(ResponderTest, PagedSetRequest) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand,
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
   auto request = make_ref_<SetRequestMessage>();
@@ -309,7 +309,7 @@ TEST(ResponderTest, PagedSetRequest) {
       },
       request);
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return last_response != nullptr &&
            last_response->get_status() == MessageStatus::CLOSED;
   });
@@ -321,7 +321,7 @@ TEST(ResponderTest, PagedSetRequest) {
   // close the stream
   last_response.reset();
 
-  ASYNC_EXPECT_TRUE(500, *client_strand.strand, [&]() -> bool {
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return set_stream->is_destroyed() && set_stream->ref_count() == 1;
   });
 
@@ -330,7 +330,7 @@ TEST(ResponderTest, PagedSetRequest) {
 
   app->close();
 
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();

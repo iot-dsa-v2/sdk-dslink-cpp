@@ -52,7 +52,7 @@ TEST(DSLinkTest, Subscribe_Test) {
   bool is_connected = false;
   link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
 
-  ASYNC_EXPECT_TRUE(500, *link->strand, [&]() {return is_connected;});
+  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() {return is_connected;});
 
   // add a callback when connected to broker
   std::vector<std::string> messages;
@@ -61,7 +61,7 @@ TEST(DSLinkTest, Subscribe_Test) {
                   [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
                       messages.push_back(message->get_value().value.get_string()); });
 
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
+  ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
                     [&]() { return messages.size() == 1; });
 
   EXPECT_TRUE(messages.size() == 1);
@@ -72,7 +72,7 @@ TEST(DSLinkTest, Subscribe_Test) {
   destroy_dslink_in_strand(link);
 
   app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool  { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool  { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
@@ -100,7 +100,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
   // connection
   bool is_connected = false;
   link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
-  ASYNC_EXPECT_TRUE(500, *link->strand, [&]() {return is_connected;});
+  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() {return is_connected;});
 
   // Initial Subcribe
   std::vector<std::string> messages_initial;
@@ -113,7 +113,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
                   [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
                       messages_initial.push_back(message->get_value().value.get_string()); },
                   initial_options);
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
+  ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
                     [&]() { return messages_initial.size() == 1; });
 
   // Subscribe update
@@ -128,7 +128,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
                       messages_updated.push_back(message->get_value().value.get_string()); },
                   update_options);
 
-  ASYNC_EXPECT_TRUE(500, *link.get()->strand,
+  ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
                     [&]() { return messages_initial.size() == 2; });
 
   // TODO: How to Check return messages
@@ -143,7 +143,7 @@ TEST(LinkTest, Subscribe_Multi_Test) {
   destroy_dslink_in_strand(link);
 
   app->close();
-  WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
