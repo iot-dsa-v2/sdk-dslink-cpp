@@ -9,5 +9,6 @@
 #include "util/enable_shared.h"
 #include "util/little_endian.h"
 #include "util/path.h"
+#include "util/app.h"
 
 #endif  // DSA_UTIL_H_

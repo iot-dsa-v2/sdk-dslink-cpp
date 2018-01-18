@@ -8,5 +8,6 @@ add_library(${TARGET_NAME} OBJECT
         little_endian_test.cc
         path-test.cc
         buffer-test.cc
+        shared_strand_ref-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)
