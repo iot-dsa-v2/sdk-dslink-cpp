@@ -11,7 +11,6 @@
 #include "core/client.h"
 #include "module/logger.h"
 
-#include "../../sdk/async_test.h"
 #include "dslink.h"
 
 using namespace dsa;
@@ -65,8 +64,7 @@ TEST(BrokerDownstreamTest, Subscribe) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(1000,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -98,8 +96,7 @@ TEST(BrokerDownstreamTest, Invoke) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(1000,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -135,8 +132,7 @@ TEST(BrokerDownstreamTest, Set) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(1000,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker);
   client_strand.strand->set_responder_model(
@@ -187,8 +183,7 @@ TEST(BrokerDownstreamTest, List) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(
-      500, [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   client_strand1.strand->set_responder_model(
@@ -259,8 +254,7 @@ TEST(BrokerDownstreamTest, ListDisconnect) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(1000,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1");
   auto tcp_client1 = make_ref_<Client>(client_strand1);
@@ -439,8 +433,7 @@ TEST(BrokerDownstreamTest, ListChildBeforeParent) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  WAIT_EXPECT_TRUE(1000,
-                   [&]() -> bool { return broker->get_active_server_port() != 0; });
+  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand = get_client_wrapper_strand(broker, "test1");
   client_strand.strand->set_responder_model(
