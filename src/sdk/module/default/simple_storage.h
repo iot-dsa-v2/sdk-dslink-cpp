@@ -28,8 +28,10 @@ class SimpleQueueBucket : public QueueBucket {
 
 class SimpleStorageBucket : public StorageBucket {
  private:
-  typedef std::pair<std::string, boost::asio::io_service::strand*> StrandPair;
   typedef std::map<std::string, boost::asio::io_service::strand*> StrandMap;
+
+ protected:
+  typedef std::pair<std::string, boost::asio::io_service::strand*> StrandPair;
   StrandMap strand_map;
   boost::asio::io_service* _io_service;
 
@@ -50,6 +52,16 @@ class SimpleStorageBucket : public StorageBucket {
   void remove_all() override;
 };
 
+class SimpleSafeStorageBucket : public SimpleStorageBucket {
+ public:
+  SimpleSafeStorageBucket() {}
+
+  SimpleSafeStorageBucket(boost::asio::io_service* io_service)
+  : SimpleStorageBucket(io_service) {}
+
+  void write(const std::string& key, BytesRef&& data) override;
+};
+
 class SimpleStorage : public Storage {
  private:
   boost::asio::io_service* _io_service;
@@ -59,6 +71,8 @@ class SimpleStorage : public Storage {
       : _io_service(io_service) {}
 
   std::unique_ptr<StorageBucket> get_bucket(const std::string& name) override;
+
+  std::unique_ptr<StorageBucket> get_safe_bucket(const std::string& name) override;
 
   /// create a bucket or find a existing bucket
   std::unique_ptr<QueueBucket> get_queue_bucket(const std::string& name) override;
