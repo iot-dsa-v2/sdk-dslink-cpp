@@ -327,8 +327,8 @@ ref_<IncomingListCache> DsLink::list(const string_ &path,
 ref_<IncomingInvokeStream> DsLink::invoke(
     IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
-  auto stream = _client->get_session().requester.invoke(
-      ([ this, paged_cache = ref_<IncomingPageCache<InvokeResponseMessage>>() ](
+  return _client->get_session().requester.invoke(
+      ([ user_callback = std::move(callback), paged_cache = ref_<IncomingPageCache<InvokeResponseMessage>>() ](
           IncomingInvokeStream & s,
           ref_<const InvokeResponseMessage> && message) mutable {
         message = IncomingPageCache<InvokeResponseMessage>::get_first_page(
@@ -337,13 +337,11 @@ ref_<IncomingInvokeStream> DsLink::invoke(
           // paged message is not ready
           return;
         }
-        if (s.user_callback != nullptr) {
-          s.user_callback(s, std::move(message));
+        if (user_callback != nullptr) {
+          user_callback(s, std::move(message));
         }
       }),
       std::move(message));
-  stream->user_callback = std::move(callback);
-  return stream;
 }
 
 ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
