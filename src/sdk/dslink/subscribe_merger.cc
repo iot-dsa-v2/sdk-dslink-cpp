@@ -45,10 +45,10 @@ void SubscribeMerger::destroy_impl() {
   _link.reset();
   _cached_value.reset();
 
-  for (auto it : caches) {
+  for (auto it : _caches) {
     it->destroy();
   }
-  caches.clear();
+  _caches.clear();
 
   if (_stream != nullptr) {
     _stream->close();
@@ -63,7 +63,7 @@ ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
   auto cache = make_ref_<IncomingSubscribeCache>(get_ref(), std::move(callback),
                                                  options);
 
-  caches.emplace(cache);
+  _caches.emplace(cache);
 
   if (_stream == nullptr) {
     _merged_subscribe_options = options;
@@ -87,14 +87,31 @@ ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
 void SubscribeMerger::new_subscribe_response(
     SubscribeResponseMessageCRef&& message) {
   _cached_value = std::move(message);
-  for (auto& it : caches) {
-    it->_receive_update(_cached_value);
+  _iterating_caches = true;
+  bool removed_some = false;
+  for (auto it = _caches.begin(); it != _caches.end();) {
+    (*it)->_receive_update(_cached_value);
+    if ((*it)->is_destroyed()) {
+      // remove() is blocked, need to handle it here
+      it = _caches.erase(it);
+      removed_some = true;
+    } else {
+      ++it;
+    }
   }
+  if (removed_some) {
+    if (_caches.empty()) {
+      destroy();
+    } else {
+      check_subscribe_options();
+    }
+  }
+  _iterating_caches = false;
 }
 
 void SubscribeMerger::check_subscribe_options() {
   SubscribeOptions new_options(QosLevel::_0, -1);
-  for (auto& cache : caches) {
+  for (auto& cache : _caches) {
     new_options.mergeFrom(cache->_options);
   }
   if (new_options != _merged_subscribe_options) {
@@ -104,9 +121,9 @@ void SubscribeMerger::check_subscribe_options() {
 }
 
 void SubscribeMerger::remove(const ref_<IncomingSubscribeCache>& cache) {
-  if (is_destroyed()) return;
-  caches.erase(cache);
-  if (caches.empty()) {
+  if (is_destroyed() || _iterating_caches) return;
+  _caches.erase(cache);
+  if (_caches.empty()) {
     destroy();
   } else if (_merged_subscribe_options.needUpdateOnRemoval(cache->_options)) {
     check_subscribe_options();

@@ -48,7 +48,8 @@ class SubscribeMerger : public DestroyableRef<SubscribeMerger> {
  protected:
   std::unordered_set<ref_<IncomingSubscribeCache>,
                      RefHash<IncomingSubscribeCache> >
-      caches;
+      _caches;
+  bool _iterating_caches = false;
   ref_<DsLink> _link;
   string_ _path;
 
