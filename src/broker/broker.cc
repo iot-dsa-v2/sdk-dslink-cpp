@@ -1,8 +1,8 @@
-#include <util/string.h>
 #include "dsa_common.h"
 
 #include "broker.h"
 
+#include <util/string.h>
 #include "config/broker_config.h"
 #include "config/module_loader.h"
 #include "module/logger.h"

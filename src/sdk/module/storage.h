@@ -10,7 +10,6 @@
 #include <vector>
 #include <memory>
 
-#include "dsa_common.h"
 #include "util/buffer.h"
 
 namespace dsa {

@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "simple_storage.h"
 
 namespace dsa {

@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "module/default/simple_storage.h"
 #include "util/app.h"
 #include "../test/sdk/async_test.h"

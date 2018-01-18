@@ -1,3 +1,5 @@
+#include "dsa_common.h"
+
 #include "base_socket_connection.h"
 
 #include "module/logger.h"
