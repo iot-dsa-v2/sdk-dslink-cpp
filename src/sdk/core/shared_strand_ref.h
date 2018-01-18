@@ -22,7 +22,7 @@ class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
 
   static shared_ptr_<SharedRef<T>> make(ref_<T> ref,
                                         const ref_<LinkStrand>& strand) {
-    return make_shared_<SharedRef<T>>(std::move(ref), strand);
+    return std::make_shared<SharedRef<T>>(std::move(ref), strand);
   }
 
   SharedRef(ref_<T> ref, const ref_<LinkStrand>& strand)
@@ -46,10 +46,11 @@ class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
 };
 }
 
-#define POST_TO_REF_0(shared_ref, function_name) \
+#define POST_TO_REF(shared_ref, function_name) \
   shared_ref->post([](auto& t, LinkStrand& strand) { t.function_name(); });
 
-#define POST_TO_REF_1(shared_ref, function_name, v1)                     \
+// one parameter as R reference
+#define POST_TO_REF_R(shared_ref, function_name, v1)                     \
   shared_ref->post([cv1 = std::move(v1)](auto& t, LinkStrand& strand) { \
     t.function_name(std::move(cv1));                                    \
   });
