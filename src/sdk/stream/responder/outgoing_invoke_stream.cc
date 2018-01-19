@@ -19,7 +19,7 @@ OutgoingInvokeStream::OutgoingInvokeStream(ref_<Session> &&session,
 }
 
 void OutgoingInvokeStream::destroy_impl() {
-  if (_callback != nullptr) {
+  if (_callback != nullptr && !_closed) {
     BEFORE_CALLBACK_RUN();
     _callback(*this, ref_<InvokeRequestMessage>());
     _callback = nullptr;

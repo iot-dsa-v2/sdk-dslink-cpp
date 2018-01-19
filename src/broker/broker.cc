@@ -59,7 +59,7 @@ void DsBroker::init(ModuleLoader& modules) {
   // init security manager
   strand->set_security_manager(modules.new_security_manager(*_app, strand));
 
-  close_token = get_close_token_from_file();
+  _close_token = get_close_token_from_file();
 
   auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder

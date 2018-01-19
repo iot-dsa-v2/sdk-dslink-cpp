@@ -12,7 +12,7 @@ namespace dsa {
 
 class App;
 class TcpServer;
- class WebServer;
+class WebServer;
 class Client;
 class BrokerConfig;
 class ModuleLoader;
@@ -22,21 +22,21 @@ class DsBroker final : public WrapperStrand {
   friend class ListMerger;
 
  private:
-  string_ close_token;
+  string_ _close_token;
 
  public:
   DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
            const shared_ptr_<App>& app = nullptr);
   ~DsBroker() final;
 
-  void run(bool wait=true);
+  void run(bool wait = true);
   void wait();
   shared_ptr_<App>& get_app() { return _app; }
   const ref_<BrokerConfig>& get_config() const { return _config; };
 
-  string_ get_close_token(){return close_token;}
+  string_ get_close_token() { return _close_token; }
 
-  //not from config, coming from tcp_server's active server port
+  // not from config, coming from tcp_server's active server port
   int32_t get_active_server_port();
 
  protected:
@@ -49,6 +49,7 @@ class DsBroker final : public WrapperStrand {
 
   void init(ModuleLoader& modules);
   void destroy_impl() final;
+
  public:
 };
 }

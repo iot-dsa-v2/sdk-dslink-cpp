@@ -42,7 +42,11 @@ void MessageRefedStream::post_message() {
 }
 
 void MessageRefedStream::make_critical() {
-  _session->write_critical_stream(get_ref());
+  if (!is_destroyed()) {
+    // if stream is destroyed, that means message is already sent
+    // so there is no need to make it critical
+    _session->write_critical_stream(get_ref());
+  }
 }
 MessageCacheStream::MessageCacheStream(ref_<Session> &&session,
                                        const Path &path, uint32_t rid)

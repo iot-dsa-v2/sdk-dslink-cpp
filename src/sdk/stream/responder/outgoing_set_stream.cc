@@ -19,7 +19,7 @@ OutgoingSetStream::OutgoingSetStream(ref_<Session> &&session, const Path &path,
 }
 
 void OutgoingSetStream::destroy_impl() {
-  if (_callback != nullptr) {
+  if (_callback != nullptr && !_closed) {
     BEFORE_CALLBACK_RUN();
     _callback(*this, ref_<SetRequestMessage>());
     _callback = nullptr;
