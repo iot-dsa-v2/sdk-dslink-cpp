@@ -86,7 +86,7 @@ void BrokerConfig::save() {
     config_file << "{\n"
                 << R"("dsa-version": ")" << int(DSA_MAJOR_VERSION) << "."
                 << int(DSA_MINOR_VERSION) << "\",\n";
-#ifdef DSA_DEBUG
+#ifdef _DSA_DEBUG
     config_file << R"("broker-build": "debug")";
 #else
     config_file << R"("broker-build": "release")";
