@@ -21,62 +21,58 @@ TEST(BROKER_DSLINK_TEST, Root_SYS_SELF_ListTest) {
 
   // list on root node
   ListResponses root_list_responses;
-  VarMap map;
+  bool listed = false;
   link->list("",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
                root_list_responses.push_back(str);
-               map = cache.get_map();
+               VarMap map = cache.get_map();
+               EXPECT_TRUE(root_list_responses.size() == 1);
+               EXPECT_TRUE(root_list_responses[0].size() == 0);
+               EXPECT_TRUE(map["downstream"].is_map());
+               EXPECT_TRUE(map["home"].is_map());
+               EXPECT_TRUE(map["pub"].is_map());
+               EXPECT_TRUE(map["sys"].is_map());
+               EXPECT_TRUE(map["upstream"].is_map());
+               listed = true;
              });
 
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return map.size() != 0; });
-  {
-    EXPECT_TRUE(root_list_responses.size() == 1);
-    EXPECT_TRUE(root_list_responses[0].size() == 0);
-    EXPECT_TRUE(map["downstream"].is_map());
-    EXPECT_TRUE(map["home"].is_map());
-    EXPECT_TRUE(map["pub"].is_map());
-    EXPECT_TRUE(map["sys"].is_map());
-    EXPECT_TRUE(map["upstream"].is_map());
-  }
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return listed; });
 
   // list on child node
-  VarMap downstream_map;
+  listed = false;
   link->list("downstream",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               downstream_map = cache.get_map();
+               VarMap downstream_map = cache.get_map();
+               EXPECT_TRUE(downstream_map["test1"].is_map());
+               listed = true;
              });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return downstream_map.size() != 0; });
-  {
-    EXPECT_TRUE(downstream_map["test1"].is_map());
-  }
+  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
   // list on sys
-  VarMap sys_map;
+  listed = false;
   link->list("sys",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               sys_map = cache.get_map();
+               VarMap sys_map = cache.get_map();
+               EXPECT_TRUE(sys_map["stop"].is_map());
+               listed = true;
              });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return sys_map.size() != 0; });
-  {
-    EXPECT_TRUE(sys_map["stop"].is_map());
-  }
+  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
   // list on self
-  VarMap self_map;
+  listed = false;
   link->list("downstream/test1",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               self_map = cache.get_map();
+               VarMap self_map = cache.get_map();
+               EXPECT_TRUE(self_map["$$dsid"].is_string());
+               EXPECT_TRUE(self_map["main"].is_map());
+               EXPECT_TRUE(self_map["pub"].is_map());
+               EXPECT_TRUE(self_map["sys"].is_map());
+               listed = true;
              });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return self_map.size() != 0; });
-  {
-    EXPECT_TRUE(self_map["$$dsid"].is_string());
-    EXPECT_TRUE(self_map["main"].is_map());
-    EXPECT_TRUE(self_map["pub"].is_map());
-    EXPECT_TRUE(self_map["sys"].is_map());
-  }
+  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
   link->strand->post([&](){link->destroy();});
   broker->strand->post([&](){broker->destroy();});

@@ -66,15 +66,13 @@ TEST(DSLinkTest, Server_Test) {
 
   std::vector<string_> list_result;
   // List test
-  auto map = VarMap();
-  link->list("",
+  auto list_cache1 = link->list("",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               map = cache.get_map();
              });
-  WAIT_EXPECT_TRUE(1000, [&]() { return map.size() != 0; });
-  EXPECT_NE(map["sys"].get_type(), 0);
-  EXPECT_NE(map["pub"].get_type(), 0);
-  EXPECT_NE(map["main"].get_type(), 0);
+  WAIT_EXPECT_TRUE(1000, [&]() { return list_cache1->get_map().size() != 0; });
+  EXPECT_NE(list_cache1->get_map().find("sys"), list_cache1->get_map().end());
+  EXPECT_NE(list_cache1->get_map().find("pub"), list_cache1->get_map().end());
+  EXPECT_NE(list_cache1->get_map().find("main"), list_cache1->get_map().end());
 
   // add a callback when connected to broker
   std::vector<std::string> messages;
