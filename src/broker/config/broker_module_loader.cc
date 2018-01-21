@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "module_loader.h"
+#include "broker_module_loader.h"
 
 #include "../module/broker_security_manager.h"
 #include "broker_config.h"
@@ -12,63 +12,60 @@
 
 #ifndef __CYGWIN__
 #include <boost/dll/import.hpp>
+#include <module/module_loader.h>
 namespace bf = boost::filesystem;
 #endif
-
-
 
 namespace dsa {
 
 #ifdef __CYGWIN__
-ModuleLoader::ModuleLoader(ref_<BrokerConfig> config) {}
+BrokerModuleLoader::BrokerModuleLoader(ref_<BrokerConfig> config) {}
 
-std::unique_ptr<Logger> ModuleLoader::new_logger(App& app,
+std::unique_ptr<Logger> BrokerModuleLoader::new_logger(App& app,
                                                  ref_<LinkStrand> strand) {
   return std::unique_ptr<Logger>(new ConsoleLogger());
 }
-ref_<SecurityManager> ModuleLoader::new_security_manager(
+ref_<SecurityManager> BrokerModuleLoader::new_security_manager(
     App& app, ref_<LinkStrand> strand) {
   return make_ref_<BrokerSecurityManager>(strand);
 }
 
 #else
-boost::function<api_creators_func::security_manager_type>
-    ModuleLoader::security_manager_creator = 0;
-boost::function<api_creators_func::logger_type> ModuleLoader::logger_creator =
-    0;
+boost::function<api_creators_func::security_manager_type> BrokerModuleLoader::security_manager_creator = 0;
+boost::function<api_creators_func::logger_type> BrokerModuleLoader::logger_creator = 0;
 
-ModuleLoader::ModuleLoader(ref_<BrokerConfig> config) {
+BrokerModuleLoader::BrokerModuleLoader(ref_<BrokerConfig> config) {
   if (security_manager_creator.empty()) {
     security_manager_creator =
-        get_create_function<api_creators_func::security_manager_type>(
-            "security_manager_", "create_security_manager",
+        load_create_function<api_creators_func::security_manager_type>(
+            "security_manager_", "create",
             [](App& app, ref_<LinkStrand> strand) {
               return make_ref_<BrokerSecurityManager>(strand);
             });
   }
 
   if (logger_creator.empty()) {
-    logger_creator = get_create_function<api_creators_func::logger_type>(
-        "logger_", "create_logger", [](App& app, ref_<LinkStrand> strand) {
+    logger_creator =
+        load_create_function<api_creators_func::logger_type>(
+        "logger_", "create", [](App& app, ref_<LinkStrand> strand) {
           return std::unique_ptr<Logger>(new ConsoleLogger());
         });
   }
 }
 
-std::unique_ptr<Logger> ModuleLoader::new_logger(App& app,
-                                                 ref_<LinkStrand> strand) {
+std::unique_ptr<Logger> BrokerModuleLoader::new_logger(App& app, ref_<LinkStrand> strand) {
   return logger_creator(app, strand);
 }
 
-ref_<SecurityManager> ModuleLoader::new_security_manager(
-    App& app, ref_<LinkStrand> strand) {
+ref_<SecurityManager> BrokerModuleLoader::new_security_manager( App& app, ref_<LinkStrand> strand) {
   return security_manager_creator(app, strand);
 }
 
-template <typename T>
-boost::function<T> ModuleLoader::get_create_function(
+template<typename T>
+boost::function<T> BrokerModuleLoader::load_create_function(
     string_ module_name, string_ function_name,
     boost::function<T> default_function) {
+
   bf::path lib_path("./libs");
   auto module_suffix = boost::dll::shared_library::suffix();
 
@@ -113,6 +110,8 @@ boost::function<T> ModuleLoader::get_create_function(
   // error occurred so returning default again
   return default_function;
 }
+
+
 
 #endif
 }

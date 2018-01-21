@@ -3,7 +3,7 @@
 #include "broker_runner.h"
 
 #include "config/broker_config.h"
-#include "config/module_loader.h"
+#include "config/broker_module_loader.h"
 #include "module/default/console_logger.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_client_connection.h"
@@ -13,7 +13,7 @@ ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
   const char* empty_argv[1];
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
   broker_config->port().set_value(Var(0));
-  ModuleLoader modules(broker_config);
+  BrokerModuleLoader modules(broker_config);
   auto broker = make_ref_<DsBroker>(std::move(broker_config), modules, app);
   // filter log for unit test
   static_cast<ConsoleLogger&>(broker->strand->logger()).filter =

@@ -18,7 +18,7 @@ set(SOURCES broker_main.cc
         broker.cc
         config/broker_config.cc
         config/broker_config_item.cc
-        config/module_loader.cc
+        config/broker_module_loader.cc
         module/broker_security_manager.cc
         remote_node/broker_session_manager.cc
         remote_node/broker_client.cc

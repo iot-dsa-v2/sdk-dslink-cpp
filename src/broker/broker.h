@@ -15,7 +15,7 @@ class TcpServer;
 class WebServer;
 class Client;
 class BrokerConfig;
-class ModuleLoader;
+class BrokerModuleLoader;
 
 class DsBroker final : public WrapperStrand {
   friend class SubscribeMerger;
@@ -25,7 +25,7 @@ class DsBroker final : public WrapperStrand {
   string_ _close_token;
 
  public:
-  DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
+  DsBroker(ref_<BrokerConfig>&& config, BrokerModuleLoader& modules,
            const shared_ptr_<App>& app = nullptr);
   ~DsBroker() final;
 
@@ -47,7 +47,7 @@ class DsBroker final : public WrapperStrand {
   ref_<BrokerConfig> _config;
   // initialization
 
-  void init(ModuleLoader& modules);
+  void init(BrokerModuleLoader& modules);
   void destroy_impl() final;
 
  public:

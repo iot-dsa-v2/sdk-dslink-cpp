@@ -4,7 +4,7 @@
 
 #include <util/string.h>
 #include "config/broker_config.h"
-#include "config/module_loader.h"
+#include "config/broker_module_loader.h"
 #include "module/logger.h"
 #include "module/security_manager.h"
 #include "network/tcp/tcp_server.h"
@@ -19,14 +19,14 @@
 #include "web_server/web_server.h"
 
 namespace dsa {
-DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
+DsBroker::DsBroker(ref_<BrokerConfig>&& config, BrokerModuleLoader& modules,
                    const shared_ptr_<App>& app)
     : _config(std::move(config)), _app(app) {
   init(modules);
 }
 DsBroker::~DsBroker() {}
 
-void DsBroker::init(ModuleLoader& modules) {
+void DsBroker::init(BrokerModuleLoader& modules) {
   if (_app == nullptr) {
     // init app
     size_t thread =
