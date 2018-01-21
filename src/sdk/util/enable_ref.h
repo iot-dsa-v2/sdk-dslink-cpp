@@ -13,7 +13,7 @@
 #include <functional>
 
 #include <iosfwd>
-
+#include <atomic>
 namespace dsa {
 
 template <class T>
@@ -232,13 +232,13 @@ class EnableRef {
     return ref_<const T>(static_cast<const T *>(this));
   }
 
-  mutable size_t _refs{0};
+  mutable std::atomic<size_t> _refs{0};
 
   EnableRef<T>(){};
   EnableRef<T>(const EnableRef<T> &rhs){};
 
  public:
-  size_t ref_count() const { return _refs; }
+  size_t ref_count() const { return _refs.load(); }
 };
 
 template <typename T>
