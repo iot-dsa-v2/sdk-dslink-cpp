@@ -173,16 +173,15 @@ TEST(BrokerDsLinkTest, SysListWithCloseToken) {
   auto link_1 = broker_dslink_test::create_dslink(
       app, broker->get_active_server_port(), "test_1", true);
 
-  VarMap vm;
-  bool is_invoked = false;
+  bool listed = false;
   link_1->list("sys",
                [&](IncomingListCache &cache, const std::vector<string_>) {
-                 vm = cache.get_map();
-                 is_invoked = true;
+                 VarMap vm = cache.get_map();
+                 EXPECT_TRUE(vm["stop"].get_type() != Var::NUL);
+                 listed = true;
                });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return is_invoked; });
-  EXPECT_TRUE(vm["stop"].get_type() != Var::NUL);
+  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
   // Closing
 
@@ -214,16 +213,15 @@ TEST(BrokerDsLinkTest, SysListWithoutCloseToken) {
   auto link_1 = broker_dslink_test::create_dslink(
       app, broker->get_active_server_port(), "test_1", true);
 
-  VarMap vm;
-  bool is_invoked = false;
+  bool listed = false;
   link_1->list("sys",
                [&](IncomingListCache &cache, const std::vector<string_>) {
-                 vm = cache.get_map();
-                 is_invoked = true;
+                 VarMap vm = cache.get_map();
+                 EXPECT_TRUE(vm["stop"].get_type() == Var::NUL);
+                 listed = true;
                });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return is_invoked; });
-  EXPECT_TRUE(vm["stop"].get_type() == Var::NUL);
+  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
   // Closing
   link_1->strand->post([&]() { link_1->destroy(); });

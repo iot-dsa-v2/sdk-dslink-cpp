@@ -62,38 +62,33 @@ TEST(DslinkTest, ListTest) {
 
   // list on root node
   ListResponses root_list_responses;
-  VarMap map;
-  link->list("",
+  auto list_cache1 = link->list("",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
                root_list_responses.push_back(str);
-               map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return list_cache1->get_map().size() != 0; });
   {
     EXPECT_TRUE(root_list_responses.size() == 1);
     EXPECT_TRUE(root_list_responses[0].size() == 0);
-    EXPECT_TRUE(map["child_a"].is_map());
-    EXPECT_EQ(map["child_a"]["$is"].to_string(), "test_class");
-    EXPECT_TRUE(map["child_b"].is_map());
-    EXPECT_EQ(map["child_b"]["$is"].to_string(), "test_class");
+    EXPECT_TRUE(list_cache1->get_map().at("child_a").is_map());
+    EXPECT_EQ(list_cache1->get_map().at("child_a").get_map().at("$is").to_string(), "test_class");
+    EXPECT_TRUE(list_cache1->get_map().at("child_b").is_map());
+    EXPECT_EQ(list_cache1->get_map().at("child_b").get_map().at("$is").to_string(), "test_class");
   }
 
   // list on child node
-  VarMap child_map;
-  link->list("child_a",
+  auto list_cache2 = link->list("child_a",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               child_map = cache.get_map();
              });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return child_map.size() != 0; });
+  WAIT_EXPECT_TRUE(1000, [&]() { return list_cache2->get_map().size() != 0; });
   {
-    EXPECT_EQ(child_map["$is"].to_string(), "test_class");
-    EXPECT_EQ(child_map["@unit"].to_string(), "test_unit");
+    EXPECT_EQ(list_cache2->get_map().at("$is").to_string(), "test_class");
+    EXPECT_EQ(list_cache2->get_map().at("@unit").to_string(), "test_unit");
   }
 
   // update root child
-  map.clear();
   root_list_responses.clear();
 
   server_strand.strand->post([&]() {
@@ -105,24 +100,22 @@ TEST(DslinkTest, ListTest) {
     EXPECT_TRUE(root_list_responses.size() == 1);
     EXPECT_TRUE(root_list_responses[0].size() == 1);
     EXPECT_TRUE(root_list_responses[0][0] == "child_c");
-    EXPECT_TRUE(map["child_c"].is_map());
-    EXPECT_EQ(map["child_c"]["$is"].to_string(), "test_class");
+    EXPECT_TRUE(list_cache1->get_map().at("child_c").is_map());
+    EXPECT_EQ(list_cache1->get_map().at("child_c").get_map().at("$is").to_string(), "test_class");
   }
 
   // list on root node revisited
-  VarMap revisited_map;
   ListResponses root_revisited_list_responses;
-  link->list("",
+  auto list_cache_revisited = link->list("",
              [&](IncomingListCache &cache, const std::vector<string_> &str) {
                root_revisited_list_responses.push_back(str);
-               revisited_map = cache.get_map();
              });
 
   WAIT_EXPECT_TRUE(1000,
                    [&]() { return root_revisited_list_responses.size() == 1; });
   {
     EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
-    EXPECT_TRUE(revisited_map == map);
+    EXPECT_TRUE(list_cache_revisited->get_map() == list_cache1->get_map());
   }
 
   tcp_server->destroy_in_strand(tcp_server);
