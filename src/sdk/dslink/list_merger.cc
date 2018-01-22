@@ -49,10 +49,10 @@ void ListMerger::destroy_impl() {
     _stream.reset();
   }
 
-  for (auto it : caches) {
+  for (auto it : _caches) {
     it->destroy();
   }
-  caches.clear();
+  _caches.clear();
 
   _changes.clear();
 }
@@ -61,7 +61,7 @@ ref_<IncomingListCache> ListMerger::list(
     IncomingListCache::Callback&& callback) {
   IncomingListCache* cache =
       new IncomingListCache(get_ref(), std::move(callback));
-  caches.emplace(cache);
+  _caches.emplace(cache);
 
   if (_stream == nullptr) {
     _stream = _link->_client->get_session().requester.list(_path, [
@@ -100,18 +100,33 @@ void ListMerger::new_list_response(ref_<const ListResponseMessage>&& message) {
     }
   }
   if (_last_status != MessageStatus::INITIALIZING) {
-    for (auto& it : caches) {
-      it->_receive_update(_changes);
+    _iterating_caches = true;
+    bool removed_some = false;
+    for (auto it = _caches.begin(); it != _caches.end();) {
+      (*it)->_receive_update(_changes);
+      if ((*it)->is_destroyed()) {
+        // remove() is blocked, need to handle it here
+        it = _caches.erase(it);
+        removed_some = true;
+      } else {
+        ++it;
+      }
     }
+    if (removed_some) {
+      if (_caches.empty()) {
+        destroy();
+      }
+    }
+    _iterating_caches = false;
     _changes.clear();
   }
 }
 
 void ListMerger::remove(const ref_<IncomingListCache>& cache) {
-  if (is_destroyed()) return;
+  if (is_destroyed() || _iterating_caches) return;
 
-  caches.erase(cache);
-  if (caches.empty()) {
+  _caches.erase(cache);
+  if (_caches.empty()) {
     destroy();
   }
 }

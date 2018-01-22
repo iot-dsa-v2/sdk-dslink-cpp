@@ -52,7 +52,8 @@ class ListMerger : public DestroyableRef<ListMerger> {
 
  protected:
   std::unordered_set<ref_<IncomingListCache>, RefHash<IncomingListCache> >
-      caches;
+      _caches;
+  bool _iterating_caches = false;
   ref_<DsLink> _link;
   string_ _path;
 
