@@ -66,8 +66,6 @@ add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
 
 
 
-
-add_test(NAME "playground-test" COMMAND "playground-test")
 add_test(NAME "test-broker-dslink" COMMAND "test-broker-dslink")
 
 add_executable("dslink-test" sdk/dslink/dslink-config-test.cc
@@ -84,12 +82,6 @@ include(./broker/CMakeListsInclude.txt)
 
 target_link_libraries("dslink-test" ${TEST_LIBS} dsa_broker)
 add_test(NAME "dslink-test" COMMAND "dslink-test")
-
-add_executable("playground-test"
-        sdk/playground/test.cc
-        sdk/async_test.cc
-        sdk/test_config.cc)
-target_link_libraries("playground-test" ${TEST_LIBS} dsa_broker)
 
 add_executable("broker-dslink-test"
         broker_dslink/broker_dslink_test.cc
