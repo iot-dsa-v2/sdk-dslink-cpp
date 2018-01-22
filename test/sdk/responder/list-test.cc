@@ -1,13 +1,13 @@
 #include "dsa/message.h"
-#include "dsa/stream.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
+#include "dsa/stream.h"
 
 #include <module/logger.h>
 
+#include <gtest/gtest.h>
 #include "../async_test.h"
 #include "../test_config.h"
-#include <gtest/gtest.h>
 
 #include "core/client.h"
 #include "network/tcp/tcp_server.h"
@@ -28,8 +28,8 @@ class MockNodeRoot : public NodeModel {
   bool need_list() { return _need_list; }
 
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
-      add_list_child("child_a", make_ref_<MockNodeChild>(_strand));
-      add_list_child("child_b", make_ref_<MockNodeChild>(_strand));
+    add_list_child("child_a", make_ref_<MockNodeChild>(_strand));
+    add_list_child("child_b", make_ref_<MockNodeChild>(_strand));
   };
 };
 }
@@ -140,6 +140,8 @@ TEST(ResponderTest, ListTest) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
+  client_strand.destroy();
+  server_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -148,7 +150,5 @@ TEST(ResponderTest, ListTest) {
     app->force_stop();
   }
 
-  client_strand.destroy();
-  server_strand.destroy();
   app->wait();
 }

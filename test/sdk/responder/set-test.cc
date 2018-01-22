@@ -3,9 +3,9 @@
 #include "dsa/responder.h"
 #include "dsa/stream.h"
 
+#include <gtest/gtest.h>
 #include "../async_test.h"
 #include "../test_config.h"
-#include <gtest/gtest.h>
 #include "module/logger.h"
 
 #include "core/client.h"
@@ -132,6 +132,8 @@ TEST(ResponderTest, SetModel) {
   destroy_client_in_strand(tcp_client);
 
   app->close();
+  server_strand.destroy();
+  client_strand.destroy();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
@@ -139,8 +141,6 @@ TEST(ResponderTest, SetModel) {
     app->force_stop();
   }
 
-  server_strand.destroy();
-  client_strand.destroy();
   app->wait();
 }
 

@@ -1,9 +1,9 @@
 #include "dsa/network.h"
 #include "dsa/stream.h"
 
+#include <gtest/gtest.h>
 #include "../async_test.h"
 #include "../test_config.h"
-#include <gtest/gtest.h>
 
 #include "core/client.h"
 #include "network/tcp/tcp_server.h"
@@ -36,11 +36,13 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
     BOOST_ASSERT_MSG(last_subscribe_stream == nullptr,
                      "receive second subscription stream, not expected");
     last_subscribe_stream = stream;
-    stream->send_subscribe_response(make_ref_<SubscribeResponseMessage>(Var("hello")));
-    stream->on_subscribe_option_change([=](MessageStream &stream,
-                                           const SubscribeOptions &old_option) {
-      last_subscribe_options.reset(new SubscribeOptions(stream.subscribe_options()));
-    });
+    stream->send_subscribe_response(
+        make_ref_<SubscribeResponseMessage>(Var("hello")));
+    stream->on_subscribe_option_change(
+        [=](MessageStream &stream, const SubscribeOptions &old_option) {
+          last_subscribe_options.reset(
+              new SubscribeOptions(stream.subscribe_options()));
+        });
   }
   void add(ref_<OutgoingListStream> &&stream) {}
   void add(ref_<OutgoingInvokeStream> &&stream) {}
@@ -148,6 +150,8 @@ TEST(ResponderTest, ModelGetChild) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
+  server_strand.destroy();
+  client_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -155,9 +159,6 @@ TEST(ResponderTest, ModelGetChild) {
   if (!app->is_stopped()) {
     app->force_stop();
   }
-  child_node->destroy();
-  server_strand.destroy();
-  client_strand.destroy();
   app->wait();
 }
 
@@ -203,6 +204,8 @@ TEST(ResponderTest, ModelSetValue) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
+  server_strand.destroy();
+  client_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -211,7 +214,5 @@ TEST(ResponderTest, ModelSetValue) {
     app->force_stop();
   }
 
-  server_strand.destroy();
-  client_strand.destroy();
   app->wait();
 }

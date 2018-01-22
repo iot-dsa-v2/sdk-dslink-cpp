@@ -1,9 +1,9 @@
 #include "dsa/network.h"
 #include "dsa/stream.h"
 
+#include <gtest/gtest.h>
 #include "../async_test.h"
 #include "../test_config.h"
-#include <gtest/gtest.h>
 
 #include "core/client.h"
 #include "network/tcp/tcp_server.h"
@@ -130,6 +130,8 @@ TEST(ResponderTest, InvokeModel) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
+  server_strand.destroy();
+  client_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -138,8 +140,6 @@ TEST(ResponderTest, InvokeModel) {
     app->force_stop();
   }
 
-  server_strand.destroy();
-  client_strand.destroy();
   app->wait();
 }
 

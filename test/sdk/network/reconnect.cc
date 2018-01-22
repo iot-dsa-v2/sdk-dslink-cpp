@@ -46,12 +46,10 @@ TEST(NetworkTest, ReConnect) {
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
   shared_ptr_<Connection> connection;
-  client_strand.client_connection_maker =
-      [
-        &connection, dsid_prefix = client_strand.dsid_prefix,
-        tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
-      ](LinkStrandRef & strand)
-          ->shared_ptr_<Connection> {
+  client_strand.client_connection_maker = [
+    &connection, dsid_prefix = client_strand.dsid_prefix,
+    tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
+  ](LinkStrandRef & strand)->shared_ptr_<Connection> {
     connection = make_shared_<TcpClientConnection>(strand, dsid_prefix,
                                                    tcp_host, tcp_port);
     return connection;
@@ -117,6 +115,8 @@ TEST(NetworkTest, ReConnect) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(client);
 
+  server_strand.destroy();
+  client_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -125,7 +125,5 @@ TEST(NetworkTest, ReConnect) {
     app->force_stop();
   }
 
-  server_strand.destroy();
-  client_strand.destroy();
   app->wait();
 }
