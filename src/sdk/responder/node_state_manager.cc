@@ -12,14 +12,18 @@
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
+#include "util/date_time.h"
 
 namespace dsa {
 
 NodeStateManager::NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                                    size_t timer_interval)
-    : _root(new NodeStateRoot(*this, std::move(root_model))),
-      // TODO check node state change and clear unused node states
-      _timer(strand.add_timer(0, nullptr)) {}
+    : _root(new NodeStateRoot(*this, std::move(root_model))) {
+  _timer =
+      strand.add_timer(60000, [ this, keep_ref = get_ref() ](bool canceled) {
+        return _on_timer(canceled);
+      });
+}
 NodeStateManager::~NodeStateManager() = default;
 
 void NodeStateManager::destroy_impl() {
@@ -28,6 +32,31 @@ void NodeStateManager::destroy_impl() {
   for (auto it = _states.begin(); it != _states.end(); ++it)
     it->second->destroy();
   _states.clear();
+  _timer->destroy();
+}
+bool NodeStateManager::_on_timer(bool canceled) {
+  if (canceled || is_destroyed()) {
+    return false;
+  }
+  if (_states.size() > _check_states_size_threshold) {
+    // next check when size is bigger than the current size
+    _check_states_size_threshold = _states.size();
+
+    _root->periodic_check(DateTime::ms_since_epoch());
+
+    if (_check_states_size_threshold > _states.size() * 2) {
+      // do more check if lots of nodes can be cleared
+      _check_states_size_threshold = _states.size() * 2;
+    } else if (_check_states_size_threshold < _states.size() * 5 / 4) {
+      // do less check if very few nodes can be cleared
+      _check_states_size_threshold = _states.size() * 5 / 4;
+    }
+  } else if (_timer_skipped++ >= 30) {
+    // make it checks at least once very 30 minutes
+    _check_states_size_threshold = 0;
+  }
+
+  return true;
 }
 
 void NodeStateManager::remove_state(const string_ &path) {

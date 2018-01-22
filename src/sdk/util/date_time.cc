@@ -80,7 +80,7 @@ const string_& DateTime::get_ts() {
   }
   return _last_ts;
 }
-int64_t DateTime::time_since_epoch() {
+int64_t DateTime::ms_since_epoch() {
   auto now = std::chrono::system_clock::now();
   return std::chrono::duration_cast<std::chrono::milliseconds>(
              now.time_since_epoch())

@@ -97,7 +97,7 @@ class NodeState : public DestroyableRef<NodeState> {
            _waiting_cache == nullptr && _children.empty();
   }
 
-  bool periodic_check(size_t ts);
+  bool periodic_check(int64_t ts);
   /////////////////////////
   // Other
   /////////////////////////

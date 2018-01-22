@@ -182,7 +182,7 @@ void NodeState::connect_unavailable_children(NodeState &nearest_modeled_state) {
   }
 }
 
-bool NodeState::periodic_check(size_t ts) {
+bool NodeState::periodic_check(int64_t ts) {
   for (auto it = _children.begin(); it != _children.end();) {
     if (it->second->periodic_check(ts)) {
       it = _children.erase(it);

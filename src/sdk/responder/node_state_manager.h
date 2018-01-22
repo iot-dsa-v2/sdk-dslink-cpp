@@ -24,6 +24,11 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   ref_<NodeState> check_state(const Path &path);
 
   TimerRef _timer;
+  // clear unused nodestates every minute
+  bool _on_timer(bool canceled);
+  // clear states if size is bigger than:
+  size_t _check_states_size_threshold = 1000;
+  size_t _timer_skipped = 0;
 
  protected:
   void destroy_impl() final;

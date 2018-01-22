@@ -189,11 +189,11 @@ int main(int argc, const char* argv[]) {
   boost::asio::deadline_timer timer(app->io_service(), interval);
 
   int64_t last_count = 0;
-  int64_t last_time = DateTime::time_since_epoch();
+  int64_t last_time = DateTime::ms_since_epoch();
   std::function<void(const boost::system::error_code&)> timer_callback =
       [&](const boost::system::error_code& error) {
         try {
-          int64_t current_time = DateTime::time_since_epoch();
+          int64_t current_time = DateTime::ms_since_epoch();
           int64_t count = 0;
           for (int i = 0; i < client_count; ++i) {
             count += message_receive_count[i];

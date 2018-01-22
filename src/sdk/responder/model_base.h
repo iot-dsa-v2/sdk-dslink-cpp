@@ -51,7 +51,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
 
   // when return true, destroy() will be called by NodeState
   // and model will be removed from the node tree
-  virtual bool periodic_check(size_t ts) { return false; }
+  virtual bool periodic_check(int64_t ts) { return false; }
 
   virtual bool allows_runtime_child_change() { return false; }
   virtual ModelRef on_demand_create_child(const Path &path) { return INVALID; }
