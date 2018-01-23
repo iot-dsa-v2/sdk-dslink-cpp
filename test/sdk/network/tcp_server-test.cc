@@ -60,7 +60,6 @@ TEST(TcpServerTest, SingleThread) {
 
       server_strand.destroy();
       config.destroy();
-      clients.clear();
       app->close();
     };
     timer.async_wait(wait_for_connected);
