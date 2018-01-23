@@ -1,3 +1,7 @@
+
+if (WIN32)
+    find_package(GTest REQUIRED)
+endif (WIN32)
 include_directories(${GTEST_INCLUDE_DIRS})
 set(TEST_LIBS ${GTEST_LIBRARIES})
 

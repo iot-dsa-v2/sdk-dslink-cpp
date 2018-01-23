@@ -34,6 +34,10 @@ class EditableStrand : public LinkStrand {
   ref_<SessionManager> _session_manager;
   std::unique_ptr<Logger> _logger;
 
+  // inject a function and run it as soon as possible
+  // the callback must retain a direct or indirect ref to the strand
+  void inject(std::function<void()>&&) override;
+
   std::mutex _inject_mutex;
   std::vector<std::function<void()>> _inject_queue;
   bool _inject_pending = false;
@@ -56,7 +60,6 @@ class EditableStrand : public LinkStrand {
 
   void destroy_impl() override;
 
-  void inject(std::function<void()>&&) override;
   void check_injected() override;
 };
 

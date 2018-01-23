@@ -84,7 +84,7 @@ void EditableStrand::inject(std::function<void()>&& callback) {
   _inject_queue.emplace_back(std::move(callback));
   if (!_inject_pending) {
     _inject_pending = true;
-    post([ this, keep_ref = get_ref() ]() {
+    post([this]() {
       _inject_pending = false;
       check_injected();
     });

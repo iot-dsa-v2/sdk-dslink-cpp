@@ -15,6 +15,7 @@ class io_context;
 
 namespace dsa {
 
+class Session;
 class SecurityManager;
 class SessionManager;
 class OutgoingStreamAcceptor;
@@ -24,6 +25,9 @@ class StrandTimer;
 typedef ref_<StrandTimer> TimerRef;
 
 class LinkStrand : public DestroyableRef<LinkStrand> {
+  // allow Session to access the protected inject function;
+  friend class Session;
+
  public:
   // input : canceled
   // output : need repeat
@@ -45,6 +49,10 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
 
   void destroy_impl() override;
 
+  // inject a function and run it as soon as possible
+  // the callback must retain a direct or indirect ref to the strand
+  virtual void inject(std::function<void()> &&) = 0;
+
  public:
   explicit LinkStrand(void *strand, ECDH *ecdh);
 
@@ -55,8 +63,6 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   void post(std::function<void()> &&);
   void dispatch(std::function<void()> &&);
 
-  // inject a function and run it as soon as possible
-  virtual void inject(std::function<void()> &&) = 0;
   // run all the injected callbacks
   virtual void check_injected() = 0;
 
