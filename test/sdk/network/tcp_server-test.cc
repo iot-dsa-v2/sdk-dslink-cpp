@@ -103,6 +103,8 @@ TEST(TcpServerTest, SingleStrand) {
     destroy_client_in_strand(clients[i]);
   }
 
+  config.destroy();
+  testConfig.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -110,8 +112,7 @@ TEST(TcpServerTest, SingleStrand) {
   if (!app->is_stopped()) {
     app->force_stop();
   }
-  config.destroy();
-  testConfig.destroy();
+
   app->wait();
 }
 
@@ -149,6 +150,8 @@ TEST(TcpServerTest, MultiStrand) {
     destroy_client_in_strand(clients[i]);
   }
 
+  server_strand.destroy();
+  client_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -156,7 +159,6 @@ TEST(TcpServerTest, MultiStrand) {
   if (!app->is_stopped()) {
     app->force_stop();
   }
-  server_strand.destroy();
-  client_strand.destroy();
+
   app->wait();
 }
