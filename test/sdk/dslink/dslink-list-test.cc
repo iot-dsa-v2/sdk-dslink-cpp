@@ -127,12 +127,12 @@ TEST(DslinkTest, ListTest) {
 
   app->close();
 
+  server_strand.destroy();
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
   }
 
-  server_strand.destroy();
   app->wait();
 }

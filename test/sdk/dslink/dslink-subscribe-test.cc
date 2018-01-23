@@ -71,6 +71,7 @@ TEST(DslinkTest, SubscribeTest) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_dslink_in_strand(link);
 
+  server_strand.destroy();
   app->close();
   WAIT_EXPECT_TRUE(1000, [&]() -> bool  { return app->is_stopped(); });
 
@@ -78,7 +79,6 @@ TEST(DslinkTest, SubscribeTest) {
     app->force_stop();
   }
 
-  server_strand.destroy();
 
   app->wait();
 
@@ -142,14 +142,14 @@ TEST(DslinkTest, SubscribeMultiTest) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_dslink_in_strand(link);
 
+  server_strand.destroy();
+
   app->close();
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
   }
-
-  server_strand.destroy();
 
   app->wait();
 };

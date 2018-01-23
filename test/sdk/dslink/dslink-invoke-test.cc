@@ -78,6 +78,7 @@ TEST(DslinkTest, PagedInvokeResponse) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_dslink_in_strand(link);
 
+  server_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(500, [&]() -> bool { return app->is_stopped(); });
@@ -85,9 +86,6 @@ TEST(DslinkTest, PagedInvokeResponse) {
   if (!app->is_stopped()) {
     app->force_stop();
   }
-
-  server_strand.destroy();
-  link->destroy();
   app->wait();
 }
 }
