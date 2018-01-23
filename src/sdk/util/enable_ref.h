@@ -29,22 +29,39 @@ class ref_ {
  public:
   BOOST_CONSTEXPR ref_() BOOST_NOEXCEPT : px(0) {}
 
+#ifdef _DSA_DEBUG
+  void inc_ref() {
+    size_t t = px->_refs;
+    ++px->_refs;
+    BOOST_ASSERT(px->_refs == t + 1);
+  }
+  size_t dec_ref() {
+    size_t t = px->_refs;
+    --px->_refs;
+    BOOST_ASSERT(px->_refs == t - 1);
+    return px->_refs;
+  }
+#else
+  inline void inc_ref() { ++px->_refs; }
+  inline size_t dec_ref() { return --px->_refs; }
+#endif
+
   ref_(T *p) : px(p) {
-    if (px != 0) ++px->_refs;
+    if (px != 0) inc_ref();
   }
 
   template <class U>
   ref_(ref_<U> const &rhs) : px(static_cast<T *>(rhs.get())) {
-    if (px != 0) ++px->_refs;
+    if (px != 0) inc_ref();
   }
 
   ref_(ref_ const &rhs) : px(rhs.px) {
-    if (px != 0) ++px->_refs;
+    if (px != 0) inc_ref();
     ;
   }
 
   ~ref_() {
-    if (px != 0 && --px->_refs == 0) {
+    if (px != 0 && dec_ref() == 0) {
       delete px;
     }
   }

@@ -6,11 +6,11 @@
 
 namespace dsa {
 
-Server::Server(WrapperStrand & config)
-    : _strand(config.strand) {}
+Server::Server(WrapperStrand& config) : _strand(config.strand) {}
 
 void Server::destroy_impl() {
-//  _strand->session_manager().destroy();
+  // make sure strand ref is rest within strand
+  _strand.reset();
 }
 
 }  // namespace dsa

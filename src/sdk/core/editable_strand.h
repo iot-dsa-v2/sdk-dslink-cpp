@@ -60,7 +60,7 @@ class EditableStrand : public LinkStrand {
   void check_injected() override;
 };
 
- typedef std::function<shared_ptr_<Connection>(LinkStrandRef& strand)>
+typedef std::function<shared_ptr_<Connection>(LinkStrandRef& strand)>
     ClientConnectionMaker;
 
 class WrapperStrand : public DestroyableRef<WrapperStrand> {
@@ -92,8 +92,8 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
  protected:
   void destroy_impl() override {
     if (strand != nullptr) {
-      strand->destroy();
-      strand.reset();
+      auto p_strand = strand.get();
+      p_strand->dispatch([strand = std::move(strand)]() { strand->destroy(); });
     }
   }
 };

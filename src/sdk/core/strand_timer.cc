@@ -31,14 +31,14 @@ void StrandTimer::reschedule(int32_t interval_ms) {
 }
 void StrandTimer::restart(int32_t interval_ms) {
   if (interval_ms > 0 && _running == false) {
-    schedule(get_ref(),interval_ms);
+    schedule(get_ref(), interval_ms);
   }
 }
 
 void StrandTimer::schedule(ref_<StrandTimer>&& rthis, int32_t interval_ms) {
   _running = true;
   _timer->expires_from_now(boost::posix_time::milliseconds(interval_ms));
-  _timer->async_wait([ this, keepref = get_ref(), rthis = std::move(rthis) ](
+  _timer->async_wait([ this, rthis = std::move(rthis) ](
       const boost::system::error_code& error) mutable {
     _strand->dispatch([
       this, rthis = std::move(rthis),
