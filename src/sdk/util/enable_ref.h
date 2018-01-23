@@ -9,7 +9,9 @@
 
 #include <boost/assert.hpp>
 #include <boost/detail/workaround.hpp>
-
+#ifdef _DSA_DEBUG
+#include <boost/thread/mutex.hpp>
+#endif
 #include <functional>
 
 #include <iosfwd>
@@ -31,14 +33,14 @@ class ref_ {
 
 #ifdef _DSA_DEBUG
   void inc_ref() {
-    size_t t = px->_refs;
+    BOOST_ASSERT(px->_ref_mutex.try_lock());
     ++px->_refs;
-    BOOST_ASSERT(px->_refs == t + 1);
+    px->_ref_mutex.unlock();
   }
   size_t dec_ref() {
-    size_t t = px->_refs;
+    BOOST_ASSERT(px->_ref_mutex.try_lock());
     --px->_refs;
-    BOOST_ASSERT(px->_refs == t - 1);
+    px->_ref_mutex.unlock();
     return px->_refs;
   }
 #else
@@ -249,6 +251,9 @@ class EnableRef {
     return ref_<const T>(static_cast<const T *>(this));
   }
 
+#ifdef _DSA_DEBUG
+  mutable boost::mutex _ref_mutex;
+#endif
   mutable size_t _refs{0};
 
   EnableRef<T>(){};
