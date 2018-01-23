@@ -11,29 +11,26 @@ namespace fs = boost::filesystem;
 namespace dsa {
 
 string_ string_from_file(string_ file_path) {
+  SimpleStorage simple_storage;
+  std::unique_ptr<StorageBucket> storage_bucket;
   string_ data;
-  if (fs::is_regular_file(file_path)) {
-    std::ifstream my_file(file_path, std::ios::in | std::ios::binary);
-    if (my_file.is_open()) {
-      my_file >> data;
-    } else {
-      throw std::runtime_error("cannot open file to read");
-    }
-  } else {
-    throw std::runtime_error("there is no file");
-  }
+  storage_bucket = simple_storage.get_bucket(file_path);
+  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec) {
+    string_ content(vec.begin(), vec.end());
+    data = content;
+  };
+  storage_bucket->read(file_path, read_callback);
 
   return data;
 }
 
 void string_to_file(string_ data, string_ file_path) {
-  std::ofstream my_file(file_path,
-                        std::ios::out | std::ios::binary | std::ios::trunc);
-  if (my_file.is_open()) {
-    my_file << data;
-  } else {
-    throw std::runtime_error("Unable to open file to write");
-  }
+  SimpleStorage simple_storage;
+  std::unique_ptr<StorageBucket> storage_bucket;
+  storage_bucket = simple_storage.get_bucket(file_path);
+  auto content = new RefCountBytes(&data.c_str()[0], &data.c_str()[strlen(data.c_str())]);
+
+  storage_bucket->write(file_path, std::forward<RefCountBytes*>(content));
 }
 
 std::vector<unsigned char> get_random_byte_array(int len) {
