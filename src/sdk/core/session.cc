@@ -214,7 +214,7 @@ void Session::write_loop(ref_<Session> sthis) {
 
   write_buffer->write([sthis = std::move(sthis)](
       const boost::system::error_code &error) mutable {
-    LinkStrandRef strand = sthis->_strand;
+    LinkStrandRef &strand = sthis->_strand;
     strand->inject([sthis = std::move(sthis)]() mutable {
       Session::write_loop(std::move(sthis));
     });
