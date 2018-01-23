@@ -40,7 +40,8 @@ class EditableStrand : public LinkStrand {
 
   std::mutex _inject_mutex;
   std::vector<std::function<void()>> _inject_queue;
-  bool _inject_pending = false;
+  std::function<void()> _inject_callback;
+  void _prepare_inject_callback();
 
  public:
   // simple version for testing purpose
