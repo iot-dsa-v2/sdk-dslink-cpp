@@ -174,6 +174,7 @@ class ResponseMessage : public Message {
 typedef std::function<void(bool)> AckCallback;
 
 class Requester;
+class Responder;
 class SubscribeResponseMessage;
 class VarBytes;
 struct SubscribeOptions;
@@ -181,9 +182,13 @@ struct SubscribeOptions;
 class MessageStream : public DestroyableRef<MessageStream> {
   friend class Session;
   friend class Requester;
+  friend class Responder;
 
  protected:
   bool _writing = false;
+
+  // make destroy protected from public
+  using DestroyableRef<MessageStream>::destroy;
 
  public:
   const int32_t rid;

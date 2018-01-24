@@ -56,7 +56,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingSetStream> &&stream) override {}
   // TODO: keep in mind
   void custom_destroy() {
-    last_subscribe_stream->destroy();
+    //last_subscribe_stream->destroy();
     last_subscribe_stream.reset();
   }
 };
@@ -236,7 +236,7 @@ TEST(ResponderTest, SubscribeAcceptor) {
   ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->unsubscribed;
   });
-  subscribe_stream->destroy();
+  //subscribe_stream->destroy();
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
