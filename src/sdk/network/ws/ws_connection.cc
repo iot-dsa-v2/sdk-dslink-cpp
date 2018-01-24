@@ -70,6 +70,7 @@ void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
+        DSA_REF_GUARD();
         callback(error);
       });
 }

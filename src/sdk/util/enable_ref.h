@@ -9,12 +9,33 @@
 
 #include <boost/assert.hpp>
 #include <boost/detail/workaround.hpp>
+#include <functional>
+#include <iosfwd>
+
 #ifdef _DSA_DEBUG
 #include <boost/thread/mutex.hpp>
-#endif
-#include <functional>
 
-#include <iosfwd>
+extern thread_local int _dsa_ref_guard_count;
+extern thread_local int _dsa_ref_guard_rand;
+
+class DsaRefGuard {
+ public:
+  DsaRefGuard() {
+    _dsa_ref_guard_rand = rand();
+    ++_dsa_ref_guard_count;
+  }
+  ~DsaRefGuard() {
+    --_dsa_ref_guard_count;
+    _dsa_ref_guard_rand = rand();
+  }
+};
+// when DsaRefGuard is locked, refcount change shouldn't happen
+#define DSA_REF_GUARD() DsaRefGuard dsa_ref_guard();
+
+#else
+// do nothing in release mode
+#define DSA_REF_GUARD()
+#endif
 
 namespace dsa {
 
@@ -33,11 +54,21 @@ class ref_ {
 
 #ifdef _DSA_DEBUG
   void inc_ref() {
+    if (px->_refs == 0) {
+      // allow a ref to be created in different thread
+      px->_first_guard = _dsa_ref_guard_rand;
+    } else {
+      BOOST_ASSERT(_dsa_ref_guard_count == 0 ||
+                   px->_first_guard == _dsa_ref_guard_rand);
+    }
+
     BOOST_ASSERT(px->_ref_mutex.try_lock());
     ++px->_refs;
     px->_ref_mutex.unlock();
   }
   size_t dec_ref() {
+    BOOST_ASSERT(_dsa_ref_guard_count == 0 ||
+                 px->_first_guard == _dsa_ref_guard_rand);
     BOOST_ASSERT(px->_ref_mutex.try_lock());
     --px->_refs;
     px->_ref_mutex.unlock();
@@ -252,7 +283,11 @@ class EnableRef {
   }
 
 #ifdef _DSA_DEBUG
+  // check if ref is changed by multiple thread at same time
   mutable boost::mutex _ref_mutex;
+  // if ref is created in a different thread, it's ok to have some ref change
+  // before the guard changes in the same thread
+  mutable int _first_guard{0};
 #endif
   mutable size_t _refs{0};
 

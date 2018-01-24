@@ -31,10 +31,9 @@ ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
 
 EditableStrand::EditableStrand(boost::asio::io_context::strand* strand,
                                std::unique_ptr<ECDH>&& ecdh)
-    : LinkStrand(strand, ecdh.get()),
-      _ecdh(std::move(ecdh)){
-
-      };
+    : LinkStrand(strand, ecdh.get()), _ecdh(std::move(ecdh)) {
+  _prepare_inject_callback();
+};
 EditableStrand::~EditableStrand() = default;
 
 void EditableStrand::set_security_manager(ref_<SecurityManager> p) {
@@ -65,6 +64,10 @@ void EditableStrand::destroy_impl() {
   _session_manager.reset();
   _stream_acceptor.reset();
   _security_manager.reset();
+  {
+    std::lock_guard<std::mutex> lock(_inject_mutex);
+    _inject_callback = nullptr;
+  }
 }
 
 void EditableStrand::check_injected() {
@@ -79,15 +82,20 @@ void EditableStrand::check_injected() {
   }
 }
 
+void EditableStrand::_prepare_inject_callback() {
+  std::lock_guard<std::mutex> lock(_inject_mutex);
+  _inject_callback = [ this, keep_ref = get_ref() ]() {
+    if (is_destroyed()) return;
+    _prepare_inject_callback();
+    check_injected();
+  };
+}
 void EditableStrand::inject(std::function<void()>&& callback) {
+  DSA_REF_GUARD();
   std::lock_guard<std::mutex> lock(_inject_mutex);
   _inject_queue.emplace_back(std::move(callback));
-  if (!_inject_pending) {
-    _inject_pending = true;
-    post([this]() {
-      _inject_pending = false;
-      check_injected();
-    });
+  if (_inject_callback != nullptr) {
+    post(std::move(_inject_callback));
   }
 }
 

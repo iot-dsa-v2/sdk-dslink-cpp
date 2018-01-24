@@ -5,7 +5,7 @@ list(APPEND UtilSourceFiles
         boost_debug.cc
         path.cc
         buffer.cc
-        enable_ref.h
+        enable_ref.cc
         enable_shared.h
         exception.h
         little_endian.h

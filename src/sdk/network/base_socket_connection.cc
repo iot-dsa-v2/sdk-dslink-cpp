@@ -24,6 +24,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
                                       size_t from_prev,
                                       const boost::system::error_code &error,
                                       size_t bytes_transferred) {
+  DSA_REF_GUARD();
   // reset deadline timer for each new message
   // TODO: make this thread safe
   // connection->reset_standard_deadline_timer();

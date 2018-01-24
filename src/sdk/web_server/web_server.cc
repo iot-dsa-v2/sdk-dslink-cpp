@@ -28,9 +28,6 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
 
 WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
 
-  return _ws_callback_map.at(path);
-
-  /* TODO
   if (_ws_callback_map.count(path)) {
     return _ws_callback_map.at(path);
   }
@@ -43,10 +40,11 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
     ErrorCallback error_callback_detail(error_code);
     error_callback_detail(web_server.io_service(), std::move(socket),
                           std::move(req));
+
+    return nullptr;
   };
 
   return error_callback;
-  */
 }
 
 void WebServer::destroy() {

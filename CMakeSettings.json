@@ -64,6 +64,42 @@
         }
       ]
 
+    },
+    {
+      "name": "x64-RelWithDebInfo",
+      "generator": "Visual Studio 15 2017 Win64",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-m -v:minimal",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+        },
+        {
+          "name": "CMAKE_CXX_FLAGS_RELWITHDEBINFO",
+          "value": "/Zi"
+        },
+        {
+          "name": "CMAKE_C_FLAGS_RELWITHDEBINFO",
+          "value": "/Zi"
+        },
+        {
+          "name": "CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO",
+          "value": "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF"
+        },
+        {
+          "name": "CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO",
+          "value": "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF"
+        },
+        {
+          "name": "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO",
+          "value": "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF"
+        }
+      ]
+
     }
   ]
 }

@@ -179,9 +179,9 @@ TEST(ResponderTest, PagedInvokeResponse) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
-  app->close();
   server_strand.destroy();
   client_strand.destroy();
+  app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
@@ -256,9 +256,9 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
-  app->close();
   server_strand.destroy();
   client_strand.destroy();
+  app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
