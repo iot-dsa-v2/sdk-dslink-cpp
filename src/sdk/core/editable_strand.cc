@@ -67,6 +67,7 @@ void EditableStrand::destroy_impl() {
   {
     std::lock_guard<std::mutex> lock(_inject_mutex);
     _inject_callback = nullptr;
+    _inject_queue.clear();
   }
 }
 

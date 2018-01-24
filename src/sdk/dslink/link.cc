@@ -271,7 +271,6 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
 
     _client = make_ref_<Client>(*this);
     _client->connect(std::move(on_connect), callback_type);
-    LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink connection requested");
   });
 }
 

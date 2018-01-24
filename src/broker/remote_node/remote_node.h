@@ -29,7 +29,9 @@ class RemoteNode : public NodeModelBase {
 
   // when return true, destroy() will be called by NodeState
   // and model will be removed from the node tree
-  bool periodic_check(int64_t ts) override { return true; }
+  bool periodic_check(const NodeState *state, int64_t ts) override {
+    return true;
+  }
 
   bool allows_runtime_child_change() override { return true; }
   ModelRef on_demand_create_child(const Path &path) override;

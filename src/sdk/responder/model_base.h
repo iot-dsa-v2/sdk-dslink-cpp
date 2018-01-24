@@ -52,9 +52,9 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   // when node state no longer need the model, this function is called to check
   // if it can remove itself from the tree
   // when return true, node state will be destroyed
-  // and the node should handle its own destroy() function before that to make
-  // sure there is no memory leak
-  virtual bool periodic_check(int64_t ts) { return false; }
+  virtual bool periodic_check(const NodeState *state, int64_t ts) {
+    return false;
+  }
 
   virtual bool allows_runtime_child_change() { return false; }
   virtual ModelRef on_demand_create_child(const Path &path) { return INVALID; }

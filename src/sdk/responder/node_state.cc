@@ -6,6 +6,7 @@
 
 #include "message/request/invoke_request_message.h"
 #include "message/request/set_request_message.h"
+#include "module/logger.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
@@ -120,7 +121,16 @@ void NodeState::set_model(ModelRef &&model) {
     }
   } else {
     _model = std::move(model);
-    _model->_state = get_ref();
+    if (_model->_state == nullptr) {
+      _model->_state = get_ref();
+    }
+#ifdef _DSA_DEBUG
+    else {
+      if (_model->_state->is_destroyed()) {
+        LOG_FATAL(LOG << "adding a model that's owned by destroyed state");
+      }
+    }
+#endif
     _model_status = MODEL_CONNECTED;
     _model->initialize();
 
@@ -191,7 +201,11 @@ bool NodeState::periodic_check(int64_t ts) {
     }
   }
   // check if model is still in use
-  if (is_idle() && (_model == nullptr || _model->periodic_check(ts))) {
+  if (is_idle() && (_model == nullptr || _model->periodic_check(this, ts))) {
+    if (_model->_state != this) {
+      // don't destroy the model, since its owned by other state
+      _model = nullptr;
+    }
     destroy();
     return true;
   }
@@ -346,11 +360,6 @@ void NodeState::destroy_impl() {
   _owner.remove_state(_path.full_str());
 
   _parent.reset();
-  // TODO: ali ask
-  //  if(_parent != nullptr) {
-  //    _parent->destroy();
-  //    _parent.reset();
-  //  }
 }
 
 NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
