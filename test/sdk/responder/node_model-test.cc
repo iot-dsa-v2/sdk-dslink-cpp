@@ -103,6 +103,8 @@ TEST(ResponderTest, ModelAddChild) {
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
 
+  server_strand.destroy();
+  client_strand.destroy();
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
@@ -111,8 +113,6 @@ TEST(ResponderTest, ModelAddChild) {
     app->force_stop();
   }
 
-  server_strand.destroy();
-  client_strand.destroy();
   app->wait();
 }
 
@@ -189,9 +189,20 @@ TEST(ResponderTest, ModelSetValue) {
 
   root_node->set_value(MessageValue(Var(0)));
 
+  int subs_resp = 0;
   auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "", [&](IncomingSubscribeStream &stream,
-              ref_<const SubscribeResponseMessage> &&msg) { ; },
+      "",
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
+        if (subs_resp == 0) {
+          EXPECT_TRUE(msg->get_value().value.to_string() == "0");
+        } else if (subs_resp == 1) {
+          EXPECT_TRUE(msg->get_value().value.to_string() == "hello");
+        } else if (subs_resp == 2) {
+          EXPECT_TRUE(msg->get_value().value.to_string() == "0");
+        }
+        subs_resp++;
+      },
       initial_options);
 
   //
@@ -200,6 +211,8 @@ TEST(ResponderTest, ModelSetValue) {
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Var(0));
   root_node->set_subscribe_response(copy_ref_(cached_message));
+
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return subs_resp == 3; });
 
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
