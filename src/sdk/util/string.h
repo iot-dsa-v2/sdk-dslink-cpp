@@ -5,7 +5,6 @@
 #pragma once
 #endif
 
-#include "module/default/simple_storage.h"
 
 namespace dsa {
 inline bool str_starts_with(const string_ &str,

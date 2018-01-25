@@ -13,7 +13,7 @@ namespace dsa {
 BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
   init();
   storage_key = get_file_path();
-  storage_bucket = simple_storage.get_bucket(storage_key);
+  storage_bucket = simple_storage.get_safe_bucket(storage_key);
   load();
 }
 

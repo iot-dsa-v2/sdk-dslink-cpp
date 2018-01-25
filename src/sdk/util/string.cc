@@ -4,7 +4,7 @@
 
 #include <boost/filesystem.hpp>
 #include "openssl/rand.h"
-
+#include "module/default/simple_storage.h"
 using namespace std;
 namespace fs = boost::filesystem;
 

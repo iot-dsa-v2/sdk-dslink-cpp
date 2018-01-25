@@ -15,10 +15,10 @@ using boost::filesystem::path;
 static std::string storage_root = "C:\\temp\\";
 #else
 //static std::string storage_root = "/tmp/";
-static std::string storage_root = "./";
+static std::string storage_root = "";
 #endif
 
-inline bool SimpleStorageBucket::write_file(const std::string& key,
+inline void SimpleStorageBucket::write_file(const std::string& key,
                                            BytesRef content) {
   path p(storage_root);
   p /= (key);
@@ -34,10 +34,9 @@ inline bool SimpleStorageBucket::write_file(const std::string& key,
   } catch (const fs::filesystem_error& ex) {
     // TODO - error handling
   }
-  return true;
 }
 
-inline bool SimpleStorageBucket::read_file(const std::string& key,
+inline void SimpleStorageBucket::read_file(const std::string& key,
                                           ReadCallback callback) {
   std::vector<uint8_t> vec{};
 
@@ -66,7 +65,6 @@ inline bool SimpleStorageBucket::read_file(const std::string& key,
   }
 
   callback(key, vec);
-  return true;
 }
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
@@ -83,7 +81,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
     });
     return;
   } else {
-    write_file(std::move(key), std::move(content));
+    write_file(key, std::move(content));
   }
 }
 
@@ -102,7 +100,7 @@ void SimpleStorageBucket::read(const std::string& key,
     });
     return;
   } else {
-    read_file(key, callback);
+    read_file(key, std::move(callback));
   }
 }
 
