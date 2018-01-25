@@ -20,13 +20,13 @@ class OutgoingSetStream final : public MessageCacheStream {
       Callback;
 
  protected:
+  // messages received but not send to callback
+  std::vector<ref_<SetRequestMessage> > _waiting_requests;
   // paged message that's partially received
   ref_<IncomingPagesMerger> _waiting_pages;
 
   Callback _callback;
   bool _callback_running = false;
-
-  ref_<SetRequestMessage> _waiting_request;
 
   void destroy_impl() final;
 

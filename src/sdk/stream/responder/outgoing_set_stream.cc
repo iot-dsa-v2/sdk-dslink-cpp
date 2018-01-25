@@ -11,11 +11,11 @@ namespace dsa {
 OutgoingSetStream::OutgoingSetStream(ref_<Session> &&session, const Path &path,
                                      uint32_t rid,
                                      ref_<SetRequestMessage> &&message)
-    : MessageCacheStream(std::move(session), path, rid),
-      _waiting_request(std::move(message)) {
-  if (_waiting_request->get_page_id() < 0) {
-    _waiting_pages = make_ref_<IncomingPagesMerger>(_waiting_request);
+    : MessageCacheStream(std::move(session), path, rid){
+  if (message->get_page_id() < 0) {
+    _waiting_pages = make_ref_<IncomingPagesMerger>(message);
   }
+  _waiting_requests.emplace_back(std::move(message));
 }
 
 void OutgoingSetStream::destroy_impl() {
@@ -30,19 +30,22 @@ void OutgoingSetStream::receive_message(ref_<Message> &&message) {
   IncomingPagesMerger::check_merge(_waiting_pages, message);
   if (_callback != nullptr) {
     BEFORE_CALLBACK_RUN();
-    _callback(*this, std::move(message));
+      _callback(*this, std::move(message));
     AFTER_CALLBACK_RUN();
   } else {
-    _waiting_request = std::move(message);
+    _waiting_requests.emplace_back(std::move(message));
   }
 };
 
 void OutgoingSetStream::on_request(Callback &&callback) {
   _callback = std::move(callback);
-  if (_callback != nullptr && _waiting_request != nullptr) {
+  if (_callback != nullptr && !_waiting_requests.empty()) {
     BEFORE_CALLBACK_RUN();
-    _callback(*this, std::move(_waiting_request));
+    for (auto &msg : _waiting_requests) {
+      _callback(*this, std::move(msg));
+    }
     AFTER_CALLBACK_RUN();
+    _waiting_requests.clear();
   }
 }
 
