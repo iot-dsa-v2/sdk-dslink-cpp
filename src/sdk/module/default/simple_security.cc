@@ -30,9 +30,9 @@ void SimpleAuthorizer::check_permission(const string_& dsid,
                                         const string_& permission_token,
                                         MessageType method, const Path& path,
                                         CheckPermissionCallback&& callback) {
-  //_strand->post([ =, callback = std::move(callback) ]() {
+  _strand->post([ =, callback = std::move(callback) ]() {
     callback(PermissionLevel::CONFIG);
-  //});
+  });
 }
 
 }  // namespace dsa
