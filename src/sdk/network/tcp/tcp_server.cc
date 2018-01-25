@@ -109,6 +109,7 @@ void TcpServer::destroy_impl() {
 }
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {
+  DSA_REF_GUARD();
   if (!error) {
     _next_connection->accept();
     _next_connection = make_shared_<TcpServerConnection>(_strand);
@@ -121,6 +122,7 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
 }
 
 void TcpServer::secure_accept_loop(const boost::system::error_code &error) {
+  DSA_REF_GUARD();
   if (!error) {
     _secure_next_connection->accept();
     _secure_next_connection =
