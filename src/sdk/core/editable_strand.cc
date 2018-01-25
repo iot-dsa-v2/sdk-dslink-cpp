@@ -64,6 +64,7 @@ void EditableStrand::destroy_impl() {
   _session_manager.reset();
   _stream_acceptor.reset();
   _security_manager.reset();
+  _logger.reset();
   {
     std::lock_guard<std::mutex> lock(_inject_mutex);
     _inject_callback = nullptr;
@@ -94,6 +95,10 @@ void EditableStrand::_prepare_inject_callback() {
 void EditableStrand::inject(std::function<void()>&& callback) {
   DSA_REF_GUARD();
   std::lock_guard<std::mutex> lock(_inject_mutex);
+  if (is_destroyed()) {
+    // strand is destroyed, don't add more job
+    return;
+  }
   _inject_queue.emplace_back(std::move(callback));
   if (_inject_callback != nullptr) {
     post(std::move(_inject_callback));

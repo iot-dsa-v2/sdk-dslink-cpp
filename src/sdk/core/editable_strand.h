@@ -98,6 +98,7 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
     if (strand != nullptr) {
       auto p_strand = strand.get();
       p_strand->dispatch([strand = std::move(strand)]() { strand->destroy(); });
+      client_connection_maker = nullptr;
     }
   }
 };
