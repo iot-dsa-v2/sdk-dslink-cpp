@@ -2,11 +2,12 @@
 
 #include "editable_strand.h"
 
+#include "module/authorizer.h"
+#include "module/client_manager.h"
 #include "module/default/console_logger.h"
-#include "module/default/simple_security_manager.h"
+#include "module/default/simple_security.h"
 #include "module/default/simple_session_manager.h"
 #include "module/logger.h"
-#include "module/security_manager.h"
 #include "module/session_manager.h"
 #include "responder/node_state_manager.h"
 #include "util/app.h"
@@ -14,19 +15,20 @@
 namespace dsa {
 
 ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
-  auto config =
+  auto strand =
       make_ref_<EditableStrand>(app->new_strand(), make_unique_<ECDH>());
 
-  config->set_session_manager(make_ref_<SimpleSessionManager>(config));
+  strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
 
-  config->set_security_manager(make_ref_<SimpleSecurityManager>());
+  strand->set_client_manager(make_ref_<SimpleClientManager>());
+  strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
 
   auto logger = make_unique_<ConsoleLogger>();
   logger->filter = Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
-  config->set_logger(std::move(logger));
-  config->logger().level = Logger::WARN__;
+  strand->set_logger(std::move(logger));
+  strand->logger().level = Logger::WARN__;
 
-  return config;
+  return strand;
 }
 
 EditableStrand::EditableStrand(boost::asio::io_context::strand* strand,
@@ -36,10 +38,14 @@ EditableStrand::EditableStrand(boost::asio::io_context::strand* strand,
 };
 EditableStrand::~EditableStrand() = default;
 
-void EditableStrand::set_security_manager(ref_<SecurityManager> p) {
-  __security_manager = p.get();
-  _security_manager = std::move(p);
+void EditableStrand::set_client_manager(ref_<ClientManager> p) {
+  __client_manager = p.get();
+  _client_manager = std::move(p);
 };
+void EditableStrand::set_authorizer(ref_<Authorizer> p) {
+  __authorizer = p.get();
+  _authorizer = std::move(p);
+}
 void EditableStrand::set_stream_acceptor(ref_<OutgoingStreamAcceptor> p) {
   __stream_acceptor = p.get();
   _stream_acceptor = std::move(p);
@@ -61,9 +67,11 @@ void EditableStrand::set_responder_model(ModelRef&& root_model,
 }
 void EditableStrand::destroy_impl() {
   LinkStrand::destroy_impl();
+  // destroy of following objects is handled in LinkStrand::destroy_impl()
   _session_manager.reset();
   _stream_acceptor.reset();
-  _security_manager.reset();
+  _client_manager.reset();
+  _authorizer.reset();
   _logger.reset();
   {
     std::lock_guard<std::mutex> lock(_inject_mutex);

@@ -11,7 +11,7 @@
 
 namespace dsa {
 
-class SecurityManager;
+class ClientManager;
 class Config;
 
 class SimpleSessionManager final : public SessionManager {

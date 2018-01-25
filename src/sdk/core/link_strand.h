@@ -16,7 +16,8 @@ class io_context;
 namespace dsa {
 
 class Session;
-class SecurityManager;
+class ClientManager;
+class Authorizer;
 class SessionManager;
 class OutgoingStreamAcceptor;
 class ECDH;
@@ -42,7 +43,8 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
 
   ECDH *__ecdh = nullptr;
 
-  SecurityManager *__security_manager = nullptr;
+  ClientManager *__client_manager = nullptr;
+  Authorizer *__authorizer = nullptr;
   OutgoingStreamAcceptor *__stream_acceptor = nullptr;
   SessionManager *__session_manager = nullptr;
   Logger *__logger = nullptr;
@@ -68,7 +70,9 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
 
   ref_<StrandTimer> add_timer(int32_t interval_ms, TimerCallback &&callback);
 
-  SecurityManager &security_manager() { return *__security_manager; };
+  ClientManager &client_manager() { return *__client_manager; };
+
+  Authorizer &authorizer() { return *__authorizer; };
 
   OutgoingStreamAcceptor &stream_acceptor() { return *__stream_acceptor; };
 

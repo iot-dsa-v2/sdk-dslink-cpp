@@ -13,7 +13,7 @@
 #include "message/response/invoke_response_message.h"
 #include "module/default/console_logger.h"
 #include "module/default/dummy_stream_acceptor.h"
-#include "module/default/simple_security_manager.h"
+#include "module/default/simple_security.h"
 #include "module/default/simple_session_manager.h"
 #include "network/tcp/stcp_client_connection.h"
 #include "network/tcp/tcp_client_connection.h"
@@ -201,7 +201,8 @@ void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
 void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node) {
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
-  strand->set_security_manager(make_ref_<SimpleSecurityManager>());
+  strand->set_client_manager(make_ref_<SimpleClientManager>());
+  strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
   strand->set_responder_model(std::move(root_node));
 }
 void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
@@ -327,9 +328,11 @@ ref_<IncomingInvokeStream> DsLink::invoke(
     IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   return _client->get_session().requester.invoke(
-      ([ user_callback = std::move(callback), paged_cache = ref_<IncomingPageCache<InvokeResponseMessage>>() ](
-          IncomingInvokeStream & s,
-          ref_<const InvokeResponseMessage> && message) mutable {
+      ([
+        user_callback = std::move(callback),
+        paged_cache = ref_<IncomingPageCache<InvokeResponseMessage>>()
+      ](IncomingInvokeStream & s,
+        ref_<const InvokeResponseMessage> && message) mutable {
         message = IncomingPageCache<InvokeResponseMessage>::get_first_page(
             paged_cache, std::move(message));
         if (message == nullptr) {

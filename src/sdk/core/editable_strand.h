@@ -29,7 +29,8 @@ class EditableStrand : public LinkStrand {
  protected:
   std::unique_ptr<ECDH> _ecdh;
   // modules
-  ref_<SecurityManager> _security_manager;
+  ref_<ClientManager> _client_manager;
+  ref_<Authorizer> _authorizer;
   ref_<OutgoingStreamAcceptor> _stream_acceptor;
   ref_<SessionManager> _session_manager;
   std::unique_ptr<Logger> _logger;
@@ -51,7 +52,8 @@ class EditableStrand : public LinkStrand {
                           std::unique_ptr<ECDH>&& ecdh);
   ~EditableStrand() override;
 
-  void set_security_manager(ref_<SecurityManager> p);
+  void set_client_manager(ref_<ClientManager> p);
+  void set_authorizer(ref_<Authorizer> p);
   void set_stream_acceptor(ref_<OutgoingStreamAcceptor> p);
   void set_session_manager(ref_<SessionManager> p);
   void set_logger(std::unique_ptr<Logger> p);

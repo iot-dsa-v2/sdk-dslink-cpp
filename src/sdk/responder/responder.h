@@ -12,7 +12,7 @@
 
 namespace dsa {
 class Session;
-class SecurityManager;
+class ClientManager;
 class NodeStateManager;
 class SubscribeRequestMessage;
 class InvokeRequestMessage;

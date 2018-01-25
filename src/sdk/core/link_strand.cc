@@ -5,7 +5,8 @@
 #include <boost/asio/strand.hpp>
 
 #include "crypto/ecdh.h"
-#include "module/security_manager.h"
+#include "module/client_manager.h"
+#include "module/authorizer.h"
 #include "module/session_manager.h"
 #include "responder/node_state_manager.h"
 #include "strand_timer.h"
@@ -22,8 +23,11 @@ LinkStrand::~LinkStrand() {
 }
 
 void LinkStrand::destroy_impl() {
-  if (__security_manager != nullptr) {
-    __security_manager->destroy();
+  if (__client_manager != nullptr) {
+    __client_manager->destroy();
+  }
+  if (__authorizer != nullptr) {
+    __authorizer->destroy();
   }
   if (__session_manager != nullptr) {
     __session_manager->destroy();

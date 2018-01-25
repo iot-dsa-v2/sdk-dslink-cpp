@@ -5,7 +5,7 @@
 #include "core/client.h"
 #include "crypto/ecdh.h"
 #include "module/default/console_logger.h"
-#include "module/default/simple_security_manager.h"
+#include "module/default/simple_security.h"
 #include "module/default/simple_session_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"

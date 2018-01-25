@@ -2,7 +2,7 @@
 
 #include "simple_session_manager.h"
 
-#include "module/security_manager.h"
+#include "module/client_manager.h"
 
 namespace dsa {
 
@@ -15,7 +15,7 @@ void SimpleSessionManager::get_session(const string_ &dsid,
   if (memory_check_interval > 0 && _count_to_check >= memory_check_interval) {
     check_destroyed_session();
   }
-  _strand->security_manager().get_client(
+  _strand->client_manager().get_client(
       dsid, auth_token, [ =, callback = std::move(callback) ](
                             const ClientInfo client, bool error) mutable {
         if (error) {

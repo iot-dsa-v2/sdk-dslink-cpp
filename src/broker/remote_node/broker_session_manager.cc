@@ -4,7 +4,7 @@
 
 #include "../node/downstream/downstream_root.h"
 #include "broker_client.h"
-#include "module/security_manager.h"
+#include "module/client_manager.h"
 #include "remote_node.h"
 #include "remote_root_node.h"
 
@@ -21,7 +21,7 @@ static ClientInfo dummy_info;
 void BrokerSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
                                        Session::GetSessionCallback &&callback) {
-  _strand->security_manager().get_client(dsid, auth_token, [
+  _strand->client_manager().get_client(dsid, auth_token, [
     =, callback = std::move(callback)
   ](const ClientInfo client_info, bool error) mutable {
     if (error) {

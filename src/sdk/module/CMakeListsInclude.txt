@@ -1,5 +1,6 @@
 list(APPEND ModulekSourceFiles
-        default/simple_security_manager.cc
+        module.cc
+        default/simple_security.cc
         default/console_logger.cc
         default/simple_storage.cc
         default/simple_storage_bucket.cc
@@ -9,7 +10,8 @@ list(APPEND ModulekSourceFiles
         default/dummy_stream_acceptor.cc
         logger.cc
         logger.h
-        security_manager.h
+        client_manager.h
+        authorizer.h
         session_manager.h
         storage.h
         outgoing_stream_acceptor.h

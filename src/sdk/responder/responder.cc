@@ -2,14 +2,12 @@
 
 #include "responder.h"
 
-#include "module/security_manager.h"
-
 #include "core/session.h"
-
 #include "message/request/invoke_request_message.h"
 #include "message/request/list_request_message.h"
 #include "message/request/set_request_message.h"
 #include "message/request/subscribe_request_message.h"
+#include "module/authorizer.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
@@ -177,7 +175,7 @@ void Responder::receive_message(ref_<Message> &&message) {
       return;
   }
 
-  _session._strand->security_manager().check_permission(
+  _session._strand->authorizer().check_permission(
       _session.dsid(), request->get_permission_token(), request->type(),
       request->get_target_path(), std::move(callback));
 }

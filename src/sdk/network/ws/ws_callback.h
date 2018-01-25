@@ -11,7 +11,7 @@
 
 #include "core/editable_strand.h"
 #include "module/default/console_logger.h"
-#include "module/default/simple_security_manager.h"
+#include "module/default/simple_security.h"
 #include "module/default/simple_session_manager.h"
 #include "module/session_manager.h"
 #include "network/ws/ws_server_connection.h"

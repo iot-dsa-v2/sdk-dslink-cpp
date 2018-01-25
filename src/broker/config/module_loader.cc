@@ -2,7 +2,7 @@
 
 #include "module_loader.h"
 
-#include "../module/broker_security_manager.h"
+#include "../module/broker_client_manager.h"
 #include "broker_config.h"
 #include "module/default/console_logger.h"
 
@@ -26,7 +26,7 @@ std::unique_ptr<Logger> ModuleLoader::new_logger(App& app,
                                                  ref_<LinkStrand> strand) {
   return std::unique_ptr<Logger>(new ConsoleLogger());
 }
-ref_<SecurityManager> ModuleLoader::new_security_manager(
+ref_<ClientManager> ModuleLoader::new_security_manager(
     App& app, ref_<LinkStrand> strand) {
   return make_ref_<BrokerSecurityManager>(strand);
 }
@@ -60,8 +60,8 @@ std::unique_ptr<Logger> ModuleLoader::new_logger(App& app,
   return logger_creator(app, strand);
 }
 
-ref_<SecurityManager> ModuleLoader::new_security_manager(
-    App& app, ref_<LinkStrand> strand) {
+ref_<ClientManager> ModuleLoader::new_client_manager(
+  App &app, ref_<LinkStrand> strand) {
   return security_manager_creator(app, strand);
 }
 

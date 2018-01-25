@@ -19,11 +19,11 @@ OutgoingSetStream::OutgoingSetStream(ref_<Session> &&session, const Path &path,
 }
 
 void OutgoingSetStream::destroy_impl() {
-  if (_callback != nullptr && !_closed) {
-    BEFORE_CALLBACK_RUN();
+  if (_callback != nullptr && !_callback_running) {
     _callback(*this, ref_<SetRequestMessage>());
     _callback = nullptr;
   }
+  MessageCacheStream::destroy_impl();
 }
 
 void OutgoingSetStream::receive_message(ref_<Message> &&message) {

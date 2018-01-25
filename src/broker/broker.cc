@@ -6,7 +6,7 @@
 #include "config/broker_config.h"
 #include "config/module_loader.h"
 #include "module/logger.h"
-#include "module/security_manager.h"
+#include "module/client_manager.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "node/broker_root.h"
@@ -57,7 +57,9 @@ void DsBroker::init(ModuleLoader& modules) {
   strand->set_logger(std::move(logger));
 
   // init security manager
-  strand->set_security_manager(modules.new_security_manager(*_app, strand));
+  strand->set_client_manager(modules.new_client_manager(*_app, strand));
+  //TODO handle this in module loader too
+  strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
 
   _close_token = get_close_token_from_file();
 
