@@ -13,7 +13,7 @@
 #include <iosfwd>
 
 #ifdef _DSA_DEBUG
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 extern thread_local int _dsa_ref_guard_count;
 extern thread_local int _dsa_ref_guard_rand;
@@ -284,7 +284,7 @@ class EnableRef {
 
 #ifdef _DSA_DEBUG
   // check if ref is changed by multiple thread at same time
-  mutable boost::mutex _ref_mutex;
+  mutable std::mutex _ref_mutex;
   // if ref is created in a different thread, it's ok to have some ref change
   // before the guard changes in the same thread
   mutable int _first_guard{0};
