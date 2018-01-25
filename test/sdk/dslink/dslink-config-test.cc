@@ -31,6 +31,12 @@ static ref_<DsLink> create_test_dslink(int argc, const char *argv[]) {
   return std::move(link);
 }
 
+void end_link(ref_<DsLink> &&link) {
+  link.get()->destroy();
+  link->get_app().wait();
+  link.reset();
+}
+
 TEST(DslinkTest, DefaultParam) {
   const char *argv[] = {"./test"};
   int argc = 1;
@@ -45,8 +51,7 @@ TEST(DslinkTest, DefaultParam) {
   EXPECT_EQ(DEFAULT_TCP_SERVER_PORT, link.get()->tcp_server_port);
   EXPECT_STREQ("", link.get()->ws_host.c_str());
   EXPECT_EQ(0, link.get()->ws_port);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, UrlParam1) {
@@ -57,8 +62,7 @@ TEST(DslinkTest, UrlParam1) {
   EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
   EXPECT_EQ(DEFAULT_DS_PORT, link.get()->tcp_port);
   EXPECT_FALSE(link.get()->secure);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, UrlParam2) {
@@ -69,8 +73,7 @@ TEST(DslinkTest, UrlParam2) {
   EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
   EXPECT_EQ(DEFAULT_DS_PORT, link.get()->tcp_port);
   EXPECT_FALSE(link.get()->secure);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, UrlParam3) {
@@ -81,8 +84,7 @@ TEST(DslinkTest, UrlParam3) {
   EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
   EXPECT_EQ(DEFAULT_DSS_PORT, link.get()->tcp_port);
   EXPECT_TRUE(link.get()->secure);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));;
 }
 
 TEST(DslinkTest, url_param4) {
@@ -93,8 +95,7 @@ TEST(DslinkTest, url_param4) {
   EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
   EXPECT_EQ(132, link.get()->tcp_port);
   EXPECT_TRUE(link.get()->secure);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, UrlParam5) {
@@ -107,8 +108,7 @@ TEST(DslinkTest, UrlParam5) {
   EXPECT_FALSE(link.get()->secure);
   EXPECT_STREQ("", link.get()->tcp_host.c_str());
   EXPECT_EQ(0, link.get()->tcp_port);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, UrlParam6) {
@@ -119,8 +119,7 @@ TEST(DslinkTest, UrlParam6) {
   EXPECT_STREQ("192.168.1.12", link.get()->ws_host.c_str());
   EXPECT_EQ(DEFAULT_WSS_PORT, link.get()->ws_port);
   EXPECT_TRUE(link.get()->secure);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, UrlParam7) {
@@ -131,8 +130,7 @@ TEST(DslinkTest, UrlParam7) {
   EXPECT_STREQ("192.168.1.12", link.get()->ws_host.c_str());
   EXPECT_EQ(132, link.get()->ws_port);
   EXPECT_TRUE(link.get()->secure);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, LogParam1) {
@@ -141,8 +139,7 @@ TEST(DslinkTest, LogParam1) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(Logger::INFO__, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 //// comment out this test to avoid unecessary console output
@@ -152,8 +149,7 @@ TEST(DslinkTest, LogParam1) {
 //  auto link = create_test_dslink(argc, argv);
 //
 //  EXPECT_EQ(Logger::ALL___, link.get()->strand.get()->logger().level);
-//  link.get()->destroy();
-//  link.reset();
+//  end_link(std::move(link));
 //}
 //// comment out this test to avoid unecessary console output
 // TEST(DslinkTest, log_param3) {
@@ -162,8 +158,7 @@ TEST(DslinkTest, LogParam1) {
 //  auto link = create_test_dslink(argc, argv);
 //
 //  EXPECT_EQ(Logger::TRACE_, link.get()->strand.get()->logger().level);
-//  link.get()->destroy();
-//  link.reset();
+//  end_link(std::move(link));
 //}
 
 TEST(DslinkTest, LogParam4) {
@@ -172,8 +167,7 @@ TEST(DslinkTest, LogParam4) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(Logger::DEBUG_, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, LogParam5) {
@@ -182,8 +176,7 @@ TEST(DslinkTest, LogParam5) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(Logger::ERROR_, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, LogParam6) {
@@ -192,8 +185,7 @@ TEST(DslinkTest, LogParam6) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(Logger::WARN__, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, LogParam7) {
@@ -202,8 +194,7 @@ TEST(DslinkTest, LogParam7) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(Logger::FATAL_, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, LogParam8) {
@@ -212,8 +203,7 @@ TEST(DslinkTest, LogParam8) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(Logger::NONE__, link.get()->strand.get()->logger().level);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, ThreadParam1) {
@@ -222,8 +212,7 @@ TEST(DslinkTest, ThreadParam1) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(0, link.get()->get_app().get_thread_size());
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, ThreadParam2) {
@@ -232,8 +221,7 @@ TEST(DslinkTest, ThreadParam2) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(0, link.get()->get_app().get_thread_size());
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, ThreadParam3) {
@@ -242,8 +230,7 @@ TEST(DslinkTest, ThreadParam3) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(2, link.get()->get_app().get_thread_size());
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, ThreadParam4) {
@@ -254,8 +241,7 @@ TEST(DslinkTest, ThreadParam4) {
   EXPECT_LE(link.get()->get_app().get_thread_size(), 16);
   EXPECT_LE(link.get()->get_app().get_thread_size(),
             std::thread::hardware_concurrency());
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, TCPServerPortParam) {
@@ -264,8 +250,7 @@ TEST(DslinkTest, TCPServerPortParam) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(link.get()->tcp_server_port, 132);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, TokenFile) {
@@ -282,8 +267,7 @@ TEST(DslinkTest, TokenFile) {
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(link.get()->client_token, token);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
 
 TEST(DslinkTest, GeneralParam) {
@@ -302,6 +286,5 @@ TEST(DslinkTest, GeneralParam) {
   EXPECT_EQ(132, link.get()->tcp_server_port);
   EXPECT_STREQ("192.168.1.12", link.get()->ws_host.c_str());
   EXPECT_EQ(142, link.get()->ws_port);
-  link.get()->destroy();
-  link.reset();
+  end_link(std::move(link));
 }
