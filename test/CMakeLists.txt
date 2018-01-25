@@ -1,4 +1,4 @@
-if (UNIX)
+#if (UNIX)
     # Download and unpack googletest-download at configure time
     configure_file(CMakeLists.txt.in ${CMAKE_BINARY_DIR}/test/lib/googletest-download/CMakeLists.txt)
     execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
@@ -29,13 +29,14 @@ if (UNIX)
     #if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
     #endif()
-endif (UNIX)
+#endif (UNIX)
 
-if (WIN32)
-    find_package(GTest REQUIRED)
-    include_directories(${GTEST_INCLUDE_DIRS})
-    set(TEST_LIBS ${GTEST_LIBRARIES})
-endif (WIN32)
+#if (WIN32)
+#    find_package(GTest REQUIRED)
+#    include_directories(${GTEST_INCLUDE_DIRS})
+#    set(TEST_LIBS ${GTEST_LIBRARIES})
+#	message("${GTEST_LIBRARIES}")
+#endif (WIN32)
 
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
