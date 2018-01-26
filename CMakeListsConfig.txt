@@ -58,3 +58,7 @@ elseif (UNIX)
     set(OPENSSL_ROOT_DIR "/usr/local/ssl")
 endif ()
 find_package(OpenSSL REQUIRED)
+
+if (UNIX)
+set(OPENSSL_LIBRARIES ${OPENSSL_LIBRARIES} dl)
+endif ()
