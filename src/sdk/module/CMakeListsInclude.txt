@@ -8,6 +8,8 @@ list(APPEND ModulekSourceFiles
         default/simple_queue_bucket.cc
         default/simple_session_manager.cc
         default/dummy_stream_acceptor.cc
+        default/module_dslink_default.cc
+        module_with_loader.cc
         logger.cc
         logger.h
         client_manager.h

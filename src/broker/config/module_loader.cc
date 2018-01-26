@@ -57,8 +57,7 @@ ModuleLoader::ModuleLoader(ref_<BrokerConfig> config) {
   }
 }
 
-ref_<Logger> ModuleLoader::new_logger(App& app,
-                                                 ref_<LinkStrand> strand) {
+ref_<Logger> ModuleLoader::new_logger(App& app, ref_<LinkStrand> strand) {
   return logger_creator(app, strand);
 }
 
