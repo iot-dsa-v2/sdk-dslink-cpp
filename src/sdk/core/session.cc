@@ -169,11 +169,11 @@ size_t Session::peek_next_message(size_t available, int64_t time) {
   return 0;
 }
 
-void Session::write_loop(ref_<Session> sthis) {
-  Connection *connection = sthis->_connection.get();
+void Session::write_loop(ref_<Session> ref) {
+  Connection *connection = ref->_connection.get();
   if (connection == nullptr) {
     // not connected or already destroyed
-    sthis->_is_writing = false;
+    ref->_is_writing = false;
     return;
   }
 
@@ -181,42 +181,42 @@ void Session::write_loop(ref_<Session> sthis) {
   std::time_t current_time = std::time(nullptr);
 
   size_t next_message_size =
-      sthis->peek_next_message(Message::MAX_MESSAGE_SIZE, current_time);
+      ref->peek_next_message(Message::MAX_MESSAGE_SIZE, current_time);
 
   if (next_message_size == 0) {
-    sthis->_is_writing = false;
+    ref->_is_writing = false;
     return;
   }
-  sthis->_no_sent_in_loop = 0;
-  sthis->_is_writing = true;
+  ref->_no_sent_in_loop = 0;
+  ref->_is_writing = true;
 
   size_t total_size = 0;
   while (next_message_size > 0 &&
          next_message_size < write_buffer->max_next_size()) {
-    auto stream = sthis->get_next_ready_stream(current_time);
+    auto stream = ref->get_next_ready_stream(current_time);
     AckCallback ack_callback;
     MessageCRef message = stream->get_next_message(ack_callback);
 
-    ++sthis->_waiting_ack;
+    ++ref->_waiting_ack;
     if (ack_callback != nullptr) {
-      sthis->_pending_acks.emplace_back(sthis->_waiting_ack,
-                                        std::move(ack_callback));
+      ref->_pending_acks.emplace_back(ref->_waiting_ack,
+                                      std::move(ack_callback));
     }
 
-    LOG_TRACE(sthis->_strand->logger(), LOG << "send message: ";
+    LOG_TRACE(ref->_strand->logger(), LOG << "send message: ";
               message->print_message(LOG, stream->rid););
 
-    write_buffer->add(*message, stream->rid, sthis->_waiting_ack);
+    write_buffer->add(*message, stream->rid, ref->_waiting_ack);
 
     next_message_size =
-        sthis->peek_next_message(write_buffer->max_next_size(), current_time);
+        ref->peek_next_message(write_buffer->max_next_size(), current_time);
   }
 
-  write_buffer->write([sthis = std::move(sthis)](
+  write_buffer->write([ref = std::move(ref)](
       const boost::system::error_code &error) mutable {
-    LinkStrandRef &strand = sthis->_strand;
-    strand->inject([sthis = std::move(sthis)]() mutable {
-      Session::write_loop(std::move(sthis));
+    LinkStrandRef &strand = ref->_strand;
+    strand->inject([ref = std::move(ref)]() mutable {
+      Session::write_loop(std::move(ref));
     });
   });
 }
@@ -225,7 +225,10 @@ void Session::write_stream(ref_<MessageStream> &&stream) {
   stream->_writing = true;
   _write_streams.push_back(std::move(stream));
   if (!_is_writing && _connection != nullptr) {
-    write_loop(get_ref());
+    _is_writing = true;
+    _strand->inject([ref = get_ref()]() mutable {
+      write_loop(std::move(ref));
+    });
   }
 }
 
@@ -233,7 +236,10 @@ void Session::write_critical_stream(ref_<MessageStream> &&stream) {
   stream->_writing = true;
   _write_streams.push_front(std::move(stream));
   if (!_is_writing && _connection != nullptr) {
-    write_loop(get_ref());
+    _is_writing = true;
+    _strand->inject([ref = get_ref()]() mutable {
+      write_loop(std::move(ref));
+    });
   }
 }
 
