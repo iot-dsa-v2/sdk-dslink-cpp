@@ -8,11 +8,7 @@ include_directories("../src/sdk")
 include_directories("../include")
 
 #
-if (UNIX)
-    set(BENCHMARK_LIBS gtest_main dsa_sdk ${BENCHMARK_LIBS} dl)
-else ()
-    set(BENCHMARK_LIBS gtest_main dsa_sdk ${BENCHMARK_LIBS})
-endif ()
+set(BENCHMARK_LIBS gtest_main dsa_sdk ${BENCHMARK_LIBS})
 
 
 #
