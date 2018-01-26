@@ -9,8 +9,14 @@ namespace dsa {
 
 class DateTime {
  public:
-  // return ISO8601 timestamp string, i.e. 2017-09-25T14:46.023-07:00
+
+// return ISO8601 timestamp string, i.e. 2017-09-25T14:46.023-07:00
+#ifndef __MINGW32__
   static const string_& get_ts();
+#else
+  static string_ get_ts();
+#endif
+
   static int64_t ms_since_epoch();
 };
 }
