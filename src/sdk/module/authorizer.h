@@ -17,7 +17,7 @@ namespace dsa {
 
 class Path;
 
-class Authorizer : public DestroyableRef<ClientManager> {
+class Authorizer : public DestroyableRef<Authorizer> {
  public:
   typedef std::function<void(PermissionLevel permission)>
       CheckPermissionCallback;

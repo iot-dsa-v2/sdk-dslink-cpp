@@ -19,9 +19,9 @@ AsyncSimpleClientManager::AsyncSimpleClientManager(LinkStrandRef strand)
     : _strand(std::move(strand)){};
 
 void AsyncSimpleClientManager::get_client(const string_& dsid,
-                                            const string_& auth_token,
-                                            GetClientCallback&& callback) {
-  _strand->post([ =, callback = std::move(callback) ]() {
+                                          const string_& auth_token,
+                                          GetClientCallback&& callback) {
+  _strand->post([ dsid, auth_token, callback = std::move(callback) ]() {
     callback(ClientInfo(dsid, auth_token), false);
   });
 }
@@ -30,7 +30,7 @@ void SimpleAuthorizer::check_permission(const string_& dsid,
                                         const string_& permission_token,
                                         MessageType method, const Path& path,
                                         CheckPermissionCallback&& callback) {
-  _strand->post([ =, callback = std::move(callback) ]() {
+  _strand->post([callback = std::move(callback)]() {
     callback(PermissionLevel::CONFIG);
   });
 }
