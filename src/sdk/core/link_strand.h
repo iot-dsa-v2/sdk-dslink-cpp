@@ -22,6 +22,7 @@ class SessionManager;
 class OutgoingStreamAcceptor;
 class ECDH;
 class Logger;
+class Storage;
 class StrandTimer;
 typedef ref_<StrandTimer> TimerRef;
 
@@ -48,6 +49,7 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   OutgoingStreamAcceptor *__stream_acceptor = nullptr;
   SessionManager *__session_manager = nullptr;
   Logger *__logger = nullptr;
+  Storage *__storage = nullptr;
 
   void destroy_impl() override;
 

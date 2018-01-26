@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "util/buffer.h"
+#include "util/enable_ref.h"
 
 namespace dsa {
 
@@ -49,7 +50,7 @@ class StorageBucket {
   virtual ~StorageBucket() = default;
 };
 
-class Storage {
+class Storage: public DestroyableRef<Storage>{
  public:
   /// create a bucket or find a existing bucket
   virtual std::unique_ptr<StorageBucket> get_bucket(const string_& name) = 0;

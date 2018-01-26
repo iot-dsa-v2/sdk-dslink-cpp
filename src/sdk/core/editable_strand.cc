@@ -23,7 +23,7 @@ ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
   strand->set_client_manager(make_ref_<SimpleClientManager>());
   strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
 
-  auto logger = make_unique_<ConsoleLogger>();
+  auto logger = make_ref_<ConsoleLogger>();
   logger->filter = Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   strand->set_logger(std::move(logger));
   strand->logger().level = Logger::WARN__;
@@ -55,9 +55,14 @@ void EditableStrand::set_session_manager(ref_<SessionManager> p) {
   _session_manager = std::move(p);
 };
 
-void EditableStrand::set_logger(std::unique_ptr<Logger> p) {
+void EditableStrand::set_logger(ref_<Logger> p) {
   __logger = p.get();
-  _logger.swap(p);
+  _logger = std::move(p);
+};
+
+void EditableStrand::set_storage(ref_<Storage> p) {
+  __storage = p.get();
+  _storage = std::move(p);
 };
 
 void EditableStrand::set_responder_model(ModelRef&& root_model,

@@ -6,10 +6,11 @@
 #endif
 
 #include <sstream>
+#include "util/enable_ref.h"
 
 namespace dsa {
 
-class Logger {
+class Logger: public DestroyableRef<Logger>{
  public:
   enum : uint8_t {
     ALL___ = 0x00,

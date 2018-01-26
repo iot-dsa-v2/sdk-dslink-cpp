@@ -58,7 +58,7 @@ TEST_F(DslinkTest, ConnectTest) {
       Client::FIRST_CONNECTION | Client::BROKER_INFO_CHANGE |
           Client::EVERY_CONNECTION | Client::DISCONNECTION);
 
-  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return step >= 3; });
+  ASYNC_EXPECT_TRUE(2000, *link->strand, [&]() { return step >= 3; });
 
   tcp_server->destroy_in_strand(tcp_server);
   destroy_dslink_in_strand(link);

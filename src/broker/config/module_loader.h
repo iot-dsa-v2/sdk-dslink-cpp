@@ -20,7 +20,7 @@ class LinkStrand;
 // API function creators
 namespace api_creators_func {
 typedef ref_<ClientManager>(security_manager_type)(App&, ref_<LinkStrand>);
-typedef std::unique_ptr<Logger>(logger_type)(App&, ref_<LinkStrand>);
+typedef ref_<Logger>(logger_type)(App&, ref_<LinkStrand>);
 }
 
 class ModuleLoader {
@@ -38,7 +38,7 @@ class ModuleLoader {
 
  public:
   explicit ModuleLoader(ref_<BrokerConfig>);
-  std::unique_ptr<Logger> new_logger(App& app, ref_<LinkStrand> strand);
+  ref_<Logger> new_logger(App& app, ref_<LinkStrand> strand);
   ref_<ClientManager> new_client_manager(App &app, ref_<LinkStrand> strand);
 };
 }

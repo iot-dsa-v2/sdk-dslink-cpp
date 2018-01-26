@@ -52,12 +52,12 @@ ModuleLoader::ModuleLoader(ref_<BrokerConfig> config) {
   if (logger_creator.empty()) {
     logger_creator = get_create_function<api_creators_func::logger_type>(
         "logger_", "create_logger", [](App& app, ref_<LinkStrand> strand) {
-          return std::unique_ptr<Logger>(new ConsoleLogger());
+          return make_ref_<ConsoleLogger>();
         });
   }
 }
 
-std::unique_ptr<Logger> ModuleLoader::new_logger(App& app,
+ref_<Logger> ModuleLoader::new_logger(App& app,
                                                  ref_<LinkStrand> strand) {
   return logger_creator(app, strand);
 }

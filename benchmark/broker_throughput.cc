@@ -76,7 +76,7 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
   client_strand.strand->set_authorizer(
       make_ref_<SimpleAuthorizer>(client_strand.strand));
 
-  auto logger = make_unique_<ConsoleLogger>();
+  auto logger = make_ref_<ConsoleLogger>();
   client_strand.strand->set_logger(std::move(logger));
 
   client_strand.strand->logger().level = Logger::ERROR_;

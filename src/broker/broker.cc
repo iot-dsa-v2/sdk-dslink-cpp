@@ -53,7 +53,7 @@ void DsBroker::init(ModuleLoader& modules) {
       _app->new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
   // init logger
-  std::unique_ptr<Logger> logger = modules.new_logger(*_app, strand);
+  auto logger = modules.new_logger(*_app, strand);
   logger->level = Logger::parse(_config->log_level().get_value().to_string());
   strand->set_logger(std::move(logger));
 

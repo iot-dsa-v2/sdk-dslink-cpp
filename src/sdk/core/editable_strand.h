@@ -33,7 +33,8 @@ class EditableStrand : public LinkStrand {
   ref_<Authorizer> _authorizer;
   ref_<OutgoingStreamAcceptor> _stream_acceptor;
   ref_<SessionManager> _session_manager;
-  std::unique_ptr<Logger> _logger;
+  ref_<Logger> _logger;
+  ref_<Storage> _storage;
 
   // inject a function and run it as soon as possible
   // the callback must retain a direct or indirect ref to the strand
@@ -56,7 +57,8 @@ class EditableStrand : public LinkStrand {
   void set_authorizer(ref_<Authorizer> p);
   void set_stream_acceptor(ref_<OutgoingStreamAcceptor> p);
   void set_session_manager(ref_<SessionManager> p);
-  void set_logger(std::unique_ptr<Logger> p);
+  void set_logger(ref_<Logger> p);
+  void set_storage(ref_<Storage> p);
 
   void set_responder_model(ModelRef&& root_model, size_t timer_interval = 60);
   bool is_responder_set() { return _stream_acceptor != nullptr; }

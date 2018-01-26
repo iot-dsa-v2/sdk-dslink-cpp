@@ -192,7 +192,7 @@ void DsLink::parse_url(const string_ &url) {
 }
 
 void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto logger = std::unique_ptr<Logger>(new ConsoleLogger());
+  auto logger = make_ref_<ConsoleLogger>();
   logger->level = Logger::parse(log);
   config.set_logger(std::move(logger));
 }
