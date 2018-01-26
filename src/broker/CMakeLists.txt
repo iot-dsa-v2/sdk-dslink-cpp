@@ -1,3 +1,5 @@
+project(DSA_BROKER)
+
 include_directories(${Boost_INCLUDE_DIRS})
 set(BROKER_LIBS ${BROKER_LIBS} ${Boost_LIBRARIES})
 
@@ -20,6 +22,7 @@ set(SOURCES broker_main.cc
         config/broker_config_item.cc
         config/module_loader.cc
         module/broker_client_manager.cc
+        module/broker_authorizer.cc
         remote_node/broker_session_manager.cc
         remote_node/broker_client.cc
         remote_node/remote_node.cc

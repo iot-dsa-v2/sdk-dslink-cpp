@@ -9,13 +9,20 @@
 #include "module/client_manager.h"
 
 namespace dsa {
+class ModuleLoader;
+class DsBroker;
 
-class BrokerSecurityManager : public ClientManager {
+class BrokerClientManager : public ClientManager {
+  friend class DsBroker;
+  // TODO remove this
+  friend class ModuleLoader;
+
  protected:
   LinkStrandRef _strand;
+  void set_strand(LinkStrandRef strand) { _strand = std::move(strand); }
 
  public:
-  explicit BrokerSecurityManager(LinkStrandRef strand);
+  BrokerClientManager() = default;
 
   void get_client(const string_& dsid, const string_& auth_token,
                   GetClientCallback&& callback) override;

@@ -4,10 +4,8 @@
 
 namespace dsa {
 
-BrokerSecurityManager::BrokerSecurityManager(LinkStrandRef strand)
-    : _strand(std::move(strand)){};
 
-void BrokerSecurityManager::get_client(const string_& dsid,
+void BrokerClientManager::get_client(const string_& dsid,
                                        const string_& auth_token,
                                        GetClientCallback&& callback) {
   _strand->post([ =, callback = std::move(callback) ]() {

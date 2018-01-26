@@ -28,7 +28,7 @@ std::unique_ptr<Logger> ModuleLoader::new_logger(App& app,
 }
 ref_<ClientManager> ModuleLoader::new_security_manager(
     App& app, ref_<LinkStrand> strand) {
-  return make_ref_<BrokerSecurityManager>(strand);
+  return make_ref_<BrokerClientManager>(strand);
 }
 
 #else
@@ -43,7 +43,9 @@ ModuleLoader::ModuleLoader(ref_<BrokerConfig> config) {
         get_create_function<api_creators_func::security_manager_type>(
             "security_manager_", "create_security_manager",
             [](App& app, ref_<LinkStrand> strand) {
-              return make_ref_<BrokerSecurityManager>(strand);
+              auto client_manager = make_ref_<BrokerClientManager>();
+              client_manager->set_strand(strand);
+              return std::move(client_manager);
             });
   }
 
