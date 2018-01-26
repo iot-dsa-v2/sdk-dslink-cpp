@@ -9,9 +9,9 @@ include_directories("../include")
 
 #
 if (UNIX)
-    set(BENCHMARK_LIBS dsa_sdk ${BENCHMARK_LIBS} dl)
+    set(BENCHMARK_LIBS gtest_main dsa_sdk ${BENCHMARK_LIBS} dl)
 else ()
-    set(BENCHMARK_LIBS dsa_sdk ${BENCHMARK_LIBS})
+    set(BENCHMARK_LIBS gtest_main dsa_sdk ${BENCHMARK_LIBS})
 endif ()
 
 
