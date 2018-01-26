@@ -21,11 +21,17 @@ struct MsgpackSbuffer : public msgpack_sbuffer {
     msgpack_packer_init(&pk, this, msgpack_sbuffer_write);
   }
   ~MsgpackSbuffer() {
-    if (data != nullptr) free(data);
+    try {
+      if (data != nullptr) free(data);
+    } catch (std::exception &e) {
+    }
   }
 };
 
+#ifndef __MINGW32__
+// mingw's thread_local is buggy
 thread_local MsgpackSbuffer sbuf;
+#endif
 
 Var Var::to_variant(const msgpack_object &obj) {
   switch (obj.type) {
@@ -136,7 +142,12 @@ bool msgpack_pack(msgpack_packer *pk, const Var &v) {
 }
 
 std::vector<uint8_t> Var::to_msgpack() const throw(const EncodingError &) {
+#ifdef __MINGW32__
+  // mingw's thread_local is buggy
+  MsgpackSbuffer sbuf;
+#else
   sbuf;
+#endif
   if (msgpack_pack(&pk, *this)) {
     size_t sbuf_size = sbuf.size;
 
