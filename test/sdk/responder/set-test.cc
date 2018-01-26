@@ -88,10 +88,12 @@ TEST(ResponderTest, SetModel) {
 
   // list on root node
   ref_<const ListResponseMessage> last_list_response;
+  int list_response_count = 0;
   tcp_client->get_session().requester.list(
       "",
       [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
         last_list_response = msg;
+        ++list_response_count;
       });
 
   // set request to change value
@@ -104,20 +106,23 @@ TEST(ResponderTest, SetModel) {
   second_request->set_value(Var("world"));
 
   // send set request
-  tcp_client->get_strand().post([&]() { tcp_client->get_session().requester.set(
-      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
-      std::move(first_request));
+  tcp_client->get_strand().post([&]() {
+    tcp_client->get_session().requester.set(
+        [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
+        std::move(first_request));
   });
-  tcp_client->get_strand().post([&]() { tcp_client->get_session().requester.set(
-      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
-      std::move(second_request));
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
+    return last_subscribe_response != nullptr;
+  });
+  tcp_client->get_strand().post([&]() {
+    tcp_client->get_session().requester.set(
+        [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
+        std::move(second_request));
   });
 
   // wait until response of subscribe and list are received
-  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
-                    [&]() -> bool { return last_list_response != nullptr; });
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
-    return last_subscribe_response != nullptr;
+    return list_response_count >= 2 && last_list_response != nullptr;
   });
 
   // check the subsciption response is same as the value set
@@ -128,7 +133,7 @@ TEST(ResponderTest, SetModel) {
   auto list_map = last_list_response->get_parsed_map();
 
   EXPECT_TRUE(list_map != nullptr &&
-              (*list_map)["@attr"].to_string() == "world");
+      (*list_map)["@attr"].to_string() == "world");
 
   tcp_server->destroy_in_strand(tcp_server);
   destroy_client_in_strand(tcp_client);
