@@ -13,7 +13,9 @@
 
 using namespace dsa;
 
-TEST(DslinkTest, ConnectTest) {
+using DslinkTest = SetUpBase;
+
+TEST_F(DslinkTest, ConnectTest) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);

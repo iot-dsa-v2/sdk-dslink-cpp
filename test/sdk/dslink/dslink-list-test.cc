@@ -13,6 +13,8 @@
 
 using namespace dsa;
 
+using DslinkTest = SetUpBase;
+
 namespace dslink_list_test {
 class MockNodeChild : public NodeModel {
  public:
@@ -38,7 +40,7 @@ class MockNodeRoot : public NodeModel {
 };
 }
 
-TEST(DslinkTest, ListTest) {
+TEST_F(DslinkTest, ListTest) {
   typedef dslink_list_test::MockNodeRoot MockNodeRoot;
   typedef dslink_list_test::MockNodeChild MockNodeChild;
   typedef std::vector<std::vector<string_>> ListResponses;

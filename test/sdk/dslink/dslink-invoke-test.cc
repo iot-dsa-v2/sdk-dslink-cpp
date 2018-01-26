@@ -10,11 +10,13 @@
 
 using namespace dsa;
 
+using DslinkTest = SetUpBase;
+
 namespace link_subscribe_test {
 
 static const int32_t big_str_size = 100000;
 
-TEST(DslinkTest, PagedInvokeResponse) {
+TEST_F(DslinkTest, PagedInvokeResponse) {
   auto app = std::make_shared<App>();
 
   TestConfig server_strand(app);

@@ -13,6 +13,8 @@
 using namespace dsa;
 using namespace std;
 
+using DslinkTest = SetUpBase;
+
 class ExampleNodeChild : public NodeModel {
  public:
   explicit ExampleNodeChild(LinkStrandRef strand)
@@ -32,7 +34,7 @@ class ExampleNodeRoot : public NodeModel {
   };
 };
 
-TEST(DslinkTest, ServerTest) {
+TEST_F(DslinkTest, ServerTest) {
   shared_ptr<App> app = make_shared<App>();
 
   const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4120",
@@ -99,7 +101,7 @@ TEST(DslinkTest, ServerTest) {
   app->wait();
 }
 
-TEST(DslinkTest, CloseTest) {
+TEST_F(DslinkTest, CloseTest) {
   shared_ptr<App> app = make_shared<App>();
 
   // first create .close_token
