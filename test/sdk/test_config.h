@@ -47,9 +47,9 @@ class SetUpBase : public ::testing::Test {
     if (!strcmp(protocol, "dss")) {
       _protocol = dsa::ProtocolType::PROT_DSS;
     } else if (!strcmp(protocol, "ws")) {
-      _protocol = dsa::ProtocolType::PROT_DSS;
+      _protocol = dsa::ProtocolType::PROT_WS;
     } else if (!strcmp(protocol, "wss")) {
-      _protocol = dsa::ProtocolType::PROT_DSS;
+      _protocol = dsa::ProtocolType::PROT_WSS;
     }
   }
 
