@@ -93,11 +93,13 @@ TEST_F(DslinkTest, SubscribeMultiTest) {
   typedef link_subscribe_test::MockNode MockNode;
 
   auto app = make_shared<App>();
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
   MockNode *root_node = new MockNode(server_strand.strand);
   server_strand.strand->set_responder_model(ModelRef(root_node));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   // Create link
   auto link = server_strand.create_dslink();
@@ -145,6 +147,7 @@ TEST_F(DslinkTest, SubscribeMultiTest) {
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_dslink_in_strand(link);
 
   server_strand.destroy();

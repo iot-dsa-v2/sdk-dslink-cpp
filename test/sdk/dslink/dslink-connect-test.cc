@@ -18,13 +18,16 @@ using DslinkTest = SetUpBase;
 TEST_F(DslinkTest, ConnectTest) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   server_strand.strand->set_responder_model(
       make_ref_<NodeModel>(server_strand.strand->get_ref()));
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   auto link = server_strand.create_dslink(true);
 
@@ -61,6 +64,7 @@ TEST_F(DslinkTest, ConnectTest) {
   ASYNC_EXPECT_TRUE(2000, *link->strand, [&]() { return step >= 3; });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_dslink_in_strand(link);
 
   ASYNC_EXPECT_TRUE(1000, *link.get()->strand, [&]() -> bool {
