@@ -1,13 +1,23 @@
 #ifndef DSA_TEST_MODULES_H
 #define DSA_TEST_MODULES_H
 
-#include "dslink.h"
 #include "core/editable_strand.h"
+#include "dslink.h"
+
+#include <gtest/gtest.h>
+#include <string>
 
 namespace dsa {
 
 class App;
 class Client;
+
+enum class ProtocolType : uint8_t {
+  PROT_DS = 0x00,
+  PROT_DSS = 0x10,
+  PROT_WS = 0x01,
+  PROT_WSS = 0x11,
+};
 
 class TestConfig : public WrapperStrand {
  private:
@@ -22,7 +32,33 @@ class TestConfig : public WrapperStrand {
   ref_<DsLink> create_dslink(bool async = true);
 };
 
-void destroy_client_in_strand(ref_<Client> &client);
-void destroy_dslink_in_strand(ref_<DsLink> &dslink);
+void destroy_client_in_strand(ref_<Client>& client);
+void destroy_dslink_in_strand(ref_<DsLink>& dslink);
 }
+
+class SetUpBase : public ::testing::Test {
+ protected:
+  SetUpBase() : _protocol(dsa::ProtocolType::PROT_DS) {}
+
+  virtual void SetUp() {
+    const char* protocol = std::getenv("COM_PROTOCOL");
+    if (protocol == nullptr) return;
+
+    if (!strcmp(protocol, "dss")) {
+      _protocol = dsa::ProtocolType::PROT_DSS;
+    } else if (!strcmp(protocol, "ws")) {
+      _protocol = dsa::ProtocolType::PROT_DSS;
+    } else if (!strcmp(protocol, "wss")) {
+      _protocol = dsa::ProtocolType::PROT_DSS;
+    }
+  }
+
+  // virtual void TearDown() {}
+
+  const dsa::ProtocolType protocol() const { return _protocol; }
+
+ private:
+  dsa::ProtocolType _protocol;
+};
+
 #endif  // PROJECT_TEST_MODULES_H
