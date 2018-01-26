@@ -12,9 +12,12 @@
 #include "module/logger.h"
 
 #include "../../sdk/async_test.h"
+#include "../../sdk/test_config.h"
 #include "dslink.h"
 
 using namespace dsa;
+
+using BrokerPageTest = SetUpBase;
 
 static const int32_t big_str_size = 100000;
 
@@ -35,7 +38,7 @@ class MockNodeRoot : public NodeModel {
 Var MockNodeRoot::last_request;
 }
 
-TEST(BrokerPageTest, InvokeRequest) {
+TEST_F(BrokerPageTest, InvokeRequest) {
   typedef broker_page_test::MockNodeRoot MockNodeRoot;
 
   string_ big_str1;
@@ -50,7 +53,7 @@ TEST(BrokerPageTest, InvokeRequest) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker);
+  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
