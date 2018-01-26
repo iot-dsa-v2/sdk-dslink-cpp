@@ -3,6 +3,7 @@
 
 #include "core/editable_strand.h"
 #include "dslink.h"
+#include "web_server/web_server.h"
 
 #include <gtest/gtest.h>
 #include <string>
@@ -22,13 +23,16 @@ enum class ProtocolType : uint8_t {
 class TestConfig : public WrapperStrand {
  private:
   std::shared_ptr<App> app;
+  dsa::ProtocolType protocol;
 
  public:
-  explicit TestConfig(std::shared_ptr<App>& app, bool async = false);
+  explicit TestConfig(std::shared_ptr<App>& app, bool async = false,
+                      dsa::ProtocolType protocol = dsa::ProtocolType::PROT_DS);
 
   WrapperStrand get_client_wrapper_strand();
 
   std::shared_ptr<TcpServer> create_server();
+  std::shared_ptr<WebServer> create_webserver();
   ref_<DsLink> create_dslink(bool async = true);
 };
 

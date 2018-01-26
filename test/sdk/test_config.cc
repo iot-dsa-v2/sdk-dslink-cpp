@@ -9,6 +9,7 @@
 #include "module/default/simple_session_manager.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
+#include "network/ws/ws_callback.h"
 #include "util/app.h"
 #include "util/certificate.h"
 
@@ -19,10 +20,12 @@
 
 namespace dsa {
 
-TestConfig::TestConfig(std::shared_ptr<App> &app, bool async)
+TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
+                       dsa::ProtocolType protocol)
     : WrapperStrand() {
   this->app = app;
   strand = EditableStrand::make_default(app);
+  this->protocol = protocol;
 
   tcp_server_port = 0;
   // tcp_secure_port = 4128;
@@ -66,10 +69,24 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
     throw "There is no server to connect right now. Please create a server first";
   }
 
-  std::string address =
-        std::string("ds://127.0.0.1:") + std::to_string(tcp_server_port);
-  //    std::string("dss://127.0.0.1:") + std::to_string(tcp_secure_port);
-  //    std::string("ws://127.0.0.1:") + std::to_string(8080);
+  std::string address;
+
+  switch (protocol) {
+    case dsa::ProtocolType::PROT_DSS:
+      address.assign(std::string("dss://127.0.0.1:") +
+                     std::to_string(tcp_secure_port));
+      break;
+    case dsa::ProtocolType::PROT_WS:
+      address.assign(std::string("ws://127.0.0.1:") + std::to_string(ws_port));
+      break;
+    case dsa::ProtocolType::PROT_WSS:
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      break;
+    case dsa::ProtocolType::PROT_DS:
+    default:
+      address.assign(std::string("ds://127.0.0.1:") +
+                     std::to_string(tcp_server_port));
+  }
 
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
@@ -84,6 +101,25 @@ std::shared_ptr<TcpServer> TestConfig::create_server() {
   tcp_server_port = tcp_server->get_port();
   tcp_secure_port = tcp_server->get_secure_port();
   return tcp_server;
+}
+
+std::shared_ptr<WebServer> TestConfig::create_webserver() {
+  shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
+  uint16_t http_port = 8080;
+  web_server->listen(http_port);
+  static WebServer::WsCallback root_cb = [this](
+      WebServer &web_server, boost::asio::ip::tcp::socket &&socket,
+      boost::beast::http::request<boost::beast::http::string_body> req) {
+    LinkStrandRef link_strand(strand);
+    DsaWsCallback dsa_ws_callback(link_strand);
+    return dsa_ws_callback(web_server.io_service(), std::move(socket),
+                           std::move(req));
+  };
+
+  // TODO - websocket callback setup
+  web_server->add_ws_handler("/", std::move(root_cb));
+
+  return web_server;
 }
 
 void destroy_client_in_strand(ref_<Client> &client) {
