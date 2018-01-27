@@ -8,6 +8,7 @@
 #include <boost/asio/ip/tcp.hpp>
 
 #include <memory>
+#include <mutex>
 
 namespace dsa {
 
@@ -20,7 +21,8 @@ class Listener : public std::enable_shared_from_this<Listener> {
   uint16_t _port;
   std::shared_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   std::shared_ptr<HttpConnection> _next_connection;
-
+  std::mutex _mutex;
+  bool _destroyed = false;
  public:
   Listener(WebServer& web_server, uint16_t port);
   ~Listener();
