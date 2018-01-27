@@ -80,7 +80,7 @@ static void update_ts(std::chrono::system_clock::time_point now) {
   char tz[5];
   sprintf(tz, "%s%02i:%02i", posOffset ? "+" : "-", hourOffset, minOffset);
   sprintf(buf, "%02i-%02i-%02iT%02i:%02i:%02i.%03lli%s", localt.tm_year + 1900,
-          localt.tm_mon, localt.tm_mday, localt.tm_hour, localt.tm_min,
+          (localt.tm_mon + 1), localt.tm_mday, localt.tm_hour, localt.tm_min,
           localt.tm_sec,
           std::chrono::duration_cast<std::chrono::milliseconds>(
               now.time_since_epoch())
