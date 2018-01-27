@@ -38,7 +38,7 @@
       "generator": "Visual Studio 15 2017 Win64",
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\build\\${name}",
-      "cmakeCommandArgs": "",
+      "cmakeCommandArgs": "-DDSA_INCLUDE_TEST=ON",
       "buildCommandArgs": "-m -v:minimal",
       "ctestCommandArgs": "",
       "variables": [
@@ -54,7 +54,7 @@
       "generator": "Visual Studio 15 2017 Win64",
       "configurationType": "Release",
       "buildRoot": "${projectDir}\\build\\${name}",
-      "cmakeCommandArgs": "",
+      "cmakeCommandArgs": "-DDSA_INCLUDE_TEST=ON",
       "buildCommandArgs": "-m -v:minimal",
       "ctestCommandArgs": "",
       "variables": [
@@ -70,7 +70,7 @@
       "generator": "Visual Studio 15 2017 Win64",
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\build\\${name}",
-      "cmakeCommandArgs": "",
+      "cmakeCommandArgs": "-DDSA_INCLUDE_TEST=ON",
       "buildCommandArgs": "-m -v:minimal",
       "ctestCommandArgs": "",
       "variables": [
