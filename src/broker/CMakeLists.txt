@@ -13,7 +13,7 @@ set(BROKER_LIBS dsa_sdk ${BROKER_LIBS})
 
 
 
-set(SOURCES broker_main.cc
+set(SOURCES
         broker.cc
         config/broker_config.cc
         config/broker_config_item.cc

@@ -1,6 +1,5 @@
 
 
-set(TEST_LIBS ${GTEST_LIBRARIES})
 
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
