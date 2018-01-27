@@ -10,6 +10,8 @@
 
 using namespace dsa;
 
+using ResponderTest = SetUpBase;
+
 class MockNode : public NodeModelBase {
  public:
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
@@ -68,17 +70,20 @@ class MockNodeListRoot_0 : public NodeModelBase {
   }
 };
 
-TEST(ResponderTest, ModelAddChild) {
+TEST_F(ResponderTest, ModelAddChild) {
   auto app = std::make_shared<App>();
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
   server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -101,6 +106,7 @@ TEST(ResponderTest, ModelAddChild) {
   wait_for_bool(25, [&]() -> bool { return false; });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
@@ -116,10 +122,10 @@ TEST(ResponderTest, ModelAddChild) {
   app->wait();
 }
 
-TEST(ResponderTest, ModelGetChild) {
+TEST_F(ResponderTest, ModelGetChild) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
@@ -128,6 +134,9 @@ TEST(ResponderTest, ModelGetChild) {
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -148,6 +157,7 @@ TEST(ResponderTest, ModelGetChild) {
   EXPECT_NE(nullptr, child_node);
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
@@ -162,10 +172,10 @@ TEST(ResponderTest, ModelGetChild) {
   app->wait();
 }
 
-TEST(ResponderTest, ModelSetValue) {
+TEST_F(ResponderTest, ModelSetValue) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
@@ -174,6 +184,9 @@ TEST(ResponderTest, ModelSetValue) {
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -215,6 +228,7 @@ TEST(ResponderTest, ModelSetValue) {
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return subs_resp == 3; });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();

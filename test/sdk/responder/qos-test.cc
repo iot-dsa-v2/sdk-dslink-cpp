@@ -17,6 +17,8 @@ using time_point = std::chrono::high_resolution_clock::time_point;
 
 using namespace dsa;
 
+using ResponderTest = SetUpBase;
+
 class MockNodeQos : public NodeModelBase {
  public:
   explicit MockNodeQos(LinkStrandRef strand)
@@ -32,10 +34,10 @@ class MockNodeQos : public NodeModelBase {
   }
 };
 
-TEST(ResponderTest, QosQueueSizeTest) {
+TEST_F(ResponderTest, QosQueueSizeTest) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   MockNodeQos *root_node = new MockNodeQos(server_strand.strand);
 
@@ -43,6 +45,9 @@ TEST(ResponderTest, QosQueueSizeTest) {
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -78,6 +83,7 @@ TEST(ResponderTest, QosQueueSizeTest) {
   EXPECT_LE(msg_count, 3);
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();

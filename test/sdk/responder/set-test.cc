@@ -17,6 +17,8 @@
 
 using namespace dsa;
 
+using ResponderTest = SetUpBase;
+
 namespace responder_set_test {
 
 /// define a node for the responder
@@ -57,11 +59,11 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 };
 }
 
-TEST(ResponderTest, SetModel) {
+TEST_F(ResponderTest, SetModel) {
   typedef responder_set_test::MockNode MockNode;
   auto app = std::make_shared<App>();
   // get the configs for unit testing
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
@@ -69,6 +71,9 @@ TEST(ResponderTest, SetModel) {
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -136,6 +141,7 @@ TEST(ResponderTest, SetModel) {
       (*list_map)["@attr"].to_string() == "world");
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
@@ -151,18 +157,21 @@ TEST(ResponderTest, SetModel) {
   app->wait();
 }
 
-TEST(ResponderTest, SetAcceptor) {
+TEST_F(ResponderTest, SetAcceptor) {
   typedef responder_set_test::MockStreamAcceptor MockStreamAcceptor;
   auto app = std::make_shared<App>();
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
   server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -200,6 +209,7 @@ TEST(ResponderTest, SetAcceptor) {
                     [&]() -> bool { return last_response != nullptr; });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();

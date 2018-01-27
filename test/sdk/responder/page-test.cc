@@ -17,12 +17,14 @@
 
 using namespace dsa;
 
+using ResponderTest = SetUpBase;
+
 static const int32_t big_str_size = 100000;
 
-TEST(ResponderTest, PagedInvokeRequest) {
+TEST_F(ResponderTest, PagedInvokeRequest) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
   Var last_request;
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
       server_strand.strand->get_ref(),
@@ -36,6 +38,9 @@ TEST(ResponderTest, PagedInvokeRequest) {
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -91,6 +96,7 @@ TEST(ResponderTest, PagedInvokeRequest) {
   });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
@@ -106,10 +112,10 @@ TEST(ResponderTest, PagedInvokeRequest) {
   app->wait();
 }
 
-TEST(ResponderTest, PagedInvokeResponse) {
+TEST_F(ResponderTest, PagedInvokeResponse) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   string_ big_str1;
   big_str1.resize(big_str_size);
@@ -131,6 +137,9 @@ TEST(ResponderTest, PagedInvokeResponse) {
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -177,6 +186,7 @@ TEST(ResponderTest, PagedInvokeResponse) {
   });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
@@ -192,10 +202,10 @@ TEST(ResponderTest, PagedInvokeResponse) {
   app->wait();
 }
 
-TEST(ResponderTest, PagedSubscribeResponse) {
+TEST_F(ResponderTest, PagedSubscribeResponse) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   string_ big_str1;
   big_str1.resize(big_str_size);
@@ -212,6 +222,9 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -254,6 +267,7 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
@@ -269,10 +283,10 @@ TEST(ResponderTest, PagedSubscribeResponse) {
   app->wait();
 }
 
-TEST(ResponderTest, PagedSetRequest) {
+TEST_F(ResponderTest, PagedSetRequest) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   string_ big_str1;
   big_str1.resize(big_str_size);
@@ -289,6 +303,9 @@ TEST(ResponderTest, PagedSetRequest) {
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -326,6 +343,7 @@ TEST(ResponderTest, PagedSetRequest) {
   });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
