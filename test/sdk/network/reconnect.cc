@@ -10,11 +10,15 @@
 #include "module/logger.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
+#include "network/ws/ws_client_connection.h"
 #include "responder/node_model.h"
+#include "web_server/web_server.h"
 
 #include <gtest/gtest.h>
 
 using namespace dsa;
+
+using NetworkTest = SetUpBase;
 
 namespace network_reconnect_test {
 
@@ -29,12 +33,12 @@ class MockNode : public NodeModel {
   };
 };
 }
-TEST(NetworkTest, ReConnect) {
+TEST_F(NetworkTest, ReConnect) {
   typedef network_reconnect_test::MockNode MockNode;
 
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
@@ -43,17 +47,39 @@ TEST(NetworkTest, ReConnect) {
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
 
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
+
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
   shared_ptr_<Connection> connection;
-  client_strand.client_connection_maker = [
-    &connection, dsid_prefix = client_strand.dsid_prefix,
-    tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
-  ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-    connection = make_shared_<TcpClientConnection>(strand, dsid_prefix,
-                                                   tcp_host, tcp_port);
-    return connection;
-  };
+
+  switch (protocol()) {
+    case dsa::ProtocolType::PROT_DSS:
+      break;
+    case dsa::ProtocolType::PROT_WS:
+      client_strand.client_connection_maker = [
+        &connection, dsid_prefix = client_strand.dsid_prefix,
+        ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        connection = make_shared_<WsClientConnection>(strand, dsid_prefix,
+                                                      ws_host, ws_port);
+        return connection;
+      };
+      break;
+    case dsa::ProtocolType::PROT_WSS:
+      break;
+    case dsa::ProtocolType::PROT_DS:
+    default:
+      client_strand.client_connection_maker = [
+        &connection, dsid_prefix = client_strand.dsid_prefix,
+        tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        connection = make_shared_<TcpClientConnection>(strand, dsid_prefix,
+                                                       tcp_host, tcp_port);
+        return connection;
+      };
+  }
 
   auto client = make_ref_<Client>(client_strand);
   client->connect();
@@ -113,6 +139,7 @@ TEST(NetworkTest, ReConnect) {
 
   // close everything
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(client);
 
   server_strand.destroy();

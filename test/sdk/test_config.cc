@@ -10,6 +10,7 @@
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
+#include "network/ws/ws_client_connection.h"
 #include "util/app.h"
 #include "util/certificate.h"
 
@@ -53,13 +54,38 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
   copy.strand = EditableStrand::make_default(app);
   copy.strand->logger().level = strand->logger().level;
-  copy.client_connection_maker = [
-    dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
-    tcp_port = copy.tcp_port
-  ](LinkStrandRef & strand) {
-    return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                             tcp_port);
-  };
+
+  switch (protocol) {
+    case dsa::ProtocolType::PROT_DSS:
+      break;
+    case dsa::ProtocolType::PROT_WS:
+
+      copy.ws_host = "127.0.0.1";
+      // TODO: ws_port and ws_path
+      copy.ws_port = 8080;
+      copy.ws_path = "/";
+
+      copy.client_connection_maker = [
+        dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
+        ws_port = copy.ws_port
+      ](LinkStrandRef & strand) {
+        return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
+                                                ws_port);
+      };
+
+      break;
+    case dsa::ProtocolType::PROT_WSS:
+      break;
+    case dsa::ProtocolType::PROT_DS:
+    default:
+      copy.client_connection_maker = [
+        dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
+        tcp_port = copy.tcp_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
+                                                 tcp_port);
+      };
+  }
 
   return std::move(copy);
 }
@@ -77,7 +103,9 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
                      std::to_string(tcp_secure_port));
       break;
     case dsa::ProtocolType::PROT_WS:
-      address.assign(std::string("ws://127.0.0.1:") + std::to_string(ws_port));
+      // TODO address.assign(std::string("ws://127.0.0.1:") +
+      // std::to_string(ws_port));
+      address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_WSS:
       address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
