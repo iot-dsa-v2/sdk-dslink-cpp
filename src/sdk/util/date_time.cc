@@ -2,6 +2,7 @@
 
 #include "date_time.h"
 
+#include <string.h>
 #include <chrono>
 #include <iomanip>
 
