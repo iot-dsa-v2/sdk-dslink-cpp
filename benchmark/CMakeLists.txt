@@ -8,8 +8,10 @@ include_directories("../src/sdk")
 include_directories("../include")
 
 #
-set(BENCHMARK_LIBS gtest_main dsa_sdk ${BENCHMARK_LIBS})
-
+set(BENCHMARK_LIBS dsa_sdk ${BENCHMARK_LIBS})
+if (UNIX)
+    set(BENCHMARK_LIBS gtest_main ${BENCHMARK_LIBS})
+endif ()
 
 #
 foreach (name "throughput"

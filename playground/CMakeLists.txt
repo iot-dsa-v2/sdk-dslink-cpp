@@ -13,7 +13,10 @@ include_directories("../include")
 
 
 # TESTS
-set(TEST_LIBS gtest_main dsa_sdk ${TEST_LIBS})
+set(TEST_LIBS dsa_sdk ${TEST_LIBS})
+if (UNIX)
+    set(TEST_LIBS gtest_main ${TEST_LIBS})
+endif ()
 
 
 set(TARGET_NAME "playground")
