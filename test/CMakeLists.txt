@@ -13,11 +13,7 @@ include_directories("../include")
 add_subdirectory("./sdk")
 
 # TESTS
-set(TEST_LIBS dsa_sdk ${TEST_LIBS})
-if (UNIX)
-    set(TEST_LIBS gtest_main ${TEST_LIBS})
-endif ()
-
+set(TEST_LIBS dsa_sdk ${GTEST_BOTH_LIBRARIES} ${TEST_LIBS})
 
 set(TARGET_NAME "dsa-test")
 

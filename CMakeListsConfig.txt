@@ -95,6 +95,8 @@ if (UNIX)
     #if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
     #endif()
+
+    set(GTEST_BOTH_LIBRARIES gtest_main)
 endif (UNIX)
 
 if (WIN32)
