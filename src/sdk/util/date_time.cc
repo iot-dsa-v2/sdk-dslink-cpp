@@ -2,7 +2,6 @@
 
 #include "date_time.h"
 
-#include <string.h>
 #include <chrono>
 #include <iomanip>
 
@@ -17,7 +16,7 @@
 
 namespace dsa {
 
-static const size_t TS_SIZE = strlen("0000-00-00T00:00:00.000+00:00");
+static const size_t TS_SIZE = sizeof("0000-00-00T00:00:00.000+00:00") - 1;
 
 #ifndef __MINGW32__  // if not mingw
 
