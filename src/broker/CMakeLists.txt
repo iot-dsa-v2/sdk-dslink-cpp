@@ -20,7 +20,6 @@ set(SOURCES broker_main.cc
         broker.cc
         config/broker_config.cc
         config/broker_config_item.cc
-        config/module_loader.cc
         module/broker_client_manager.cc
         module/broker_authorizer.cc
         module/module_broker_default.cc

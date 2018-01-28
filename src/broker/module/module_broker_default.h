@@ -9,7 +9,7 @@
 
 namespace dsa {
 
-class ModuleBrokerDefault: Module {
+class ModuleBrokerDefault: public Module {
 
  protected:
   ref_<Storage> create_storage(App& app, ref_<LinkStrand> strand) override;

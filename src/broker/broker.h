@@ -5,6 +5,7 @@
 #pragma once
 #endif
 
+#include <module/module.h>
 #include "core/editable_strand.h"
 #include "core/session.h"
 
@@ -25,7 +26,7 @@ class DsBroker final : public WrapperStrand {
   string_ _close_token;
 
  public:
-  DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
+  DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&&  modules,
            const shared_ptr_<App>& app = nullptr);
   ~DsBroker() final;
 
@@ -47,7 +48,7 @@ class DsBroker final : public WrapperStrand {
   ref_<BrokerConfig> _config;
   // initialization
 
-  void init(ModuleLoader& modules);
+  void init(ref_<Module>&&  modules);
   void destroy_impl() final;
 
  public:

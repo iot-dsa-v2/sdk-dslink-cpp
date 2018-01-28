@@ -14,12 +14,10 @@ class DsBroker;
 
 class BrokerClientManager : public ClientManager {
   friend class DsBroker;
-  // TODO remove this
-  friend class ModuleLoader;
 
  protected:
   LinkStrandRef _strand;
-  void set_strand(LinkStrandRef strand) { _strand = std::move(strand); }
+  void set_strand(LinkStrandRef strand) override { _strand = std::move(strand); }
 
  public:
   BrokerClientManager() = default;

@@ -5,7 +5,6 @@
 #include "dsa/stream.h"
 #include <broker.h>
 #include <config/broker_config.h>
-#include <config/module_loader.h>
 #include <module/default/console_logger.h>
 #include <util/string.h>
 #include "../sdk/async_test.h"

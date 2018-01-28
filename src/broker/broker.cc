@@ -4,7 +4,6 @@
 
 #include <util/string.h>
 #include "config/broker_config.h"
-#include "config/module_loader.h"
 #include "module/broker_authorizer.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
@@ -18,16 +17,17 @@
 #include "util/app.h"
 #include "util/string.h"
 #include "web_server/web_server.h"
+#include "module/broker_client_manager.h"
 
 namespace dsa {
-DsBroker::DsBroker(ref_<BrokerConfig>&& config, ModuleLoader& modules,
+DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&&  modules,
                    const shared_ptr_<App>& app)
     : _config(std::move(config)), _app(app) {
-  init(modules);
+  init(std::move(modules));
 }
 DsBroker::~DsBroker() {}
 
-void DsBroker::init(ModuleLoader& modules) {
+void DsBroker::init(ref_<Module>&&  modules) {
   if (_app == nullptr) {
     // init app
     size_t thread =
@@ -52,14 +52,18 @@ void DsBroker::init(ModuleLoader& modules) {
   strand.reset(new EditableStrand(
       _app->new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
+  modules->init_all(*_app, strand);
+
   // init logger
-  auto logger = modules.new_logger(*_app, strand);
+  auto logger = modules->get_logger();
   logger->level = Logger::parse(_config->log_level().get_value().to_string());
   strand->set_logger(std::move(logger));
 
   // init security manager
-  strand->set_client_manager(modules.new_client_manager(*_app, strand));
-  // TODO implement default module loader
+  auto client_manager = modules->get_client_manager();
+  client_manager->set_strand(strand);
+  strand->set_client_manager(client_manager);
+
   auto authorizer = make_ref_<BrokerAuthorizer>();
   authorizer->set_strand(strand);
   strand->set_authorizer(std::move(authorizer));

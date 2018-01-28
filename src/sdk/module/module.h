@@ -44,6 +44,7 @@ class Module : public DestroyableRef<Module> {
 
  public:
   Module();
+  virtual ~Module() = default;
 
 };
 }

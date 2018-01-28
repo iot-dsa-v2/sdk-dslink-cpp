@@ -25,6 +25,9 @@ class ClientManager : public DestroyableRef<ClientManager> {
   virtual void get_client(const string_& dsid, const string_& auth_token,
                           GetClientCallback&& callback) = 0;
 
+  virtual void set_strand(LinkStrandRef strand){};
+
+
   virtual ~ClientManager(){};
 };
 
