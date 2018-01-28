@@ -10,6 +10,7 @@
 #include "core/session.h"
 #include "list_merger.h"
 #include "subscribe_merger.h"
+#include "module/module.h"
 
 namespace dsa {
 class App;
@@ -42,6 +43,8 @@ class DsLink final : public WrapperStrand {
   ref_<Client> _client;
   ref_<LinkRoot> _root;
 
+  uint8_t log_level_from_settings;
+
   string_ close_token;
 
   bool _running = false;
@@ -57,9 +60,9 @@ class DsLink final : public WrapperStrand {
  public:
   // init raw responder root node, the dslink won't have the default standard
   // node structure
-  void init_responder_raw(ref_<NodeModelBase> &&root_node);
+  void init_responder_raw(ref_<NodeModelBase> &&root_node, ref_<Module>&& module = nullptr);
   // init the responder's main node;
-  void init_responder(ref_<NodeModelBase> &&main_node = nullptr);
+  void init_responder(ref_<NodeModelBase> &&main_node = nullptr, ref_<Module>&& module = nullptr);
   template <class NodeClass>
   void init_responder() {
     init_responder(make_ref_<NodeClass>(strand));

@@ -1,5 +1,11 @@
-#include "dsa/responder.h"
 #include "dslink.h"
+
+#include "dsa/responder.h"
+
+#include "module/storage.h"
+#include "module/default/console_logger.h"
+#include "module/client_manager.h"
+#include "module/authorizer.h"
 
 #include <iostream>
 

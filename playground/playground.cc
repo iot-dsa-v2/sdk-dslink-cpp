@@ -5,8 +5,16 @@
 #include <gtest/gtest.h>
 #include "../test/sdk/async_test.h"
 #include "../test/sdk/test_config.h"
-#include "module/logger.h"
 #include "network/tcp/tcp_server.h"
+
+#include "module/default/simple_security.h"
+#include "module/default/simple_session_manager.h"
+#include "module/default/console_logger.h"
+
+#include "module/logger.h"
+#include "module/storage.h"
+#include "module/client_manager.h"
+#include "module/authorizer.h"
 
 using namespace dsa;
 

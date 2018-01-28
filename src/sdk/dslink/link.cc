@@ -7,6 +7,7 @@
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <regex>
+#include <module/default/module_dslink_default.h>
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
@@ -91,7 +92,15 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
-  parse_log(variables["log"].as<string_>(), *strand);
+
+  // Adapted from parse_logger
+  // Until we get module version we are using default one
+  auto log = variables["log"].as<string_>();
+  auto logger = make_ref_<ConsoleLogger>();
+  log_level_from_settings = Logger::parse(log);
+  logger->level = log_level_from_settings;
+  strand->set_logger(std::move(logger));
+
   parse_server_port(variables["server-port"].as<uint16_t>());
 
   LOG_TRACE(strand.get()->logger(), LOG << "DSLink initialized successfully");
@@ -153,6 +162,13 @@ void DsLink::parse_thread(size_t thread) {
   }
   _app.reset(new App(thread));
 }
+
+void DsLink::parse_log(const string_ &log, EditableStrand &config) {
+  auto logger = make_ref_<ConsoleLogger>();
+  logger->level = Logger::parse(log);
+  config.set_logger(std::move(logger));
+}
+
 void DsLink::parse_url(const string_ &url) {
   static std::regex url_regex(
       R"(^(ds://|dss://|ws://|wss://)?([^/:\[]+|\[[0-9A-Fa-f:]+\])(:\d+)?(/.*)?$)");
@@ -191,26 +207,30 @@ void DsLink::parse_url(const string_ &url) {
   }
 }
 
-void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto logger = make_ref_<ConsoleLogger>();
-  logger->level = Logger::parse(log);
-  config.set_logger(std::move(logger));
-}
+
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
-void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node) {
+void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node, ref_<Module>&& module) {
+  if(module == nullptr) module = make_ref_<ModuleDslinkDefault>();
+  module->init_all(*_app, strand);
+
+  strand->set_client_manager(module->get_client_manager());
+  strand->set_authorizer(module->get_authorizer());
+
+  auto logger = module->get_logger();
+  logger->level = log_level_from_settings;
+  strand->set_logger(logger);
+
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
-  strand->set_client_manager(make_ref_<SimpleClientManager>());
-  strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
   strand->set_responder_model(std::move(root_node));
 }
-void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
+void DsLink::init_responder(ref_<NodeModelBase> &&main_node, ref_<Module>&& module) {
   _root = make_ref_<LinkRoot>(strand->get_ref(), get_ref());
   if (main_node != nullptr) {
     _root->set_main(std::move(main_node));
   }
-  init_responder_raw(_root->get_ref());
+  init_responder_raw(_root->get_ref(), std::move(module));
 }
 
 ref_<NodeModelBase> DsLink::add_to_main_node(const string_ &name,
