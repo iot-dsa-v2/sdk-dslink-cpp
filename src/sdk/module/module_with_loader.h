@@ -18,7 +18,7 @@ class ModuleWithLoader : public Module {
   ref_<Module> _default_module;
 
   // The loaded modules from file
-  std::vector<ref_<Module>> _modules;
+  std::vector<boost::shared_ptr<Module>> _modules;
 
  protected:
   ref_<Storage> create_storage(App& app, ref_<LinkStrand> strand) override;

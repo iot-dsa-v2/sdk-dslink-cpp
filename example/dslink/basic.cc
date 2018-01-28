@@ -8,6 +8,9 @@
 #include "module/authorizer.h"
 
 #include <iostream>
+#include <module/module_with_loader.h>
+#include <module/module_with_loader.h>
+#include <module/default/module_dslink_default.h>
 
 using namespace dsa;
 using namespace std;
@@ -33,7 +36,7 @@ class ExampleNodeRoot : public NodeModel {
 
 int main(int argc, const char* argv[]) {
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
-  link->init_responder<ExampleNodeRoot>();
+  link->init_responder<ExampleNodeRoot>(make_ref_<ModuleWithLoader>("./modules", make_ref_<ModuleDslinkDefault>()));
   // link->run();
 
   // add a callback when connected to broker

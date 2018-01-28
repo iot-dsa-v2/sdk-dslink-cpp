@@ -9,7 +9,7 @@
 
 
 #include <boost/dll/import.hpp>
-
+#include <iostream>
 
 namespace dsa{
 
@@ -37,14 +37,15 @@ ModuleWithLoader::ModuleWithLoader(bf::path lib_path, ref_<Module> &&default_mod
     }
   }
 
-  // TODO: create Module objects
+  for(auto module_path:module_paths){
+    try {
+      auto module = boost::dll::import<Module>( module_path, "module");
+      _modules.push_back(module);
+    } catch (int e) {
+      std::cout << "Exception while loading " << module_path << std::endl;
+    }
 
-//  // we found our shared lib, get create function from it
-//  try {
-//    return boost::dll::import_alias<T>(shared_library_path, function_name);
-//  } catch (int e) {
-//    std::cout << "Exception while loading " << module_name << std::endl;
-//  }
+  }
 }
 
 

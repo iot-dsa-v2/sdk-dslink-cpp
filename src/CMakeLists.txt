@@ -9,6 +9,4 @@ if(INCLUDE_BROKER)
   add_subdirectory("${PROJECT_SOURCE_DIR}/broker")
 endif()
 
-if(INCLUDE_MODULE_PACK)
   add_subdirectory("${PROJECT_SOURCE_DIR}/module_pack")
-endif()

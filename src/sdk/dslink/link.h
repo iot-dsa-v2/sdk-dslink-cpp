@@ -64,8 +64,8 @@ class DsLink final : public WrapperStrand {
   // init the responder's main node;
   void init_responder(ref_<NodeModelBase> &&main_node = nullptr, ref_<Module>&& module = nullptr);
   template <class NodeClass>
-  void init_responder() {
-    init_responder(make_ref_<NodeClass>(strand));
+  void init_responder(ref_<Module>&& module = nullptr) {
+    init_responder(make_ref_<NodeClass>(strand), std::move(module));
   }
 
   ref_<NodeModelBase> add_to_main_node(const string_ &name,
