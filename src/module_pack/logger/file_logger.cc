@@ -49,25 +49,10 @@ class FileLogger : public Logger {
 
 
 class FileLoggerModule: public Module{
-
- public:
-  FileLoggerModule():Module(){
-
-  }
-
  protected:
   ref_<Logger> create_logger(App& app, ref_<LinkStrand> strand) override{
     return make_ref_<FileLogger>("file_logger_logs.txt");
   }
-
-  ref_<Storage> create_storage(App &app, ref_<LinkStrand> strand) override {return nullptr;};
-  ref_<ClientManager> create_client_manager(App &app, ref_<LinkStrand> strand) override {return nullptr;};
-  ref_<Authorizer> create_authorizer(App &app, ref_<LinkStrand> strand) override {return nullptr;};
-
-  void init_all(App& app, ref_<LinkStrand> strand) override{};
-
-  void add_module_node() override{};
-  void add_web_handler() override{};
 };
 
 #include <boost/config.hpp>
