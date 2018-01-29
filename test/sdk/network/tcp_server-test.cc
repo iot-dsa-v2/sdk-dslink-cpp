@@ -12,12 +12,16 @@
 
 using namespace dsa;
 
-TEST(TcpServerTest, SingleThread) {
+using TcpServerTest = SetUpBase;
+
+TEST_F(TcpServerTest, SingleThread) {
   auto app = std::make_shared<App>(1);
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand config = server_strand.get_client_wrapper_strand();
   // use same config/strand for server and client
@@ -54,6 +58,7 @@ TEST(TcpServerTest, SingleThread) {
       }
 
       tcp_server->destroy_in_strand(tcp_server);
+      web_server->destroy();
       for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
         destroy_client_in_strand(clients[i]);
       }
@@ -68,12 +73,14 @@ TEST(TcpServerTest, SingleThread) {
   app->wait();
 }
 
-TEST(TcpServerTest, SingleStrand) {
+TEST_F(TcpServerTest, SingleStrand) {
   auto app = std::make_shared<App>();
 
-  TestConfig testConfig = TestConfig(app);
+  TestConfig testConfig = TestConfig(app, false, protocol());
   auto tcp_server = testConfig.create_server();
   tcp_server->start();
+  auto web_server = testConfig.create_webserver();
+  web_server->start();
 
   WrapperStrand config = testConfig.get_client_wrapper_strand();
   // use same config/strand for server and client
@@ -99,6 +106,7 @@ TEST(TcpServerTest, SingleStrand) {
 
   // close everything
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
     destroy_client_in_strand(clients[i]);
   }
@@ -116,13 +124,16 @@ TEST(TcpServerTest, SingleStrand) {
   app->wait();
 }
 
-TEST(TcpServerTest, MultiStrand) {
+TEST_F(TcpServerTest, MultiStrand) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -146,6 +157,7 @@ TEST(TcpServerTest, MultiStrand) {
 
   // close everything
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   for (unsigned int i = 0; i < NUM_CLIENT; ++i) {
     destroy_client_in_strand(clients[i]);
   }

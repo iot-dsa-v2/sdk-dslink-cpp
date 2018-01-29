@@ -24,6 +24,7 @@ Listener::Listener(WebServer& web_server, uint16_t port)
 }
 
 void Listener::run() {
+  std::lock_guard<std::mutex> lock(_mutex);
   _next_connection = make_shared_<HttpConnection>(_web_server);
 
   _acceptor->async_accept(_next_connection->socket(), [
@@ -33,6 +34,9 @@ void Listener::run() {
 
 void Listener::accept_loop(const boost::system::error_code& error) {
   if (!error) {
+    std::lock_guard<std::mutex> lock(_mutex);
+    if (_destroyed) return;
+
     _next_connection->accept();
 
     _next_connection = make_shared_<HttpConnection>(_web_server);
@@ -45,6 +49,9 @@ void Listener::accept_loop(const boost::system::error_code& error) {
 }
 
 void Listener::destroy() {
+  std::lock_guard<std::mutex> lock(_mutex);
+  if (_destroyed) return;
+  _destroyed = true;
   if (_acceptor->is_open()) {
     _acceptor->close();
   }

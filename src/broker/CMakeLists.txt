@@ -9,14 +9,11 @@ set(BROKER_LIBS ${BROKER_LIBS} ${OPENSSL_LIBRARIES})
 include_directories("../sdk")
 
 #
-if (UNIX)
-    set(BROKER_LIBS dsa_sdk ${BROKER_LIBS} dl)
-else ()
-    set(BROKER_LIBS dsa_sdk ${BROKER_LIBS})
-endif ()
+set(BROKER_LIBS dsa_sdk ${BROKER_LIBS})
 
 
-set(SOURCES broker_main.cc
+
+set(SOURCES
         broker.cc
         config/broker_config.cc
         config/broker_config_item.cc

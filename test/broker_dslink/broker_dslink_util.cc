@@ -36,9 +36,26 @@ ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
 }
 
 
-ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_name, bool connect) {
-  std::string address =
-      std::string("127.0.0.1:") + std::to_string(port);
+ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_name, bool connect, dsa::ProtocolType protocol) {
+  std::string address;
+
+  switch (protocol) {
+    case dsa::ProtocolType::PROT_DSS:
+      address.assign(std::string("dss://127.0.0.1:") +
+                     std::to_string(port));
+      break;
+    case dsa::ProtocolType::PROT_WS:
+      // TODO address.assign(std::string("ws://127.0.0.1:") + std::to_string(ws_port));
+      address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
+      break;
+    case dsa::ProtocolType::PROT_WSS:
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(port));
+      break;
+    case dsa::ProtocolType::PROT_DS:
+    default:
+      address.assign(std::string("ds://127.0.0.1:") +
+                     std::to_string(port));
+  }
 
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
@@ -59,9 +76,26 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_na
   return link;
 }
 
-ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port, string_ dslink_name) {
-  std::string address =
-      std::string("127.0.0.1:") + std::to_string(port);
+ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port, string_ dslink_name, dsa::ProtocolType protocol) {
+  std::string address;
+
+  switch (protocol) {
+    case dsa::ProtocolType::PROT_DSS:
+      address.assign(std::string("dss://127.0.0.1:") +
+                     std::to_string(port));
+      break;
+    case dsa::ProtocolType::PROT_WS:
+      // TODO address.assign(std::string("ws://127.0.0.1:") + std::to_string(ws_port));
+      address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
+      break;
+    case dsa::ProtocolType::PROT_WSS:
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(port));
+      break;
+    case dsa::ProtocolType::PROT_DS:
+    default:
+      address.assign(std::string("ds://127.0.0.1:") +
+                     std::to_string(port));
+  }
 
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;

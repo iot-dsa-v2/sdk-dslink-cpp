@@ -9,6 +9,7 @@
 #include "module/broker_client_manager.h"
 #include "module/broker_authorizer.h"
 #include "network/tcp/tcp_client_connection.h"
+#include "network/ws/ws_client_connection.h"
 
 namespace dsa {
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
@@ -24,7 +25,8 @@ ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
 }
 
 WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
-                                        const string_& dsid_prefix) {
+                                        const string_& dsid_prefix,
+                                        dsa::ProtocolType protocol) {
   shared_ptr_<App>& app = broker->get_app();
 
   WrapperStrand client_strand;
@@ -36,13 +38,39 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
     client_strand.tcp_port = broker->get_active_server_port();
 
   client_strand.strand = EditableStrand::make_default(app);
-  client_strand.client_connection_maker = [
-    dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-    tcp_port = client_strand.tcp_port
-  ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-    return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                             tcp_port);
-  };
+
+  switch (protocol) {
+    case dsa::ProtocolType::PROT_DSS:
+      break;
+    case dsa::ProtocolType::PROT_WS:
+
+      client_strand.ws_host = "127.0.0.1";
+      // TODO: ws_port and ws_path
+      client_strand.ws_port = 8080;
+      client_strand.ws_path = "/";
+
+      client_strand.client_connection_maker = [
+        dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
+        ws_port = client_strand.ws_port
+      ](LinkStrandRef & strand) {
+        return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
+                                                ws_port);
+      };
+
+      break;
+    case dsa::ProtocolType::PROT_WSS:
+      break;
+    case dsa::ProtocolType::PROT_DS:
+    default:
+      client_strand.client_connection_maker = [
+        dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+        tcp_port = client_strand.tcp_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
+                                                 tcp_port);
+      };
+  }
+
   return std::move(client_strand);
 }
 }

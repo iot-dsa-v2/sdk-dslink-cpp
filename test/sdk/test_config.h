@@ -45,7 +45,7 @@ class SetUpBase : public ::testing::Test {
   SetUpBase() : _protocol(dsa::ProtocolType::PROT_DS) {}
 
   virtual void SetUp() {
-    const char* protocol = std::getenv("COM_PROTOCOL");
+    const char* protocol = std::getenv("DSA_TEST_PROTOCOL");
     if (protocol == nullptr) return;
 
     if (!strcmp(protocol, "dss")) {

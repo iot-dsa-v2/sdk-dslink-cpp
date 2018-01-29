@@ -37,6 +37,9 @@ class Logger: public DestroyableRef<Logger>{
   virtual void write_meta(std::ostream& stream, const char* level) = 0;
   virtual void log(const string_& str, uint8_t level) = 0;
   virtual ~Logger() = default;
+
+protected:
+ void destroy_impl() override;
 };
 }
 

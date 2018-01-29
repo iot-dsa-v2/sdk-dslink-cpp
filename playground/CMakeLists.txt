@@ -1,9 +1,5 @@
 
-if (WIN32)
-    find_package(GTest REQUIRED)
-endif (WIN32)
-include_directories(${GTEST_INCLUDE_DIRS})
-set(TEST_LIBS ${GTEST_LIBRARIES})
+
 
 include_directories(${Boost_INCLUDE_DIRS})
 set(TEST_LIBS ${TEST_LIBS} ${Boost_LIBRARIES})
@@ -17,11 +13,7 @@ include_directories("../include")
 
 
 # TESTS
-if (UNIX)
-    set(TEST_LIBS gtest_main dsa_sdk ${TEST_LIBS} dl)
-else ()
-    set(TEST_LIBS gtest_main dsa_sdk ${TEST_LIBS})
-endif ()
+set(TEST_LIBS dsa_sdk ${GTEST_BOTH_LIBRARIES} ${TEST_LIBS})
 
 set(TARGET_NAME "playground")
 

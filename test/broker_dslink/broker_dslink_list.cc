@@ -1,8 +1,9 @@
 
 #include "broker_dslink_util.h"
 
+using BrokerDsLinkTest = SetUpBase;
 
-TEST(BrokerDsLinkTest, RootSysSelfList) {
+TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   std::string close_token = "12345678901234567890123456789012";
   string_to_file(close_token, ".close_token");
 
@@ -13,7 +14,7 @@ TEST(BrokerDsLinkTest, RootSysSelfList) {
   broker->run();
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  auto link = broker_dslink_test::create_mock_dslink(app, broker->get_active_server_port(), "test1");
+  auto link = broker_dslink_test::create_mock_dslink(app, broker->get_active_server_port(), "test1", protocol());
 
   bool is_connected = false;
   link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
@@ -87,15 +88,15 @@ TEST(BrokerDsLinkTest, RootSysSelfList) {
 
 
 
-TEST(BrokerDsLinkTest, Disconnect) {
+TEST_F(BrokerDsLinkTest, Disconnect) {
 // First Create Broker
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  auto link_1 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test1");
-  auto link_2 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test2");
+  auto link_1 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test1", false, protocol());
+  auto link_2 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test2", false, protocol());
 
 // after client1 disconnected, list update should show it's disconnected
   auto step_3_disconnection_list = [&]() {

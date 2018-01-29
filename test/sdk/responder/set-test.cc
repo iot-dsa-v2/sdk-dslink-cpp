@@ -17,6 +17,8 @@
 
 using namespace dsa;
 
+using ResponderTest = SetUpBase;
+
 namespace responder_set_test {
 
 /// define a node for the responder
@@ -57,11 +59,11 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 };
 }
 
-TEST(ResponderTest, SetModel) {
+TEST_F(ResponderTest, SetModel) {
   typedef responder_set_test::MockNode MockNode;
   auto app = std::make_shared<App>();
   // get the configs for unit testing
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
@@ -69,6 +71,9 @@ TEST(ResponderTest, SetModel) {
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -88,10 +93,12 @@ TEST(ResponderTest, SetModel) {
 
   // list on root node
   ref_<const ListResponseMessage> last_list_response;
+  int list_response_count = 0;
   tcp_client->get_session().requester.list(
       "",
       [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
         last_list_response = msg;
+        ++list_response_count;
       });
 
   // set request to change value
@@ -104,20 +111,23 @@ TEST(ResponderTest, SetModel) {
   second_request->set_value(Var("world"));
 
   // send set request
-  tcp_client->get_strand().post([&]() { tcp_client->get_session().requester.set(
-      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
-      std::move(first_request));
+  tcp_client->get_strand().post([&]() {
+    tcp_client->get_session().requester.set(
+        [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
+        std::move(first_request));
   });
-  tcp_client->get_strand().post([&]() { tcp_client->get_session().requester.set(
-      [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
-      std::move(second_request));
+  ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
+    return last_subscribe_response != nullptr;
+  });
+  tcp_client->get_strand().post([&]() {
+    tcp_client->get_session().requester.set(
+        [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
+        std::move(second_request));
   });
 
   // wait until response of subscribe and list are received
-  ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
-                    [&]() -> bool { return last_list_response != nullptr; });
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
-    return last_subscribe_response != nullptr;
+    return list_response_count >= 2 && last_list_response != nullptr;
   });
 
   // check the subsciption response is same as the value set
@@ -128,9 +138,10 @@ TEST(ResponderTest, SetModel) {
   auto list_map = last_list_response->get_parsed_map();
 
   EXPECT_TRUE(list_map != nullptr &&
-              (*list_map)["@attr"].to_string() == "world");
+      (*list_map)["@attr"].to_string() == "world");
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();
@@ -146,18 +157,21 @@ TEST(ResponderTest, SetModel) {
   app->wait();
 }
 
-TEST(ResponderTest, SetAcceptor) {
+TEST_F(ResponderTest, SetAcceptor) {
   typedef responder_set_test::MockStreamAcceptor MockStreamAcceptor;
   auto app = std::make_shared<App>();
 
   MockStreamAcceptor *mock_stream_acceptor = new MockStreamAcceptor();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
   server_strand.strand->set_stream_acceptor(
       ref_<MockStreamAcceptor>(mock_stream_acceptor));
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
 
@@ -195,6 +209,7 @@ TEST(ResponderTest, SetAcceptor) {
                     [&]() -> bool { return last_response != nullptr; });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_client_in_strand(tcp_client);
 
   server_strand.destroy();

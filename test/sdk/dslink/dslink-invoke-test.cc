@@ -19,7 +19,7 @@ static const int32_t big_str_size = 100000;
 TEST_F(DslinkTest, PagedInvokeResponse) {
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   string_ big_str1;
   big_str1.resize(big_str_size);
@@ -40,6 +40,9 @@ TEST_F(DslinkTest, PagedInvokeResponse) {
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   // Create link
   auto link = server_strand.create_dslink();
@@ -78,6 +81,7 @@ TEST_F(DslinkTest, PagedInvokeResponse) {
   });
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_dslink_in_strand(link);
 
   server_strand.destroy();

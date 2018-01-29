@@ -47,7 +47,7 @@ TEST_F(DslinkTest, ListTest) {
 
   auto app = std::make_shared<App>();
 
-  TestConfig server_strand(app);
+  TestConfig server_strand(app, false, protocol());
 
   MockNodeRoot *root_node = new MockNodeRoot(server_strand.strand);
 
@@ -55,6 +55,9 @@ TEST_F(DslinkTest, ListTest) {
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
+
+  auto web_server = server_strand.create_webserver();
+  web_server->start();
 
   bool is_connected = false;
   auto link = server_strand.create_dslink(true);
@@ -121,6 +124,7 @@ TEST_F(DslinkTest, ListTest) {
   }
 
   tcp_server->destroy_in_strand(tcp_server);
+  web_server->destroy();
   destroy_dslink_in_strand(link);
 
   ASYNC_EXPECT_TRUE(1000, *link.get()->strand, [&]() -> bool {

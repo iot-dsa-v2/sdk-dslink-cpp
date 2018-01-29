@@ -101,7 +101,13 @@ ref_<NodeState> NodeState::find_child(const Path &path) {
   return ref_<NodeState>();
 }
 
-void NodeState::remove_child(const string_ &name) { _children.erase(name); }
+void NodeState::remove_child(const string_ &name) {
+  auto child_state = get_child(name, true);
+  if (child_state->get_model() != nullptr) {
+    child_state->destroy();
+  }
+  _children.erase(name);
+}
 
 void NodeState::set_model(ModelRef &&model) {
   if (model == nullptr) {

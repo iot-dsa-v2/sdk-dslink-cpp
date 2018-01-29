@@ -2,7 +2,9 @@
 
 using namespace dsa;
 
-TEST(BrokerDsLinkTest, Reconnect) {
+using BrokerDsLinkTest = SetUpBase;
+
+TEST_F(BrokerDsLinkTest, Reconnect) {
   auto app = make_shared_<App>();
 
   auto broker = broker_dslink_test::create_broker(app);
@@ -12,16 +14,16 @@ TEST(BrokerDsLinkTest, Reconnect) {
   for (int i = 0; i < 3; i++) {
     // Constant name main link
     auto main_link = broker_dslink_test::create_dslink(
-        app, broker->get_active_server_port(), "main_link", true);
+        app, broker->get_active_server_port(), "main_link", true, protocol());
 
     // Changing name
     auto changing_name = broker_dslink_test::create_dslink(
-        app, broker->get_active_server_port(), "changing_name_link" + i, true);
+        app, broker->get_active_server_port(), "changing_name_link" + i, true, protocol());
     changing_name->strand->post([&]() { changing_name->destroy(); });
 
     // Constant name with listing
     auto link_1 = broker_dslink_test::create_dslink(
-        app, broker->get_active_server_port(), "test1", true);
+        app, broker->get_active_server_port(), "test1", true, protocol());
 
     // 2. CHECK IF CONNECTION IS OK
     auto list_path = "downstream/test1";
@@ -70,7 +72,7 @@ TEST(BrokerDsLinkTest, Reconnect) {
   app->wait();
 }
 
-TEST(BrokerDsLinkTest, NotAvailableStep3) {
+TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
   broker->run(false);
@@ -79,10 +81,10 @@ TEST(BrokerDsLinkTest, NotAvailableStep3) {
   // broker->strand->logger().level = Logger::ALL___;
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1");
+      app, broker->get_active_server_port(), "test_1", false, protocol());
   // link_1->strand->logger().level = Logger::ALL___;
   auto link_2 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_2");
+      app, broker->get_active_server_port(), "test_2", false, protocol());
   // link_2->strand->logger().level = Logger::ALL___;
 
   int step = 0;
@@ -125,7 +127,7 @@ TEST(BrokerDsLinkTest, NotAvailableStep3) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BrokerDsLinkTest, StopTest) {
+TEST_F(BrokerDsLinkTest, StopTest) {
   std::string close_token = "12345678901234567890123456789012";
   string_to_file(close_token, ".close_token");
 
@@ -135,9 +137,9 @@ TEST(BrokerDsLinkTest, StopTest) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1",true);
+      app, broker->get_active_server_port(), "test_1",true, protocol());
   auto link_2 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_2",true);
+      app, broker->get_active_server_port(), "test_2",true, protocol());
 
   ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
   invoke_req->set_value(Var(close_token));
@@ -160,7 +162,7 @@ TEST(BrokerDsLinkTest, StopTest) {
   EXPECT_TRUE(broker->is_destroyed());
 }
 
-TEST(BrokerDsLinkTest, SysListWithCloseToken) {
+TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   std::string close_token = "12345678901234567890123456789012";
   string_to_file(close_token, ".close_token");
 
@@ -171,7 +173,7 @@ TEST(BrokerDsLinkTest, SysListWithCloseToken) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1", true);
+      app, broker->get_active_server_port(), "test_1", true, protocol());
 
   bool listed = false;
   link_1->list("sys",
@@ -200,7 +202,7 @@ TEST(BrokerDsLinkTest, SysListWithCloseToken) {
   app->wait();
 }
 
-TEST(BrokerDsLinkTest, SysListWithoutCloseToken) {
+TEST_F(BrokerDsLinkTest, SysListWithoutCloseToken) {
   // we force to not have close
   std::remove(".close_token");
 
@@ -211,7 +213,7 @@ TEST(BrokerDsLinkTest, SysListWithoutCloseToken) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1", true);
+      app, broker->get_active_server_port(), "test_1", true, protocol());
 
   bool listed = false;
   link_1->list("sys",
