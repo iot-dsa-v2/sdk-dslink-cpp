@@ -31,4 +31,6 @@ uint8_t Logger::parse(const std::string& log) {
     return Logger::INFO__;
   }
 }
+
+void Logger::destroy_impl() { level = NONE__; }
 }

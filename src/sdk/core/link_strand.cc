@@ -8,6 +8,8 @@
 #include "module/client_manager.h"
 #include "module/authorizer.h"
 #include "module/session_manager.h"
+#include "module/logger.h"
+#include "module/storage.h"
 #include "responder/node_state_manager.h"
 #include "strand_timer.h"
 
@@ -34,6 +36,12 @@ void LinkStrand::destroy_impl() {
   }
   if (__stream_acceptor != nullptr) {
     __stream_acceptor->destroy();
+  }
+  if (__logger != nullptr) {
+    __logger->destroy();
+  }
+  if (__storage != nullptr) {
+    __storage->destroy();
   }
 }
 
