@@ -91,7 +91,7 @@ void generate_certificate() {
 
   X509_gmtime_adj((ASN1_TIME *)X509_get_notBefore(x509.get()), 0);
   X509_gmtime_adj((ASN1_TIME *)X509_get_notAfter(x509.get()),
-                  31536000000ull);  // 365000 days
+                  0x7fffffff);
 
   X509_NAME *name;
   name = X509_get_subject_name(x509.get());
