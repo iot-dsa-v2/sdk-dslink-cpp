@@ -13,7 +13,7 @@ namespace dsa {
 BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
   init();
   storage_key = get_file_path();
-  storage_bucket = simple_storage.get_safe_bucket(storage_key);
+  storage_bucket = simple_storage.get_bucket(storage_key);
   load();
 }
 
@@ -94,7 +94,9 @@ void BrokerConfig::save() {
   }
   config_file << "\n}";
 
-  const char* cstr = config_file.str().c_str();
+  const std::string& tmp_str = config_file.str();
+
+  const char* cstr = tmp_str.c_str();
 
   auto data = new RefCountBytes(&cstr[0], &cstr[strlen(cstr)]);
 

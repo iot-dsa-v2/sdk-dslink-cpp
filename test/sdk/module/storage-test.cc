@@ -77,7 +77,7 @@ TEST(ModuleTest, SafeStorageBucket) {
 
   std::string storage_key("config");
 
-  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_safe_bucket(storage_key);
+  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_bucket(storage_key);
 
   auto on_done = []() {
     std::cout << "on_done" << std::endl;

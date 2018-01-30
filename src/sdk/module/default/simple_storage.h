@@ -76,8 +76,6 @@ class SimpleStorage : public Storage {
 
   std::unique_ptr<StorageBucket> get_bucket(const std::string& name) override;
 
-  std::unique_ptr<StorageBucket> get_safe_bucket(const std::string& name) override;
-
   /// create a bucket or find a existing bucket
   std::unique_ptr<QueueBucket> get_queue_bucket(const std::string& name) override;
 
