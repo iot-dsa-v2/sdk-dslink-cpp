@@ -22,6 +22,7 @@ HMAC::HMAC(const std::vector<uint8_t> &data) throw(const std::runtime_error &) {
 
 
 HMAC::~HMAC() {
+  //TODO: for openssl 1.1 there is illogical memleak on it, maybe bug in openssl
   HMAC_CTX_free(ctx);
 }
 
