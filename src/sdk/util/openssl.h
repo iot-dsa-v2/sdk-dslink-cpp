@@ -4,6 +4,8 @@
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000
 
+#define HMAC_CTX_create new HMAC_CTX
+
 #else
 
 #define EVP_MD_CTX_cleanup EVP_MD_CTX_free
