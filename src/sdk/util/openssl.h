@@ -4,16 +4,13 @@
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000
 
-#define HMAC_CTX_create new HMAC_CTX
-#define EVP_MD_CTX_create_ new EVP_MD_CTX
+#define EVP_MD_CTX_new new EVP_MD_CTX
+#define EVP_MD_CTX_reset EVP_MD_CTX_init
+#define EVP_MD_CTX_free(X) EVP_MD_CTX_cleanup(X); delete X;
 
-#else
-#define EVP_MD_CTX_create_ EVP_MD_CTX_new
-#define EVP_MD_CTX_cleanup EVP_MD_CTX_free
-
-#define HMAC_CTX_create HMAC_CTX_new
-#define HMAC_CTX_init HMAC_CTX_reset
-#define HMAC_CTX_cleanup HMAC_CTX_free
+#define HMAC_CTX_new new HMAC_CTX
+#define HMAC_CTX_reset HMAC_CTX_init
+#define HMAC_CTX_free(X) HMAC_CTX_cleanup(X); delete X;
 
 #endif
 

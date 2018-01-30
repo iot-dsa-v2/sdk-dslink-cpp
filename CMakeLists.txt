@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.6.2)
 
+set( DSA_INCLUDE_TEST true )
+
 project(DSA_SDK)
 
 include(CMakeListsConfig.txt)

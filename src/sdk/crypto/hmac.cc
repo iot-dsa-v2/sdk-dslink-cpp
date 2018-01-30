@@ -8,10 +8,10 @@
 namespace dsa {
 
 HMAC::HMAC(const std::vector<uint8_t> &data) throw(const std::runtime_error &) {
-  ctx = HMAC_CTX_create();
+  ctx = HMAC_CTX_new();
   const EVP_MD *md = EVP_sha256();
 
-  HMAC_CTX_init(ctx);
+  HMAC_CTX_reset(ctx);
 
   if (!HMAC_Init_ex(ctx, reinterpret_cast<const uint8_t *>(data.data()),
                     (int)data.size(), md, nullptr))
@@ -22,10 +22,7 @@ HMAC::HMAC(const std::vector<uint8_t> &data) throw(const std::runtime_error &) {
 
 
 HMAC::~HMAC() {
-  HMAC_CTX_cleanup(ctx);
-#if OPENSSL_VERSION_NUMBER < 0x10100000
-  delete mdctx;
-#endif
+  HMAC_CTX_free(ctx);
 }
 
 void HMAC::update(const std::vector<uint8_t> &content) throw(

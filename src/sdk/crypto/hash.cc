@@ -11,22 +11,19 @@
 namespace dsa {
 
 Hash::Hash() throw(const std::runtime_error &) : finalized(false) {
-  mdctx = EVP_MD_CTX_create_();
+  mdctx = EVP_MD_CTX_new();
   const EVP_MD *md = EVP_sha256();
 
-  EVP_MD_CTX_init(mdctx);
+  EVP_MD_CTX_reset(mdctx);
 
   if (EVP_DigestInit_ex(mdctx, md, nullptr) <= 0) {
-    EVP_MD_CTX_cleanup(mdctx);
+    EVP_MD_CTX_free(mdctx);
     throw std::runtime_error("something went wrong initializing digest");
   }
 }
 
 Hash::~Hash() {
-  EVP_MD_CTX_cleanup(mdctx);
-#if OPENSSL_VERSION_NUMBER < 0x10100000
-  delete mdctx;
-#endif
+  EVP_MD_CTX_free(mdctx);
 }
 
 void Hash::update(const std::vector<uint8_t> &content) {
