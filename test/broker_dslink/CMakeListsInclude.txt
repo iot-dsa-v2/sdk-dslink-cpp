@@ -1,0 +1,14 @@
+#
+set(BROKER_DSLINK_TEST_SOURCES
+    broker_dslink/broker_dslink_test.cc
+    broker_dslink/broker_dslink_list.cc
+    broker_dslink/broker_dslink_util.cc
+    sdk/async_test.cc
+    sdk/test_config.cc
+)
+
+
+set(BROKER_DSLINK_TEST_NAME "broker-dslink-test")
+add_executable(${BROKER_DSLINK_TEST_NAME} ${BROKER_DSLINK_TEST_SOURCES})
+target_link_libraries(${BROKER_DSLINK_TEST_NAME} ${BROKER_DSLINK_TEST_LIBS})
+add_test(NAME ${BROKER_DSLINK_TEST_NAME} COMMAND ${BROKER_DSLINK_TEST_NAME})

@@ -103,7 +103,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_server_port(variables["server-port"].as<uint16_t>());
 
-  LOG_TRACE(Logger::_(), LOG << "DSLink initialized successfully");
+  LOG_TRACE(strand->logger(), LOG << "DSLink initialized successfully");
 }
 DsLink::~DsLink() {}
 
