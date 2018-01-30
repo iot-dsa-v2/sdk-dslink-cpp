@@ -82,7 +82,6 @@ void TcpServer::start() {
 
   // start taking secure connection
   if (_secure_port < 0) {
-    LOG_INFO(_strand->logger(), LOG << "Secure TCP is disabled");
     return;
   }
 
