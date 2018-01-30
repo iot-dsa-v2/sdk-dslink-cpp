@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.6.2)
 
+set( DSA_INCLUDE_TEST true )
+
 project(DSA_SDK)
 
 include(CMakeListsConfig.txt)
@@ -9,6 +11,7 @@ add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/jansson-build")
 add_subdirectory("./src")
 
 include_directories("./include")
+
 
 if (DSA_INCLUDE_TEST)
   add_subdirectory("./test")

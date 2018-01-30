@@ -26,11 +26,16 @@ class CryptoTest {
 };
 
 std::vector<uint8_t> CryptoTest::compute_public_key(const char *priv_key) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000
   BIGNUM bn;
   BIGNUM *priv;
 
   BN_init(&bn);
   priv = &bn;
+#else
+  BIGNUM *priv = BN_new();
+#endif
+
   BN_hex2bn(&priv, priv_key);
 
   std::vector<uint8_t> out = compute_public_key(priv);
@@ -41,11 +46,15 @@ std::vector<uint8_t> CryptoTest::compute_public_key(const char *priv_key) {
 
 std::vector<uint8_t> CryptoTest::compute_public_key(uint8_t *priv_key,
                                                     size_t size) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000
   BIGNUM bn;
   BIGNUM *priv;
 
   BN_init(&bn);
   priv = &bn;
+#else
+  BIGNUM *priv = BN_new();
+#endif
   BN_bin2bn(priv_key, size, priv);
 
   std::vector<uint8_t> out = compute_public_key(priv);

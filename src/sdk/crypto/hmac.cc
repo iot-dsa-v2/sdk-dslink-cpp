@@ -1,26 +1,29 @@
+#include <iostream>
 #include "dsa_common.h"
 
 #include "hmac.h"
 
+#include "util/openssl.h"
+
 namespace dsa {
-void HMAC::init(const std::vector<uint8_t> &content) throw(
-    const std::runtime_error &) {
-  ctx = new HMAC_CTX;
-  const EVP_MD *md = EVP_sha256();
-
-  HMAC_CTX_init(ctx);
-
-  if (!HMAC_Init_ex(ctx, reinterpret_cast<const uint8_t *>(content.data()),
-                    (int)content.size(), md, nullptr))
-    throw std::runtime_error("Failed to initialize HMAC");
-}
 
 HMAC::HMAC(const std::vector<uint8_t> &data) throw(const std::runtime_error &) {
-  init(data);
+  ctx = HMAC_CTX_new();
+  const EVP_MD *md = EVP_sha256();
+
+  HMAC_CTX_reset(ctx);
+
+  if (!HMAC_Init_ex(ctx, reinterpret_cast<const uint8_t *>(data.data()),
+                    (int)data.size(), md, nullptr))
+    throw std::runtime_error("Failed to initialize HMAC");
+
   initialized = true;
 }
 
-HMAC::~HMAC() { delete ctx; }
+
+HMAC::~HMAC() {
+  HMAC_CTX_free(ctx);
+}
 
 void HMAC::update(const std::vector<uint8_t> &content) throw(
     const std::runtime_error &) {
@@ -42,7 +45,6 @@ std::vector<uint8_t> HMAC::digest() throw(const std::runtime_error &) {
     throw std::runtime_error("Failed to get digest");
   }
   initialized = false;
-  HMAC_CTX_cleanup(ctx);
 
   out.resize(size);
   return std::move(out);
