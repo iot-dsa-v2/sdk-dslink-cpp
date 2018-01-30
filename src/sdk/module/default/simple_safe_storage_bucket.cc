@@ -14,29 +14,33 @@ using boost::filesystem::path;
 static std::string storage_root = "C:\\temp\\";
 #else
 static std::string storage_root = "";
+static char templ[] = "/tmp/fileXXXXXX";
 #endif
 
 inline void SimpleSafeStorageBucket::write_file(const std::string& key,
                                      BytesRef content) {
+#if (defined (_WIN32) || defined (_WIN64))
+  std::string templ = tmpnam(nullptr)
+#else
+  mkstemp(templ);
+#endif
   path p(storage_root);
-  path p_temp = std::tmpnam(nullptr);
 
   p /= (key);
 
   try {
-    std::ofstream ofs(p_temp.string().c_str(), std::ios::out | std::ios::trunc);
+    std::ofstream ofs(templ, std::ios::out | std::ios::trunc);
     if (ofs) {
       ofs.write(reinterpret_cast<const char *>(content->data()),
                 content->size());
-      boost::filesystem::rename(p_temp, p);
+
+      boost::filesystem::rename(templ, p);
     } else {
       // TODO - error handling
     }
   } catch (const fs::filesystem_error &ex) {
     // TODO - error handling
   }
-
-  return;
 }
 
 void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content) {
