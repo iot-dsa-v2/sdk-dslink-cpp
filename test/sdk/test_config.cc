@@ -57,10 +57,10 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
   copy.strand->logger().level = strand->logger().level;
 
   boost::system::error_code error;
+  static boost::asio::ssl::context context(
+      boost::asio::ssl::context::sslv23);
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
-      static boost::asio::ssl::context context(
-          boost::asio::ssl::context::sslv23);
       context.load_verify_file("certificate.pem", error);
       if (error) {
         LOG_FATAL(LOG << "Failed to verify cetificate");
