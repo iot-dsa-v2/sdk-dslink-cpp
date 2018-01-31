@@ -83,23 +83,26 @@ TEST_F(ResponderTest, SetModel) {
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
-  // subscribe on root node value
-  ref_<const SubscribeResponseMessage> last_subscribe_response;
-  auto subscribe_stream = tcp_client->get_session().requester.subscribe(
-      "", [&](IncomingSubscribeStream &stream,
-              ref_<const SubscribeResponseMessage> &&msg) {
-        last_subscribe_response = std::move(msg);  // store response
-      });
 
-  // list on root node
+  ref_<const SubscribeResponseMessage> last_subscribe_response;
   ref_<const ListResponseMessage> last_list_response;
   int list_response_count = 0;
-  tcp_client->get_session().requester.list(
-      "",
-      [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
-        last_list_response = msg;
-        ++list_response_count;
-      });
+
+  client_strand.strand->post([&]() {
+    // subscribe on root node value
+    tcp_client->get_session().requester.subscribe(
+        "", [&](IncomingSubscribeStream &stream,
+                ref_<const SubscribeResponseMessage> &&msg) {
+          last_subscribe_response = std::move(msg);  // store response
+        });
+    // list on root node
+    tcp_client->get_session().requester.list(
+        "",
+        [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
+          last_list_response = msg;
+          ++list_response_count;
+        });
+  });
 
   // set request to change value
   auto first_request = make_ref_<SetRequestMessage>();
@@ -138,7 +141,7 @@ TEST_F(ResponderTest, SetModel) {
   auto list_map = last_list_response->get_parsed_map();
 
   EXPECT_TRUE(list_map != nullptr &&
-      (*list_map)["@attr"].to_string() == "world");
+              (*list_map)["@attr"].to_string() == "world");
 
   tcp_server->destroy_in_strand(tcp_server);
   web_server->destroy();
