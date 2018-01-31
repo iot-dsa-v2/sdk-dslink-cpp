@@ -15,7 +15,9 @@
 
 using namespace dsa;
 
-TEST(BrokerSysTest, StopBroker) {
+using BrokerSysTest = SetUpBase;
+
+TEST_F(BrokerSysTest, StopBroker) {
   string_ token = "12345678901234567890123456789012";
   string_to_file(token, ".close_token");
 
@@ -24,7 +26,7 @@ TEST(BrokerSysTest, StopBroker) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker);
+  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new NodeModel(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
