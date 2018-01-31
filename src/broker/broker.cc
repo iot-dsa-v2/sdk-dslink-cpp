@@ -19,13 +19,7 @@
 #include "web_server/web_server.h"
 #include "module/broker_client_manager.h"
 
-#include "module/default/simple_security.h"
-#include "module/default/simple_session_manager.h"
-
-#include "module/default/console_logger.h"
-#include "module/broker_authorizer.h"
 #include "module/module_broker_default.h"
-#include "module/storage.h"
 
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&&  modules,
