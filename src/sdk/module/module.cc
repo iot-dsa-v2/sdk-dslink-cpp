@@ -41,12 +41,12 @@ void Module::init_authorizer(App& app, ref_<LinkStrand> strand){
 }
 
 ref_<Storage> Module::create_storage(App &app, ref_<LinkStrand> strand) {return nullptr;}
-ref_<Logger> Module::create_logger(App &app, ref_<LinkStrand> strand) {return nullptr;}
+shared_ptr_<Logger> Module::create_logger(App &app, ref_<LinkStrand> strand) {return nullptr;}
 ref_<ClientManager> Module::create_client_manager(App &app, ref_<LinkStrand> strand) {return nullptr;}
 ref_<Authorizer> Module::create_authorizer(App &app, ref_<LinkStrand> strand) {return nullptr;}
 
 ref_<Storage> Module::get_storage(){ return _storage; }
-ref_<Logger> Module::get_logger(){ return _logger; }
+shared_ptr_<Logger> Module::get_logger(){ return _logger; }
 ref_<ClientManager> Module::get_client_manager(){ return _client_manager; }
 ref_<Authorizer> Module::get_authorizer(){ return _authorizer; }
 

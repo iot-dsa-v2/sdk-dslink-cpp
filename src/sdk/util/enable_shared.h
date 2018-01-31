@@ -23,7 +23,6 @@ class SharedDestroyable : public std::enable_shared_from_this<T> {
 
  protected:
   virtual void destroy_impl(){};
-  virtual void post_in_strand(std::function<void()> &&) = 0;
 
  public:
   shared_ptr_<T> shared_from_this() {
@@ -49,13 +48,22 @@ class SharedDestroyable : public std::enable_shared_from_this<T> {
     std::lock_guard<std::mutex> unique_lock(mutex);
     destroy(unique_lock);
   }
+};
 
-  void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &&destroyable) {
+template <typename T>
+class SharedStrandPtr : public SharedDestroyable<T> {
+ private:
+
+ protected:
+  virtual void post_in_strand(std::function<void()> &&) = 0;
+
+ public:
+  void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &&destroyable) {
     post_in_strand(
-        [ this, keep_ptr = std::move(destroyable) ]() { destroy(); });
+        [ this, keep_ptr = std::move(destroyable) ]() { this->destroy(); });
   }
-  void destroy_in_strand(shared_ptr_<SharedDestroyable<T>> &destroyable) {
-    post_in_strand([ this, keep_ptr = destroyable ]() { destroy(); });
+  void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &destroyable) {
+    post_in_strand([ this, keep_ptr = destroyable ]() { this->destroy(); });
   }
 };
 }  // namespace dsa

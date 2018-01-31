@@ -72,8 +72,8 @@ ref_<Storage> ModuleWithLoader::create_storage(App& app, ref_<LinkStrand> strand
   return _default_module->get_storage();
 }
 
-ref_<Logger> ModuleWithLoader::create_logger(App& app, ref_<LinkStrand> strand){
-  ref_<Logger> service = nullptr;
+shared_ptr_<Logger> ModuleWithLoader::create_logger(App& app, ref_<LinkStrand> strand){
+  shared_ptr_<Logger> service = nullptr;
 
   // Check in files
   for(auto module:_modules){

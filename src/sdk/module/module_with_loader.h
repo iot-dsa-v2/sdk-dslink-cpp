@@ -22,7 +22,7 @@ class ModuleWithLoader : public Module {
 
  protected:
   ref_<Storage> create_storage(App& app, ref_<LinkStrand> strand) override;
-  ref_<Logger> create_logger(App& app, ref_<LinkStrand> strand) override;
+  shared_ptr_<Logger> create_logger(App& app, ref_<LinkStrand> strand) override;
   ref_<ClientManager> create_client_manager(App& app, ref_<LinkStrand> strand) override;
   ref_<Authorizer> create_authorizer(App& app, ref_<LinkStrand> strand) override;
 

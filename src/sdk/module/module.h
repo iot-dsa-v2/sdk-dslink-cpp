@@ -13,13 +13,13 @@ namespace dsa {
 class Module : public DestroyableRef<Module> {
  private:
   ref_<Storage> _storage;
-  ref_<Logger> _logger;
+  shared_ptr_<Logger> _logger;
   ref_<ClientManager> _client_manager;
   ref_<Authorizer> _authorizer;
 
  protected:
   virtual ref_<Storage> create_storage(App& app, ref_<LinkStrand> strand);
-  virtual ref_<Logger> create_logger(App& app, ref_<LinkStrand> strand);
+  virtual shared_ptr_<Logger> create_logger(App& app, ref_<LinkStrand> strand);
   virtual ref_<ClientManager> create_client_manager(App& app, ref_<LinkStrand> strand);
   virtual ref_<Authorizer> create_authorizer(App& app, ref_<LinkStrand> strand);
 
@@ -32,7 +32,7 @@ class Module : public DestroyableRef<Module> {
   void init_authorizer(App& app, ref_<LinkStrand> strand);
 
   ref_<Storage> get_storage();
-  ref_<Logger> get_logger();
+  shared_ptr_<Logger> get_logger();
   ref_<ClientManager> get_client_manager();
   ref_<Authorizer> get_authorizer();
 

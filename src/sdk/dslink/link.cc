@@ -97,7 +97,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   // Adapted from parse_logger
   // Until we get module version we are using default one
   auto log = variables["log"].as<string_>();
-  auto logger = make_ref_<ConsoleLogger>();
+  auto logger = make_shared_<ConsoleLogger>();
   log_level_from_settings = Logger::parse(log);
   logger->level = log_level_from_settings;
   strand->set_logger(std::move(logger));
@@ -165,7 +165,7 @@ void DsLink::parse_thread(size_t thread) {
 }
 
 void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto logger = make_ref_<ConsoleLogger>();
+  auto logger = make_shared_<ConsoleLogger>();
   logger->level = Logger::parse(log);
   config.set_logger(std::move(logger));
 }
