@@ -11,11 +11,6 @@
 #include "module/default/simple_session_manager.h"
 #include "module/default/console_logger.h"
 
-#include "module/logger.h"
-#include "module/storage.h"
-#include "module/client_manager.h"
-#include "module/authorizer.h"
-
 using namespace dsa;
 
 TEST(NetworkTest, ReConnect) {

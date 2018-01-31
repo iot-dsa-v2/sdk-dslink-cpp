@@ -1,3 +1,4 @@
+#include "dslink.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
 #include "dsa/stream.h"
@@ -8,10 +9,6 @@
 
 #include <gtest/gtest.h>
 #include "module/default/console_logger.h"
-#include "module/storage.h"
-#include "module/authorizer.h"
-#include "module/client_manager.h"
-#include "module/logger.h"
 #include "message/request/invoke_request_message.h"
 
 using namespace dsa;

@@ -2,13 +2,7 @@
 
 #include "dsa/responder.h"
 
-#include "module/storage.h"
-#include "module/default/console_logger.h"
-#include "module/client_manager.h"
-#include "module/authorizer.h"
-
 #include <iostream>
-#include <module/module_with_loader.h>
 #include <module/module_with_loader.h>
 #include <module/default/module_dslink_default.h>
 
