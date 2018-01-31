@@ -8,6 +8,7 @@
 #include "../test_config.h"
 #include "core/client.h"
 #include "module/logger.h"
+#include "network/tcp/stcp_client_connection.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_client_connection.h"
@@ -54,8 +55,24 @@ TEST_F(NetworkTest, ReConnect) {
 
   shared_ptr_<Connection> connection;
 
+  boost::system::error_code error;
   switch (protocol()) {
     case dsa::ProtocolType::PROT_DSS:
+      static boost::asio::ssl::context context(
+          boost::asio::ssl::context::sslv23);
+      context.load_verify_file("certificate.pem", error);
+      if (error) {
+        LOG_FATAL(LOG << "Failed to verify cetificate");
+      }
+
+      client_strand.client_connection_maker = [
+        &connection, dsid_prefix = client_strand.dsid_prefix,
+        tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        connection = make_shared_<StcpClientConnection>(
+            strand, context, dsid_prefix, tcp_host, tcp_port);
+        return connection;
+      };
       break;
     case dsa::ProtocolType::PROT_WS:
       client_strand.client_connection_maker = [

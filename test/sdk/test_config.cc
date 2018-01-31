@@ -7,6 +7,7 @@
 #include "module/default/console_logger.h"
 #include "module/default/simple_security.h"
 #include "module/default/simple_session_manager.h"
+#include "network/tcp/stcp_client_connection.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
@@ -18,6 +19,7 @@
 #include "responder/node_state_manager.h"
 
 #include <boost/filesystem.hpp>
+#include <boost/system/error_code.hpp>
 
 namespace dsa {
 
@@ -29,7 +31,7 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
   this->protocol = protocol;
 
   tcp_server_port = 0;
-  // tcp_secure_port = 4128;
+  tcp_secure_port = 0;
 
   std::vector<std::string> pem_files = {"key.pem", "certificate.pem"};
   namespace fs = boost::filesystem;
@@ -50,16 +52,31 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
   copy.tcp_server_port = 0;
   copy.tcp_host = "127.0.0.1";
-  copy.tcp_port = tcp_server_port;
 
   copy.strand = EditableStrand::make_default(app);
   copy.strand->logger().level = strand->logger().level;
 
+  boost::system::error_code error;
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
+      static boost::asio::ssl::context context(
+          boost::asio::ssl::context::sslv23);
+      context.load_verify_file("certificate.pem", error);
+      if (error) {
+        LOG_FATAL(LOG << "Failed to verify cetificate");
+      }
+
+      copy.tcp_port = tcp_secure_port;
+      copy.client_connection_maker = [
+        dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
+        tcp_port = copy.tcp_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        return make_shared_<StcpClientConnection>(strand, context, dsid_prefix,
+                                                  tcp_host, tcp_port);
+      };
+
       break;
     case dsa::ProtocolType::PROT_WS:
-
       copy.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
       copy.ws_port = 8080;
@@ -68,7 +85,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
         ws_port = copy.ws_port
-      ](LinkStrandRef & strand) {
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
         return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
                                                 ws_port);
       };
@@ -78,6 +95,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
+      copy.tcp_port = tcp_server_port;
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
         tcp_port = copy.tcp_port
@@ -99,8 +117,9 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
 
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
-      address.assign(std::string("dss://127.0.0.1:") +
-                     std::to_string(tcp_secure_port));
+      address.assign(std::string("dss://127.0.0.1:") + std::to_string(4120));
+      // TODO
+      //                     std::to_string(tcp_secure_port));
       break;
     case dsa::ProtocolType::PROT_WS:
       // TODO address.assign(std::string("ws://127.0.0.1:") +

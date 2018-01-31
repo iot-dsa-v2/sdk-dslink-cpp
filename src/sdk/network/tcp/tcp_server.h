@@ -20,7 +20,7 @@ class StcpServerConnection;
 class TcpServer : public Server {
  private:
   int32_t _port;
-  int16_t _secure_port;
+  int32_t _secure_port;
 
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   shared_ptr_<TcpServerConnection> _next_connection;
