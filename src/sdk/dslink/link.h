@@ -45,6 +45,8 @@ class DsLink final : public WrapperStrand {
   ref_<Client> _client;
   ref_<LinkRoot> _root;
 
+  ref_<Module> modules;
+
   string_ close_token;
 
   bool _running = false;

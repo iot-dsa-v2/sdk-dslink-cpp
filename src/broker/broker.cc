@@ -57,7 +57,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
 
   if(default_module == nullptr) default_module = make_ref_<ModuleBrokerDefault>();
 
-  auto modules = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
+  modules = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
   modules->init_all(*_app, strand);
 
   // init logger
@@ -86,6 +86,8 @@ void DsBroker::init(ref_<Module>&& default_module) {
       make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
 }
 void DsBroker::destroy_impl() {
+  modules->destroy();
+
   if (_tcp_server != nullptr) {
     _tcp_server->destroy();
     _tcp_server.reset();

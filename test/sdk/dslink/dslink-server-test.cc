@@ -66,7 +66,7 @@ TEST_F(DslinkTest, ServerTest) {
   link->connect(
       [&](const shared_ptr_<Connection> connection) { is_connected = true; });
 
-  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
+  ASYNC_EXPECT_TRUE(2000, *link->strand, [&]() { return is_connected; });
 
   std::vector<string_> list_result;
   // List test

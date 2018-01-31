@@ -53,4 +53,13 @@ ref_<Authorizer> Module::get_authorizer(){ return _authorizer; }
 void Module::add_module_node(){}
 void Module::add_web_handler(){}
 
+void Module::destroy_impl() {
+  if(_storage != nullptr) _storage->destroy();
+  if(_client_manager != nullptr) _client_manager->destroy();
+  if(_authorizer != nullptr) _authorizer->destroy();
+  if(_logger != nullptr) _logger->destroy();
+
+  DestroyableRef::destroy_impl();
+}
+
 }

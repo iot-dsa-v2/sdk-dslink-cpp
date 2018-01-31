@@ -23,6 +23,8 @@ class Module : public DestroyableRef<Module> {
   virtual ref_<ClientManager> create_client_manager(App& app, ref_<LinkStrand> strand);
   virtual ref_<Authorizer> create_authorizer(App& app, ref_<LinkStrand> strand);
 
+  void destroy_impl() override;
+
  public:
   virtual void init_all(App& app, ref_<LinkStrand> strand);
 

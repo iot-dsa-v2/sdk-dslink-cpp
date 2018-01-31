@@ -99,15 +99,15 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   if(default_module == nullptr) default_module = make_ref_<ModuleDslinkDefault>();
 
-  auto module = make_ref_<ModuleWithLoader>(variables["module_path"].as<string_>(), std::move(default_module));
-  module->init_all(*_app, strand);
+  modules = make_ref_<ModuleWithLoader>(variables["module_path"].as<string_>(), std::move(default_module));
+  modules->init_all(*_app, strand);
 
-  auto logger = module->get_logger();
+  auto logger = modules->get_logger();
   logger->level = Logger::parse(variables["log"].as<string_>());;
   strand->set_logger(logger);
 
-  strand->set_client_manager(module->get_client_manager());
-  strand->set_authorizer(module->get_authorizer());
+  strand->set_client_manager(modules->get_client_manager());
+  strand->set_authorizer(modules->get_authorizer());
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
 
   parse_server_port(variables["server-port"].as<uint16_t>());
@@ -127,6 +127,8 @@ void DsLink::destroy_impl() {
   //  bool _running = false;
   //
   //  OnConnectCallback _user_on_connect;
+  modules->destroy();
+
   if (_tcp_server != nullptr) {
     _tcp_server->destroy();
     _tcp_server.reset();
