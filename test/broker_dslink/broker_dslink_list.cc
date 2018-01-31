@@ -12,9 +12,20 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  auto link = broker_dslink_test::create_mock_dslink(app, broker->get_active_server_port(), "test1", protocol());
+  int32_t port;
+
+  switch (protocol()) {
+  case dsa::ProtocolType::PROT_DSS:
+    port = broker->get_active_secure_port();
+    break;
+  default:
+    port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
+
+  auto link = broker_dslink_test::create_mock_dslink(app, port, "test1", protocol());
 
   bool is_connected = false;
   link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
@@ -93,10 +104,21 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  auto link_1 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test1", false, protocol());
-  auto link_2 = broker_dslink_test::create_dslink(app, broker->get_active_server_port(), "test2", false, protocol());
+  int32_t port;
+
+  switch (protocol()) {
+  case dsa::ProtocolType::PROT_DSS:
+    port = broker->get_active_secure_port();
+    break;
+  default:
+    port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
+
+  auto link_1 = broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
+  auto link_2 = broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
 
 // after client1 disconnected, list update should show it's disconnected
   auto step_3_disconnection_list = [&]() {

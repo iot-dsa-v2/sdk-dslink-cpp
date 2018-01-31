@@ -9,21 +9,32 @@ TEST_F(BrokerDsLinkTest, Reconnect) {
 
   auto broker = broker_dslink_test::create_broker(app);
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+
+  int32_t port;
+
+  switch (protocol()) {
+  case dsa::ProtocolType::PROT_DSS:
+    port = broker->get_active_secure_port();
+    break;
+  default:
+    port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
 
   for (int i = 0; i < 3; i++) {
     // Constant name main link
     auto main_link = broker_dslink_test::create_dslink(
-        app, broker->get_active_server_port(), "main_link", true, protocol());
+        app, port, "main_link", true, protocol());
 
     // Changing name
     auto changing_name = broker_dslink_test::create_dslink(
-        app, broker->get_active_server_port(), "changing_name_link" + i, true, protocol());
+        app, port, "changing_name_link" + i, true, protocol());
     changing_name->strand->post([&]() { changing_name->destroy(); });
 
     // Constant name with listing
     auto link_1 = broker_dslink_test::create_dslink(
-        app, broker->get_active_server_port(), "test1", true, protocol());
+        app, port, "test1", true, protocol());
 
     // 2. CHECK IF CONNECTION IS OK
     auto list_path = "downstream/test1";
@@ -76,15 +87,26 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+
+  int32_t port;
+
+  switch (protocol()) {
+  case dsa::ProtocolType::PROT_DSS:
+    port = broker->get_active_secure_port();
+    break;
+  default:
+    port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
 
   // broker->strand->logger().level = Logger::ALL___;
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1", false, protocol());
+      app, port, "test_1", false, protocol());
   // link_1->strand->logger().level = Logger::ALL___;
   auto link_2 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_2", false, protocol());
+      app, port, "test_2", false, protocol());
   // link_2->strand->logger().level = Logger::ALL___;
 
   int step = 0;
@@ -134,12 +156,23 @@ TEST_F(BrokerDsLinkTest, StopTest) {
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+
+  int32_t port;
+
+  switch (protocol()) {
+  case dsa::ProtocolType::PROT_DSS:
+    port = broker->get_active_secure_port();
+    break;
+  default:
+    port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1",true, protocol());
+      app, port, "test_1",true, protocol());
   auto link_2 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_2",true, protocol());
+      app, port, "test_2",true, protocol());
 
   ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
   invoke_req->set_value(Var(close_token));
@@ -170,10 +203,21 @@ TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
 
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+
+  int32_t port;
+
+  switch (protocol()) {
+  case dsa::ProtocolType::PROT_DSS:
+    port = broker->get_active_secure_port();
+    break;
+  default:
+    port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1", true, protocol());
+      app, port, "test_1", true, protocol());
 
   bool listed = false;
   link_1->list("sys",
@@ -210,10 +254,21 @@ TEST_F(BrokerDsLinkTest, SysListWithoutCloseToken) {
 
   auto broker = broker_dslink_test::create_broker(app);
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+
+  int32_t port;
+
+  switch (protocol()) {
+  case dsa::ProtocolType::PROT_DSS:
+    port = broker->get_active_secure_port();
+    break;
+  default:
+    port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
 
   auto link_1 = broker_dslink_test::create_dslink(
-      app, broker->get_active_server_port(), "test_1", true, protocol());
+      app, port, "test_1", true, protocol());
 
   bool listed = false;
   link_1->list("sys",
