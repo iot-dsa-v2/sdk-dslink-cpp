@@ -145,6 +145,12 @@ int32_t DsBroker::get_active_server_port() {
   else
     return _tcp_server->get_port();
 }
+int32_t DsBroker::get_active_secure_port() {
+  if (_tcp_server.get() == nullptr)
+    return 0;
+  else
+    return _tcp_server->get_secure_port();
+}
 void DsBroker::wait() {
   _app->wait();
   destroy();

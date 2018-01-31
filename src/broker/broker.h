@@ -39,6 +39,7 @@ class DsBroker final : public WrapperStrand {
 
   // not from config, coming from tcp_server's active server port
   int32_t get_active_server_port();
+  int32_t get_active_secure_port();
 
  protected:
   bool _own_app = false;
