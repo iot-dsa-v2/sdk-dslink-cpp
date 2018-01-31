@@ -5,7 +5,7 @@
 1. run `bootstrap.sh`
 1. run `/b2 install`
 
-## Windows 10 Setup
+## Windows Visual Studio Setup
 
 1. install visual studio 2017
 1. clone `https://github.com/Microsoft/vcpkg.git`
@@ -17,6 +17,18 @@
 ```
 1. run `.\vcpkg integrate install`
 1. In visual studio, use `file-open-folder..` instead of creating project 
+
+## WIndows MingW Setup
+
+* install mysys2 64 bit
+* run `pacman -Syu` and close window when finished
+* start a new msys2 mingw64 window
+* `pacman -Su`
+* `pacman -S mingw-w64-x86_64-toolchain` install all
+* `pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-gtest`
+* download and extract boost 1.66
+* `bootstrap.sh`
+* `./b2 --without-python --layout=system address-model=64 variant=release --includedir=/mingw64/include --libdir=/mingw64/lib install`
 
 ## macOS Setup
 
