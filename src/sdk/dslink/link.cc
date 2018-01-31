@@ -8,6 +8,7 @@
 #include <fstream>
 #include <regex>
 #include <module/default/module_dslink_default.h>
+#include <module/module_with_loader.h>
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
@@ -211,8 +212,10 @@ void DsLink::parse_url(const string_ &url) {
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
-void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node, ref_<Module>&& module) {
-  if(module == nullptr) module = make_ref_<ModuleDslinkDefault>();
+void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node, ref_<Module>&& default_module) {
+  if(default_module == nullptr) default_module = make_ref_<ModuleDslinkDefault>();
+
+  auto module = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
   module->init_all(*_app, strand);
 
   strand->set_client_manager(module->get_client_manager());
@@ -225,12 +228,12 @@ void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node, ref_<Module>&& 
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
   strand->set_responder_model(std::move(root_node));
 }
-void DsLink::init_responder(ref_<NodeModelBase> &&main_node, ref_<Module>&& module) {
+void DsLink::init_responder(ref_<NodeModelBase> &&main_node, ref_<Module>&& default_module) {
   _root = make_ref_<LinkRoot>(strand->get_ref(), get_ref());
   if (main_node != nullptr) {
     _root->set_main(std::move(main_node));
   }
-  init_responder_raw(_root->get_ref(), std::move(module));
+  init_responder_raw(_root->get_ref(), std::move(default_module));
 }
 
 ref_<NodeModelBase> DsLink::add_to_main_node(const string_ &name,
