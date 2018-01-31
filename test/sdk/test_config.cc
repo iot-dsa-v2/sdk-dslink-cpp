@@ -57,8 +57,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
   copy.strand->logger().level = strand->logger().level;
 
   boost::system::error_code error;
-  static boost::asio::ssl::context context(
-      boost::asio::ssl::context::sslv23);
+  static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
       context.load_verify_file("certificate.pem", error);
@@ -117,9 +116,8 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
 
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
-      address.assign(std::string("dss://127.0.0.1:") + std::to_string(4120));
-      // TODO
-      //                     std::to_string(tcp_secure_port));
+      address.assign(std::string("dss://127.0.0.1:") +
+                     std::to_string(tcp_secure_port));
       break;
     case dsa::ProtocolType::PROT_WS:
       // TODO address.assign(std::string("ws://127.0.0.1:") +
