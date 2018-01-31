@@ -26,7 +26,8 @@ class DsBroker final : public WrapperStrand {
   string_ _close_token;
 
  public:
-  DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&&  modules,
+  DsBroker(ref_<BrokerConfig>&& config,
+           ref_<Module>&& modules = nullptr,
            const shared_ptr_<App>& app = nullptr);
   ~DsBroker() final;
 

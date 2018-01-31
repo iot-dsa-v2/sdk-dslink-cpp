@@ -3,6 +3,7 @@
 #include "broker.h"
 
 #include <util/string.h>
+#include <module/module_with_loader.h>
 #include "config/broker_config.h"
 #include "module/broker_authorizer.h"
 #include "module/client_manager.h"
@@ -29,7 +30,7 @@ DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&&  modules,
 }
 DsBroker::~DsBroker() {}
 
-void DsBroker::init(ref_<Module>&&  modules) {
+void DsBroker::init(ref_<Module>&& default_module) {
   if (_app == nullptr) {
     // init app
     size_t thread =
@@ -54,6 +55,9 @@ void DsBroker::init(ref_<Module>&&  modules) {
   strand.reset(new EditableStrand(
       _app->new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
+  if(default_module == nullptr) default_module = make_ref_<ModuleBrokerDefault>();
+
+  auto modules = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
   modules->init_all(*_app, strand);
 
   // init logger
