@@ -29,7 +29,8 @@ TEST_F(DslinkTest, PagedInvokeResponse) {
 
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
       server_strand.strand->get_ref(),
-      [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream) {
+      [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
+          ref_<NodeState> &&parent) {
         auto first_response = make_ref_<InvokeResponseMessage>();
         first_response->set_status(MessageStatus::CLOSED);
         first_response->set_value(Var(big_str1));
