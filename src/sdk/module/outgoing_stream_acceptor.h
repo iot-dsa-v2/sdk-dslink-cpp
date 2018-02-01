@@ -12,6 +12,7 @@ class OutgoingSubscribeStream;
 class OutgoingListStream;
 class OutgoingInvokeStream;
 class OutgoingSetStream;
+class NodeModel;
 
 class OutgoingStreamAcceptor : public DestroyableRef<OutgoingStreamAcceptor> {
  public:
@@ -21,6 +22,10 @@ class OutgoingStreamAcceptor : public DestroyableRef<OutgoingStreamAcceptor> {
   virtual void add(ref_<OutgoingListStream> &&stream) = 0;
   virtual void add(ref_<OutgoingInvokeStream> &&stream) = 0;
   virtual void add(ref_<OutgoingSetStream> &&stream) = 0;
+
+  // get a dsa standard profile
+  virtual ref_<NodeModel> get_profile(const string_ &path,
+                                      bool dsa_standard = false) = 0;
 };
 }
 

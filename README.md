@@ -18,7 +18,7 @@
 1. run `.\vcpkg integrate install`
 1. In visual studio, use `file-open-folder..` instead of creating project 
 
-## WIndows MingW Setup
+## WIndows MinGW Setup
 
 * install mysys2 64 bit
 * run `pacman -Syu` and close window when finished

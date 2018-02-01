@@ -47,6 +47,9 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   void add(ref_<OutgoingListStream> &&stream) final;
   void add(ref_<OutgoingInvokeStream> &&stream) final;
   void add(ref_<OutgoingSetStream> &&stream) final;
+
+  ref_<NodeModel> get_profile(const string_ &path,
+                              bool dsa_standard = false) final;
 };
 }  // namespace dsa
 

@@ -56,6 +56,10 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingSubscribeStream> &&stream) {}
   void add(ref_<OutgoingListStream> &&stream) override {}
   void add(ref_<OutgoingInvokeStream> &&stream) override {}
+  ref_<NodeModel> get_profile(const string_ &path,
+                              bool dsa_standard = false) override {
+    return ref_<NodeModel>();
+  }
 };
 }
 
@@ -82,7 +86,6 @@ TEST_F(ResponderTest, SetModel) {
 
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
-
 
   ref_<const SubscribeResponseMessage> last_subscribe_response;
   ref_<const ListResponseMessage> last_list_response;

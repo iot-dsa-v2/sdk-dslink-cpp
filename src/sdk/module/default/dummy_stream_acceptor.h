@@ -14,6 +14,8 @@ public:
   void add(ref_<OutgoingListStream> &&stream)  override;
   void add(ref_<OutgoingInvokeStream> &&stream)  override;
   void add(ref_<OutgoingSetStream> &&stream)  override;
+  ref_<NodeModel> get_profile(const string_& path, bool dsa_standard = false);
+  ref_<NodeModel> get_profile(const string_& path);
 };
 }
 

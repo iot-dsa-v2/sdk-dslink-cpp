@@ -6,6 +6,7 @@
 #include "message/response/list_response_message.h"
 #include "message/response/set_response_message.h"
 #include "message/response/subscribe_response_message.h"
+#include "responder/node_model.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
@@ -27,5 +28,9 @@ void DummyStreamAcceptor::add(ref_<OutgoingSetStream> &&stream) {
   auto response = make_ref_<SetResponseMessage>();
   response->set_status(MessageStatus::NOT_SUPPORTED);
   stream->send_response(std::move(response));
+}
+ref_<NodeModel> DummyStreamAcceptor::get_profile(const string_ &path,
+                                                 bool dsa_standard) {
+  return ref_<NodeModel>();
 }
 }

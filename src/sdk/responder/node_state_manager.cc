@@ -8,6 +8,8 @@
 #include "core/strand_timer.h"
 #include "message/response/list_response_message.h"
 #include "model_base.h"
+#include "module/logger.h"
+#include "node_model.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
@@ -147,6 +149,16 @@ void NodeStateManager::add(ref_<OutgoingSetStream> &&stream) {
     msg->set_status(MessageStatus::NOT_SUPPORTED);
     stream->send_response(std::move(msg));
   }
+}
+
+ref_<NodeModel> NodeStateManager::get_profile(const string_ &path,
+                                              bool dsa_standard) {
+  NodeModel *root_model = dynamic_cast<NodeModel *>(_root->get_model().get());
+  if (root_model == nullptr) {
+    LOG_FATAL(LOG << "failed to create standard profile node")
+  }
+  // TODO implement a standard profile collection
+  return ref_<NodeModel>();
 }
 
 }  // namespace dsa

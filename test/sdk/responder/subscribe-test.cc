@@ -7,6 +7,7 @@
 
 #include "core/client.h"
 #include "network/tcp/tcp_server.h"
+#include "responder/node_model.h"
 
 using namespace dsa;
 
@@ -56,9 +57,12 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingListStream> &&stream) override {}
   void add(ref_<OutgoingInvokeStream> &&stream) override {}
   void add(ref_<OutgoingSetStream> &&stream) override {}
+  ref_<NodeModel> get_profile(const string_ &path, bool dsa_standard) override {
+    return ref_<NodeModel>();
+  }
   // TODO: keep in mind
   void custom_destroy() {
-    //last_subscribe_stream->destroy();
+    // last_subscribe_stream->destroy();
     last_subscribe_stream.reset();
   }
 };
@@ -245,7 +249,7 @@ TEST_F(ResponderTest, SubscribeAcceptor) {
   ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return mock_stream_acceptor->unsubscribed;
   });
-  //subscribe_stream->destroy();
+  // subscribe_stream->destroy();
   tcp_server->destroy_in_strand(tcp_server);
   web_server->destroy();
   destroy_client_in_strand(tcp_client);
