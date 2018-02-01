@@ -17,14 +17,9 @@ StcpConnection::StcpConnection(LinkStrandRef &strand,
 
 void StcpConnection::destroy_impl() {
   LOG_DEBUG(_strand->logger(), LOG << "connection closed");
-  try {
-    if (_socket_open.exchange(false)) {
-      _socket.shutdown();
-    }
-  } catch (boost::exception &e) {
+  if (_socket_open.exchange(false)) {
     _socket.lowest_layer().close();
   }
-
   Connection::destroy_impl();
 }
 
