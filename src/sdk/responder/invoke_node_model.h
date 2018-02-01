@@ -37,8 +37,8 @@ class SimpleInvokeNode : public InvokeNodeModel {
   // return other type for normal invoke response
   typedef std::function<Var(Var &&)> SimpleCallback;
 
-  typedef std::function<void(Var &&, SimpleInvokeNode &,
-                             OutgoingInvokeStream &)>
+  typedef std::function<void(Var &&, SimpleInvokeNode &, OutgoingInvokeStream &,
+                             ref_<NodeState> &&)>
       FullCallback;
 
   SimpleInvokeNode(LinkStrandRef &&strand, SimpleCallback &&callback,

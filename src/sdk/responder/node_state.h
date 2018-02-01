@@ -90,7 +90,8 @@ class NodeState : public DestroyableRef<NodeState> {
   //////////////////////////
   // Getters
   //////////////////////////
-  const string_ &path() { return _path.full_str(); }
+  const string_ &get_full_path() { return _path.full_str(); }
+  const Path &get_path() { return _path; }
 
   inline bool is_idle() {
     return _subscription_streams.empty() && _list_streams.empty() &&

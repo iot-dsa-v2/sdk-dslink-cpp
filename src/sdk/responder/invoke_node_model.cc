@@ -2,6 +2,7 @@
 
 #include "invoke_node_model.h"
 
+#include "node_state.h"
 #include "message/request/invoke_request_message.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 
@@ -45,12 +46,14 @@ SimpleInvokeNode::SimpleInvokeNode(LinkStrandRef &&strand,
 void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
                                  ref_<NodeState> &parent) {
   stream->on_request(
-      ([ this, paged_cache = ref_<IncomingPageCache<InvokeRequestMessage>>() ](
-          OutgoingInvokeStream & s,
-          ref_<const InvokeRequestMessage> && message) mutable {
+      ([
+        this, ref = get_ref(), parent,
+        paged_cache = ref_<IncomingPageCache<InvokeRequestMessage>>()
+      ](OutgoingInvokeStream & s,
+        ref_<const InvokeRequestMessage> && message) mutable {
         if (message == nullptr) {
           if (_full_callback != nullptr) {
-            _full_callback(Var(), *this, s);
+            _full_callback(Var(), *this, s, std::move(parent));
           }
           return;  // nullptr is for destroyed callback, no need to handle here
         }
@@ -83,7 +86,7 @@ void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
           s.send_response(std::move(response));
         } else if (_full_callback != nullptr) {
           // callback handles everything
-          _full_callback(message->get_value(), *this, s);
+          _full_callback(message->get_value(), *this, s, std::move(parent));
         } else {
           s.close();
         }

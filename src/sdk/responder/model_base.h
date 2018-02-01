@@ -44,6 +44,8 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   explicit NodeModelBase(LinkStrandRef &&strand);
   virtual ~NodeModelBase();
 
+  const ref_<NodeState> &get_state() const { return _state; };
+
   ModelRef get_child(const string_ &name);
 
   ModelRef add_child(const string_ &name, ModelRef &&model);

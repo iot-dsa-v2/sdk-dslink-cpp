@@ -61,6 +61,7 @@ class Path {
 
   const Path next() const { return Path(_data, _current + 1); }
   const Path previous() const { return Path(_data, _current - 1); }
+  const Path move_pos(size_t idx) const { return Path(_data, idx); }
   const Path rest_part(const Path &base) const {
     return Path(_data, base._data->names.size());
   }

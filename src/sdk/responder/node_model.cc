@@ -19,6 +19,26 @@ NodeModel::NodeModel(LinkStrandRef &&strand,
     : NodeModelBase(std::move(strand)) {
   set_value_require_permission(write_require_permission);
 };
+NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
+                     PermissionLevel write_require_permission)
+    : NodeModelBase(std::move(strand)),
+      _profile(profile) {
+  set_value_require_permission(write_require_permission);
+
+  auto & state = profile->get_state();
+  if (state == nullptr || state->get_path().data()->names[0] != "pub") {
+    LOG_FATAL(LOG << "invalid profile node" );
+  }
+  if ( state->get_path().data()->names[1] == "dsa") {
+    // global profile on all brokers
+    update_property("$is",
+                    Var("/" + state->get_path().move_pos(1).remain_str()));
+  } else {
+    update_property("$is", Var(state->get_path().move_pos(1).remain_str()));
+  }
+
+}
+
 void NodeModel::set_value_require_permission(PermissionLevel permission_level) {
   if (permission_level >= PermissionLevel::WRITE &&
       permission_level <= PermissionLevel::CONFIG) {
@@ -57,9 +77,21 @@ void NodeModel::initialize() {
   for (auto &it : _list_children) {
     add_child(it.first, ModelRef(it.second.get()));
   }
+  if (_profile != nullptr) {
+    for (auto &it : _profile->_list_children) {
+      auto child_state = _state->get_child(it.first, true);
+      // add profile node only when it doesn't exist already
+      if (child_state->get_model() == nullptr) {
+        child_state->set_model(it.second->get_ref());
+      }
+    }
+  }
 }
 
 void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
+  if (_profile != nullptr) {
+    stream.update_list_pub_path("pub");
+  }
   send_props_list(stream);
   send_children_list(stream);
   stream.update_response_status(MessageStatus::OK);

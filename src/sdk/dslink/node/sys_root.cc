@@ -17,7 +17,8 @@ LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, ref_<DsLink> &&link)
         "stop", make_ref_<SimpleInvokeNode>(
                     _strand->get_ref(),
                     [link = std::move(link)](Var && v, SimpleInvokeNode & node,
-                                             OutgoingInvokeStream & stream) {
+                                             OutgoingInvokeStream & stream,
+                                             ref_<NodeState> && parent) {
                       // Checking Token
                       if (v.get_type() == Var::STRING &&
                           link->get_close_token() == v.get_string()) {

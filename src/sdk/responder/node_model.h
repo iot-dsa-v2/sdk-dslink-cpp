@@ -17,6 +17,7 @@ class NodeModel : public NodeModelBase {
   void set_value_require_permission(PermissionLevel permission_level);
 
  protected:
+  ref_<NodeModel> _profile;
   std::unordered_map<string_, VarBytesRef> _metas;
   std::unordered_map<string_, VarBytesRef> _attributes;
   std::unordered_map<string_, ref_<NodeModelBase>> _list_children;
@@ -30,6 +31,8 @@ class NodeModel : public NodeModelBase {
 
  public:
   NodeModel(LinkStrandRef &&strand,
+            PermissionLevel write_require_permission = PermissionLevel::NEVER);
+  NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;

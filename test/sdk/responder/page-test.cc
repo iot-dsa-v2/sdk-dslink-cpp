@@ -28,7 +28,8 @@ TEST_F(ResponderTest, PagedInvokeRequest) {
   Var last_request;
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
       server_strand.strand->get_ref(),
-      [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream) {
+      [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
+          ref_<NodeState> &&parent) {
         last_request = std::move(v);
         stream.close();
       });
@@ -125,7 +126,8 @@ TEST_F(ResponderTest, PagedInvokeResponse) {
 
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
       server_strand.strand->get_ref(),
-      [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream) {
+      [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
+          ref_<NodeState> &&parent) {
         auto first_response = make_ref_<InvokeResponseMessage>();
         first_response->set_status(MessageStatus::CLOSED);
         first_response->set_value(Var(big_str1));

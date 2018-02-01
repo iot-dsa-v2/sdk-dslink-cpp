@@ -18,9 +18,11 @@ BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
         make_ref_<SimpleInvokeNode>(
             _strand->get_ref(),
             [broker = std::move(broker)](Var && v, SimpleInvokeNode & node,
-                                         OutgoingInvokeStream & stream) {
-               //Checking Token
-               if (v.get_type() == Var::STRING && broker->get_close_token() == v.get_string()) {
+                                         OutgoingInvokeStream & stream,
+                                         ref_<NodeState> && parent) {
+              // Checking Token
+              if (v.get_type() == Var::STRING &&
+                  broker->get_close_token() == v.get_string()) {
 
                 broker->strand->add_timer(1000, [broker](bool canceled) {
                   LOG_SYSTEM(broker.get()->strand.get()->logger(),
@@ -32,10 +34,9 @@ BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
                 stream.close();
                 // make sure the close message is sent asap
                 stream.make_critical();
-               }
-               else {
+              } else {
                 stream.close(MessageStatus::INVALID_PARAMETER);
-               }
+              }
             },
             PermissionLevel::CONFIG));
     }
