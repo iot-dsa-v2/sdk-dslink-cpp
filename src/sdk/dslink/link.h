@@ -9,15 +9,33 @@
 #include "core/editable_strand.h"
 #include "core/session.h"
 #include "list_merger.h"
-#include "subscribe_merger.h"
 #include "module/module.h"
+#include "subscribe_merger.h"
 
 namespace dsa {
 class App;
 class TcpServer;
 class LinkRoot;
 
-class DsLink final : public WrapperStrand {
+class DsLinkRequester : public WrapperStrand {
+ public:
+  virtual ref_<IncomingSubscribeCache> subscribe(
+      const string_ &path, IncomingSubscribeCache::Callback &&callback,
+      const SubscribeOptions &options = SubscribeOptions::default_options) = 0;
+
+  virtual ref_<IncomingListCache> list(
+      const string_ &path, IncomingListCache::Callback &&callback) = 0;
+
+  virtual ref_<IncomingInvokeStream> invoke(
+      IncomingInvokeStreamCallback &&callback,
+      ref_<const InvokeRequestMessage> &&message) = 0;
+
+  virtual ref_<IncomingSetStream> set(
+      IncomingSetStreamCallback &&callback,
+      ref_<const SetRequestMessage> &&message) = 0;
+};
+
+class DsLink final : public DsLinkRequester {
   friend class SubscribeMerger;
   friend class ListMerger;
 
@@ -25,6 +43,9 @@ class DsLink final : public WrapperStrand {
   typedef std::function<void(IncomingListCache &,
                              const std::vector<std::string> &)>
       ListCallback;
+  typedef std::function<void(const shared_ptr_<Connection> &,
+                             DsLinkRequester &)>
+      LinkOnConnectCallback;
 
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
@@ -60,12 +81,14 @@ class DsLink final : public WrapperStrand {
  public:
   // init raw responder root node, the dslink won't have the default standard
   // node structure
-  void init_responder_raw(ref_<NodeModelBase> &&root_node, ref_<Module>&& default_module = nullptr);
+  void init_responder_raw(ref_<NodeModelBase> &&root_node,
+                          ref_<Module> &&module = nullptr);
   // init the responder's main node;
-  void init_responder(ref_<NodeModelBase> &&main_node = nullptr, ref_<Module>&& default_module = nullptr);
+  void init_responder(ref_<NodeModelBase> &&main_node = nullptr,
+                      ref_<Module> &&module = nullptr);
   template <class NodeClass>
-  void init_responder(ref_<Module>&& default_module = nullptr) {
-    init_responder(make_ref_<NodeClass>(strand), std::move(default_module));
+  void init_responder(ref_<Module> &&module = nullptr) {
+    init_responder(make_ref_<NodeClass>(strand), std::move(module));
   }
 
   ref_<NodeModelBase> add_to_main_node(const string_ &name,
@@ -73,12 +96,12 @@ class DsLink final : public WrapperStrand {
   void remove_from_main_node(const string_ &name);
 
   // the on_connect callback will always be called from main strand
-  void run(Client::OnConnectCallback &&on_connect = nullptr,
+  void run(DsLink::LinkOnConnectCallback &&on_connect = nullptr,
            uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
   // if app is wanted to be used later,
   // only connect should be called and
   // run should  be called manually again and
-  void connect(Client::OnConnectCallback &&on_connect = nullptr,
+  void connect(DsLink::LinkOnConnectCallback &&on_connect = nullptr,
                uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
   // requester functions
@@ -86,19 +109,20 @@ class DsLink final : public WrapperStrand {
   std::unordered_map<std::string, ref_<SubscribeMerger>> _subscribe_mergers;
   std::unordered_map<std::string, ref_<ListMerger>> _list_mergers;
 
- public:
+ private:
   ref_<IncomingSubscribeCache> subscribe(
       const string_ &path, IncomingSubscribeCache::Callback &&callback,
-      const SubscribeOptions &options = SubscribeOptions::default_options);
+      const SubscribeOptions &options =
+          SubscribeOptions::default_options) final;
 
   ref_<IncomingListCache> list(const string_ &path,
-                               IncomingListCache::Callback &&callback);
+                               IncomingListCache::Callback &&callback) final;
 
   ref_<IncomingInvokeStream> invoke(IncomingInvokeStreamCallback &&callback,
-                                    ref_<const InvokeRequestMessage> &&message);
+                                    ref_<const InvokeRequestMessage> &&message) final;
 
   ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
-                              ref_<const SetRequestMessage> &&message);
+                              ref_<const SetRequestMessage> &&message) final;
 };
 }
 

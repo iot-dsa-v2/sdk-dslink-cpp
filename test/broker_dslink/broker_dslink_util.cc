@@ -66,7 +66,7 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_na
 
   if(connect){
     bool connected = false;
-    link->connect([&](const shared_ptr_<Connection> connection) {
+    link->connect([&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) {
       connected = true;
     });
 

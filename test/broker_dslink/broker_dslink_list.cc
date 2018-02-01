@@ -28,66 +28,66 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   auto link = broker_dslink_test::create_mock_dslink(app, port, "test1", protocol());
 
   bool is_connected = false;
-  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
-  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
+  link->connect([&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) { is_connected = true; // list on root node
+    ListResponses root_list_responses;
+    bool listed = false;
+    link_req.list("",
+               [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                 root_list_responses.push_back(str);
+                 VarMap map = cache.get_map();
+                 EXPECT_TRUE(root_list_responses.size() == 1);
+                 EXPECT_TRUE(root_list_responses[0].size() == 0);
+                 EXPECT_TRUE(map["downstream"].is_map());
+                 EXPECT_TRUE(map["home"].is_map());
+                 EXPECT_TRUE(map["pub"].is_map());
+                 EXPECT_TRUE(map["sys"].is_map());
+                 EXPECT_TRUE(map["upstream"].is_map());
+                 listed = true;
+               });
 
-  // list on root node
-  ListResponses root_list_responses;
-  bool listed = false;
-  link->list("",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               root_list_responses.push_back(str);
-               VarMap map = cache.get_map();
-               EXPECT_TRUE(root_list_responses.size() == 1);
-               EXPECT_TRUE(root_list_responses[0].size() == 0);
-               EXPECT_TRUE(map["downstream"].is_map());
-               EXPECT_TRUE(map["home"].is_map());
-               EXPECT_TRUE(map["pub"].is_map());
-               EXPECT_TRUE(map["sys"].is_map());
-               EXPECT_TRUE(map["upstream"].is_map());
-               listed = true;
-             });
+    WAIT_EXPECT_TRUE(1000, [&]() -> bool { return listed; });
 
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return listed; });
+    // list on child node
+    listed = false;
+    link_req.list("downstream",
+               [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                 VarMap downstream_map = cache.get_map();
+                 EXPECT_TRUE(downstream_map["test1"].is_map());
+                 listed = true;
+               });
 
-  // list on child node
-  listed = false;
-  link->list("downstream",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               VarMap downstream_map = cache.get_map();
-               EXPECT_TRUE(downstream_map["test1"].is_map());
-               listed = true;
-             });
+    WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
+    // list on sys
+    listed = false;
+    link_req.list("sys",
+               [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                 VarMap sys_map = cache.get_map();
+                 EXPECT_TRUE(sys_map["stop"].is_map());
+                 listed = true;
+               });
 
-  // list on sys
-  listed = false;
-  link->list("sys",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               VarMap sys_map = cache.get_map();
-               EXPECT_TRUE(sys_map["stop"].is_map());
-               listed = true;
-             });
+    WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
+    // list on self
+    listed = false;
+    link_req.list("downstream/test1",
+               [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                 VarMap self_map = cache.get_map();
+                 EXPECT_TRUE(self_map["$$dsid"].is_string());
+                 EXPECT_TRUE(self_map["main"].is_map());
+                 EXPECT_TRUE(self_map["pub"].is_map());
+                 EXPECT_TRUE(self_map["sys"].is_map());
+                 listed = true;
+               });
 
-  // list on self
-  listed = false;
-  link->list("downstream/test1",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               VarMap self_map = cache.get_map();
-               EXPECT_TRUE(self_map["$$dsid"].is_string());
-               EXPECT_TRUE(self_map["main"].is_map());
-               EXPECT_TRUE(self_map["pub"].is_map());
-               EXPECT_TRUE(self_map["sys"].is_map());
-               listed = true;
-             });
+    WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
-  WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
+  });
   link->strand->post([&](){link->destroy();});
   broker->strand->post([&](){broker->destroy();});
+  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
   app->close();
 

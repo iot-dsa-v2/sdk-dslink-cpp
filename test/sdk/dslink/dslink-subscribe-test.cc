@@ -54,22 +54,22 @@ TEST_F(DslinkTest, SubscribeTest) {
 
   // connection
   bool is_connected = false;
-  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
+  link->connect([&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) { is_connected = true;
+    // add a callback when connected to broker
+    std::vector<std::string> messages;
 
-  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() {return is_connected;});
-
-  // add a callback when connected to broker
-  std::vector<std::string> messages;
-
-  link->subscribe("",
-                  [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
+    link_req.subscribe("",
+                    [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
                       messages.push_back(message->get_value().value.get_string()); });
 
-  ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
-                    [&]() { return messages.size() == 1; });
+    ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
+                      [&]() { return messages.size() == 1; });
 
-  EXPECT_TRUE(messages.size() == 1);
-  EXPECT_EQ(messages.at(0), "hello");
+    EXPECT_TRUE(messages.size() == 1);
+    EXPECT_EQ(messages.at(0), "hello");
+  });
+
+  ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() {return is_connected;});
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);
@@ -106,44 +106,46 @@ TEST_F(DslinkTest, SubscribeMultiTest) {
 
   // connection
   bool is_connected = false;
-  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
+  link->connect([&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) { is_connected = true;
+
+    // Initial Subcribe
+    std::vector<std::string> messages_initial;
+
+    SubscribeOptions initial_options;
+    initial_options.queue_duration = 0x1234;
+    initial_options.queue_size = 0x5678;
+
+    link_req.subscribe("",
+                    [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
+                      messages_initial.push_back(message->get_value().value.get_string()); },
+                    initial_options);
+    ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
+                      [&]() { return messages_initial.size() == 1; });
+
+    // Subscribe update
+    std::vector<std::string> messages_updated;
+
+    SubscribeOptions update_options;
+    update_options.queue_duration = 0x9876;
+    update_options.queue_size = 0x5432;
+
+    link_req.subscribe("",
+                    [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
+                      messages_updated.push_back(message->get_value().value.get_string()); },
+                    update_options);
+
+    ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
+                      [&]() { return messages_initial.size() == 2; });
+
+    // TODO: How to Check return messages
+    EXPECT_EQ(messages_updated.size(), 2);
+    EXPECT_STREQ(messages_initial.at(0).c_str(), "hello"); // received for the first subscribe request
+    EXPECT_STREQ(messages_initial.at(1).c_str(), "world"); // received after value changed in the second request
+    EXPECT_STREQ(messages_updated.at(0).c_str(), "hello"); // received just after the second subscribe request
+    EXPECT_STREQ(messages_updated.at(1).c_str(), "world"); // received after value changed in the second request
+  });
   ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() {return is_connected;});
 
-  // Initial Subcribe
-  std::vector<std::string> messages_initial;
-
-  SubscribeOptions initial_options;
-  initial_options.queue_duration = 0x1234;
-  initial_options.queue_size = 0x5678;
-
-  link->subscribe("",
-                  [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
-                      messages_initial.push_back(message->get_value().value.get_string()); },
-                  initial_options);
-  ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
-                    [&]() { return messages_initial.size() == 1; });
-
-  // Subscribe update
-  std::vector<std::string> messages_updated;
-
-  SubscribeOptions update_options;
-  update_options.queue_duration = 0x9876;
-  update_options.queue_size = 0x5432;
-
-  link->subscribe("",
-                  [&](IncomingSubscribeCache &cache, ref_<const SubscribeResponseMessage> message) {
-                      messages_updated.push_back(message->get_value().value.get_string()); },
-                  update_options);
-
-  ASYNC_EXPECT_TRUE(1000, *link.get()->strand,
-                    [&]() { return messages_initial.size() == 2; });
-
-  // TODO: How to Check return messages
-  EXPECT_EQ(messages_updated.size(), 2);
-  EXPECT_STREQ(messages_initial.at(0).c_str(), "hello"); // received for the first subscribe request
-  EXPECT_STREQ(messages_initial.at(1).c_str(), "world"); // received after value changed in the second request
-  EXPECT_STREQ(messages_updated.at(0).c_str(), "hello"); // received just after the second subscribe request
-  EXPECT_STREQ(messages_updated.at(1).c_str(), "world"); // received after value changed in the second request
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);

@@ -64,30 +64,32 @@ TEST_F(DslinkTest, ServerTest) {
   // connection
   bool is_connected = false;
   link->connect(
-      [&](const shared_ptr_<Connection> connection) { is_connected = true; });
+      [&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) { is_connected = true;
+        std::vector<string_> list_result;
+        // List test
+        auto list_cache1 = link_req.list("",
+                                      [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                                      });
+        WAIT_EXPECT_TRUE(1000, [&]() { return list_cache1->get_map().size() != 0; });
+        EXPECT_NE(list_cache1->get_map().find("sys"), list_cache1->get_map().end());
+        EXPECT_NE(list_cache1->get_map().find("pub"), list_cache1->get_map().end());
+        EXPECT_NE(list_cache1->get_map().find("main"), list_cache1->get_map().end());
+
+        // add a callback when connected to broker
+        std::vector<std::string> messages;
+        link_req.subscribe("main/child_a",
+                        [&](IncomingSubscribeCache &cache,
+                            ref_<const SubscribeResponseMessage> message) {
+                          messages.push_back(message->get_value().value.get_string());
+                        });
+        WAIT_EXPECT_TRUE(1000, [&]() { return messages.size() == 1; });
+        EXPECT_TRUE(messages.size() == 1);
+        EXPECT_EQ(messages.at(0), "test string value 1");
+      });
 
   ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
-  std::vector<string_> list_result;
-  // List test
-  auto list_cache1 = link->list("",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-             });
-  WAIT_EXPECT_TRUE(1000, [&]() { return list_cache1->get_map().size() != 0; });
-  EXPECT_NE(list_cache1->get_map().find("sys"), list_cache1->get_map().end());
-  EXPECT_NE(list_cache1->get_map().find("pub"), list_cache1->get_map().end());
-  EXPECT_NE(list_cache1->get_map().find("main"), list_cache1->get_map().end());
 
-  // add a callback when connected to broker
-  std::vector<std::string> messages;
-  link->subscribe("main/child_a",
-                  [&](IncomingSubscribeCache &cache,
-                      ref_<const SubscribeResponseMessage> message) {
-                    messages.push_back(message->get_value().value.get_string());
-                  });
-  WAIT_EXPECT_TRUE(1000, [&]() { return messages.size() == 1; });
-  EXPECT_TRUE(messages.size() == 1);
-  EXPECT_EQ(messages.at(0), "test string value 1");
 
   // Cleaning test
   destroy_dslink_in_strand(linkResp);
@@ -123,7 +125,7 @@ TEST_F(DslinkTest, CloseTest) {
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   linkResp->init_responder<ExampleNodeRoot>();
-  linkResp->connect([&](const shared_ptr_<Connection> connection) {});
+  linkResp->connect([&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) {});
 
   EXPECT_EQ(close_token, linkResp->get_close_token());
 
@@ -140,37 +142,39 @@ TEST_F(DslinkTest, CloseTest) {
   // connection
   bool is_connected = false;
   link->connect(
-      [&](const shared_ptr_<Connection> connection) { is_connected = true; });
+      [&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) { is_connected = true;
+        auto close_request_with_wrong_token = make_ref_<InvokeRequestMessage>();
+        close_request_with_wrong_token->set_value(Var("wrongtoken"));
+        close_request_with_wrong_token->set_target_path("sys/stop");
+
+        ref_<const InvokeResponseMessage> response_invoke_failed;
+        link_req.invoke(
+            [&](IncomingInvokeStream &stream,
+                ref_<const InvokeResponseMessage> &&msg) {
+              response_invoke_failed = std::move(msg);
+            },
+            copy_ref_(close_request_with_wrong_token));
+
+        WAIT_EXPECT_TRUE(1000,
+                         [&]() -> bool { return response_invoke_failed != nullptr; });
+        EXPECT_EQ(response_invoke_failed->get_status(),
+                  MessageStatus::INVALID_PARAMETER);
+        EXPECT_FALSE(linkResp->is_destroyed());
+
+        auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
+        close_request_with_valid_token->set_value(Var(close_token));
+        close_request_with_valid_token->set_target_path("sys/stop");
+
+        link_req.invoke([&](IncomingInvokeStream &stream,
+                         ref_<const InvokeResponseMessage> &&msg) {},
+                     copy_ref_(close_request_with_valid_token));
+
+        WAIT_EXPECT_TRUE(2000, [&]() -> bool { return linkResp->is_destroyed(); });
+      });
 
   ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
-  auto close_request_with_wrong_token = make_ref_<InvokeRequestMessage>();
-  close_request_with_wrong_token->set_value(Var("wrongtoken"));
-  close_request_with_wrong_token->set_target_path("sys/stop");
 
-  ref_<const InvokeResponseMessage> response_invoke_failed;
-  link->invoke(
-      [&](IncomingInvokeStream &stream,
-          ref_<const InvokeResponseMessage> &&msg) {
-        response_invoke_failed = std::move(msg);
-      },
-      copy_ref_(close_request_with_wrong_token));
-
-  WAIT_EXPECT_TRUE(1000,
-                   [&]() -> bool { return response_invoke_failed != nullptr; });
-  EXPECT_EQ(response_invoke_failed->get_status(),
-            MessageStatus::INVALID_PARAMETER);
-  EXPECT_FALSE(linkResp->is_destroyed());
-
-  auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
-  close_request_with_valid_token->set_value(Var(close_token));
-  close_request_with_valid_token->set_target_path("sys/stop");
-
-  link->invoke([&](IncomingInvokeStream &stream,
-                   ref_<const InvokeResponseMessage> &&msg) {},
-               copy_ref_(close_request_with_valid_token));
-
-  WAIT_EXPECT_TRUE(2000, [&]() -> bool { return linkResp->is_destroyed(); });
 
   destroy_dslink_in_strand(link);
 

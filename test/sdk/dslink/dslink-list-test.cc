@@ -62,66 +62,68 @@ TEST_F(DslinkTest, ListTest) {
   bool is_connected = false;
   auto link = server_strand.create_dslink(true);
   link->connect(
-      [&](const shared_ptr_<Connection> connection) { is_connected = true; });
+      [&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) { is_connected = true;
+        // list on root node
+        ListResponses root_list_responses;
+        auto list_cache1 = link_req.list("",
+                                      [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                                        root_list_responses.push_back(str);
+                                      });
+
+        WAIT_EXPECT_TRUE(1000, [&]() -> bool { return list_cache1->get_map().size() != 0; });
+        {
+          EXPECT_TRUE(root_list_responses.size() == 1);
+          EXPECT_TRUE(root_list_responses[0].size() == 0);
+          EXPECT_TRUE(list_cache1->get_map().at("child_a").is_map());
+          EXPECT_EQ(list_cache1->get_map().at("child_a").get_map().at("$is").to_string(), "test_class");
+          EXPECT_TRUE(list_cache1->get_map().at("child_b").is_map());
+          EXPECT_EQ(list_cache1->get_map().at("child_b").get_map().at("$is").to_string(), "test_class");
+        }
+
+        // list on child node
+        auto list_cache2 = link_req.list("child_a",
+                                      [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                                      });
+
+        WAIT_EXPECT_TRUE(1000, [&]() { return list_cache2->get_map().size() != 0; });
+        {
+          EXPECT_EQ(list_cache2->get_map().at("$is").to_string(), "test_class");
+          EXPECT_EQ(list_cache2->get_map().at("@unit").to_string(), "test_unit");
+        }
+
+        // update root child
+        root_list_responses.clear();
+
+        server_strand.strand->post([&]() {
+          root_node->add_list_child("child_c",
+                                    new MockNodeChild(server_strand.strand));
+        });
+        WAIT_EXPECT_TRUE(1000, [&]() { return root_list_responses.size() != 0; });
+        {
+          EXPECT_TRUE(root_list_responses.size() == 1);
+          EXPECT_TRUE(root_list_responses[0].size() == 1);
+          EXPECT_TRUE(root_list_responses[0][0] == "child_c");
+          EXPECT_TRUE(list_cache1->get_map().at("child_c").is_map());
+          EXPECT_EQ(list_cache1->get_map().at("child_c").get_map().at("$is").to_string(), "test_class");
+        }
+
+        // list on root node revisited
+        ListResponses root_revisited_list_responses;
+        auto list_cache_revisited = link_req.list("",
+                                               [&](IncomingListCache &cache, const std::vector<string_> &str) {
+                                                 root_revisited_list_responses.push_back(str);
+                                               });
+
+        WAIT_EXPECT_TRUE(1000,
+                         [&]() { return root_revisited_list_responses.size() == 1; });
+        {
+          EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
+          EXPECT_TRUE(list_cache_revisited->get_map() == list_cache1->get_map());
+        }
+      });
   ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
-  // list on root node
-  ListResponses root_list_responses;
-  auto list_cache1 = link->list("",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               root_list_responses.push_back(str);
-             });
 
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return list_cache1->get_map().size() != 0; });
-  {
-    EXPECT_TRUE(root_list_responses.size() == 1);
-    EXPECT_TRUE(root_list_responses[0].size() == 0);
-    EXPECT_TRUE(list_cache1->get_map().at("child_a").is_map());
-    EXPECT_EQ(list_cache1->get_map().at("child_a").get_map().at("$is").to_string(), "test_class");
-    EXPECT_TRUE(list_cache1->get_map().at("child_b").is_map());
-    EXPECT_EQ(list_cache1->get_map().at("child_b").get_map().at("$is").to_string(), "test_class");
-  }
-
-  // list on child node
-  auto list_cache2 = link->list("child_a",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-             });
-
-  WAIT_EXPECT_TRUE(1000, [&]() { return list_cache2->get_map().size() != 0; });
-  {
-    EXPECT_EQ(list_cache2->get_map().at("$is").to_string(), "test_class");
-    EXPECT_EQ(list_cache2->get_map().at("@unit").to_string(), "test_unit");
-  }
-
-  // update root child
-  root_list_responses.clear();
-
-  server_strand.strand->post([&]() {
-    root_node->add_list_child("child_c",
-                              new MockNodeChild(server_strand.strand));
-  });
-  WAIT_EXPECT_TRUE(1000, [&]() { return root_list_responses.size() != 0; });
-  {
-    EXPECT_TRUE(root_list_responses.size() == 1);
-    EXPECT_TRUE(root_list_responses[0].size() == 1);
-    EXPECT_TRUE(root_list_responses[0][0] == "child_c");
-    EXPECT_TRUE(list_cache1->get_map().at("child_c").is_map());
-    EXPECT_EQ(list_cache1->get_map().at("child_c").get_map().at("$is").to_string(), "test_class");
-  }
-
-  // list on root node revisited
-  ListResponses root_revisited_list_responses;
-  auto list_cache_revisited = link->list("",
-             [&](IncomingListCache &cache, const std::vector<string_> &str) {
-               root_revisited_list_responses.push_back(str);
-             });
-
-  WAIT_EXPECT_TRUE(1000,
-                   [&]() { return root_revisited_list_responses.size() == 1; });
-  {
-    EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
-    EXPECT_TRUE(list_cache_revisited->get_map() == list_cache1->get_map());
-  }
 
   tcp_server->destroy_in_strand(tcp_server);
   web_server->destroy();

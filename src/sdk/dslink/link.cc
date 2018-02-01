@@ -244,7 +244,7 @@ void DsLink::remove_from_main_node(const string_ &name) {
   _root->remove_from_main(name);
 }
 
-void DsLink::connect(Client::OnConnectCallback &&on_connect,
+void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
     LOG_FATAL(
@@ -294,11 +294,13 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
     }
 
     _client = make_ref_<Client>(*this);
-    _client->connect(std::move(on_connect), callback_type);
+    _client->connect([this, on_connect = std::move(on_connect)](const shared_ptr_<Connection> connection) {
+      on_connect(connection, *this);
+    },callback_type);
   });
 }
 
-void DsLink::run(Client::OnConnectCallback &&on_connect,
+void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
                  uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");

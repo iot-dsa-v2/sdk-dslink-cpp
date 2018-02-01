@@ -34,11 +34,11 @@ int main(int argc, const char* argv[]) {
   // link->run();
 
   // add a callback when connected to broker
-  link->run([&](const shared_ptr_<Connection> connection) {
+  link->run([&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) {
     cout << endl << "connected to broker";
 
     // subscribe
-    link->subscribe("main/child_a",
+    link_req.subscribe("main/child_a",
                     [](IncomingSubscribeCache&,
                        ref_<const SubscribeResponseMessage>& message) {
                       cout << endl
@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
                     });
 
     // list on the root node
-    link->list(
+    link_req.list(
         "", [](IncomingListCache& cache, const std::vector<string_> changes) {
           cout << endl << "receive list response";
           auto& map = cache.get_map();

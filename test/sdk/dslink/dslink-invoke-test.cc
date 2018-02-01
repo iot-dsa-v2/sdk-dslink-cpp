@@ -1,8 +1,8 @@
+#include <gtest/gtest.h>
 #include "dsa/message.h"
 #include "dsa/network.h"
 #include "dsa/responder.h"
 #include "dsa/stream.h"
-#include <gtest/gtest.h>
 
 #include "../async_test.h"
 #include "../test_config.h"
@@ -50,36 +50,36 @@ TEST_F(DslinkTest, PagedInvokeResponse) {
 
   // connection
   bool is_connected = false;
-  link->connect(
-      [&](const shared_ptr_<Connection> connection) { is_connected = true; });
+  link->connect([&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) {
+    is_connected = true;
+    auto first_request = make_ref_<InvokeRequestMessage>();
+
+    ref_<const InvokeResponseMessage> response;
+
+    auto invoke_stream = link_req.invoke(
+        [&](IncomingInvokeStream &stream,
+            ref_<const InvokeResponseMessage> &&msg) {
+          response = std::move(msg);
+        },
+        copy_ref_(first_request));
+
+    ASYNC_EXPECT_TRUE(500, *link->strand,
+                      [&]() -> bool { return response != nullptr; });
+
+    string_ response_str1 = response->get_value().to_string();
+
+    EXPECT_TRUE(response_str1 == big_str1);
+
+    // close the invoke stream
+    response.reset();
+    invoke_stream->close();
+
+    ASYNC_EXPECT_TRUE(500, *link->strand, [&]() -> bool {
+      return invoke_stream->is_destroyed() && invoke_stream->ref_count() == 1;
+    });
+  });
 
   ASYNC_EXPECT_TRUE(500, *link->strand, [&]() { return is_connected; });
-
-  auto first_request = make_ref_<InvokeRequestMessage>();
-
-  ref_<const InvokeResponseMessage> response;
-
-  auto invoke_stream = link->invoke(
-      [&](IncomingInvokeStream &stream,
-          ref_<const InvokeResponseMessage> &&msg) {
-        response = std::move(msg);
-      },
-      copy_ref_(first_request));
-
-  ASYNC_EXPECT_TRUE(500, *link->strand,
-                    [&]() -> bool { return response != nullptr; });
-
-  string_ response_str1 = response->get_value().to_string();
-
-  EXPECT_TRUE(response_str1 == big_str1);
-
-  // close the invoke stream
-  response.reset();
-  invoke_stream->close();
-
-  ASYNC_EXPECT_TRUE(500, *link->strand, [&]() -> bool {
-    return invoke_stream->is_destroyed() && invoke_stream->ref_count() == 1;
-  });
 
   tcp_server->destroy_in_strand(tcp_server);
   web_server->destroy();
