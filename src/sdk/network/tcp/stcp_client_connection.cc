@@ -28,7 +28,7 @@ void StcpClientConnection::connect(size_t reconnect_interval) {
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand->get_io_context());
   LOG_INFO(_strand->logger(),
-           LOG << "TCP client connecting to " << _hostname << ":" << _port);
+           LOG << "Secure TCP client connecting to " << _hostname << ":" << _port);
 
   tcp::resolver::results_type results =
       resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port)));
