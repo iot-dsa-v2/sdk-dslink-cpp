@@ -21,7 +21,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
   tcp::resolver resolver(_strand->get_io_context());
   // TODO: timeout
   LOG_INFO(_strand->logger(),
-           LOG << "TCP client connecting to " << _hostname << ":" << _port);
+           LOG << "WS client connecting to " << _hostname << ":" << _port);
 
   tcp::resolver::results_type results =
       resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port)));

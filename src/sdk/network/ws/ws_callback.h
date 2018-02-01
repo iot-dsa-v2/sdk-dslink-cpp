@@ -33,10 +33,11 @@ class DsaWsCallback {
       boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
     auto connection = make_shared_<WsServerConnection>(
-        *new websocket_stream{std::move(socket)}, _link_strand);
+        *make_shared_<websocket_stream>(std::move(socket)), _link_strand);
 
     connection->socket().async_accept(
-        req, [conn = connection, this](const boost::system::error_code& error) {
+        req,
+        [ conn = connection, this ](const boost::system::error_code& error) {
 
           // TODO: run within the strand?
           conn->accept();
