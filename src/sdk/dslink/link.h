@@ -9,8 +9,8 @@
 #include "core/editable_strand.h"
 #include "core/session.h"
 #include "list_merger.h"
-#include "subscribe_merger.h"
 #include "module/module.h"
+#include "subscribe_merger.h"
 
 namespace dsa {
 class App;
@@ -59,7 +59,8 @@ class DsLink final : public WrapperStrand {
   void parse_name(const string_ &name);
   void parse_server_port(uint16_t port);
 
-  void init_module(ref_<Module>&& default_module, bool use_standard_node_structure);
+  void init_module(ref_<Module> &&default_module,
+                   bool use_standard_node_structure);
 
  public:
   // init raw responder root node, the dslink won't have the default standard
@@ -73,8 +74,10 @@ class DsLink final : public WrapperStrand {
   }
 
   ref_<NodeModelBase> add_to_main_node(const string_ &name,
-                                       ref_<NodeModel> &&node);
+                                       ref_<NodeModelBase> &&node);
   void remove_from_main_node(const string_ &name);
+
+  ref_<NodeModel> add_to_pub(const string_ &path, ref_<NodeModel> &&node);
 
   // the on_connect callback will always be called from main strand
   void run(Client::OnConnectCallback &&on_connect = nullptr,
@@ -104,6 +107,6 @@ class DsLink final : public WrapperStrand {
   ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
                               ref_<const SetRequestMessage> &&message);
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_DSLINK_LINK_H

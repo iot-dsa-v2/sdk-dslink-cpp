@@ -2,13 +2,13 @@
 
 #include "link.h"
 
+#include <module/default/module_dslink_default.h>
+#include <module/module_with_loader.h>
 #include <util/string.h>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <regex>
-#include <module/default/module_dslink_default.h>
-#include <module/module_with_loader.h>
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
@@ -112,9 +112,11 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 }
 void DsLink::init_module(ref_<Module> &&default_module,
                          bool use_standard_node_structure) {
-  if(default_module == nullptr) default_module = make_ref_<ModuleDslinkDefault>();
+  if (default_module == nullptr)
+    default_module = make_ref_<ModuleDslinkDefault>();
 
-  auto module = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
+  auto module =
+      make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
   module->init_all(*_app, strand);
 
   strand->set_client_manager(module->get_client_manager());
@@ -236,7 +238,6 @@ void DsLink::parse_url(const string_ &url) {
   }
 }
 
-
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
@@ -247,20 +248,23 @@ void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node) {
   strand->set_responder_model(std::move(root_node));
 }
 void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
- if (_root == nullptr) {
-   LOG_FATAL(LOG << "init_responder called without root node");
- }
+  if (_root == nullptr) {
+    LOG_FATAL(LOG << "init_responder called without root node");
+  }
   if (main_node != nullptr) {
     _root->set_main(std::move(main_node));
   }
 }
 
 ref_<NodeModelBase> DsLink::add_to_main_node(const string_ &name,
-                                             ref_<NodeModel> &&node) {
+                                             ref_<NodeModelBase> &&node) {
   return std::move(_root->add_to_main(name, std::move(node)));
 }
 void DsLink::remove_from_main_node(const string_ &name) {
   _root->remove_from_main(name);
+}
+ref_<NodeModel> DsLink::add_to_pub(const string_ &path, ref_<NodeModel> &&node) {
+  return std::move(_root->add_to_pub(path, std::move(node)));
 }
 
 void DsLink::connect(Client::OnConnectCallback &&on_connect,
@@ -334,10 +338,9 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_SYSTEM(strand.get()->logger(),
-               LOG << "DsLink on_connect callback "
-                      "ignored since it was connected "
-                      "before\n");
+    LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink on_connect callback "
+                                              "ignored since it was connected "
+                                              "before\n");
   }
   LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink running");
   if (own_app) {
@@ -394,4 +397,4 @@ ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
                                               std::move(message));
 }
 string_ DsLink::get_close_token() { return close_token; }
-}
+}  // namespace dsa
