@@ -20,7 +20,8 @@ BrokerClient::BrokerClient() = default;
 BrokerClient::~BrokerClient() = default;
 
 ref_<Session> &BrokerClient::create_single_session(LinkStrandRef &strand) {
-  _single_session = make_ref_<Session>(strand->get_ref(), _info.dsid);
+  _single_session =
+      make_ref_<Session>(strand->get_ref(), _info.dsid, _info.responder_path);
   _single_session->set_on_connect([ this, keep_ref = get_ref() ](
       Session & session1, const shared_ptr_<Connection> &conn) {
     if (session1.is_destroyed()) {

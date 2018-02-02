@@ -42,7 +42,10 @@ void OutgoingListStream::update_list_refreshed() {
   _cached_map.clear();
 }
 void OutgoingListStream::update_list_pub_path(const string_ &path) {
-  // TODO implement this
+  if (!path.empty()) {
+    _pending_pub_path = path;
+    post_message();
+  }
 }
 size_t OutgoingListStream::peek_next_message_size(size_t available,
                                                   int64_t time) {
@@ -56,7 +59,10 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
   if (_status != MessageStatus::OK) {
     size += 2;
   }
-  // TODO: count the length for other dynamic headers and pub_path;
+  if (!_pending_pub_path.empty()) {
+    size += _pending_pub_path.size() + 3;  // type 1B + size 2B
+  }
+  // TODO: count the length for other dynamic headers;
   if (!_cached_map.empty()) {
     auto it = _cached_map.begin();
     size += it->first.size() + it->second->size() + 4;
@@ -83,6 +89,10 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   if (_refreshed) {
     message->set_refreshed(true);
     _refreshed = false;
+  }
+  if (!_pending_pub_path.empty()) {
+    message->set_pub_path(_pending_pub_path);
+    _pending_pub_path.clear();
   }
 
   size_t available_size = _next_size - message->size();

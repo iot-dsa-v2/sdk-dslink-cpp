@@ -7,6 +7,7 @@
 #include "server.h"
 #include "stream/ack_stream.h"
 #include "stream/ping_stream.h"
+#include "util/string.h"
 
 namespace dsa {
 
@@ -18,6 +19,12 @@ Session::Session(LinkStrandRef strand, const string_ &dsid)
       _timer(_strand->add_timer(0, nullptr)),
       _ack_stream(new AckStream(get_ref())),
       _ping_stream(new PingStream(get_ref())) {}
+
+Session::Session(LinkStrandRef strand, const string_ &dsid,
+                 const string_ &base_path)
+    : Session(std::move(strand), dsid) {
+  _base_path = base_path;
+}
 
 Session::~Session() = default;
 
@@ -241,6 +248,10 @@ void Session::write_critical_stream(ref_<MessageStream> &&stream) {
       write_loop(std::move(ref));
     });
   }
+}
+
+string_ Session::map_pub_path(const string_ &path) {
+  return str_join_path(_base_path, path);
 }
 
 }  // namespace dsa
