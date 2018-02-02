@@ -2,8 +2,8 @@
 
 1. install libssl-dev
 1. download and extract boost 1.66
-1. run `bootstrap.sh`
-1. run `/b2 install`
+1. run `./bootstrap.sh`
+1. run `./b2 install`
 
 ## Windows Visual Studio Setup
 
