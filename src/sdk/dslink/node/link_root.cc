@@ -14,7 +14,7 @@ LinkRoot::LinkRoot(LinkStrandRef &&strand, ref_<DsLink> &&link)
 
 LinkRoot::~LinkRoot() = default;
 void LinkRoot::destroy_impl() {
-  // TODO: remove all children
+  NodeModel::destroy_impl();
 }
 
 void LinkRoot::set_main(ref_<NodeModelBase> &&main_node) {

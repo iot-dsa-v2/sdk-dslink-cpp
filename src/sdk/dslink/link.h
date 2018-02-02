@@ -28,7 +28,9 @@ class DsLink final : public WrapperStrand {
 
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
-         const string_ &version, const shared_ptr_<App> &app = nullptr);
+         const string_ &version, const shared_ptr_<App> &app = nullptr,
+         ref_<Module> &&default_module = nullptr,
+         bool use_standard_node_structure = true);
   ~DsLink() final;
   App &get_app();
   string_ get_close_token();
@@ -57,15 +59,17 @@ class DsLink final : public WrapperStrand {
   void parse_name(const string_ &name);
   void parse_server_port(uint16_t port);
 
+  void init_module(ref_<Module>&& default_module, bool use_standard_node_structure);
+
  public:
   // init raw responder root node, the dslink won't have the default standard
   // node structure
-  void init_responder_raw(ref_<NodeModelBase> &&root_node, ref_<Module>&& default_module = nullptr);
+  void init_responder_raw(ref_<NodeModelBase> &&root_node);
   // init the responder's main node;
-  void init_responder(ref_<NodeModelBase> &&main_node = nullptr, ref_<Module>&& default_module = nullptr);
+  void init_responder(ref_<NodeModelBase> &&main_node = nullptr);
   template <class NodeClass>
-  void init_responder(ref_<Module>&& default_module = nullptr) {
-    init_responder(make_ref_<NodeClass>(strand), std::move(default_module));
+  void init_responder() {
+    init_responder(make_ref_<NodeClass>(strand));
   }
 
   ref_<NodeModelBase> add_to_main_node(const string_ &name,
