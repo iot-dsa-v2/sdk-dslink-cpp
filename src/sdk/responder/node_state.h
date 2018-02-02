@@ -86,6 +86,10 @@ class NodeState : public DestroyableRef<NodeState> {
 
   void set_model(ModelRef &&model);
   ModelRef &get_model() { return _model; }
+  template <class ModelClass>
+  ModelClass *model_cast() {
+    return dynamic_cast<ModelClass *>(_model.get());
+  }
 
   //////////////////////////
   // Getters
