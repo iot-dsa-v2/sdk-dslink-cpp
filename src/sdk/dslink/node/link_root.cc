@@ -33,7 +33,7 @@ ref_<NodeModelBase> LinkRoot::add_to_main(const string_ &name,
 ref_<NodeModel> LinkRoot::add_to_pub(const string_ &path_str,
                                      ref_<NodeModel> &&node) {
   Path path(path_str);
-  if (!path.is_invalid()) {
+  if (path.is_invalid()) {
     LOG_FATAL(LOG << "invalid pub node path: " << path_str);
   }
 
