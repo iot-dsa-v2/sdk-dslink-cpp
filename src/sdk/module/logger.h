@@ -18,9 +18,10 @@ class Logger: public DestroyableRef<Logger>{
     DEBUG_ = 0x02,
     INFO__ = 0x04,
     WARN__ = 0x08,
-    ERROR_ = 0x10,
-    SYS___ = 0x20,
-    FATAL_ = 0x40,
+    SYS___ = 0x10,
+    ERROR_ = 0x20,
+    ADMIN_ = 0x40,
+    FATAL_ = 0x80,
     NONE__ = 0xFF,
   };
 
@@ -59,6 +60,8 @@ protected:
 #define LOG_INFO(logger, stream_exp) DSA_LOG(INFO__, logger, stream_exp)
 
 #define LOG_SYSTEM(logger, stream_exp) DSA_LOG(SYS___, logger, stream_exp)
+
+#define LOG_ADMIN(logger, stream_exp) DSA_LOG(ADMIN___, logger, stream_exp)
 
 #define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG_, logger, stream_exp)
 
