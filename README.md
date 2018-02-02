@@ -1,7 +1,7 @@
 ## Ubuntu Setup
-
 1. install libssl-dev
 1. download and extract boost 1.66
+1. cd boost_1_66_0/
 1. run `./bootstrap.sh`
 1. run `./b2 install`
 
