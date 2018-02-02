@@ -66,7 +66,7 @@ option(DSA_INCLUDE_TEST "build test and benchmarks" OFF)
 if (DSA_INCLUDE_TEST)
 if (UNIX)
     # Download and unpack googletest-download at configure time
-    configure_file(CMakeLists.txt.in ${CMAKE_BINARY_DIR}/test/lib/googletest-download/CMakeLists.txt)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt.in ${CMAKE_BINARY_DIR}/test/lib/googletest-download/CMakeLists.txt)
     execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
             RESULT_VARIABLE result
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/lib/googletest-download)
@@ -96,13 +96,13 @@ if (UNIX)
     include_directories("${gtest_SOURCE_DIR}/include")
     #endif()
 
-    set(GTEST_BOTH_LIBRARIES gtest_main)
+    set(GTEST_BOTH_LIBRARIES gtest_main gtest)
 endif (UNIX)
 
 if (WIN32)
     find_package(GTest REQUIRED)
     include_directories(${GTEST_INCLUDE_DIRS})
-    set(TEST_LIBS ${GTEST_BOTH_LIBRARIES})
 endif (WIN32)
+    set(TEST_LIBS ${GTEST_BOTH_LIBRARIES})
 
 endif(DSA_INCLUDE_TEST)
