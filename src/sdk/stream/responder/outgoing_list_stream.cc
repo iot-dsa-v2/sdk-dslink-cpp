@@ -110,7 +110,7 @@ MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   }
   //
   body.resize(pos);
-  message->set_body(new RefCountBytes(std::move(body)));
+  message->set_body(std::move(body));
   return message->get_ref();
 }
 
