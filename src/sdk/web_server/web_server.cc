@@ -10,7 +10,7 @@ WebServer::WebServer(App& app) : _io_service(app.io_service()) {}
 
 void WebServer::listen(uint16_t port) {
   _port = port;
-  _listener = std::shared_ptr<Listener>(new Listener(*this, port));
+  _listener = make_shared_<Listener>(*this, port);
 }
 
 void WebServer::start() {
@@ -50,6 +50,11 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
 void WebServer::destroy() {
   if (_listener != nullptr) {
     _listener->destroy();
+  }
+  // TODO - hard coded for now
+  if (_ws_callback_map.count("/")) {
+    delete &_ws_callback_map.at("/");
+    _ws_callback_map.erase("/");
   }
 }
 

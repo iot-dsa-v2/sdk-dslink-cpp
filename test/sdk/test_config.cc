@@ -152,7 +152,8 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
   uint16_t http_port = 8080;
   web_server->listen(http_port);
-  static WebServer::WsCallback root_cb = [this](
+  WebServer::WsCallback* root_cb = new WebServer::WsCallback();
+  *root_cb = [this](
       WebServer &web_server, boost::asio::ip::tcp::socket &&socket,
       boost::beast::http::request<boost::beast::http::string_body> req) {
     LinkStrandRef link_strand(strand);
@@ -162,7 +163,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   };
 
   // TODO - websocket callback setup
-  web_server->add_ws_handler("/", std::move(root_cb));
+  web_server->add_ws_handler("/", std::move(*root_cb));
 
   return web_server;
 }

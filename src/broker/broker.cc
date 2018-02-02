@@ -98,7 +98,7 @@ void DsBroker::destroy_impl() {
   }
 }
 void DsBroker::run(bool wait) {
-#if 0
+
   strand->dispatch([this]() {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app);
@@ -106,7 +106,8 @@ void DsBroker::run(bool wait) {
         static_cast<uint16_t>(_config->http_port().get_value().get_int());
     _web_server->listen(http_port);
     _web_server->start();
-    WebServer::WsCallback root_cb = [this](
+    WebServer::WsCallback* root_cb = new WebServer::WsCallback();
+    *root_cb = [this](
         WebServer &_web_server, boost::asio::ip::tcp::socket &&socket,
         boost::beast::http::request<boost::beast::http::string_body> req) {
       LinkStrandRef link_strand(strand);
@@ -116,9 +117,8 @@ void DsBroker::run(bool wait) {
     };
 
     // TODO - websocket callback setup
-    _web_server->add_ws_handler("/", std::move(root_cb));
+    _web_server->add_ws_handler("/", std::move(*root_cb));
   });
-#endif
 
   // start tcp server
 
