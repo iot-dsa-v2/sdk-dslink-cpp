@@ -28,13 +28,13 @@ void OutgoingListStream::destroy_impl() {
 void OutgoingListStream::update_list_value(const string_ &key,
                                            const VarBytesRef &value) {
   _cached_map[key] = value;
-  post_message();
+  send_message();
 }
 void OutgoingListStream::update_response_status(MessageStatus status) {
   if (_status != status) {
     _status_changed = true;
     _status = status;
-    post_message();
+    send_message();
   }
 }
 void OutgoingListStream::update_list_refreshed() {
@@ -44,7 +44,7 @@ void OutgoingListStream::update_list_refreshed() {
 void OutgoingListStream::update_list_pub_path(const string_ &path) {
   if (!path.empty()) {
     _pending_pub_path = path;
-    post_message();
+    send_message();
   }
 }
 size_t OutgoingListStream::peek_next_message_size(size_t available,
