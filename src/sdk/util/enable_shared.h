@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <mutex>
 #include <memory>
+#include <functional>
 
 namespace dsa {
 
