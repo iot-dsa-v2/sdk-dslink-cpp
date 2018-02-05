@@ -16,19 +16,21 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   int32_t port;
 
   switch (protocol()) {
-  case dsa::ProtocolType::PROT_DSS:
-    port = broker->get_active_secure_port();
-    break;
-  default:
-    port = broker->get_active_server_port();
+    case dsa::ProtocolType::PROT_DSS:
+      port = broker->get_active_secure_port();
+      break;
+    default:
+      port = broker->get_active_server_port();
   }
 
   EXPECT_TRUE(port != 0);
 
-  auto link = broker_dslink_test::create_mock_dslink(app, port, "test1", protocol());
+  auto link =
+      broker_dslink_test::create_mock_dslink(app, port, "test1", protocol());
 
   bool is_connected = false;
-  link->connect([&](const shared_ptr_<Connection> connection) { is_connected = true; });
+  link->connect(
+      [&](const shared_ptr_<Connection> connection) { is_connected = true; });
   ASYNC_EXPECT_TRUE(1000, *link->strand, [&]() { return is_connected; });
 
   // list on root node
@@ -86,21 +88,21 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
 
   WAIT_EXPECT_TRUE(1000, [&]() { return listed; });
 
-  link->strand->post([&](){link->destroy();});
-  broker->strand->post([&](){broker->destroy();});
+  link->strand->post([&]() { link->destroy(); });
+  broker->strand->post([&]() { broker->destroy(); });
 
   app->close();
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
-  if (!app->is_stopped()) { app->force_stop(); }
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
   app->wait();
 }
 
-
-
 TEST_F(BrokerDsLinkTest, Disconnect) {
-// First Create Broker
+  // First Create Broker
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
@@ -108,19 +110,21 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   int32_t port;
 
   switch (protocol()) {
-  case dsa::ProtocolType::PROT_DSS:
-    port = broker->get_active_secure_port();
-    break;
-  default:
-    port = broker->get_active_server_port();
+    case dsa::ProtocolType::PROT_DSS:
+      port = broker->get_active_secure_port();
+      break;
+    default:
+      port = broker->get_active_server_port();
   }
 
   EXPECT_TRUE(port != 0);
 
-  auto link_1 = broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
-  auto link_2 = broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
+  auto link_1 =
+      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
+  auto link_2 =
+      broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
 
-// after client1 disconnected, list update should show it's disconnected
+  // after client1 disconnected, list update should show it's disconnected
   auto step_3_disconnection_list = [&]() {
     link_2->list("downstream/test1", [&](IncomingListCache &cache,
                                          const std::vector<string_> &str) {
@@ -132,7 +136,7 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
     });
   };
 
-// downstream should has test1 and test2 nodes
+  // downstream should has test1 and test2 nodes
   auto step_2_downstream_list = [&]() {
     link_2->list("downstream", [&](IncomingListCache &cache,
                                    const std::vector<string_> &str) {
@@ -143,7 +147,7 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
     });
   };
 
-// when list on downstream/test1 it should have a metadata for test1's dsid
+  // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_downstream_child_list = [&]() {
     link_1->list("downstream/test1", [&](IncomingListCache &cache,
                                          const std::vector<string_> &str) {
@@ -160,13 +164,13 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   std::mutex mutex;
   bool one_of_them_connected = false;
   link_1->connect([&](const shared_ptr_<Connection> connection) {
-// std::cout<<"Hello1"<<std::endl;
+    // std::cout<<"Hello1"<<std::endl;
     std::lock_guard<std::mutex> lock{mutex};
     if (one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
   });
   link_2->connect([&](const shared_ptr_<Connection> connection) {
-// std::cout<<"Hello2"<<std::endl;
+    // std::cout<<"Hello2"<<std::endl;
     std::lock_guard<std::mutex> lock{mutex};
     if (one_of_them_connected) step_1_downstream_child_list();
     one_of_them_connected = true;
@@ -176,8 +180,8 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 
-  if (!app->is_stopped()) { app->force_stop(); }
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
   app->wait();
 }
-
-

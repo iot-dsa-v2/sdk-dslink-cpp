@@ -1,15 +1,15 @@
 #include "dsa/crypto.h"
-#include "../test_config.h"
-#include <gtest/gtest.h>
+#include "dsa/responder.h"
 
+#include <gtest/gtest.h>
 #include <boost/filesystem/operations.hpp>
 #include <boost/format.hpp>
 #include <thread>
-#include "module/logger.h"
-#include "util/string.h"
-#include "dsa/responder.h"
+#include "../test_config.h"
 #include "dslink.h"
 #include "module/default/console_logger.h"
+#include "module/logger.h"
+#include "util/string.h"
 
 using boost::format;
 
@@ -87,7 +87,8 @@ TEST_F(DslinkTest, UrlParam3) {
   EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
   EXPECT_EQ(DEFAULT_DSS_PORT, link.get()->tcp_port);
   EXPECT_TRUE(link.get()->secure);
-  end_link(std::move(link));;
+  end_link(std::move(link));
+  ;
 }
 
 TEST_F(DslinkTest, url_param4) {

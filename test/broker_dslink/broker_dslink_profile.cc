@@ -70,14 +70,15 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
         std::move(request));
     // subscribe to check the result
     ref_<IncomingSubscribeCache> sub_cache;
-    sub_cache = link->subscribe(
-        "downstream/test1/main", [&](IncomingSubscribeCache &cache,
-                                    ref_<const SubscribeResponseMessage> &msg) {
-          if (msg->get_value().value.to_string() == "hello") {
-            subscrib_checked = true;
-            cache.close();
-          }
-        });
+    sub_cache =
+        link->subscribe("downstream/test1/main",
+                        [&](IncomingSubscribeCache &cache,
+                            ref_<const SubscribeResponseMessage> &msg) {
+                          if (msg->get_value().value.to_string() == "hello") {
+                            subscrib_checked = true;
+                            cache.close();
+                          }
+                        });
 
   });
 
@@ -85,11 +86,8 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
     return list_checked && invoked && subscrib_checked;
   });
 
-
   destroy_dslink_in_strand(link);
-  broker->strand->post([&](){
-    broker->destroy();
-  });
+  broker->strand->post([&]() { broker->destroy(); });
 
   app->close();
 

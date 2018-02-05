@@ -26,7 +26,8 @@ TEST_F(BrokerSysTest, StopBroker) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test", protocol());
+  WrapperStrand client_strand =
+      get_client_wrapper_strand(broker, "test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new NodeModel(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
