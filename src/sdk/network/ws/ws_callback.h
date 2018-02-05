@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_WS_CALLBACK_H_
-#define DSA_SDK_WS_CALLBACK_H_
+#ifndef DSA_SDK_WS_CALLBACK_H
+#define DSA_SDK_WS_CALLBACK_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -50,4 +50,4 @@ class DsaWsCallback {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_WS_CALLBACK_H_
+#endif  // DSA_SDK_WS_CALLBACK_H

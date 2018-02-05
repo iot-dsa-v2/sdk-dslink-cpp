@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_WEB_SERVER_H_
-#define DSA_SDK_WEB_SERVER_H_
+#ifndef DSA_SDK_WEB_SERVER_H
+#define DSA_SDK_WEB_SERVER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -77,4 +77,4 @@ class ErrorCallback {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_WEB_SERVER_H_
+#endif  // DSA_SDK_WEB_SERVER_H

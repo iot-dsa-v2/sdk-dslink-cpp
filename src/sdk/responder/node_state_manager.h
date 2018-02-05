@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NODE_STATE_MANAGER_H_
-#define DSA_SDK_NODE_STATE_MANAGER_H_
+#ifndef DSA_SDK_NODE_STATE_MANAGER_H
+#define DSA_SDK_NODE_STATE_MANAGER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -53,4 +53,4 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_NODE_STATE_MANAGER_H_
+#endif  // DSA_SDK_NODE_STATE_MANAGER_H

@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NODE_MODEL_H_
-#define DSA_SDK_NODE_MODEL_H_
+#ifndef DSA_SDK_NODE_MODEL_H
+#define DSA_SDK_NODE_MODEL_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -61,4 +61,4 @@ class NodeModel : public NodeModelBase {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_NODE_MODEL_MANAGER_H_
+#endif  // DSA_SDK_NODE_MODEL_MANAGER_H

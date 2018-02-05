@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CORE_CLIENT_H_
-#define DSA_SDK_CORE_CLIENT_H_
+#ifndef DSA_SDK_CORE_CLIENT_H
+#define DSA_SDK_CORE_CLIENT_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -77,4 +77,4 @@ class Client : public DestroyableRef<Client> {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_CORE_CLIENT_H_
+#endif  // DSA_SDK_CORE_CLIENT_H

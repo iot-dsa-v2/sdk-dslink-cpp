@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_UTIL_BUFFER_H_
-#define DSA_SDK_UTIL_BUFFER_H_
+#ifndef DSA_SDK_UTIL_BUFFER_H
+#define DSA_SDK_UTIL_BUFFER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -28,4 +28,4 @@ typedef ref_<const RefCountBytes> BytesRef;
 
 std::ostream &operator<<(std::ostream &os, const dsa::RefCountBytes &buf);
 
-#endif  // DSA_SDK_UTIL_BUFFER_H_
+#endif  // DSA_SDK_UTIL_BUFFER_H

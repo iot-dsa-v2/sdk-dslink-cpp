@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_MODULE_SIMPLE_STORAGE_H_
-#define DSA_SDK_MODULE_SIMPLE_STORAGE_H_
+#ifndef DSA_SDK_MODULE_SIMPLE_STORAGE_H
+#define DSA_SDK_MODULE_SIMPLE_STORAGE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -80,4 +80,4 @@ class SimpleStorage : public Storage {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_MODULE_SIMPLE_STORAGE_H_
+#endif  // DSA_SDK_MODULE_SIMPLE_STORAGE_H

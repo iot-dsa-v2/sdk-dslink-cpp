@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_MODULE_LOGGER_H_
-#define DSA_SDK_MODULE_LOGGER_H_
+#ifndef DSA_SDK_MODULE_LOGGER_H
+#define DSA_SDK_MODULE_LOGGER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -80,4 +80,4 @@ protected:
     exit(1);                                   \
   }
 
-#endif  // DSA_SDK_MODULE_LOGGER_H_
+#endif  // DSA_SDK_MODULE_LOGGER_H

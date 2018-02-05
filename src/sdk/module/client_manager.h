@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_MODULE_SECURITY_MANAGER_H_
-#define DSA_SDK_MODULE_SECURITY_MANAGER_H_
+#ifndef DSA_SDK_MODULE_SECURITY_MANAGER_H
+#define DSA_SDK_MODULE_SECURITY_MANAGER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -33,4 +33,4 @@ class ClientManager : public DestroyableRef<ClientManager> {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_MODULE_SECURITY_MANAGER_H_
+#endif  // DSA_SDK_MODULE_SECURITY_MANAGER_H

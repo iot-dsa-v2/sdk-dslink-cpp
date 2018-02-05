@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_UTIL_ENABLE_SHARED_H_
-#define DSA_SDK_UTIL_ENABLE_SHARED_H_
+#ifndef DSA_SDK_UTIL_ENABLE_SHARED_H
+#define DSA_SDK_UTIL_ENABLE_SHARED_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -69,4 +69,4 @@ class SharedStrandPtr : public SharedDestroyable<T> {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_UTIL_ENABLE_SHARED_H_
+#endif  // DSA_SDK_UTIL_ENABLE_SHARED_H

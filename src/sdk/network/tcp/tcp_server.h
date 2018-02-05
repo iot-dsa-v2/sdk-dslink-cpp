@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_TCP_SERVER_H_
-#define DSA_SDK_TCP_SERVER_H_
+#ifndef DSA_SDK_TCP_SERVER_H
+#define DSA_SDK_TCP_SERVER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -49,4 +49,4 @@ class TcpServer : public Server {
 typedef shared_ptr_<TcpServer> TcpServerPtr;
 }  // namespace dsa
 
-#endif  // DSA_SDK_TCP_SERVER_H_
+#endif  // DSA_SDK_TCP_SERVER_H

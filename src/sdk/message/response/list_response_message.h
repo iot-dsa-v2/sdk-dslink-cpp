@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_LIST_RESPONSE_MESSAGE_H_
-#define DSA_SDK_LIST_RESPONSE_MESSAGE_H_
+#ifndef DSA_SDK_LIST_RESPONSE_MESSAGE_H
+#define DSA_SDK_LIST_RESPONSE_MESSAGE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -60,4 +60,4 @@ typedef ref_<const ListResponseMessage> ListResponseMessageCRef;
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_LIST_RESPONSE_MESSAGE_H_
+#endif  // DSA_SDK_LIST_RESPONSE_MESSAGE_H

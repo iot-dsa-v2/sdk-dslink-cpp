@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NODE_STATE_H_
-#define DSA_SDK_NODE_STATE_H_
+#ifndef DSA_SDK_NODE_STATE_H
+#define DSA_SDK_NODE_STATE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -137,4 +137,4 @@ class NodeStateRoot : public NodeState {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_NODE_STATE_H_
+#endif  // DSA_SDK_NODE_STATE_H

@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_WS_CONNECTION_H_
-#define DSA_SDK_WS_CONNECTION_H_
+#ifndef DSA_SDK_WS_CONNECTION_H
+#define DSA_SDK_WS_CONNECTION_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -51,4 +51,4 @@ class WsConnection : public BaseSocketConnection {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_WS_CONNECTION_H_
+#endif  // DSA_SDK_WS_CONNECTION_H

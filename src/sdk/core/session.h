@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_SESSION_H_
-#define DSA_SDK_SESSION_H_
+#ifndef DSA_SDK_SESSION_H
+#define DSA_SDK_SESSION_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -128,4 +128,4 @@ class Session final : public DestroyableRef<Session> {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_SESSION_H_
+#endif  // DSA_SDK_SESSION_H

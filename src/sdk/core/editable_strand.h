@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CONFIG_H_
-#define DSA_SDK_CONFIG_H_
+#ifndef DSA_SDK_CONFIG_H
+#define DSA_SDK_CONFIG_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -109,4 +109,4 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_CONFIG_H_
+#endif  // DSA_SDK_CONFIG_H

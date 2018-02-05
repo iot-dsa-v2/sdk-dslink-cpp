@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CRYPTO_MISC_H_
-#define DSA_SDK_CRYPTO_MISC_H_
+#ifndef DSA_SDK_CRYPTO_MISC_H
+#define DSA_SDK_CRYPTO_MISC_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -18,4 +18,4 @@ void gen_salt(uint8_t *data, size_t len);
 string_ hex2bin(const char *src);
 }  // namespace dsa
 
-#endif  // DSA_SDK_CRYPTO_MISC_H_
+#endif  // DSA_SDK_CRYPTO_MISC_H
