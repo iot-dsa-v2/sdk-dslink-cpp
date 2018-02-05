@@ -46,7 +46,7 @@ class DsLink final : public WrapperStrand {
   ref_<LinkRoot> _root;
 
   uint8_t log_level_from_settings;
-
+  ref_<Module> modules;
   string_ close_token;
 
   bool _running = false;
@@ -60,7 +60,7 @@ class DsLink final : public WrapperStrand {
   void parse_server_port(uint16_t port);
 
   void init_module(ref_<Module> &&default_module,
-                   string_ &module_path,
+                   const string_ &module_path,
                    bool use_standard_node_structure);
 
  public:

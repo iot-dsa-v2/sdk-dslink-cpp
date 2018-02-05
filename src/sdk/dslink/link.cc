@@ -101,7 +101,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   // Adapted from parse_logger
   // Until we get module version we are using default one
   auto log = variables["log"].as<string_>();
-  auto logger = make_ref_<ConsoleLogger>();
+  auto logger = make_shared_<ConsoleLogger>();
   log_level_from_settings = Logger::parse(log);
   logger->level = log_level_from_settings;
   strand->set_logger(std::move(logger));
@@ -113,19 +113,19 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   LOG_TRACE(strand->logger(), LOG << "DSLink initialized successfully");
 }
 void DsLink::init_module(ref_<Module> &&default_module,
-                         string_ &module_path,
+                         const string_ &module_path,
                          bool use_standard_node_structure) {
   if (default_module == nullptr)
     default_module = make_ref_<ModuleDslinkDefault>();
 
-  auto module =
+  modules =
       make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
-  module->init_all(*_app, strand);
+  modules->init_all(*_app, strand);
 
-  strand->set_client_manager(module->get_client_manager());
-  strand->set_authorizer(module->get_authorizer());
+  strand->set_client_manager(modules->get_client_manager());
+  strand->set_authorizer(modules->get_authorizer());
 
-  auto logger = module->get_logger();
+  auto logger = modules->get_logger();
   logger->level = log_level_from_settings;
   strand->set_logger(logger);
 
@@ -149,7 +149,6 @@ void DsLink::destroy_impl() {
   //
   //  OnConnectCallback _user_on_connect;
   modules->destroy();
-
 
   _root.reset();
 
