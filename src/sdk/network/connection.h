@@ -38,7 +38,7 @@ class ConnectionWriteBuffer {
   virtual ~ConnectionWriteBuffer() = default;
 };
 
-class Connection : public SharedDestroyable<Connection> {
+class Connection : public SharedStrandPtr<Connection> {
   friend class Session;
   friend class Client;
 

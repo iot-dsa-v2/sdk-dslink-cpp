@@ -60,6 +60,7 @@ class DsLink final : public WrapperStrand {
   void parse_server_port(uint16_t port);
 
   void init_module(ref_<Module> &&default_module,
+                   string_ &module_path,
                    bool use_standard_node_structure);
 
  public:

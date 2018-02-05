@@ -14,8 +14,8 @@ namespace dsa {
     return nullptr;
   }
 
-  ref_<Logger> ModuleBrokerDefault::create_logger(App& app, ref_<LinkStrand> strand){
-    return make_ref_<ConsoleLogger>();
+  shared_ptr_<Logger> ModuleBrokerDefault::create_logger(App& app, ref_<LinkStrand> strand){
+    return make_shared_<ConsoleLogger>();
   }
 
   ref_<ClientManager> ModuleBrokerDefault::create_client_manager(App& app, ref_<LinkStrand> strand){

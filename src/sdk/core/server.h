@@ -12,7 +12,7 @@
 namespace dsa {
 class Connection;
 
-class Server : public SharedDestroyable<Server> {
+class Server : public SharedStrandPtr<Server> {
  protected:
   // for Session/Requester/Responder
 

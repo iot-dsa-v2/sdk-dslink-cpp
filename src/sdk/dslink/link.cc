@@ -50,6 +50,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
        "Override Link Name")  // custom name
       ("server-port", opts::value<uint16_t>()->default_value(0),
        "Tcp Server Port")  // custom name
+      ("module_path", opts::value<string_>()->default_value("./modules"),
+       "Module Path")  // custom name
       ;
 
   opts::variables_map variables;
@@ -106,17 +108,18 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_server_port(variables["server-port"].as<uint16_t>());
 
-  init_module(std::move(default_module), use_standard_node_structure);
+  init_module(std::move(default_module),variables["module_path"].as<string_>(), use_standard_node_structure);
 
   LOG_TRACE(strand->logger(), LOG << "DSLink initialized successfully");
 }
 void DsLink::init_module(ref_<Module> &&default_module,
+                         string_ &module_path,
                          bool use_standard_node_structure) {
   if (default_module == nullptr)
     default_module = make_ref_<ModuleDslinkDefault>();
 
   auto module =
-      make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
+      make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
   module->init_all(*_app, strand);
 
   strand->set_client_manager(module->get_client_manager());
@@ -145,6 +148,8 @@ void DsLink::destroy_impl() {
   //  bool _running = false;
   //
   //  OnConnectCallback _user_on_connect;
+  modules->destroy();
+
 
   _root.reset();
 
@@ -195,7 +200,7 @@ void DsLink::parse_thread(size_t thread) {
 }
 
 void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto logger = make_ref_<ConsoleLogger>();
+  auto logger = make_shared_<ConsoleLogger>();
   logger->level = Logger::parse(log);
   config.set_logger(std::move(logger));
 }

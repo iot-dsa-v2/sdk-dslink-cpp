@@ -41,16 +41,25 @@ void Module::init_authorizer(App& app, ref_<LinkStrand> strand){
 }
 
 ref_<Storage> Module::create_storage(App &app, ref_<LinkStrand> strand) {return nullptr;}
-ref_<Logger> Module::create_logger(App &app, ref_<LinkStrand> strand) {return nullptr;}
+shared_ptr_<Logger> Module::create_logger(App &app, ref_<LinkStrand> strand) {return nullptr;}
 ref_<ClientManager> Module::create_client_manager(App &app, ref_<LinkStrand> strand) {return nullptr;}
 ref_<Authorizer> Module::create_authorizer(App &app, ref_<LinkStrand> strand) {return nullptr;}
 
 ref_<Storage> Module::get_storage(){ return _storage; }
-ref_<Logger> Module::get_logger(){ return _logger; }
+shared_ptr_<Logger> Module::get_logger(){ return _logger; }
 ref_<ClientManager> Module::get_client_manager(){ return _client_manager; }
 ref_<Authorizer> Module::get_authorizer(){ return _authorizer; }
 
 void Module::add_module_node(){}
 void Module::add_web_handler(){}
+
+void Module::destroy_impl() {
+  if(_storage != nullptr) _storage->destroy();
+  if(_client_manager != nullptr) _client_manager->destroy();
+  if(_authorizer != nullptr) _authorizer->destroy();
+  if(_logger != nullptr) _logger->destroy();
+
+  DestroyableRef::destroy_impl();
+}
 
 }
