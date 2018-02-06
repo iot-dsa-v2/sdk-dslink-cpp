@@ -1,3 +1,9 @@
+#include "dsa/message.h"
+#include "dsa/network.h"
+#include "dsa/requester.h"
+#include "dsa/responder.h"
+#include "dsa/stream.h"
+
 #include <broker.h>
 #include <config/broker_config.h>
 #include <gtest/gtest.h>
@@ -5,11 +11,6 @@
 #include <util/string.h>
 #include "../sdk/async_test.h"
 #include "../sdk/test_config.h"
-#include "dsa/message.h"
-#include "dsa/network.h"
-#include "dsa/requester.h"
-#include "dsa/responder.h"
-#include "dsa/stream.h"
 #include "module/logger.h"
 
 using namespace dsa;
