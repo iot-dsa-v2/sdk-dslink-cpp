@@ -5,10 +5,10 @@
 #pragma once
 #endif
 
-#include <stdexcept>
-#include <mutex>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <stdexcept>
 
 namespace dsa {
 
@@ -54,16 +54,21 @@ class SharedDestroyable : public std::enable_shared_from_this<T> {
 template <typename T>
 class SharedStrandPtr : public SharedDestroyable<T> {
  private:
-
  protected:
   virtual void post_in_strand(std::function<void()> &&) = 0;
 
  public:
   void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &&destroyable) {
+    if (destroyable->is_destroyed()) {
+      return;
+    }
     post_in_strand(
         [ this, keep_ptr = std::move(destroyable) ]() { this->destroy(); });
   }
   void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &destroyable) {
+    if (destroyable->is_destroyed()) {
+      return;
+    }
     post_in_strand([ this, keep_ptr = destroyable ]() { this->destroy(); });
   }
 };
