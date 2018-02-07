@@ -29,7 +29,7 @@ ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
 
   auto broker = make_ref_<DsBroker>(std::move(broker_config), make_ref_<ModuleBrokerDefault>(), app);
 
-  static_cast<ConsoleLogger &>(broker->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
 
   return std::move(broker);
@@ -60,7 +60,7 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port, string_ dslink_na
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, dslink_name, "1.0.0", app);
-  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
   link->init_responder();
 
@@ -100,7 +100,7 @@ ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port, string_ dsli
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, dslink_name, "1.0.0", app);
-  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
   link->init_responder<MockNodeRoot>();
 

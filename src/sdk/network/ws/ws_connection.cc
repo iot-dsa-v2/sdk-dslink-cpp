@@ -15,7 +15,7 @@ WsConnection::WsConnection(websocket_stream &ws, LinkStrandRef &strand,
       _socket(std::move(ws)) {}
 
 void WsConnection::destroy_impl() {
-  LOG_DEBUG(_strand->logger(), LOG << "connection closed");
+  LOG_DEBUG(Logger::_(), LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.next_layer().close();
   }

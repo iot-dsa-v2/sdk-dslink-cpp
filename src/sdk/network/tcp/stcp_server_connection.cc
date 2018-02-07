@@ -24,7 +24,7 @@ void StcpServerConnection::accept() {
 void StcpServerConnection::handle_handshake(
     const boost::system::error_code &error) {
   if (error != boost::system::errc::success) {
-    LOG_ERROR(_strand->logger(),
+    LOG_ERROR(Logger::_(),
               LOG << "Server SSL handshake failed: " << error << "\n");
   } else {
     {

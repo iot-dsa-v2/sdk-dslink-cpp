@@ -18,7 +18,7 @@ void Connection::on_receive_f0(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
-  LOG_DEBUG(_strand->logger(), LOG << "f0 received");
+  LOG_DEBUG(Logger::_(), LOG << "f0 received");
   auto *f0 = DOWN_CAST<HandshakeF0Message *>(msg.get());
   this->_handshake_context.set_remote(
       std::move(f0->dsid), std::move(f0->public_key), std::move(f0->salt));
@@ -50,7 +50,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
-  LOG_DEBUG(_strand->logger(), LOG << "f2 received");
+  LOG_DEBUG(Logger::_(), LOG << "f2 received");
 
   auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
 

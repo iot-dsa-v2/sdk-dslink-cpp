@@ -111,7 +111,7 @@ void NodeModelBase::unlist() {
 }
 static VarBytesRef blank_bytes(new VarBytes());
 VarBytesRef &NodeModelBase::get_summary() {
-  LOG_ERROR(_strand->logger(), LOG << "::get_summary not implemented");
+  LOG_ERROR(Logger::_(), LOG << "::get_summary not implemented");
   return blank_bytes;
 }
 

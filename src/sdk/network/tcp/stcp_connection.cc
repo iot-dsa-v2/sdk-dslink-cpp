@@ -16,7 +16,7 @@ StcpConnection::StcpConnection(LinkStrandRef &strand,
       _socket(strand->get_io_context(), context) {}
 
 void StcpConnection::destroy_impl() {
-  LOG_DEBUG(_strand->logger(), LOG << "connection closed");
+  LOG_DEBUG(Logger::_(), LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.lowest_layer().close();
   }

@@ -27,7 +27,7 @@ void StcpClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand->get_io_context());
-  LOG_INFO(_strand->logger(),
+  LOG_INFO(Logger::_(),
            LOG << "Secure TCP client connecting to " << _hostname << ":" << _port);
 
   tcp::resolver::results_type results =
@@ -51,7 +51,7 @@ void StcpClientConnection::connect(size_t reconnect_interval) {
         ](const boost::system::error_code& error) mutable {
           if (error != boost::system::errc::success) {
             destroy_in_strand(std::move(connection));
-            LOG_ERROR(_strand->logger(), LOG << "Client SSL handshake failed");
+            LOG_ERROR(Logger::_(), LOG << "Client SSL handshake failed");
             return;
           }
 

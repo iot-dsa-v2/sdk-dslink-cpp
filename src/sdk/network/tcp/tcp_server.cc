@@ -31,12 +31,12 @@ TcpServer::TcpServer(WrapperStrand &config)
     _port = _acceptor->local_endpoint().port();
   }
 
-  LOG_INFO(_strand->logger(),
+  LOG_INFO(Logger::_(),
            LOG << "Bind to TCP server port: " << config.tcp_server_port);
 
   // secure tcp
   if (config.tcp_secure_port < 0) {
-    LOG_INFO(_strand->logger(), LOG << "Secure TCP is disabled\n");
+    LOG_INFO(Logger::_(), LOG << "Secure TCP is disabled\n");
     return;
   }
 
@@ -55,7 +55,7 @@ TcpServer::TcpServer(WrapperStrand &config)
     _context.use_certificate_chain_file("certificate.pem");
     _context.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
   } catch (boost::system::system_error &e) {
-    LOG_ERROR(_strand->logger(), LOG << "Bind Error: " << e.what() << "\n");
+    LOG_ERROR(Logger::_(), LOG << "Bind Error: " << e.what() << "\n");
     return;
   }
 
@@ -63,12 +63,12 @@ TcpServer::TcpServer(WrapperStrand &config)
   if (_secure_port == 0) {
     _secure_port = _secure_acceptor->local_endpoint().port();
   }
-  LOG_INFO(_strand->logger(),
+  LOG_INFO(Logger::_(),
            LOG << "Bind to TCP secure server port: " << _secure_port << "\n");
 }
 TcpServer::~TcpServer() {
   if (!is_destroyed()) {
-    LOG_ERROR(_strand->logger(), LOG << "server deleted before destroyed");
+    LOG_ERROR(Logger::_(), LOG << "server deleted before destroyed");
     destroy();
   }
 }

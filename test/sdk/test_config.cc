@@ -54,7 +54,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
   copy.tcp_host = "127.0.0.1";
 
   copy.strand = EditableStrand::make_default(app);
-  copy.strand->logger().level = strand->logger().level;
+
 
   boost::system::error_code error;
   static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
@@ -136,7 +136,7 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
   const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
-  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   return link;
 }

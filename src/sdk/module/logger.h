@@ -10,7 +10,7 @@
 
 namespace dsa {
 
-class Logger: public SharedDestroyable<Logger>{
+class Logger : public SharedDestroyable<Logger> {
  public:
   enum : uint8_t {
     ALL___ = 0x00,
@@ -28,7 +28,7 @@ class Logger: public SharedDestroyable<Logger>{
   // default logger, implemented in console_logger.cc
   static Logger& _();
   // the new logger will be maintained by unique pointer and no need for delete
-  static void set_default(Logger* logger);
+  static void set_default(shared_ptr_<Logger> logger);
 
   static uint8_t parse(const std::string& log);
 
@@ -39,8 +39,8 @@ class Logger: public SharedDestroyable<Logger>{
   virtual void log(const string_& str, uint8_t level) = 0;
   virtual ~Logger() = default;
 
-protected:
- void destroy_impl() override;
+ protected:
+  void destroy_impl() override;
 };
 }
 

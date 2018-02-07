@@ -20,7 +20,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_strand->get_io_context());
   // TODO: timeout
-  LOG_INFO(_strand->logger(),
+  LOG_INFO(Logger::_(),
            LOG << "WS client connecting to " << _hostname << ":" << _port);
 
   tcp::resolver::results_type results =
@@ -46,7 +46,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
           if (is_destroyed()) return;
           if (error != boost::system::errc::success) {
             destroy_in_strand(std::move(connection));
-            LOG_ERROR(_strand->logger(), LOG << "Client websocket handshake failed");
+            LOG_ERROR(Logger::_(), LOG << "Client websocket handshake failed");
             return;
           }
 
