@@ -61,9 +61,8 @@ void DsBroker::init(ref_<Module>&& default_module) {
   modules->init_all(*_app, strand);
 
   // init logger
-  auto logger = modules->get_logger();
-  logger->level = Logger::parse(_config->log_level().get_value().to_string());
-  strand->set_logger(std::move(logger));
+  modules->get_logger()->level = Logger::parse(_config->log_level().get_value().to_string());
+  Logger::set_default(modules->get_logger());
 
   // init security manager
   auto client_manager = modules->get_client_manager();
@@ -131,7 +130,7 @@ void DsBroker::run(bool wait) {
   if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
     _tcp_server = make_shared_<TcpServer>(*this);
     _tcp_server->start();
-    LOG_SYSTEM(strand->logger(), LOG << "DsBroker started");
+    LOG_SYSTEM(Logger::_(), LOG << "DsBroker started");
   }
 
   if (_own_app && wait) {

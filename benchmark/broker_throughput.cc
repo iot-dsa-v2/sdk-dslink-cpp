@@ -76,10 +76,7 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
   client_strand.strand->set_authorizer(
       make_ref_<SimpleAuthorizer>(client_strand.strand));
 
-  auto logger = make_shared_<ConsoleLogger>();
-  client_strand.strand->set_logger(std::move(logger));
-
-  client_strand.strand->logger().level = Logger::ERROR_;
+  Logger::_().level = Logger::ERROR_;
 
   if (!protocol.compare("ws")) {
     client_strand.ws_host = "127.0.0.1";

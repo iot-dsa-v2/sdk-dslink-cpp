@@ -21,7 +21,7 @@ ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
   auto broker = make_ref_<DsBroker>(std::move(broker_config),
                                     make_ref_<ModuleBrokerDefault>(), app);
   // filter log for unit test
-  static_cast<ConsoleLogger&>(broker->strand->logger()).filter =
+  static_cast<ConsoleLogger&>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   return std::move(broker);
 }

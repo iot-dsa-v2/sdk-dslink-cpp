@@ -48,7 +48,6 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   Authorizer *__authorizer = nullptr;
   OutgoingStreamAcceptor *__stream_acceptor = nullptr;
   SessionManager *__session_manager = nullptr;
-  Logger *__logger = nullptr;
   Storage *__storage = nullptr;
 
   void destroy_impl() override;
@@ -79,8 +78,6 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   OutgoingStreamAcceptor &stream_acceptor() { return *__stream_acceptor; };
 
   SessionManager &session_manager() { return *__session_manager; };
-
-  Logger &logger() { return *__logger; };
 
   ECDH &ecdh() { return *__ecdh; };
 };

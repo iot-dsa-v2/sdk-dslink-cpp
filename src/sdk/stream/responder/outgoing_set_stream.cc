@@ -57,7 +57,7 @@ void OutgoingSetStream::send_response(
     _callback = nullptr;
   }
   if (message->get_status() < MessageStatus::CLOSED) {
-    LOG_ERROR(_session->get_strand()->logger(),
+    LOG_ERROR(Logger::_(),
               LOG << "set response must have closed or error status");
   }
   send_message(MessageCRef(std::move(message)), true);

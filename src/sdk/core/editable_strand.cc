@@ -23,10 +23,8 @@ ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
   strand->set_client_manager(make_ref_<SimpleClientManager>());
   strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
 
-  auto logger = make_shared_<ConsoleLogger>();
-  logger->filter = Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
-  strand->set_logger(std::move(logger));
-  strand->logger().level = Logger::WARN__;
+  static_cast<ConsoleLogger &>(Logger::_()).filter = Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
+  Logger::_().level = Logger::WARN__;
 
   return strand;
 }
@@ -53,11 +51,6 @@ void EditableStrand::set_stream_acceptor(ref_<OutgoingStreamAcceptor> p) {
 void EditableStrand::set_session_manager(ref_<SessionManager> p) {
   __session_manager = p.get();
   _session_manager = std::move(p);
-};
-
-void EditableStrand::set_logger(shared_ptr_<Logger> p) {
-  __logger = p.get();
-  _logger = std::move(p);
 };
 
 void EditableStrand::set_storage(ref_<Storage> p) {

@@ -101,16 +101,13 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   // Adapted from parse_logger
   // Until we get module version we are using default one
   auto log = variables["log"].as<string_>();
-  auto logger = make_shared_<ConsoleLogger>();
   log_level_from_settings = Logger::parse(log);
-  logger->level = log_level_from_settings;
-  strand->set_logger(std::move(logger));
 
   parse_server_port(variables["server-port"].as<uint16_t>());
 
   init_module(std::move(default_module),variables["module_path"].as<string_>(), use_standard_node_structure);
 
-  LOG_TRACE(strand->logger(), LOG << "DSLink initialized successfully");
+  LOG_TRACE(Logger::_(), LOG << "DSLink initialized successfully");
 }
 void DsLink::init_module(ref_<Module> &&default_module,
                          const string_ &module_path,
@@ -125,9 +122,8 @@ void DsLink::init_module(ref_<Module> &&default_module,
   strand->set_client_manager(modules->get_client_manager());
   strand->set_authorizer(modules->get_authorizer());
 
-  auto logger = modules->get_logger();
-  logger->level = log_level_from_settings;
-  strand->set_logger(logger);
+  modules->get_logger()->level = log_level_from_settings;
+  Logger::set_default(modules->get_logger());
 
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
   if (use_standard_node_structure) {
@@ -196,12 +192,6 @@ void DsLink::parse_thread(size_t thread) {
     Message::decode_all = true;
   }
   _app.reset(new App(thread));
-}
-
-void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto logger = make_shared_<ConsoleLogger>();
-  logger->level = Logger::parse(log);
-  config.set_logger(std::move(logger));
 }
 
 void DsLink::parse_url(const string_ &url) {
@@ -334,7 +324,7 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
   _running = true;
 
   if (!strand->is_responder_set()) {
-    LOG_WARN(strand->logger(), LOG << "responder is not initialized");
+    LOG_WARN(Logger::_(), LOG << "responder is not initialized");
     _client->get_session().responder_enabled = false;
     strand->set_stream_acceptor(make_ref_<DummyStreamAcceptor>());
   }
@@ -342,11 +332,11 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink on_connect callback "
+    LOG_SYSTEM(Logger::_(), LOG << "DsLink on_connect callback "
                                               "ignored since it was connected "
                                               "before\n");
   }
-  LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink running");
+  LOG_SYSTEM(Logger::_(), LOG << "DsLink running");
   if (own_app) {
     _app->wait();
     destroy();

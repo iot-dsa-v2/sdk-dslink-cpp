@@ -44,7 +44,7 @@ TEST_F(DslinkTest, ServerTest) {
   int argc = 9;
   auto linkResp = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
   // filter log for unit test
-  static_cast<ConsoleLogger &>(linkResp->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   linkResp->init_responder<ExampleNodeRoot>();
@@ -58,7 +58,7 @@ TEST_F(DslinkTest, ServerTest) {
   auto link = make_ref_<DsLink>(argc2, argv2, "mydslink", "1.0.0", app);
 
   // filter log for unit test
-  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   // connection
@@ -118,7 +118,7 @@ TEST_F(DslinkTest, CloseTest) {
   int argc = 9;
   auto linkResp = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
   // filter log for unit test
-  static_cast<ConsoleLogger &>(linkResp->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   linkResp->init_responder<ExampleNodeRoot>();
@@ -133,7 +133,7 @@ TEST_F(DslinkTest, CloseTest) {
   int argc2 = 3;
   auto link = make_ref_<DsLink>(argc2, argv2, "mydslink", "1.0.0", app);
   // filter log for unit test
-  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   // connection
@@ -191,7 +191,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
   int argc = 9;
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
   // filter log for unit test
-  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   ref_<NodeModel> profile_example =

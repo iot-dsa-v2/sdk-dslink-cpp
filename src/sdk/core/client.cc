@@ -61,7 +61,7 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
     if (!_last_remote_dsid.empty() && !connection->get_remote_dsid().empty() &&
         _last_remote_dsid != connection->get_remote_dsid()) {
       // remote dsid should not change
-      LOG_WARN(_strand->logger(),
+      LOG_WARN(Logger::_(),
                LOG << "remote dsid changed from " << _last_remote_dsid << " to "
                    << connection->get_remote_path());
     }
@@ -110,7 +110,7 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
   }
 }
 void Client::_reconnect() {
-  LOG_DEBUG(_strand->logger(),
+  LOG_DEBUG(Logger::_(),
             LOG << "Disconnected, reconnect in " << _reconnect_interval_s
                 << " seconds");
   _reconnect_timer =

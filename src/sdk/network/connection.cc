@@ -69,7 +69,7 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
       }
     });
   } else if (_session == nullptr) {
-    LOG_ERROR(_session->_strand->logger(), "Session is null in connection message reading");
+    LOG_ERROR(Logger::_(), "Session is null in connection message reading");
   }
 }
 }  // namespace dsa
