@@ -56,8 +56,6 @@ class Storage: public DestroyableRef<Storage>{
   /// create a bucket or find a existing bucket
   virtual std::unique_ptr<StorageBucket> get_bucket(const string_& name) = 0;
 
-  virtual std::unique_ptr<StorageBucket> get_safe_bucket(const string_& name) = 0;
-
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket
   virtual std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) = 0;

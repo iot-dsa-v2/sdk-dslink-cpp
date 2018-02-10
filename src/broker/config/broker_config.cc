@@ -4,6 +4,7 @@
 
 #include <boost/filesystem.hpp>
 #include <iostream>
+#include <string>
 #include "module/logger.h"
 
 namespace fs = boost::filesystem;
@@ -11,6 +12,8 @@ namespace fs = boost::filesystem;
 namespace dsa {
 BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
   init();
+  storage_key = get_file_path();
+  storage_bucket = simple_storage.get_bucket(storage_key);
   load();
 }
 
@@ -42,64 +45,63 @@ void BrokerConfig::init() {
 }
 // load config json from file
 void BrokerConfig::load() {
-  auto& path = get_file_path();
-  if (fs::exists(path)) {
-    if (fs::is_regular_file(path)) {
-      std::ifstream config_file(get_file_path(), std::ios::in);
-      if (config_file.is_open()) {
-        std::stringstream buffer;
-        buffer << config_file.rdbuf();
-        Var data = Var::from_json(buffer.str());
-        if (data.is_map()) {
-          try {
-            // allows config to be stored in different location
-            if (_file_path.empty() && data.get_map().count("config-path") > 0 &&
-                !data["config-path"].to_string().empty()) {
-              // load broker config from different path
-              _file_path = data["config-path"].get_string();
-              load();
-              return;
-            }
-          } catch (std::exception& e) {
-            // config-path doesn't exist, use default
-          }
-          for (auto& it : data.get_map()) {
-            auto search = _items.find(it.first);
-            if (search != _items.end()) {
-              search->second.set_value(std::move(it.second));
-            }
-          }
-          return;
-        }
-      }
-    }
+  auto read_callback = [=](std::string storage_key, std::vector<uint8_t> vec) {
 
-    LOG_FATAL(LOG << "failed to open broker config file: " << path);
-  } else {
-    // config doesn't exist, write a default config file
-    save();
-  }
+    // const string_* content = reinterpret_cast<const string_*>(vec.data());
+    std::string content(vec.begin(), vec.end());
+    if (!content.empty()) {
+      Var data = Var::from_json(content.c_str());
+      if (data.is_map()) {
+        try {
+          // allows config to be stored in different location
+          if (_file_path.empty() && data.get_map().count("config-path") > 0 &&
+              !data["config-path"].to_string().empty()) {
+            // load broker config from different path
+            _file_path = data["config-path"].get_string();
+            load();
+            return;
+          }
+        } catch (std::exception& e) {
+          // config-path doesn't exist, use default
+        }
+        for (auto& it : data.get_map()) {
+          auto search = _items.find(it.first);
+          if (search != _items.end()) {
+            search->second.set_value(std::move(it.second));
+          }
+        }
+        return;
+      }
+    } else {
+      save();
+    }
+  };
+  storage_bucket->read(storage_key, read_callback);
+
 }
 void BrokerConfig::save() {
-  auto& path = get_file_path();
-  std::ofstream config_file(path, std::ios::out | std::ios::trunc);
-  if (config_file.is_open()) {
-    config_file << "{\n"
-                << R"("dsa-version": ")" << int(DSA_MAJOR_VERSION) << "."
-                << int(DSA_MINOR_VERSION) << "\",\n";
+  std::stringstream config_file;
+  config_file << "{\n"
+              << R"("dsa-version": ")" << int(DSA_MAJOR_VERSION) << "."
+              << int(DSA_MINOR_VERSION) << "\",\n";
 #ifdef _DSA_DEBUG
-    config_file << R"("broker-build": "debug")";
+  config_file << R"("broker-build": "debug")";
 #else
-    config_file << R"("broker-build": "release")";
+  config_file << R"("broker-build": "release")";
 #endif
-    for (auto& name : _names) {
-      config_file << ",\n\"" << name << "\": ";
-      config_file << _items[name].get_value().to_json(2);
-    }
-    config_file << "\n}";
-  } else {
-    LOG_ERROR(Logger::_(), LOG << "failed to write the broker config file");
+  for (auto& name : _names) {
+    config_file << ",\n\"" << name << "\": ";
+    config_file << _items[name].get_value().to_json(2);
   }
+  config_file << "\n}";
+
+  const std::string& tmp_str = config_file.str();
+
+  const char* cstr = tmp_str.c_str();
+
+  auto data = new RefCountBytes(&cstr[0], &cstr[strlen(cstr)]);
+
+  storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
 }
 void BrokerConfig::add_item(const string_& name, Var&& value,
                             VarValidator&& validator) {

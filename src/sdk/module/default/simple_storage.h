@@ -29,6 +29,8 @@ class SimpleQueueBucket : public QueueBucket {
 class SimpleStorageBucket : public StorageBucket {
  private:
   typedef std::map<std::string, boost::asio::io_service::strand*> StrandMap;
+  inline void write_file (const std::string& key, BytesRef content);
+  inline void read_file (const std::string& key, ReadCallback callback);
 
  protected:
   typedef std::pair<std::string, boost::asio::io_service::strand*> StrandPair;
@@ -53,6 +55,8 @@ class SimpleStorageBucket : public StorageBucket {
 };
 
 class SimpleSafeStorageBucket : public SimpleStorageBucket {
+  inline void write_file(const std::string& key,
+                                       BytesRef content);
  public:
   SimpleSafeStorageBucket() {}
 
@@ -67,15 +71,17 @@ class SimpleStorage : public Storage {
   boost::asio::io_service* _io_service;
 
  public:
-  SimpleStorage(boost::asio::io_service* io_service)
+  SimpleStorage(boost::asio::io_service* io_service = nullptr)
       : _io_service(io_service) {}
 
   std::unique_ptr<StorageBucket> get_bucket(const std::string& name) override;
 
-  std::unique_ptr<StorageBucket> get_safe_bucket(const std::string& name) override;
-
   /// create a bucket or find a existing bucket
   std::unique_ptr<QueueBucket> get_queue_bucket(const std::string& name) override;
+
+  void set_io_service(boost::asio::io_service* io_service){
+    _io_service = io_service;
+  };
 };
 
 }  // namespace dsa

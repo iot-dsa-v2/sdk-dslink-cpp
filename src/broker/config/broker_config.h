@@ -10,6 +10,7 @@
 
 #include "broker_config_item.h"
 #include "util/enable_ref.h"
+#include "module/default/simple_storage.h"
 
 namespace dsa {
 class BrokerConfig : public EnableRef<BrokerConfig> {
@@ -28,6 +29,10 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
 
   void add_item(const string_& name, Var&& value, VarValidator&&);
 
+  SimpleStorage simple_storage;
+  std::unique_ptr<StorageBucket> storage_bucket;
+  std::string storage_key;
+
  public:
   BrokerConfig(int argc, const char* argv[]);
   BrokerConfigItem& thread() { return _items["thread"]; }
@@ -37,6 +42,9 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
   BrokerConfigItem& http_port() { return _items["http-port"]; }
   BrokerConfigItem& https_port() { return _items["https-port"]; }
   BrokerConfigItem& log_level() { return _items["log-level"]; }
+  void set_io_service(boost::asio::io_service* io_service){
+    simple_storage.set_io_service(io_service);
+  };
 };
 }
 

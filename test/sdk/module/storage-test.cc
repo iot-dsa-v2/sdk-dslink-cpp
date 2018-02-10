@@ -17,11 +17,11 @@ TEST(ModuleTest, StorageBucket) {
 
   App app;
 
-  SimpleStorage ss(&app.io_service());
+  SimpleStorage simple_storage(&app.io_service());
 
   std::string storage_key("config");
 
-  std::unique_ptr<StorageBucket> sb = ss.get_bucket(storage_key);
+  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_bucket(storage_key);
 
   auto on_done = []() {
     std::cout << "on_done" << std::endl;
@@ -31,7 +31,7 @@ TEST(ModuleTest, StorageBucket) {
   {
     const char* content = {"first_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    sb->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
 
     auto read_callback = [=] (std::string storage_key, std::vector<uint8_t> vec) {
 
@@ -39,13 +39,13 @@ TEST(ModuleTest, StorageBucket) {
 
       return;
     };
-    sb->read(storage_key, read_callback);
+    storage_bucket->read(storage_key, read_callback);
   }
 
   {
     const char* content = {"second_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    sb->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
 
     auto read_callback = [=] (std::string storage_key, std::vector<uint8_t> vec) {
 
@@ -53,10 +53,10 @@ TEST(ModuleTest, StorageBucket) {
 
       return;
     };
-    sb->read(storage_key, read_callback);
+    storage_bucket->read(storage_key, read_callback);
   }
 
-  sb->remove(storage_key);
+  storage_bucket->remove(storage_key);
 
   app.close();
 
@@ -73,11 +73,11 @@ TEST(ModuleTest, SafeStorageBucket) {
 
   App app;
 
-  SimpleStorage ss(&app.io_service());
+  SimpleStorage simple_storage(&app.io_service());
 
   std::string storage_key("config");
 
-  std::unique_ptr<StorageBucket> sb = ss.get_safe_bucket(storage_key);
+  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_bucket(storage_key);
 
   auto on_done = []() {
     std::cout << "on_done" << std::endl;
@@ -87,7 +87,7 @@ TEST(ModuleTest, SafeStorageBucket) {
   {
     const char* content = {"first_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    sb->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
 
     auto read_callback = [=] (std::string storage_key, std::vector<uint8_t> vec) {
 
@@ -95,13 +95,13 @@ TEST(ModuleTest, SafeStorageBucket) {
 
       return;
     };
-    sb->read(storage_key, read_callback);
+    storage_bucket->read(storage_key, read_callback);
   }
 
   {
     const char* content = {"second_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    sb->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
 
     auto read_callback = [=] (std::string storage_key, std::vector<uint8_t> vec) {
 
@@ -109,10 +109,10 @@ TEST(ModuleTest, SafeStorageBucket) {
 
       return;
     };
-    sb->read(storage_key, read_callback);
+    storage_bucket->read(storage_key, read_callback);
   }
 
-  sb->remove(storage_key);
+  storage_bucket->remove(storage_key);
 
   app.close();
 

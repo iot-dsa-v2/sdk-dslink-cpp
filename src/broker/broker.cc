@@ -41,6 +41,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
     _app.reset(new App(thread));
     _own_app = true;
   }
+  _config->set_io_service(&_app->io_service());
 
   server_host = _config->host().get_value().get_string();
   tcp_server_port =
