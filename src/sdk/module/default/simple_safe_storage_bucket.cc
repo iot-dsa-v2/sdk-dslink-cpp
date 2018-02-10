@@ -21,11 +21,11 @@ void SimpleSafeStorageBucket::write(const std::string &key,
                                     BytesRef &&content) {
   auto write_file = [=]() {
 #if (defined(_WIN32) || defined(_WIN64))
-    std::string templ = tmpnam(nullptr)
+    std::string templ = tmpnam(nullptr);
 #else
     mkstemp(templ);
 #endif
-        path p(storage_root);
+    path p(storage_root);
 
     p /= (key);
 

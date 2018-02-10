@@ -71,7 +71,7 @@ void SimpleStorageBucket::read(const std::string& key,
         size_t size = fs::file_size(p);
 
         if (size) {
-          auto open_mode = std::ios::in;
+          std::ios::openmode open_mode = std::ios::in;
           if (_is_binary) open_mode = open_mode | std::ios::binary;
           std::ifstream ifs(p.string().c_str(), open_mode);
           if (ifs) {
