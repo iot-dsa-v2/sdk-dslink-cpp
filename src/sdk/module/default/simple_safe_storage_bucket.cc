@@ -31,7 +31,7 @@ void SimpleSafeStorageBucket::write(const std::string &key,
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
-      if (_is_binary) open_mode |= std::ios::binary;
+      if (_is_binary) open_mode = open_mode | std::ios::binary;
       std::ofstream ofs(templ, open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char *>(content->data()),

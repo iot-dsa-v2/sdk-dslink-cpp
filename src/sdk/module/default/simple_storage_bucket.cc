@@ -25,7 +25,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
-      if (_is_binary) open_mode |= std::ios::binary;
+      if (_is_binary) open_mode = open_mode | std::ios::binary;
       std::ofstream ofs(p.string().c_str(), open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
@@ -72,7 +72,7 @@ void SimpleStorageBucket::read(const std::string& key,
 
         if (size) {
           auto open_mode = std::ios::in;
-          if (_is_binary) open_mode |= std::ios::binary;
+          if (_is_binary) open_mode = open_mode | std::ios::binary;
           std::ifstream ifs(p.string().c_str(), open_mode);
           if (ifs) {
             vec.resize(static_cast<size_t>(size));
