@@ -33,12 +33,13 @@ class SimpleStorageBucket : public StorageBucket {
   typedef std::pair<std::string, boost::asio::io_service::strand*> StrandPair;
   StrandMap strand_map;
   boost::asio::io_service* _io_service;
+  bool _is_binary;
 
  public:
   SimpleStorageBucket() {}
 
-  SimpleStorageBucket(boost::asio::io_service* io_service)
-      : _io_service(io_service) {}
+  SimpleStorageBucket(boost::asio::io_service* io_service, bool is_binary = false)
+      : _io_service(io_service), _is_binary(is_binary){}
 
   void write(const std::string& key, BytesRef&& data) override;
   void read(const std::string& key, ReadCallback&& callback) override;
@@ -55,8 +56,8 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
  public:
   SimpleSafeStorageBucket() {}
 
-  SimpleSafeStorageBucket(boost::asio::io_service* io_service)
-  : SimpleStorageBucket(io_service) {}
+  SimpleSafeStorageBucket(boost::asio::io_service* io_service, bool is_binary = false)
+  : SimpleStorageBucket(io_service, is_binary) {}
 
   void write(const std::string& key, BytesRef&& data) override;
 };
