@@ -1,5 +1,5 @@
 #include "dsa_common.h"
-
+#include "module/logger.h"
 #include "simple_storage.h"
 
 #include <boost/asio/strand.hpp>
@@ -14,30 +14,31 @@ using boost::filesystem::path;
 #if (defined(_WIN32) || defined(_WIN64))
 static std::string storage_root = "C:\\temp\\";
 #else
-//static std::string storage_root = "/tmp/";
+// static std::string storage_root = "/tmp/";
 static std::string storage_root = "";
 #endif
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
-
-  auto write_file = [=] () {
+  auto write_file = [=]() {
     path p(storage_root);
     p /= (key);
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
-      if(_is_binary)
-        open_mode |= std::ios::binary;
+      if (_is_binary) open_mode |= std::ios::binary;
       std::ofstream ofs(p.string().c_str(), open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
                   content->size());
       } else {
-        // TODO - error handling
+        // TODO: is fatal?
+        LOG_FATAL(LOG << "Unable to open " << key << " file to write");
       }
     } catch (const fs::filesystem_error& ex) {
-      // TODO - error handling
-    }};
+      // TODO: is fatal?
+      LOG_ERROR(Logger::_(), LOG << "Write failed for " << key << " file");
+    }
+  };
 
   if (_io_service != nullptr) {
     if (!strand_map.count(key)) {
@@ -58,7 +59,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
 
 void SimpleStorageBucket::read(const std::string& key,
                                ReadCallback&& callback) {
-  auto read_file = [=] () {
+  auto read_file = [=]() {
     std::vector<uint8_t> vec{};
 
     path p(storage_root);
@@ -70,22 +71,23 @@ void SimpleStorageBucket::read(const std::string& key,
 
         if (size) {
           auto open_mode = std::ios::in;
-          if(_is_binary)
-            open_mode |= std::ios::binary;
+          if (_is_binary) open_mode |= std::ios::binary;
           std::ifstream ifs(p.string().c_str(), open_mode);
           if (ifs) {
             vec.resize(static_cast<size_t>(size));
             ifs.read(reinterpret_cast<char*>(&vec.front()),
                      static_cast<size_t>(size));
           } else {
-            // TODO - error handling
+            // TODO: is fatal?
+            LOG_FATAL(LOG << "Unable to open " << key << " file to read");
           }
         }
       } else {
-        // TODO - error handling
+        LOG_ERROR(Logger::_(), LOG << "there is no file to read " << key);
       }
     } catch (const fs::filesystem_error& ex) {
-      // TODO - error handling
+      // TODO: is fatal?
+      LOG_ERROR(Logger::_(), LOG << "Read failed for " << key << " file");
     }
 
     callback(key, vec);
