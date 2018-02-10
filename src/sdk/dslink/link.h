@@ -44,7 +44,7 @@ class DsLink final : public DsLinkRequester {
                              const std::vector<std::string> &)>
       ListCallback;
   typedef std::function<void(const shared_ptr_<Connection> &,
-                             DsLinkRequester &)>
+                             ref_<DsLinkRequester>)>
       LinkOnConnectCallback;
 
  public:

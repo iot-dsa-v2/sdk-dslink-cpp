@@ -68,11 +68,12 @@ TEST_F(DslinkTest, ListTest) {
   ListResponses root_list_responses;
   ListResponses root_revisited_list_responses;
   link->connect([&](const shared_ptr_<Connection> connection,
-                    DsLinkRequester &link_req) {
+                    ref_<DsLinkRequester> link_req) {
     is_connected = true;
     // list on root node
-    auto list_cache1 = link_req.list("", [&](IncomingListCache &cache,
-                                             const std::vector<string_> &str) {
+    auto list_cache1 = link_req->list("", [&, link_req = std::move(link_req) ](
+                                              IncomingListCache & cache,
+                                              const std::vector<string_> &str) {
       root_list_responses.push_back(str);
       if (!flag3) {
         EXPECT_TRUE(cache.get_map().size() != 0);
@@ -93,7 +94,7 @@ TEST_F(DslinkTest, ListTest) {
       }
 
       // list on child node
-      auto list_cache2 = link_req.list(
+      auto list_cache2 = link_req->list(
           "child_a",
           [&](IncomingListCache &cache1, const std::vector<string_> &str) {
             if (!flag3) {
@@ -133,7 +134,7 @@ TEST_F(DslinkTest, ListTest) {
         }
 
         // list on root node revisited
-        auto list_cache_revisited = link_req.list(
+        auto list_cache_revisited = link_req->list(
             "",
             [&](IncomingListCache &cache3, const std::vector<string_> &str) {
               root_revisited_list_responses.push_back(str);

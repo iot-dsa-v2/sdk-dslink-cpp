@@ -54,9 +54,9 @@ TEST_F(DslinkTest, SubscribeTest) {
   // connection
   bool is_connected = false;
   link->connect([&](const shared_ptr_<Connection> connection,
-                    DsLinkRequester &link_req) {
+                    ref_<DsLinkRequester> link_req) {
     // add a callback when connected to broker
-    link_req.subscribe("", [&](IncomingSubscribeCache &cache,
+    link_req->subscribe("", [&](IncomingSubscribeCache &cache,
                                ref_<const SubscribeResponseMessage> message) {
       messages.push_back(message->get_value().value.get_string());
     });
@@ -109,7 +109,7 @@ TEST_F(DslinkTest, SubscribeMultiTest) {
   std::vector<std::string> messages_initial;
   std::vector<std::string> messages_updated;
   link->connect([&](const shared_ptr_<Connection> connection,
-                    DsLinkRequester &link_req) {
+                    ref_<DsLinkRequester> link_req) {
     is_connected = true;
 
     // Initial Subcribe
@@ -118,9 +118,9 @@ TEST_F(DslinkTest, SubscribeMultiTest) {
     initial_options.queue_duration = 0x1234;
     initial_options.queue_size = 0x5678;
 
-    link_req.subscribe(
+    link_req->subscribe(
         "",
-        [&](IncomingSubscribeCache &cache,
+        [&, link_req = std::move(link_req)](IncomingSubscribeCache &cache,
             ref_<const SubscribeResponseMessage> message) {
           messages_initial.push_back(message->get_value().value.get_string());
           if (messages_initial.size() == 1) {
@@ -129,7 +129,7 @@ TEST_F(DslinkTest, SubscribeMultiTest) {
             update_options.queue_duration = 0x9876;
             update_options.queue_size = 0x5432;
 
-            link_req.subscribe(
+            link_req->subscribe(
                 "",
                 [&](IncomingSubscribeCache &cache,
                     ref_<const SubscribeResponseMessage> message) {

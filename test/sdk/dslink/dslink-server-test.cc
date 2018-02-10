@@ -66,18 +66,19 @@ TEST_F(DslinkTest, ServerTest) {
   bool flag1 = false;
   std::vector<std::string> messages;
   link->connect([&](const shared_ptr_<Connection> connection,
-                    DsLinkRequester &link_req) {
+                    ref_<DsLinkRequester> link_req) {
     std::vector<string_> list_result;
     // List test
-    auto list_cache1 = link_req.list("", [&](IncomingListCache &cache,
-                                             const std::vector<string_> &str) {
+    auto list_cache1 = link_req->list("", [&, link_req = std::move(link_req) ](
+                                              IncomingListCache & cache,
+                                              const std::vector<string_> &str) {
       EXPECT_TRUE(cache.get_map().size() != 0);
       EXPECT_NE(cache.get_map().find("sys"), cache.get_map().end());
       EXPECT_NE(cache.get_map().find("pub"), cache.get_map().end());
       EXPECT_NE(cache.get_map().find("main"), cache.get_map().end());
 
       // add a callback when connected to broker
-      link_req.subscribe(
+      link_req->subscribe(
           "main/child_a", [&](IncomingSubscribeCache &cache,
                               ref_<const SubscribeResponseMessage> message) {
             messages.push_back(message->get_value().value.get_string());
@@ -131,11 +132,11 @@ TEST_F(DslinkTest, CloseTest) {
 
   bool is_connected = false;
   linkResp->init_responder<ExampleNodeRoot>();
-  linkResp->connect([&](const shared_ptr_<Connection> connection,
-                        DsLinkRequester &link_req) { is_connected = true; });
-  ASYNC_EXPECT_TRUE(3000, *linkResp->strand, [&]() -> bool {
-    return (is_connected);
-  });
+  linkResp->connect(
+      [&](const shared_ptr_<Connection> connection,
+          ref_<DsLinkRequester> link_req) { is_connected = true; });
+  ASYNC_EXPECT_TRUE(3000, *linkResp->strand,
+                    [&]() -> bool { return (is_connected); });
 
   EXPECT_EQ(close_token, linkResp->get_close_token());
 
@@ -153,30 +154,29 @@ TEST_F(DslinkTest, CloseTest) {
   is_connected = false;
   bool flag2 = false;
   link->connect([&](const shared_ptr_<Connection> connection,
-                    DsLinkRequester &link_req) {
+                    ref_<DsLinkRequester> link_req) {
     auto close_request_with_wrong_token = make_ref_<InvokeRequestMessage>();
     close_request_with_wrong_token->set_value(Var("wrongtoken"));
     close_request_with_wrong_token->set_target_path("sys/stop");
 
-    link_req.invoke(
-        [&](IncomingInvokeStream &stream,
-            ref_<const InvokeResponseMessage> &&msg) {
-          EXPECT_TRUE(msg != nullptr);
-          EXPECT_EQ(msg->get_status(), MessageStatus::INVALID_PARAMETER);
-          EXPECT_FALSE(linkResp->is_destroyed());
+    link_req->invoke([&, link_req = std::move(link_req) ](
+                         IncomingInvokeStream & stream,
+                         ref_<const InvokeResponseMessage> && msg) {
+      EXPECT_TRUE(msg != nullptr);
+      EXPECT_EQ(msg->get_status(), MessageStatus::INVALID_PARAMETER);
+      EXPECT_FALSE(linkResp->is_destroyed());
 
-          auto close_request_with_valid_token =
-              make_ref_<InvokeRequestMessage>();
-          close_request_with_valid_token->set_value(Var(close_token));
-          close_request_with_valid_token->set_target_path("sys/stop");
+      auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
+      close_request_with_valid_token->set_value(Var(close_token));
+      close_request_with_valid_token->set_target_path("sys/stop");
 
-          link_req.invoke(
-              [&](IncomingInvokeStream &stream,
-                  ref_<const InvokeResponseMessage> &&msg) { flag2 = true; },
-              copy_ref_(close_request_with_valid_token));
+      link_req->invoke(
+          [&](IncomingInvokeStream &stream,
+              ref_<const InvokeResponseMessage> &&msg) { flag2 = true; },
+          copy_ref_(close_request_with_valid_token));
 
-        },
-        copy_ref_(close_request_with_wrong_token));
+    },
+                     copy_ref_(close_request_with_wrong_token));
 
     is_connected = true;
   });
@@ -232,22 +232,22 @@ TEST_F(DslinkTest, ProfileActionTest) {
   bool invoked = false;
   bool subscrib_checked = false;
   link->connect([&](const shared_ptr_<Connection> connection,
-                    DsLinkRequester &link_req) {
+                    ref_<DsLinkRequester> link_req) {
 
     // check the list result
-    link_req.list("main",
-               [&](IncomingListCache &cache, const std::vector<string_> &) {
-                 if (cache.get_map().count("$is") > 0 &&
-                     cache.get_map().at("$is").to_string() == "example") {
-                   list_checked = true;
-                   cache.close();
-                 }
-               });
+    link_req->list("main",
+                   [&](IncomingListCache &cache, const std::vector<string_> &) {
+                     if (cache.get_map().count("$is") > 0 &&
+                         cache.get_map().at("$is").to_string() == "example") {
+                       list_checked = true;
+                       cache.close();
+                     }
+                   });
     // invoke the pub node to change the value
     auto request = make_ref_<InvokeRequestMessage>();
     request->set_target_path("main/change");
     request->set_body(Var("hello").to_msgpack());
-    link_req.invoke(
+    link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
           invoked = true;
@@ -255,9 +255,9 @@ TEST_F(DslinkTest, ProfileActionTest) {
         std::move(request));
     // subscribe to check the result
     ref_<IncomingSubscribeCache> sub_cache;
-    sub_cache =
-        link_req.subscribe("main", [&](IncomingSubscribeCache &cache,
-                                    ref_<const SubscribeResponseMessage> &msg) {
+    sub_cache = link_req->subscribe(
+        "main", [&](IncomingSubscribeCache &cache,
+                    ref_<const SubscribeResponseMessage> &msg) {
           if (msg->get_value().value.to_string() == "hello") {
             subscrib_checked = true;
             cache.close();

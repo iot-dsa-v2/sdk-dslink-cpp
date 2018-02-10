@@ -55,11 +55,11 @@ TEST_F(DslinkTest, PagedInvokeResponse) {
   ref_<IncomingInvokeStream> invoke_stream;
   ref_<const InvokeResponseMessage> response;
   link->connect(
-      [&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) {
+      [&](const shared_ptr_<Connection> connection, ref_<DsLinkRequester> link_req) {
         is_connected = true;
         auto first_request = make_ref_<InvokeRequestMessage>();
 
-        invoke_stream = link_req.invoke(
+        invoke_stream = link_req->invoke(
             [&](IncomingInvokeStream &stream,
                 ref_<const InvokeResponseMessage> &&msg) {
               response = std::move(msg);

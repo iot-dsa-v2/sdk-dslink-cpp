@@ -33,7 +33,7 @@ TEST_F(DslinkTest, ConnectTest) {
 
   int step = 0;
   link->connect(
-      [&](const shared_ptr_<Connection> connection, DsLinkRequester &link_req) {
+      [&](const shared_ptr_<Connection> connection, ref_<DsLinkRequester> link_req) {
         ++step;
         switch (step) {
           case 1: {

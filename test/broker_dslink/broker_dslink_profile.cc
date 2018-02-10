@@ -48,10 +48,10 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   bool invoked = false;
   bool subscrib_checked = false;
   link->connect([&](const shared_ptr_<Connection> connection,
-                    DsLinkRequester &link_req) {
+                    ref_<DsLinkRequester> link_req) {
 
     // check the list result
-    link_req.list("downstream/test1/main",
+    link_req->list("downstream/test1/main",
                [&](IncomingListCache &cache, const std::vector<string_> &) {
                  if (cache.get_map().count("$is") > 0 &&
                      cache.get_map().at("$is").to_string() == "example") {
@@ -63,7 +63,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
     auto request = make_ref_<InvokeRequestMessage>();
     request->set_target_path("downstream/test1/main/change");
     request->set_body(Var("hello").to_msgpack());
-    link_req.invoke(
+    link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
           invoked = true;
@@ -72,7 +72,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
     // subscribe to check the result
     ref_<IncomingSubscribeCache> sub_cache;
     sub_cache =
-        link_req.subscribe("downstream/test1/main",
+        link_req->subscribe("downstream/test1/main",
                         [&](IncomingSubscribeCache &cache,
                             ref_<const SubscribeResponseMessage> &msg) {
                           if (msg->get_value().value.to_string() == "hello") {

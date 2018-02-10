@@ -314,7 +314,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
     _client = make_ref_<Client>(*this);
     _client->connect([ this, on_connect = std::move(on_connect) ](
                          const shared_ptr_<Connection> connection) {
-      if (on_connect != nullptr) on_connect(connection, *this);
+      if (on_connect != nullptr) on_connect(connection, this->get_ref());
     },
                      callback_type);
   });
