@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.6.2)
 
-set( DSA_INCLUDE_TEST true )
-
 project(DSA_SDK)
 
-
-include(${CMAKE_CURRENT_LIST_DIR}/CMakeListsConfig.txt)
+if (${CMAKE_SOURCE_DIR} STREQUAL ${PROJECT_SOURCE_DIR})
+  set( DSA_INCLUDE_TEST true )
+  include(${CMAKE_CURRENT_LIST_DIR}/CMakeListsConfig.txt)
+endif ()
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/msgpack-build")
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/jansson-build")
