@@ -93,7 +93,7 @@ TEST_F(DslinkTest, ServerTest) {
 
   });
 
-  ASYNC_EXPECT_TRUE(1000, *link->strand,
+  ASYNC_EXPECT_TRUE(1500, *link->strand,
                     [&]() { return (is_connected && flag1); });
 
   // Cleaning test

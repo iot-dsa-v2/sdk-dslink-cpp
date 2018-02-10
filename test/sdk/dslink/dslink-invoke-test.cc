@@ -63,15 +63,10 @@ TEST_F(DslinkTest, PagedInvokeResponse) {
             [&](IncomingInvokeStream &stream,
                 ref_<const InvokeResponseMessage> &&msg) {
               response = std::move(msg);
-              flag1 = true;
-
               EXPECT_TRUE(response != nullptr);
-
               string_ response_str1 = response->get_value().to_string();
-
-              std::cout << response_str1 << std::endl;
-
               EXPECT_TRUE(response_str1 == big_str1);
+              flag1 = true;
             },
             copy_ref_(first_request));
 

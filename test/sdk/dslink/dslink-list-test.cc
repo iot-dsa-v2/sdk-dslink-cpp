@@ -62,6 +62,7 @@ TEST_F(DslinkTest, ListTest) {
   bool flag1 = false;
   bool flag2 = false;
   bool flag3 = false;
+  bool flag4 = false;
   bool is_connected = false;
   auto link = server_strand.create_dslink(true);
   ListResponses root_list_responses;
@@ -136,14 +137,9 @@ TEST_F(DslinkTest, ListTest) {
             "",
             [&](IncomingListCache &cache3, const std::vector<string_> &str) {
               root_revisited_list_responses.push_back(str);
-
-              WAIT_EXPECT_TRUE(1000, [&]() {
-                return root_revisited_list_responses.size() == 1;
-              });
-              {
-                EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
-                EXPECT_TRUE(cache3.get_map() == cache.get_map());
-              }
+              EXPECT_EQ(root_revisited_list_responses[0].size(), 0);
+              EXPECT_TRUE(cache3.get_map() == cache.get_map());
+              flag4 = true;
             });
       }
 
@@ -151,7 +147,7 @@ TEST_F(DslinkTest, ListTest) {
 
   });
   ASYNC_EXPECT_TRUE(5000, *link->strand, [&]() {
-    return (is_connected && flag1 && flag2 && flag3);
+    return (is_connected && flag1 && flag2 && flag3 && flag4);
   });
 
   tcp_server->destroy_in_strand(tcp_server);
