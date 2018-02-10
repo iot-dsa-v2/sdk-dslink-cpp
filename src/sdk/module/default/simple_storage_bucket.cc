@@ -30,6 +30,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
       if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
                   content->size());
+        ofs.close();
       } else {
         // TODO: is fatal?
         LOG_FATAL(LOG << "Unable to open " << key << " file to write");
@@ -77,13 +78,14 @@ void SimpleStorageBucket::read(const std::string& key,
             vec.resize(static_cast<size_t>(size));
             ifs.read(reinterpret_cast<char*>(&vec.front()),
                      static_cast<size_t>(size));
+            ifs.close();
           } else {
             // TODO: is fatal?
             LOG_FATAL(LOG << "Unable to open " << key << " file to read");
           }
         }
       } else {
-        LOG_ERROR(Logger::_(), LOG << "there is no file to read " << key);
+        LOG_INFO(Logger::_(), LOG << "there is no file to read " << key);
       }
     } catch (const fs::filesystem_error& ex) {
       // TODO: is fatal?
