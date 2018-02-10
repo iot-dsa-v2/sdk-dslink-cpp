@@ -129,9 +129,13 @@ TEST_F(DslinkTest, CloseTest) {
   static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
+  bool is_connected = false;
   linkResp->init_responder<ExampleNodeRoot>();
   linkResp->connect([&](const shared_ptr_<Connection> connection,
-                        DsLinkRequester &link_req) {});
+                        DsLinkRequester &link_req) { is_connected = true; });
+  ASYNC_EXPECT_TRUE(3000, *linkResp->strand, [&]() -> bool {
+    return (is_connected);
+  });
 
   EXPECT_EQ(close_token, linkResp->get_close_token());
 
@@ -146,7 +150,7 @@ TEST_F(DslinkTest, CloseTest) {
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   // connection
-  bool is_connected = false;
+  is_connected = false;
   bool flag2 = false;
   link->connect([&](const shared_ptr_<Connection> connection,
                     DsLinkRequester &link_req) {

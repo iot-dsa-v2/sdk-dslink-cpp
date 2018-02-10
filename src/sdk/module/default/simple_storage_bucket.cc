@@ -18,56 +18,24 @@ static std::string storage_root = "C:\\temp\\";
 static std::string storage_root = "";
 #endif
 
-inline void SimpleStorageBucket::write_file(const std::string& key,
-                                           BytesRef content) {
-  path p(storage_root);
-  p /= (key);
-
-  try {
-    std::ofstream ofs(p.string().c_str(), std::ios::out | std::ios::trunc);
-    if (ofs) {
-      ofs.write(reinterpret_cast<const char*>(content->data()),
-                content->size());
-    } else {
-      // TODO - error handling
-    }
-  } catch (const fs::filesystem_error& ex) {
-    // TODO - error handling
-  }
-}
-
-inline void SimpleStorageBucket::read_file(const std::string& key,
-                                          ReadCallback callback) {
-  std::vector<uint8_t> vec{};
-
-  path p(storage_root);
-  p /= (key);
-
-  try {
-    if (fs::exists(p) && is_regular_file(p)) {
-      size_t size = fs::file_size(p);
-
-      if (size) {
-        std::ifstream ifs(p.string().c_str(), std::ios::in);
-        if (ifs) {
-          vec.resize(static_cast<size_t>(size));
-          ifs.read(reinterpret_cast<char*>(&vec.front()),
-                   static_cast<size_t>(size));
-        } else {
-          // TODO - error handling
-        }
-      }
-    } else {
-      // TODO - error handling
-    }
-  } catch (const fs::filesystem_error& ex) {
-    // TODO - error handling
-  }
-
-  callback(key, vec);
-}
-
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
+
+  auto write_file = [=] () {
+    path p(storage_root);
+    p /= (key);
+
+    try {
+      std::ofstream ofs(p.string().c_str(), std::ios::out | std::ios::trunc);
+      if (ofs) {
+        ofs.write(reinterpret_cast<const char*>(content->data()),
+                  content->size());
+      } else {
+        // TODO - error handling
+      }
+    } catch (const fs::filesystem_error& ex) {
+      // TODO - error handling
+    }};
+
   if (_io_service != nullptr) {
     if (!strand_map.count(key)) {
       boost::asio::io_service::strand* strand =
@@ -76,17 +44,47 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
     }
 
     strand_map.at(key)->post([=]() {
-      write_file(key, content);
+      write_file();
       return;
     });
     return;
   } else {
-    write_file(key, std::move(content));
+    write_file();
   }
 }
 
 void SimpleStorageBucket::read(const std::string& key,
                                ReadCallback&& callback) {
+  auto read_file = [=] () {
+    std::vector<uint8_t> vec{};
+
+    path p(storage_root);
+    p /= (key);
+
+    try {
+      if (fs::exists(p) && is_regular_file(p)) {
+        size_t size = fs::file_size(p);
+
+        if (size) {
+          std::ifstream ifs(p.string().c_str(), std::ios::in);
+          if (ifs) {
+            vec.resize(static_cast<size_t>(size));
+            ifs.read(reinterpret_cast<char*>(&vec.front()),
+                     static_cast<size_t>(size));
+          } else {
+            // TODO - error handling
+          }
+        }
+      } else {
+        // TODO - error handling
+      }
+    } catch (const fs::filesystem_error& ex) {
+      // TODO - error handling
+    }
+
+    callback(key, vec);
+  };
+
   if (_io_service != nullptr) {
     if (!strand_map.count(key)) {
       boost::asio::io_service::strand* strand =
@@ -95,12 +93,12 @@ void SimpleStorageBucket::read(const std::string& key,
     }
 
     strand_map.at(key)->post([=]() {
-      read_file(key, callback);
+      read_file();
       return;
     });
     return;
   } else {
-    read_file(key, std::move(callback));
+    read_file();
   }
 }
 

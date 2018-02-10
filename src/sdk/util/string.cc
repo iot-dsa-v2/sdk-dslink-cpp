@@ -1,5 +1,4 @@
 #include "dsa_common.h"
-
 #include "string.h"
 
 #include <boost/filesystem.hpp>

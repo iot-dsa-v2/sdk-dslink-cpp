@@ -17,33 +17,32 @@ static std::string storage_root = "";
 static char templ[] = "/tmp/fileXXXXXX";
 #endif
 
-inline void SimpleSafeStorageBucket::write_file(const std::string& key,
-                                     BytesRef content) {
+void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content) {
+  auto write_file = [=] () {
 #if (defined (_WIN32) || defined (_WIN64))
-  std::string templ = tmpnam(nullptr)
+    std::string templ = tmpnam(nullptr)
 #else
-  mkstemp(templ);
+    mkstemp(templ);
 #endif
-  path p(storage_root);
+    path p(storage_root);
 
-  p /= (key);
+    p /= (key);
 
-  try {
-    std::ofstream ofs(templ, std::ios::out | std::ios::trunc);
-    if (ofs) {
-      ofs.write(reinterpret_cast<const char *>(content->data()),
-                content->size());
+    try {
+      std::ofstream ofs(templ, std::ios::out | std::ios::trunc);
+      if (ofs) {
+        ofs.write(reinterpret_cast<const char *>(content->data()),
+                  content->size());
 
-      boost::filesystem::rename(templ, p);
-    } else {
+        boost::filesystem::rename(templ, p);
+      } else {
+        // TODO - error handling
+      }
+    } catch (const fs::filesystem_error &ex) {
       // TODO - error handling
     }
-  } catch (const fs::filesystem_error &ex) {
-    // TODO - error handling
-  }
-}
+  };
 
-void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content) {
   if (_io_service != nullptr) {
     if (!strand_map.count(key)) {
       boost::asio::io_service::strand* strand =
@@ -52,12 +51,12 @@ void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content) 
     }
 
     strand_map.at(key)->post([=]() {
-      write_file(key, content);
+      write_file();
       return;
     });
     return;
   } else {
-    write_file(key, std::move(content));
+    write_file();
   }
 }
 }

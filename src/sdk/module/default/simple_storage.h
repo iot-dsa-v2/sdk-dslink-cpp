@@ -29,9 +29,6 @@ class SimpleQueueBucket : public QueueBucket {
 class SimpleStorageBucket : public StorageBucket {
  private:
   typedef std::map<std::string, boost::asio::io_service::strand*> StrandMap;
-  inline void write_file (const std::string& key, BytesRef content);
-  inline void read_file (const std::string& key, ReadCallback callback);
-
  protected:
   typedef std::pair<std::string, boost::asio::io_service::strand*> StrandPair;
   StrandMap strand_map;
@@ -55,8 +52,6 @@ class SimpleStorageBucket : public StorageBucket {
 };
 
 class SimpleSafeStorageBucket : public SimpleStorageBucket {
-  inline void write_file(const std::string& key,
-                                       BytesRef content);
  public:
   SimpleSafeStorageBucket() {}
 
