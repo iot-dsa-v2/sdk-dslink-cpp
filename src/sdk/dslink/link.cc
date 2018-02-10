@@ -105,7 +105,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   parse_server_port(variables["server-port"].as<uint16_t>());
 
-  init_module(std::move(default_module),variables["module_path"].as<string_>(), use_standard_node_structure);
+  init_module(std::move(default_module), variables["module_path"].as<string_>(),
+              use_standard_node_structure);
 
   LOG_TRACE(Logger::_(), LOG << "DSLink initialized successfully");
 }
@@ -115,8 +116,7 @@ void DsLink::init_module(ref_<Module> &&default_module,
   if (default_module == nullptr)
     default_module = make_ref_<ModuleDslinkDefault>();
 
-  modules =
-      make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
+  modules = make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
   modules->init_all(*_app, strand);
 
   strand->set_client_manager(modules->get_client_manager());
@@ -257,11 +257,12 @@ ref_<NodeModelBase> DsLink::add_to_main_node(const string_ &name,
 void DsLink::remove_from_main_node(const string_ &name) {
   _root->remove_from_main(name);
 }
-ref_<NodeModel> DsLink::add_to_pub(const string_ &path, ref_<NodeModel> &&node) {
+ref_<NodeModel> DsLink::add_to_pub(const string_ &path,
+                                   ref_<NodeModel> &&node) {
   return std::move(_root->add_to_pub(path, std::move(node)));
 }
 
-void DsLink::connect(Client::OnConnectCallback &&on_connect,
+void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
     LOG_FATAL(
@@ -311,11 +312,15 @@ void DsLink::connect(Client::OnConnectCallback &&on_connect,
     }
 
     _client = make_ref_<Client>(*this);
-    _client->connect(std::move(on_connect), callback_type);
+    _client->connect([ this, on_connect = std::move(on_connect) ](
+                         const shared_ptr_<Connection> connection) {
+      if (on_connect != nullptr) on_connect(connection, *this);
+    },
+                     callback_type);
   });
 }
 
-void DsLink::run(Client::OnConnectCallback &&on_connect,
+void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
                  uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
@@ -332,9 +337,10 @@ void DsLink::run(Client::OnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_SYSTEM(Logger::_(), LOG << "DsLink on_connect callback "
-                                              "ignored since it was connected "
-                                              "before\n");
+    LOG_SYSTEM(Logger::_(),
+               LOG << "DsLink on_connect callback "
+                      "ignored since it was connected "
+                      "before\n");
   }
   LOG_SYSTEM(Logger::_(), LOG << "DsLink running");
   if (own_app) {

@@ -59,16 +59,16 @@ class SharedStrandPtr : public SharedDestroyable<T> {
 
  public:
   void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &&destroyable) {
-    if (destroyable->is_destroyed()) {
-      return;
-    }
+//    if (destroyable->is_destroyed()) {
+//      return;
+//    }
     post_in_strand(
         [ this, keep_ptr = std::move(destroyable) ]() { this->destroy(); });
   }
   void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &destroyable) {
-    if (destroyable->is_destroyed()) {
-      return;
-    }
+//    if (destroyable->is_destroyed()) {
+//      return;
+//    }
     post_in_strand([ this, keep_ptr = destroyable ]() { this->destroy(); });
   }
 };
