@@ -1,5 +1,5 @@
-#ifndef DSA_SUBSCRIBE_REQUEST_MESSAGE_H_
-#define DSA_SUBSCRIBE_REQUEST_MESSAGE_H_
+#ifndef DSA_SUBSCRIBE_REQUEST_MESSAGE_H
+#define DSA_SUBSCRIBE_REQUEST_MESSAGE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -48,4 +48,4 @@ typedef ref_<const SubscribeRequestMessage> SubscribeRequestMessageCRef;
 
 }  // namespace dsa
 
-#endif  // DSA_SUBSCRIBE_REQUEST_MESSAGE_H_
+#endif  // DSA_SUBSCRIBE_REQUEST_MESSAGE_H

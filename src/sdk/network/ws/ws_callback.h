@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_WS_CALLBACK_H_
-#define DSA_SDK_WS_CALLBACK_H_
+#ifndef DSA_SDK_WS_CALLBACK_H
+#define DSA_SDK_WS_CALLBACK_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -33,10 +33,11 @@ class DsaWsCallback {
       boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
     auto connection = make_shared_<WsServerConnection>(
-        *new websocket_stream{std::move(socket)}, _link_strand);
+        *make_shared_<websocket_stream>(std::move(socket)), _link_strand);
 
     connection->socket().async_accept(
-        req, [conn = connection, this](const boost::system::error_code& error) {
+        req,
+        [ conn = connection, this ](const boost::system::error_code& error) {
 
           // TODO: run within the strand?
           conn->accept();
@@ -49,4 +50,4 @@ class DsaWsCallback {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_WS_CALLBACK_H_
+#endif  // DSA_SDK_WS_CALLBACK_H

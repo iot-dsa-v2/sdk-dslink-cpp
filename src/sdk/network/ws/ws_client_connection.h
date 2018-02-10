@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NETWORK_WS_CLIENT_CONNECTION_H_
-#define DSA_SDK_NETWORK_WS_CLIENT_CONNECTION_H_
+#ifndef DSA_SDK_NETWORK_WS_CLIENT_CONNECTION_H
+#define DSA_SDK_NETWORK_WS_CLIENT_CONNECTION_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -30,4 +30,4 @@ class WsClientConnection final : public WsConnection {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_NETWORK_WS_CLIENT_CONNECTION_H_
+#endif  // DSA_SDK_NETWORK_WS_CLIENT_CONNECTION_H

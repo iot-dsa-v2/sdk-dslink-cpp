@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_UTIL_ENABLE_INTRUSIVE_H_
-#define DSA_SDK_UTIL_ENABLE_INTRUSIVE_H_
+#ifndef DSA_SDK_UTIL_ENABLE_INTRUSIVE_H
+#define DSA_SDK_UTIL_ENABLE_INTRUSIVE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -334,4 +334,4 @@ ref_<T> copy_ref_(ref_<T> ref) {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_UTIL_ENABLE_INTRUSIVE_H_
+#endif  // DSA_SDK_UTIL_ENABLE_INTRUSIVE_H

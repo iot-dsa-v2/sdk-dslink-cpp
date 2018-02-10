@@ -1,15 +1,15 @@
 #include "dsa/crypto.h"
-#include "../test_config.h"
-#include <gtest/gtest.h>
+#include "dsa/responder.h"
 
+#include <gtest/gtest.h>
 #include <boost/filesystem/operations.hpp>
 #include <boost/format.hpp>
 #include <thread>
-#include "module/logger.h"
-#include "util/string.h"
-#include "dsa/responder.h"
+#include "../test_config.h"
 #include "dslink.h"
 #include "module/default/console_logger.h"
+#include "module/logger.h"
+#include "util/string.h"
 
 using boost::format;
 
@@ -29,7 +29,7 @@ using DslinkTest = SetUpBase;
 static ref_<DsLink> create_test_dslink(int argc, const char *argv[]) {
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
   // filter log for unit test
-  static_cast<ConsoleLogger &>(link->strand->logger()).filter =
+  static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   return std::move(link);
 }
@@ -48,7 +48,7 @@ TEST_F(DslinkTest, DefaultParam) {
   EXPECT_STREQ(DEFAULT_HOST, link.get()->tcp_host.c_str());
   EXPECT_EQ(DEFAULT_DS_PORT, link.get()->tcp_port);
   EXPECT_FALSE(link.get()->secure);
-  EXPECT_EQ(Logger::INFO__, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::INFO__, Logger::_().level);
   EXPECT_EQ(DEFAULT_THREAD, link.get()->get_app().get_thread_size());
   EXPECT_STREQ("mydslink", link.get()->dsid_prefix.c_str());
   EXPECT_EQ(DEFAULT_TCP_SERVER_PORT, link.get()->tcp_server_port);
@@ -87,7 +87,8 @@ TEST_F(DslinkTest, UrlParam3) {
   EXPECT_STREQ("192.168.1.12", link.get()->tcp_host.c_str());
   EXPECT_EQ(DEFAULT_DSS_PORT, link.get()->tcp_port);
   EXPECT_TRUE(link.get()->secure);
-  end_link(std::move(link));;
+  end_link(std::move(link));
+  ;
 }
 
 TEST_F(DslinkTest, url_param4) {
@@ -141,7 +142,7 @@ TEST_F(DslinkTest, LogParam1) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::INFO__, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::INFO__, Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -169,7 +170,7 @@ TEST_F(DslinkTest, LogParam4) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::DEBUG_, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::DEBUG_,Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -178,7 +179,7 @@ TEST_F(DslinkTest, LogParam5) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::ERROR_, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::ERROR_, Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -187,7 +188,7 @@ TEST_F(DslinkTest, LogParam6) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::WARN__, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::WARN__, Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -196,7 +197,7 @@ TEST_F(DslinkTest, LogParam7) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::FATAL_, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::FATAL_, Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -205,7 +206,7 @@ TEST_F(DslinkTest, LogParam8) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::NONE__, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::NONE__, Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -283,7 +284,7 @@ TEST_F(DslinkTest, GeneralParam) {
   EXPECT_STREQ("", link.get()->tcp_host.c_str());
   EXPECT_EQ(0, link.get()->tcp_port);
   EXPECT_TRUE(link.get()->secure);
-  EXPECT_EQ(Logger::INFO__, link.get()->strand.get()->logger().level);
+  EXPECT_EQ(Logger::INFO__, Logger::_().level);
   EXPECT_EQ(2, link.get()->get_app().get_thread_size());
   EXPECT_STREQ("mydslink", link.get()->dsid_prefix.c_str());
   EXPECT_EQ(132, link.get()->tcp_server_port);

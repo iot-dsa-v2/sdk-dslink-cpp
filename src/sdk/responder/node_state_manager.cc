@@ -18,6 +18,8 @@
 
 namespace dsa {
 
+static const Path PUB_PATH = Path("pub");
+
 NodeStateManager::NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                                    size_t timer_interval)
     : _root(new NodeStateRoot(*this, std::move(root_model))) {
@@ -153,11 +155,20 @@ void NodeStateManager::add(ref_<OutgoingSetStream> &&stream) {
 
 ref_<NodeModel> NodeStateManager::get_profile(const string_ &path,
                                               bool dsa_standard) {
-  NodeModel *root_model = dynamic_cast<NodeModel *>(_root->get_model().get());
-  if (root_model == nullptr) {
-    LOG_FATAL(LOG << "failed to create standard profile node")
+  ref_<NodeState> pub_state = get_state(PUB_PATH);
+  if (dsa_standard) {
+    NodeModel *pub_model = pub_state->model_cast<NodeModel>();
+    if (pub_model == nullptr) {
+      LOG_FATAL(LOG << "failed to create standard profile node");
+    }
+    // TODO implement a standard profile collection
+  } else {
+    auto state = pub_state->find_child(Path(path));
+    if (state != nullptr) {
+      return ref_<NodeModel>(state->model_cast<NodeModel>());
+    }
   }
-  // TODO implement a standard profile collection
+
   return ref_<NodeModel>();
 }
 

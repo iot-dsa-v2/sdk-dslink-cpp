@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_SESSION_H_
-#define DSA_SDK_SESSION_H_
+#ifndef DSA_SDK_SESSION_H
+#define DSA_SDK_SESSION_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -97,6 +97,7 @@ class Session final : public DestroyableRef<Session> {
   string_ client_token;
 
   Session(LinkStrandRef strand, const string_ &dsid);
+  Session(LinkStrandRef strand, const string_ &dsid, const string_ &base_path);
   ~Session();
 
   LinkStrandRef &get_strand() { return _strand; };
@@ -117,12 +118,14 @@ class Session final : public DestroyableRef<Session> {
   // this stream must be handled first
   void write_critical_stream(ref_<MessageStream> &&stream);
 
-  string_ map_pub_path(const string_ &path) {
-    // todo: implement this
-    return path;
-  }
+ private:
+  string_ _base_path;
+
+ public:
+  // used by broker to forward the pub path
+  string_ map_pub_path(const string_ &path);
 };
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_SESSION_H_
+#endif  // DSA_SDK_SESSION_H

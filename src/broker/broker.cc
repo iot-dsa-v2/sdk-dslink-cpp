@@ -3,6 +3,7 @@
 #include "broker.h"
 
 #include <util/string.h>
+#include <module/module_with_loader.h>
 #include "config/broker_config.h"
 #include "module/broker_authorizer.h"
 #include "module/client_manager.h"
@@ -29,7 +30,7 @@ DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&&  modules,
 }
 DsBroker::~DsBroker() {}
 
-void DsBroker::init(ref_<Module>&&  modules) {
+void DsBroker::init(ref_<Module>&& default_module) {
   if (_app == nullptr) {
     // init app
     size_t thread =
@@ -54,12 +55,14 @@ void DsBroker::init(ref_<Module>&&  modules) {
   strand.reset(new EditableStrand(
       _app->new_strand(), std::unique_ptr<ECDH>(ECDH::from_file(".key"))));
 
+  if(default_module == nullptr) default_module = make_ref_<ModuleBrokerDefault>();
+
+  modules = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
   modules->init_all(*_app, strand);
 
   // init logger
-  auto logger = modules->get_logger();
-  logger->level = Logger::parse(_config->log_level().get_value().to_string());
-  strand->set_logger(std::move(logger));
+  modules->get_logger()->level = Logger::parse(_config->log_level().get_value().to_string());
+  Logger::set_default(modules->get_logger());
 
   // init security manager
   auto client_manager = modules->get_client_manager();
@@ -82,6 +85,8 @@ void DsBroker::init(ref_<Module>&&  modules) {
       make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
 }
 void DsBroker::destroy_impl() {
+  modules->destroy();
+
   if (_tcp_server != nullptr) {
     _tcp_server->destroy();
     _tcp_server.reset();
@@ -98,7 +103,7 @@ void DsBroker::destroy_impl() {
   }
 }
 void DsBroker::run(bool wait) {
-#if 0
+
   strand->dispatch([this]() {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app);
@@ -106,7 +111,8 @@ void DsBroker::run(bool wait) {
         static_cast<uint16_t>(_config->http_port().get_value().get_int());
     _web_server->listen(http_port);
     _web_server->start();
-    WebServer::WsCallback root_cb = [this](
+    WebServer::WsCallback* root_cb = new WebServer::WsCallback();
+    *root_cb = [this](
         WebServer &_web_server, boost::asio::ip::tcp::socket &&socket,
         boost::beast::http::request<boost::beast::http::string_body> req) {
       LinkStrandRef link_strand(strand);
@@ -116,16 +122,15 @@ void DsBroker::run(bool wait) {
     };
 
     // TODO - websocket callback setup
-    _web_server->add_ws_handler("/", std::move(root_cb));
+    _web_server->add_ws_handler("/", std::move(*root_cb));
   });
-#endif
 
   // start tcp server
 
   if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
     _tcp_server = make_shared_<TcpServer>(*this);
     _tcp_server->start();
-    LOG_SYSTEM(strand->logger(), LOG << "DsBroker started");
+    LOG_SYSTEM(Logger::_(), LOG << "DsBroker started");
   }
 
   if (_own_app && wait) {

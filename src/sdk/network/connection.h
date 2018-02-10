@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CONNECTION_H_
-#define DSA_SDK_CONNECTION_H_
+#ifndef DSA_SDK_CONNECTION_H
+#define DSA_SDK_CONNECTION_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -38,7 +38,7 @@ class ConnectionWriteBuffer {
   virtual ~ConnectionWriteBuffer() = default;
 };
 
-class Connection : public SharedDestroyable<Connection> {
+class Connection : public SharedStrandPtr<Connection> {
   friend class Session;
   friend class Client;
 
@@ -122,4 +122,4 @@ class Connection : public SharedDestroyable<Connection> {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_CONNECTION_H_
+#endif  // DSA_SDK_CONNECTION_H

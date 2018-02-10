@@ -8,9 +8,11 @@
 
 namespace dsa {
 
-static std::unique_ptr<Logger> default_logger(new ConsoleLogger());
+static shared_ptr_<Logger> default_logger(make_shared_<ConsoleLogger>());
 Logger& Logger::_() { return *default_logger; }
-void Logger::set_default(Logger* logger) { default_logger.reset(logger); }
+void Logger::set_default(shared_ptr_<Logger> logger) {
+  default_logger = logger;
+}
 
 uint8_t Logger::parse(const std::string& log) {
   if (log == "all") {
@@ -21,8 +23,12 @@ uint8_t Logger::parse(const std::string& log) {
     return Logger::DEBUG_;
   } else if (log == "warn") {
     return Logger::WARN__;
+  } else if (log == "sys") {
+    return Logger::SYS___;
   } else if (log == "error") {
     return Logger::ERROR_;
+  } else if (log == "admin") {
+    return Logger::ADMIN_;
   } else if (log == "fatal") {
     return Logger::FATAL_;
   } else if (log == "none") {

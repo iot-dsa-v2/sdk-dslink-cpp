@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_BASE_SOCKET_CONNECTION_H_
-#define DSA_SDK_BASE_SOCKET_CONNECTION_H_
+#ifndef DSA_SDK_BASE_SOCKET_CONNECTION_H
+#define DSA_SDK_BASE_SOCKET_CONNECTION_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -49,4 +49,4 @@ class BaseSocketConnection : public Connection {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_BASE_SOCKET_CONNECTION_H_
+#endif  // DSA_SDK_BASE_SOCKET_CONNECTION_H

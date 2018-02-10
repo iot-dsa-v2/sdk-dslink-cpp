@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_BASE_MESSAGE_H_
-#define DSA_SDK_BASE_MESSAGE_H_
+#ifndef DSA_SDK_BASE_MESSAGE_H
+#define DSA_SDK_BASE_MESSAGE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -93,6 +93,10 @@ class Message : public EnableRef<Message> {
   void set_body(BytesRef&& b) {
     static_headers.message_size = 0;  // invalidate message_size
     body = std::move(b);
+  }
+  void set_body(std::vector<uint8_t>&& b) {
+    static_headers.message_size = 0;  // invalidate message_size
+    body.reset(new RefCountBytes(std::move(b)));
   }
   inline const BytesRef& get_body() const { return body; }
 
@@ -244,4 +248,4 @@ typedef MessageStream BaseOutgoingListStream;
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_BASE_MESSAGE_H_
+#endif  // DSA_SDK_BASE_MESSAGE_H

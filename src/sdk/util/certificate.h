@@ -1,5 +1,5 @@
-#ifndef DSA_CERTIFICATE_H_
-#define DSA_CERTIFICATE_H_
+#ifndef DSA_CERTIFICATE_H
+#define DSA_CERTIFICATE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -11,4 +11,4 @@ void generate_certificate();
 
 }  // namespace dsa
 
-#endif  // DSA_CERTIFICATE_H_
+#endif  // DSA_CERTIFICATE_H

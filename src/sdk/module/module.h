@@ -9,19 +9,23 @@
 #include "util/app.h"
 
 namespace dsa {
+class NodeModel;
 
 class Module : public DestroyableRef<Module> {
- private:
+ protected:
   ref_<Storage> _storage;
-  ref_<Logger> _logger;
+  shared_ptr_<Logger> _logger;
   ref_<ClientManager> _client_manager;
   ref_<Authorizer> _authorizer;
 
  protected:
   virtual ref_<Storage> create_storage(App& app, ref_<LinkStrand> strand);
-  virtual ref_<Logger> create_logger(App& app, ref_<LinkStrand> strand);
-  virtual ref_<ClientManager> create_client_manager(App& app, ref_<LinkStrand> strand);
+  virtual shared_ptr_<Logger> create_logger(App& app, ref_<LinkStrand> strand);
+  virtual ref_<ClientManager> create_client_manager(App& app,
+                                                    ref_<LinkStrand> strand);
   virtual ref_<Authorizer> create_authorizer(App& app, ref_<LinkStrand> strand);
+
+  void destroy_impl() override;
 
  public:
   virtual void init_all(App& app, ref_<LinkStrand> strand);
@@ -32,12 +36,12 @@ class Module : public DestroyableRef<Module> {
   void init_authorizer(App& app, ref_<LinkStrand> strand);
 
   ref_<Storage> get_storage();
-  ref_<Logger> get_logger();
+  shared_ptr_<Logger> get_logger();
   ref_<ClientManager> get_client_manager();
   ref_<Authorizer> get_authorizer();
 
   // Override here for add module node in main node
-  virtual void add_module_node();
+  virtual void add_module_node(ref_<NodeModel>& module_node);
 
   // Override here for addinf web handler
   virtual void add_web_handler();
@@ -45,7 +49,6 @@ class Module : public DestroyableRef<Module> {
  public:
   Module();
   virtual ~Module() = default;
-
 };
 }
 

@@ -16,15 +16,10 @@ StcpConnection::StcpConnection(LinkStrandRef &strand,
       _socket(strand->get_io_context(), context) {}
 
 void StcpConnection::destroy_impl() {
-  LOG_DEBUG(_strand->logger(), LOG << "connection closed");
-  try {
-    if (_socket_open.exchange(false)) {
-      _socket.shutdown();
-    }
-  } catch (boost::exception &e) {
+  LOG_DEBUG(Logger::_(), LOG << "connection closed");
+  if (_socket_open.exchange(false)) {
     _socket.lowest_layer().close();
   }
-
   Connection::destroy_impl();
 }
 
@@ -57,13 +52,13 @@ size_t StcpConnection::WriteBuffer::max_next_size() const {
 void StcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                       int32_t ack_id) {
   size_t total_size = size + message.size();
-  if (total_size > connection._write_buffer.size()) {
-    if (total_size <= MAX_BUFFER_SIZE) {
-      connection._write_buffer.resize(connection._write_buffer.size() * 4);
-    } else {
-      LOG_FATAL(LOG << "message is bigger than max buffer size: "
-                    << MAX_BUFFER_SIZE);
-    }
+  if (total_size > MAX_BUFFER_SIZE) {
+    LOG_FATAL(LOG << "message is bigger than max buffer size: "
+                  << MAX_BUFFER_SIZE);
+  }
+
+  while (total_size > connection._write_buffer.size()) {
+    connection._write_buffer.resize(connection._write_buffer.size() * 4);
   }
   message.write(&connection._write_buffer[size], rid, ack_id);
   size += message.size();

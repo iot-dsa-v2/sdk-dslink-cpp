@@ -38,10 +38,8 @@ void HttpConnection::accept() {
 }
 
 void HttpConnection::destroy() {
-/*
   if(_connection != nullptr) {
     _connection->destroy();
   }
-*/
 }
 }  // namespace dsa

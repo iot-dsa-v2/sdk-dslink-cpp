@@ -24,6 +24,9 @@ class OutgoingListStream final : public MessageRefedStream {
 
   bool _status_changed = false;
   MessageStatus _status = MessageStatus::INITIALIZING;
+
+  string_ _pending_pub_path;
+
   bool _refreshed = true;
 
  public:

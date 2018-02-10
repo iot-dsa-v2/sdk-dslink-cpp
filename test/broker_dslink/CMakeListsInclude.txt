@@ -3,6 +3,7 @@ set(BROKER_DSLINK_TEST_SOURCES
     broker_dslink/broker_dslink_test.cc
     broker_dslink/broker_dslink_list.cc
     broker_dslink/broker_dslink_util.cc
+    broker_dslink/broker_dslink_profile.cc
     sdk/async_test.cc
     sdk/test_config.cc
 )

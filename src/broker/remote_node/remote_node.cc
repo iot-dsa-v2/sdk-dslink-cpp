@@ -88,6 +88,7 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
       if (!msg->get_pub_path().empty()) {
         _list_pub_path_cache =
             _remote_session->map_pub_path(msg->get_pub_path());
+        _state->update_list_pub_path(_list_pub_path_cache);
       }
 
       _list_status_cache = (msg->get_status());

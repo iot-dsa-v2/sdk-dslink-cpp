@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NETWORK_APP_H_
-#define DSA_SDK_NETWORK_APP_H_
+#ifndef DSA_SDK_NETWORK_APP_H
+#define DSA_SDK_NETWORK_APP_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -46,4 +46,4 @@ class App {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_NETWORK_APP_H_
+#endif  // DSA_SDK_NETWORK_APP_H

@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_REQUESTER_H_
-#define DSA_SDK_REQUESTER_H_
+#ifndef DSA_SDK_REQUESTER_H
+#define DSA_SDK_REQUESTER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -59,4 +59,4 @@ class Requester {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_REQUESTER_H_
+#endif  // DSA_SDK_REQUESTER_H

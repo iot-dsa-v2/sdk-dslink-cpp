@@ -56,7 +56,7 @@ TEST(MessageValueTest, Constructor01) {
   }
   // not a valid SUBSCRIBE_RESPONSE message, but is enough for this test
   ResponseMessage msg(MessageType::SUBSCRIBE_RESPONSE);
-  msg.set_body(new RefCountBytes(std::move(buf)));
+  msg.set_body(std::move(buf));
 
   MessageValue mv(&msg);
 

@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CRYPTO_ECDH_H_
-#define DSA_SDK_CRYPTO_ECDH_H_
+#ifndef DSA_SDK_CRYPTO_ECDH_H
+#define DSA_SDK_CRYPTO_ECDH_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -54,4 +54,4 @@ class ECDH {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_CRYPTO_ECDH_H_
+#endif  // DSA_SDK_CRYPTO_ECDH_H

@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CRYPTO_HASH_H_
-#define DSA_SDK_CRYPTO_HASH_H_
+#ifndef DSA_SDK_CRYPTO_HASH_H
+#define DSA_SDK_CRYPTO_HASH_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -24,4 +24,4 @@ class Hash {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_CRYPTO_HASH_H_
+#endif  // DSA_SDK_CRYPTO_HASH_H

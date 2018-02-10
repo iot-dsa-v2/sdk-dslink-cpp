@@ -1,5 +1,5 @@
-#ifndef DSA_DSA_COMMON_H_
-#define DSA_DSA_COMMON_H_
+#ifndef DSA_DSA_COMMON_H
+#define DSA_DSA_COMMON_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -53,4 +53,4 @@ class ref_;
 
 }  // namespace dsa
 
-#endif  // DSA_DSA_COMMON_H_
+#endif  // DSA_DSA_COMMON_H

@@ -38,7 +38,7 @@ bool InvokeResponseMessage::set_value(const Var& value, int32_t sequence_id) {
     set_status(MessageStatus::OK);
     return true;
   } else {
-    set_body(new RefCountBytes(std::move(msgpack)));
+    set_body(std::move(msgpack));
     return false;
   }
 }

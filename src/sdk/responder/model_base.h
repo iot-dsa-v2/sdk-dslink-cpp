@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_MODEL_BASE_H_
-#define DSA_SDK_MODEL_BASE_H_
+#ifndef DSA_SDK_MODEL_BASE_H
+#define DSA_SDK_MODEL_BASE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -101,4 +101,4 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_MODEL_BASE_H_
+#endif  // DSA_SDK_MODEL_BASE_H

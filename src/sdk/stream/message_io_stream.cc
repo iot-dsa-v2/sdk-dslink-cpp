@@ -27,19 +27,6 @@ void MessageRefedStream::send_message() {
     _session->write_stream(get_ref());
   }
 }
-void MessageRefedStream::post_message() {
-  if (!_writing && !is_destroyed()) {
-    if (_session->is_writing()) {
-      _session->write_stream(get_ref());
-    } else {
-      _session->get_strand()->post([ this, keepref = get_ref() ]() mutable {
-        if (!is_destroyed()) {
-          _session->write_stream(std::move(keepref));
-        }
-      });
-    }
-  }
-}
 
 void MessageRefedStream::make_critical() {
   if (!is_destroyed()) {

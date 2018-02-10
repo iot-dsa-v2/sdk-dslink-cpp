@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_MODULE_STORAGE_H_
-#define DSA_SDK_MODULE_STORAGE_H_
+#ifndef DSA_SDK_MODULE_STORAGE_H
+#define DSA_SDK_MODULE_STORAGE_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -62,8 +62,9 @@ class Storage: public DestroyableRef<Storage>{
   /// create a bucket or find a existing bucket
   virtual std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) = 0;
 
+  virtual ~Storage() = default;
 };
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_MODULE_STORAGE_H_
+#endif  // DSA_SDK_MODULE_STORAGE_H

@@ -22,17 +22,18 @@ class ModuleWithLoader : public Module {
 
  protected:
   ref_<Storage> create_storage(App& app, ref_<LinkStrand> strand) override;
-  ref_<Logger> create_logger(App& app, ref_<LinkStrand> strand) override;
-  ref_<ClientManager> create_client_manager(App& app, ref_<LinkStrand> strand) override;
-  ref_<Authorizer> create_authorizer(App& app, ref_<LinkStrand> strand) override;
+  shared_ptr_<Logger> create_logger(App& app, ref_<LinkStrand> strand) override;
+  ref_<ClientManager> create_client_manager(App& app,
+                                            ref_<LinkStrand> strand) override;
+  ref_<Authorizer> create_authorizer(App& app,
+                                     ref_<LinkStrand> strand) override;
 
  public:
-  ModuleWithLoader(bf::path lib_path, ref_<Module> &&default_module);
+  ModuleWithLoader(bf::path lib_path, ref_<Module>&& default_module);
 
-  void add_module_node() override;
+  void add_module_node(ref_<NodeModel>& module_node) override;
   void add_web_handler() override;
 };
-
 }
 
-#endif //DSA_SDK_MODULE_LOADER_H
+#endif  // DSA_SDK_MODULE_LOADER_H

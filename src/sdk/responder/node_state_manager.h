@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_NODE_STATE_MANAGER_H_
-#define DSA_SDK_NODE_STATE_MANAGER_H_
+#ifndef DSA_SDK_NODE_STATE_MANAGER_H
+#define DSA_SDK_NODE_STATE_MANAGER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -49,8 +49,8 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   void add(ref_<OutgoingSetStream> &&stream) final;
 
   ref_<NodeModel> get_profile(const string_ &path,
-                              bool dsa_standard = false) final;
+                              bool dsa_standard) final;
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_NODE_STATE_MANAGER_H_
+#endif  // DSA_SDK_NODE_STATE_MANAGER_H

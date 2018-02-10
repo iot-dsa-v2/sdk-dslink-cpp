@@ -50,8 +50,8 @@ class FileLogger : public Logger {
 
 class FileLoggerModule: public Module{
  protected:
-  ref_<Logger> create_logger(App& app, ref_<LinkStrand> strand) override{
-    return make_ref_<FileLogger>("file_logger_logs.txt");
+  shared_ptr_<Logger> create_logger(App& app, ref_<LinkStrand> strand) override{
+    return make_shared_<FileLogger>("file_logger_logs.txt");
   }
 };
 

@@ -33,7 +33,9 @@ namespace fs = boost::filesystem;
 namespace dsa {
 
 DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
-               const string_ &version, const shared_ptr_<App> &app) {
+               const string_ &version, const shared_ptr_<App> &app,
+               ref_<Module> &&default_module,
+               bool use_standard_node_structure) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")  //
       ("broker,b", opts::value<string_>()->default_value("127.0.0.1"),
@@ -48,6 +50,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
        "Override Link Name")  // custom name
       ("server-port", opts::value<uint16_t>()->default_value(0),
        "Tcp Server Port")  // custom name
+      ("module_path", opts::value<string_>()->default_value("./modules"),
+       "Module Path")  // custom name
       ;
 
   opts::variables_map variables;
@@ -97,15 +101,37 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   // Adapted from parse_logger
   // Until we get module version we are using default one
   auto log = variables["log"].as<string_>();
-  auto logger = make_ref_<ConsoleLogger>();
   log_level_from_settings = Logger::parse(log);
-  logger->level = log_level_from_settings;
-  strand->set_logger(std::move(logger));
 
   parse_server_port(variables["server-port"].as<uint16_t>());
 
-  LOG_TRACE(strand->logger(), LOG << "DSLink initialized successfully");
+  init_module(std::move(default_module),variables["module_path"].as<string_>(), use_standard_node_structure);
+
+  LOG_TRACE(Logger::_(), LOG << "DSLink initialized successfully");
 }
+void DsLink::init_module(ref_<Module> &&default_module,
+                         const string_ &module_path,
+                         bool use_standard_node_structure) {
+  if (default_module == nullptr)
+    default_module = make_ref_<ModuleDslinkDefault>();
+
+  modules =
+      make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
+  modules->init_all(*_app, strand);
+
+  strand->set_client_manager(modules->get_client_manager());
+  strand->set_authorizer(modules->get_authorizer());
+
+  modules->get_logger()->level = log_level_from_settings;
+  Logger::set_default(modules->get_logger());
+
+  strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
+  if (use_standard_node_structure) {
+    _root = make_ref_<LinkRoot>(strand->get_ref(), *this);
+    strand->set_responder_model(_root->get_ref());
+  }
+}
+
 DsLink::~DsLink() {}
 
 App &DsLink::get_app() { return *_app; }
@@ -118,6 +144,10 @@ void DsLink::destroy_impl() {
   //  bool _running = false;
   //
   //  OnConnectCallback _user_on_connect;
+  modules->destroy();
+
+  _root.reset();
+
   if (_tcp_server != nullptr) {
     _tcp_server->destroy();
     _tcp_server.reset();
@@ -164,12 +194,6 @@ void DsLink::parse_thread(size_t thread) {
   _app.reset(new App(thread));
 }
 
-void DsLink::parse_log(const string_ &log, EditableStrand &config) {
-  auto logger = make_ref_<ConsoleLogger>();
-  logger->level = Logger::parse(log);
-  config.set_logger(std::move(logger));
-}
-
 void DsLink::parse_url(const string_ &url) {
   static std::regex url_regex(
       R"(^(ds://|dss://|ws://|wss://)?([^/:\[]+|\[[0-9A-Fa-f:]+\])(:\d+)?(/.*)?$)");
@@ -211,43 +235,33 @@ void DsLink::parse_url(const string_ &url) {
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }
 void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
-void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node,
-                                ref_<Module> &&default_module) {
-  if (default_module == nullptr)
-    default_module = make_ref_<ModuleDslinkDefault>();
-
-  auto module =
-      make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
-  module->init_all(*_app, strand);
-
-  strand->set_client_manager(module->get_client_manager());
-  strand->set_authorizer(module->get_authorizer());
-
-  auto logger = module->get_logger();
-  logger->level = log_level_from_settings;
-  strand->set_logger(logger);
-
-  strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
+void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node) {
+  if (_root != nullptr) {
+    LOG_FATAL(LOG << "init_responder_raw called but root node is initialized");
+  }
   strand->set_responder_model(std::move(root_node));
 }
-void DsLink::init_responder(ref_<NodeModelBase> &&main_node,
-                            ref_<Module> &&default_module) {
-  _root = make_ref_<LinkRoot>(strand->get_ref(), get_ref());
+void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
+  if (_root == nullptr) {
+    LOG_FATAL(LOG << "init_responder called without root node");
+  }
   if (main_node != nullptr) {
     _root->set_main(std::move(main_node));
   }
-  init_responder_raw(_root->get_ref(), std::move(default_module));
 }
 
 ref_<NodeModelBase> DsLink::add_to_main_node(const string_ &name,
-                                             ref_<NodeModel> &&node) {
+                                             ref_<NodeModelBase> &&node) {
   return std::move(_root->add_to_main(name, std::move(node)));
 }
 void DsLink::remove_from_main_node(const string_ &name) {
   _root->remove_from_main(name);
 }
+ref_<NodeModel> DsLink::add_to_pub(const string_ &path, ref_<NodeModel> &&node) {
+  return std::move(_root->add_to_pub(path, std::move(node)));
+}
 
-void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
+void DsLink::connect(Client::OnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
     LOG_FATAL(
@@ -297,15 +311,11 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
     }
 
     _client = make_ref_<Client>(*this);
-    _client->connect([ this, on_connect = std::move(on_connect) ](
-                         const shared_ptr_<Connection> connection) {
-      if (on_connect != nullptr) on_connect(connection, *this);
-    },
-                     callback_type);
+    _client->connect(std::move(on_connect), callback_type);
   });
 }
 
-void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
+void DsLink::run(Client::OnConnectCallback &&on_connect,
                  uint8_t callback_type) {
   if (_running) {
     LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
@@ -314,7 +324,7 @@ void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
   _running = true;
 
   if (!strand->is_responder_set()) {
-    LOG_WARN(strand->logger(), LOG << "responder is not initialized");
+    LOG_WARN(Logger::_(), LOG << "responder is not initialized");
     _client->get_session().responder_enabled = false;
     strand->set_stream_acceptor(make_ref_<DummyStreamAcceptor>());
   }
@@ -322,12 +332,11 @@ void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_SYSTEM(strand.get()->logger(),
-               LOG << "DsLink on_connect callback "
-                      "ignored since it was connected "
-                      "before\n");
+    LOG_SYSTEM(Logger::_(), LOG << "DsLink on_connect callback "
+                                              "ignored since it was connected "
+                                              "before\n");
   }
-  LOG_SYSTEM(strand.get()->logger(), LOG << "DsLink running");
+  LOG_SYSTEM(Logger::_(), LOG << "DsLink running");
   if (own_app) {
     _app->wait();
     destroy();
@@ -382,4 +391,4 @@ ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
                                               std::move(message));
 }
 string_ DsLink::get_close_token() { return close_token; }
-}
+}  // namespace dsa

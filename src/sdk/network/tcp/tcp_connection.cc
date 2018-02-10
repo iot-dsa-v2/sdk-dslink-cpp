@@ -15,7 +15,7 @@ TcpConnection::TcpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
       _socket(strand->get_io_context()) {}
 
 void TcpConnection::destroy_impl() {
-  LOG_DEBUG(_strand->logger(), LOG << "connection closed");
+  LOG_DEBUG(Logger::_(), LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.close();
   }

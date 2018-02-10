@@ -3,10 +3,10 @@
 #include "dsa/stream.h"
 #include "dsa/util.h"
 
+#include <gtest/gtest.h>
 #include "../util/broker_runner.h"
 #include "broker.h"
 #include "config/broker_config.h"
-#include <gtest/gtest.h>
 
 #include "core/client.h"
 #include "module/logger.h"
@@ -27,12 +27,11 @@ class MockNodeRoot : public NodeModel {
  public:
   static Var last_request;
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
-    add_list_child("action",
-                   make_ref_<SimpleInvokeNode>(
-                       _strand->get_ref(), [&](Var&& v) {
-                         last_request = std::move(v);
-                         return Var();
-                       }));
+    add_list_child(
+        "action", make_ref_<SimpleInvokeNode>(_strand->get_ref(), [&](Var&& v) {
+          last_request = std::move(v);
+          return Var();
+        }));
   };
 };
 Var MockNodeRoot::last_request;
@@ -47,13 +46,13 @@ TEST_F(BrokerPageTest, InvokeRequest) {
     big_str1[i] = static_cast<char>(i % 26 + 'a');
   }
 
-
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test", protocol());
+  WrapperStrand client_strand =
+      get_client_wrapper_strand(broker, "test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);

@@ -7,6 +7,7 @@
 #include "server.h"
 #include "stream/ack_stream.h"
 #include "stream/ping_stream.h"
+#include "util/string.h"
 
 namespace dsa {
 
@@ -18,6 +19,12 @@ Session::Session(LinkStrandRef strand, const string_ &dsid)
       _timer(_strand->add_timer(0, nullptr)),
       _ack_stream(new AckStream(get_ref())),
       _ping_stream(new PingStream(get_ref())) {}
+
+Session::Session(LinkStrandRef strand, const string_ &dsid,
+                 const string_ &base_path)
+    : Session(std::move(strand), dsid) {
+  _base_path = base_path;
+}
 
 Session::~Session() = default;
 
@@ -122,7 +129,7 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE(_strand->logger(), LOG << "receive message: ";
+  LOG_TRACE(Logger::_(), LOG << "receive message: ";
             message->print_message(LOG););
 
   _no_receive_in_loop = 0;
@@ -203,7 +210,7 @@ void Session::write_loop(ref_<Session> ref) {
                                       std::move(ack_callback));
     }
 
-    LOG_TRACE(ref->_strand->logger(), LOG << "send message: ";
+    LOG_TRACE(Logger::_(), LOG << "send message: ";
               message->print_message(LOG, stream->rid););
 
     write_buffer->add(*message, stream->rid, ref->_waiting_ack);
@@ -241,6 +248,10 @@ void Session::write_critical_stream(ref_<MessageStream> &&stream) {
       write_loop(std::move(ref));
     });
   }
+}
+
+string_ Session::map_pub_path(const string_ &path) {
+  return str_join_path(_base_path, path);
 }
 
 }  // namespace dsa

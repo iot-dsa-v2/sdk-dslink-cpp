@@ -24,6 +24,9 @@ class OutgoingStreamAcceptor : public DestroyableRef<OutgoingStreamAcceptor> {
   virtual void add(ref_<OutgoingSetStream> &&stream) = 0;
 
   // get a dsa standard profile
+  // if dsa_standard is false, it will find the profile node from pub/
+  // if dsa_standard is true, it will find newest version of that profile in the
+  // standard profile collection, which could be pub/2.0 pub/2.1 pub/2.2 etc..
   virtual ref_<NodeModel> get_profile(const string_ &path,
                                       bool dsa_standard = false) = 0;
 };

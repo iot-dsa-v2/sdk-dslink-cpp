@@ -3,10 +3,10 @@
 #include "dsa/stream.h"
 #include "dsa/util.h"
 
+#include <gtest/gtest.h>
 #include "../util/broker_runner.h"
 #include "broker.h"
 #include "config/broker_config.h"
-#include <gtest/gtest.h>
 
 #include "core/client.h"
 #include "module/logger.h"
@@ -69,7 +69,8 @@ TEST_F(BrokerDownstreamTest, Subscribe) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test", protocol());
+  WrapperStrand client_strand =
+      get_client_wrapper_strand(broker, "test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
@@ -101,7 +102,8 @@ TEST_F(BrokerDownstreamTest, Invoke) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test", protocol());
+  WrapperStrand client_strand =
+      get_client_wrapper_strand(broker, "test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
@@ -137,7 +139,8 @@ TEST_F(BrokerDownstreamTest, Set) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test", protocol());
+  WrapperStrand client_strand =
+      get_client_wrapper_strand(broker, "test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
@@ -188,12 +191,14 @@ TEST_F(BrokerDownstreamTest, List) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1", protocol());
+  WrapperStrand client_strand1 =
+      get_client_wrapper_strand(broker, "test1", protocol());
   client_strand1.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand1.strand)));
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
-  WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2", protocol());
+  WrapperStrand client_strand2 =
+      get_client_wrapper_strand(broker, "test2", protocol());
   auto tcp_client2 = make_ref_<Client>(client_strand2);
 
   // after client1 disconnected, list update should show it's disconnected
@@ -259,10 +264,12 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1", protocol());
+  WrapperStrand client_strand1 =
+      get_client_wrapper_strand(broker, "test1", protocol());
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
-  WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2", protocol());
+  WrapperStrand client_strand2 =
+      get_client_wrapper_strand(broker, "test2", protocol());
   client_strand2.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
@@ -348,10 +355,12 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
-  WrapperStrand client_strand1 = get_client_wrapper_strand(broker, "test1", protocol());
+  WrapperStrand client_strand1 =
+      get_client_wrapper_strand(broker, "test1", protocol());
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
-  WrapperStrand client_strand2 = get_client_wrapper_strand(broker, "test2", protocol());
+  WrapperStrand client_strand2 =
+      get_client_wrapper_strand(broker, "test2", protocol());
   client_strand2.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
@@ -438,7 +447,8 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
-  WrapperStrand client_strand = get_client_wrapper_strand(broker, "test1", protocol());
+  WrapperStrand client_strand =
+      get_client_wrapper_strand(broker, "test1", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);

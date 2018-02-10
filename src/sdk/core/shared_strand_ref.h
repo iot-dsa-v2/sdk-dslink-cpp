@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_SHARED_REF_H__
-#define DSA_SDK_SHARED_REF_H__
+#ifndef DSA_SDK_SHARED_REF_H_
+#define DSA_SDK_SHARED_REF_H_
 
 #if defined(_MSC_VER)
 #pragma once
@@ -56,4 +56,4 @@ class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
   });
 
 
-#endif  // DSA_SDK_SHARED_REF_H__
+#endif  // DSA_SDK_SHARED_REF_H_

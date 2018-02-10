@@ -10,31 +10,32 @@
 
 namespace dsa {
 
-LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, ref_<DsLink> &&link)
+LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, DsLink &lnk)
     : NodeModel(std::move(strand)) {
-  if (link->get_close_token() != "") {
+  if (lnk.get_close_token() != "") {
     add_list_child(
-        "stop", make_ref_<SimpleInvokeNode>(
-                    _strand->get_ref(),
-                    [link = std::move(link)](Var && v, SimpleInvokeNode & node,
-                                             OutgoingInvokeStream & stream,
-                                             ref_<NodeState> && parent) {
-                      // Checking Token
-                      if (v.get_type() == Var::STRING &&
-                          link->get_close_token() == v.get_string()) {
-                        link->strand->add_timer(1000, [link](bool canceled) {
-                          link->destroy();
-                          return false;
-                        });
-                        stream.close();
-                        // make sure the close message is sent asap
-                        stream.make_critical();
-                      } else {
-                        stream.close(MessageStatus::INVALID_PARAMETER);
-                      }
-                    },
-                    PermissionLevel::CONFIG));
+        "stop",
+        make_ref_<SimpleInvokeNode>(
+            _strand->get_ref(),
+            [link = ref_<DsLink>(lnk.get_ref())](
+                Var && v, SimpleInvokeNode & node,
+                OutgoingInvokeStream & stream, ref_<NodeState> && parent) {
+              // Checking Token
+              if (v.get_type() == Var::STRING &&
+                  link->get_close_token() == v.get_string()) {
+                link->strand->add_timer(1000, [link](bool canceled) {
+                  link->destroy();
+                  return false;
+                });
+                stream.close();
+                // make sure the close message is sent asap
+                stream.make_critical();
+              } else {
+                stream.close(MessageStatus::INVALID_PARAMETER);
+              }
+            },
+            PermissionLevel::CONFIG));
   }
 }
 LinkSysRoot::~LinkSysRoot() = default;
-}
+}  // namespace dsa

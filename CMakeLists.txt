@@ -4,20 +4,18 @@ set( DSA_INCLUDE_TEST true )
 
 project(DSA_SDK)
 
-include(CMakeListsConfig.txt)
+
+include(${CMAKE_CURRENT_LIST_DIR}/CMakeListsConfig.txt)
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/msgpack-build")
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/deps/jansson-build")
-add_subdirectory("./src")
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/src")
 
-include_directories("./include")
-
+include_directories("${CMAKE_CURRENT_LIST_DIR}/include")
 
 if (DSA_INCLUDE_TEST)
-  add_subdirectory("./test")
-  add_subdirectory("./benchmark")
-  add_subdirectory("./example")
-  add_subdirectory("./playground")
+  add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/test")
+  add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/benchmark")
+  add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/example")
+  add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/playground")
 endif(DSA_INCLUDE_TEST)
-
-

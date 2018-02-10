@@ -1,16 +1,16 @@
-#ifndef DSA_SDK_MODULE_LOGGER_H_
-#define DSA_SDK_MODULE_LOGGER_H_
+#ifndef DSA_SDK_MODULE_LOGGER_H
+#define DSA_SDK_MODULE_LOGGER_H
 
 #if defined(_MSC_VER)
 #pragma once
 #endif
 
 #include <sstream>
-#include "util/enable_ref.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
 
-class Logger: public DestroyableRef<Logger>{
+class Logger : public SharedDestroyable<Logger> {
  public:
   enum : uint8_t {
     ALL___ = 0x00,
@@ -18,16 +18,17 @@ class Logger: public DestroyableRef<Logger>{
     DEBUG_ = 0x02,
     INFO__ = 0x04,
     WARN__ = 0x08,
-    ERROR_ = 0x10,
-    SYS___ = 0x20,
-    FATAL_ = 0x40,
+    SYS___ = 0x10,
+    ERROR_ = 0x20,
+    ADMIN_ = 0x40,
+    FATAL_ = 0x80,
     NONE__ = 0xFF,
   };
 
   // default logger, implemented in console_logger.cc
   static Logger& _();
   // the new logger will be maintained by unique pointer and no need for delete
-  static void set_default(Logger* logger);
+  static void set_default(shared_ptr_<Logger> logger);
 
   static uint8_t parse(const std::string& log);
 
@@ -38,8 +39,8 @@ class Logger: public DestroyableRef<Logger>{
   virtual void log(const string_& str, uint8_t level) = 0;
   virtual ~Logger() = default;
 
-protected:
- void destroy_impl() override;
+ protected:
+  void destroy_impl() override;
 };
 }
 
@@ -60,6 +61,8 @@ protected:
 
 #define LOG_SYSTEM(logger, stream_exp) DSA_LOG(SYS___, logger, stream_exp)
 
+#define LOG_ADMIN(logger, stream_exp) DSA_LOG(ADMIN___, logger, stream_exp)
+
 #define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG_, logger, stream_exp)
 
 #define LOG_TRACE(logger, stream_exp) DSA_LOG(TRACE_, logger, stream_exp)
@@ -77,4 +80,4 @@ protected:
     exit(1);                                   \
   }
 
-#endif  // DSA_SDK_MODULE_LOGGER_H_
+#endif  // DSA_SDK_MODULE_LOGGER_H

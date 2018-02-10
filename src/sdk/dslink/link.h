@@ -49,7 +49,9 @@ class DsLink final : public DsLinkRequester {
 
  public:
   DsLink(int argc, const char *argv[], const string_ &link_name,
-         const string_ &version, const shared_ptr_<App> &app = nullptr);
+         const string_ &version, const shared_ptr_<App> &app = nullptr,
+         ref_<Module> &&default_module = nullptr,
+         bool use_standard_node_structure = true);
   ~DsLink() final;
   App &get_app();
   string_ get_close_token();
@@ -65,7 +67,7 @@ class DsLink final : public DsLinkRequester {
   ref_<LinkRoot> _root;
 
   uint8_t log_level_from_settings;
-
+  ref_<Module> modules;
   string_ close_token;
 
   bool _running = false;
@@ -74,26 +76,29 @@ class DsLink final : public DsLinkRequester {
   // initialization
   void parse_thread(size_t thread);
   void parse_url(const string_ &url);
-  void parse_log(const string_ &log, EditableStrand &config);
   void parse_name(const string_ &name);
   void parse_server_port(uint16_t port);
+
+  void init_module(ref_<Module> &&default_module,
+                   const string_ &module_path,
+                   bool use_standard_node_structure);
 
  public:
   // init raw responder root node, the dslink won't have the default standard
   // node structure
-  void init_responder_raw(ref_<NodeModelBase> &&root_node,
-                          ref_<Module> &&module = nullptr);
+  void init_responder_raw(ref_<NodeModelBase> &&root_node);
   // init the responder's main node;
-  void init_responder(ref_<NodeModelBase> &&main_node = nullptr,
-                      ref_<Module> &&module = nullptr);
+  void init_responder(ref_<NodeModelBase> &&main_node = nullptr);
   template <class NodeClass>
-  void init_responder(ref_<Module> &&module = nullptr) {
-    init_responder(make_ref_<NodeClass>(strand), std::move(module));
+  void init_responder() {
+    init_responder(make_ref_<NodeClass>(strand));
   }
 
   ref_<NodeModelBase> add_to_main_node(const string_ &name,
-                                       ref_<NodeModel> &&node);
+                                       ref_<NodeModelBase> &&node);
   void remove_from_main_node(const string_ &name);
+
+  ref_<NodeModel> add_to_pub(const string_ &path, ref_<NodeModel> &&node);
 
   // the on_connect callback will always be called from main strand
   void run(DsLink::LinkOnConnectCallback &&on_connect = nullptr,
@@ -124,6 +129,6 @@ class DsLink final : public DsLinkRequester {
   ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
                               ref_<const SetRequestMessage> &&message) final;
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_DSLINK_LINK_H

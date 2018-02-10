@@ -35,8 +35,9 @@ void BrokerConfig::init() {
   add_item("https-port", Var(8443), VarValidatorInt(1, 65535));
   add_item("log-level", Var("warn"), [](const Var& var) {
     string_ str = var.to_string();
-    return str == "trace" || str == "debug" || str == "info" || str == "warn" ||
-           str == "error" || str == "fatal";
+    return str == "none" || str == "trace" || str == "debug" || str == "info" ||
+           str == "warn" || str == "sys" || str == "error" || str == "admin" ||
+           str == "fatal" || str == "all";
   });
 }
 // load config json from file

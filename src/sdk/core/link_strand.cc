@@ -37,9 +37,6 @@ void LinkStrand::destroy_impl() {
   if (__stream_acceptor != nullptr) {
     __stream_acceptor->destroy();
   }
-  if (__logger != nullptr) {
-    __logger->destroy();
-  }
   if (__storage != nullptr) {
     __storage->destroy();
   }

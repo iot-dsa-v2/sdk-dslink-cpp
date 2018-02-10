@@ -10,8 +10,9 @@ namespace dsa {
 
 void ConsoleLogger::write_meta(std::ostream& stream, const char* level) {
   const string_& ts = DateTime::get_ts();
-  // use a substring of the timestamp
-  stream << '[' << level << string_(&ts[5], &ts[23]) << "]  ";
+  // use substrings of the timestamp
+  stream << '[' << level << string_(&ts[0], &ts[10]) << " "
+         << string_(&ts[11], &ts[23]) << "]  ";
 }
 
 void ConsoleLogger::log(const string_& str, uint8_t lvl) {

@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_CRYPTO_HMAC_H_
-#define DSA_SDK_CRYPTO_HMAC_H_
+#ifndef DSA_SDK_CRYPTO_HMAC_H
+#define DSA_SDK_CRYPTO_HMAC_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -27,4 +27,4 @@ class HMAC {
 };
 }  // namespace dsa
 
-#endif  // DSA_SDK_CRYPTO_HMAC_H_
+#endif  // DSA_SDK_CRYPTO_HMAC_H
