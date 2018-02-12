@@ -1,9 +1,12 @@
 #include "dsa_common.h"
+
 #include "string.h"
 
+#include <boost/asio/io_service.hpp>
 #include <boost/filesystem.hpp>
-#include "openssl/rand.h"
 #include "module/default/simple_storage.h"
+#include "openssl/rand.h"
+
 using namespace std;
 namespace fs = boost::filesystem;
 
@@ -27,9 +30,10 @@ void string_to_file(string_ data, string_ file_path) {
   SimpleStorage simple_storage;
   std::unique_ptr<StorageBucket> storage_bucket;
   storage_bucket = simple_storage.get_bucket(file_path);
-  auto content = new RefCountBytes(&data.c_str()[0], &data.c_str()[strlen(data.c_str())]);
+  auto content =
+      new RefCountBytes(&data.c_str()[0], &data.c_str()[strlen(data.c_str())]);
 
-  storage_bucket->write(file_path, std::forward<RefCountBytes*>(content));
+  storage_bucket->write(file_path, std::forward<RefCountBytes *>(content));
 }
 
 std::vector<unsigned char> get_random_byte_array(int len) {
