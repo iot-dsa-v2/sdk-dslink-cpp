@@ -44,28 +44,35 @@ class Logger : public SharedDestroyable<Logger> {
 };
 }
 
-#define DSA_LOG(LEVEL, logger, stream_exp)  \
-  if ((logger).level <= Logger::LEVEL) {    \
-    std::stringstream LOG;                  \
-    LOG << std::endl;                       \
-    (logger).write_meta(LOG, #LEVEL);       \
-    stream_exp;                             \
-    (logger).log(LOG.str(), Logger::LEVEL); \
+#define DSA_LOG(LEVEL, LEVEL_NAME, logger, stream_exp) \
+  if ((logger).level <= Logger::LEVEL) {               \
+    std::stringstream LOG;                             \
+    LOG << std::endl;                                  \
+    (logger).write_meta(LOG, LEVEL_NAME);              \
+    stream_exp;                                        \
+    (logger).log(LOG.str(), Logger::LEVEL);            \
   }
 
-#define LOG_ERROR(logger, stream_exp) DSA_LOG(ERROR_, logger, stream_exp)
+#define LOG_ERROR(logger, stream_exp) \
+  DSA_LOG(ERROR_, "Error ", logger, stream_exp)
 
-#define LOG_WARN(logger, stream_exp) DSA_LOG(WARN__, logger, stream_exp)
+#define LOG_WARN(logger, stream_exp) \
+  DSA_LOG(WARN__, "Warn  ", logger, stream_exp)
 
-#define LOG_INFO(logger, stream_exp) DSA_LOG(INFO__, logger, stream_exp)
+#define LOG_INFO(logger, stream_exp) \
+  DSA_LOG(INFO__, "Info  ", logger, stream_exp)
 
-#define LOG_SYSTEM(logger, stream_exp) DSA_LOG(SYS___, logger, stream_exp)
+#define LOG_SYSTEM(logger, stream_exp) \
+  DSA_LOG(SYS___, "Sys   ", logger, stream_exp)
 
-#define LOG_ADMIN(logger, stream_exp) DSA_LOG(ADMIN___, logger, stream_exp)
+#define LOG_ADMIN(logger, stream_exp) \
+  DSA_LOG(ADMIN___, "Admin ", logger, stream_exp)
 
-#define LOG_DEBUG(logger, stream_exp) DSA_LOG(DEBUG_, logger, stream_exp)
+#define LOG_DEBUG(logger, stream_exp) \
+  DSA_LOG(DEBUG_, "Debug ", logger, stream_exp)
 
-#define LOG_TRACE(logger, stream_exp) DSA_LOG(TRACE_, logger, stream_exp)
+#define LOG_TRACE(logger, stream_exp) \
+  DSA_LOG(TRACE_, "Trace ", logger, stream_exp)
 
 #define LOG_FATAL(stream_exp)                  \
   {                                            \
@@ -73,7 +80,7 @@ class Logger : public SharedDestroyable<Logger> {
     LOG << std::endl;                          \
     dsa::Logger& logger = Logger::_();         \
     if ((logger).level <= Logger::FATAL_) {    \
-      (logger).write_meta(LOG, "FATAL_");      \
+      (logger).write_meta(LOG, "Fatal ");      \
       stream_exp;                              \
       (logger).log(LOG.str(), Logger::FATAL_); \
     }                                          \
