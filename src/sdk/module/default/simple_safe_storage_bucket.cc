@@ -20,11 +20,8 @@ static char templ[] = "/tmp/fileXXXXXX";
 void SimpleSafeStorageBucket::write(const std::string &key,
                                     BytesRef &&content) {
   auto write_file = [=]() {
-#if (defined(_WIN32) || defined(_WIN64))
-    std::string templ = tmpnam(nullptr);
-#else
-    mkstemp(templ);
-#endif
+    path templ = boost::filesystem::unique_path();
+
     path p(storage_root);
 
     p /= (key);
@@ -32,7 +29,7 @@ void SimpleSafeStorageBucket::write(const std::string &key,
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
       if (_is_binary) open_mode = open_mode | std::ios::binary;
-      std::ofstream ofs(templ, open_mode);
+      std::ofstream ofs(templ.string(), open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char *>(content->data()),
                   content->size());
