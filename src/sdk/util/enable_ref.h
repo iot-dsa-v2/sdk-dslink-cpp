@@ -15,6 +15,10 @@
 #ifdef _DSA_DEBUG
 #include <mutex>
 
+#ifdef __APPLE__
+#include <openssl/rand.h>
+#endif
+
 extern thread_local int _dsa_ref_guard_count;
 extern thread_local int _dsa_ref_guard_rand;
 

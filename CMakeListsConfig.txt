@@ -50,9 +50,11 @@ if (MINGW)
 endif()
 include_directories(${Boost_INCLUDE_DIRS})
 
-## OpenSSL v1.0.2l
+## OpenSSL v1.0.2n
 if (MACOSX)
-    set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2l")
+    set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/1.0.2n")
+    set(OPENSSL_INCLUDE_DIR "/usr/local/Cellar/openssl/1.0.2n/include")
+    set(OPENSSL_LIBRARIES "/usr/local/Cellar/openssl/1.0.2n/lib")
 elseif (UNIX)
     set(OPENSSL_ROOT_DIR "/usr/local/ssl")
 endif ()

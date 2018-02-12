@@ -134,7 +134,7 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
           link1_listed = true;
         });
       });
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return link1_connected; });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return link1_connected && link1_listed; });
 
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
@@ -145,8 +145,6 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
       EXPECT_TRUE(map["test1"].is_map());
       EXPECT_TRUE(map["test2"].is_map());
 
-      ASYNC_EXPECT_TRUE(1000, *link_1->strand,
-                        [&]() -> bool { return link1_listed; });
       // after client1 disconnected, list update should show it's disconnected
       link_req->list("downstream/test1", [&](IncomingListCache &cache,
                                             const std::vector<string_> &str) {
