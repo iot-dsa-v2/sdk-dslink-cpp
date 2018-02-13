@@ -215,7 +215,7 @@ std::vector<uint8_t> ECDH::compute_secret(
   return std::move(out);
 }
 
-const string_ &ECDH::get_dsid(const string_ &prefix) {
+const string_ &ECDH::get_dsid(const string_ &prefix) const {
   if (prefix != _dsid_cached_prefix || _dsid_cache.empty()) {
     _dsid_cached_prefix = prefix;
     Hash hash;

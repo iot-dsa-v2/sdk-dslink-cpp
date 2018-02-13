@@ -58,7 +58,8 @@ class Session final : public DestroyableRef<Session> {
   std::deque<AckHolder> _pending_acks;
   void check_pending_acks(int32_t ack);
 
-  string_ _dsid;
+  string_ _remote_id;
+  string_ _log_id;
   shared_ptr_<Connection> _connection;
   bool _reconnection_expired = false;
 
@@ -102,7 +103,8 @@ class Session final : public DestroyableRef<Session> {
 
   LinkStrandRef &get_strand() { return _strand; };
 
-  const string_ &dsid() const { return _dsid; }
+  const string_ &get_remote_id() const { return _remote_id; }
+  const string_ &get_log_id() const { return _log_id; }
 
   bool is_connected() const { return _connection != nullptr; }
   bool is_writing() const { return _is_writing; }

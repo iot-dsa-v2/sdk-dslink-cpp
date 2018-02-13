@@ -238,7 +238,7 @@ TEST_F(BrokerDownstreamTest, List) {
             [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
               auto map = msg->get_map();
               EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
-                        tcp_client1->get_session().dsid());
+                        client_strand1.get_dsid());
 
               client_strand1.strand->post([tcp_client1, &client_strand1]() {
                 tcp_client1->destroy();

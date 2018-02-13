@@ -23,7 +23,8 @@ ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
   strand->set_client_manager(make_ref_<SimpleClientManager>());
   strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
 
-  static_cast<ConsoleLogger &>(Logger::_()).filter = Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
+  static_cast<ConsoleLogger&>(Logger::_()).filter =
+      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   Logger::_().level = Logger::WARN__;
 
   return strand;
@@ -63,6 +64,7 @@ void EditableStrand::set_responder_model(ModelRef&& root_model,
   set_stream_acceptor(make_ref_<NodeStateManager>(*this, std::move(root_model),
                                                   timer_interval));
 }
+
 void EditableStrand::destroy_impl() {
   LinkStrand::destroy_impl();
   // destroy of following objects is handled in LinkStrand::destroy_impl()
@@ -112,4 +114,7 @@ void EditableStrand::inject(std::function<void()>&& callback) {
   }
 }
 
+string_ WrapperStrand::get_dsid() const {
+  return strand->ecdh().get_dsid(dsid_prefix);
+}
 }  // namespace dsa

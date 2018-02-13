@@ -3,6 +3,7 @@
 #include "session.h"
 
 #include "client.h"
+#include "crypto/misc.h"
 #include "module/logger.h"
 #include "server.h"
 #include "stream/ack_stream.h"
@@ -11,9 +12,25 @@
 
 namespace dsa {
 
+// logid format : 8 bytes of dsid, and space
+//                4 bytes of base64 encoded this pointer,
+//                1 byte of reconnection id
+static string_ _create_log_id(void *p) {
+  string_ rslt = "???????? xxxxA";
+
+  uint8_t *p8 = reinterpret_cast<uint8_t *>(&p);
+  // encode 3 bytes of the pointer into base64, and a unique id fo the session
+  // instance
+  string_ encoded_pointer = base64_encode(p8 + sizeof(void *) - 3, 3);
+
+  std::copy(encoded_pointer.begin(), encoded_pointer.end(), rslt.begin() + 9);
+
+  return std::move(rslt);
+}
+
 Session::Session(LinkStrandRef strand, const string_ &dsid)
     : _strand(std::move(strand)),
-      _dsid(dsid),
+      _remote_id(dsid),
       requester(*this),
       responder(*this),
       _timer(_strand->add_timer(0, nullptr)),
@@ -39,9 +56,6 @@ void Session::connected(shared_ptr_<Connection> connection) {
   _connection = std::move(connection);
 
   requester.connected();
-
-  // TODO, handle last ack
-  // TODO, remove Ack and Ping from the write streams
 
   // TODO, what if previous write loop is not finished
   write_loop(get_ref());

@@ -95,6 +95,8 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
 
   ClientConnectionMaker client_connection_maker;
 
+  string_ get_dsid() const;
+
  protected:
   void destroy_impl() override {
     if (strand != nullptr) {
