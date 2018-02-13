@@ -12,11 +12,45 @@ namespace fs = boost::filesystem;
 
 namespace dsa {
 
+std::string url_encode(const std::string & s_src)
+{
+  if(s_src.empty())
+    return "";
+  const unsigned char dec_to_hex[16 + 1] = "0123456789ABCDEF";
+  const unsigned char * p_src = (const unsigned char *)s_src.c_str();
+  const auto src_len = s_src.length();
+  unsigned char * const p_start = new unsigned char[src_len * 3];
+  unsigned char * p_end = p_start;
+  const unsigned char * const src_end = p_src + src_len;
+
+  for (; p_src < src_end; ++p_src)
+  {
+    switch (*p_src) {
+      case '%':
+      case '=':
+      case '&':
+      case '\n':
+        // escape this char
+        *p_end++ = '%';
+        *p_end++ = dec_to_hex[*p_src >> 4];
+        *p_end++ = dec_to_hex[*p_src & 0x0F];
+        break;
+      default:
+        *p_end++ = *p_src;
+        break;
+    }
+  }
+
+  std::string sResult((char *)p_start, (char *)p_end);
+  delete [] p_start;
+  return sResult;
+}
+
 string_ string_from_file(string_ file_path) {
   SimpleStorage simple_storage;
   std::unique_ptr<StorageBucket> storage_bucket;
   string_ data;
-  storage_bucket = simple_storage.get_bucket(file_path);
+  storage_bucket = simple_storage.get_bucket("");
   auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec) {
     string_ content(vec.begin(), vec.end());
     data = content;
@@ -29,7 +63,7 @@ string_ string_from_file(string_ file_path) {
 void string_to_file(string_ data, string_ file_path) {
   SimpleStorage simple_storage;
   std::unique_ptr<StorageBucket> storage_bucket;
-  storage_bucket = simple_storage.get_bucket(file_path);
+  storage_bucket = simple_storage.get_bucket("");
   auto content =
       new RefCountBytes(&data.c_str()[0], &data.c_str()[strlen(data.c_str())]);
 
@@ -66,19 +100,15 @@ string_ generate_random_string(int len) {
 
 string_ get_close_token_from_file(string_ path_str,
                                   bool force_to_generate_one) {
-  try {
-    string_ token = string_from_file(path_str);
-    if (token.length() != 32)
-      throw std::runtime_error("invalid token length != 32 in file");
+  string_ token = string_from_file(path_str);
+  if (token.length() == 32)
     return token;
 
-  } catch (std::exception &e) {
-    if (!force_to_generate_one) return "";
-  }
-
-  auto new_token = generate_random_string(32);
-  string_to_file(new_token, path_str);
-
-  return new_token;
+  if (force_to_generate_one) {
+    token = generate_random_string(32);
+    string_to_file(token, path_str);
+  } else
+    token = "";
+  return token;
 }
 }

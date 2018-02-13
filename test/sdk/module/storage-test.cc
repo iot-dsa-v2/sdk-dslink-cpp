@@ -19,9 +19,9 @@ TEST(ModuleTest, StorageBucket) {
 
   SimpleStorage simple_storage(&app.io_service());
 
-  std::string storage_key("config");
+  std::string storage_key("sample_key");
 
-  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_bucket(storage_key);
+  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_bucket("bucket");
 
   auto on_done = []() {
     std::cout << "on_done" << std::endl;
@@ -75,9 +75,9 @@ TEST(ModuleTest, SafeStorageBucket) {
 
   SimpleStorage simple_storage(&app.io_service());
 
-  std::string storage_key("broker.json");
+  std::string storage_key("sample_config");
 
-  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_bucket(storage_key);
+  std::unique_ptr<StorageBucket> storage_bucket = simple_storage.get_bucket("config");
 
   auto on_done = []() {
     std::cout << "on_done" << std::endl;

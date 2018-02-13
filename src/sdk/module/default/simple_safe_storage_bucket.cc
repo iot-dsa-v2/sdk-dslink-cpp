@@ -10,21 +10,18 @@ namespace dsa {
 namespace fs = boost::filesystem;
 using boost::filesystem::path;
 
-#if (defined(_WIN32) || defined(_WIN64))
-static std::string storage_root = "C:\\temp\\";
-#else
-static std::string storage_root = "";
-static char templ[] = "/tmp/fileXXXXXX";
-#endif
+//static std::unique_ptr<SimpleSafeStorageBucket> config_bucket(
+//    new SimpleSafeStorageBucket("config", nullptr, ""));
+//SimpleSafeStorageBucket &SimpleSafeStorageBucket::get_config_bucket() {
+//  return *config_bucket;
+//};
 
 void SimpleSafeStorageBucket::write(const std::string &key,
                                     BytesRef &&content) {
   auto write_file = [=]() {
     path templ = boost::filesystem::unique_path();
 
-    path p(storage_root);
-
-    p /= (key);
+    path p(get_storage_path(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
