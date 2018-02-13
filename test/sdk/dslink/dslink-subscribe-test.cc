@@ -44,8 +44,8 @@ TEST_F(DslinkTest, SubscribeTest) {
   server_strand.strand->set_responder_model(ModelRef(root_node));
   auto tcp_server = server_strand.create_server();
   tcp_server->start();
-  auto web_server = server_strand.create_webserver();
-  web_server->start();
+  //auto web_server = server_strand.create_webserver();
+  //web_server->start();
 
   // Create link
   auto link = server_strand.create_dslink();
@@ -73,7 +73,7 @@ TEST_F(DslinkTest, SubscribeTest) {
 
   // Cleaning test
   tcp_server->destroy_in_strand(tcp_server);
-  web_server->destroy();
+  //web_server->destroy();
   destroy_dslink_in_strand(link);
 
   server_strand.destroy();

@@ -4,9 +4,30 @@
 
 #include "util/app.h"
 
+#include <iostream>
+
 namespace dsa {
 
-WebServer::WebServer(App& app) : _io_service(app.io_service()) {}
+WebServer::WebServer(App& app)
+    : _io_service(app.io_service()),
+      _context(boost::asio::ssl::context::sslv23) {
+  try {
+    _context.set_options(boost::asio::ssl::context::default_workarounds |
+                         boost::asio::ssl::context::no_sslv2);
+    _context.set_password_callback(
+        [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
+          return "";
+        });
+
+    _context.use_certificate_chain_file("certificate.pem");
+    _context.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
+
+  } catch (boost::system::system_error& e) {
+    // TODO LOG_ERROR(_strand->logger(), LOG << "Bind Error: " << e.what() <<
+    // "\n");
+    return;
+  }
+}
 
 void WebServer::listen(uint16_t port) {
   _port = port;
@@ -27,7 +48,6 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
 }
 
 WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
-
   if (_ws_callback_map.count(path)) {
     return _ws_callback_map.at(path);
   }
@@ -38,8 +58,7 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
       boost::beast::http::request<boost::beast::http::string_body> req) {
 
     ErrorCallback error_callback_detail(error_code);
-    error_callback_detail(web_server.io_service(), std::move(socket),
-                          std::move(req));
+    error_callback_detail(web_server, std::move(socket), std::move(req));
 
     return nullptr;
   };
@@ -57,6 +76,8 @@ void WebServer::destroy() {
     _ws_callback_map.erase("/");
   }
 }
+
+boost::asio::ssl::context& WebServer::ssl_context() { return _context; }
 
 WebServer::~WebServer() = default;
 

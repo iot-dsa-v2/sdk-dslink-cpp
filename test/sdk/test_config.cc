@@ -12,6 +12,7 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
+#include "network/ws/wss_client_connection.h"
 #include "util/app.h"
 #include "util/certificate.h"
 
@@ -91,6 +92,26 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
       break;
     case dsa::ProtocolType::PROT_WSS:
+      context.load_verify_file("certificate.pem", error);
+      if (error) {
+        LOG_FATAL(LOG << "Failed to verify cetificate");
+      }
+
+      copy.ws_host = "127.0.0.1";
+      // TODO: ws_port and ws_path
+      copy.ws_port = 8080;
+      copy.ws_path = "/";
+
+      copy.client_connection_maker = [
+        dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
+        ws_port = copy.ws_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        tcp::socket tcp_socket(strand->get_io_context());
+        websocket_ssl_stream stream(tcp_socket, context);
+
+        return make_shared_<WssClientConnection>(stream, strand, dsid_prefix, ws_host,
+                                                ws_port);
+      };
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
@@ -125,7 +146,8 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
       address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_WSS:
-      address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      // TODO address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
@@ -152,6 +174,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
   uint16_t http_port = 8080;
   web_server->listen(http_port);
+
   WebServer::WsCallback* root_cb = new WebServer::WsCallback();
   *root_cb = [this](
       WebServer &web_server, boost::asio::ip::tcp::socket &&socket,
