@@ -5,23 +5,48 @@
 #include <boost/asio/strand.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
-
+#include "util/string.h"
 namespace dsa {
 
 namespace fs = boost::filesystem;
 using boost::filesystem::path;
 
-#if (defined(_WIN32) || defined(_WIN64))
-static std::string storage_root = "C:\\temp\\";
-#else
-// static std::string storage_root = "/tmp/";
-static std::string storage_root = "";
-#endif
+SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
+                                         boost::asio::io_service* io_service,
+                                         const string_& storage_root,
+                                         const string_& cwd, bool is_binary)
+    : _io_service(io_service),
+      _is_binary(is_binary),
+      _cwd(cwd),
+      _storage_root(storage_root),
+      _bucket_name(url_encode(bucket_name)) {
+
+  if (!_cwd.empty()) _full_base_path = _cwd + "/";
+  if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
+  _full_base_path += bucket_name;
+
+  path p(get_storage_path());
+  if (!fs::exists(p)) {
+    try {
+      if (!fs::create_directories(p)) {
+        LOG_FATAL(LOG << p.string() << " storage path cannot be created!");
+      }
+    } catch (const fs::filesystem_error& ex) {
+      LOG_FATAL(LOG << p.string() << " storage path cannot be created!");
+    }
+  }
+}
+
+string_ SimpleStorageBucket::get_storage_path(const string_& key) {
+  string_ path;
+  if (!_full_base_path.empty()) path = _full_base_path + "/";
+  if (!key.empty()) path += key;
+  return std::move(path);
+}
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
   auto write_file = [=]() {
-    path p(storage_root);
-    p /= (key);
+    path p(get_storage_path(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
@@ -63,8 +88,7 @@ void SimpleStorageBucket::read(const std::string& key,
   auto read_file = [=]() {
     std::vector<uint8_t> vec{};
 
-    path p(storage_root);
-    p /= (key);
+    path p(get_storage_path(key));
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -121,8 +145,7 @@ void SimpleStorageBucket::remove(const std::string& key) {
     }
 
     strand_map.at(key)->post([=]() {
-      path p(storage_root);
-      p /= (key);
+      path p(get_storage_path(key));
 
       try {
         if (exists(p) && is_regular_file(p)) {
@@ -140,8 +163,7 @@ void SimpleStorageBucket::remove(const std::string& key) {
 
     return;
   } else {
-    path p(storage_root);
-    p /= (key);
+    path p(get_storage_path(key));
 
     try {
       if (exists(p) && is_regular_file(p)) {
@@ -156,7 +178,7 @@ void SimpleStorageBucket::remove(const std::string& key) {
 /// the callback might run asynchronously
 void SimpleStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
-  path p(storage_root);
+  path p(get_storage_path());
 
   try {
     for (auto&& x : fs::directory_iterator(p)) {
@@ -176,7 +198,7 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
 }
 
 void SimpleStorageBucket::remove_all() {
-  path p(storage_root);
+  path p(get_storage_path());
 
   try {
     for (auto&& x : fs::directory_iterator(p)) {

@@ -116,7 +116,11 @@ TEST_F(DslinkTest, CloseTest) {
   // first create .close_token
   string_ close_token = "12345678901234567890123456789012";
   try {
-    close_token = string_from_file(".close_token");
+    string_ read_close_token = string_from_file(".close_token");
+    if(read_close_token.size() != close_token.size())
+      string_to_file(close_token, ".close_token");
+    else
+      close_token = read_close_token;
   } catch (std::exception &e) {
     string_to_file(close_token, ".close_token");
   }

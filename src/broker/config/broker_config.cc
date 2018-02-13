@@ -12,8 +12,7 @@ namespace fs = boost::filesystem;
 namespace dsa {
 BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
   init();
-  storage_key = get_file_path();
-  storage_bucket = simple_storage.get_bucket(storage_key);
+  storage_bucket = std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
   load();
 }
 
@@ -76,7 +75,7 @@ void BrokerConfig::load() {
       save();
     }
   };
-  storage_bucket->read(storage_key, read_callback);
+  storage_bucket->read(get_file_path(), read_callback);
 
 }
 void BrokerConfig::save() {
@@ -101,7 +100,7 @@ void BrokerConfig::save() {
 
   auto data = new RefCountBytes(&cstr[0], &cstr[strlen(cstr)]);
 
-  storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
+  storage_bucket->write(get_file_path(), std::forward<RefCountBytes*>(data));
 }
 void BrokerConfig::add_item(const string_& name, Var&& value,
                             VarValidator&& validator) {

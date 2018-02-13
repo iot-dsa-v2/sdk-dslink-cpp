@@ -267,7 +267,7 @@ TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
 
 TEST_F(BrokerDsLinkTest, SysListWithoutCloseToken) {
   // we force to not have close
-  std::remove(".close_token");
+  std::remove("storage/.close_token");
 
   auto app = make_shared_<App>();
 

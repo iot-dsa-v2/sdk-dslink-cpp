@@ -28,7 +28,7 @@ inline string_ str_join_path(const string_ &path1,
 
 string_ string_from_file(string_ file_path);
 void string_to_file(string_ data, string_ file_path);
-
+std::string url_encode(const std::string & s_src);
 
 static int IS_RAND_INITIALIZED = 0;
 string_ generate_random_string(int len);
