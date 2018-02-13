@@ -53,7 +53,8 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port,
       address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_WSS:
-      address.assign(std::string("wss://127.0.0.1:") + std::to_string(port));
+      // TODO address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
@@ -94,7 +95,8 @@ ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port,
       address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_WSS:
-      address.assign(std::string("wss://127.0.0.1:") + std::to_string(port));
+      // TODO address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_DS:
     default:

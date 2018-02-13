@@ -13,6 +13,9 @@ list(APPEND NetworkSourceFiles
         ws/ws_connection.cc
         ws/ws_client_connection.cc
         ws/ws_server_connection.cc
+        ws/wss_connection.cc
+        ws/wss_client_connection.cc
+        ws/wss_server_connection.cc
 )
 
 foreach(file ${NetworkSourceFiles})
