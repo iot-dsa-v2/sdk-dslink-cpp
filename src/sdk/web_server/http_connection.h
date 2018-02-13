@@ -6,6 +6,7 @@
 #endif
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/stream.hpp>
 #include <boost/beast/core/flat_buffer.hpp>
 #include <boost/beast/http.hpp>
 
@@ -14,7 +15,7 @@
 namespace dsa {
 
 class WebServer;
- class Connection;
+class Connection;
 
 // Web server side connection.
 class HttpConnection : public std::enable_shared_from_this<HttpConnection> {

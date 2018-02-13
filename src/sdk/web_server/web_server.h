@@ -7,12 +7,17 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl.hpp>
 #include <boost/beast/http.hpp>
+#include <boost/beast/websocket.hpp>
+#include <boost/beast/websocket/ssl.hpp>
+
 #include <map>
 
 #include "listener.h"
 #include "login_manager.h"
 #include "module/logger.h"
+
 
 namespace dsa {
 
@@ -35,6 +40,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   uint16_t _port;
   std::shared_ptr<Listener> _listener;
   shared_ptr_<LoginManager> _login_mngr;
+  boost::asio::ssl::context _context;
 
   // http/ws callbacks
   typedef std::pair<const string_, WsCallback&&> WsCallbackPair;
@@ -58,6 +64,8 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
 
   // util functions
   void send_error(int error_code, const string_ msg = "");
+
+  boost::asio::ssl::context& ssl_context();
 };
 
 class ErrorCallback {
@@ -68,8 +76,7 @@ class ErrorCallback {
   ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
   void operator()(
-      boost::asio::io_service& io_service,
-      boost::asio::ip::tcp::socket&& socket,
+      WebServer& web_server, boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
     LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
   }
