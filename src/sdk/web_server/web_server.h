@@ -1,5 +1,5 @@
-#ifndef DSA_SDK_WEB_SERVER_H_
-#define DSA_SDK_WEB_SERVER_H_
+#ifndef DSA_SDK_WEB_SERVER_H
+#define DSA_SDK_WEB_SERVER_H
 
 #if defined(_MSC_VER)
 #pragma once
@@ -17,7 +17,7 @@
 namespace dsa {
 
 class App;
-class Connection;
+class WebsocketConnection;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  public:
@@ -25,10 +25,11 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
       WebServer&, boost::asio::ip::tcp::socket&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       HttpCallback;
-  typedef std::function<std::shared_ptr<Connection>(
+  typedef std::function<std::shared_ptr<WebsocketConnection>(
       WebServer&, boost::asio::ip::tcp::socket&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       WsCallback;
+
 
  private:
   boost::asio::io_service& _io_service;
@@ -39,6 +40,10 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   typedef std::pair<const string_, WsCallback&&> WsCallbackPair;
   typedef std::map<const string_, WsCallback&&> WsCallbackMap;
   WsCallbackMap _ws_callback_map;
+
+  typedef std::pair<const string_, HttpCallback&&> HttpCallbackPair;
+  typedef std::map<const string_, HttpCallback&&> HttpCallbackMap;
+  HttpCallbackMap _http_callback_map;
 
  public:
   WebServer(App& app);
@@ -70,11 +75,10 @@ class ErrorCallback {
       boost::asio::io_service& io_service,
       boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
-    LOG_ERROR(Logger::_(),
-              LOG << "http error code: " << _error_code);
+    LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
   }
 };
 
 }  // namespace dsa
 
-#endif  // DSA_SDK_WEB_SERVER_H_
+#endif  // DSA_SDK_WEB_SERVER_H

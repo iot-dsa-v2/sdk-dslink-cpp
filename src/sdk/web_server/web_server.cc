@@ -10,7 +10,7 @@ WebServer::WebServer(App& app) : _io_service(app.io_service()) {}
 
 void WebServer::listen(uint16_t port) {
   _port = port;
-  _listener = std::shared_ptr<Listener>(new Listener(*this, port));
+  _listener = std::make_shared<Listener>(*this, port);
 }
 
 void WebServer::start() {
@@ -42,6 +42,34 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
                           std::move(req));
 
     return nullptr;
+  };
+
+  return error_callback;
+}
+
+void WebServer::add_http_handler(const string_& path, HttpCallback&& callback) {
+  if (!_http_callback_map.count(path)) {
+    _http_callback_map.insert(HttpCallbackPair(path, std::move(callback)));
+  }
+  // TODO: report error/warning otherwise
+}
+
+WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
+
+  if (_http_callback_map.count(path)) {
+    return _http_callback_map.at(path);
+  }
+
+  uint16_t error_code = 404;
+  static WebServer::HttpCallback error_callback = [error_code](
+          WebServer& web_server, boost::asio::ip::tcp::socket&& socket,
+          boost::beast::http::request<boost::beast::http::string_body> req) {
+
+      ErrorCallback error_callback_detail(error_code);
+      error_callback_detail(web_server.io_service(), std::move(socket),
+                            std::move(req));
+
+      return nullptr;
   };
 
   return error_callback;
