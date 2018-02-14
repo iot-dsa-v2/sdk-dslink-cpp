@@ -259,12 +259,10 @@ TEST_F(DslinkTest, TCPServerPortParam) {
 
 TEST_F(DslinkTest, TokenFile) {
   string_ token("IAmATokenPleaseBelieveME!!!");
-
-  // First create token file
   string_ token_file_name("my_test_token.txt");
-  if (!boost::filesystem::exists(token_file_name)) {
-    string_to_file(token, token_file_name);
-  }
+  // First create token file
+  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
+  string_to_bucket(token, token_file_name, storage_bucket);
 
   const char *argv[] = {"./test", "--token", token_file_name.c_str()};
   int argc = 3;
@@ -272,6 +270,7 @@ TEST_F(DslinkTest, TokenFile) {
 
   EXPECT_EQ(link.get()->client_token, token);
   end_link(std::move(link));
+  storage_bucket.remove(token_file_name);
 }
 
 TEST_F(DslinkTest, GeneralParam) {

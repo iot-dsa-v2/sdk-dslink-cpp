@@ -9,12 +9,12 @@
 #include <vector>
 
 #include <openssl/ec.h>
-
+#include "module/storage.h"
 namespace dsa {
 class ECDH {
  public:
   static const char *curve_name;
-
+  static ECDH *from_bucket(StorageBucket &bucket, const string_ &path_str);
   static ECDH *from_file(const char *path);
 
  private:

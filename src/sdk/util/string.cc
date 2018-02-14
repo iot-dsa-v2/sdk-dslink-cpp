@@ -12,62 +12,35 @@ namespace fs = boost::filesystem;
 
 namespace dsa {
 
-std::string url_encode(const std::string & s_src)
-{
-  if(s_src.empty())
-    return "";
-  const unsigned char dec_to_hex[16 + 1] = "0123456789ABCDEF";
-  const unsigned char * p_src = (const unsigned char *)s_src.c_str();
-  const auto src_len = s_src.length();
-  unsigned char * const p_start = new unsigned char[src_len * 3];
-  unsigned char * p_end = p_start;
-  const unsigned char * const src_end = p_src + src_len;
-
-  for (; p_src < src_end; ++p_src)
-  {
-    switch (*p_src) {
-      case '%':
-      case '=':
-      case '&':
-      case '\n':
-        // escape this char
-        *p_end++ = '%';
-        *p_end++ = dec_to_hex[*p_src >> 4];
-        *p_end++ = dec_to_hex[*p_src & 0x0F];
-        break;
-      default:
-        *p_end++ = *p_src;
-        break;
-    }
-  }
-
-  std::string sResult((char *)p_start, (char *)p_end);
-  delete [] p_start;
-  return sResult;
-}
-
-string_ string_from_file(string_ file_path) {
+string_ string_from_file(const string_ &file_path) {
   SimpleStorage simple_storage;
   std::unique_ptr<StorageBucket> storage_bucket;
-  string_ data;
   storage_bucket = simple_storage.get_bucket("");
-  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec) {
+
+  return string_from_bucket(file_path, *storage_bucket);
+}
+
+void string_to_file(const string_ &data, const string_ &file_path) {
+  SimpleStorage simple_storage;
+  std::unique_ptr<StorageBucket> storage_bucket;
+  storage_bucket = simple_storage.get_bucket("");
+  string_to_bucket(data, file_path, *storage_bucket);
+}
+
+string_ string_from_bucket(const string_ &key, StorageBucket &storage_bucket) {
+  string_ data;
+  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec, BucketReadStatus read_status) {
     string_ content(vec.begin(), vec.end());
     data = content;
   };
-  storage_bucket->read(file_path, read_callback);
-
+  storage_bucket.read(key, read_callback);
   return data;
 }
-
-void string_to_file(string_ data, string_ file_path) {
-  SimpleStorage simple_storage;
-  std::unique_ptr<StorageBucket> storage_bucket;
-  storage_bucket = simple_storage.get_bucket("");
+void string_to_bucket(const string_ &data, const string_ &key, StorageBucket &storage_bucket) {
   auto content =
       new RefCountBytes(&data.c_str()[0], &data.c_str()[strlen(data.c_str())]);
 
-  storage_bucket->write(file_path, std::forward<RefCountBytes *>(content));
+  storage_bucket.write(key, std::forward<RefCountBytes *>(content));
 }
 
 std::vector<unsigned char> get_random_byte_array(int len) {
@@ -98,15 +71,16 @@ string_ generate_random_string(int len) {
   return randStr;
 }
 
-string_ get_close_token_from_file(string_ path_str,
+string_ get_close_token_from_bucket(StorageBucket &storage_bucket,
+                                  const string_ &key,
                                   bool force_to_generate_one) {
-  string_ token = string_from_file(path_str);
+  string_ token = string_from_bucket(key, storage_bucket);
   if (token.length() == 32)
     return token;
 
   if (force_to_generate_one) {
     token = generate_random_string(32);
-    string_to_file(token, path_str);
+    string_to_bucket(token, key, storage_bucket);
   } else
     token = "";
   return token;

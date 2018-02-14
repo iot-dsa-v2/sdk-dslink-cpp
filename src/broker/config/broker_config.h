@@ -28,7 +28,7 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
   void save();
 
   void add_item(const string_& name, Var&& value, VarValidator&&);
-  std::unique_ptr<SimpleSafeStorageBucket> storage_bucket;
+  std::unique_ptr<SimpleSafeStorageBucket> config_bucket;
 
  public:
   BrokerConfig(int argc, const char* argv[]);
@@ -39,6 +39,10 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
   BrokerConfigItem& http_port() { return _items["http-port"]; }
   BrokerConfigItem& https_port() { return _items["https-port"]; }
   BrokerConfigItem& log_level() { return _items["log-level"]; }
+
+  SimpleSafeStorageBucket &get_config_bucket() {
+    return *config_bucket;
+  };
 
 };
 }
