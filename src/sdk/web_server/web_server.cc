@@ -77,8 +77,6 @@ void WebServer::destroy() {
   }
 }
 
-boost::asio::ssl::context& WebServer::ssl_context() { return _context; }
-
 WebServer::~WebServer() = default;
 
 }  // namespace dsa
