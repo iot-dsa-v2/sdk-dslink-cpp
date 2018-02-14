@@ -13,7 +13,7 @@ WssConnection::WssConnection(websocket_ssl_stream &stream,
     : BaseSocketConnection(strand, dsid_prefix, path), _socket(stream) {}
 
 void WssConnection::destroy_impl() {
-  LOG_DEBUG(_strand->logger(), LOG << "connection closed");
+  LOG_DEBUG(Logger::_(), LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     // TODO - secure websocket close
     _socket.lowest_layer().close();
