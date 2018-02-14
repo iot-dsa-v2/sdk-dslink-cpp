@@ -23,6 +23,7 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
   WebServer& _web_server;
   shared_ptr_<Connection> _connection;
   boost::asio::ip::tcp::socket _socket;
+  boost::asio::ssl::context _context;
   boost::beast::flat_buffer _buffer;
   boost::beast::http::request<boost::beast::http::string_body> _req;
 
