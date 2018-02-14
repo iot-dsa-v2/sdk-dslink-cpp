@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <iostream>
+#include <list>
 #include "util/misc.h"
 namespace dsa {
 
@@ -38,7 +39,7 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
 string_ SimpleStorageBucket::get_storage_path(const string_& key) {
   string_ path;
   if (!_full_base_path.empty()) path = _full_base_path + "/";
-  if (!key.empty()) path += key;
+  if (!key.empty()) path += url_encode(key);
   return std::move(path);
 }
 
@@ -104,7 +105,8 @@ void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
                      static_cast<size_t>(size));
             ifs.close();
           } else {
-            LOG_ERROR(Logger::_(), LOG << "Unable to open " << key << " file to read");
+            LOG_ERROR(Logger::_(),
+                      LOG << "Unable to open " << key << " file to read");
             status = BucketReadStatus::FILE_OPEN_ERROR;
           }
         }
@@ -117,7 +119,7 @@ void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
       status = BucketReadStatus::READ_FAILED;
     }
 
-    callback(key, vec, status);
+    callback(url_decode(key), vec, status);
   };
 
   if (_io_service != nullptr) {
@@ -180,17 +182,16 @@ void SimpleStorageBucket::remove(const std::string& key) {
 void SimpleStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
   path p(get_storage_path());
-
+  std::list<string_> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-      if (x.path().extension() == ".data") {
-        std::string key = x.path().stem().string();
-        if (strand_map.count(key)) {
-          this->read(key, std::move(callback));
-        }
-        // TODO - call on_done once read_all complete
-      }
+      key_list.push_back(x.path().stem().string());
     }
+    key_list.sort();
+    for (auto&& key : key_list) {
+      this->read(url_decode(key), std::move(callback));
+    }
+    if (on_done != nullptr) on_done();
   } catch (const fs::filesystem_error& ex) {
     // std::cout << ex.what() << '\n';
   }
@@ -200,15 +201,13 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
 
 void SimpleStorageBucket::remove_all() {
   path p(get_storage_path());
-
+  std::list<string_> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-      if (x.path().extension() == ".data") {
-        std::string key = x.path().stem().string();
-        if (strand_map.count(key)) {
-          strand_map.at(key)->post([=]() { remove(key); });
-        }
-      }
+      key_list.push_back(x.path().stem().string());
+    }
+    for (auto&& key : key_list) {
+      remove(url_decode(key));
     }
   } catch (const fs::filesystem_error& ex) {
     // std::cout << ex.what() << '\n';
