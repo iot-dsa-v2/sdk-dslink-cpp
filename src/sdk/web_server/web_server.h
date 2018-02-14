@@ -65,8 +65,6 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
 
   // util functions
   void send_error(int error_code, const string_ msg = "");
-
-  boost::asio::ssl::context& ssl_context();
 };
 
 class ErrorCallback {
