@@ -5,7 +5,8 @@
 #include <boost/asio/strand.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
-#include "util/string.h"
+#include <iostream>
+#include "util/misc.h"
 namespace dsa {
 
 namespace fs = boost::filesystem;
@@ -13,14 +14,11 @@ using boost::filesystem::path;
 
 SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
                                          boost::asio::io_service* io_service,
-                                         const string_& storage_root,
-                                         const string_& cwd, bool is_binary)
+                                         const string_& storage_root)
     : _io_service(io_service),
-      _is_binary(is_binary),
-      _cwd(cwd),
       _storage_root(storage_root),
       _bucket_name(url_encode(bucket_name)) {
-
+  _cwd = get_current_working_dir();
   if (!_cwd.empty()) _full_base_path = _cwd + "/";
   if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
   _full_base_path += bucket_name;
@@ -44,13 +42,14 @@ string_ SimpleStorageBucket::get_storage_path(const string_& key) {
   return std::move(path);
 }
 
-void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
+void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
+                                bool is_binary) {
   auto write_file = [=]() {
     path p(get_storage_path(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
-      if (_is_binary) open_mode = open_mode | std::ios::binary;
+      if (is_binary) open_mode = open_mode | std::ios::binary;
       std::ofstream ofs(p.string().c_str(), open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
@@ -83,9 +82,10 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content) {
   }
 }
 
-void SimpleStorageBucket::read(const std::string& key,
-                               ReadCallback&& callback) {
+void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
+                               bool is_binary) {
   auto read_file = [=]() {
+    BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
     path p(get_storage_path(key));
@@ -96,7 +96,7 @@ void SimpleStorageBucket::read(const std::string& key,
 
         if (size) {
           std::ios::openmode open_mode = std::ios::in;
-          if (_is_binary) open_mode = open_mode | std::ios::binary;
+          if (is_binary) open_mode = open_mode | std::ios::binary;
           std::ifstream ifs(p.string().c_str(), open_mode);
           if (ifs) {
             vec.resize(static_cast<size_t>(size));
@@ -104,19 +104,20 @@ void SimpleStorageBucket::read(const std::string& key,
                      static_cast<size_t>(size));
             ifs.close();
           } else {
-            // TODO: is fatal?
-            LOG_FATAL(LOG << "Unable to open " << key << " file to read");
+            LOG_ERROR(Logger::_(), LOG << "Unable to open " << key << " file to read");
+            status = BucketReadStatus::FILE_OPEN_ERROR;
           }
         }
       } else {
         LOG_INFO(Logger::_(), LOG << "there is no file to read " << key);
+        status = BucketReadStatus::NO_FILE;
       }
     } catch (const fs::filesystem_error& ex) {
-      // TODO: is fatal?
       LOG_ERROR(Logger::_(), LOG << "Read failed for " << key << " file");
+      status = BucketReadStatus::READ_FAILED;
     }
 
-    callback(key, vec);
+    callback(key, vec, status);
   };
 
   if (_io_service != nullptr) {

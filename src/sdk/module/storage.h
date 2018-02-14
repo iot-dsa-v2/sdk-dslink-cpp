@@ -6,15 +6,20 @@
 #endif
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "util/buffer.h"
 #include "util/enable_ref.h"
 
 namespace dsa {
-
+enum class BucketReadStatus : uint8_t {
+  OK = 0x00,
+  NO_FILE = 0x01,
+  READ_FAILED = 0x02,
+  FILE_OPEN_ERROR = 0x03
+};
 /// key->binary storage
 class QueueBucket {
  public:
@@ -30,17 +35,18 @@ class QueueBucket {
                         std::function<void()>&& on_done) = 0;
 
   virtual void remove_all() = 0;
-
 };
 
 /// key->binary storage
 class StorageBucket {
  public:
-  typedef std::function<void(const string_& key, std::vector<uint8_t> data)>
+  typedef std::function<void(const string_& key, std::vector<uint8_t> data, BucketReadStatus read_status)>
       ReadCallback;
 
-  virtual void write(const string_& key, BytesRef&& data) = 0;
-  virtual void read(const string_& key, ReadCallback&& callback) = 0;
+  virtual void write(const string_& key, BytesRef&& data,
+                     bool is_binary = false) = 0;
+  virtual void read(const string_& key, ReadCallback&& callback,
+                    bool is_binary = false) = 0;
   virtual void remove(const string_& key) = 0;
 
   /// the callback might run asynchronously
@@ -51,14 +57,15 @@ class StorageBucket {
   virtual ~StorageBucket() = default;
 };
 
-class Storage: public DestroyableRef<Storage>{
+class Storage : public DestroyableRef<Storage> {
  public:
   /// create a bucket or find a existing bucket
   virtual std::unique_ptr<StorageBucket> get_bucket(const string_& name) = 0;
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket
-  virtual std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) = 0;
+  virtual std::unique_ptr<QueueBucket> get_queue_bucket(
+      const string_& name) = 0;
 
   virtual ~Storage() = default;
 };

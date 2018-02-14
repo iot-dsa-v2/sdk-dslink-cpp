@@ -9,6 +9,7 @@
 #include "core/editable_strand.h"
 #include "core/session.h"
 #include "list_merger.h"
+#include "module/default/simple_storage.h"
 #include "module/module.h"
 #include "subscribe_merger.h"
 
@@ -72,15 +73,14 @@ class DsLink final : public DsLinkRequester {
 
   bool _running = false;
   bool _connected = false;
-
+  std::unique_ptr<SimpleSafeStorageBucket> config_bucket;
   // initialization
   void parse_thread(size_t thread);
   void parse_url(const string_ &url);
   void parse_name(const string_ &name);
   void parse_server_port(uint16_t port);
 
-  void init_module(ref_<Module> &&default_module,
-                   const string_ &module_path,
+  void init_module(ref_<Module> &&default_module, const string_ &module_path,
                    bool use_standard_node_structure);
 
  public:
@@ -109,6 +109,7 @@ class DsLink final : public DsLinkRequester {
   void connect(DsLink::LinkOnConnectCallback &&on_connect = nullptr,
                uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
+  SimpleSafeStorageBucket &get_config_bucket() { return *config_bucket; };
   // requester functions
  private:
   std::unordered_map<std::string, ref_<SubscribeMerger>> _subscribe_mergers;
@@ -123,8 +124,9 @@ class DsLink final : public DsLinkRequester {
   ref_<IncomingListCache> list(const string_ &path,
                                IncomingListCache::Callback &&callback) final;
 
-  ref_<IncomingInvokeStream> invoke(IncomingInvokeStreamCallback &&callback,
-                                    ref_<const InvokeRequestMessage> &&message) final;
+  ref_<IncomingInvokeStream> invoke(
+      IncomingInvokeStreamCallback &&callback,
+      ref_<const InvokeRequestMessage> &&message) final;
 
   ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
                               ref_<const SetRequestMessage> &&message) final;

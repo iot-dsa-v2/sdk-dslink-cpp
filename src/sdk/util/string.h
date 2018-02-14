@@ -1,6 +1,7 @@
 #ifndef DSA_UTIL_STRING_H
 #define DSA_UTIL_STRING_H
 
+#include <module/storage.h>
 #if defined(_MSC_VER)
 #pragma once
 #endif
@@ -26,15 +27,19 @@ inline string_ str_join_path(const string_ &path1,
   return std::move(result);
 }
 
-string_ string_from_file(string_ file_path);
-void string_to_file(string_ data, string_ file_path);
-std::string url_encode(const std::string & s_src);
+string_ string_from_file(const string_ &file_path);
+void string_to_file(const string_ &data, const string_ &file_path);
+
+string_ string_from_bucket(const string_ &key, StorageBucket &storage_bucket);
+void string_to_bucket(const string_ &data, const string_ &key, StorageBucket &storage_bucket);
 
 static int IS_RAND_INITIALIZED = 0;
 string_ generate_random_string(int len);
 
 // todo, handle token loading from StorageBucket and remove this function
-string_ get_close_token_from_file(string_ path_str=".close_token", bool force_to_generate_one = false);
+string_ get_close_token_from_bucket(StorageBucket &storage_bucket,
+                                  const string_ &key=".close_token",
+                                  bool force_to_generate_one = false);
 }
 
 #endif  // DSA_UTIL_STRING_H

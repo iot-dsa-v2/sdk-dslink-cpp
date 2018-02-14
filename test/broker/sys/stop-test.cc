@@ -18,8 +18,9 @@ using namespace dsa;
 using BrokerSysTest = SetUpBase;
 
 TEST_F(BrokerSysTest, StopBroker) {
-  string_ token = "12345678901234567890123456789012";
-  string_to_file(token, ".close_token");
+  string_ token = generate_random_string(32);
+  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
+  string_to_bucket(token, ".close_token", storage_bucket);
 
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
@@ -49,5 +50,6 @@ TEST_F(BrokerSysTest, StopBroker) {
         std::move(invoke_req));
   });
   broker->wait();
+  storage_bucket.remove(".close_token");
   EXPECT_TRUE(broker->is_destroyed());
 }

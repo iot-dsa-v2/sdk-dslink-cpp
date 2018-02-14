@@ -34,7 +34,6 @@ class SimpleStorageBucket : public StorageBucket {
   typedef std::pair<std::string, boost::asio::io_service::strand*> StrandPair;
   StrandMap strand_map;
   boost::asio::io_service* _io_service;
-  bool _is_binary;
 
   // cwd/storage_root/bucket_name/key
   string_ _cwd;
@@ -46,11 +45,12 @@ class SimpleStorageBucket : public StorageBucket {
  public:
   SimpleStorageBucket(const string_& bucket_name,
                       boost::asio::io_service* io_service = nullptr,
-                      const string_& storage_root = "storage",
-                      const string_& cwd = "", bool is_binary = false);
+                      const string_& storage_root = "storage");
 
-  void write(const std::string& key, BytesRef&& data) override;
-  void read(const std::string& key, ReadCallback&& callback) override;
+  void write(const std::string& key, BytesRef&& data,
+             bool is_binary = false) override;
+  void read(const std::string& key, ReadCallback&& callback,
+            bool is_binary = false) override;
   void remove(const std::string& key) override;
 
   /// the callback might run asynchronously
@@ -64,12 +64,11 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
  public:
   SimpleSafeStorageBucket(const string_& bucket_name,
                           boost::asio::io_service* io_service = nullptr,
-                          const string_& storage_root = "storage",
-                          const string_& cwd = "", bool is_binary = false)
-      : SimpleStorageBucket(bucket_name, io_service, storage_root, cwd,
-                            is_binary) {}
+                          const string_& storage_root = "storage")
+      : SimpleStorageBucket(bucket_name, io_service, storage_root) {}
 
-  void write(const std::string& key, BytesRef&& data) override;
+  void write(const std::string& key, BytesRef&& data,
+             bool is_binary = false) override;
   static SimpleSafeStorageBucket& get_config_bucket();
 };
 

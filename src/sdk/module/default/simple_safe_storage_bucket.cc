@@ -10,14 +10,14 @@ namespace dsa {
 namespace fs = boost::filesystem;
 using boost::filesystem::path;
 
-//static std::unique_ptr<SimpleSafeStorageBucket> config_bucket(
+// static std::unique_ptr<SimpleSafeStorageBucket> config_bucket(
 //    new SimpleSafeStorageBucket("config", nullptr, ""));
-//SimpleSafeStorageBucket &SimpleSafeStorageBucket::get_config_bucket() {
+// SimpleSafeStorageBucket &SimpleSafeStorageBucket::get_config_bucket() {
 //  return *config_bucket;
 //};
 
-void SimpleSafeStorageBucket::write(const std::string &key,
-                                    BytesRef &&content) {
+void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content,
+                                    bool is_binary) {
   auto write_file = [=]() {
     path templ = boost::filesystem::unique_path();
 
@@ -25,7 +25,7 @@ void SimpleSafeStorageBucket::write(const std::string &key,
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
-      if (_is_binary) open_mode = open_mode | std::ios::binary;
+      if (is_binary) open_mode = open_mode | std::ios::binary;
       std::ofstream ofs(templ.string(), open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char *>(content->data()),
