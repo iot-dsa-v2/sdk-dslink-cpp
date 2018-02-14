@@ -23,8 +23,7 @@ WebServer::WebServer(App& app)
     _context.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
 
   } catch (boost::system::system_error& e) {
-    // TODO LOG_ERROR(_strand->logger(), LOG << "Bind Error: " << e.what() <<
-    // "\n");
+    LOG_ERROR(Logger::_(), LOG << "Bind Error: " << e.what());
     return;
   }
 }
