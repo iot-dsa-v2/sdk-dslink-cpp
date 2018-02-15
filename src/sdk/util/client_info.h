@@ -8,6 +8,9 @@
 namespace dsa {
 
 struct ClientInfo {
+  typedef std::function<void(const ClientInfo client, bool error)>
+    GetClientCallback;
+
   string_ dsid;
   string_ permission_token;
   string_ responder_path;

@@ -6,7 +6,7 @@ namespace dsa {
 
 void BrokerClientManager::get_client(const string_& dsid,
                                      const string_& auth_token,
-                                     GetClientCallback&& callback) {
+                                     ClientInfo::GetClientCallback&& callback) {
   _strand->post([ dsid, auth_token, callback = std::move(callback) ]() {
     ClientInfo rslt(dsid, auth_token);
     rslt.responder_path =

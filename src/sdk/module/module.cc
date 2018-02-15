@@ -6,6 +6,7 @@
 #include "client_manager.h"
 #include "logger.h"
 #include "storage.h"
+#include "web_server/login_manager.h"
 
 namespace dsa {
 
@@ -52,6 +53,10 @@ ref_<ClientManager> Module::create_client_manager(App& app,
   return nullptr;
 }
 ref_<Authorizer> Module::create_authorizer(App& app, ref_<LinkStrand> strand) {
+  return nullptr;
+}
+shared_ptr_<LoginManager> Module::create_login_manager(
+    App& app, ref_<LinkStrand> strand) {
   return nullptr;
 }
 

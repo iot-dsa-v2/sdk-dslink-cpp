@@ -8,7 +8,7 @@
 #include <functional>
 #include <string>
 
-#include "core/client_info.h"
+#include "util/client_info.h"
 #include "util/enable_ref.h"
 
 #include "storage.h"
@@ -19,11 +19,9 @@ namespace dsa {
 
 class ClientManager : public DestroyableRef<ClientManager> {
  public:
-  typedef std::function<void(const ClientInfo client, bool error)>
-      GetClientCallback;
 
   virtual void get_client(const string_& dsid, const string_& auth_token,
-                          GetClientCallback&& callback) = 0;
+                          ClientInfo::GetClientCallback&& callback) = 0;
 
   virtual void set_strand(LinkStrandRef strand){};
 
