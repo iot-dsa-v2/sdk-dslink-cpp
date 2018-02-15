@@ -22,7 +22,7 @@ namespace dsa {
 
 class Websocket {
  private:
-  bool _is_secured_stream;
+  bool _is_secure_stream;
   ssl::context _context;
   tcp::socket _socket;
   websocket_ssl_stream& _wss_stream;
@@ -31,7 +31,7 @@ class Websocket {
   Websocket(boost::asio::io_context& io_context);
   Websocket(tcp::socket socket);
   Websocket(websocket_ssl_stream& wss_stream);
-  bool is_secured_stream() { return _is_secured_stream; }
+  bool is_secure_stream() { return _is_secure_stream; }
   tcp::socket& socket() { return _socket; }
   websocket_ssl_stream& secure_stream() { return _wss_stream; }
 };
