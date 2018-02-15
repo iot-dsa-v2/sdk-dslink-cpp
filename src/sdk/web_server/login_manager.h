@@ -11,8 +11,12 @@
 namespace dsa {
 class LoginManager : public SharedDestroyable<LoginManager> {
  public:
-  virtual void get_user(
-      const string_& username, ClientInfo::GetClientCallback&& callback) = 0;
+  // when user doesn't have a valid session
+  virtual void check_login(const string_& username, const string_& password,
+                           ClientInfo::GetClientCallback&& callback) = 0;
+  // when user already have a valid session
+  virtual void get_user(const string_& username,
+                        ClientInfo::GetClientCallback&& callback) = 0;
 };
 }
 
