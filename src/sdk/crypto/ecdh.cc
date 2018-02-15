@@ -46,7 +46,7 @@ ECDH *ECDH::from_bucket(StorageBucket &bucket, const string_ &path_str) {
   auto newkey = new ECDH();
   auto new_data = newkey->get_private_key();
   auto content =
-      new RefCountBytes(&new_data[0], &new_data[32]);
+      new RefCountBytes(new_data.begin(), new_data.end());
   bucket.write(path_str, std::forward<RefCountBytes *>(content), true);
   return newkey;
 }
