@@ -143,8 +143,8 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
     // downstream should has test1 and test2 nodes
-    link_req->list("downstream", [&, link_req = std::move(link_req)](IncomingListCache &cache,
-                                    const std::vector<string_> &str) {
+    link_req->list("downstream", [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())]
+	(IncomingListCache &cache, const std::vector<string_> &str) {
       auto map = cache.get_map();
       EXPECT_TRUE(map["test1"].is_map());
       EXPECT_TRUE(map["test2"].is_map());

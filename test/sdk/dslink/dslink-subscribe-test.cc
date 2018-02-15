@@ -120,7 +120,7 @@ TEST_F(DslinkTest, SubscribeMultiTest) {
 
     link_req->subscribe(
         "",
-        [&, link_req = std::move(link_req)](IncomingSubscribeCache &cache,
+        [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())](IncomingSubscribeCache &cache,
             ref_<const SubscribeResponseMessage> message) {
           messages_initial.push_back(message->get_value().value.get_string());
           if (messages_initial.size() == 1) {

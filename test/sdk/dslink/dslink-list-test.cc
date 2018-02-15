@@ -71,7 +71,7 @@ TEST_F(DslinkTest, ListTest) {
                     ref_<DsLinkRequester> link_req) {
     is_connected = true;
     // list on root node
-    auto list_cache1 = link_req->list("", [&, link_req = std::move(link_req) ](
+    auto list_cache1 = link_req->list("", [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())](
                                               IncomingListCache & cache,
                                               const std::vector<string_> &str) {
       root_list_responses.push_back(str);

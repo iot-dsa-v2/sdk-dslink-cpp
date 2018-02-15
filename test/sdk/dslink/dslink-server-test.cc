@@ -69,7 +69,7 @@ TEST_F(DslinkTest, ServerTest) {
                     ref_<DsLinkRequester> link_req) {
     std::vector<string_> list_result;
     // List test
-    auto list_cache1 = link_req->list("", [&, link_req = std::move(link_req) ](
+    auto list_cache1 = link_req->list("", [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())](
                                               IncomingListCache & cache,
                                               const std::vector<string_> &str) {
       EXPECT_TRUE(cache.get_map().size() != 0);
@@ -156,7 +156,7 @@ TEST_F(DslinkTest, CloseTest) {
     close_request_with_wrong_token->set_value(Var("wrongtoken"));
     close_request_with_wrong_token->set_target_path("sys/stop");
 
-    link_req->invoke([&, link_req = std::move(link_req) ](
+    link_req->invoke([&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())](
                          IncomingInvokeStream & stream,
                          ref_<const InvokeResponseMessage> && msg) {
       EXPECT_TRUE(msg != nullptr);
