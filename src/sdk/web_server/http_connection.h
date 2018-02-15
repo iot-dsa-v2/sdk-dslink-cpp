@@ -21,6 +21,7 @@ class Connection;
 class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
  private:
   WebServer& _web_server;
+  bool _is_secured;
   shared_ptr_<Connection> _connection;
   boost::asio::ip::tcp::socket _socket;
   boost::asio::ssl::context _context;
@@ -28,7 +29,7 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
   boost::beast::http::request<boost::beast::http::string_body> _req;
 
  public:
-  HttpConnection(WebServer& web_server);
+  HttpConnection(WebServer& web_server, bool is_secured);
   void accept();
   boost::asio::ip::tcp::socket& socket() { return _socket; }
   void destroy();

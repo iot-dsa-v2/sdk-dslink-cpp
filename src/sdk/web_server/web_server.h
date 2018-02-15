@@ -12,6 +12,7 @@
 
 #include "listener.h"
 #include "module/logger.h"
+#include "websocket.h"
 
 #include <map>
 
@@ -30,7 +31,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
       boost::beast::http::request<boost::beast::http::string_body>)>
       HttpCallback;
   typedef std::function<std::shared_ptr<Connection>(
-      WebServer&, boost::asio::ip::tcp::socket&&,
+      WebServer&, Websocket,
       boost::beast::http::request<boost::beast::http::string_body>)>
       WsCallback;
 
@@ -38,6 +39,8 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   boost::asio::io_service& _io_service;
   uint16_t _port;
   std::shared_ptr<Listener> _listener;
+  uint16_t _secure_port;
+  std::shared_ptr<Listener> _secure_listener;
 
   // http/ws callbacks
   typedef std::pair<const string_, WsCallback&&> WsCallbackPair;
@@ -49,6 +52,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   ~WebServer();
 
   void listen(uint16_t port = 80);
+  void secure_listen(uint16_t port = 443);
   void start();
   void destroy();
   boost::asio::io_service& io_service() { return _io_service; }
@@ -71,8 +75,9 @@ class ErrorCallback {
   ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
   void operator()(
-      WebServer& web_server, boost::asio::ip::tcp::socket&& socket,
+      WebServer& web_server, Websocket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
+    // TODO - construct a proper http response
     LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
   }
 };
