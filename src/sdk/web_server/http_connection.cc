@@ -14,7 +14,7 @@ namespace dsa {
 
 HttpConnection::HttpConnection(WebServer& web_server, bool is_secured)
     : _web_server(web_server),
-      _socket(_web_server.io_service()),
+      _websocket(_web_server.io_service()),
       _is_secured(is_secured),
       _context(boost::asio::ssl::context::sslv23) {
   if (!_is_secured) return;
@@ -40,7 +40,7 @@ void HttpConnection::accept() {
   if (!_is_secured) {
     // Read a request
     boost::beast::http::async_read(
-        _socket, _buffer, _req,
+        _websocket.socket(), _buffer, _req,
         // TODO: run within the strand?
         [ this, sthis = shared_from_this() ](
             const boost::system::error_code& error, size_t bytes_transferred) {
@@ -52,8 +52,9 @@ void HttpConnection::accept() {
             //          TODO - temporary fix for issue on Windowns platform
             //          _connection =
             //          _web_server.ws_handler(_req.target().to_string())(
-            _connection = _web_server.ws_handler("/")(
-                _web_server, std::move(_socket), std::move(_req));
+// WSS_TBD
+//            _connection = _web_server.ws_handler("/")(
+//                _web_server, _websocket, std::move(_req));
           }
           return;
         });  // async_read
