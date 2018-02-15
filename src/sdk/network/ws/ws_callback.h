@@ -15,6 +15,7 @@
 #include "module/default/simple_session_manager.h"
 #include "module/session_manager.h"
 #include "network/ws/ws_server_connection.h"
+#include "web_server/websocket.h"
 
 namespace websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
@@ -30,8 +31,10 @@ class DsaWsCallback {
 
   auto operator()(
       boost::asio::io_context& io_context,
-      boost::asio::ip::tcp::socket&& socket,
+      Websocket websocket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
+    // WSS_TBD
+    tcp::socket socket{io_context};
     auto connection = make_shared_<WsServerConnection>(
         *make_shared_<websocket_stream>(std::move(socket)), _link_strand);
 

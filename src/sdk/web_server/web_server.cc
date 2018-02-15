@@ -30,12 +30,20 @@ WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
 
 void WebServer::listen(uint16_t port) {
   _port = port;
-  _listener = make_shared_<Listener>(*this, port);
+  _listener = make_shared_<Listener>(*this, port, false);
+}
+
+void WebServer::secure_listen(uint16_t port) {
+  _secure_port = port;
+  _secure_listener = make_shared_<Listener>(*this, port);
 }
 
 void WebServer::start() {
   if (_listener != nullptr) {
     _listener->run();
+  }
+  if (_secure_listener != nullptr) {
+    _secure_listener->run();
   }
 }
 
@@ -51,13 +59,15 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
     return _ws_callback_map.at(path);
   }
 
+  // TODO - construct a proper http response
   uint16_t error_code = 404;
   static WebServer::WsCallback error_callback = [error_code](
-      WebServer& web_server, boost::asio::ip::tcp::socket&& socket,
+      WebServer& web_server, Websocket websocket,
       boost::beast::http::request<boost::beast::http::string_body> req) {
 
     ErrorCallback error_callback_detail(error_code);
-    error_callback_detail(web_server, std::move(socket), std::move(req));
+    // TODO: WSS_TBD
+    //    error_callback_detail(web_server, websocket, std::move(req));
 
     return nullptr;
   };
@@ -68,6 +78,9 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
 void WebServer::destroy() {
   if (_listener != nullptr) {
     _listener->destroy();
+  }
+  if (_secure_listener != nullptr) {
+    _secure_listener->destroy();
   }
   // TODO - hard coded for now
   if (_ws_callback_map.count("/")) {
