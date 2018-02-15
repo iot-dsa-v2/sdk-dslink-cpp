@@ -52,14 +52,46 @@ void HttpConnection::accept() {
             //          TODO - temporary fix for issue on Windowns platform
             //          _connection =
             //          _web_server.ws_handler(_req.target().to_string())(
-// WSS_TBD
-//            _connection = _web_server.ws_handler("/")(
-//                _web_server, _websocket, std::move(_req));
+            // WSS_TBD
+            //            _connection = _web_server.ws_handler("/")(
+            //                _web_server, _websocket, std::move(_req));
           }
           return;
         });  // async_read
   } else {
-  }
+    _websocket.secure_stream().next_layer().async_handshake(
+        ssl::stream_base::server, [ this, sthis = shared_from_this() ](
+                                      const boost::system::error_code& error) {
+          // Read a request
+          boost::beast::http::async_read(
+              _websocket.secure_stream().next_layer(), _buffer, _req,
+              // TODO: run within the strand?
+              [ this, sthis = sthis ](const boost::system::error_code& error,
+                                      size_t bytes_transferred)
+                  ->void {
+
+                    std::cout << error << std::endl;
+
+                    // TODO: check error/termination conditions
+
+                    if (websocket::is_upgrade(_req)) {
+                      // call corresponding server's callback
+                      //          TODO - temporary fix for issue on Windowns
+                      //          platform
+                      //          _connection =
+                      //          _web_server.ws_handler(_req.target().to_string())(
+
+                      // WSS_TBD
+                      //                    _connection =
+                      //                    _web_server.ws_handler("/")(
+                      //                        _web_server, _websocket,
+                      //                        std::move(_req));
+                    }
+                    return;
+                  });  // async_read
+          return;
+        });  // async_handshake
+  }          // else
 }
 
 void HttpConnection::destroy() {
