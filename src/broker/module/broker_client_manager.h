@@ -23,7 +23,7 @@ class BrokerClientManager : public ClientManager {
   BrokerClientManager() = default;
 
   void get_client(const string_& dsid, const string_& auth_token,
-                  GetClientCallback&& callback) override;
+                  ClientInfo::GetClientCallback&& callback) override;
 };
 }
 

@@ -4,10 +4,13 @@
 #if defined(_MSC_VER)
 #pragma once
 #endif
-
+#include <functional>
 namespace dsa {
 
 struct ClientInfo {
+  typedef std::function<void(const ClientInfo client, bool error)>
+    GetClientCallback;
+
   string_ dsid;
   string_ permission_token;
   string_ responder_path;

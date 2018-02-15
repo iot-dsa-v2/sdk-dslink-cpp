@@ -26,7 +26,7 @@ class SimpleAuthorizer : public Authorizer {
 class SimpleClientManager : public ClientManager {
  public:
   void get_client(const string_& dsid, const string_& auth_token,
-                  GetClientCallback&& callback) override;
+                  ClientInfo::GetClientCallback&& callback) override;
 };
 
 class AsyncSimpleClientManager : public ClientManager {
@@ -37,7 +37,7 @@ class AsyncSimpleClientManager : public ClientManager {
   explicit AsyncSimpleClientManager(LinkStrandRef strand);
 
   void get_client(const string_& dsid, const string_& auth_token,
-                  GetClientCallback&& callback) override;
+                  ClientInfo::GetClientCallback&& callback) override;
 
 };
 

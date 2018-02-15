@@ -3,7 +3,7 @@
 #include "downstream_root.h"
 
 #include "../../remote_node/remote_root_node.h"
-#include "core/client_info.h"
+#include "util/client_info.h"
 #include "core/session.h"
 #include "util/string.h"
 

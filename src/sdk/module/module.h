@@ -7,6 +7,7 @@
 
 #include "core/link_strand.h"
 #include "util/app.h"
+#include "web_server/login_manager.cc"
 
 namespace dsa {
 class NodeModel;
@@ -17,6 +18,7 @@ class Module : public DestroyableRef<Module> {
   shared_ptr_<Logger> _logger;
   ref_<ClientManager> _client_manager;
   ref_<Authorizer> _authorizer;
+  shared_ptr_<LoginManager> _login_manager;
 
  protected:
   virtual ref_<Storage> create_storage(App& app, ref_<LinkStrand> strand);
@@ -24,6 +26,8 @@ class Module : public DestroyableRef<Module> {
   virtual ref_<ClientManager> create_client_manager(App& app,
                                                     ref_<LinkStrand> strand);
   virtual ref_<Authorizer> create_authorizer(App& app, ref_<LinkStrand> strand);
+  virtual shared_ptr_<LoginManager> create_login_manager(
+      App& app, ref_<LinkStrand> strand);
 
   void destroy_impl() override;
 

@@ -11,7 +11,7 @@
 #include "network/connection.h"
 #include "util/enable_shared.h"
 
-#include "client_info.h"
+#include "util/client_info.h"
 #include "requester/requester.h"
 #include "responder/responder.h"
 #include "strand_timer.h"
