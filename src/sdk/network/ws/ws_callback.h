@@ -37,15 +37,17 @@ class DsaWsCallback {
 
     // WSS_TBD
     shared_ptr_<Connection> connection;
-    if (websocket.is_secured_stream()) {
+    if (websocket.is_secure_stream()) {
+#if 0
       connection = make_shared_<WssServerConnection>(
-          *make_shared_<websocket_stream>(websocket.secure_stream()), _link_strand);
+          *make_shared_<websocket_ssl_stream>(websocket.secure_stream()), _link_strand);
+#endif
     } else {
       connection = make_shared_<WsServerConnection>(
           *make_shared_<websocket_stream>(std::move(websocket.socket())), _link_strand);
     }
 
-    connection->socket().async_accept(
+    DOWN_CAST<WssConnection *>(connection.get())->socket().async_accept(
         req,
         [ conn = connection, this ](const boost::system::error_code& error) {
 
