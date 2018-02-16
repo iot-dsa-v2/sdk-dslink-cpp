@@ -63,7 +63,7 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
   // TODO - construct a proper http response
   uint16_t error_code = 404;
   static WebServer::WsCallback error_callback = [error_code](
-      WebServer& web_server, Websocket websocket,
+      WebServer& web_server, Websocket& websocket,
       boost::beast::http::request<boost::beast::http::string_body> req) {
 
     ErrorCallback error_callback_detail(error_code);

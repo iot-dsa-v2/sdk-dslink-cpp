@@ -177,18 +177,15 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   web_server->listen(http_port);
 
   WebServer::WsCallback* root_cb = new WebServer::WsCallback();
-#if 0
   *root_cb = [this](
-      WebServer &web_server, Websocket websocket,
+      WebServer &web_server, Websocket& websocket,
       boost::beast::http::request<boost::beast::http::string_body> req) {
     LinkStrandRef link_strand(strand);
     DsaWsCallback dsa_ws_callback(link_strand);
     return dsa_ws_callback(web_server.io_service(), websocket,
                            std::move(req));
   };
-#endif
 
-  // TODO - websocket callback setup
   web_server->add_ws_handler("/", std::move(*root_cb));
 
   return web_server;
