@@ -31,7 +31,9 @@ set(SOURCES
         node/upstream/upstream_root.cc
         node/home/home_root.cc
         node/sys/sys_root.cc
-        node/pub/pub_root.cc)
+        node/pub/pub_root.cc
+        module/broker_login_manager.cc
+        module/broker_login_manager.h)
 
 add_library(dsa_broker ${SOURCES})
 target_link_libraries(dsa_broker ${BROKER_LIBS})

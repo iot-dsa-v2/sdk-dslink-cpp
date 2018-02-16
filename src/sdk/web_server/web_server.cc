@@ -6,7 +6,8 @@
 
 namespace dsa {
 
-WebServer::WebServer(App& app) : _io_service(app.io_service()) {}
+WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
+    : _io_service(app.io_service()), _login_mngr(std::move(login_mngr)) {}
 
 void WebServer::listen(uint16_t port) {
   _port = port;
@@ -27,7 +28,6 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
 }
 
 WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
-
   if (_ws_callback_map.count(path)) {
     return _ws_callback_map.at(path);
   }

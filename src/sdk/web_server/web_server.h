@@ -8,11 +8,11 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast/http.hpp>
+#include <map>
 
 #include "listener.h"
+#include "login_manager.h"
 #include "module/logger.h"
-
-#include <map>
 
 namespace dsa {
 
@@ -34,6 +34,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   boost::asio::io_service& _io_service;
   uint16_t _port;
   std::shared_ptr<Listener> _listener;
+  shared_ptr_<LoginManager> _login_mngr;
 
   // http/ws callbacks
   typedef std::pair<const string_, WsCallback&&> WsCallbackPair;
@@ -41,7 +42,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   WsCallbackMap _ws_callback_map;
 
  public:
-  WebServer(App& app);
+  WebServer(App& app, shared_ptr_<LoginManager> login_mngr = nullptr);
   ~WebServer();
 
   void listen(uint16_t port = 80);
@@ -70,8 +71,7 @@ class ErrorCallback {
       boost::asio::io_service& io_service,
       boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
-    LOG_ERROR(Logger::_(),
-              LOG << "http error code: " << _error_code);
+    LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
   }
 };
 

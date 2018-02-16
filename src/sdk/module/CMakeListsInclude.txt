@@ -17,6 +17,8 @@ list(APPEND ModulekSourceFiles
         session_manager.h
         storage.h
         outgoing_stream_acceptor.h
+        default/simple_login_manager.cc
+        default/simple_login_manager.h
         )
 
 foreach(file ${ModulekSourceFiles})
