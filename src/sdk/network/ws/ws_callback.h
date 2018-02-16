@@ -18,6 +18,8 @@
 #include "network/ws/wss_server_connection.h"
 #include "web_server/websocket.h"
 
+#include <memory>
+
 namespace websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
 
@@ -37,21 +39,34 @@ class DsaWsCallback {
     if (websocket.is_secure_stream()) {
       connection = make_shared_<WssServerConnection>(websocket.secure_stream(),
                                                      _link_strand);
+
+      std::dynamic_pointer_cast<WssConnection>(connection)
+          ->socket()
+          .async_accept(req, [ conn = connection,
+                               this ](const boost::system::error_code& error) {
+
+            // TODO: run within the strand?
+            std::dynamic_pointer_cast<WssConnection>(conn)->accept();
+
+            return;
+          });
+
     } else {
       connection = make_shared_<WsServerConnection>(
           *make_shared_<websocket_stream>(std::move(websocket.socket())),
           _link_strand);
+
+      std::dynamic_pointer_cast<WsConnection>(connection)
+          ->socket()
+          .async_accept(req, [ conn = connection,
+                               this ](const boost::system::error_code& error) {
+
+            // TODO: run within the strand?
+            std::dynamic_pointer_cast<WsConnection>(conn)->accept();
+
+            return;
+          });
     }
-
-    DOWN_CAST<WssConnection*>(connection.get())->socket().async_accept(req, [
-      conn = connection, this
-    ](const boost::system::error_code& error) {
-
-      // TODO: run within the strand?
-      conn->accept();
-
-      return;
-    });
 
     return connection;
   }
