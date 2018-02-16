@@ -52,9 +52,8 @@ void HttpConnection::accept() {
             //          TODO - temporary fix for issue on Windowns platform
             //          _connection =
             //          _web_server.ws_handler(_req.target().to_string())(
-            // WSS_TBD
-            //            _connection = _web_server.ws_handler("/")(
-            //                _web_server, _websocket, std::move(_req));
+            _connection = _web_server.ws_handler("/")(_web_server, _websocket,
+                                                      std::move(_req));
           }
           return;
         });  // async_read
@@ -81,17 +80,14 @@ void HttpConnection::accept() {
                       //          _connection =
                       //          _web_server.ws_handler(_req.target().to_string())(
 
-                      // WSS_TBD
-                      //                    _connection =
-                      //                    _web_server.ws_handler("/")(
-                      //                        _web_server, _websocket,
-                      //                        std::move(_req));
+                      _connection = _web_server.ws_handler("/")(
+                          _web_server, _websocket, std::move(_req));
                     }
                     return;
                   });  // async_read
           return;
         });  // async_handshake
-  }          // else
+  } // else
 }
 
 void HttpConnection::destroy() {
