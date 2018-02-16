@@ -31,31 +31,27 @@ class DsaWsCallback {
   DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
 
   auto operator()(
-      boost::asio::io_context& io_context,
-      Websocket websocket,
+      boost::asio::io_context& io_context, Websocket& websocket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
-
-    // WSS_TBD
     shared_ptr_<Connection> connection;
     if (websocket.is_secure_stream()) {
-#if 0
-      connection = make_shared_<WssServerConnection>(
-          *make_shared_<websocket_ssl_stream>(websocket.secure_stream()), _link_strand);
-#endif
+      connection = make_shared_<WssServerConnection>(websocket.secure_stream(),
+                                                     _link_strand);
     } else {
       connection = make_shared_<WsServerConnection>(
-          *make_shared_<websocket_stream>(std::move(websocket.socket())), _link_strand);
+          *make_shared_<websocket_stream>(std::move(websocket.socket())),
+          _link_strand);
     }
 
-    DOWN_CAST<WssConnection *>(connection.get())->socket().async_accept(
-        req,
-        [ conn = connection, this ](const boost::system::error_code& error) {
+    DOWN_CAST<WssConnection*>(connection.get())->socket().async_accept(req, [
+      conn = connection, this
+    ](const boost::system::error_code& error) {
 
-          // TODO: run within the strand?
-          conn->accept();
+      // TODO: run within the strand?
+      conn->accept();
 
-          return;
-        });
+      return;
+    });
 
     return connection;
   }
