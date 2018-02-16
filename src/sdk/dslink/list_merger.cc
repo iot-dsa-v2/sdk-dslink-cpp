@@ -31,8 +31,17 @@ void IncomingListCache::_receive_update(const std::vector<string_>& update) {
 }
 
 const VarMap& IncomingListCache::get_map() const { return _merger->_map; }
+const VarMap& IncomingListCache::get_profile_map() const {
+  return *_merger->_profile_map;
+}
+void IncomingListCache::set_profile_map(const VarMap& item) const {
+  _merger->_profile_map = make_ref_<VarMap>(item);
+}
 MessageStatus IncomingListCache::get_status() const {
   return _merger->_last_status;
+}
+const string_& IncomingListCache::get_last_pub_path() const {
+  return _merger->last_pub_path;
 }
 
 ListMerger::ListMerger(ref_<DsLink>&& link, const string_& path)
@@ -67,7 +76,10 @@ ref_<IncomingListCache> ListMerger::list(
     _stream = _link->_client->get_session().requester.list(_path, [
       this, copy_ref = get_ref()
     ](IncomingListStream & stream, ref_<const ListResponseMessage> && msg) {
-      new_list_response(std::move(msg));
+      if (msg) {
+        last_pub_path = msg->get_pub_path();
+        new_list_response(std::move(msg));
+      }
     });
   }
   if (_last_status != MessageStatus::INITIALIZING) {
