@@ -23,12 +23,11 @@ namespace dsa {
 class Websocket {
  private:
   bool _is_secure_stream;
-  ssl::context _context;
   tcp::socket _socket;
   websocket_ssl_stream _wss_stream;
 
  public:
-  Websocket(boost::asio::io_context& io_context);
+  Websocket(boost::asio::io_context& io_context, ssl::context& ssl_context);
   bool is_secure_stream() { return _is_secure_stream; }
   tcp::socket& socket() { return _socket; }
   websocket_ssl_stream& secure_stream() { return _wss_stream; }

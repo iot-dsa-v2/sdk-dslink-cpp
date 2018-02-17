@@ -93,7 +93,7 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     };
   } else if (!protocol.compare("wss")) {
     client_strand.ws_host = "127.0.0.1";
-    client_strand.ws_port = 8080;
+    client_strand.ws_port = 8443;
     client_strand.ws_path = "/";
 
     static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
@@ -108,8 +108,8 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
     ](LinkStrandRef & strand) {
-      tcp::socket tcp_socket{strand->get_io_context()};
-      websocket_ssl_stream wss_stream{tcp_socket, context};
+      static tcp::socket tcp_socket{strand->get_io_context()};
+      static websocket_ssl_stream wss_stream{tcp_socket, context};
 
       return make_shared_<WssClientConnection>(wss_stream, strand, dsid_prefix,
                                                ws_host, ws_port);
