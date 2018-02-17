@@ -4,10 +4,10 @@
 
 namespace dsa {
 
-Websocket::Websocket(boost::asio::io_context& io_context)
+Websocket::Websocket(boost::asio::io_context& io_context,
+                     ssl::context& ssl_context)
     : _is_secure_stream(false),
-      _context(boost::asio::ssl::context::sslv23),
       _socket(io_context),
-      _wss_stream(_socket, _context) {}
+      _wss_stream(_socket, ssl_context) {}
 
 }  // namespace dsa

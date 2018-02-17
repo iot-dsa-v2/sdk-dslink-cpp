@@ -111,6 +111,9 @@ void DsBroker::run(bool wait) {
     uint16_t http_port =
         static_cast<uint16_t>(_config->http_port().get_value().get_int());
     _web_server->listen(http_port);
+    uint16_t https_port =
+        static_cast<uint16_t>(_config->https_port().get_value().get_int());
+    _web_server->secure_listen(https_port);
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
     *root_cb = [this](

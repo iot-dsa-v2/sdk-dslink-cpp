@@ -9,7 +9,25 @@
 namespace dsa {
 
 WebServer::WebServer(App& app)
-  : _io_service(app.io_service()) {}
+    : _io_service(app.io_service()),
+      _ssl_context(boost::asio::ssl::context::sslv23) {
+  try {
+    _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
+                             boost::asio::ssl::context::no_sslv2);
+    _ssl_context.set_password_callback(
+        [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
+          return "";
+        });
+
+    _ssl_context.use_certificate_chain_file("certificate.pem");
+    _ssl_context.use_private_key_file("key.pem",
+                                      boost::asio::ssl::context::pem);
+
+  } catch (boost::system::system_error& e) {
+    LOG_ERROR(Logger::_(), LOG << "SSL context setup error: " << e.what());
+    return;
+  }
+}
 
 void WebServer::listen(uint16_t port) {
   _port = port;
