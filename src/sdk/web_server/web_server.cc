@@ -13,18 +13,17 @@ WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
       _login_mngr(std::move(login_mngr)),
       _context(boost::asio::ssl::context::sslv23) {
   try {
-    _context.set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::no_sslv2);
-    _context.set_password_callback(
+    _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
+                             boost::asio::ssl::context::no_sslv2);
+    _ssl_context.set_password_callback(
         [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
           return "";
         });
-
-    _context.use_certificate_chain_file("certificate.pem");
-    _context.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
-
+    _ssl_context.use_certificate_chain_file("certificate.pem");
+    _ssl_context.use_private_key_file("key.pem",
+                                      boost::asio::ssl::context::pem);
   } catch (boost::system::system_error& e) {
-    LOG_ERROR(Logger::_(), LOG << "Bind Error: " << e.what());
+    LOG_ERROR(Logger::_(), LOG << "SSL context setup error: " << e.what());
     return;
   }
 }

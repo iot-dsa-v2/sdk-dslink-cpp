@@ -42,7 +42,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   std::shared_ptr<Listener> _listener;
   uint16_t _secure_port;
   std::shared_ptr<Listener> _secure_listener;
-  boost::asio::ssl::context _context;
+  boost::asio::ssl::context _ssl_context;
 
   shared_ptr_<LoginManager> _login_mngr;
 
@@ -60,6 +60,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   void start();
   void destroy();
   boost::asio::io_service& io_service() { return _io_service; }
+  boost::asio::ssl::context& ssl_context() { return _ssl_context; }
 
   // HTTP server specific methods
   void add_http_handler(const string_& path, HttpCallback&& callback);
