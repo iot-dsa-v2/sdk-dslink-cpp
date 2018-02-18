@@ -29,6 +29,7 @@ class Websocket {
  public:
   Websocket(boost::asio::io_context& io_context, ssl::context& ssl_context);
   bool is_secure_stream() { return _is_secure_stream; }
+  void set_secure_stream(bool value = true) { _is_secure_stream = value; };
   tcp::socket& socket() { return _socket; }
   websocket_ssl_stream& secure_stream() { return _wss_stream; }
 };

@@ -84,15 +84,15 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
 
       client_strand.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
-      client_strand.ws_port = 8080;
+      client_strand.ws_port = 8443;
       client_strand.ws_path = "/";
 
       client_strand.client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
         ws_port = client_strand.ws_port
       ](LinkStrandRef & strand) {
-        tcp::socket tcp_socket(strand->get_io_context());
-        websocket_ssl_stream stream(tcp_socket, context);
+        static tcp::socket tcp_socket(strand->get_io_context());
+        static websocket_ssl_stream stream(tcp_socket, context);
 
         return make_shared_<WssClientConnection>(stream, strand, dsid_prefix,
                                                  ws_host, ws_port);

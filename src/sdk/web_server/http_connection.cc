@@ -60,6 +60,7 @@ void HttpConnection::accept() {
                       //          _connection =
                       //          _web_server.ws_handler(_req.target().to_string())(
 
+                      _websocket.set_secure_stream();
                       _connection = _web_server.ws_handler("/")(
                           _web_server, _websocket, std::move(_req));
                     }
