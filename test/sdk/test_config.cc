@@ -100,15 +100,15 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
       copy.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
-      copy.ws_port = 8080;
+      copy.ws_port = 8443;
       copy.ws_path = "/";
 
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
         ws_port = copy.ws_port
       ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-        tcp::socket tcp_socket(strand->get_io_context());
-        websocket_ssl_stream stream(tcp_socket, context);
+        static tcp::socket tcp_socket(strand->get_io_context());
+        static websocket_ssl_stream stream(tcp_socket, context);
 
         return make_shared_<WssClientConnection>(stream, strand, dsid_prefix, ws_host,
                                                 ws_port);
@@ -148,7 +148,7 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
       break;
     case dsa::ProtocolType::PROT_WSS:
       // TODO address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
-      address.assign(std::string("wss://127.0.0.1:") + std::to_string(8080));
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(8443));
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
@@ -175,6 +175,8 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
   uint16_t http_port = 8080;
   web_server->listen(http_port);
+  uint16_t https_port = 8443;
+  web_server->secure_listen(https_port);
 
   WebServer::WsCallback* root_cb = new WebServer::WsCallback();
   *root_cb = [this](

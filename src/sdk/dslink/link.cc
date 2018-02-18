@@ -317,8 +317,8 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
         client_connection_maker =
             [ dsid_prefix = dsid_prefix, ws_host = ws_host,
               ws_port = ws_port ](LinkStrandRef & strand) {
-          tcp::socket tcp_socket{strand->get_io_context()};
-          websocket_ssl_stream wss_stream{tcp_socket, context};
+          static tcp::socket tcp_socket{strand->get_io_context()};
+          static websocket_ssl_stream wss_stream{tcp_socket, context};
 
           return make_shared_<WssClientConnection>(
               wss_stream, strand, dsid_prefix, ws_host, ws_port);
