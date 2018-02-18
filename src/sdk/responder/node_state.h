@@ -82,7 +82,9 @@ class NodeState : public DestroyableRef<NodeState> {
                                bool allows_runtime_change);
   ref_<NodeState> find_child(const Path &path);
 
-  void remove_child(const string_ &name);
+  // remove the current model as well as all children models
+  // return true when the state is no longer needed
+  bool remove_model();
 
   void set_model(ModelRef &&model);
   ModelRef &get_model() { return _model; }
@@ -102,7 +104,9 @@ class NodeState : public DestroyableRef<NodeState> {
            _waiting_cache == nullptr && _children.empty();
   }
 
+  // return true when the state is no longer needed
   bool periodic_check(int64_t ts);
+
   /////////////////////////
   // Other
   /////////////////////////
