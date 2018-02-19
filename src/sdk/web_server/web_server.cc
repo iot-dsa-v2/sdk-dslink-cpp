@@ -11,7 +11,7 @@ namespace dsa {
 WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
     : _io_service(app.io_service()),
       _login_mngr(std::move(login_mngr)),
-      _context(boost::asio::ssl::context::sslv23) {
+      _ssl_context(boost::asio::ssl::context::sslv23) {
   try {
     _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
                              boost::asio::ssl::context::no_sslv2);

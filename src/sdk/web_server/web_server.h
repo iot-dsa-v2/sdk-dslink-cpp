@@ -19,7 +19,6 @@
 #include "module/logger.h"
 #include "websocket.h"
 
-
 namespace dsa {
 
 class App;
