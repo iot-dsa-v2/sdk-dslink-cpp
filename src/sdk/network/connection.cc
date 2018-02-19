@@ -43,7 +43,7 @@ void Connection::destroy_impl() {
     _session->disconnected(shared_from_this());
     _session.reset();
   }
-//  _strand.reset();
+  _strand.reset();
   _deadline.cancel();
 }
 
