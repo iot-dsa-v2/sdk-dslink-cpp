@@ -13,15 +13,9 @@ using tcp = boost::asio::ip::tcp;
 Listener::Listener(WebServer& web_server, uint16_t port)
     : _web_server(web_server),
       _acceptor(new tcp::acceptor(_web_server.io_service(),
-// TODO - server port
-#if defined(__CYGWIN__)
-                                  tcp::endpoint(tcp::v4(), port)))
-#else
+                                  // TODO - server port
                                   // tcp:v6() already covers both ipv4 and ipv6
-                                  tcp::endpoint(tcp::v6(), port)))
-#endif
-{
-}
+                                  tcp::endpoint(tcp::v6(), port))) {}
 
 void Listener::run() {
   std::lock_guard<std::mutex> lock(_mutex);
