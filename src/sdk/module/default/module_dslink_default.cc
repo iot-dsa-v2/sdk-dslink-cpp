@@ -39,6 +39,6 @@ ref_<Authorizer> ModuleDslinkDefault::create_authorizer(
 
 shared_ptr_<LoginManager> ModuleDslinkDefault::create_login_manager(
     App& app, ref_<LinkStrand> strand) {
-  return make_shared_<SimpleLoginManager>();
+  return make_shared_<SimpleLoginManager>(strand);
 }
 }

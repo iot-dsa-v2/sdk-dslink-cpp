@@ -32,7 +32,7 @@ ref_<Authorizer> ModuleBrokerDefault::create_authorizer(
 
 shared_ptr_<LoginManager> ModuleBrokerDefault::create_login_manager(
     App& app, ref_<LinkStrand> strand) {
-  return make_shared_<BrokerLoginManager>();
+  return make_shared_<BrokerLoginManager>(strand);
 }
 
 void ModuleBrokerDefault::add_module_node(ref_<NodeModel>& module_node) {

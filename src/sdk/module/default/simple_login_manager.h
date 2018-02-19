@@ -5,14 +5,18 @@
 #pragma once
 #endif
 
+#include "core/link_strand.h"
+
 #include "../../web_server/login_manager.h"
 #include "util/client_info.h"
 
 namespace dsa {
 
 class SimpleLoginManager final : public LoginManager {
+  LinkStrandRef _strand;
+
  public:
-  explicit SimpleLoginManager() = default;
+  explicit SimpleLoginManager(LinkStrandRef strand);
   void check_login(const string_& username, const string_& password,
                    ClientInfo::GetClientCallback&& callback) override;
   void get_user(const string_& username,
