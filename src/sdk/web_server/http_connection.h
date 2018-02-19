@@ -25,14 +25,14 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
   WebServer& _web_server;
   bool _is_secured;
   shared_ptr_<Connection> _connection;
-  Websocket _websocket;
+  tcp::socket _socket;
   boost::beast::flat_buffer _buffer;
   boost::beast::http::request<boost::beast::http::string_body> _req;
 
  public:
   HttpConnection(WebServer& web_server, bool is_secured);
   void accept();
-  boost::asio::ip::tcp::socket& socket() { return _websocket.socket(); }
+  boost::asio::ip::tcp::socket& socket() { return _socket; }
   void destroy();
 };
 }  // namespace dsa
