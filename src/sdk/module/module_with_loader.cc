@@ -2,6 +2,7 @@
 
 #include "module_with_loader.h"
 
+#include "../web_server/login_manager.h"
 #include "authorizer.h"
 #include "client_manager.h"
 #include "logger.h"
@@ -144,6 +145,31 @@ ref_<Authorizer> ModuleWithLoader::create_authorizer(App& app,
 
   _default_module->init_authorizer(app, strand);
   return _default_module->get_authorizer();
+}
+
+shared_ptr_<LoginManager> ModuleWithLoader::create_login_manager(
+    App& app, ref_<LinkStrand> strand) {
+  shared_ptr_<LoginManager> service = nullptr;
+
+  // Check in files
+  for (auto module : _modules) {
+    module->init_login_manager(app, strand);
+    auto temp = module->get_login_manager();
+    if (temp == nullptr) continue;
+
+    if (service == nullptr) {
+      service = temp;
+    } else {
+      LOG_FATAL(
+          "There are more than one login manager in libs directory, cannot "
+          "select them!")
+    }
+  }
+
+  if (service != nullptr) return service;
+
+  _default_module->init_login_manager(app, strand);
+  return _default_module->get_login_manager();
 }
 
 void ModuleWithLoader::add_module_node(ref_<NodeModel>& module_node) {

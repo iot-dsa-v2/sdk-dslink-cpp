@@ -17,6 +17,8 @@ class ModuleBrokerDefault : public Module {
                                             ref_<LinkStrand> strand) override;
   ref_<Authorizer> create_authorizer(App& app,
                                      ref_<LinkStrand> strand) override;
+  shared_ptr_<LoginManager> create_login_manager(
+      App& app, ref_<LinkStrand> strand) override;
 
  public:
   void add_module_node(ref_<NodeModel>& module_node) override;

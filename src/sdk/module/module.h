@@ -38,11 +38,13 @@ class Module : public DestroyableRef<Module> {
   void init_logger(App& app, ref_<LinkStrand> strand);
   void init_client_manager(App& app, ref_<LinkStrand> strand);
   void init_authorizer(App& app, ref_<LinkStrand> strand);
+  void init_login_manager(App& app, ref_<LinkStrand> strand);
 
   ref_<Storage> get_storage();
   shared_ptr_<Logger> get_logger();
   ref_<ClientManager> get_client_manager();
   ref_<Authorizer> get_authorizer();
+  shared_ptr_<LoginManager> get_login_manager();
 
   // Override here for add module node in main node
   virtual void add_module_node(ref_<NodeModel>& module_node);
