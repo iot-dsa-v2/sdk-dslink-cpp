@@ -42,6 +42,7 @@ void WssClientConnection::connect(size_t reconnect_interval) {
           return;
         }
 
+        // ssl handshake
         _socket.next_layer().async_handshake(
             ssl::stream_base::client,
             [ connection = connection, this ](boost::system::error_code ec) {
@@ -70,11 +71,11 @@ void WssClientConnection::connect(size_t reconnect_interval) {
 
                 WssConnection::start_read(std::move(connection));
 
-              });
+              }); // websocket handshake
 
-            });
+            }); // ssl handshake
 
-      });
+      });  // async_connect
 
   // use half of the reconnection time to resolve host
   start_deadline_timer((reconnect_interval >> 1) + 1);
