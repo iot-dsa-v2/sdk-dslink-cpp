@@ -28,7 +28,7 @@ struct ClientInfo {
 
   ClientInfo(const string_ id = "",
              const string_ permission_str = "", size_t max_session = 1)
-      : id(dsid),
+      : id(id),
         permission_str(permission_str),
         max_session(max_session) {}
 };
