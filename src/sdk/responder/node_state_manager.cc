@@ -159,7 +159,7 @@ ref_<NodeModel> NodeStateManager::get_profile(const string_ &path,
   if (dsa_standard) {
     NodeModel *pub_model = pub_state->model_cast<NodeModel>();
     if (pub_model == nullptr) {
-      LOG_FATAL("node_state_manager",
+      LOG_FATAL(__FILENAME__,
                 LOG << "failed to create standard profile node");
     }
     // TODO implement a standard profile collection

@@ -61,7 +61,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL("link.cc", LOG << "Invalid input, please check available "
+    LOG_FATAL(__FILENAME__, LOG << "Invalid input, please check available "
                                 "parameters with --help\n");
   }
 
@@ -89,7 +89,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   if (client_token_path.length() != 0) {
     client_token = string_from_bucket(client_token_path, get_config_bucket());
     if (client_token.empty()) {
-      LOG_FATAL("link.cc",
+      LOG_FATAL(__FILENAME__,
                 LOG << "Fatal loading token file " << client_token_path);
     }
   }
@@ -109,7 +109,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   init_module(std::move(default_module), variables["module_path"].as<string_>(),
               use_standard_node_structure);
 
-  LOG_TRACE("link.cc", LOG << "DSLink initialized successfully");
+  LOG_TRACE(__FILENAME__, LOG << "DSLink initialized successfully");
 }
 void DsLink::init_module(ref_<Module> &&default_module,
                          const string_ &module_path,
@@ -201,7 +201,7 @@ void DsLink::parse_url(const string_ &url) {
 
   auto match = std::sregex_iterator(url.begin(), url.end(), url_regex);
   if (match == std::sregex_iterator()) {  // match is a empty iterator
-    LOG_FATAL("link.cc", LOG << "Invalid Broker Url: " << url);
+    LOG_FATAL(__FILENAME__, LOG << "Invalid Broker Url: " << url);
   }
   string_ protocol = (*match)[1].str();
 
@@ -238,14 +238,14 @@ void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
 void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node) {
   if (_root != nullptr) {
-    LOG_FATAL("link.cc",
+    LOG_FATAL(__FILENAME__,
               LOG << "init_responder_raw called but root node is initialized");
   }
   strand->set_responder_model(std::move(root_node));
 }
 void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
   if (_root == nullptr) {
-    LOG_FATAL("link.cc", LOG << "init_responder called without root node");
+    LOG_FATAL(__FILENAME__, LOG << "init_responder called without root node");
   }
   if (main_node != nullptr) {
     _root->set_main(std::move(main_node));
@@ -268,7 +268,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
     LOG_FATAL(
-        "link.cc",
+        __FILENAME__,
         LOG << "DsLink::connect(), Dslink is already requested for connection");
     return;
   }
@@ -288,7 +288,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
         boost::system::error_code error;
         context.load_verify_file("certificate.pem", error);
         if (error) {
-          LOG_FATAL("link.cc", LOG << "Failed to verify cetificate");
+          LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
         }
 
         client_connection_maker = [
@@ -326,13 +326,13 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
 void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
                  uint8_t callback_type) {
   if (_running) {
-    LOG_FATAL("link.cc", LOG << "DsLink::run(), Dslink is already running");
+    LOG_FATAL(__FILENAME__, LOG << "DsLink::run(), Dslink is already running");
     return;
   }
   _running = true;
 
   if (!strand->is_responder_set()) {
-    LOG_WARN("link.cc", LOG << "responder is not initialized");
+    LOG_WARN(__FILENAME__, LOG << "responder is not initialized");
     _client->get_session().responder_enabled = false;
     strand->set_stream_acceptor(make_ref_<DummyStreamAcceptor>());
   }
@@ -340,12 +340,12 @@ void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_INFO("link.cc",
+    LOG_INFO(__FILENAME__,
              LOG << "DsLink on_connect callback "
                     "ignored since it was connected "
                     "before\n");
   }
-  LOG_INFO("link.cc", LOG << "DsLink running");
+  LOG_INFO(__FILENAME__, LOG << "DsLink running");
   if (own_app) {
     _app->wait();
     destroy();

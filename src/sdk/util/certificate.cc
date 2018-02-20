@@ -37,20 +37,20 @@ void generate_certificate() {
   BN_ptr bn(BN_new(), ::BN_free);
 
   if (rc = BN_set_word(bn.get(), RSA_F4) != 1) {
-    LOG_FATAL("certificate",
+    LOG_FATAL(__FILENAME__,
               LOG << "BN_set_word failed!"
                   << " rc=" << rc);
   }
 
   if (rc = RSA_generate_key_ex(rsa.get(), 4098, bn.get(), NULL) != 1) {
-    LOG_FATAL("certificate",
+    LOG_FATAL(__FILENAME__,
               LOG << "RSA_generate_key_ex failed!"
                   << " rc=" << rc);
   }
 
   EVP_KEY_ptr pkey(EVP_PKEY_new(), ::EVP_PKEY_free);
   if (rc = EVP_PKEY_set1_RSA(pkey.get(), rsa.get()) != 1) {
-    LOG_FATAL("certificate",
+    LOG_FATAL(__FILENAME__,
               LOG << "EVP_PKEY_set1_RSA failed!"
                   << " rc=" << rc);
   }
@@ -68,7 +68,7 @@ void generate_certificate() {
   BIO_FILE_ptr privkey(BIO_new_file(privkey_fname.c_str(), "w"), ::BIO_free);
   if (rc = PEM_write_bio_RSAPrivateKey(privkey.get(), rsa.get(), NULL, NULL, 0,
                                        NULL, NULL) != 1) {
-    LOG_FATAL("certificate",
+    LOG_FATAL(__FILENAME__,
               LOG << "PEM_write_bio_RSAPrivate failed!"
                   << " rc=" << rc);
   }
@@ -82,7 +82,7 @@ void generate_certificate() {
   X509_set_version(x509.get(), 2L);
 
   if (rc = X509_set_pubkey(x509.get(), pkey.get()) != 1) {
-    LOG_FATAL("certificate",
+    LOG_FATAL(__FILENAME__,
               LOG << "X509_set_pubkey failed!"
                   << " rc=" << rc);
   }
@@ -112,17 +112,17 @@ void generate_certificate() {
   X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)"*", -1,
                              -1, 0);
   if (X509_set_issuer_name(x509.get(), name) != 1) {
-    LOG_FATAL("certificate", LOG << "X509_set_issuer_name failed!");
+    LOG_FATAL(__FILENAME__, LOG << "X509_set_issuer_name failed!");
   }
 
   if (!X509_sign(x509.get(), pkey.get(), EVP_sha256())) {
-    LOG_FATAL("certificate", LOG << "X509_sign failed!");
+    LOG_FATAL(__FILENAME__, LOG << "X509_sign failed!");
   }
 
   FILE *f = fopen("certificate.pem", "wb");
   if (!PEM_write_X509(f, x509.get())) {
     fclose(f);
-    LOG_FATAL("certificate", LOG << "PEM_write_X509 failed!");
+    LOG_FATAL(__FILENAME__, LOG << "PEM_write_X509 failed!");
   }
   fclose(f);
 

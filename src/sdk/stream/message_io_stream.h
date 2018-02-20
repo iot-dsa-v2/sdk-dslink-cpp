@@ -10,7 +10,7 @@
 
 #define BEFORE_CALLBACK_RUN()                                                \
   if (DSA_DEBUG && _callback_running) {                                      \
-    LOG_FATAL("message_io_stream",                                           \
+    LOG_FATAL(__FILENAME__,                                                  \
               LOG << "recursive callback: " << __FILE__ << " " << __func__); \
   }                                                                          \
   _callback_running = true;

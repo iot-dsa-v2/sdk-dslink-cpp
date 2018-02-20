@@ -146,7 +146,7 @@ void NodeState::set_model(ModelRef &&model) {
 #ifdef _DSA_DEBUG
     else {
       if (_model->_state->is_destroyed()) {
-        LOG_FATAL("node_state",
+        LOG_FATAL(__FILENAME__,
                   LOG << "adding a model that's owned by destroyed state");
       }
     }

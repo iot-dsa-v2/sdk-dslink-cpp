@@ -61,7 +61,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
     case dsa::ProtocolType::PROT_DSS:
       context.load_verify_file("certificate.pem", error);
       if (error) {
-        LOG_FATAL("test_config.cc", LOG << "Failed to verify cetificate");
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
       }
 
       copy.tcp_port = tcp_secure_port;

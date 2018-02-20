@@ -23,7 +23,7 @@ TcpServer::TcpServer(WrapperStrand &config)
                       config.tcp_server_port),
         true));  // TODO: true means port reusable
   } catch (boost::exception &e) {
-    LOG_FATAL("tcp_server",
+    LOG_FATAL(__FILENAME__,
               LOG << "Bind Error: server port is already in use\n");
   }
 
@@ -32,12 +32,12 @@ TcpServer::TcpServer(WrapperStrand &config)
     _port = _acceptor->local_endpoint().port();
   }
 
-  LOG_FINE("tcp_server",
+  LOG_FINE(__FILENAME__,
            LOG << "Bind to TCP server port: " << config.tcp_server_port);
 
   // secure tcp
   if (config.tcp_secure_port < 0) {
-    LOG_FINE("tcp_server", LOG << "Secure TCP is disabled\n");
+    LOG_FINE(__FILENAME__, LOG << "Secure TCP is disabled\n");
     return;
   }
 
@@ -56,7 +56,7 @@ TcpServer::TcpServer(WrapperStrand &config)
     _context.use_certificate_chain_file("certificate.pem");
     _context.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
   } catch (boost::system::system_error &e) {
-    LOG_ERROR("tcp_server", LOG << "Bind Error: " << e.what() << "\n");
+    LOG_ERROR(__FILENAME__, LOG << "Bind Error: " << e.what() << "\n");
     return;
   }
 
@@ -64,12 +64,12 @@ TcpServer::TcpServer(WrapperStrand &config)
   if (_secure_port == 0) {
     _secure_port = _secure_acceptor->local_endpoint().port();
   }
-  LOG_FINE("tcp_server",
+  LOG_FINE(__FILENAME__,
            LOG << "Bind to TCP secure server port: " << _secure_port << "\n");
 }
 TcpServer::~TcpServer() {
   if (!is_destroyed()) {
-    LOG_ERROR("tcp_server", LOG << "server deleted before destroyed");
+    LOG_ERROR(__FILENAME__, LOG << "server deleted before destroyed");
     destroy();
   }
 }

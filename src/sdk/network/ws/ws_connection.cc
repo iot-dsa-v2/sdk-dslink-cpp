@@ -14,7 +14,7 @@ WsConnection::WsConnection(websocket_stream &ws, LinkStrandRef &strand,
     : BaseSocketConnection(strand, dsid_prefix, path), _socket(std::move(ws)) {}
 
 void WsConnection::destroy_impl() {
-  LOG_DEBUG("ws_connection", LOG << "connection closed");
+  LOG_DEBUG(__FILENAME__, LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.next_layer().close();
   }
@@ -53,7 +53,7 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
     LOG_FATAL(
-        "ws_connection",
+        __FILENAME__,
         LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
   }
 

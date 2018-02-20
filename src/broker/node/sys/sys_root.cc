@@ -24,7 +24,7 @@ BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
               if (v.get_type() == Var::STRING &&
                   broker->get_close_token() == v.get_string()) {
                 broker->strand->add_timer(1000, [broker](bool canceled) {
-                  LOG_INFO("sys_root", LOG << "DsBroker stopped");
+                  LOG_INFO(__FILENAME__, LOG << "DsBroker stopped");
                   broker->destroy();
                   return false;
                 });

@@ -143,7 +143,7 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE("session", LOG << "receive message: ";
+  LOG_TRACE(__FILENAME__, LOG << "receive message: ";
             message->print_message(LOG););
 
   _no_receive_in_loop = 0;
@@ -224,7 +224,7 @@ void Session::write_loop(ref_<Session> ref) {
                                       std::move(ack_callback));
     }
 
-    LOG_TRACE("session", LOG << "send message: ";
+    LOG_TRACE(__FILENAME__, LOG << "send message: ";
               message->print_message(LOG, stream->rid););
 
     write_buffer->add(*message, stream->rid, ref->_waiting_ack);

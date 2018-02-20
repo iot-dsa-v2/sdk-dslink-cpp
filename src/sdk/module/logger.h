@@ -61,10 +61,10 @@ class Logger : public SharedDestroyable<Logger> {
   DSA_LOG(WARN__, "Warn  ", stream_exp, log_name)
 
 #define LOG_FINE(log_name, stream_exp) \
-  DSA_LOG(FINE__, "Info  ", stream_exp, log_name)
+  DSA_LOG(FINE__, "Fine  ", stream_exp, log_name)
 
 #define LOG_INFO(log_name, stream_exp) \
-  DSA_LOG(INFO__, "Sys   ", stream_exp, log_name)
+  DSA_LOG(INFO__, "Info  ", stream_exp, log_name)
 
 #define LOG_ADMIN(log_name, stream_exp) \
   DSA_LOG(ADMIN___, "Admin ", stream_exp, log_name)
@@ -77,15 +77,11 @@ class Logger : public SharedDestroyable<Logger> {
 
 #define LOG_FATAL(log_name, stream_exp)             \
   {                                                 \
-    std::stringstream LOG;                          \
-    LOG << std::endl;                               \
-    dsa::Logger& logger = Logger::_();              \
-    if ((logger).level <= Logger::FATAL_) {         \
-      (logger).write_meta(LOG, "Fatal ", log_name); \
-      stream_exp;                                   \
-      (logger).log(LOG.str(), Logger::FATAL_);      \
-    }                                               \
+    DSA_LOG(FATAL_, "Fatal ", stream_exp, log_name) \
     exit(1);                                        \
   }
+
+#define __FILENAME__ \
+  (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #endif  // DSA_SDK_MODULE_LOGGER_H

@@ -35,12 +35,12 @@ void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content,
         boost::filesystem::rename(templ, p);
       } else {
         // TODO: is fatal?
-        LOG_FATAL("simple_safe_storage_bucket",
+        LOG_FATAL(__FILENAME__,
                   LOG << "Unable to open " << key << " file to write");
       }
     } catch (const fs::filesystem_error &ex) {
       // TODO: is fatal?
-      LOG_ERROR("simple_safe_storage_bucket",
+      LOG_ERROR(__FILENAME__,
                 LOG << "Write failed for " << key << " file");
     }
   };

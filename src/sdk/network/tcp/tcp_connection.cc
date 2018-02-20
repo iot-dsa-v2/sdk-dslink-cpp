@@ -15,7 +15,7 @@ TcpConnection::TcpConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
       _socket(strand->get_io_context()) {}
 
 void TcpConnection::destroy_impl() {
-  LOG_DEBUG("tcp_connection", LOG << "connection closed");
+  LOG_DEBUG(__FILENAME__, LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.close();
   }
@@ -53,7 +53,7 @@ void TcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
     LOG_FATAL(
-        "tcp_connection",
+        __FILENAME__,
         LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
   }
 
