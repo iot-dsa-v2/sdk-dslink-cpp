@@ -72,8 +72,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   client_manager->set_strand(strand);
   strand->set_client_manager(client_manager);
 
-  auto authorizer = make_ref_<BrokerAuthorizer>();
-  authorizer->set_strand(strand);
+  auto authorizer = modules->get_authorizer();
   strand->set_authorizer(std::move(authorizer));
 
   _close_token = get_close_token_from_storage(_config->get_config_bucket());
