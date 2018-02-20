@@ -42,7 +42,6 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   uint16_t _port;
   std::shared_ptr<Listener> _listener;
   shared_ptr_<LoginManager> _login_mngr;
-  boost::asio::ssl::context _context;
   uint16_t _secure_port;
   std::shared_ptr<Listener> _secure_listener;
   boost::asio::ssl::context _ssl_context;
