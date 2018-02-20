@@ -93,7 +93,7 @@ void Session::destroy_impl() {
   requester.destroy_impl();
   responder.destroy_impl();
   if (_connection != nullptr) {
-    _connection->destroy();
+    _connection->destroy_in_strand(_connection);
     _connection.reset();
   }
   _ack_stream.reset();
@@ -143,6 +143,8 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
+  if(is_destroyed())
+    return;
   LOG_TRACE(Logger::_(), LOG << "receive message: ";
             message->print_message(LOG););
 
