@@ -47,16 +47,19 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   bool list_checked = false;
   bool invoked = false;
   bool subscrib_checked = false;
+  ref_<IncomingListCache> list_cache;
   link->connect([&](const shared_ptr_<Connection> connection,
                     ref_<DsLinkRequester> link_req) {
 
     // check the list result
-    link_req->list("downstream/test1/main",
+    list_cache = link_req->list("downstream/test1/main",
                [&](IncomingListCache &cache, const std::vector<string_> &) {
                  if (cache.get_map().count("$is") > 0 &&
                      cache.get_map().at("$is").to_string() == "example") {
+                   EXPECT_TRUE(cache.get_profile_map().size() != 0);
+                   EXPECT_NE(cache.get_profile_map().find("change"),
+                             cache.get_profile_map().end());
                    list_checked = true;
-                   cache.close();
                  }
                });
     // invoke the pub node to change the value
@@ -86,7 +89,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   WAIT_EXPECT_TRUE(1000, [&]() -> bool {
     return list_checked && invoked && subscrib_checked;
   });
-
+  list_cache->close();
   destroy_dslink_in_strand(link);
   broker->strand->post([&]() { broker->destroy(); });
 
