@@ -11,11 +11,10 @@ using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
 
 WsConnection::WsConnection(websocket_stream &ws, LinkStrandRef &strand,
                            const string_ &dsid_prefix, const string_ &path)
-    : BaseSocketConnection(strand, dsid_prefix, path),
-      _socket(std::move(ws)) {}
+    : BaseSocketConnection(strand, dsid_prefix, path), _socket(std::move(ws)) {}
 
 void WsConnection::destroy_impl() {
-  LOG_DEBUG(Logger::_(), LOG << "connection closed");
+  LOG_DEBUG(__FILENAME__, LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     _socket.next_layer().close();
   }
@@ -24,7 +23,6 @@ void WsConnection::destroy_impl() {
 
 void WsConnection::start_read(shared_ptr_<Connection> &&connection) {
   std::vector<uint8_t> &buffer = _read_buffer;
-
 
   size_t partial_size = _read_next - _read_current;
   if (_read_current > 0) {
@@ -54,8 +52,9 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                     int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
-    LOG_FATAL(LOG << "message is bigger than max buffer size: "
-                  << MAX_BUFFER_SIZE);
+    LOG_FATAL(
+        __FILENAME__,
+        LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
   }
 
   while (total_size > connection._write_buffer.size()) {

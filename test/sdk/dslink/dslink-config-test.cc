@@ -142,7 +142,7 @@ TEST_F(DslinkTest, LogParam1) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::INFO__, Logger::_().level);
+  EXPECT_EQ(Logger::FINE__, Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -170,7 +170,7 @@ TEST_F(DslinkTest, LogParam4) {
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
-  EXPECT_EQ(Logger::DEBUG_,Logger::_().level);
+  EXPECT_EQ(Logger::DEBUG_, Logger::_().level);
   end_link(std::move(link));
 }
 
@@ -261,7 +261,7 @@ TEST_F(DslinkTest, TokenFile) {
   string_ token("IAmATokenPleaseBelieveME!!!");
   string_ token_file_name("my_test_token.txt");
   // First create token file
-  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
+  SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
   string_to_bucket(token, token_file_name, storage_bucket);
 
   const char *argv[] = {"./test", "--token", token_file_name.c_str()};

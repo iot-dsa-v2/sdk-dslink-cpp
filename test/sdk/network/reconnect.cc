@@ -56,13 +56,12 @@ TEST_F(NetworkTest, ReConnect) {
   shared_ptr_<Connection> connection;
 
   boost::system::error_code error;
-  static boost::asio::ssl::context context(
-      boost::asio::ssl::context::sslv23);
+  static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
   switch (protocol()) {
     case dsa::ProtocolType::PROT_DSS:
       context.load_verify_file("certificate.pem", error);
       if (error) {
-        LOG_FATAL(LOG << "Failed to verify cetificate");
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
       }
 
       client_strand.client_connection_maker = [

@@ -23,8 +23,8 @@ uint8_t Logger::parse(const std::string& log) {
     return Logger::DEBUG_;
   } else if (log == "warn") {
     return Logger::WARN__;
-  } else if (log == "sys") {
-    return Logger::SYS___;
+  } else if (log == "info") {
+    return Logger::INFO__;
   } else if (log == "error") {
     return Logger::ERROR_;
   } else if (log == "admin") {
@@ -34,7 +34,7 @@ uint8_t Logger::parse(const std::string& log) {
   } else if (log == "none") {
     return Logger::NONE__;
   } else {  // default
-    return Logger::INFO__;
+    return Logger::FINE__;
   }
 }
 

@@ -38,7 +38,8 @@ void Client::connect(OnConnectCallback &&on_connect, uint8_t callback_type) {
   if (is_destroyed()) return;
 
   if (_connection != nullptr) {
-    LOG_FATAL(LOG << "Client::connect error, the connection already exists.");
+    LOG_FATAL(__FILENAME__,
+              LOG << "Client::connect error, the connection already exists.");
   }
   if (on_connect != nullptr) {
     _user_on_connect = std::move(on_connect);
@@ -61,7 +62,7 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
     if (!_last_remote_dsid.empty() && !connection->get_remote_dsid().empty() &&
         _last_remote_dsid != connection->get_remote_dsid()) {
       // remote dsid should not change
-      LOG_WARN(Logger::_(),
+      LOG_WARN(__FILENAME__,
                LOG << "remote dsid changed from " << _last_remote_dsid << " to "
                    << connection->get_remote_path());
     }
@@ -110,7 +111,7 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
   }
 }
 void Client::_reconnect() {
-  LOG_DEBUG(Logger::_(),
+  LOG_DEBUG(__FILENAME__,
             LOG << "Disconnected, reconnect in " << _reconnect_interval_s
                 << " seconds");
   _reconnect_timer =
