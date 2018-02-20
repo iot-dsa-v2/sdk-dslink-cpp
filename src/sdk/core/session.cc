@@ -93,6 +93,7 @@ void Session::destroy_impl() {
   requester.destroy_impl();
   responder.destroy_impl();
   if (_connection != nullptr) {
+    _connection->destroy_in_strand(_connection);
     _connection.reset();
   }
   _ack_stream.reset();
