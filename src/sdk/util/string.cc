@@ -39,7 +39,7 @@ string_ string_from_storage(const string_ &key, StorageBucket &storage_bucket) {
   };
   storage_bucket.read(key, read_callback);
   if (!callback_called) {
-    LOG_FATAL(LOG << "Storage does not support synchronize reading");
+    LOG_FATAL(__FILENAME__, LOG << "Storage does not support synchronize reading");
   }
   return data;
 }
