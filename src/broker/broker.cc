@@ -2,10 +2,11 @@
 
 #include "broker.h"
 
-#include <util/string.h>
 #include <module/module_with_loader.h>
+#include <util/string.h>
 #include "config/broker_config.h"
 #include "module/broker_authorizer.h"
+#include "module/broker_client_manager.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"
@@ -18,12 +19,11 @@
 #include "util/app.h"
 #include "util/string.h"
 #include "web_server/web_server.h"
-#include "module/broker_client_manager.h"
 
 #include "module/module_broker_default.h"
 
 namespace dsa {
-DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&&  modules,
+DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules,
                    const shared_ptr_<App>& app)
     : _config(std::move(config)), _app(app) {
   init(std::move(modules));
@@ -52,16 +52,19 @@ void DsBroker::init(ref_<Module>&& default_module) {
   uint16_t https_port =
       static_cast<uint16_t>(_config->https_port().get_value().get_int());
 
-  strand.reset(new EditableStrand(
-      _app->new_strand(), std::unique_ptr<ECDH>(ECDH::from_bucket(_config->get_config_bucket(),".key"))));
+  strand.reset(new EditableStrand(_app->new_strand(),
+                                  std::unique_ptr<ECDH>(ECDH::from_storage(
+                                      _config->get_config_bucket(), ".key"))));
 
-  if(default_module == nullptr) default_module = make_ref_<ModuleBrokerDefault>();
+  if (default_module == nullptr)
+    default_module = make_ref_<ModuleBrokerDefault>();
 
   modules = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
   modules->init_all(*_app, strand);
 
   // init logger
-  modules->get_logger()->level = Logger::parse(_config->log_level().get_value().to_string());
+  modules->get_logger()->level =
+      Logger::parse(_config->log_level().get_value().to_string());
   Logger::set_default(modules->get_logger());
 
   // init security manager
@@ -73,7 +76,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   authorizer->set_strand(strand);
   strand->set_authorizer(std::move(authorizer));
 
-  _close_token = get_close_token_from_bucket(_config->get_config_bucket());
+  _close_token = get_close_token_from_storage(_config->get_config_bucket());
 
   auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder
@@ -103,7 +106,6 @@ void DsBroker::destroy_impl() {
   }
 }
 void DsBroker::run(bool wait) {
-
   strand->dispatch([this]() {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app);
@@ -113,7 +115,7 @@ void DsBroker::run(bool wait) {
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
     *root_cb = [this](
-        WebServer &_web_server, boost::asio::ip::tcp::socket &&socket,
+        WebServer& _web_server, boost::asio::ip::tcp::socket&& socket,
         boost::beast::http::request<boost::beast::http::string_body> req) {
       LinkStrandRef link_strand(strand);
       DsaWsCallback dsa_ws_callback(link_strand);

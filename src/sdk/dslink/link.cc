@@ -82,19 +82,19 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   strand.reset(new EditableStrand(
       get_app().new_strand(),
-      std::unique_ptr<ECDH>(ECDH::from_bucket(get_config_bucket(), ".key"))));
+      std::unique_ptr<ECDH>(ECDH::from_storage(get_config_bucket(), ".key"))));
 
   // TOKEN from file
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
   if (client_token_path.length() != 0) {
-    client_token = string_from_bucket(client_token_path, get_config_bucket());
+    client_token = string_from_storage(client_token_path, get_config_bucket());
     if (client_token.empty()) {
       LOG_FATAL(LOG << "Fatal loading token file " << client_token_path);
     }
   }
 
-  close_token = get_close_token_from_bucket(get_config_bucket());
+  close_token = get_close_token_from_storage(get_config_bucket());
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());

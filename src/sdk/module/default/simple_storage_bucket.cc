@@ -45,7 +45,7 @@ string_ SimpleStorageBucket::get_storage_path(const string_& key) {
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
                                 bool is_binary) {
-  auto write_file = [=]() {
+  auto write_file = [&, is_binary, content = std::move(content)]() {
     path p(get_storage_path(key));
 
     try {
@@ -85,7 +85,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
 
 void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
                                bool is_binary) {
-  auto read_file = [=]() {
+  auto read_file = [&, callback = std::move(callback)]() {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
@@ -189,7 +189,8 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
     }
     key_list.sort();
     for (auto&& key : key_list) {
-      this->read(url_decode(key), std::move(callback));
+      auto cb = callback;
+      this->read(url_decode(key), std::move(cb));
     }
     if (on_done != nullptr) on_done();
   } catch (const fs::filesystem_error& ex) {

@@ -262,7 +262,7 @@ TEST_F(DslinkTest, TokenFile) {
   string_ token_file_name("my_test_token.txt");
   // First create token file
   SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_bucket(token, token_file_name, storage_bucket);
+  string_to_storage(token, token_file_name, storage_bucket);
 
   const char *argv[] = {"./test", "--token", token_file_name.c_str()};
   int argc = 3;
