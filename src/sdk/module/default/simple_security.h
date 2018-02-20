@@ -18,7 +18,7 @@ class SimpleAuthorizer : public Authorizer {
 
  public:
   explicit SimpleAuthorizer(LinkStrandRef strand);
-  void check_permission(const string_& dsid, const string_& permission_token,
+  void check_permission(const ClientInfo& client_info, const string_& permission_token,
                         MessageType method, const Path& path,
                         CheckPermissionCallback&& callback) override;
 };
