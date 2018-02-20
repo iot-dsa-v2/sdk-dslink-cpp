@@ -116,7 +116,7 @@ TEST_F(DslinkTest, CloseTest) {
   // first create .close_token
   string_ close_token = generate_random_string(32);
   SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
-  string_to_bucket(close_token, ".close_token", storage_bucket);
+  string_to_storage(close_token, ".close_token", storage_bucket);
 
   const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4122",
                         "-l",         "info",          "--thread",

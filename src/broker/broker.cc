@@ -53,7 +53,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
       static_cast<uint16_t>(_config->https_port().get_value().get_int());
 
   strand.reset(new EditableStrand(_app->new_strand(),
-                                  std::unique_ptr<ECDH>(ECDH::from_bucket(
+                                  std::unique_ptr<ECDH>(ECDH::from_storage(
                                       _config->get_config_bucket(), ".key"))));
 
   if (default_module == nullptr)
@@ -76,7 +76,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   authorizer->set_strand(strand);
   strand->set_authorizer(std::move(authorizer));
 
-  _close_token = get_close_token_from_bucket(_config->get_config_bucket());
+  _close_token = get_close_token_from_storage(_config->get_config_bucket());
 
   auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder

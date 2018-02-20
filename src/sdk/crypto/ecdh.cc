@@ -21,15 +21,20 @@ namespace dsa {
 
 const char *ECDH::curve_name = "prime256v1";
 
-ECDH *ECDH::from_bucket(StorageBucket &bucket, const string_ &path_str) {
+ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
   std::vector<uint8_t> data;
   BucketReadStatus ret;
+  bool callback_called = false;
   auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec,
                            BucketReadStatus read_status) {
     data = vec;
     ret = read_status;
+    callback_called = true;
   };
   bucket.read(path_str, read_callback, true);
+  if (!callback_called) {
+    LOG_FATAL(__FILENAME__, LOG << "Storage does not support synchronize reading");
+  }
   if (ret == BucketReadStatus::OK && data.size() == 32) {
     return new ECDH(data.data(), 32);
   }
