@@ -62,7 +62,7 @@ ref_<Storage> ModuleWithLoader::create_storage(App& app,
       service = temp;
     } else {
       LOG_FATAL(
-          "module_with_loader.cc",
+          __FILENAME__,
           "There are more than one storage in libs directory, cannot select "
           "them!")
     }
@@ -88,7 +88,7 @@ shared_ptr_<Logger> ModuleWithLoader::create_logger(App& app,
       service = temp;
     } else {
       LOG_FATAL(
-          "module_with_loader.cc",
+          __FILENAME__,
           "There are more than one logger in libs directory, cannot select "
           "them!")
     }
@@ -114,7 +114,7 @@ ref_<ClientManager> ModuleWithLoader::create_client_manager(
       service = temp;
     } else {
       LOG_FATAL(
-          "module_with_loader.cc",
+          __FILENAME__,
           "There are more than one client manager in libs directory, cannot "
           "select them!")
     }
@@ -165,7 +165,7 @@ shared_ptr_<LoginManager> ModuleWithLoader::create_login_manager(
       service = temp;
     } else {
       LOG_FATAL(
-          "module_with_ioader.cc",
+          __FILENAME__,
           "There are more than one login manager in libs directory, cannot "
           "select them!")
     }
