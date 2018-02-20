@@ -139,7 +139,7 @@ ref_<Authorizer> ModuleWithLoader::create_authorizer(App& app,
     if (service == nullptr) {
       service = temp;
     } else {
-      LOG_FATAL("module_with_loader.cc",
+      LOG_FATAL(__FILENAME__,
                 LOG << "There are more than one authorizer in libs directory, "
                        "cannot select them!")
     }

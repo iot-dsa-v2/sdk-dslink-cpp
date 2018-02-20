@@ -59,7 +59,7 @@ void generate_certificate() {
     // write public key
     BIO_FILE_ptr pubkey(BIO_new_file("pubkey.pem", "w"), ::BIO_free);
     if (rc = PEM_write_bio_PUBKEY(pubkey.get(), pkey.get()) != 1) {
-      LOG_FATAL(LOG << "PEM_write_bio_PUBKEY failed!" << " rc=" << rc);
+      LOG_FATAL(__FILENAME__, LOG << "PEM_write_bio_PUBKEY failed!" << " rc=" << rc);
     }
 #endif
 
