@@ -18,7 +18,7 @@ void Connection::on_receive_f0(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE0) {
     throw MessageParsingError("invalid handshake message, expect f0");
   }
-  LOG_DEBUG(Logger::_(), LOG << "f0 received");
+  LOG_DEBUG(__FILENAME__, LOG << "f0 received");
   auto *f0 = DOWN_CAST<HandshakeF0Message *>(msg.get());
   this->_handshake_context.set_remote(
       std::move(f0->dsid), std::move(f0->public_key), std::move(f0->salt));
@@ -50,7 +50,7 @@ void Connection::on_receive_f2(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE2) {
     throw MessageParsingError("invalid handshake message, expect f2");
   }
-  LOG_DEBUG(Logger::_(), LOG << "f2 received");
+  LOG_DEBUG(__FILENAME__, LOG << "f2 received");
 
   auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
 
@@ -64,8 +64,8 @@ void Connection::on_receive_f2(MessageRef &&msg) {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       _strand->session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token,
-          [ this, sthis = std::move(sthis) ](
-              const ref_<Session> &session, const ClientInfo &info) {
+          [ this, sthis = std::move(sthis) ](const ref_<Session> &session,
+                                             const ClientInfo &info) {
             if (session != nullptr) {
               _session = session;
 

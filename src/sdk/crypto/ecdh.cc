@@ -33,17 +33,17 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
   };
   bucket.read(path_str, read_callback, true);
   if (!callback_called) {
-    LOG_FATAL(LOG << "Storage does not support synchronize reading");
+    LOG_FATAL(__FILENAME__, LOG << "Storage does not support synchronize reading");
   }
   if (ret == BucketReadStatus::OK && data.size() == 32) {
     return new ECDH(data.data(), 32);
   }
 
   if (ret == BucketReadStatus::FILE_OPEN_ERROR) {
-    LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+    LOG_FATAL(__FILENAME__, LOG << "Unable to open " << path_str << " file");
     // file exists but can't open, make a new kwy won't solve the problem
   } else {
-    LOG_ERROR(Logger::_(),
+    LOG_ERROR(__FILENAME__,
               LOG << "error loading existing private key " << path_str
                   << ", generating new key");
   }
@@ -67,12 +67,12 @@ ECDH *ECDH::from_file(const char *path_str) {
         return new ECDH(data, 32);
 
       } else {
-        LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+        LOG_FATAL(__FILENAME__, LOG << "Unable to open " << path_str << " file");
         // file exists but can't open, make a new kwy won't solve the problem
       }
     }
   } catch (std::exception &e) {
-    LOG_ERROR(Logger::_(),
+    LOG_ERROR(__FILENAME__,
               LOG << "error loading existing private key " << path_str
                   << ", generating new key");
   }
@@ -85,7 +85,7 @@ ECDH *ECDH::from_file(const char *path_str) {
     auto data = newkey->get_private_key();
     keyfile.write(reinterpret_cast<char *>(data.data()), data.size());
   } else {
-    LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+    LOG_FATAL(__FILENAME__, LOG << "Unable to open " << path_str << " file");
   }
   return newkey;
 }

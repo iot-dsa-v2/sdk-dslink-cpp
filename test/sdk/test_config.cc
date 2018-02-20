@@ -55,14 +55,13 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
   copy.strand = EditableStrand::make_default(app);
 
-
   boost::system::error_code error;
   static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
       context.load_verify_file("certificate.pem", error);
       if (error) {
-        LOG_FATAL(LOG << "Failed to verify cetificate");
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
       }
 
       copy.tcp_port = tcp_secure_port;
@@ -152,7 +151,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
   uint16_t http_port = 8080;
   web_server->listen(http_port);
-  WebServer::WsCallback* root_cb = new WebServer::WsCallback();
+  WebServer::WsCallback *root_cb = new WebServer::WsCallback();
   *root_cb = [this](
       WebServer &web_server, boost::asio::ip::tcp::socket &&socket,
       boost::beast::http::request<boost::beast::http::string_body> req) {

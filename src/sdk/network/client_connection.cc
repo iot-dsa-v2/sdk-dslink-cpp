@@ -12,10 +12,11 @@
 
 namespace dsa {
 
-void Connection::on_client_connect(
-    shared_ptr_<Connection> connection) throw(const std::runtime_error &) {
+void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
+    const std::runtime_error &) {
   if (connection->_session == nullptr) {
-    LOG_FATAL(LOG << "no session attached to client connection");
+    LOG_FATAL(__FILENAME__,
+              LOG << "no session attached to client connection");
   }
   Connection *raw_ptr = connection.get();
   raw_ptr->_session->connected(std::move(connection));
@@ -46,7 +47,7 @@ void Connection::on_receive_f1(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE1) {
     throw MessageParsingError("invalid handshake message, expect f1");
   }
-  LOG_DEBUG(Logger::_(), LOG << "f1 received");
+  LOG_DEBUG(__FILENAME__, LOG << "f1 received");
   auto *f1 = DOWN_CAST<HandshakeF1Message *>(msg.get());
   _handshake_context.set_remote(std::move(f1->dsid), std::move(f1->public_key),
                                 std::move(f1->salt));
@@ -76,10 +77,10 @@ void Connection::on_receive_f1(MessageRef &&msg) {
 }
 
 void Connection::on_receive_f3(MessageRef &&msg) {
-   if (msg->type() != MessageType::HANDSHAKE3) {
+  if (msg->type() != MessageType::HANDSHAKE3) {
     throw MessageParsingError("invalid handshake message, expect f3");
   }
-  LOG_DEBUG(Logger::_(), LOG << "f3 received ");
+  LOG_DEBUG(__FILENAME__, LOG << "f3 received ");
 
   auto *f3 = DOWN_CAST<HandshakeF3Message *>(msg.get());
 
@@ -88,16 +89,14 @@ void Connection::on_receive_f3(MessageRef &&msg) {
     _deadline.cancel();
     _remote_path = f3->path;
 
-    _strand->post([
-      sthis = shared_from_this()
-    ]() mutable {
+    _strand->post([sthis = shared_from_this()]() mutable {
       on_client_connect(std::move(sthis));
     });
     on_read_message = [this](MessageRef &&message) {
       post_message(std::move(message));
     };
   } else {
-    LOG_ERROR(Logger::_(), LOG << "invalid handshake auth");
+    LOG_ERROR(__FILENAME__, LOG << "invalid handshake auth");
   }
 }
 

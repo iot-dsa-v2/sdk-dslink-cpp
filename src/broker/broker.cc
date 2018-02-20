@@ -132,7 +132,7 @@ void DsBroker::run(bool wait) {
   if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
     _tcp_server = make_shared_<TcpServer>(*this);
     _tcp_server->start();
-    LOG_SYSTEM(Logger::_(), LOG << "DsBroker started");
+    LOG_INFO(__FILENAME__, LOG << "DsBroker started");
   }
 
   if (_own_app && wait) {

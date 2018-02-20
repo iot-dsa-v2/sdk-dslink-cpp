@@ -16,7 +16,7 @@ BaseSocketConnection::BaseSocketConnection(LinkStrandRef &strand,
 
 void BaseSocketConnection::on_deadline_timer_(
     const boost::system::error_code &error, shared_ptr_<Connection> &&sthis) {
-  LOG_WARN(Logger::_(), LOG << "Connection timeout");
+  LOG_WARN(__FILENAME__, LOG << "Connection timeout");
   destroy_in_strand(std::move(sthis));
 }
 
@@ -47,7 +47,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
         // TODO: check if message_size is valid;
         int32_t message_size = read_32_t(&buffer[cur]);
         if (message_size > Message::MAX_MESSAGE_SIZE) {
-          LOG_DEBUG(Logger::_(),
+          LOG_DEBUG(__FILENAME__,
                     LOG << "message is bigger than maxed buffer size");
           destroy_in_strand(std::move(connection));
           // TODO: send error, and close with std::move
@@ -67,7 +67,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
           try {
             on_read_message(Message::parse_message(&buffer[cur], message_size));
           } catch (const MessageParsingError &err) {
-            LOG_DEBUG(Logger::_(),
+            LOG_DEBUG(__FILENAME__,
                       LOG << "invalid message received, close connection : "
                           << err.what());
             destroy_in_strand(std::move(connection));
@@ -77,7 +77,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
           }
 
         } else {
-          LOG_FATAL(LOG << "on_read_message is null");
+          LOG_FATAL(__FILENAME__, LOG << "on_read_message is null");
         }
 
         cur += message_size;

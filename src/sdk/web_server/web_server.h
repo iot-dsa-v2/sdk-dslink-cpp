@@ -71,7 +71,7 @@ class ErrorCallback {
       boost::asio::io_service& io_service,
       boost::asio::ip::tcp::socket&& socket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
-    LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
+    LOG_ERROR(__FILENAME__, LOG << "http error code: " << _error_code);
   }
 };
 
