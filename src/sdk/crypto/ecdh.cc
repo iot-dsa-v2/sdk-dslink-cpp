@@ -2,10 +2,10 @@
 
 #include "ecdh.h"
 
+#include <module/storage.h>
 #include <openssl/ecdh.h>
 #include <openssl/objects.h>
 #include <boost/filesystem.hpp>
-#include <module/storage.h>
 #include "hash.h"
 #include "misc.h"
 #include "module/logger.h"
@@ -21,32 +21,31 @@ namespace dsa {
 
 const char *ECDH::curve_name = "prime256v1";
 
-
 ECDH *ECDH::from_bucket(StorageBucket &bucket, const string_ &path_str) {
   std::vector<uint8_t> data;
   BucketReadStatus ret;
-  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec, BucketReadStatus read_status) {
+  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec,
+                           BucketReadStatus read_status) {
     data = vec;
     ret = read_status;
   };
-  bucket.read(path_str,read_callback,true);
-  if(ret == BucketReadStatus::OK && data.size() == 32) {
+  bucket.read(path_str, read_callback, true);
+  if (ret == BucketReadStatus::OK && data.size() == 32) {
     return new ECDH(data.data(), 32);
   }
 
-  if(ret == BucketReadStatus::FILE_OPEN_ERROR) {
-    LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+  if (ret == BucketReadStatus::FILE_OPEN_ERROR) {
+    LOG_FATAL("ecdh", LOG << "Unable to open " << path_str << " file");
     // file exists but can't open, make a new kwy won't solve the problem
   } else {
-    LOG_ERROR(Logger::_(),
+    LOG_ERROR("ecdh",
               LOG << "error loading existing private key " << path_str
                   << ", generating new key");
   }
 
   auto newkey = new ECDH();
   auto new_data = newkey->get_private_key();
-  auto content =
-      new RefCountBytes(new_data.begin(), new_data.end());
+  auto content = new RefCountBytes(new_data.begin(), new_data.end());
   bucket.write(path_str, std::forward<RefCountBytes *>(content), true);
   return newkey;
 }
@@ -63,12 +62,12 @@ ECDH *ECDH::from_file(const char *path_str) {
         return new ECDH(data, 32);
 
       } else {
-        LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+        LOG_FATAL("ecdh", LOG << "Unable to open " << path_str << " file");
         // file exists but can't open, make a new kwy won't solve the problem
       }
     }
   } catch (std::exception &e) {
-    LOG_ERROR(Logger::_(),
+    LOG_ERROR("ecdh",
               LOG << "error loading existing private key " << path_str
                   << ", generating new key");
   }
@@ -81,7 +80,7 @@ ECDH *ECDH::from_file(const char *path_str) {
     auto data = newkey->get_private_key();
     keyfile.write(reinterpret_cast<char *>(data.data()), data.size());
   } else {
-    LOG_FATAL(LOG << "Unable to open " << path_str << " file");
+    LOG_FATAL("ecdh", LOG << "Unable to open " << path_str << " file");
   }
   return newkey;
 }

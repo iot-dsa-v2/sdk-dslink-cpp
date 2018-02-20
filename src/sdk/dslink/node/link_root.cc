@@ -34,7 +34,7 @@ ref_<NodeModel> LinkRoot::add_to_pub(const string_ &path_str,
                                      ref_<NodeModel> &&node) {
   Path path(path_str);
   if (path.is_invalid()) {
-    LOG_FATAL(LOG << "invalid pub node path: " << path_str);
+    LOG_FATAL("link_root", LOG << "invalid pub node path: " << path_str);
   }
 
   NodeModel *pub_parent = _pub_node.get();
@@ -49,7 +49,7 @@ ref_<NodeModel> LinkRoot::add_to_pub(const string_ &path_str,
     } else {
       pub_parent = dynamic_cast<NodeModel *>(child.get());
       if (pub_parent == nullptr) {
-        LOG_FATAL(LOG << "failed to add pub node: " << path_str);
+        LOG_FATAL("link_root", LOG << "failed to add pub node: " << path_str);
       }
     }
     path = path.next();

@@ -11,7 +11,7 @@ namespace dsa {
 OutgoingSetStream::OutgoingSetStream(ref_<Session> &&session, const Path &path,
                                      uint32_t rid,
                                      ref_<SetRequestMessage> &&message)
-    : MessageCacheStream(std::move(session), path, rid){
+    : MessageCacheStream(std::move(session), path, rid) {
   if (message->get_page_id() < 0) {
     _waiting_pages = make_ref_<IncomingPagesMerger>(message);
   }
@@ -30,7 +30,7 @@ void OutgoingSetStream::receive_message(ref_<Message> &&message) {
   IncomingPagesMerger::check_merge(_waiting_pages, message);
   if (_callback != nullptr) {
     BEFORE_CALLBACK_RUN();
-      _callback(*this, std::move(message));
+    _callback(*this, std::move(message));
     AFTER_CALLBACK_RUN();
   } else {
     _waiting_requests.emplace_back(std::move(message));
@@ -57,7 +57,7 @@ void OutgoingSetStream::send_response(
     _callback = nullptr;
   }
   if (message->get_status() < MessageStatus::CLOSED) {
-    LOG_ERROR(Logger::_(),
+    LOG_ERROR("outgoing_set_stream",
               LOG << "set response must have closed or error status");
   }
   send_message(MessageCRef(std::move(message)), true);

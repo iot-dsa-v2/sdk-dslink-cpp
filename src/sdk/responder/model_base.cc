@@ -43,13 +43,15 @@ ModelRef NodeModelBase::get_child(const string_ &name) {
 
 ModelRef NodeModelBase::add_child(const string_ &name, ModelRef &&model) {
   if (_state == nullptr) {
-    LOG_FATAL(LOG << "NodeModelBase::add_child shouldn't be "
+    LOG_FATAL("model_base",
+              LOG << "NodeModelBase::add_child shouldn't be "
                      "called before initialize() ");
   }
   auto child_state = _state->get_child(name, true);
   if (child_state->get_model() != nullptr) {
-    LOG_FATAL(LOG << "NodeModelBase::add_child, child already exists: "
-                  << name);
+    LOG_FATAL(
+        "model_base",
+        LOG << "NodeModelBase::add_child, child already exists: " << name);
   }
   child_state->set_model(ModelRef(model));
   return std::move(model);
@@ -114,7 +116,7 @@ void NodeModelBase::unlist() {
 }
 static VarBytesRef blank_bytes(new VarBytes());
 VarBytesRef &NodeModelBase::get_summary() {
-  LOG_ERROR(Logger::_(), LOG << "::get_summary not implemented");
+  LOG_ERROR("model_base", LOG << "::get_summary not implemented");
   return blank_bytes;
 }
 

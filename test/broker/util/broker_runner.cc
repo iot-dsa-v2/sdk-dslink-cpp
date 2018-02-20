@@ -43,7 +43,7 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
     case dsa::ProtocolType::PROT_DSS:
       context.load_verify_file("certificate.pem", error);
       if (error) {
-        LOG_FATAL(LOG << "Failed to verify cetificate");
+        LOG_FATAL("broker_runner.cc", LOG << "Failed to verify cetificate");
       }
 
       client_strand.tcp_port =

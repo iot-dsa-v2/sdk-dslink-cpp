@@ -4,8 +4,8 @@
 
 #include "core/session.h"
 #include "crypto/hmac.h"
-#include "util/app.h"
 #include "module/logger.h"
+#include "util/app.h"
 
 namespace dsa {
 Connection::Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
@@ -43,7 +43,7 @@ void Connection::destroy_impl() {
     _session->disconnected(shared_from_this());
     _session.reset();
   }
-//  _strand.reset();
+  //  _strand.reset();
   _deadline.cancel();
 }
 
@@ -69,7 +69,7 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
       }
     });
   } else if (_session == nullptr) {
-    LOG_ERROR(Logger::_(), "Session is null in connection message reading");
+    LOG_ERROR("connection", "Session is null in connection message reading");
   }
 }
 }  // namespace dsa

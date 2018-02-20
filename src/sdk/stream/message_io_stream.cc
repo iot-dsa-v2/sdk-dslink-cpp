@@ -134,6 +134,7 @@ void MessageQueueStream::send_message(MessageCRef &&msg, bool close) {
         _queue.pop_back();  // remove it from the queue
       } else {
         LOG_FATAL(
+            "message_io_stream.cc",
             LOG << "_waiting_page_group is not the last message in queue");
       }
       _waiting_page_group->drop();
