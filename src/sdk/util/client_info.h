@@ -11,8 +11,12 @@ struct ClientInfo {
   typedef std::function<void(const ClientInfo client, bool error)>
     GetClientCallback;
 
-  string_ dsid;
-  string_ permission_token;
+  // could be dsid or user id
+  string_ id;
+
+  // a string used by the authorizer
+  // could be a permission group or a default token
+  string_ permission_str;
   string_ responder_path;
   size_t max_session;
 
@@ -22,10 +26,10 @@ struct ClientInfo {
   int32_t max_queue_time = 3600 * 24;
   int32_t default_queue_time = 60;
 
-  ClientInfo(const string_ dsid = "",
-             const string_ permission_token = "", size_t max_session = 1)
-      : dsid(dsid),
-        permission_token(permission_token),
+  ClientInfo(const string_ id = "",
+             const string_ permission_str = "", size_t max_session = 1)
+      : id(dsid),
+        permission_str(permission_str),
         max_session(max_session) {}
 };
 }
