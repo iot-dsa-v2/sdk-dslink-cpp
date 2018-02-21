@@ -17,10 +17,9 @@ class BrokerClientManager : public ClientManager {
 
  protected:
   LinkStrandRef _strand;
-  void set_strand(LinkStrandRef strand) override { _strand = std::move(strand); }
 
  public:
-  BrokerClientManager() = default;
+  BrokerClientManager(LinkStrandRef& strand) : _strand(strand){};
 
   void get_client(const string_& dsid, const string_& auth_token,
                   ClientInfo::GetClientCallback&& callback) override;
