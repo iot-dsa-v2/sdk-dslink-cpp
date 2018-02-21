@@ -93,7 +93,7 @@ void Session::destroy_impl() {
   requester.destroy_impl();
   responder.destroy_impl();
   if (_connection != nullptr) {
-    _connection->destroy();
+    _connection->destroy_in_strand(_connection);
     _connection.reset();
   }
   _ack_stream.reset();
@@ -143,7 +143,9 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  LOG_TRACE(Logger::_(), LOG << "receive message: ";
+  if(is_destroyed())
+    return;
+  LOG_TRACE(__FILENAME__, LOG << "receive message: ";
             message->print_message(LOG););
 
   _no_receive_in_loop = 0;
@@ -224,7 +226,7 @@ void Session::write_loop(ref_<Session> ref) {
                                       std::move(ack_callback));
     }
 
-    LOG_TRACE(Logger::_(), LOG << "send message: ";
+    LOG_TRACE(__FILENAME__, LOG << "send message: ";
               message->print_message(LOG, stream->rid););
 
     write_buffer->add(*message, stream->rid, ref->_waiting_ack);

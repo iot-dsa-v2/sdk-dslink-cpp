@@ -22,12 +22,13 @@ NodeModel::NodeModel(LinkStrandRef &&strand,
 };
 NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
                      PermissionLevel write_require_permission)
-    : NodeModelBase(std::move(strand)), _profile(profile) {
+    : NodeModelBase(std::move(strand)),
+      _profile(profile) {
   set_value_require_permission(write_require_permission);
 
   auto &state = profile->get_state();
   if (state == nullptr || state->get_path().data()->names[0] != "pub") {
-    LOG_FATAL(LOG << "invalid profile node");
+    LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
   }
   if (state->get_path().data()->names[1] == "dsa") {
     // global profile on all brokers

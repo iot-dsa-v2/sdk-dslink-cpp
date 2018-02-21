@@ -40,7 +40,10 @@ class IncomingListCache : public DestroyableRef<IncomingListCache> {
   IncomingListCache(ref_<ListMerger>&& merger,
                     IncomingListCache::Callback&& callback);
   const VarMap& get_map() const;
+  const VarMap& get_profile_map() const;
+  void set_profile_map(const VarMap& item) const;
   MessageStatus get_status() const;
+  const string_& get_last_pub_path() const;
 
   void close() { destroy(); }
   bool is_closed() { return is_destroyed(); }
@@ -59,8 +62,10 @@ class ListMerger : public DestroyableRef<ListMerger> {
 
   ref_<IncomingListStream> _stream;
   VarMap _map;
+  ref_<VarMap> _profile_map;
   std::vector<string_> _changes;
   MessageStatus _last_status = MessageStatus::INITIALIZING;
+  string_ last_pub_path;
 
   void destroy_impl() final;
 

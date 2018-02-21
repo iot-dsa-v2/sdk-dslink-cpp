@@ -14,7 +14,7 @@ namespace dsa {
 class ECDH {
  public:
   static const char *curve_name;
-  static ECDH *from_bucket(StorageBucket &bucket, const string_ &path_str);
+  static ECDH *from_storage(StorageBucket &bucket, const string_ &path_str);
   static ECDH *from_file(const char *path);
 
  private:

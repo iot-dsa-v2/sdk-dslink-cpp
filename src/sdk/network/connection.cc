@@ -43,7 +43,7 @@ void Connection::destroy_impl() {
     _session->disconnected(shared_from_this());
     _session.reset();
   }
-//  _strand.reset();
+  _strand.reset();
   _deadline.cancel();
 }
 
@@ -57,7 +57,8 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
     _strand->post([
       this, sthis = std::move(sthis), messages = std::move(copy)
     ]() mutable {
-
+      if(is_destroyed())
+        return;
       // a special protection to give writing higher priority than reading
       _strand->check_injected();
 
@@ -69,7 +70,7 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
       }
     });
   } else if (_session == nullptr) {
-    LOG_ERROR(Logger::_(), "Session is null in connection message reading");
+    LOG_ERROR(__FILENAME__, "Session is null in connection message reading");
   }
 }
 }  // namespace dsa

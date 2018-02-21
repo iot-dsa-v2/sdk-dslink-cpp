@@ -57,7 +57,7 @@ void BrokerSessionManager::client_destroyed(BrokerClient &client) {
   // return when this is called from destroy_impl
   if (is_destroyed()) return;
 
-  auto search = _clients.find(client._info.dsid);
+  auto search = _clients.find(client._info.id);
   if (search != _clients.end() && search->second.get() == &client) {
     _clients.erase(search);
   }

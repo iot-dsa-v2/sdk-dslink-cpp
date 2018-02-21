@@ -26,7 +26,7 @@ void AsyncSimpleClientManager::get_client(const string_& dsid,
   });
 }
 
-void SimpleAuthorizer::check_permission(const string_& dsid,
+void SimpleAuthorizer::check_permission(const ClientInfo& client_info,
                                         const string_& permission_token,
                                         MessageType method, const Path& path,
                                         CheckPermissionCallback&& callback) {

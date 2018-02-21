@@ -6,7 +6,7 @@ using BrokerDsLinkTest = SetUpBase;
 TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   std::string close_token = generate_random_string(32);
   SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_bucket(close_token, ".close_token", storage_bucket);
+  string_to_storage(close_token, ".close_token", storage_bucket);
 
 
   typedef std::vector<std::vector<string_>> ListResponses;
