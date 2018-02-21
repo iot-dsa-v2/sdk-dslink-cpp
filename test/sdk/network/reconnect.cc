@@ -62,7 +62,7 @@ TEST_F(NetworkTest, ReConnect) {
     case dsa::ProtocolType::PROT_DSS:
       context.load_verify_file("certificate.pem", error);
       if (error) {
-        LOG_FATAL(LOG << "Failed to verify cetificate");
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
       }
 
       client_strand.client_connection_maker = [

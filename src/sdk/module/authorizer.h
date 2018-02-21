@@ -9,9 +9,9 @@
 #include <string>
 
 #include "message/enums.h"
-#include "util/enable_ref.h"
-
 #include "storage.h"
+#include "util/client_info.h"
+#include "util/enable_ref.h"
 
 namespace dsa {
 
@@ -22,7 +22,7 @@ class Authorizer : public DestroyableRef<Authorizer> {
   typedef std::function<void(PermissionLevel permission)>
       CheckPermissionCallback;
 
-  virtual void check_permission(const string_& dsid,
+  virtual void check_permission(const ClientInfo& client_info,
                                 const string_& permission_token,
                                 MessageType method, const Path& path,
                                 CheckPermissionCallback&& callback) = 0;

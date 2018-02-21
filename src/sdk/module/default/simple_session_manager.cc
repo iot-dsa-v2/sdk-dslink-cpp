@@ -22,8 +22,8 @@ void SimpleSessionManager::get_session(const string_ &dsid,
           callback(ref_<Session>(), _last_client);  // return nullptr
           return;
         }
-        _last_client.dsid = dsid;
-        auto session = make_ref_<Session>(_strand, client.dsid);
+        _last_client.id = dsid;
+        auto session = make_ref_<Session>(_strand, client.id);
         _sessions[session.get()] = session;
 
         callback(session, _last_client);

@@ -57,14 +57,13 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
   copy.strand = EditableStrand::make_default(app);
 
-
   boost::system::error_code error;
   static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
       context.load_verify_file("certificate.pem", error);
       if (error) {
-        LOG_FATAL(LOG << "Failed to verify cetificate");
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
       }
 
       copy.tcp_port = tcp_secure_port;

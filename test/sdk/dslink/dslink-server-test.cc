@@ -115,8 +115,8 @@ TEST_F(DslinkTest, CloseTest) {
 
   // first create .close_token
   string_ close_token = generate_random_string(32);
-  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_bucket(close_token, ".close_token", storage_bucket);
+  SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
+  string_to_storage(close_token, ".close_token", storage_bucket);
 
   const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4122",
                         "-l",         "info",          "--thread",
@@ -228,18 +228,21 @@ TEST_F(DslinkTest, ProfileActionTest) {
   bool list_checked = false;
   bool invoked = false;
   bool subscrib_checked = false;
+  ref_<IncomingListCache> list_cache;
   link->connect([&](const shared_ptr_<Connection> connection,
                     ref_<DsLinkRequester> link_req) {
 
     // check the list result
-    link_req->list("main",
-                   [&](IncomingListCache &cache, const std::vector<string_> &) {
-                     if (cache.get_map().count("$is") > 0 &&
-                         cache.get_map().at("$is").to_string() == "example") {
-                       list_checked = true;
-                       cache.close();
-                     }
-                   });
+    list_cache = link_req->list(
+        "main", [&](IncomingListCache &cache, const std::vector<string_> &) {
+          if (cache.get_map().count("$is") > 0 &&
+              cache.get_map().at("$is").to_string() == "example") {
+            EXPECT_TRUE(cache.get_profile_map().size() != 0);
+            EXPECT_NE(cache.get_profile_map().find("change"),
+                      cache.get_profile_map().end());
+            list_checked = true;
+          }
+        });
     // invoke the pub node to change the value
     auto request = make_ref_<InvokeRequestMessage>();
     request->set_target_path("main/change");
@@ -266,7 +269,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
   WAIT_EXPECT_TRUE(1000, [&]() -> bool {
     return list_checked && invoked && subscrib_checked;
   });
-
+  list_cache->close();
   destroy_dslink_in_strand(link);
 
   app->close();

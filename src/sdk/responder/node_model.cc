@@ -5,6 +5,7 @@
 #include "message/request/set_request_message.h"
 #include "message/response/set_response_message.h"
 #include "module/logger.h"
+#include "module/storage.h"
 #include "node_state.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
@@ -25,18 +26,17 @@ NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
       _profile(profile) {
   set_value_require_permission(write_require_permission);
 
-  auto & state = profile->get_state();
+  auto &state = profile->get_state();
   if (state == nullptr || state->get_path().data()->names[0] != "pub") {
-    LOG_FATAL(LOG << "invalid profile node" );
+    LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
   }
-  if ( state->get_path().data()->names[1] == "dsa") {
+  if (state->get_path().data()->names[1] == "dsa") {
     // global profile on all brokers
     update_property("$is",
                     Var("/" + state->get_path().move_pos(1).remain_str()));
   } else {
     update_property("$is", Var(state->get_path().move_pos(1).remain_str()));
   }
-
 }
 
 void NodeModel::set_value_require_permission(PermissionLevel permission_level) {
@@ -195,6 +195,73 @@ MessageStatus NodeModel::on_set_value(MessageValue &&value) {
 }
 MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
   return MessageStatus::NOT_SUPPORTED;
+}
+
+// serialization
+
+void NodeModel::save(StorageBucket &storage) const {
+  if (_state == nullptr || _state->get_model() != this) {
+    // can't serialize without a path
+    return;
+  }
+  auto map = make_ref_<VarMap>();
+  if (_cached_value != nullptr) {
+    (*map)["?value"] = _cached_value->get_value().value;
+    if (!_cached_value->get_value().meta.is_null()) {
+      (*map)["?valueMeta"] = _cached_value->get_value().meta;
+    }
+  }
+  for (auto &it : _metas) {
+    if (save_meta(it.first)) {
+      (*map)[it.first] = it.second->get_value();
+    }
+  }
+  for (auto &it : _attributes) {
+    if (save_attribute(it.first)) {
+      (*map)[it.first] = it.second->get_value();
+    }
+  }
+  for (auto &it : _list_children) {
+    if (save_child(it.first)) {
+      (*map)[it.first] = it.second->get_summary()->get_value();
+      // save child if it's also a NodeModel
+      auto child_model = dynamic_cast<NodeModel *>(it.second.get());
+      if (child_model != nullptr) {
+        child_model->save(storage);
+      }
+    }
+  }
+  Var var;
+  var = map;
+  storage.write(_state->get_full_path(),
+                make_ref_<RefCountBytes>(var.to_msgpack()));
+}
+void NodeModel::load(VarMap &map) {
+  if (map.count("?value")) {
+    MessageValue v(map["?value"]);
+    if (map.count("?valueMeta") && map["?valueMeta"].is_map()) {
+      v.meta = map["?valueMeta"];
+    }
+    set_value(std::move(v));
+  }
+  for (auto &it : map) {
+    if (it.first.empty()) continue;
+    switch (it.first[0]) {
+      case '$': {
+        _metas[it.first] = make_ref_<VarBytes>(it.second);
+      } break;
+      case '@': {
+        _attributes[it.first] = make_ref_<VarBytes>(it.second);
+      } break;
+      case '?':
+        // already handled, do nothing
+        break;
+      default:
+        if (it.second.is_map()) {
+          on_load_child(it.first, it.second.get_map());
+        }
+    }
+  }
 }
 
 }  // namespace dsa

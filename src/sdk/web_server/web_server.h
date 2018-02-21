@@ -83,7 +83,7 @@ class ErrorCallback {
       WebServer& web_server, Websocket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
     // TODO - construct a proper http response
-    LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
+    LOG_ERROR(__FILENAME__, LOG << "http error code: " << _error_code);
   }
 };
 

@@ -20,7 +20,7 @@ using BrokerSysTest = SetUpBase;
 TEST_F(BrokerSysTest, StopBroker) {
   string_ token = generate_random_string(32);
   SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_bucket(token, ".close_token", storage_bucket);
+  string_to_storage(token, ".close_token", storage_bucket);
 
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();

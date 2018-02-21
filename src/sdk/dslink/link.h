@@ -27,6 +27,9 @@ class DsLinkRequester : public WrapperStrand {
   virtual ref_<IncomingListCache> list(
       const string_ &path, IncomingListCache::Callback &&callback) = 0;
 
+  virtual ref_<IncomingListCache> list_raw(
+      const string_ &path, IncomingListCache::Callback &&callback) = 0;
+
   virtual ref_<IncomingInvokeStream> invoke(
       IncomingInvokeStreamCallback &&callback,
       ref_<const InvokeRequestMessage> &&message) = 0;
@@ -123,6 +126,9 @@ class DsLink final : public DsLinkRequester {
 
   ref_<IncomingListCache> list(const string_ &path,
                                IncomingListCache::Callback &&callback) final;
+
+  ref_<IncomingListCache> list_raw(
+      const string_ &path, IncomingListCache::Callback &&callback) final;
 
   ref_<IncomingInvokeStream> invoke(
       IncomingInvokeStreamCallback &&callback,

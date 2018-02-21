@@ -159,7 +159,7 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
 TEST_F(BrokerDsLinkTest, StopTest) {
   std::string close_token = "12345678901234567890123456789012";
   SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_bucket(close_token, ".close_token", storage_bucket);
+  string_to_storage(close_token, ".close_token", storage_bucket);
 
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
@@ -215,7 +215,7 @@ TEST_F(BrokerDsLinkTest, StopTest) {
 TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   std::string close_token = generate_random_string(32);
   SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_bucket(close_token, ".close_token", storage_bucket);
+  string_to_storage(close_token, ".close_token", storage_bucket);
 
   auto app = make_shared_<App>();
 

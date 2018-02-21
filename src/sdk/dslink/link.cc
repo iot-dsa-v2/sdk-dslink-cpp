@@ -62,9 +62,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL(
-        LOG
-        << "Invalid input, please check available parameters with --help\n");
+    LOG_FATAL(__FILENAME__, LOG << "Invalid input, please check available "
+                                "parameters with --help\n");
   }
 
   // show help and exit
@@ -82,19 +81,21 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   }
 
   strand.reset(new EditableStrand(
-      get_app().new_strand(), std::unique_ptr<ECDH>(ECDH::from_bucket(get_config_bucket(),".key"))));
+      get_app().new_strand(),
+      std::unique_ptr<ECDH>(ECDH::from_storage(get_config_bucket(), ".key"))));
 
   // TOKEN from file
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
   if (client_token_path.length() != 0) {
-    client_token = string_from_bucket(client_token_path, get_config_bucket());
+    client_token = string_from_storage(client_token_path, get_config_bucket());
     if (client_token.empty()) {
-      LOG_FATAL(LOG << "Fatal loading token file " << client_token_path);
+      LOG_FATAL(__FILENAME__,
+                LOG << "Fatal loading token file " << client_token_path);
     }
   }
 
-  close_token = get_close_token_from_bucket(get_config_bucket());
+  close_token = get_close_token_from_storage(get_config_bucket());
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
@@ -109,7 +110,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   init_module(std::move(default_module), variables["module_path"].as<string_>(),
               use_standard_node_structure);
 
-  LOG_TRACE(Logger::_(), LOG << "DSLink initialized successfully");
+  LOG_TRACE(__FILENAME__, LOG << "DSLink initialized successfully");
 }
 void DsLink::init_module(ref_<Module> &&default_module,
                          const string_ &module_path,
@@ -201,7 +202,7 @@ void DsLink::parse_url(const string_ &url) {
 
   auto match = std::sregex_iterator(url.begin(), url.end(), url_regex);
   if (match == std::sregex_iterator()) {  // match is a empty iterator
-    LOG_FATAL(LOG << "Invalid Broker Url: " << url);
+    LOG_FATAL(__FILENAME__, LOG << "Invalid Broker Url: " << url);
   }
   string_ protocol = (*match)[1].str();
 
@@ -238,13 +239,14 @@ void DsLink::parse_server_port(uint16_t port) { tcp_server_port = port; }
 
 void DsLink::init_responder_raw(ref_<NodeModelBase> &&root_node) {
   if (_root != nullptr) {
-    LOG_FATAL(LOG << "init_responder_raw called but root node is initialized");
+    LOG_FATAL(__FILENAME__,
+              LOG << "init_responder_raw called but root node is initialized");
   }
   strand->set_responder_model(std::move(root_node));
 }
 void DsLink::init_responder(ref_<NodeModelBase> &&main_node) {
   if (_root == nullptr) {
-    LOG_FATAL(LOG << "init_responder called without root node");
+    LOG_FATAL(__FILENAME__, LOG << "init_responder called without root node");
   }
   if (main_node != nullptr) {
     _root->set_main(std::move(main_node));
@@ -267,6 +269,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
     LOG_FATAL(
+        __FILENAME__,
         LOG << "DsLink::connect(), Dslink is already requested for connection");
     return;
   }
@@ -286,7 +289,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
         boost::system::error_code error;
         context.load_verify_file("certificate.pem", error);
         if (error) {
-          LOG_FATAL(LOG << "Failed to verify certificate");
+          LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
         }
 
         client_connection_maker = [
@@ -345,13 +348,13 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
 void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
                  uint8_t callback_type) {
   if (_running) {
-    LOG_FATAL(LOG << "DsLink::run(), Dslink is already running");
+    LOG_FATAL(__FILENAME__, LOG << "DsLink::run(), Dslink is already running");
     return;
   }
   _running = true;
 
   if (!strand->is_responder_set()) {
-    LOG_WARN(Logger::_(), LOG << "responder is not initialized");
+    LOG_WARN(__FILENAME__, LOG << "responder is not initialized");
     _client->get_session().responder_enabled = false;
     strand->set_stream_acceptor(make_ref_<DummyStreamAcceptor>());
   }
@@ -359,12 +362,12 @@ void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_SYSTEM(Logger::_(),
-               LOG << "DsLink on_connect callback "
-                      "ignored since it was connected "
-                      "before\n");
+    LOG_INFO(__FILENAME__,
+             LOG << "DsLink on_connect callback "
+                    "ignored since it was connected "
+                    "before\n");
   }
-  LOG_SYSTEM(Logger::_(), LOG << "DsLink running");
+  LOG_INFO(__FILENAME__, LOG << "DsLink running");
   if (own_app) {
     _app->wait();
     destroy();
@@ -384,6 +387,27 @@ ref_<IncomingSubscribeCache> DsLink::subscribe(
 }
 ref_<IncomingListCache> DsLink::list(const string_ &path,
                                      IncomingListCache::Callback &&callback) {
+  return list_raw(path, [&, callback = std::move(callback) ](
+                            IncomingListCache & main_cache,
+                            const std::vector<string_> &main_str) {
+    auto pub_path = main_cache.get_last_pub_path();
+    // if $is and pub_path both exists
+    if (main_cache.get_map().count("$is") > 0 && !pub_path.empty()) {
+      auto is_str = main_cache.get_map().at("$is").to_string();
+      list_raw(pub_path + "/" + is_str,
+               [&, callback = std::move(callback) ](
+                   IncomingListCache & cache, const std::vector<string_> &str) {
+                 main_cache.set_profile_map(cache.get_map());
+                 callback(main_cache, main_str);
+               });
+    } else {
+      callback(main_cache, main_str);
+    }
+  });
+}
+
+ref_<IncomingListCache> DsLink::list_raw(
+    const string_ &path, IncomingListCache::Callback &&callback) {
   if (_list_mergers.count(path) == 0) {
     _list_mergers[path] = make_ref_<ListMerger>(get_ref(), path);
   }
