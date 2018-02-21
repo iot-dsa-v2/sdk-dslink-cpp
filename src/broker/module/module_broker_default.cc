@@ -8,6 +8,8 @@
 #include "module/default/console_logger.h"
 #include "module/default/simple_storage.h"
 
+#include "responder/node_model.h"
+
 namespace dsa {
 
 ref_<Storage> ModuleBrokerDefault::create_storage(App& app,
@@ -22,7 +24,7 @@ shared_ptr_<Logger> ModuleBrokerDefault::create_logger(
 
 ref_<ClientManager> ModuleBrokerDefault::create_client_manager(
     App& app, ref_<LinkStrand>& strand) {
-  return make_ref_<BrokerClientManager>();
+  return make_ref_<BrokerClientManager>(strand);
 }
 
 ref_<Authorizer> ModuleBrokerDefault::create_authorizer(
@@ -39,6 +41,10 @@ void ModuleBrokerDefault::add_module_node(ref_<NodeModel>& module_node) {
   if (_client_manager != nullptr) {
   }
   if (_authorizer != nullptr) {
+  }
+  if (_login_manager != nullptr) {
+    module_node->add_list_child(
+        "users", static_cast<BrokerLoginManager&>(*_login_manager)._module_node);
   }
 }
 }

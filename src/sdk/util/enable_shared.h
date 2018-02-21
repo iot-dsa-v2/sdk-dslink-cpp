@@ -35,6 +35,7 @@ class SharedDestroyable : public std::enable_shared_from_this<T> {
     return std::dynamic_pointer_cast<Down>(shared_from_this());
   }
 
+  virtual ~SharedDestroyable() = default;
   std::mutex mutex;
   bool is_destroyed() const { return _destroyed; }
 
