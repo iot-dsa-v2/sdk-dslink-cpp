@@ -5,6 +5,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/filesystem.hpp>
 #include "module/default/simple_storage.h"
+#include "module/storage.h"
 #include "openssl/rand.h"
 
 using namespace std;
@@ -29,14 +30,16 @@ void string_to_file(const string_ &data, const string_ &file_path) {
 
 string_ string_from_bucket(const string_ &key, StorageBucket &storage_bucket) {
   string_ data;
-  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec, BucketReadStatus read_status) {
+  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec,
+                           BucketReadStatus read_status) {
     string_ content(vec.begin(), vec.end());
     data = content;
   };
   storage_bucket.read(key, read_callback);
   return data;
 }
-void string_to_bucket(const string_ &data, const string_ &key, StorageBucket &storage_bucket) {
+void string_to_bucket(const string_ &data, const string_ &key,
+                      StorageBucket &storage_bucket) {
   auto content =
       new RefCountBytes(&data.c_str()[0], &data.c_str()[strlen(data.c_str())]);
 
@@ -72,11 +75,10 @@ string_ generate_random_string(int len) {
 }
 
 string_ get_close_token_from_bucket(StorageBucket &storage_bucket,
-                                  const string_ &key,
-                                  bool force_to_generate_one) {
+                                    const string_ &key,
+                                    bool force_to_generate_one) {
   string_ token = string_from_bucket(key, storage_bucket);
-  if (token.length() == 32)
-    return token;
+  if (token.length() == 32) return token;
 
   if (force_to_generate_one) {
     token = generate_random_string(32);

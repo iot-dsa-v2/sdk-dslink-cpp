@@ -144,6 +144,13 @@ class Var : public BaseVariant {
     }
     return boost::get<const std::vector<uint8_t>>(*this);
   }
+  const BytesRef get_bytesref() const {
+    if (which() == SHARED_BINARY) {
+      return boost::get<BytesRef>(*this);
+    }
+    return make_ref_<const RefCountBytes>(
+        boost::get<const std::vector<uint8_t>>(*this));
+  }
   VarMap &get_map() const { return *boost::get<ref_<VarMap>>(*this); }
   VarArray &get_array() const { return *boost::get<ref_<VarArray>>(*this); }
 
@@ -199,6 +206,7 @@ class VarBytes : public EnableRef<VarBytes> {
  public:
   VarBytes() : _bytes(new RefCountBytes()) {}
   VarBytes(Var &&v) : _v(std::move(v)) {}
+  VarBytes(const Var &v) : _v(v) {}
   VarBytes(BytesRef bytes) : _bytes(std::move(bytes)) {}
   VarBytes(std::vector<uint8_t> &&bytes)
       : _bytes(new RefCountBytes(std::move(bytes))) {}
