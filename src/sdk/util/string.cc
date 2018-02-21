@@ -6,6 +6,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/filesystem.hpp>
 #include "module/default/simple_storage.h"
+#include "module/storage.h"
 #include "openssl/rand.h"
 
 using namespace std;

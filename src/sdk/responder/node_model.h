@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 namespace dsa {
+class StorageBucket;
 
 class NodeModel : public NodeModelBase {
  private:
@@ -57,6 +58,20 @@ class NodeModel : public NodeModelBase {
   void set(ref_<OutgoingSetStream> &&stream) override;
   virtual MessageStatus on_set_value(MessageValue &&value);
   virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
+
+ public:  // serialization logic
+  void save(StorageBucket &storage) const;
+  void load(VarMap &map);
+  // return true if a metadata should be saved
+  virtual bool save_meta(const string_ &name) const { return false; }
+  // return true if a attribute should be saved
+  virtual bool save_attribute(const string_ &name) const { return true; }
+  // return true if a child should be saved
+  virtual bool save_child(const string_ &name) const { return false; }
+  // handler of children loading
+  // usually this should create an instance of child and waiting for the
+  // storage loader to call load() on that instance
+  virtual void on_load_child(const string_ &name, VarMap &map){};
 };
 
 }  // namespace dsa
