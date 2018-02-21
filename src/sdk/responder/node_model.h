@@ -68,6 +68,9 @@ class NodeModel : public NodeModelBase {
   virtual bool save_attribute(const string_ &name) const { return true; }
   // return true if a child should be saved
   virtual bool save_child(const string_ &name) const { return false; }
+  // handler of children loading
+  // usually this should create an instance of child and waiting for the
+  // storage loader to call load() on that instance
   virtual void on_load_child(const string_ &name, VarMap &map){};
 };
 
