@@ -2,11 +2,10 @@
 
 #include "broker.h"
 
-#include <module/module_with_loader.h>
 #include <util/string.h>
+#include <module/module_with_loader.h>
 #include "config/broker_config.h"
 #include "module/broker_authorizer.h"
-#include "module/broker_client_manager.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"
@@ -19,6 +18,7 @@
 #include "util/app.h"
 #include "util/string.h"
 #include "web_server/web_server.h"
+#include "module/broker_client_manager.h"
 
 #include "module/module_broker_default.h"
 
@@ -112,18 +112,20 @@ void DsBroker::run(bool wait) {
     uint16_t http_port =
         static_cast<uint16_t>(_config->http_port().get_value().get_int());
     _web_server->listen(http_port);
+    uint16_t https_port =
+        static_cast<uint16_t>(_config->https_port().get_value().get_int());
+    _web_server->secure_listen(https_port);
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
     *root_cb = [this](
-        WebServer& _web_server, boost::asio::ip::tcp::socket&& socket,
+        WebServer &_web_server, Websocket& websocket,
         boost::beast::http::request<boost::beast::http::string_body> req) {
       LinkStrandRef link_strand(strand);
       DsaWsCallback dsa_ws_callback(link_strand);
-      return dsa_ws_callback(_web_server.io_service(), std::move(socket),
+      return dsa_ws_callback(_web_server.io_service(), websocket,
                              std::move(req));
     };
 
-    // TODO - websocket callback setup
     _web_server->add_ws_handler("/", std::move(*root_cb));
   });
 

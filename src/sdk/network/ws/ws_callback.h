@@ -15,6 +15,10 @@
 #include "module/default/simple_session_manager.h"
 #include "module/session_manager.h"
 #include "network/ws/ws_server_connection.h"
+#include "network/ws/wss_server_connection.h"
+#include "web_server/websocket.h"
+
+#include <memory>
 
 namespace websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
@@ -29,21 +33,40 @@ class DsaWsCallback {
   DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
 
   auto operator()(
-      boost::asio::io_context& io_context,
-      boost::asio::ip::tcp::socket&& socket,
+      boost::asio::io_context& io_context, Websocket& websocket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
-    auto connection = make_shared_<WsServerConnection>(
-        *make_shared_<websocket_stream>(std::move(socket)), _link_strand);
+    shared_ptr_<Connection> connection;
+    if (websocket.is_secure_stream()) {
+      connection = make_shared_<WssServerConnection>(websocket.secure_stream(),
+                                                     _link_strand);
 
-    connection->socket().async_accept(
-        req,
-        [ conn = connection, this ](const boost::system::error_code& error) {
+      std::dynamic_pointer_cast<WssConnection>(connection)
+          ->socket()
+          .async_accept(req, [ conn = connection,
+                               this ](const boost::system::error_code& error) {
 
-          // TODO: run within the strand?
-          conn->accept();
+            // TODO: run within the strand?
+            std::dynamic_pointer_cast<WssConnection>(conn)->accept();
 
-          return;
-        });
+            return;
+          });
+
+    } else {
+      connection = make_shared_<WsServerConnection>(
+          *make_shared_<websocket_stream>(std::move(websocket.socket())),
+          _link_strand);
+
+      std::dynamic_pointer_cast<WsConnection>(connection)
+          ->socket()
+          .async_accept(req, [ conn = connection,
+                               this ](const boost::system::error_code& error) {
+
+            // TODO: run within the strand?
+            std::dynamic_pointer_cast<WsConnection>(conn)->accept();
+
+            return;
+          });
+    }
 
     return connection;
   }

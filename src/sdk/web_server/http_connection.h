@@ -6,27 +6,31 @@
 #endif
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/stream.hpp>
 #include <boost/beast/core/flat_buffer.hpp>
 #include <boost/beast/http.hpp>
+
+#include "websocket.h"
 
 #include <memory>
 
 namespace dsa {
 
+class Connection;
 class WebServer;
- class Connection;
 
 // Web server side connection.
 class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
  private:
   WebServer& _web_server;
+  bool _is_secured;
   shared_ptr_<Connection> _connection;
-  boost::asio::ip::tcp::socket _socket;
+  tcp::socket _socket;
   boost::beast::flat_buffer _buffer;
   boost::beast::http::request<boost::beast::http::string_body> _req;
 
  public:
-  HttpConnection(WebServer& web_server);
+  HttpConnection(WebServer& web_server, bool is_secured);
   void accept();
   boost::asio::ip::tcp::socket& socket() { return _socket; }
   void destroy();

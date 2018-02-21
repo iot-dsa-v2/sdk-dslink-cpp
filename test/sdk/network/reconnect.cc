@@ -12,6 +12,7 @@
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_client_connection.h"
+#include "network/ws/wss_client_connection.h"
 #include "responder/node_model.h"
 #include "web_server/web_server.h"
 
@@ -84,6 +85,22 @@ TEST_F(NetworkTest, ReConnect) {
       };
       break;
     case dsa::ProtocolType::PROT_WSS:
+      context.load_verify_file("certificate.pem", error);
+      if (error) {
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
+      }
+
+      client_strand.client_connection_maker = [
+        &connection, dsid_prefix = client_strand.dsid_prefix,
+        ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        tcp::socket tcp_socket(strand->get_io_context());
+        websocket_ssl_stream stream(tcp_socket, context);
+
+        connection = make_shared_<WssClientConnection>(
+            stream, strand, dsid_prefix, ws_host, ws_port);
+        return connection;
+      };
       break;
     case dsa::ProtocolType::PROT_DS:
     default:

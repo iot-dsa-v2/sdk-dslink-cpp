@@ -12,8 +12,10 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
+#include "network/ws/wss_client_connection.h"
 #include "util/app.h"
 #include "util/certificate.h"
+#include "web_server/websocket.h"
 
 #include "responder/model_base.h"
 #include "responder/node_state_manager.h"
@@ -90,6 +92,26 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
       break;
     case dsa::ProtocolType::PROT_WSS:
+      context.load_verify_file("certificate.pem", error);
+      if (error) {
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
+      }
+
+      copy.ws_host = "127.0.0.1";
+      // TODO: ws_port and ws_path
+      copy.ws_port = 8443;
+      copy.ws_path = "/";
+
+      copy.client_connection_maker = [
+        dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
+        ws_port = copy.ws_port
+      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+        static tcp::socket tcp_socket(strand->get_io_context());
+        static websocket_ssl_stream stream(tcp_socket, context);
+
+        return make_shared_<WssClientConnection>(stream, strand, dsid_prefix, ws_host,
+                                                ws_port);
+      };
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
@@ -124,7 +146,8 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
       address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_WSS:
-      address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      // TODO address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      address.assign(std::string("wss://127.0.0.1:") + std::to_string(8443));
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
@@ -151,17 +174,19 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
   uint16_t http_port = 8080;
   web_server->listen(http_port);
-  WebServer::WsCallback *root_cb = new WebServer::WsCallback();
+  uint16_t https_port = 8443;
+  web_server->secure_listen(https_port);
+
+  WebServer::WsCallback* root_cb = new WebServer::WsCallback();
   *root_cb = [this](
-      WebServer &web_server, boost::asio::ip::tcp::socket &&socket,
+      WebServer &web_server, Websocket& websocket,
       boost::beast::http::request<boost::beast::http::string_body> req) {
     LinkStrandRef link_strand(strand);
     DsaWsCallback dsa_ws_callback(link_strand);
-    return dsa_ws_callback(web_server.io_service(), std::move(socket),
+    return dsa_ws_callback(web_server.io_service(), websocket,
                            std::move(req));
   };
 
-  // TODO - websocket callback setup
   web_server->add_ws_handler("/", std::move(*root_cb));
 
   return web_server;

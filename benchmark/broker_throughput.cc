@@ -17,6 +17,7 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
+#include "network/ws/wss_client_connection.h"
 #include "util/date_time.h"
 
 using high_resolution_clock = std::chrono::high_resolution_clock;
@@ -90,6 +91,30 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
       return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
                                               ws_port);
     };
+  } else if (!protocol.compare("wss")) {
+    client_strand.ws_host = "127.0.0.1";
+    client_strand.ws_port = 8443;
+    client_strand.ws_path = "/";
+
+    static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
+    boost::system::error_code error;
+    context.load_verify_file("certificate.pem", error);
+
+    if (error) {
+      LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
+    }
+
+    client_strand.client_connection_maker = [
+      dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
+      ws_port = client_strand.ws_port
+    ](LinkStrandRef & strand) {
+      static tcp::socket tcp_socket{strand->get_io_context()};
+      static websocket_ssl_stream wss_stream{tcp_socket, context};
+
+      return make_shared_<WssClientConnection>(wss_stream, strand, dsid_prefix,
+                                               ws_host, ws_port);
+    };
+
   } else {
     client_strand.client_connection_maker = [
       dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
@@ -112,9 +137,9 @@ int main(int argc, const char* argv[]) {
       ("point,p", opts::value<int>()->default_value(1000),
        "Number of Points per Client")  //
       ("protocol", opts::value<string_>()->default_value("ds"),
-       "Protocol(ds/dss/ws/wss")("num-message,n",
-                                 opts::value<int>()->default_value(10),
-                                 "Message per second per Point")  //
+       "Protocol(ds/dss/ws/wss)")("num-message,n",
+                                  opts::value<int>()->default_value(10),
+                                  "Message per second per Point")  //
       ("decode-value,d", opts::bool_switch(),
        "Decode value after receiving")  //
       ;
