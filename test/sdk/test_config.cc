@@ -94,7 +94,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
     case dsa::ProtocolType::PROT_WSS:
       context.load_verify_file("certificate.pem", error);
       if (error) {
-        LOG_FATAL(LOG << "Failed to verify cetificate");
+        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
       }
 
       copy.ws_host = "127.0.0.1";

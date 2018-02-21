@@ -314,7 +314,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
         context.load_verify_file("certificate.pem", error);
 
         if (error) {
-          LOG_FATAL(LOG << "Failed to verify certificate");
+          LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
         }
 
         client_connection_maker =

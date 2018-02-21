@@ -101,7 +101,7 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     context.load_verify_file("certificate.pem", error);
 
     if (error) {
-      LOG_FATAL(LOG << "Failed to verify certificate");
+      LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
     }
 
     client_strand.client_connection_maker = [

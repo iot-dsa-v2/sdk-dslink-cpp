@@ -22,7 +22,7 @@ WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
     _ssl_context.use_private_key_file("key.pem",
                                       boost::asio::ssl::context::pem);
   } catch (boost::system::system_error& e) {
-    LOG_ERROR(Logger::_(), LOG << "SSL context setup error: " << e.what());
+    LOG_ERROR(__FILENAME__, LOG << "SSL context setup error: " << e.what());
     return;
   }
 }

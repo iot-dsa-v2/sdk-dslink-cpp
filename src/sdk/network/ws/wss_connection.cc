@@ -13,7 +13,7 @@ WssConnection::WssConnection(websocket_ssl_stream &stream,
     : BaseSocketConnection(strand, dsid_prefix, path), _socket(stream) {}
 
 void WssConnection::destroy_impl() {
-  LOG_DEBUG(Logger::_(), LOG << "connection closed");
+  LOG_DEBUG(__FILENAME__, LOG << "connection closed");
   if (_socket_open.exchange(false)) {
     // TODO - secure websocket close
     _socket.lowest_layer().close();
@@ -52,7 +52,7 @@ void WssConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                      int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
-    LOG_FATAL(LOG << "message is bigger than max buffer size: "
+    LOG_FATAL(__FILENAME__, LOG << "message is bigger than max buffer size: "
                   << MAX_BUFFER_SIZE);
   }
 

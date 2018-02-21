@@ -21,7 +21,7 @@ void WssClientConnection::connect(size_t reconnect_interval) {
   tcp::resolver resolver(_strand->get_io_context());
   // TODO: timeout
   LOG_DEBUG(
-      Logger::_(),
+      __FILENAME__,
       LOG << "WS secure client connecting to " << _hostname << ":" << _port);
 
   tcp::resolver::results_type results =
@@ -61,7 +61,7 @@ void WssClientConnection::connect(size_t reconnect_interval) {
 
                 if (error != boost::system::errc::success) {
                   destroy_in_strand(std::move(connection));
-                  LOG_ERROR(Logger::_(),
+                  LOG_ERROR(__FILENAME__,
                             LOG << "Client websocket handshake failed:"
                                 << error.message());
                   return;
