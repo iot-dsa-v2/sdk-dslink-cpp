@@ -81,7 +81,12 @@ class Logger : public SharedDestroyable<Logger> {
     exit(1);                                        \
   }
 
+#if _WIN32 || _WIN64
 #define __FILENAME__ \
+  (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+ #define __FILENAME__ \
   (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
 
 #endif  // DSA_SDK_MODULE_LOGGER_H
