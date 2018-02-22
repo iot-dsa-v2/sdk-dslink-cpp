@@ -81,7 +81,7 @@ class Logger : public SharedDestroyable<Logger> {
     exit(1);                                        \
   }
 
-#ifdef _WIN32
+#if _WIN32 || _WIN64
 #define __FILENAME__ \
   (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 #else
