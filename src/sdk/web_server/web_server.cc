@@ -35,11 +35,10 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
   uint16_t error_code = 404;
   static WebServer::WsCallback error_callback = [error_code](
       WebServer& web_server, boost::asio::ip::tcp::socket&& socket,
-      boost::beast::http::request<boost::beast::http::string_body> req) {
+      HttpRequest&& req) {
 
     ErrorCallback error_callback_detail(error_code);
-    error_callback_detail(web_server.io_service(), std::move(socket),
-                          std::move(req));
+    error_callback_detail(web_server.io_service(), std::move(req));
 
     return nullptr;
   };
@@ -59,15 +58,14 @@ WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
   if (_http_callback_map.count(path)) {
     return _http_callback_map.at(path);
   }
+  return _http_callback_map.at("/default"); // TODO: as fallback (to be deleted)
 
   uint16_t error_code = 404;
   static WebServer::HttpCallback error_callback = [error_code](
-          WebServer& web_server, boost::asio::ip::tcp::socket&& socket,
-          boost::beast::http::request<boost::beast::http::string_body> req) {
+          WebServer& web_server, HttpRequest&& req) {
 
       ErrorCallback error_callback_detail(error_code);
-      error_callback_detail(web_server.io_service(), std::move(socket),
-                            std::move(req));
+      error_callback_detail(web_server.io_service(), std::move(req));
 
       return nullptr;
   };

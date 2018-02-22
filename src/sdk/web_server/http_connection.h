@@ -7,34 +7,39 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/beast/core/flat_buffer.hpp>
+#include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <memory>
+#include "fields_alloc.h"
+
+namespace http = boost::beast::http;
 
 namespace dsa {
 
 class WebServer;
 class WebsocketConnection;
+class HttpRequest;
 
 class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
  private:
+  using alloc_t = fields_alloc<char>;
+  using request_body_t = http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
   WebServer& _web_server;
-  std::shared_ptr<WebsocketConnection> _connection;
+  shared_ptr_<WebsocketConnection> _connection;
   boost::asio::ip::tcp::socket _socket;
-  boost::beast::flat_buffer _buffer;
-  boost::beast::http::request<boost::beast::http::string_body> _req;
-  boost::beast::http::response<boost::beast::http::dynamic_body> response_;
+  boost::beast::flat_static_buffer<8192> _buffer;
+  alloc_t _alloc = alloc_t{8192};
+  boost::optional<http::request_parser<request_body_t, alloc_t>> _parser;
+  shared_ptr_<HttpRequest> _req;
   boost::asio::basic_waitable_timer<std::chrono::steady_clock> deadline_;
+  void reset_parser();
 
  public:
-  void process_request();
-  void create_response();
-  void write_response();
   void check_deadline();
   explicit HttpConnection(WebServer& web_server);
   void accept();
   boost::asio::ip::tcp::socket& socket() { return _socket; }
-  boost::beast::http::request<boost::beast::http::string_body>& request() { return _req; }
+  auto request() { return _req; }
   void destroy();
 };
 }  // namespace dsa

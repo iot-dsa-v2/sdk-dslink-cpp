@@ -18,16 +18,16 @@ namespace dsa {
 
 class App;
 class WebsocketConnection;
+class HttpRequest;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  public:
   typedef std::function<void(
-      WebServer&, boost::asio::ip::tcp::socket&&,
-      boost::beast::http::request<boost::beast::http::string_body>)>
+      WebServer&, HttpRequest&&)>
       HttpCallback;
   typedef std::function<std::shared_ptr<WebsocketConnection>(
       WebServer&, boost::asio::ip::tcp::socket&&,
-      boost::beast::http::request<boost::beast::http::string_body>)>
+      HttpRequest&&)>
       WsCallback;
 
 
@@ -69,12 +69,11 @@ class ErrorCallback {
   uint16_t _error_code;
 
  public:
-  ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
+  explicit ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
   void operator()(
       boost::asio::io_service& io_service,
-      boost::asio::ip::tcp::socket&& socket,
-      boost::beast::http::request<boost::beast::http::string_body>&& req) {
+      HttpRequest&& req) {
     LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
   }
 };
