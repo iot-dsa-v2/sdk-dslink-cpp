@@ -1,7 +1,7 @@
 #include "http_request.h"
-#include "http_response.h"
 #include <regex>
 #include "crypto/misc.h"
+#include "http_response.h"
 
 namespace dsa {
 
@@ -76,25 +76,20 @@ HttpRequest::HttpRequest(
     : _web_server(web_server),
       _socket(std::move(socket)),
       _req(std::move(req)),
-      _resp(std::make_shared<HttpResponse>())
-{}
+      _resp(std::make_shared<HttpResponse>()) {}
 
-
-shared_ptr_<HttpResponse> HttpRequest::get_response() {
-  return _resp;
-}
+shared_ptr_<HttpResponse> HttpRequest::get_response() { return _resp; }
 
 void HttpRequest::send_bad_response(http::status status,
                                     std::string const &error) {
-
   shared_ptr_<HttpResponse> response = get_response();
   response->prepare_string_response();
-  response->_str_resp->result(status);
-  response->_str_resp->keep_alive(false);
-  response->_str_resp->set(http::field::server, "dglux_server");
-  response->_str_resp->set(http::field::content_type, "text/plain");
-  response->_str_resp->body() = error;
-  response->_str_resp->prepare_payload();
+  response->get_string_response()->result(status);
+  response->get_string_response()->keep_alive(false);
+  response->get_string_response()->set(http::field::server, "dglux_server");
+  response->get_string_response()->set(http::field::content_type, "text/plain");
+  response->get_string_response()->body() = error;
+  response->get_string_response()->prepare_payload();
   response->prepare_string_serializer();
   response->string_writer(std::move(_socket));
 }
@@ -119,28 +114,28 @@ void HttpRequest::send_file(boost::beast::string_view target) {
 
   shared_ptr_<HttpResponse> response = get_response();
   response->prepare_file_response();
-  response->_file_resp->result(http::status::ok);
-  response->_file_resp->keep_alive(false);
-  response->_file_resp->set(http::field::server, "dglux_server");
-  response->_file_resp->set(http::field::content_type, mime_type(target.to_string()));
-  response->_file_resp->body() = std::move(file);
-  response->_file_resp->prepare_payload();
+  response->get_file_response()->result(http::status::ok);
+  response->get_file_response()->keep_alive(false);
+  response->get_file_response()->set(http::field::server, "dglux_server");
+  response->get_file_response()->set(http::field::content_type,
+                                     mime_type(full_path));
+  response->get_file_response()->body() = std::move(file);
+  response->get_file_response()->prepare_payload();
   response->prepare_file_serializer();
   response->file_writer(std::move(_socket));
 }
 
 void HttpRequest::redirect_handler(const string_ &location,
                                    const string_ &message) {
-
   shared_ptr_<HttpResponse> response = get_response();
   response->prepare_string_response();
-  response->_str_resp->result(http::status::found);
-  response->_str_resp->keep_alive(false);
-  response->_str_resp->set(http::field::location, location);
-  response->_str_resp->set(http::field::server, "dglux_server");
-  response->_str_resp->set(http::field::content_type, "text/plain");
-  response->_str_resp->body() = message;
-  response->_str_resp->prepare_payload();
+  response->get_string_response()->result(http::status::found);
+  response->get_string_response()->keep_alive(false);
+  response->get_string_response()->set(http::field::location, location);
+  response->get_string_response()->set(http::field::server, "dglux_server");
+  response->get_string_response()->set(http::field::content_type, "text/plain");
+  response->get_string_response()->body() = message;
+  response->get_string_response()->prepare_payload();
   response->prepare_string_serializer();
   response->string_writer(std::move(_socket));
 }
@@ -171,6 +166,4 @@ void HttpRequest::authentication_handler() {
     redirect_handler("/", "Login succeeded");
   }
 }
-
-
 }

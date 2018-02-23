@@ -32,7 +32,7 @@ class WebServer;
 class HttpResponse;
 
 class HttpRequest {
- public:
+ private:
   using alloc_t = fields_alloc<char>;
   using request_body_t =
       http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
