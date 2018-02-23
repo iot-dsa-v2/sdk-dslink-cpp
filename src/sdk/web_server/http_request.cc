@@ -1,4 +1,5 @@
 #include "http_request.h"
+#include "http_response.h"
 #include <regex>
 #include "crypto/misc.h"
 
@@ -74,23 +75,28 @@ HttpRequest::HttpRequest(
     http::request<request_body_t, http::basic_fields<alloc_t>> req)
     : _web_server(web_server),
       _socket(std::move(socket)),
-      _req(std::move(req)) {}
+      _req(std::move(req)),
+      _resp(std::make_shared<HttpResponse>())
+{}
+
+
+shared_ptr_<HttpResponse> HttpRequest::getResponse() {
+  return _resp;
+}
 
 void HttpRequest::send_bad_response(http::status status,
                                     std::string const &error) {
-  _str_resp.emplace(std::piecewise_construct, std::make_tuple(),
-                    std::make_tuple(_alloc));
 
-  _str_resp->result(status);
-  _str_resp->keep_alive(false);
-  _str_resp->set(http::field::server, "dglux_server");
-  _str_resp->set(http::field::content_type, "text/plain");
-  _str_resp->body() = error;
-  _str_resp->prepare_payload();
-
-  _str_serializer.emplace(*_str_resp);
-
-  string_writer();
+  shared_ptr_<HttpResponse> response = getResponse();
+  response->prepare_string_response();
+  response->_str_resp->result(status);
+  response->_str_resp->keep_alive(false);
+  response->_str_resp->set(http::field::server, "dglux_server");
+  response->_str_resp->set(http::field::content_type, "text/plain");
+  response->_str_resp->body() = error;
+  response->_str_resp->prepare_payload();
+  response->prepare_string_serializer();
+  response->string_writer(std::move(_socket));
 }
 
 void HttpRequest::send_file(boost::beast::string_view target) {
@@ -111,55 +117,32 @@ void HttpRequest::send_file(boost::beast::string_view target) {
     return;
   }
 
-  _file_resp.emplace(std::piecewise_construct, std::make_tuple(),
-                     std::make_tuple(_alloc));
-
-  _file_resp->result(http::status::ok);
-  _file_resp->keep_alive(false);
-  _file_resp->set(http::field::server, "dglux_server");
-  _file_resp->set(http::field::content_type, mime_type(target.to_string()));
-  _file_resp->body() = std::move(file);
-  _file_resp->prepare_payload();
-
-  _file_serializer.emplace(*_file_resp);
-
-  file_writer();
-}
-
-void HttpRequest::string_writer() {
-  http::async_write(_socket, *_str_serializer,
-                    [this](boost::beast::error_code ec, std::size_t) {
-                      _socket.shutdown(tcp::socket::shutdown_send, ec);
-                      _str_serializer.reset();
-                      _str_resp.reset();
-                    });
-}
-
-void HttpRequest::file_writer() {
-  http::async_write(_socket, *_file_serializer,
-                    [this](boost::beast::error_code ec, std::size_t) {
-                      _socket.shutdown(tcp::socket::shutdown_send, ec);
-                      _file_serializer.reset();
-                      _file_resp.reset();
-                    });
+  shared_ptr_<HttpResponse> response = getResponse();
+  response->prepare_file_response();
+  response->_file_resp->result(http::status::ok);
+  response->_file_resp->keep_alive(false);
+  response->_file_resp->set(http::field::server, "dglux_server");
+  response->_file_resp->set(http::field::content_type, mime_type(target.to_string()));
+  response->_file_resp->body() = std::move(file);
+  response->_file_resp->prepare_payload();
+  response->prepare_file_serializer();
+  response->file_writer(std::move(_socket));
 }
 
 void HttpRequest::redirect_handler(const string_ &location,
                                    const string_ &message) {
-  _str_resp.emplace(std::piecewise_construct, std::make_tuple(),
-                    std::make_tuple(_alloc));
 
-  _str_resp->result(http::status::found);
-  _str_resp->keep_alive(false);
-  _str_resp->set(http::field::location, location);
-  _str_resp->set(http::field::server, "dglux_server");
-  _str_resp->set(http::field::content_type, "text/plain");
-  _str_resp->body() = message;
-  _str_resp->prepare_payload();
-
-  _str_serializer.emplace(*_str_resp);
-
-  string_writer();
+  shared_ptr_<HttpResponse> response = getResponse();
+  response->prepare_string_response();
+  response->_str_resp->result(http::status::found);
+  response->_str_resp->keep_alive(false);
+  response->_str_resp->set(http::field::location, location);
+  response->_str_resp->set(http::field::server, "dglux_server");
+  response->_str_resp->set(http::field::content_type, "text/plain");
+  response->_str_resp->body() = message;
+  response->_str_resp->prepare_payload();
+  response->prepare_string_serializer();
+  response->string_writer(std::move(_socket));
 }
 
 void HttpRequest::not_found_handler(const string_ &error) {
@@ -179,6 +162,7 @@ void HttpRequest::file_server_handler(const string_ &_target) {
       break;
   }
 }
+
 void HttpRequest::authentication_handler() {
   auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()));
   if (kvMap.at("username") == "dgSuper" &&
@@ -187,4 +171,6 @@ void HttpRequest::authentication_handler() {
     redirect_handler("/", "Login succeeded");
   }
 }
+
+
 }

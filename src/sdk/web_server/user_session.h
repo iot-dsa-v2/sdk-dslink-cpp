@@ -23,6 +23,7 @@ class UserSession : public std::enable_shared_from_this<UserSession> {
   http::response<http::file_body> resp_;
   WebServer &_web_server;
   boost::asio::ip::tcp::socket _socket;
+  string_ const doc_root = "/home/yg/Downloads/dsa/dglux-server/www/";
 
  public:
   explicit UserSession(

@@ -51,7 +51,7 @@ void HttpConnection::accept() {
           return;
         }
         auto _target = _parser->get().target().to_string();
-        _req = std::make_shared<HttpRequest>(_web_server, std::move(_socket), _parser->get());
+        _req = std::make_shared<HttpRequest>(_web_server, std::move(_socket), std::move(_parser->get()));
         _web_server.http_handler(_target)(_web_server, std::move(*_req));
         return;
       });

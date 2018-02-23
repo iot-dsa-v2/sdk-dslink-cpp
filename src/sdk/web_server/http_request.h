@@ -7,7 +7,6 @@
 
 #include "dsa_common.h"
 #include "fields_alloc.h"
-#include "web_server.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
@@ -29,8 +28,11 @@ namespace http = boost::beast::http;
 
 namespace dsa {
 
+class WebServer;
+class HttpResponse;
+
 class HttpRequest {
- private:
+ public:
   using alloc_t = fields_alloc<char>;
   using request_body_t =
       http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
@@ -43,33 +45,19 @@ class HttpRequest {
 
   http::request<request_body_t, http::basic_fields<alloc_t>> _req;
 
-  boost::optional<
-      http::response<http::string_body, http::basic_fields<alloc_t>>>
-      _str_resp;
-
-  boost::optional<
-      http::response_serializer<http::string_body, http::basic_fields<alloc_t>>>
-      _str_serializer;
-
-  boost::optional<http::response<http::file_body, http::basic_fields<alloc_t>>>
-      _file_resp;
-
-  boost::optional<
-      http::response_serializer<http::file_body, http::basic_fields<alloc_t>>>
-      _file_serializer;
+  std::shared_ptr<HttpResponse> _resp;
 
   WebServer& _web_server;
 
   void send_bad_response(http::status status, std::string const& error);
   void send_file(boost::beast::string_view target);
-  void string_writer();
-  void file_writer();
 
  public:
   explicit HttpRequest(
       WebServer& web_server, boost::asio::ip::tcp::socket socket,
       http::request<request_body_t, http::basic_fields<alloc_t>> _req);
 
+  shared_ptr_<HttpResponse> getResponse();
   void redirect_handler(const string_& location, const string_& message);
   void not_found_handler(const string_& error);
   void rewrite_handler(const string_& redirect_path);

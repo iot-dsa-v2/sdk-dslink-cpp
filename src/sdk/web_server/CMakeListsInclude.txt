@@ -4,6 +4,7 @@ list(APPEND WebServerSourceFiles
         http_connection.cc
         listener.cc
         http_request.cc
+        http_response.cc
         user_session.cc
     )
 
