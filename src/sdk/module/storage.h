@@ -42,7 +42,7 @@ class StorageBucket {
  public:
   typedef std::function<void(const string_& key, std::vector<uint8_t> data, BucketReadStatus read_status)>
       ReadCallback;
-
+  virtual bool exists (const string_ &key) = 0;
   virtual void write(const string_& key, BytesRef&& data,
                      bool is_binary = false) = 0;
   virtual void read(const string_& key, ReadCallback&& callback,

@@ -10,7 +10,8 @@ list(APPEND UtilSourceFiles
         exception.h
         little_endian.h
         string.cc
-        misc.cc)
+        misc.cc
+        string_encode.cc)
 
 foreach (file ${UtilSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_UTIL}/${file})
