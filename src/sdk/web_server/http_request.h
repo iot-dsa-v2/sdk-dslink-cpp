@@ -57,7 +57,7 @@ class HttpRequest {
       WebServer& web_server, boost::asio::ip::tcp::socket socket,
       http::request<request_body_t, http::basic_fields<alloc_t>> _req);
 
-  shared_ptr_<HttpResponse> getResponse();
+  shared_ptr_<HttpResponse> get_response();
   void redirect_handler(const string_& location, const string_& message);
   void not_found_handler(const string_& error);
   void rewrite_handler(const string_& redirect_path);

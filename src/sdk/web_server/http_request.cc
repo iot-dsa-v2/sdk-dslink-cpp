@@ -80,14 +80,14 @@ HttpRequest::HttpRequest(
 {}
 
 
-shared_ptr_<HttpResponse> HttpRequest::getResponse() {
+shared_ptr_<HttpResponse> HttpRequest::get_response() {
   return _resp;
 }
 
 void HttpRequest::send_bad_response(http::status status,
                                     std::string const &error) {
 
-  shared_ptr_<HttpResponse> response = getResponse();
+  shared_ptr_<HttpResponse> response = get_response();
   response->prepare_string_response();
   response->_str_resp->result(status);
   response->_str_resp->keep_alive(false);
@@ -117,7 +117,7 @@ void HttpRequest::send_file(boost::beast::string_view target) {
     return;
   }
 
-  shared_ptr_<HttpResponse> response = getResponse();
+  shared_ptr_<HttpResponse> response = get_response();
   response->prepare_file_response();
   response->_file_resp->result(http::status::ok);
   response->_file_resp->keep_alive(false);
@@ -132,7 +132,7 @@ void HttpRequest::send_file(boost::beast::string_view target) {
 void HttpRequest::redirect_handler(const string_ &location,
                                    const string_ &message) {
 
-  shared_ptr_<HttpResponse> response = getResponse();
+  shared_ptr_<HttpResponse> response = get_response();
   response->prepare_string_response();
   response->_str_resp->result(http::status::found);
   response->_str_resp->keep_alive(false);
