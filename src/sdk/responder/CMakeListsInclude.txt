@@ -3,6 +3,7 @@ list(APPEND ResponderSourceFiles
         model_base.cc
         node_model.cc
         invoke_node_model.cc
+        value_node_model.cc
         node_state_manager.cc
         node_state.cc)
 

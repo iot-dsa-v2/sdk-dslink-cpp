@@ -208,7 +208,7 @@ void NodeModel::save(StorageBucket &storage) const {
   if (_cached_value != nullptr) {
     (*map)["?value"] = _cached_value->get_value().value;
     if (!_cached_value->get_value().meta.is_null()) {
-      (*map)["?valueMeta"] = _cached_value->get_value().meta;
+      (*map)["?vmeta"] = _cached_value->get_value().meta;
     }
   }
   for (auto &it : _metas) {
@@ -239,8 +239,8 @@ void NodeModel::save(StorageBucket &storage) const {
 void NodeModel::load(VarMap &map) {
   if (map.count("?value")) {
     MessageValue v(map["?value"]);
-    if (map.count("?valueMeta") && map["?valueMeta"].is_map()) {
-      v.meta = map["?valueMeta"];
+    if (map.count("?vmeta") && map["?vmeta"].is_map()) {
+      v.meta = map["?vmeta"];
     }
     set_value(std::move(v));
   }
