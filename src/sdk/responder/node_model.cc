@@ -22,8 +22,7 @@ NodeModel::NodeModel(LinkStrandRef &&strand,
 };
 NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
                      PermissionLevel write_require_permission)
-    : NodeModelBase(std::move(strand)),
-      _profile(profile) {
+    : NodeModelBase(std::move(strand)), _profile(profile) {
   set_value_require_permission(write_require_permission);
 
   auto &state = profile->get_state();
@@ -231,6 +230,7 @@ void NodeModel::save(StorageBucket &storage) const {
       }
     }
   }
+  save_extra(*map);
   Var var;
   var = map;
   storage.write(_state->get_full_path(),
@@ -262,6 +262,7 @@ void NodeModel::load(VarMap &map) {
         }
     }
   }
+  load_extra(map);
 }
 
 }  // namespace dsa

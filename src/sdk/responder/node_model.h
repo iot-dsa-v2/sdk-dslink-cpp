@@ -72,6 +72,11 @@ class NodeModel : public NodeModelBase {
   // usually this should create an instance of child and waiting for the
   // storage loader to call load() on that instance
   virtual void on_load_child(const string_ &name, VarMap &map){};
+
+  // extra data that's not stored in metadata or attribute
+  // prefix these properties with ? so they won't conflict with children name
+  virtual void save_extra(VarMap &map) const {};
+  virtual void load_extra(VarMap &map){};
 };
 
 }  // namespace dsa
