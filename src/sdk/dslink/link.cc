@@ -23,6 +23,7 @@
 #include "network/ws/ws_client_connection.h"
 #include "network/ws/wss_client_connection.h"
 #include "node/link_root.h"
+#include "responder/profile/pub_root.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
@@ -62,8 +63,9 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL(__FILENAME__, LOG << "Invalid input, please check available "
-                                "parameters with --help\n");
+    LOG_FATAL(__FILENAME__,
+              LOG << "Invalid input, please check available "
+                     "parameters with --help\n");
   }
 
   // show help and exit
@@ -262,7 +264,7 @@ void DsLink::remove_from_main_node(const string_ &name) {
 }
 ref_<NodeModel> DsLink::add_to_pub(const string_ &path,
                                    ref_<NodeModel> &&node) {
-  return std::move(_root->add_to_pub(path, std::move(node)));
+  return std::move(_root->get_pub_node()->add(path, std::move(node)));
 }
 
 void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,

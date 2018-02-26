@@ -19,7 +19,7 @@ BrokerRoot::BrokerRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
   add_list_child("home", new BrokerHomeRoot(_strand->get_ref()));
   add_list_child("sys",
                  new BrokerSysRoot(_strand->get_ref(), std::move(_broker)));
-  add_list_child("pub", new NodeModel(_strand->get_ref()));
+  add_list_child("pub", new BrokerPubRoot(_strand->get_ref(), ""));
   add_list_child("module", new NodeModel(_strand->get_ref()));
 }
 

@@ -50,10 +50,6 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingListStream> &&stream) {}
   void add(ref_<OutgoingInvokeStream> &&stream) {}
   void add(ref_<OutgoingSetStream> &&stream) {}
-  ref_<NodeModel> get_profile(const string_ &path,
-                              bool dsa_standard = false) override {
-    return ref_<NodeModel>();
-  }
 };
 
 class MockNodeListChild_0 : public NodeModelBase {

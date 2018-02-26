@@ -57,9 +57,6 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingListStream> &&stream) override {}
   void add(ref_<OutgoingInvokeStream> &&stream) override {}
   void add(ref_<OutgoingSetStream> &&stream) override {}
-  ref_<NodeModel> get_profile(const string_ &path, bool dsa_standard) override {
-    return ref_<NodeModel>();
-  }
   // TODO: keep in mind
   void custom_destroy() {
     // last_subscribe_stream->destroy();
