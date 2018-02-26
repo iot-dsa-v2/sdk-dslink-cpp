@@ -60,7 +60,7 @@ class NodeModel : public NodeModelBase {
   virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
 
  public:  // serialization logic
-  void save(StorageBucket &storage) const;
+  void save(StorageBucket &storage, bool json = false) const;
   void load(VarMap &map);
   // return true if a metadata should be saved
   virtual bool save_meta(const string_ &name) const { return false; }
@@ -72,6 +72,11 @@ class NodeModel : public NodeModelBase {
   // usually this should create an instance of child and waiting for the
   // storage loader to call load() on that instance
   virtual void on_load_child(const string_ &name, VarMap &map){};
+
+  // extra data that's not stored in metadata or attribute
+  // prefix these properties with ? so they won't conflict with children name
+  virtual void save_extra(VarMap &map) const {};
+  virtual void load_extra(VarMap &map){};
 };
 
 }  // namespace dsa

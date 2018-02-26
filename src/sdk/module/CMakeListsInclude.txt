@@ -11,12 +11,11 @@ list(APPEND ModulekSourceFiles
         default/module_dslink_default.cc
         module_with_loader.cc
         logger.cc
-        logger.h
         client_manager.h
         authorizer.h
         session_manager.h
         storage.h
-        outgoing_stream_acceptor.h
+        stream_acceptor.cc
         default/simple_login_manager.cc
         default/simple_login_manager.h
         )

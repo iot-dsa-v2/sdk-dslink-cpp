@@ -1,12 +1,13 @@
 #include "dsa_common.h"
 
-#include <dslink.h>
 #include "broker_login_manager.h"
+#include "responder/node_model.h"
 
 namespace dsa {
 
-BrokerLoginManager::BrokerLoginManager(LinkStrandRef strand)
-    : _strand(std::move(strand)) {}
+BrokerLoginManager::BrokerLoginManager(LinkStrandRef &strand)
+    : _strand(strand) {}
+BrokerLoginManager::~BrokerLoginManager() = default;
 
 void BrokerLoginManager::check_login(const string_ &username,
                                      const string_ &password,

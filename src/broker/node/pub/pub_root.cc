@@ -3,8 +3,6 @@
 #include "pub_root.h"
 
 namespace dsa {
-BrokerPubRoot::BrokerPubRoot(LinkStrandRef &&strand)
-  : NodeModel(std::move(strand)) {
-
-}
+BrokerPubRoot::BrokerPubRoot(LinkStrandRef &&strand, const string_ &profile)
+    : PubRoot(std::move(strand), profile) {}
 }

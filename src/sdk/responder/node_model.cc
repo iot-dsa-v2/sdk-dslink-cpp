@@ -22,8 +22,7 @@ NodeModel::NodeModel(LinkStrandRef &&strand,
 };
 NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
                      PermissionLevel write_require_permission)
-    : NodeModelBase(std::move(strand)),
-      _profile(profile) {
+    : NodeModelBase(std::move(strand)), _profile(profile) {
   set_value_require_permission(write_require_permission);
 
   auto &state = profile->get_state();
@@ -199,7 +198,7 @@ MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
 
 // serialization
 
-void NodeModel::save(StorageBucket &storage) const {
+void NodeModel::save(StorageBucket &storage, bool json) const {
   if (_state == nullptr || _state->get_model() != this) {
     // can't serialize without a path
     return;
@@ -208,7 +207,7 @@ void NodeModel::save(StorageBucket &storage) const {
   if (_cached_value != nullptr) {
     (*map)["?value"] = _cached_value->get_value().value;
     if (!_cached_value->get_value().meta.is_null()) {
-      (*map)["?valueMeta"] = _cached_value->get_value().meta;
+      (*map)["?vmeta"] = _cached_value->get_value().meta;
     }
   }
   for (auto &it : _metas) {
@@ -231,16 +230,24 @@ void NodeModel::save(StorageBucket &storage) const {
       }
     }
   }
+  save_extra(*map);
   Var var;
   var = map;
-  storage.write(_state->get_full_path(),
-                make_ref_<RefCountBytes>(var.to_msgpack()));
+  if (json) {
+    string_ str = var.to_json();
+    const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
+    storage.write(_state->get_full_path(),
+                  make_ref_<RefCountBytes>(str_data, str_data + str.length()));
+  } else {
+    storage.write(_state->get_full_path(),
+                  make_ref_<RefCountBytes>(var.to_msgpack()));
+  }
 }
 void NodeModel::load(VarMap &map) {
   if (map.count("?value")) {
     MessageValue v(map["?value"]);
-    if (map.count("?valueMeta") && map["?valueMeta"].is_map()) {
-      v.meta = map["?valueMeta"];
+    if (map.count("?vmeta") && map["?vmeta"].is_map()) {
+      v.meta = map["?vmeta"];
     }
     set_value(std::move(v));
   }
@@ -262,6 +269,7 @@ void NodeModel::load(VarMap &map) {
         }
     }
   }
+  load_extra(map);
 }
 
 }  // namespace dsa

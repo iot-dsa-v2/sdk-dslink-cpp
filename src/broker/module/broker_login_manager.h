@@ -7,14 +7,23 @@
 
 #include "../../sdk/web_server/login_manager.h"
 #include "util/client_info.h"
+#include "core/link_strand.h"
 
 namespace dsa {
 
+class NodeModel;
+class ModuleBrokerDefault;
+
 class BrokerLoginManager final : public LoginManager {
-  LinkStrandRef _strand;
+  friend class ModuleBrokerDefault;
+
+  ref_<LinkStrand> _strand;
+
+  ref_<NodeModel> _module_node;
 
  public:
-  explicit BrokerLoginManager(LinkStrandRef strand);
+  explicit BrokerLoginManager(ref_<LinkStrand>& strand);
+  ~BrokerLoginManager() override;
   void check_login(const string_& username, const string_& password,
                    ClientInfo::GetClientCallback&& callback) override;
   void get_user(const string_& username,
