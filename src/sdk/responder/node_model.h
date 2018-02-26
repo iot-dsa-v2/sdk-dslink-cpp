@@ -60,8 +60,11 @@ class NodeModel : public NodeModelBase {
   virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
 
  public:  // serialization logic
-  void save(StorageBucket &storage, bool json = false) const;
+  void save(StorageBucket &storage, bool recursive = false,
+            bool user_json = false) const;
   void load(VarMap &map);
+
+ protected:  // serialization implementation
   // return true if a metadata should be saved
   virtual bool save_meta(const string_ &name) const { return false; }
   // return true if a attribute should be saved

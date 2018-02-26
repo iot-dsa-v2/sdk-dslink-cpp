@@ -198,7 +198,8 @@ MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
 
 // serialization
 
-void NodeModel::save(StorageBucket &storage, bool json) const {
+void NodeModel::save(StorageBucket &storage, bool recursive,
+                     bool user_json = false) const {
   if (_state == nullptr || _state->get_model() != this) {
     // can't serialize without a path
     return;
@@ -223,17 +224,19 @@ void NodeModel::save(StorageBucket &storage, bool json) const {
   for (auto &it : _list_children) {
     if (save_child(it.first)) {
       (*map)[it.first] = it.second->get_summary()->get_value();
-      // save child if it's also a NodeModel
-      auto child_model = dynamic_cast<NodeModel *>(it.second.get());
-      if (child_model != nullptr) {
-        child_model->save(storage);
+      if (recursive) {
+        // save child if it's also a NodeModel
+        auto child_model = dynamic_cast<NodeModel *>(it.second.get());
+        if (child_model != nullptr) {
+          child_model->save(storage, true);
+        }
       }
     }
   }
   save_extra(*map);
   Var var;
   var = map;
-  if (json) {
+  if (user_json) {
     string_ str = var.to_json();
     const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
     storage.write(_state->get_full_path(),
