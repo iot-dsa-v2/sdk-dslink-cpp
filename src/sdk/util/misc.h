@@ -6,8 +6,6 @@
 #endif
 
 namespace dsa {
-string_ url_decode(const std::string & s_src);
-string_ url_encode(const std::string& s_src);
 string_ get_current_working_dir();
 };
 

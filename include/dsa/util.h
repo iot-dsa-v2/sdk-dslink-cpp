@@ -10,5 +10,6 @@
 #include "util/little_endian.h"
 #include "util/path.h"
 #include "util/app.h"
+#include "util/string_encode.h"
 
 #endif  // DSA_UTIL_H_
