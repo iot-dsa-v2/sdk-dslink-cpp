@@ -23,6 +23,7 @@ class Listener : public std::enable_shared_from_this<Listener> {
   std::shared_ptr<HttpConnection> _next_connection;
   std::mutex _mutex;
   bool _destroyed = false;
+
  public:
   Listener(WebServer& web_server, uint16_t port);
   ~Listener();

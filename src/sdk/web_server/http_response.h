@@ -30,7 +30,7 @@ namespace http = boost::beast::http;
 namespace dsa {
 
 class HttpResponse {
- public:
+ private:
   using alloc_t = fields_alloc<char>;
   using request_body_t =
       http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
@@ -55,16 +55,18 @@ class HttpResponse {
  public:
   explicit HttpResponse();
 
-  auto get_file_response();
+  boost::optional<http::response<http::file_body, http::basic_fields<alloc_t>>>&
+  get_file_response();
   void prepare_file_response();
   void prepare_file_serializer();
   void file_writer(tcp::socket&& _socket);
 
-  auto get_string_response();
+  boost::optional<
+      http::response<http::string_body, http::basic_fields<alloc_t>>>&
+  get_string_response();
   void prepare_string_response();
   void prepare_string_serializer();
   void string_writer(tcp::socket&& _socket);
-
 };
 }
 

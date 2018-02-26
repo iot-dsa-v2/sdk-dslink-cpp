@@ -8,10 +8,10 @@
 
 #include "crypto/misc.h"
 #include "http_connection.h"
+#include "http_request.h"
 #include "network/connection.h"
 #include "web_server.h"
 #include "websocket_connection.h"
-#include "http_request.h"
 
 namespace websocket = boost::beast::websocket;
 namespace http = boost::beast::http;
@@ -51,11 +51,12 @@ void HttpConnection::accept() {
           return;
         }
         auto _target = _parser->get().target().to_string();
-        _req = std::make_shared<HttpRequest>(_web_server, std::move(_socket), std::move(_parser->get()));
+        _req = std::make_shared<HttpRequest>(_web_server, std::move(_socket),
+                                             std::move(_parser->get()));
         _web_server.http_handler(_target)(_web_server, std::move(*_req));
         return;
       });
-   check_deadline();
+  check_deadline();
 }
 
 void HttpConnection::reset_parser() {

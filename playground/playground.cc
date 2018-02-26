@@ -57,26 +57,26 @@ int main() {
   TestConfig server_strand(app);
   auto web_server = server_strand.create_webserver();
 
-  WebServer::HttpCallback root_cb =
-      [](WebServer &web_server, HttpRequest &&req) {
-        req.redirect_handler("/login","Redirecting...");
-      };
-  WebServer::HttpCallback login_cb =
-      [](WebServer &web_server, HttpRequest &&req) {
-      };
-  WebServer::HttpCallback not_found_cb =
-      [](WebServer &web_server, HttpRequest &&req) {
-        req.not_found_handler("Not authorized to access this URL");
-        std::cout << "Unauthorized access attempted." << std::endl; // Log it anyway
-      };
-  WebServer::HttpCallback default_file_server_cb =
-      [](WebServer &web_server, HttpRequest &&req) {
-        req.file_server_handler("");
-      };
-  WebServer::HttpCallback authentication_cb =
-      [](WebServer &web_server, HttpRequest &&req) {
-        req.authentication_handler();
-      };
+  WebServer::HttpCallback root_cb = [](WebServer &web_server,
+                                       HttpRequest &&req) {
+    req.redirect_handler("/login", "Redirecting...");
+  };
+  WebServer::HttpCallback login_cb = [](WebServer &web_server,
+                                        HttpRequest &&req) {};
+  WebServer::HttpCallback not_found_cb = [](WebServer &web_server,
+                                            HttpRequest &&req) {
+    req.not_found_handler("Not authorized to access this URL");
+    std::cout << "Unauthorized access attempted."
+              << std::endl;  // Log it anyway
+  };
+  WebServer::HttpCallback default_file_server_cb = [](WebServer &web_server,
+                                                      HttpRequest &&req) {
+    req.file_server_handler("");
+  };
+  WebServer::HttpCallback authentication_cb = [](WebServer &web_server,
+                                                 HttpRequest &&req) {
+    req.authentication_handler();
+  };
 
   web_server->add_http_handler("/", std::move(root_cb));
   web_server->add_http_handler("/login", std::move(authentication_cb));

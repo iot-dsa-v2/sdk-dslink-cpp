@@ -22,14 +22,10 @@ class HttpRequest;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  public:
-  typedef std::function<void(
-      WebServer&, HttpRequest&&)>
-      HttpCallback;
+  typedef std::function<void(WebServer&, HttpRequest&&)> HttpCallback;
   typedef std::function<std::shared_ptr<WebsocketConnection>(
-      WebServer&, boost::asio::ip::tcp::socket&&,
-      HttpRequest&&)>
+      WebServer&, boost::asio::ip::tcp::socket&&, HttpRequest&&)>
       WsCallback;
-
 
  private:
   boost::asio::io_service& _io_service;
@@ -71,9 +67,7 @@ class ErrorCallback {
  public:
   explicit ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
-  void operator()(
-      boost::asio::io_service& io_service,
-      HttpRequest&& req) {
+  void operator()(boost::asio::io_service& io_service, HttpRequest&& req) {
     LOG_ERROR(Logger::_(), LOG << "http error code: " << _error_code);
   }
 };

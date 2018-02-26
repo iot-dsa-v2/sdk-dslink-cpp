@@ -35,5 +35,16 @@ void HttpResponse::string_writer(tcp::socket&& _socket) {
                       _str_resp.reset();
                     });
 }
-
+boost::optional<
+    http::response<boost::beast::http::basic_string_body<char>,
+                   boost::beast::http::basic_fields<dsa::fields_alloc<char>>>>&
+HttpResponse::get_string_response() {
+  return _str_resp;
+}
+boost::optional<http::response<
+    boost::beast::http::basic_file_body<boost::beast::file_posix>,
+    boost::beast::http::basic_fields<dsa::fields_alloc<char>>>>&
+HttpResponse::get_file_response() {
+  return _file_resp;
+}
 }

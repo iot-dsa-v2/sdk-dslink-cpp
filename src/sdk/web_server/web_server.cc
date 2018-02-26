@@ -27,7 +27,6 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
 }
 
 WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
-
   if (_ws_callback_map.count(path)) {
     return _ws_callback_map.at(path);
   }
@@ -54,20 +53,18 @@ void WebServer::add_http_handler(const string_& path, HttpCallback&& callback) {
 }
 
 WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
-
   if (_http_callback_map.count(path)) {
     return _http_callback_map.at(path);
   }
-  return _http_callback_map.at("/default"); // TODO: as fallback (to be deleted)
 
   uint16_t error_code = 404;
   static WebServer::HttpCallback error_callback = [error_code](
-          WebServer& web_server, HttpRequest&& req) {
+      WebServer& web_server, HttpRequest&& req) {
 
-      ErrorCallback error_callback_detail(error_code);
-      error_callback_detail(web_server.io_service(), std::move(req));
+    ErrorCallback error_callback_detail(error_code);
+    error_callback_detail(web_server.io_service(), std::move(req));
 
-      return nullptr;
+    return nullptr;
   };
 
   return error_callback;

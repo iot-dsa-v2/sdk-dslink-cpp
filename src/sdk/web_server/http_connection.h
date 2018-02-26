@@ -23,7 +23,8 @@ class HttpRequest;
 class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
  private:
   using alloc_t = fields_alloc<char>;
-  using request_body_t = http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
+  using request_body_t =
+      http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
   WebServer& _web_server;
   shared_ptr_<WebsocketConnection> _connection;
   boost::asio::ip::tcp::socket _socket;
