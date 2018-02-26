@@ -9,5 +9,6 @@ add_library(${TARGET_NAME} OBJECT
         path-test.cc
         buffer-test.cc
         shared_strand_ref-test.cc
+        string-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)

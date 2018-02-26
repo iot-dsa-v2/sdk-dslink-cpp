@@ -25,59 +25,37 @@ static char HEX2DEC[256] =
         /* E */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
         /* F */ -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1
     };
-// Only alphanum is safe.
+
+//4: Only alphanum is safe
+//3: if (c < ' ' || (c >= ':' && c <= '?')  || c == '\\' || c == '\'' || c == '\"' || c == '/' || c == '*' || c == '|' || c == '%')
+//2: 0x80 - 0xFF
+//1: '%' sign
 static char SAFE[256] =
     {
         /*      0 1 2 3  4 5 6 7  8 9 A B  C D E F */
         /* 0 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
         /* 1 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* 2 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* 3 */ 1,1,1,1, 1,1,1,1, 1,1,0,0, 0,0,0,0,
+        /* 2 */ 3,0,3,3, 3,1,3,0, 3,3,0,3, 3,3,3,0,
+        /* 3 */ 4,4,4,4, 4,4,4,4, 4,4,0,0, 0,0,0,0,
 
-        /* 4 */ 0,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1,
-        /* 5 */ 1,1,1,1, 1,1,1,1, 1,1,1,0, 0,0,0,0,
-        /* 6 */ 0,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1,
-        /* 7 */ 1,1,1,1, 1,1,1,1, 1,1,1,0, 0,0,0,0,
+        /* 4 */ 3,4,4,4, 4,4,4,4, 4,4,4,4, 4,4,4,4,
+        /* 5 */ 4,4,4,4, 4,4,4,4, 4,4,4,3, 0,3,3,3,
+        /* 6 */ 0,4,4,4, 4,4,4,4, 4,4,4,4, 4,4,4,4,
+        /* 7 */ 4,4,4,4, 4,4,4,4, 4,4,4,3, 3,3,3,3,
 
-        /* 8 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* 9 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* A */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* B */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+        /* 8 */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2,
+        /* 9 */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2,
+        /* A */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2,
+        /* B */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2,
 
-        /* C */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* D */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* E */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* F */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0
-    };
-// safe for path name encode
-static char SAFE_PATH[256] =
-    {
-        /*      0 1 2 3  4 5 6 7  8 9 A B  C D E F */
-        /* 0 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* 1 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* 2 */ 1,0,1,1, 1,0,1,0, 1,1,0,1, 1,1,1,0,
-        /* 3 */ 1,1,1,1, 1,1,1,1, 1,1,0,0, 0,0,0,0,
-
-        /* 4 */ 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1,
-        /* 5 */ 1,1,1,1, 1,1,1,1, 1,1,1,1, 0,1,1,1,
-        /* 6 */ 0,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1,
-        /* 7 */ 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1,
-
-        /* 8 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* 9 */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* A */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* B */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-
-        /* C */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* D */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* E */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-        /* F */ 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0
+        /* C */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2,
+        /* D */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2,
+        /* E */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2,
+        /* F */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2
     };
 
-
-std::string url_encode(const std::string &s_src, const char *safe_list) {
+std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   if (s_src.empty()) return "";
-  if(!safe_list) safe_list = SAFE;
   const unsigned char dec_to_hex[16 + 1] = "0123456789ABCDEF";
   const unsigned char *p_src = (const unsigned char *)s_src.c_str();
   const auto src_len = s_src.length();
@@ -86,7 +64,7 @@ std::string url_encode(const std::string &s_src, const char *safe_list) {
   const unsigned char *const src_end = p_src + src_len;
 
   for (; p_src < src_end; ++p_src) {
-    if (safe_list[*p_src])
+    if (SAFE[*p_src] >= static_cast<char>(level))
       *p_end++ = *p_src;
     else
     {
@@ -95,17 +73,21 @@ std::string url_encode(const std::string &s_src, const char *safe_list) {
       *p_end++ = dec_to_hex[*p_src >> 4];
       *p_end++ = dec_to_hex[*p_src & 0x0F];
     }
-
   }
 
   std::string s_result((char *)p_start, (char *)p_end);
   delete[] p_start;
   return s_result;
 }
-string_ url_encode_path_name(const string_ &s_src) {
-  return url_encode(s_src, SAFE_PATH);
+string_ url_encode_file_name(const string_ &s_src) {
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
 }
-
+string_ url_encode_node_name(const string_ &s_src) {
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
+}
+bool is_invalid_character(const char& c) {
+  return SAFE[c] > 0;
+}
 std::string url_decode(const std::string & s_src)
 {
   // Note from RFC1630: "Sequences which start with a percent

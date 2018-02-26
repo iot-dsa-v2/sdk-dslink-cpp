@@ -45,7 +45,7 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
 string_ SimpleStorageBucket::get_storage_path(const string_& key) {
   string_ path;
   if (!_full_base_path.empty()) path = _full_base_path + "/";
-  if (!key.empty()) path += url_encode_path_name(key);
+  if (!key.empty()) path += url_encode_file_name(key);
   return std::move(path);
 }
 
