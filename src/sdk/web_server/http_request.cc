@@ -3,7 +3,7 @@
 #include "crypto/misc.h"
 #include "http_response.h"
 
-namespace dsa {
+namespace {
 
 boost::beast::string_view mime_type(boost::beast::string_view path) {
   using boost::beast::iequals;
@@ -37,8 +37,8 @@ boost::beast::string_view mime_type(boost::beast::string_view path) {
   return "application/text";
 }
 
-string_ path_cat(boost::beast::string_view base,
-                 boost::beast::string_view path) {
+std::string path_cat(boost::beast::string_view base,
+                     boost::beast::string_view path) {
   if (base.empty()) return path.to_string();
   std::string result = base.to_string();
 #if BOOST_MSVC
@@ -69,6 +69,9 @@ std::map<std::string, std::string> parse(const std::string &query) {
 
   return data;
 }
+}
+
+namespace dsa {
 
 HttpRequest::HttpRequest(
     WebServer &web_server, boost::asio::ip::tcp::socket socket,
