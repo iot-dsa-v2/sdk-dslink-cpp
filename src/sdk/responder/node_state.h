@@ -85,6 +85,7 @@ class NodeState : public DestroyableRef<NodeState> {
   // remove the current model as well as all children models
   // return true when the state is no longer needed
   bool remove_model();
+  void remove_child(const string_ &name);
 
   void set_model(ModelRef &&model);
   ModelRef &get_model() { return _model; }

@@ -81,7 +81,7 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port,
 }
 
 ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port,
-                                string_ dslink_name,
+                                string_ dslink_name, bool connect,
                                 dsa::ProtocolType protocol) {
   std::string address;
 
@@ -109,6 +109,15 @@ ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port,
   static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::WARN__ | Logger::ERROR_ | Logger::FATAL_;
   link->init_responder<MockNodeRoot>();
+
+  if (connect) {
+    bool connected = false;
+    link->connect([&](const shared_ptr_<Connection> connection, ref_<DsLinkRequester> link_req) {
+      connected = true;
+    });
+
+    WAIT_EXPECT_TRUE(1000, [&]() -> bool { return connected; });
+  }
 
   return link;
 }

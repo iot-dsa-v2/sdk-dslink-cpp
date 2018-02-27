@@ -57,10 +57,7 @@ ModelRef NodeModelBase::add_child(const string_ &name, ModelRef &&model) {
   return std::move(model);
 }
 void NodeModelBase::remove_child(const string_ &name) {
-  auto state = _state->get_child(name, false);
-  if (state != nullptr) {
-    state->remove_model();
-  }
+  _state->remove_child(name);
 }
 void NodeModelBase::subscribe(const SubscribeOptions &options) {
   bool first_request = !_need_subscribe;
