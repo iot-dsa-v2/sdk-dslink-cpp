@@ -199,7 +199,7 @@ MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
 // serialization
 
 void NodeModel::save(StorageBucket &storage, bool recursive,
-                     size_t skip_path_size, bool user_json) const {
+                     const string_ &storage_path, bool user_json) const {
   if (_state == nullptr || _state->get_model() != this) {
     // can't serialize without a path
     return;
@@ -221,6 +221,10 @@ void NodeModel::save(StorageBucket &storage, bool recursive,
       (*map)[it.first] = it.second->get_value();
     }
   }
+  string_ recursive_path;
+  if (recursive && !storage_path.empty()) {
+    recursive_path = storage_path + '/';
+  }
   for (auto &it : _list_children) {
     if (save_child(it.first)) {
       (*map)[it.first] = it.second->get_summary()->get_value();
@@ -228,7 +232,8 @@ void NodeModel::save(StorageBucket &storage, bool recursive,
         // save child if it's also a NodeModel
         auto child_model = dynamic_cast<NodeModel *>(it.second.get());
         if (child_model != nullptr) {
-          child_model->save(storage, true);
+          child_model->save(storage, true, recursive_path + it.first,
+                            user_json);
         }
       }
     }
@@ -239,15 +244,10 @@ void NodeModel::save(StorageBucket &storage, bool recursive,
   if (user_json) {
     string_ str = var.to_json();
     const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
-    storage.write(skip_path_size > 0 // skip common parent path
-                      ? _state->get_full_path().substr(skip_path_size)
-                      : _state->get_full_path(),
+    storage.write(storage_path,
                   make_ref_<RefCountBytes>(str_data, str_data + str.length()));
   } else {
-    storage.write(skip_path_size > 0 // skip common parent path
-                      ? _state->get_full_path().substr(skip_path_size)
-                      : _state->get_full_path(),
-                  make_ref_<RefCountBytes>(var.to_msgpack()));
+    storage.write(storage_path, make_ref_<RefCountBytes>(var.to_msgpack()));
   }
 }
 void NodeModel::load(VarMap &map) {
