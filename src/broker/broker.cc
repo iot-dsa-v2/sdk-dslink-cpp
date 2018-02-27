@@ -2,10 +2,11 @@
 
 #include "broker.h"
 
-#include <util/string.h>
 #include <module/module_with_loader.h>
+#include <util/string.h>
 #include "config/broker_config.h"
 #include "module/broker_authorizer.h"
+#include "module/broker_client_manager.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"
@@ -18,9 +19,9 @@
 #include "util/app.h"
 #include "util/string.h"
 #include "web_server/web_server.h"
-#include "module/broker_client_manager.h"
 
 #include "module/module_broker_default.h"
+#include "node/broker_root.h"
 
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules,
@@ -85,6 +86,8 @@ void DsBroker::init(ref_<Module>&& default_module) {
   // init session manager
   strand->set_session_manager(
       make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
+
+  modules->add_module_node(broker_root->get_module(), broker_root->get_pub());
 }
 void DsBroker::destroy_impl() {
   modules->destroy();
@@ -117,7 +120,7 @@ void DsBroker::run(bool wait) {
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
     *root_cb = [this](
-        WebServer &_web_server, Websocket& websocket,
+        WebServer& _web_server, Websocket& websocket,
         boost::beast::http::request<boost::beast::http::string_body> req) {
       LinkStrandRef link_strand(strand);
       DsaWsCallback dsa_ws_callback(link_strand);

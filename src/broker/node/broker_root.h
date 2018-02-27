@@ -10,15 +10,21 @@
 namespace dsa {
 class DownstreamRoot;
 class DsBroker;
+class BrokerPubRoot;
 
 class BrokerRoot : public NodeModel {
   friend class DsBroker;
   ref_<DownstreamRoot> _downstream_root;
   ref_<DsBroker> _broker;
+  ref_<BrokerPubRoot> _pub;
+  ref_<NodeModel> _module;
 
  public:
-  BrokerRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker);
-  ~BrokerRoot();
+  BrokerRoot(LinkStrandRef&& strand, ref_<DsBroker>&& broker);
+  ~BrokerRoot() override;
+
+  BrokerPubRoot& get_pub() { return *_pub; }
+  NodeModel& get_module() { return *_module; }
 
  protected:
   void destroy_impl() final;

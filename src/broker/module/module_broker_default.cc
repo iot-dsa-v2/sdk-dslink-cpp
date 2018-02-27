@@ -37,14 +37,19 @@ shared_ptr_<LoginManager> ModuleBrokerDefault::create_login_manager(
   return make_shared_<BrokerLoginManager>(strand);
 }
 
-void ModuleBrokerDefault::add_module_node(ref_<NodeModel>& module_node) {
+void ModuleBrokerDefault::add_module_node(NodeModel& module_node,
+                                          BrokerPubRoot& pub_root) {
   if (_client_manager != nullptr) {
+    module_node.add_list_child("Users",
+                               static_cast<BrokerLoginManager&>(*_login_manager)
+                                   .create_node(module_node, pub_root));
   }
   if (_authorizer != nullptr) {
   }
   if (_login_manager != nullptr) {
-    module_node->add_list_child(
-        "users", static_cast<BrokerLoginManager&>(*_login_manager)._module_node);
+    module_node.add_list_child(
+        "users",
+        static_cast<BrokerLoginManager&>(*_login_manager)._module_node);
   }
 }
 }

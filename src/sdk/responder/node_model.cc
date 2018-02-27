@@ -199,7 +199,7 @@ MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
 // serialization
 
 void NodeModel::save(StorageBucket &storage, bool recursive,
-                     bool user_json = false) const {
+                     size_t skip_path_size, bool user_json) const {
   if (_state == nullptr || _state->get_model() != this) {
     // can't serialize without a path
     return;
@@ -239,10 +239,14 @@ void NodeModel::save(StorageBucket &storage, bool recursive,
   if (user_json) {
     string_ str = var.to_json();
     const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
-    storage.write(_state->get_full_path(),
+    storage.write(skip_path_size > 0 // skip common parent path
+                      ? _state->get_full_path().substr(skip_path_size)
+                      : _state->get_full_path(),
                   make_ref_<RefCountBytes>(str_data, str_data + str.length()));
   } else {
-    storage.write(_state->get_full_path(),
+    storage.write(skip_path_size > 0 // skip common parent path
+                      ? _state->get_full_path().substr(skip_path_size)
+                      : _state->get_full_path(),
                   make_ref_<RefCountBytes>(var.to_msgpack()));
   }
 }
