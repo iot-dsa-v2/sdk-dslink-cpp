@@ -85,6 +85,7 @@ class NodeState : public DestroyableRef<NodeState> {
   // remove the current model as well as all children models
   // return true when the state is no longer needed
   bool remove_model();
+  void remove_child(const string_ &name);
 
   void set_model(ModelRef &&model);
   ModelRef &get_model() { return _model; }
@@ -117,6 +118,7 @@ class NodeState : public DestroyableRef<NodeState> {
   void update_list_value(const string_ &key, const VarBytesRef &value);
   void update_response_status(MessageStatus status = MessageStatus::OK);
   void update_list_refreshed();
+  void update_list_removed();
   void update_list_pub_path(const string_ &path);
 
   void list(ref_<BaseOutgoingListStream> &&stream);
