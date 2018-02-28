@@ -44,7 +44,6 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
     }
   }
 
-  //  _tcp_socket = make_shared_<tcp::socket>(strand->get_io_context());
   _ssl_context = make_shared_<boost::asio::ssl::context>(
       boost::asio::ssl::context::sslv23);
 
@@ -53,10 +52,6 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
   if (error) {
     LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
   }
-
-  //  _wss_stream = make_shared_<websocket_ssl_stream>(*_tcp_socket,
-  //  *_ssl_context);
-  //  _wss_stream = new websocket_ssl_stream(*_tcp_socket, *_ssl_context);
 }
 
 WrapperStrand TestConfig::get_client_wrapper_strand() {
@@ -166,7 +161,7 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
   static_cast<ConsoleLogger &>(Logger::_()).filter =
-      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__ | Logger::DEBUG_;
+      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
   return link;
 }
 

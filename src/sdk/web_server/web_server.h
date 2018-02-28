@@ -62,9 +62,6 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   boost::asio::io_service& io_service() { return _io_service; }
   boost::asio::ssl::context& ssl_context() { return _ssl_context; }
 
-  // shared_ptr_<Websocket> w;
-  Websocket* w;
-
   // HTTP server specific methods
   void add_http_handler(const string_& path, HttpCallback&& callback);
   void add_ws_handler(const string_& path, WsCallback&& callback);
