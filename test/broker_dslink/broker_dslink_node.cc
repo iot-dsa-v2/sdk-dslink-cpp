@@ -12,7 +12,7 @@ class MockChildNode : public NodeModel {
 class MockNode : public NodeModel {
  public:
   explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)) {
-    add_list_child("child_node", make_ref_<MockChildNode>(strand));
+    add_list_child("child_node", make_ref_<MockChildNode>(_strand));
   };
 
   void on_subscribe(const SubscribeOptions &options,
@@ -50,7 +50,7 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
   link_1->add_to_main_node("main_child",
                            make_ref_<MockNode>(link_1->strand->get_ref()));
 
-  bool test_end = false;
+  bool test_end = false, first_list = false;
 
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
@@ -66,8 +66,6 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
           EXPECT_TRUE(map["test2"].is_map());
           cache.close();
 
-          // after client1 disconnected, list update should show it's
-          // disconnected
           link_req->list(
               "downstream/test1/main",
               [
@@ -76,28 +74,23 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
                         static_cast<ref_<DsLinkRequester>>(link_req->get_ref())
               ](IncomingListCache & cache, const std::vector<string_> &str) {
                 auto map = cache.get_map();
-                EXPECT_TRUE(map["main_child"].is_map());
-                cache.close();
-                link_1->remove_from_main_node("main_child");
 
-                link_req->list_raw(
-                    "downstream/test1/main",
-                    [
-                          &,
-                          link_req = static_cast<ref_<DsLinkRequester>>(
-                              link_req->get_ref())
-                    ](IncomingListCache & cache,
-                      const std::vector<string_> &str) {
-                      auto map = cache.get_map();
-                      if (map.find("main_child") == map.end()) {
-                        cache.close();
-                        test_end = true;
-                      }
-                    });
-
+                if (map.find("child_a") != map.end() &&
+                    map.find("child_b") != map.end() &&
+                    map.find("main_child") != map.end()) {
+                  first_list = true;
+                } else if (map.find("child_a") != map.end() &&
+                           map.find("child_b") == map.end() &&
+                           map.find("main_child") != map.end()) {
+                  test_end = true;
+                  cache.close();
+                }
               });
         });
   });
+
+  WAIT_EXPECT_TRUE(5000, [&]() -> bool { return first_list; });
+  link_1->remove_from_main_node("child_b");
 
   WAIT_EXPECT_TRUE(5000, [&]() -> bool { return test_end; });
 

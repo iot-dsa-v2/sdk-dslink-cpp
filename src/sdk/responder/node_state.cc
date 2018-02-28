@@ -310,6 +310,12 @@ void NodeState::update_list_refreshed() {
     it.first->update_list_refreshed();
   }
 }
+void NodeState::update_list_removed() {
+  for (auto &it : _list_streams) {
+    it.first->update_list_refreshed();
+    _model->list(*it.first);
+  }
+}
 void NodeState::update_list_pub_path(const string_ &path) {
   for (auto &it : _list_streams) {
     it.first->update_list_pub_path(path);
