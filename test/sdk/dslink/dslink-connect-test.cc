@@ -38,17 +38,20 @@ TEST_F(DslinkTest, ConnectTest) {
         switch (step) {
           case 1: {
             // connected
+	    std::cout << "one" << std::endl;
             EXPECT_TRUE(connection != nullptr);
             connection->destroy_in_strand(connection);
             break;
           }
           case 2: {
             // disconencted
+	    std::cout << "two" << std::endl;
             EXPECT_TRUE(connection == nullptr);
             break;
           }
           case 3: {
             // reconnected
+	    std::cout << "three" << std::endl;
             EXPECT_TRUE(connection != nullptr);
             break;
           }

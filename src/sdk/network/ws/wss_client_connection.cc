@@ -7,13 +7,24 @@
 #include "module/logger.h"
 
 namespace dsa {
-WssClientConnection::WssClientConnection(websocket_ssl_stream &stream,
-                                         LinkStrandRef &strand,
+
+WssClientConnection::WssClientConnection(LinkStrandRef &strand,
                                          const string_ &dsid_prefix,
                                          const string_ &host, uint16_t port)
-    : WssConnection(stream, strand, dsid_prefix),
+    : WssConnection(strand, dsid_prefix),
+      _tcp_socket(strand->get_io_context()),
+      _ssl_context(boost::asio::ssl::context::sslv23),
       _hostname(host),
-      _port(port) {}
+      _port(port) {
+  boost::system::error_code error;
+  _ssl_context.load_verify_file("certificate.pem", error);
+  if (error) {
+    LOG_FATAL(__FILENAME__, LOG << "Client failed to verify SSL certificate");
+  }
+
+  _wss_stream =
+      std::make_unique<websocket_ssl_stream>(_tcp_socket, _ssl_context);
+}
 
 void WssClientConnection::connect(size_t reconnect_interval) {
   // connect to server
@@ -27,8 +38,9 @@ void WssClientConnection::connect(size_t reconnect_interval) {
   tcp::resolver::results_type results =
       resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port)));
 
+  std::lock_guard<std::mutex> lock(_mutex);
   boost::asio::async_connect(
-      _socket.next_layer().next_layer(), results.begin(), results.end(),
+      _wss_stream->next_layer().next_layer(), results.begin(), results.end(),
       // capture shared_ptr to keep the instance
       // capture this to access protected member
       [ connection = share_this<WssConnection>(), this ](
@@ -42,8 +54,9 @@ void WssClientConnection::connect(size_t reconnect_interval) {
           return;
         }
 
+        std::lock_guard<std::mutex> lock(_mutex);
         // ssl handshake
-        _socket.next_layer().async_handshake(
+        _wss_stream->next_layer().async_handshake(
             ssl::stream_base::client,
             [ connection = connection, this ](boost::system::error_code ec) {
 
@@ -53,8 +66,9 @@ void WssClientConnection::connect(size_t reconnect_interval) {
                 return;
               }
 
+              std::lock_guard<std::mutex> lock(_mutex);
               // websocket handshake
-              _socket.async_handshake(_hostname, "/", [
+              _wss_stream->async_handshake(_hostname, "/", [
                 connection = connection, this
               ](const boost::system::error_code &error) mutable {
                 if (is_destroyed()) return;
@@ -71,9 +85,9 @@ void WssClientConnection::connect(size_t reconnect_interval) {
 
                 WssConnection::start_read(std::move(connection));
 
-              }); // websocket handshake
+              });  // websocket handshake
 
-            }); // ssl handshake
+            });  // ssl handshake
 
       });  // async_connect
 

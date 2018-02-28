@@ -46,8 +46,7 @@ void WsClientConnection::connect(size_t reconnect_interval) {
           if (is_destroyed()) return;
           if (error != boost::system::errc::success) {
             destroy_in_strand(std::move(connection));
-            LOG_ERROR(__FILENAME__,
-                      LOG << "Client websocket handshake failed");
+            LOG_ERROR(__FILENAME__, LOG << "Client websocket handshake failed");
             return;
           }
 

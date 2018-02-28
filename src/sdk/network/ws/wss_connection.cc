@@ -7,16 +7,16 @@
 
 namespace dsa {
 
-WssConnection::WssConnection(websocket_ssl_stream &stream,
-                             LinkStrandRef &strand, const string_ &dsid_prefix,
+WssConnection::WssConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
                              const string_ &path)
-    : BaseSocketConnection(strand, dsid_prefix, path), _socket(stream) {}
+    : BaseSocketConnection(strand, dsid_prefix, path) {}
 
 void WssConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
+  websocket_ssl_stream &wss_stream = secure_stream();
   if (_socket_open.exchange(false)) {
     // TODO - secure websocket close
-    _socket.lowest_layer().close();
+    secure_stream().lowest_layer().close();
   }
   Connection::destroy_impl();
 }
@@ -32,7 +32,7 @@ void WssConnection::start_read(shared_ptr_<Connection> &&connection) {
   if (_read_next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
-  _socket.async_read_some(
+  secure_stream().async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
       [ this, connection = std::move(connection), partial_size ](
           const boost::system::error_code &err, size_t transferred) mutable {
@@ -52,8 +52,9 @@ void WssConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                      int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
-    LOG_FATAL(__FILENAME__, LOG << "message is bigger than max buffer size: "
-                  << MAX_BUFFER_SIZE);
+    LOG_FATAL(
+        __FILENAME__,
+        LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
   }
 
   while (total_size > connection._write_buffer.size()) {
@@ -63,8 +64,9 @@ void WssConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size += message.size();
 }
 void WssConnection::WriteBuffer::write(WriteHandler &&callback) {
-  connection._socket.binary(true);
-  connection._socket.async_write(
+  websocket_ssl_stream &wss_stream = connection.secure_stream();
+  wss_stream.binary(true);
+  wss_stream.async_write(
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
@@ -72,7 +74,5 @@ void WssConnection::WriteBuffer::write(WriteHandler &&callback) {
         callback(error);
       });
 }
-
-websocket_ssl_stream &WssConnection::socket() { return _socket; }
 
 }  // namespace dsa

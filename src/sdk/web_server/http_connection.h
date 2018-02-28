@@ -13,6 +13,7 @@
 #include "websocket.h"
 
 #include <memory>
+#include <mutex>
 
 namespace dsa {
 
@@ -28,6 +29,9 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
   tcp::socket _socket;
   boost::beast::flat_buffer _buffer;
   boost::beast::http::request<boost::beast::http::string_body> _req;
+  std::unique_ptr<Websocket> _wss_stream;
+
+  std::mutex _mutex;
 
  public:
   HttpConnection(WebServer& web_server, bool is_secured);

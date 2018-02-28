@@ -43,6 +43,20 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
       break;
     }
   }
+
+  //  _tcp_socket = make_shared_<tcp::socket>(strand->get_io_context());
+  _ssl_context = make_shared_<boost::asio::ssl::context>(
+      boost::asio::ssl::context::sslv23);
+
+  boost::system::error_code error;
+  _ssl_context->load_verify_file("certificate.pem", error);
+  if (error) {
+    LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
+  }
+
+  //  _wss_stream = make_shared_<websocket_ssl_stream>(*_tcp_socket,
+  //  *_ssl_context);
+  //  _wss_stream = new websocket_ssl_stream(*_tcp_socket, *_ssl_context);
 }
 
 WrapperStrand TestConfig::get_client_wrapper_strand() {
@@ -92,11 +106,6 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
       break;
     case dsa::ProtocolType::PROT_WSS:
-      context.load_verify_file("certificate.pem", error);
-      if (error) {
-        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
-      }
-
       copy.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
       copy.ws_port = 8443;
@@ -104,13 +113,10 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
-        ws_port = copy.ws_port
+        ws_port = copy.ws_port, this
       ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-        static tcp::socket tcp_socket(strand->get_io_context());
-        static websocket_ssl_stream stream(tcp_socket, context);
-
-        return make_shared_<WssClientConnection>(stream, strand, dsid_prefix, ws_host,
-                                                ws_port);
+        return make_shared_<WssClientConnection>(strand, dsid_prefix, ws_host,
+                                                 ws_port);
       };
       break;
     case dsa::ProtocolType::PROT_DS:
@@ -146,7 +152,8 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
       address.assign(std::string("ws://127.0.0.1:") + std::to_string(8080));
       break;
     case dsa::ProtocolType::PROT_WSS:
-      // TODO address.assign(std::string("wss://127.0.0.1:") + std::to_string(ws_port));
+      // TODO address.assign(std::string("wss://127.0.0.1:") +
+      // std::to_string(ws_port));
       address.assign(std::string("wss://127.0.0.1:") + std::to_string(8443));
       break;
     case dsa::ProtocolType::PROT_DS:
@@ -159,7 +166,7 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
   static_cast<ConsoleLogger &>(Logger::_()).filter =
-      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
+      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__ | Logger::DEBUG_;
   return link;
 }
 
@@ -177,13 +184,13 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   uint16_t https_port = 8443;
   web_server->secure_listen(https_port);
 
-  WebServer::WsCallback* root_cb = new WebServer::WsCallback();
+  WebServer::WsCallback *root_cb = new WebServer::WsCallback();
   *root_cb = [this](
-      WebServer &web_server, Websocket& websocket,
+      WebServer &web_server, std::unique_ptr<Websocket> &&websocket,
       boost::beast::http::request<boost::beast::http::string_body> req) {
     LinkStrandRef link_strand(strand);
     DsaWsCallback dsa_ws_callback(link_strand);
-    return dsa_ws_callback(web_server.io_service(), websocket,
+    return dsa_ws_callback(web_server.io_service(), std::move(websocket),
                            std::move(req));
   };
 

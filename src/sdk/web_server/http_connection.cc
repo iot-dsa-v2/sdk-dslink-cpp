@@ -7,7 +7,7 @@
 #include "network/connection.h"
 #include "web_server.h"
 
-namespace websocket =
+namespace boost_websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
 
 namespace dsa {
@@ -29,9 +29,7 @@ void HttpConnection::accept() {
 
           // TODO: check error/termination conditions
 
-          if (websocket::is_upgrade(_req)) {
-
-		      std::cout << _req << std::endl;
+          if (boost_websocket::is_upgrade(_req)) {
 
             // call corresponding server's callback
             //          TODO - temporary fix for issue on Windowns platform
@@ -44,16 +42,17 @@ void HttpConnection::accept() {
         });  // async_read
 #endif
   } else {
+    _wss_stream = std::make_unique<Websocket>(std::move(_socket),
+                                              _web_server.ssl_context());
 
-    static Websocket websocket(std::move(_socket), _web_server.ssl_context());
-
-    websocket.secure_stream().next_layer().async_handshake(
+    // std::lock_guard<std::mutex> lock(_mutex);
+    _wss_stream->secure_stream().next_layer().async_handshake(
         ssl::stream_base::server, [ this, sthis = shared_from_this() ](
                                       const boost::system::error_code& error) {
-
           // Read a request
+          //	  std::lock_guard<std::mutex> lock(_mutex);
           boost::beast::http::async_read(
-              websocket.secure_stream().next_layer(), _buffer, _req,
+              _wss_stream->secure_stream().next_layer(), _buffer, _req,
               // TODO: run within the strand?
               [ this, sthis = sthis ](const boost::system::error_code& error,
                                       size_t bytes_transferred)
@@ -61,7 +60,7 @@ void HttpConnection::accept() {
 
                     // TODO: check error/termination conditions
 
-                    if (websocket::is_upgrade(_req)) {
+                    if (boost_websocket::is_upgrade(_req)) {
 
                       // call corresponding server's callback
                       //          TODO - temporary fix for issue on Windowns
@@ -70,7 +69,7 @@ void HttpConnection::accept() {
                       //          _web_server.ws_handler(_req.target().to_string())(
 
                       _connection = _web_server.ws_handler("/")(
-                          _web_server, websocket, std::move(_req));
+                          _web_server, std::move(_wss_stream), std::move(_req));
                     }
                     return;
                   });  // async_read

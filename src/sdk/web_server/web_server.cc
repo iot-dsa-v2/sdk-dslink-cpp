@@ -9,11 +9,12 @@
 namespace dsa {
 
 WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
-  : _io_service(app.io_service()), _login_mngr(std::move(login_mngr)),
-    _ssl_context{boost::asio::ssl::context::sslv23} {
+    : _io_service(app.io_service()),
+      _login_mngr(std::move(login_mngr)),
+      _ssl_context{boost::asio::ssl::context::sslv23} {
   try {
     _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::no_sslv2);
+                             boost::asio::ssl::context::no_sslv2);
     _ssl_context.set_password_callback(
         [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
           return "";
@@ -61,7 +62,7 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
   // TODO - construct a proper http response
   uint16_t error_code = 404;
   static WebServer::WsCallback error_callback = [error_code](
-      WebServer& web_server, Websocket& websocket,
+      WebServer& web_server, std::unique_ptr<Websocket> websocket,
       boost::beast::http::request<boost::beast::http::string_body> req) {
 
     ErrorCallback error_callback_detail(error_code);

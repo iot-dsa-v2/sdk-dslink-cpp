@@ -220,7 +220,7 @@ TEST_F(ResponderTest, ModelSetValue) {
       initial_options);
 
   //
-  wait_for_bool(25, [&]() -> bool { return false; });
+  wait_for_bool(50, [&]() -> bool { return false; });
 
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Var(0));

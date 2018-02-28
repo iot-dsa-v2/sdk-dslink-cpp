@@ -7,6 +7,7 @@
 
 #include <boost/beast/core/flat_buffer.hpp>
 
+#include "../../web_server/websocket.h"
 #include "../connection.h"
 #include "wss_connection.h"
 
@@ -21,10 +22,16 @@ class WssServerConnection final : public WssConnection {
   boost::beast::flat_buffer _buffer;
   http::request<http::string_body> _req;
 
+  std::unique_ptr<Websocket> _websocket;
+
  public:
-  WssServerConnection(websocket_ssl_stream &, LinkStrandRef &strand,
-                      const string_ &dsid_prefix = "",
+  WssServerConnection(std::unique_ptr<Websocket> websocket,
+                      LinkStrandRef &strand, const string_ &dsid_prefix = "",
                       const string_ &path = "");
+
+  websocket_ssl_stream &secure_stream() final {
+    return _websocket->secure_stream();
+  }
 
   void accept() final;
 

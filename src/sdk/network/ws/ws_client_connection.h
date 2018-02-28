@@ -6,8 +6,8 @@
 #endif
 
 #include "../connection.h"
-#include "ws_connection.h"
 #include "util/enable_shared.h"
+#include "ws_connection.h"
 
 namespace dsa {
 

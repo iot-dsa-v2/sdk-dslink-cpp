@@ -19,6 +19,7 @@
 #include "web_server/websocket.h"
 
 #include <memory>
+#include <mutex>
 
 namespace websocket =
     boost::beast::websocket;  // from <boost/beast/websocket.hpp>
@@ -28,20 +29,23 @@ namespace dsa {
 class DsaWsCallback {
  private:
   LinkStrandRef& _link_strand;
+  std::mutex _mutex;
 
  public:
   DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
 
   auto operator()(
-      boost::asio::io_context& io_context, Websocket& websocket,
+      boost::asio::io_context& io_context,
+      std::unique_ptr<Websocket>&& websocket,
       boost::beast::http::request<boost::beast::http::string_body>&& req) {
     shared_ptr_<Connection> connection;
-    if (websocket.is_secure_stream()) {
-      connection = make_shared_<WssServerConnection>(websocket.secure_stream(),
-                                                     _link_strand);
+    if (websocket->is_secure_stream()) {
+      connection =
+          make_shared_<WssServerConnection>(std::move(websocket), _link_strand);
 
+      std::lock_guard<std::mutex> lock(_mutex);
       std::dynamic_pointer_cast<WssConnection>(connection)
-          ->socket()
+          ->secure_stream()
           .async_accept(req, [ conn = connection,
                                this ](const boost::system::error_code& error) {
 
@@ -50,10 +54,9 @@ class DsaWsCallback {
 
             return;
           });
-
     } else {
       connection = make_shared_<WsServerConnection>(
-          *make_shared_<websocket_stream>(std::move(websocket.socket())),
+          *make_shared_<websocket_stream>(std::move(websocket->socket())),
           _link_strand);
 
       std::dynamic_pointer_cast<WsConnection>(connection)
@@ -67,7 +70,6 @@ class DsaWsCallback {
             return;
           });
     }
-
     return connection;
   }
 };

@@ -94,11 +94,8 @@ TEST_F(NetworkTest, ReConnect) {
         &connection, dsid_prefix = client_strand.dsid_prefix,
         ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
       ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-        tcp::socket tcp_socket(strand->get_io_context());
-        websocket_ssl_stream stream(tcp_socket, context);
-
-        connection = make_shared_<WssClientConnection>(
-            stream, strand, dsid_prefix, ws_host, ws_port);
+        connection = make_shared_<WssClientConnection>(strand, dsid_prefix,
+                                                       ws_host, ws_port);
         return connection;
       };
       break;

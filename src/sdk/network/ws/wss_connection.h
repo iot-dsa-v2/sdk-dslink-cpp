@@ -38,19 +38,17 @@ class WssConnection : public BaseSocketConnection {
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
     start_read(std::move(sthis));
   }
-  websocket_ssl_stream &_socket;
-
   void destroy_impl() override;
 
  public:
-  WssConnection(websocket_ssl_stream &stream, LinkStrandRef &strand,
-                const string_ &dsid_prefix, const string_ &path = "");
+  WssConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+                const string_ &path = "");
+
+  virtual websocket_ssl_stream &secure_stream() = 0;
 
   void start_read(shared_ptr_<Connection> &&connection) final;
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
-
-  websocket_ssl_stream &socket();
 };
 
 }  // namespace dsa

@@ -33,7 +33,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
       boost::beast::http::request<boost::beast::http::string_body>)>
       HttpCallback;
   typedef std::function<std::shared_ptr<Connection>(
-      WebServer&, Websocket&,
+      WebServer&, std::unique_ptr<Websocket>&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       WsCallback;
 
@@ -61,6 +61,9 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   void destroy();
   boost::asio::io_service& io_service() { return _io_service; }
   boost::asio::ssl::context& ssl_context() { return _ssl_context; }
+
+  // shared_ptr_<Websocket> w;
+  Websocket* w;
 
   // HTTP server specific methods
   void add_http_handler(const string_& path, HttpCallback&& callback);

@@ -5,11 +5,13 @@
 #define DEBUG 0
 
 namespace dsa {
-WssServerConnection::WssServerConnection(websocket_ssl_stream &stream,
+
+WssServerConnection::WssServerConnection(std::unique_ptr<Websocket> websocket,
                                          LinkStrandRef &strand,
                                          const string_ &dsid_prefix,
                                          const string_ &path)
-    : WssConnection(stream, strand, dsid_prefix, path) {}
+    : WssConnection(strand, dsid_prefix, path),
+      _websocket(std::move(websocket)) {}
 
 void WssServerConnection::accept() {
   {
