@@ -190,7 +190,8 @@ class Var : public BaseVariant {
       const std::vector<uint8_t> &data,
       size_t first_page_size = MAX_PAGE_BODY_SIZE);
 
-  static Var from_json(const string_ &data);
+  static Var from_json(const char *data, size_t len);
+  static Var from_json(const string_ &str);
   string_ to_json(size_t indent = 0) const throw(const EncodingError &);
 
  protected:
