@@ -75,13 +75,12 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
               ](IncomingListCache & cache, const std::vector<string_> &str) {
                 auto map = cache.get_map();
 
-                if (map.find("child_a") != map.end() &&
-                    map.find("child_b") != map.end() &&
-                    map.find("main_child") != map.end()) {
+                EXPECT_TRUE(map.find("child_a") != map.end());
+                EXPECT_TRUE(map.find("main_child") != map.end());
+                if (map.find("child_b") != map.end()) {
+                  link_1->remove_from_main_node("child_b");
                   first_list = true;
-                } else if (map.find("child_a") != map.end() &&
-                           map.find("child_b") == map.end() &&
-                           map.find("main_child") != map.end()) {
+                } else if (map.find("child_b") == map.end()) {
                   test_end = true;
                   cache.close();
                 }
@@ -89,10 +88,7 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
         });
   });
 
-  WAIT_EXPECT_TRUE(5000, [&]() -> bool { return first_list; });
-  link_1->remove_from_main_node("child_b");
-
-  WAIT_EXPECT_TRUE(5000, [&]() -> bool { return test_end; });
+  WAIT_EXPECT_TRUE(5000, [&]() -> bool { return first_list && test_end; });
 
   link_1->strand->post([link_1]() { link_1->destroy(); });
   link_2->strand->post([link_2]() { link_2->destroy(); });
