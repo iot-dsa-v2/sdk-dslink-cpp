@@ -42,17 +42,17 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
     link_req->list(
         "", [&](IncomingListCache &cache, const std::vector<string_> &str) {
           VarMap map = cache.get_map();
-          EXPECT_TRUE(map["downstream"].is_map());
-          EXPECT_TRUE(map["home"].is_map());
-          EXPECT_TRUE(map["pub"].is_map());
-          EXPECT_TRUE(map["sys"].is_map());
-          EXPECT_TRUE(map["upstream"].is_map());
+          EXPECT_TRUE(map["Downstream"].is_map());
+          EXPECT_TRUE(map["Home"].is_map());
+          EXPECT_TRUE(map["Pub"].is_map());
+          EXPECT_TRUE(map["Sys"].is_map());
+          EXPECT_TRUE(map["Upstream"].is_map());
           listed_1 = true;
           cache.close();
         });
 
     // list on child node
-    link_req->list("downstream", [&](IncomingListCache &cache,
+    link_req->list("Downstream", [&](IncomingListCache &cache,
                                     const std::vector<string_> &str) {
       VarMap downstream_map = cache.get_map();
       EXPECT_TRUE(downstream_map["test1"].is_map());
@@ -62,7 +62,7 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
 
     // list on sys
     link_req->list(
-        "sys", [&](IncomingListCache &cache, const std::vector<string_> &str) {
+        "Sys", [&](IncomingListCache &cache, const std::vector<string_> &str) {
           VarMap sys_map = cache.get_map();
           EXPECT_TRUE(sys_map["stop"].is_map());
           listed_3 = true;
@@ -70,13 +70,13 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
         });
 
     // list on self
-    link_req->list("downstream/test1", [&](IncomingListCache &cache,
+    link_req->list("Downstream/test1", [&](IncomingListCache &cache,
                                           const std::vector<string_> &str) {
       VarMap self_map = cache.get_map();
       EXPECT_TRUE(self_map["$$dsid"].is_string());
-      EXPECT_TRUE(self_map["main"].is_map());
-      EXPECT_TRUE(self_map["pub"].is_map());
-      EXPECT_TRUE(self_map["sys"].is_map());
+      EXPECT_TRUE(self_map["Main"].is_map());
+      EXPECT_TRUE(self_map["Pub"].is_map());
+      EXPECT_TRUE(self_map["Sys"].is_map());
       listed_4 = true;
       cache.close();
     });
@@ -128,14 +128,14 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
         link1_connected = true;
         // when list on downstream/test1 it should have a metadata for test1's
         // dsid
-        link_req->list("downstream/test1", [&](IncomingListCache &cache,
+        link_req->list("Downstream/test1", [&](IncomingListCache &cache,
                                               const std::vector<string_> &str) {
           auto map = cache.get_map();
           // std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
           //              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
 
           link_1->strand->post([link_1]() { link_1->destroy(); });
-          link1_listed = true;
+          link1_listed = true;h
         });
       });
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return link1_connected && link1_listed; });
@@ -143,14 +143,14 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
     // downstream should has test1 and test2 nodes
-    link_req->list("downstream", [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())]
+    link_req->list("Downstream", [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())]
 	(IncomingListCache &cache, const std::vector<string_> &str) {
       auto map = cache.get_map();
       EXPECT_TRUE(map["test1"].is_map());
       EXPECT_TRUE(map["test2"].is_map());
 
       // after client1 disconnected, list update should show it's disconnected
-      link_req->list("downstream/test1", [&](IncomingListCache &cache,
+      link_req->list("Downstream/test1", [&](IncomingListCache &cache,
                                             const std::vector<string_> &str) {
         EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
         // end the test

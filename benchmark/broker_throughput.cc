@@ -186,7 +186,7 @@ int main(int argc, const char* argv[]) {
       SubscribeOptions options;
       options.qos = QosLevel::_1;
       for (int a = 0; a < client_count; ++a) {
-        string_ node_path = "downstream/benchmark" + std::to_string(a);
+        string_ node_path = "Downstream/benchmark" + std::to_string(a);
         for (int b = 0; b < point_count; ++b) {
           string_ point_path = node_path + "/v" + std::to_string(b);
           client->get_session().requester.subscribe(

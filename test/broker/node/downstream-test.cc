@@ -76,7 +76,7 @@ TEST_F(BrokerDownstreamTest, Subscribe) {
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test/value",
+        "Downstream/test/value",
         [&](IncomingSubscribeStream& stream,
             ref_<const SubscribeResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
@@ -110,7 +110,7 @@ TEST_F(BrokerDownstreamTest, Invoke) {
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
-    invoke_req->set_target_path("downstream/test/node/action");
+    invoke_req->set_target_path("Downstream/test/node/action");
     invoke_req->set_value(Var("hello"));
 
     tcp_client->get_session().requester.invoke(
@@ -149,7 +149,7 @@ TEST_F(BrokerDownstreamTest, Set) {
 
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test/value",
+        "Downstream/test/value",
         [&](IncomingSubscribeStream& stream,
             ref_<const SubscribeResponseMessage>&& msg) {
           ++step;
@@ -161,7 +161,7 @@ TEST_F(BrokerDownstreamTest, Set) {
                      ref_<const SetResponseMessage>&& set_response) {
 
                   },
-                  make_ref_<SetRequestMessage>("downstream/test/value",
+                  make_ref_<SetRequestMessage>("Downstream/test/value",
                                                Var("dsa")));
               break;
             }
@@ -204,7 +204,7 @@ TEST_F(BrokerDownstreamTest, List) {
   // after client1 disconnected, list update should show it's disconnected
   auto step_3_disconnection_list = [&]() {
     tcp_client2->get_session().requester.list(
-        "downstream/test1",
+        "Downstream/test1",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
           // end the test
@@ -221,7 +221,7 @@ TEST_F(BrokerDownstreamTest, List) {
   // downstream should has test1 and test2 nodes
   auto step_2_downstream_list = [&]() {
     tcp_client2->get_session().requester.list(
-        "downstream",
+        "Downstream",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
           auto map = msg->get_map();
           EXPECT_TRUE(map["test1"]->get_value().is_map());
@@ -234,7 +234,7 @@ TEST_F(BrokerDownstreamTest, List) {
   auto step_1_downstream_child_list =
       [&](const shared_ptr_<Connection>& connection) {
         tcp_client1->get_session().requester.list(
-            "downstream/test1",
+            "Downstream/test1",
             [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
               auto map = msg->get_map();
               EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
@@ -278,7 +278,7 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
   // list again after previous list is closed
   auto step_5 = [&]() {
     tcp_client1->get_session().requester.list(
-        "downstream/test2",
+        "Downstream/test2",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
@@ -300,7 +300,7 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
-        "downstream/test2",
+        "Downstream/test2",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           step++;
           switch (step) {
@@ -369,7 +369,7 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
   // list again after previous list is closed
   auto step_5 = [&]() {
     tcp_client1->get_session().requester.list(
-        "downstream/test2/value",
+        "Downstream/test2/value",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
@@ -392,7 +392,7 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
-        "downstream/test2/value",
+        "Downstream/test2/value",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           step++;
           switch (step) {
@@ -455,7 +455,7 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
 
   auto step_2_list_parent = [&]() {
     tcp_client->get_session().requester.list(
-        "downstream/test1/node",
+        "Downstream/test1/node",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
           EXPECT_TRUE((*msg->get_parsed_map())["action"].is_map());
@@ -471,7 +471,7 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
 
   auto step_1_list_child = [&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.list(
-        "downstream/test1/node/action",
+        "Downstream/test1/node/action",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
           auto mapref = msg->get_parsed_map();

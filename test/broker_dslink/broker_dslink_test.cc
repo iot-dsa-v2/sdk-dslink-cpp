@@ -52,7 +52,7 @@ TEST_F(BrokerDsLinkTest, Reconnect) {
     main_link->connect([&](const shared_ptr_<Connection> connection,
                            ref_<DsLinkRequester> link_req) {
       // 2. CHECK IF CONNECTION IS OK
-      auto list_path = "downstream/test1";
+      auto list_path = "Downstream/test1";
 
       link_req->list(list_path, [&](IncomingListCache &cache,
                                    const std::vector<string_> &str) {
@@ -119,7 +119,7 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto unavailable_child_list = [&](const shared_ptr_<Connection> &connection,
                                     ref_<DsLinkRequester> link_req) {
-    link_req->list("downstream/test_2", [&](IncomingListCache &cache,
+    link_req->list("Downstream/test_2", [&](IncomingListCache &cache,
                                            const std::vector<string_>) {
       step++;
       switch (step) {
@@ -191,7 +191,7 @@ TEST_F(BrokerDsLinkTest, StopTest) {
                       ref_<DsLinkRequester> link_req) {
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
     invoke_req->set_value(Var(close_token));
-    invoke_req->set_target_path("downstream/test_1/sys/stop");
+    invoke_req->set_target_path("Downstream/test_1/sys/stop");
 
     link_req->invoke(
         [&](IncomingInvokeStream &stream,
@@ -241,7 +241,7 @@ TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   link_1->connect(
       [&](const shared_ptr_<Connection> connection, ref_<DsLinkRequester> link_req) {
         link_req->list(
-            "sys", [&](IncomingListCache &cache, const std::vector<string_>) {
+            "Sys", [&](IncomingListCache &cache, const std::vector<string_>) {
               VarMap vm = cache.get_map();
               EXPECT_TRUE(vm["stop"].get_type() != Var::NUL);
               listed = true;
@@ -296,7 +296,7 @@ TEST_F(BrokerDsLinkTest, SysListWithoutCloseToken) {
   link_1->connect(
       [&](const shared_ptr_<Connection> connection, ref_<DsLinkRequester> link_req) {
         link_req->list(
-            "sys", [&](IncomingListCache &cache, const std::vector<string_>) {
+            "Sys", [&](IncomingListCache &cache, const std::vector<string_>) {
               VarMap vm = cache.get_map();
               EXPECT_TRUE(vm["stop"].get_type() == Var::NUL);
               listed = true;

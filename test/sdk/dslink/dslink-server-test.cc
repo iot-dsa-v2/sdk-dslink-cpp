@@ -73,13 +73,13 @@ TEST_F(DslinkTest, ServerTest) {
                                               IncomingListCache & cache,
                                               const std::vector<string_> &str) {
       EXPECT_TRUE(cache.get_map().size() != 0);
-      EXPECT_NE(cache.get_map().find("sys"), cache.get_map().end());
-      EXPECT_NE(cache.get_map().find("pub"), cache.get_map().end());
-      EXPECT_NE(cache.get_map().find("main"), cache.get_map().end());
+      EXPECT_NE(cache.get_map().find("Sys"), cache.get_map().end());
+      EXPECT_NE(cache.get_map().find("Pub"), cache.get_map().end());
+      EXPECT_NE(cache.get_map().find("Main"), cache.get_map().end());
 
       // add a callback when connected to broker
       link_req->subscribe(
-          "main/child_a", [&](IncomingSubscribeCache &cache,
+          "Main/child_a", [&](IncomingSubscribeCache &cache,
                               ref_<const SubscribeResponseMessage> message) {
             messages.push_back(message->get_value().value.get_string());
             // EXPECT_TRUE(1000, [&]() { return messages.size() == 1; });
@@ -154,7 +154,7 @@ TEST_F(DslinkTest, CloseTest) {
                     ref_<DsLinkRequester> link_req) {
     auto close_request_with_wrong_token = make_ref_<InvokeRequestMessage>();
     close_request_with_wrong_token->set_value(Var("wrongtoken"));
-    close_request_with_wrong_token->set_target_path("sys/stop");
+    close_request_with_wrong_token->set_target_path("Sys/stop");
 
     link_req->invoke([&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())](
                          IncomingInvokeStream & stream,
@@ -165,7 +165,7 @@ TEST_F(DslinkTest, CloseTest) {
 
       auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
       close_request_with_valid_token->set_value(Var(close_token));
-      close_request_with_valid_token->set_target_path("sys/stop");
+      close_request_with_valid_token->set_target_path("Sys/stop");
 
       link_req->invoke(
           [&](IncomingInvokeStream &stream,
@@ -234,7 +234,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
 
     // check the list result
     list_cache = link_req->list(
-        "main", [&](IncomingListCache &cache, const std::vector<string_> &) {
+        "Main", [&](IncomingListCache &cache, const std::vector<string_> &) {
           if (cache.get_map().count("$is") > 0 &&
               cache.get_map().at("$is").to_string() == "example") {
             EXPECT_TRUE(cache.get_profile_map().size() != 0);
@@ -245,7 +245,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
         });
     // invoke the pub node to change the value
     auto request = make_ref_<InvokeRequestMessage>();
-    request->set_target_path("main/change");
+    request->set_target_path("Main/change");
     request->set_body(Var("hello").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
@@ -256,7 +256,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
     // subscribe to check the result
     ref_<IncomingSubscribeCache> sub_cache;
     sub_cache = link_req->subscribe(
-        "main", [&](IncomingSubscribeCache &cache,
+        "Main", [&](IncomingSubscribeCache &cache,
                     ref_<const SubscribeResponseMessage> &msg) {
           if (msg->get_value().value.to_string() == "hello") {
             subscrib_checked = true;

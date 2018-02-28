@@ -59,7 +59,7 @@ TEST_F(BrokerPageTest, InvokeRequest) {
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
-    invoke_req->set_target_path("downstream/test/action");
+    invoke_req->set_target_path("Downstream/test/action");
     invoke_req->set_value(Var(big_str1));
 
     tcp_client->get_session().requester.invoke(
