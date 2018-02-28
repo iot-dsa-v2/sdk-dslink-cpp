@@ -5,22 +5,33 @@
 #include "module/stream_acceptor.h"
 namespace dsa {
 
-void BrokerLinksRoot::initialize() {
-  auto storage = _strand->storage().get_bucket("Users");
+void BrokerKnownLinksRoot::initialize() {
+  auto storage = _strand->storage().get_bucket("Known_Links");
   storage->read_all([ this, keepref = get_ref() ](
                         const string_& key, std::vector<uint8_t> data,
                         BucketReadStatus read_status) {
-                        Path path(key);
+    if (PathData::invalid_name(key)) {
+      // TODO, change this to better dsid validation
+      return;
+    }
+    Var map =
+        Var::from_json(reinterpret_cast<const char*>(data.data()), data.size());
+    if (map.is_map()) {
+      // add a child dslink node
+      auto child = make_ref_<BrokerKnownLinkNode>(
+          _strand->get_ref(),
+          _strand->stream_acceptor().get_profile("Broker/Known_Link", true));
 
-                      },
-                    []() {
-
-                    });
+      child->load(map.get_map());
+      add_list_child(key, std::move(child));
+    }
+  },
+                    nullptr);
 }
-void BrokerLinksRoot::on_load_child(const string_& name, VarMap& map) {
-  auto user_node = make_ref_<BrokerLinkNode>(
+void BrokerKnownLinksRoot::on_load_child(const string_& name, VarMap& map) {
+  auto user_node = make_ref_<BrokerKnownLinkNode>(
       _strand->get_ref(),
-      _strand->stream_acceptor().get_profile("Broker/Link", true));
+      _strand->stream_acceptor().get_profile("Broker/Known_Link", true));
   add_list_child(name, std::move(user_node));
 }
 

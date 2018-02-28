@@ -14,9 +14,9 @@ class ModuleLoader;
 class DsBroker;
 class BrokerPubRoot;
 
-class BrokerLinksRoot : public NodeModel {
+class BrokerKnownLinksRoot : public NodeModel {
  public:
-  explicit BrokerLinksRoot(LinkStrandRef&& strand)
+  explicit BrokerKnownLinksRoot(LinkStrandRef&& strand)
       : NodeModel(std::move(strand)){};
 
   bool save_child(const string_& name) const override { return true; }
@@ -26,10 +26,10 @@ class BrokerLinksRoot : public NodeModel {
   void on_load_child(const string_& name, VarMap& map);
 };
 
-class BrokerLinkNode : public NodeModel {
+class BrokerKnownLinkNode : public NodeModel {
  public:
-  explicit BrokerLinkNode(LinkStrandRef&& strand)
-      : NodeModel(std::move(strand)){};
+  explicit BrokerKnownLinkNode(LinkStrandRef&& strand, ref_<NodeModel>& profile)
+      : NodeModel(std::move(strand), profile){};
 };
 
 class BrokerClientManager : public ClientManager {
@@ -38,7 +38,7 @@ class BrokerClientManager : public ClientManager {
  protected:
   LinkStrandRef _strand;
 
-  ref_<BrokerLinksRoot> _links_node;
+  ref_<BrokerKnownLinksRoot> _links_node;
 
   void destroy_impl() override;
 
