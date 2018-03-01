@@ -60,8 +60,8 @@ class NodeModel : public NodeModelBase {
   virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
 
  public:  // serialization logic
-  void save(StorageBucket &storage, bool recursive = false,
-            const string_ &storage_path, bool user_json = false) const;
+  void save(StorageBucket &storage, const string_ &storage_path = "",
+            bool recursive = false, bool user_json = false) const;
   void load(VarMap &map);
 
  protected:  // serialization implementation

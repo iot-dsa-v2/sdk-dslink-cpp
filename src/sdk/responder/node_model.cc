@@ -198,12 +198,8 @@ MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
 
 // serialization
 
-void NodeModel::save(StorageBucket &storage, bool recursive,
-                     const string_ &storage_path, bool user_json) const {
-  if (_state == nullptr || _state->get_model() != this) {
-    // can't serialize without a path
-    return;
-  }
+void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
+                     bool recursive, bool user_json) const {
   auto map = make_ref_<VarMap>();
   if (_cached_value != nullptr) {
     (*map)["?value"] = _cached_value->get_value().value;
@@ -232,7 +228,7 @@ void NodeModel::save(StorageBucket &storage, bool recursive,
         // save child if it's also a NodeModel
         auto child_model = dynamic_cast<NodeModel *>(it.second.get());
         if (child_model != nullptr) {
-          child_model->save(storage, true, recursive_path + it.first,
+          child_model->save(storage, recursive_path + it.first, true,
                             user_json);
         }
       }

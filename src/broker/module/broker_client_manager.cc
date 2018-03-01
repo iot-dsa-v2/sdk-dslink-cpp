@@ -11,7 +11,7 @@ void BrokerKnownLinksRoot::initialize() {
                         const string_& key, std::vector<uint8_t> data,
                         BucketReadStatus read_status) {
     if (PathData::invalid_name(key)) {
-      // TODO, change this to better dsid validation
+      // TODO check dsid
       return;
     }
     Var map =
@@ -51,7 +51,7 @@ void BrokerClientManager::get_client(const string_& dsid,
   });
 }
 
-void BrokerClientManager::destroy_impl() override {
+void BrokerClientManager::destroy_impl() {
   _links_node.reset();
   ClientManager::destroy_impl();
 }
