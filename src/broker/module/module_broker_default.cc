@@ -40,8 +40,8 @@ shared_ptr_<LoginManager> ModuleBrokerDefault::create_login_manager(
 void ModuleBrokerDefault::add_module_node(NodeModel& module_node,
                                           BrokerPubRoot& pub_root) {
   if (_client_manager != nullptr) {
-    module_node.add_list_child("Users",
-                               static_cast<BrokerLoginManager&>(*_login_manager)
+    module_node.add_list_child("Known_Links",
+                               static_cast<BrokerClientManager&>(*_client_manager)
                                    .create_node(module_node, pub_root));
   }
   if (_authorizer != nullptr) {

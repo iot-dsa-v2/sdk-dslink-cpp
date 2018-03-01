@@ -41,7 +41,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   link->add_to_pub("example", profile_example->get_ref());
 
   ref_<NodeModel> main_node =
-      make_ref_<NodeModel>(link->strand->get_ref(), profile_example);
+      make_ref_<NodeModel>(link->strand->get_ref(), profile_example->get_ref());
   link->init_responder(std::move(main_node));
 
   bool list_checked = false;

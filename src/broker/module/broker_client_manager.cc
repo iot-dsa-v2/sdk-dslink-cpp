@@ -35,9 +35,12 @@ void BrokerKnownLinksRoot::on_load_child(const string_& name, VarMap& map) {
   add_list_child(name, std::move(user_node));
 }
 
-void BrokerClientManager::create_node(NodeModel& module_node,
-                                      BrokerPubRoot& pub_root) {
+ref_<NodeModel> BrokerClientManager::create_node(NodeModel& module_node,
+                                                 BrokerPubRoot& pub_root) {
   // TODO register action for pub root
+
+  _links_node.reset(new BrokerKnownLinksRoot(_strand->get_ref()));
+  return _links_node->get_ref();
 }
 
 void BrokerClientManager::get_client(const string_& dsid,
@@ -55,4 +58,4 @@ void BrokerClientManager::destroy_impl() {
   _links_node.reset();
   ClientManager::destroy_impl();
 }
-}
+}  // namespace dsa

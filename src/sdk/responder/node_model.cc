@@ -20,9 +20,9 @@ NodeModel::NodeModel(LinkStrandRef &&strand,
     : NodeModelBase(std::move(strand)) {
   set_value_require_permission(write_require_permission);
 };
-NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
+NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
                      PermissionLevel write_require_permission)
-    : NodeModelBase(std::move(strand)), _profile(profile) {
+    : NodeModelBase(std::move(strand)), _profile(std::move(profile)) {
   set_value_require_permission(write_require_permission);
 
   auto &state = profile->get_state();

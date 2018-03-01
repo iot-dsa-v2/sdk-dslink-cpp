@@ -28,8 +28,8 @@ class BrokerKnownLinksRoot : public NodeModel {
 
 class BrokerKnownLinkNode : public NodeModel {
  public:
-  explicit BrokerKnownLinkNode(LinkStrandRef&& strand, ref_<NodeModel>& profile)
-      : NodeModel(std::move(strand), profile){};
+  explicit BrokerKnownLinkNode(LinkStrandRef&& strand, ref_<NodeModel>&& profile)
+      : NodeModel(std::move(strand), std::move(profile)){};
 };
 
 class BrokerClientManager : public ClientManager {
@@ -45,7 +45,7 @@ class BrokerClientManager : public ClientManager {
  public:
   explicit BrokerClientManager(LinkStrandRef& strand) : _strand(strand){};
 
-  void create_node(NodeModel& module_node, BrokerPubRoot& pub_root);
+    ref_<NodeModel> create_node(NodeModel& module_node, BrokerPubRoot& pub_root);
 
   void get_client(const string_& dsid, const string_& auth_token,
                   ClientInfo::GetClientCallback&& callback) override;

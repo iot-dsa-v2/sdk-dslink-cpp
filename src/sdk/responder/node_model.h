@@ -33,7 +33,7 @@ class NodeModel : public NodeModelBase {
  public:
   NodeModel(LinkStrandRef &&strand,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
-  NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
+  NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
