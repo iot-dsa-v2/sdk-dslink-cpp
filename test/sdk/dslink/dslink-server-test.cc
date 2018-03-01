@@ -30,8 +30,8 @@ class ExampleNodeRoot : public NodeModel {
  public:
   explicit ExampleNodeRoot(LinkStrandRef strand)
       : NodeModel(std::move(strand)) {
-    add_list_child("child_a", new ExampleNodeChild(_strand));
-    add_list_child("child_b", new ExampleNodeChild(_strand));
+    add_list_child("Child_a", new ExampleNodeChild(_strand));
+    add_list_child("Child_b", new ExampleNodeChild(_strand));
   };
 };
 
@@ -79,7 +79,7 @@ TEST_F(DslinkTest, ServerTest) {
 
       // add a callback when connected to broker
       link_req->subscribe(
-          "Main/child_a", [&](IncomingSubscribeCache &cache,
+          "Main/Child_a", [&](IncomingSubscribeCache &cache,
                               ref_<const SubscribeResponseMessage> message) {
             messages.push_back(message->get_value().value.get_string());
             // EXPECT_TRUE(1000, [&]() { return messages.size() == 1; });
@@ -154,7 +154,7 @@ TEST_F(DslinkTest, CloseTest) {
                     ref_<DsLinkRequester> link_req) {
     auto close_request_with_wrong_token = make_ref_<InvokeRequestMessage>();
     close_request_with_wrong_token->set_value(Var("wrongtoken"));
-    close_request_with_wrong_token->set_target_path("Sys/stop");
+    close_request_with_wrong_token->set_target_path("Sys/Stop");
 
     link_req->invoke([&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())](
                          IncomingInvokeStream & stream,
@@ -165,7 +165,7 @@ TEST_F(DslinkTest, CloseTest) {
 
       auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
       close_request_with_valid_token->set_value(Var(close_token));
-      close_request_with_valid_token->set_target_path("Sys/stop");
+      close_request_with_valid_token->set_target_path("Sys/Stop");
 
       link_req->invoke(
           [&](IncomingInvokeStream &stream,
@@ -208,7 +208,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
   ref_<NodeModel> profile_example =
       make_ref_<NodeModel>(link->strand->get_ref());
   profile_example->add_list_child(
-      "change",
+      "Change",
       make_ref_<SimpleInvokeNode>(
           link->strand->get_ref(),
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
@@ -219,7 +219,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
             }
             stream.close();
           }));
-  link->add_to_pub("example", profile_example->get_ref());
+  link->add_to_pub("Example", profile_example->get_ref());
 
   ref_<NodeModel> main_node =
       make_ref_<NodeModel>(link->strand->get_ref(), profile_example);
@@ -236,16 +236,16 @@ TEST_F(DslinkTest, ProfileActionTest) {
     list_cache = link_req->list(
         "Main", [&](IncomingListCache &cache, const std::vector<string_> &) {
           if (cache.get_map().count("$is") > 0 &&
-              cache.get_map().at("$is").to_string() == "example") {
+              cache.get_map().at("$is").to_string() == "Example") {
             EXPECT_TRUE(cache.get_profile_map().size() != 0);
-            EXPECT_NE(cache.get_profile_map().find("change"),
+            EXPECT_NE(cache.get_profile_map().find("Change"),
                       cache.get_profile_map().end());
             list_checked = true;
           }
         });
     // invoke the pub node to change the value
     auto request = make_ref_<InvokeRequestMessage>();
-    request->set_target_path("Main/change");
+    request->set_target_path("Main/Change");
     request->set_body(Var("hello").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {

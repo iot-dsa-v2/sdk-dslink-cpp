@@ -28,7 +28,7 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   EXPECT_TRUE(port != 0);
 
   auto link =
-      broker_dslink_test::create_mock_dslink(app, port, "test1", protocol());
+      broker_dslink_test::create_mock_dslink(app, port, "Test1", protocol());
 
   bool is_connected = false;
   bool listed_1 = false;
@@ -55,7 +55,7 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
     link_req->list("Downstream", [&](IncomingListCache &cache,
                                     const std::vector<string_> &str) {
       VarMap downstream_map = cache.get_map();
-      EXPECT_TRUE(downstream_map["test1"].is_map());
+      EXPECT_TRUE(downstream_map["Test1"].is_map());
       listed_2 = true;
       cache.close();
     });
@@ -64,13 +64,13 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
     link_req->list(
         "Sys", [&](IncomingListCache &cache, const std::vector<string_> &str) {
           VarMap sys_map = cache.get_map();
-          EXPECT_TRUE(sys_map["stop"].is_map());
+          EXPECT_TRUE(sys_map["Stop"].is_map());
           listed_3 = true;
           cache.close();
         });
 
     // list on self
-    link_req->list("Downstream/test1", [&](IncomingListCache &cache,
+    link_req->list("Downstream/Test1", [&](IncomingListCache &cache,
                                           const std::vector<string_> &str) {
       VarMap self_map = cache.get_map();
       EXPECT_TRUE(self_map["$$dsid"].is_string());
@@ -118,9 +118,9 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
 
   bool link1_listed = false, link1_connected = false, test_end = false;
   link_1->connect(
@@ -128,14 +128,14 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
         link1_connected = true;
         // when list on downstream/test1 it should have a metadata for test1's
         // dsid
-        link_req->list("Downstream/test1", [&](IncomingListCache &cache,
+        link_req->list("Downstream/Test1", [&](IncomingListCache &cache,
                                               const std::vector<string_> &str) {
           auto map = cache.get_map();
           // std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
           //              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
 
           link_1->strand->post([link_1]() { link_1->destroy(); });
-          link1_listed = true;h
+          link1_listed = true;
         });
       });
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return link1_connected && link1_listed; });
@@ -146,8 +146,8 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
     link_req->list("Downstream", [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())]
 	(IncomingListCache &cache, const std::vector<string_> &str) {
       auto map = cache.get_map();
-      EXPECT_TRUE(map["test1"].is_map());
-      EXPECT_TRUE(map["test2"].is_map());
+      EXPECT_TRUE(map["Test1"].is_map());
+      EXPECT_TRUE(map["Test2"].is_map());
 
       // after client1 disconnected, list update should show it's disconnected
       link_req->list("Downstream/test1", [&](IncomingListCache &cache,
