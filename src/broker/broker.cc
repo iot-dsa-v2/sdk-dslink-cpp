@@ -59,7 +59,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   if (default_module == nullptr)
     default_module = make_ref_<ModuleBrokerDefault>();
 
-  modules = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
+  modules = make_ref_<ModuleWithLoader>(_config->get_exe_path() / "modules", std::move(default_module));
   modules->init_all(*_app, strand);
 
   // init logger

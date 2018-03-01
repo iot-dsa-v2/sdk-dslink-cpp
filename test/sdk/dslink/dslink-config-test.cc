@@ -41,7 +41,7 @@ void end_link(ref_<DsLink> &&link) {
 }
 
 TEST_F(DslinkTest, DefaultParam) {
-  const char *argv[] = {"./test"};
+  const char *argv[] = {"./"};
   int argc = 1;
   auto link = create_test_dslink(argc, argv);
 
@@ -58,7 +58,7 @@ TEST_F(DslinkTest, DefaultParam) {
 }
 
 TEST_F(DslinkTest, UrlParam1) {
-  const char *argv[] = {"./test", "-b", "192.168.1.12"};
+  const char *argv[] = {"./", "-b", "192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -69,7 +69,7 @@ TEST_F(DslinkTest, UrlParam1) {
 }
 
 TEST_F(DslinkTest, UrlParam2) {
-  const char *argv[] = {"./test", "--broker", "192.168.1.12"};
+  const char *argv[] = {"./", "--broker", "192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -80,7 +80,7 @@ TEST_F(DslinkTest, UrlParam2) {
 }
 
 TEST_F(DslinkTest, UrlParam3) {
-  const char *argv[] = {"./test", "--broker", "dss://192.168.1.12"};
+  const char *argv[] = {"./", "--broker", "dss://192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -92,7 +92,7 @@ TEST_F(DslinkTest, UrlParam3) {
 }
 
 TEST_F(DslinkTest, url_param4) {
-  const char *argv[] = {"./test", "--broker", "dss://192.168.1.12:132"};
+  const char *argv[] = {"./", "--broker", "dss://192.168.1.12:132"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -103,7 +103,7 @@ TEST_F(DslinkTest, url_param4) {
 }
 
 TEST_F(DslinkTest, UrlParam5) {
-  const char *argv[] = {"./test", "--broker", "ws://192.168.1.12"};
+  const char *argv[] = {"./", "--broker", "ws://192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -116,7 +116,7 @@ TEST_F(DslinkTest, UrlParam5) {
 }
 
 TEST_F(DslinkTest, UrlParam6) {
-  const char *argv[] = {"./test", "--broker", "wss://192.168.1.12"};
+  const char *argv[] = {"./", "--broker", "wss://192.168.1.12"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -127,7 +127,7 @@ TEST_F(DslinkTest, UrlParam6) {
 }
 
 TEST_F(DslinkTest, UrlParam7) {
-  const char *argv[] = {"./test", "--broker", "wss://192.168.1.12:132"};
+  const char *argv[] = {"./", "--broker", "wss://192.168.1.12:132"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -138,7 +138,7 @@ TEST_F(DslinkTest, UrlParam7) {
 }
 
 TEST_F(DslinkTest, LogParam1) {
-  const char *argv[] = {"./test", "-l", "invalid_val"};
+  const char *argv[] = {"./", "-l", "invalid_val"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -148,7 +148,7 @@ TEST_F(DslinkTest, LogParam1) {
 
 //// comment out this test to avoid unecessary console output
 // TEST(DslinkTest, log_param2) {
-//  const char *argv[] = {"./test", "-l", "all"};
+//  const char *argv[] = {"./", "-l", "all"};
 //  int argc = 3;
 //  auto link = create_test_dslink(argc, argv);
 //
@@ -157,7 +157,7 @@ TEST_F(DslinkTest, LogParam1) {
 //}
 //// comment out this test to avoid unecessary console output
 // TEST(DslinkTest, log_param3) {
-//  const char *argv[] = {"./test", "-l", "trace"};
+//  const char *argv[] = {"./", "-l", "trace"};
 //  int argc = 3;
 //  auto link = create_test_dslink(argc, argv);
 //
@@ -166,7 +166,7 @@ TEST_F(DslinkTest, LogParam1) {
 //}
 
 TEST_F(DslinkTest, LogParam4) {
-  const char *argv[] = {"./test", "-l", "debug"};
+  const char *argv[] = {"./", "-l", "debug"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -175,7 +175,7 @@ TEST_F(DslinkTest, LogParam4) {
 }
 
 TEST_F(DslinkTest, LogParam5) {
-  const char *argv[] = {"./test", "-l", "error"};
+  const char *argv[] = {"./", "-l", "error"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -184,7 +184,7 @@ TEST_F(DslinkTest, LogParam5) {
 }
 
 TEST_F(DslinkTest, LogParam6) {
-  const char *argv[] = {"./test", "-l", "warn"};
+  const char *argv[] = {"./", "-l", "warn"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -193,7 +193,7 @@ TEST_F(DslinkTest, LogParam6) {
 }
 
 TEST_F(DslinkTest, LogParam7) {
-  const char *argv[] = {"./test", "-l", "fatal"};
+  const char *argv[] = {"./", "-l", "fatal"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -202,7 +202,7 @@ TEST_F(DslinkTest, LogParam7) {
 }
 
 TEST_F(DslinkTest, LogParam8) {
-  const char *argv[] = {"./test", "-l", "none"};
+  const char *argv[] = {"./", "-l", "none"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -211,7 +211,7 @@ TEST_F(DslinkTest, LogParam8) {
 }
 
 TEST_F(DslinkTest, ThreadParam1) {
-  const char *argv[] = {"./test", "--thread", "0"};
+  const char *argv[] = {"./", "--thread", "0"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -220,7 +220,7 @@ TEST_F(DslinkTest, ThreadParam1) {
 }
 
 TEST_F(DslinkTest, ThreadParam2) {
-  const char *argv[] = {"./test", "--thread", "1"};
+  const char *argv[] = {"./", "--thread", "1"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -229,7 +229,7 @@ TEST_F(DslinkTest, ThreadParam2) {
 }
 
 TEST_F(DslinkTest, ThreadParam3) {
-  const char *argv[] = {"./test", "--thread", "2"};
+  const char *argv[] = {"./", "--thread", "2"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -238,7 +238,7 @@ TEST_F(DslinkTest, ThreadParam3) {
 }
 
 TEST_F(DslinkTest, ThreadParam4) {
-  const char *argv[] = {"./test", "--thread", "20"};
+  const char *argv[] = {"./", "--thread", "20"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -249,7 +249,7 @@ TEST_F(DslinkTest, ThreadParam4) {
 }
 
 TEST_F(DslinkTest, TCPServerPortParam) {
-  const char *argv[] = {"./test", "--server-port", "132"};
+  const char *argv[] = {"./", "--server-port", "132"};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -264,7 +264,7 @@ TEST_F(DslinkTest, TokenFile) {
   SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
   string_to_storage(token, token_file_name, storage_bucket);
 
-  const char *argv[] = {"./test", "--token", token_file_name.c_str()};
+  const char *argv[] = {"./", "--token", token_file_name.c_str()};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
@@ -274,7 +274,7 @@ TEST_F(DslinkTest, TokenFile) {
 }
 
 TEST_F(DslinkTest, GeneralParam) {
-  const char *argv[] = {"./test", "--broker",      "wss://192.168.1.12:142",
+  const char *argv[] = {"./", "--broker",      "wss://192.168.1.12:142",
                         "-l",     "info",          "--thread",
                         "2",      "--server-port", "132"};
   int argc = 9;

@@ -57,6 +57,11 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
       ;
   config_bucket =
       std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
+  try {
+    _exe_path = boost::filesystem::canonical(argv[0]).parent_path();
+  } catch (const boost::filesystem::filesystem_error& ex) {
+    LOG_FATAL(__FILENAME__, "link executable path is wrong!");
+  }
 
   opts::variables_map variables;
   try {
@@ -120,7 +125,14 @@ void DsLink::init_module(ref_<Module> &&default_module,
   if (default_module == nullptr)
     default_module = make_ref_<ModuleDslinkDefault>();
 
-  modules = make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
+  string_ final_module_path;
+  if(module_path.empty() || !fs::is_directory(module_path)) {
+    final_module_path = (_exe_path / "modules").string();
+  } else {
+    final_module_path = module_path;
+  }
+
+  modules = make_ref_<ModuleWithLoader>(final_module_path, std::move(default_module));
   modules->init_all(*_app, strand);
 
   strand->set_client_manager(modules->get_client_manager());

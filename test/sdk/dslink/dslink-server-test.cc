@@ -38,7 +38,7 @@ class ExampleNodeRoot : public NodeModel {
 TEST_F(DslinkTest, ServerTest) {
   shared_ptr<App> app = make_shared<App>();
 
-  const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4120",
+  const char *argv[] = {"./", "--broker",      "ds://127.0.0.1:4120",
                         "-l",         "info",          "--thread",
                         "4",          "--server-port", "4121"};
   int argc = 9;
@@ -53,7 +53,7 @@ TEST_F(DslinkTest, ServerTest) {
   // Create link
   std::string address = std::string("127.0.0.1:") + std::to_string(4121);
 
-  const char *argv2[] = {"./test", "-b", address.c_str()};
+  const char *argv2[] = {"./", "-b", address.c_str()};
   int argc2 = 3;
   auto link = make_ref_<DsLink>(argc2, argv2, "mydslink", "1.0.0", app);
 
@@ -118,7 +118,7 @@ TEST_F(DslinkTest, CloseTest) {
   SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
   string_to_storage(close_token, ".close_token", storage_bucket);
 
-  const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4122",
+  const char *argv[] = {"./", "--broker",      "ds://127.0.0.1:4122",
                         "-l",         "info",          "--thread",
                         "4",          "--server-port", "4122"};
   int argc = 9;
@@ -140,7 +140,7 @@ TEST_F(DslinkTest, CloseTest) {
   // Create link
   std::string address = std::string("127.0.0.1:") + std::to_string(4122);
 
-  const char *argv2[] = {"./test", "-b", address.c_str()};
+  const char *argv2[] = {"./", "-b", address.c_str()};
   int argc2 = 3;
   auto link = make_ref_<DsLink>(argc2, argv2, "mydslink", "1.0.0", app);
   // filter log for unit test
@@ -196,7 +196,7 @@ TEST_F(DslinkTest, CloseTest) {
 TEST_F(DslinkTest, ProfileActionTest) {
   shared_ptr<App> app = make_shared<App>();
 
-  const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4121",
+  const char *argv[] = {"./", "--broker",      "ds://127.0.0.1:4121",
                         "-l",         "info",          "--thread",
                         "4",          "--server-port", "4121"};
   int argc = 9;

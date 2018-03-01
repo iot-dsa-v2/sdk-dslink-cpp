@@ -11,6 +11,11 @@ namespace fs = boost::filesystem;
 
 namespace dsa {
 BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
+  try {
+    _exe_path = boost::filesystem::canonical(argv[0]).parent_path();
+  } catch (const boost::filesystem::filesystem_error& ex) {
+    LOG_FATAL(__FILENAME__, "Broker executable path is wrong!");
+  }
   init();
   config_bucket =
       std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
