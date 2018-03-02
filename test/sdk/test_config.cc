@@ -155,7 +155,7 @@ ref_<DsLink> TestConfig::create_dslink(bool async) {
                      std::to_string(tcp_server_port));
   }
 
-  const char *argv[] = {"./", "-b", address.c_str()};
+  const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
   static_cast<ConsoleLogger &>(Logger::_()).filter =

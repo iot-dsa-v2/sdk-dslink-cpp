@@ -25,7 +25,7 @@ MockNodeRoot::MockNodeRoot(LinkStrandRef strand)
 };
 
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
-  const char *empty_argv[1] = {""};
+  const char *empty_argv[1] = {"broker"};
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(1, empty_argv);
   broker_config->port().set_value(Var(0));
 
@@ -61,7 +61,7 @@ ref_<DsLink> create_dslink(std::shared_ptr<App> app, int port,
       address.assign(std::string("ds://127.0.0.1:") + std::to_string(port));
   }
 
-  const char *argv[] = {"./", "-b", address.c_str()};
+  const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, dslink_name, "1.0.0", app);
   static_cast<ConsoleLogger &>(Logger::_()).filter =
@@ -103,7 +103,7 @@ ref_<DsLink> create_mock_dslink(std::shared_ptr<App> app, int port,
       address.assign(std::string("ds://127.0.0.1:") + std::to_string(port));
   }
 
-  const char *argv[] = {"./", "-b", address.c_str()};
+  const char *argv[] = {"./test", "-b", address.c_str()};
   int argc = 3;
   auto link = make_ref_<DsLink>(argc, argv, dslink_name, "1.0.0", app);
   static_cast<ConsoleLogger &>(Logger::_()).filter =

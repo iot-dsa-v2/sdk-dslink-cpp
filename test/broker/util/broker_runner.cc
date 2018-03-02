@@ -15,7 +15,7 @@
 
 namespace dsa {
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
-  const char* empty_argv[1] = {""};
+  const char* empty_argv[1] = {"broker"};
   ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(1, empty_argv);
   broker_config->port().set_value(Var(0));
 

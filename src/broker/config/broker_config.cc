@@ -12,7 +12,8 @@ namespace fs = boost::filesystem;
 namespace dsa {
 BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
   try {
-    _exe_path = boost::filesystem::canonical(argv[0]).parent_path();
+    _exe_path = boost::filesystem::canonical(
+        boost::filesystem::system_complete(argv[0]).parent_path());
   } catch (const boost::filesystem::filesystem_error& ex) {
     LOG_FATAL(__FILENAME__, "Broker executable path is wrong!");
   }
