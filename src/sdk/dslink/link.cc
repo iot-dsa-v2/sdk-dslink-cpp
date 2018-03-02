@@ -410,10 +410,12 @@ ref_<IncomingListCache> DsLink::list(const string_ &path,
     if (main_cache.get_map().count("$is") > 0 && !pub_path.empty()) {
       auto is_str = main_cache.get_map().at("$is").to_string();
       list_raw(pub_path + "/" + is_str,
-               [&, callback = std::move(callback) ](
-                   IncomingListCache & cache, const std::vector<string_> &str) {
-                 main_cache.set_profile_map(cache.get_map());
-                 callback(main_cache, main_str);
+               [
+                     &, main_cache = main_cache.get_ref(),
+                     callback = std::move(callback)
+               ](IncomingListCache & cache, const std::vector<string_> &str) {
+                 main_cache->set_profile_map(cache.get_map());
+                 callback(*main_cache, main_str);
                });
     } else {
       callback(main_cache, main_str);

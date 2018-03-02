@@ -233,7 +233,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
                     ref_<DsLinkRequester> link_req) {
 
     // check the list result
-    list_cache = link_req->list(
+    link_req->list(
         "Main", [&](IncomingListCache &cache, const std::vector<string_> &) {
           if (cache.get_map().count("$is") > 0 &&
               cache.get_map().at("$is").to_string() == "Example") {
@@ -241,6 +241,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
             EXPECT_NE(cache.get_profile_map().find("Change"),
                       cache.get_profile_map().end());
             list_checked = true;
+            cache.close();
           }
         });
     // invoke the pub node to change the value
@@ -269,7 +270,6 @@ TEST_F(DslinkTest, ProfileActionTest) {
   WAIT_EXPECT_TRUE(1000, [&]() -> bool {
     return list_checked && invoked && subscrib_checked;
   });
-  list_cache->close();
   destroy_dslink_in_strand(link);
 
   app->close();
