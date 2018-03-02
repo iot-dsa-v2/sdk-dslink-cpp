@@ -25,7 +25,7 @@ class Websocket {
  private:
   bool _is_secure_stream;
   tcp::socket _socket;
-  ssl::context _ssl_context;
+  std::unique_ptr<ssl::context> _ssl_context;
   std::unique_ptr<websocket_stream> _ws_stream;
   std::unique_ptr<websocket_ssl_stream> _wss_stream;
 
