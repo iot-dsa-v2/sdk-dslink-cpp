@@ -14,7 +14,7 @@ BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
     : NodeModel(std::move(strand)) {
   if (broker->get_close_token() != "") {
     add_list_child(
-        "stop",
+        "Stop",
         make_ref_<SimpleInvokeNode>(
             _strand->get_ref(),
             [broker = std::move(broker)](Var && v, SimpleInvokeNode & node,
