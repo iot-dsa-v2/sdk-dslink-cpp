@@ -5,7 +5,7 @@ using BrokerDsLinkTest = SetUpBase;
 
 TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   std::string close_token = generate_random_string(32);
-  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
+  SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
   string_to_storage(close_token, ".close_token", storage_bucket);
 
 
@@ -27,8 +27,8 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
 
   EXPECT_TRUE(port != 0);
 
-  auto link =
-      broker_dslink_test::create_mock_dslink(app, port, "Test1", protocol());
+  auto link = broker_dslink_test::create_mock_dslink(app, port, "Test1", false,
+                                                     protocol());
 
   bool is_connected = false;
   bool listed_1 = false;
@@ -134,11 +134,12 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
           // std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
           //              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
 
-          link_1->strand->post([link_1]() { link_1->destroy(); });
-          link1_listed = true;
-        });
-      });
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return link1_connected && link1_listed; });
+      link_1->strand->post([link_1]() { link_1->destroy(); });
+      link1_listed = true;
+    });
+  });
+  WAIT_EXPECT_TRUE(1000,
+                   [&]() -> bool { return link1_connected && link1_listed; });
 
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {

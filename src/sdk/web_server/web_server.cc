@@ -53,16 +53,42 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
   // TODO: report error/warning otherwise
 }
 
-WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
-  if (_ws_callback_map.count(path)) {
-    return _ws_callback_map.at(path);
+//WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
+//  if (_ws_callback_map.count(path)) {
+//    return _ws_callback_map.at(path);
+//  }
+//
+//  // TODO - construct a proper http response
+//  uint16_t error_code = 404;
+//  static WebServer::WsCallback error_callback = [error_code](
+//      WebServer& web_server, boost::asio::ip::tcp::socket&& socket,
+//      boost::beast::http::request<boost::beast::http::string_body>&& req) {
+//
+//    ErrorCallback error_callback_detail(error_code);
+//    // TODO: WSS_TBD
+//    //    error_callback_detail(web_server, websocket, std::move(req));
+//
+//    return nullptr;
+//  };
+//
+//  return error_callback;
+//}
+
+void WebServer::add_http_handler(const string_& path, HttpCallback&& callback) {
+  if (!_http_callback_map.count(path)) {
+    _http_callback_map.insert(HttpCallbackPair(path, std::move(callback)));
+  }
+  // TODO: report error/warning otherwise
+}
+
+WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
+  if (_http_callback_map.count(path)) {
+    return _http_callback_map.at(path);
   }
 
-  // TODO - construct a proper http response
   uint16_t error_code = 404;
-  static WebServer::WsCallback error_callback = [error_code](
-      WebServer& web_server, Websocket& websocket,
-      boost::beast::http::request<boost::beast::http::string_body> req) {
+  static WebServer::HttpCallback error_callback = [error_code](
+      WebServer& web_server, HttpRequest&& req) {
 
     ErrorCallback error_callback_detail(error_code);
     // TODO: WSS_TBD
