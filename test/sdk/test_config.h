@@ -5,7 +5,7 @@
 #include "dslink.h"
 #include "web_server/web_server.h"
 
-#include "network/ws/wss_connection.h"
+#include "network/ws/ws_connection.h"
 
 #include <gtest/gtest.h>
 #include <string>

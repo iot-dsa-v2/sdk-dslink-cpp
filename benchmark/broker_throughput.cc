@@ -17,7 +17,6 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
-#include "network/ws/wss_client_connection.h"
 #include "util/date_time.h"
 
 using high_resolution_clock = std::chrono::high_resolution_clock;
@@ -88,8 +87,8 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
     ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-      return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                              ws_port);
+      return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
+                                              ws_host, ws_port);
     };
   } else if (!protocol.compare("wss")) {
     client_strand.ws_host = "127.0.0.1";
@@ -100,8 +99,8 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
     ](LinkStrandRef & strand) {
-      return make_shared_<WssClientConnection>(strand, dsid_prefix, ws_host,
-                                               ws_port);
+      return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
+                                              ws_host, ws_port);
     };
   } else {
     client_strand.client_connection_maker = [

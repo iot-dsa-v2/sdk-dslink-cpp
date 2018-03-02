@@ -12,7 +12,6 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
-#include "network/ws/wss_client_connection.h"
 #include "util/app.h"
 #include "util/certificate.h"
 #include "web_server/websocket.h"
@@ -95,8 +94,8 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
         ws_port = copy.ws_port
       ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-        return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                                ws_port);
+        return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
+                                                ws_host, ws_port);
       };
 
       break;
@@ -110,8 +109,8 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
         ws_port = copy.ws_port, this
       ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-        return make_shared_<WssClientConnection>(strand, dsid_prefix, ws_host,
-                                                 ws_port);
+        return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
+                                                ws_host, ws_port);
       };
       break;
     case dsa::ProtocolType::PROT_DS:

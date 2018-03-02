@@ -11,9 +11,8 @@
 #include "list_merger.h"
 #include "module/default/simple_storage.h"
 #include "module/module.h"
+#include "network/ws/ws_connection.h"
 #include "subscribe_merger.h"
-
-#include "network/ws/wss_connection.h"
 
 namespace dsa {
 class App;

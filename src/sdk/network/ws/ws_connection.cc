@@ -9,14 +9,19 @@ namespace dsa {
 
 using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
 
-WsConnection::WsConnection(websocket_stream &ws, LinkStrandRef &strand,
-                           const string_ &dsid_prefix, const string_ &path)
-    : BaseSocketConnection(strand, dsid_prefix, path), _socket(std::move(ws)) {}
+WsConnection::WsConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+                           const string_ &path)
+    : BaseSocketConnection(strand, dsid_prefix, path) {}
 
 void WsConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
+  Websocket &websocket = ws_stream();
   if (_socket_open.exchange(false)) {
-    _socket.next_layer().close();
+    if (websocket.is_secure_stream()) {
+      websocket.secure_stream().lowest_layer().close();
+    } else {
+      websocket.stream().next_layer().close();
+    }
   }
   Connection::destroy_impl();
 }
@@ -32,12 +37,24 @@ void WsConnection::start_read(shared_ptr_<Connection> &&connection) {
   if (_read_next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
-  _socket.async_read_some(
-      boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
-      [ this, connection = std::move(connection), partial_size ](
-          const boost::system::error_code &err, size_t transferred) mutable {
-        read_loop_(std::move(connection), partial_size, err, transferred);
-      });
+  Websocket &websocket = ws_stream();
+  if (websocket.is_secure_stream()) {
+    websocket.secure_stream().async_read_some(
+        boost::asio::buffer(&buffer[partial_size],
+                            buffer.size() - partial_size),
+        [ this, connection = std::move(connection), partial_size ](
+            const boost::system::error_code &err, size_t transferred) mutable {
+          read_loop_(std::move(connection), partial_size, err, transferred);
+        });
+  } else {
+    websocket.stream().async_read_some(
+        boost::asio::buffer(&buffer[partial_size],
+                            buffer.size() - partial_size),
+        [ this, connection = std::move(connection), partial_size ](
+            const boost::system::error_code &err, size_t transferred) mutable {
+          read_loop_(std::move(connection), partial_size, err, transferred);
+        });
+  }
 }
 
 std::unique_ptr<ConnectionWriteBuffer> WsConnection::get_write_buffer() {
@@ -64,16 +81,29 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size += message.size();
 }
 void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
-  connection._socket.binary(true);
-  connection._socket.async_write(
-      boost::asio::buffer(connection._write_buffer.data(), size),
-      [callback = std::move(callback)](const boost::system::error_code &error,
-                                       size_t bytes_transferred) {
-        DSA_REF_GUARD();
-        callback(error);
-      });
-}
+  // TODO  websocket_ssl_stream &wss_stream = connection.secure_stream();
 
-websocket_stream &WsConnection::socket() { return _socket; }
+  Websocket &websocket = connection.ws_stream();
+
+  if (websocket.is_secure_stream()) {
+    websocket.secure_stream().binary(true);
+    websocket.secure_stream().async_write(
+        boost::asio::buffer(connection._write_buffer.data(), size),
+        [callback = std::move(callback)](const boost::system::error_code &error,
+                                         size_t bytes_transferred) {
+          DSA_REF_GUARD();
+          callback(error);
+        });
+  } else {
+    websocket.stream().binary(true);
+    websocket.stream().async_write(
+        boost::asio::buffer(connection._write_buffer.data(), size),
+        [callback = std::move(callback)](const boost::system::error_code &error,
+                                         size_t bytes_transferred) {
+          DSA_REF_GUARD();
+          callback(error);
+        });
+  }
+}
 
 }  // namespace dsa
