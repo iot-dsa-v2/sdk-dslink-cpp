@@ -19,16 +19,14 @@ class BrokerKnownLinksRoot : public NodeModel {
   explicit BrokerKnownLinksRoot(LinkStrandRef&& strand)
       : NodeModel(std::move(strand)){};
 
-  bool save_child(const string_& name) const override { return true; }
-
  protected:
   void initialize() override;
-  void on_load_child(const string_& name, VarMap& map);
 };
 
 class BrokerKnownLinkNode : public NodeModel {
  public:
-  explicit BrokerKnownLinkNode(LinkStrandRef&& strand, ref_<NodeModel>&& profile)
+  explicit BrokerKnownLinkNode(LinkStrandRef&& strand,
+                               ref_<NodeModel>&& profile)
       : NodeModel(std::move(strand), std::move(profile)){};
 };
 
@@ -38,18 +36,20 @@ class BrokerClientManager : public ClientManager {
  protected:
   LinkStrandRef _strand;
 
-  ref_<BrokerKnownLinksRoot> _links_node;
+  ref_<NodeModel> _known_links;
+  ref_<NodeModel> _quarantine;
 
   void destroy_impl() override;
 
  public:
   explicit BrokerClientManager(LinkStrandRef& strand) : _strand(strand){};
 
-    ref_<NodeModel> create_node(NodeModel& module_node, BrokerPubRoot& pub_root);
-
+  void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
+  ref_<NodeModel>& get_known_links_node() { return _known_links; }
+  ref_<NodeModel>& get_quarantine_node() { return _quarantine; };
   void get_client(const string_& dsid, const string_& auth_token,
                   ClientInfo::GetClientCallback&& callback) override;
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_BROKER_SESSION_MANAGER_H

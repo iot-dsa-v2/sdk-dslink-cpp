@@ -40,9 +40,14 @@ shared_ptr_<LoginManager> ModuleBrokerDefault::create_login_manager(
 void ModuleBrokerDefault::add_module_node(NodeModel& module_node,
                                           BrokerPubRoot& pub_root) {
   if (_client_manager != nullptr) {
-    module_node.add_list_child("Known_Links",
-                               static_cast<BrokerClientManager&>(*_client_manager)
-                                   .create_node(module_node, pub_root));
+    static_cast<BrokerClientManager&>(*_client_manager)
+        .create_nodes(module_node, pub_root);
+    module_node.add_list_child(
+        "Known_Links", static_cast<BrokerClientManager&>(*_client_manager)
+                           .get_known_links_node());
+    module_node.add_list_child(
+        "Quarantine", static_cast<BrokerClientManager&>(*_client_manager)
+                         .get_quarantine_node());
   }
   if (_authorizer != nullptr) {
   }
@@ -52,4 +57,4 @@ void ModuleBrokerDefault::add_module_node(NodeModel& module_node,
         static_cast<BrokerLoginManager&>(*_login_manager)._module_node);
   }
 }
-}
+}  // namespace dsa

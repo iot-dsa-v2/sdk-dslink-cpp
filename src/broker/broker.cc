@@ -68,10 +68,11 @@ void DsBroker::init(ref_<Module>&& default_module) {
       Logger::parse(_config->log_level().get_value().to_string());
   Logger::set_default(modules->get_logger());
 
+  // init storage
+  strand->set_storage(modules->get_storage());
+
   // init security manager
-  auto client_manager = modules->get_client_manager();
-  client_manager->set_strand(strand);
-  strand->set_client_manager(client_manager);
+  strand->set_client_manager(modules->get_client_manager());
 
   auto authorizer = modules->get_authorizer();
   strand->set_authorizer(std::move(authorizer));
@@ -119,14 +120,15 @@ void DsBroker::run(bool wait) {
     _web_server->secure_listen(https_port);
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
-    *root_cb = [this](
-        WebServer& _web_server, Websocket& websocket,
-        boost::beast::http::request<boost::beast::http::string_body> req) {
-      LinkStrandRef link_strand(strand);
-      DsaWsCallback dsa_ws_callback(link_strand);
-      return dsa_ws_callback(_web_server.io_service(), websocket,
-                             std::move(req));
-    };
+    *root_cb =
+        [this](
+            WebServer& _web_server, Websocket& websocket,
+            boost::beast::http::request<boost::beast::http::string_body> req) {
+          LinkStrandRef link_strand(strand);
+          DsaWsCallback dsa_ws_callback(link_strand);
+          return dsa_ws_callback(_web_server.io_service(), websocket,
+                                 std::move(req));
+        };
 
     _web_server->add_ws_handler("/", std::move(*root_cb));
   });
@@ -160,4 +162,4 @@ void DsBroker::wait() {
   _app->wait();
   destroy();
 }
-}
+}  // namespace dsa
