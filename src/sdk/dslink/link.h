@@ -79,10 +79,6 @@ class DsLink final : public DsLinkRequester {
   bool _connected = false;
   std::unique_ptr<SimpleSafeStorageBucket> config_bucket;
 
-  shared_ptr_<tcp::socket> _tcp_socket;
-  shared_ptr_<boost::asio::ssl::context> _ssl_context;
-  shared_ptr_<websocket_ssl_stream> _wss_stream;
-
   // initialization
   void parse_thread(size_t thread);
   void parse_url(const string_ &url);

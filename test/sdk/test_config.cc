@@ -107,7 +107,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
-        ws_port = copy.ws_port, this
+        ws_port = copy.ws_port
       ](LinkStrandRef & strand)->shared_ptr_<Connection> {
         return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
                                                 ws_host, ws_port);

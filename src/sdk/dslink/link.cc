@@ -111,18 +111,6 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   init_module(std::move(default_module), variables["module_path"].as<string_>(),
               use_standard_node_structure);
 
-  _tcp_socket = make_shared_<tcp::socket>(strand->get_io_context());
-  _ssl_context = make_shared_<boost::asio::ssl::context>(
-      boost::asio::ssl::context::sslv23);
-
-  boost::system::error_code error;
-  _ssl_context->load_verify_file("certificate.pem", error);
-  if (error) {
-    LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
-  }
-
-  _wss_stream = make_shared_<websocket_ssl_stream>(*_tcp_socket, *_ssl_context);
-
   LOG_TRACE(__FILENAME__, LOG << "DSLink initialized successfully");
 }
 void DsLink::init_module(ref_<Module> &&default_module,
