@@ -20,7 +20,9 @@ class ValueNodeModel : public NodeModel {
   void destroy_impl() override;
 
  public:
-  ValueNodeModel(LinkStrandRef &&strand, Callback &&callback);
+  ValueNodeModel(
+      LinkStrandRef &&strand, Callback &&callback,
+      PermissionLevel write_require_permission = PermissionLevel::WRITE);
 
   MessageStatus on_set_value(MessageValue &&value) override;
 };

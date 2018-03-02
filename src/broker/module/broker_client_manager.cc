@@ -3,6 +3,8 @@
 #include "broker_client_manager.h"
 
 #include "module/stream_acceptor.h"
+#include "responder/value_node_model.h"
+
 namespace dsa {
 
 void BrokerKnownLinksRoot::initialize() {
@@ -35,6 +37,10 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _known_links.reset(new BrokerKnownLinksRoot(_strand->get_ref()));
   _quarantine.reset(new NodeModel(_strand->get_ref()));
+  _quarantine->add_list_child(
+      "Enabled", make_ref_<ValueNodeModel>(_strand->get_ref(),
+                                           [](const Var&) { return true; },
+                                           PermissionLevel::CONFIG));
 }
 
 void BrokerClientManager::get_client(const string_& dsid,
