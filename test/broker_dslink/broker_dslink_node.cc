@@ -12,7 +12,7 @@ class MockChildNode : public NodeModel {
 class MockNode : public NodeModel {
  public:
   explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)) {
-    add_list_child("child_node", make_ref_<MockChildNode>(_strand));
+    add_list_child("Child_Node", make_ref_<MockChildNode>(_strand));
   };
 
   void on_subscribe(const SubscribeOptions &options,
@@ -20,7 +20,7 @@ class MockNode : public NodeModel {
     if (first_request) {
       set_value(Var("child value"));
     } else {
-      remove_list_child("child_node");
+      remove_list_child("Child_Node");
     }
   }
 };
@@ -43,11 +43,11 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
 
   EXPECT_TRUE(port != 0);
 
-  auto link_1 = broker_dslink_test::create_mock_dslink(app, port, "test1", true,
+  auto link_1 = broker_dslink_test::create_mock_dslink(app, port, "Test1", true,
                                                        protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
-  link_1->add_to_main_node("main_child",
+      broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
+  link_1->add_to_main_node("Main_Child",
                            make_ref_<MockNode>(link_1->strand->get_ref()));
 
   bool test_end = false, first_list = false;
@@ -56,18 +56,18 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
                       ref_<DsLinkRequester> link_req) {
     // downstream should has test1 and test2 nodes
     link_req->list(
-        "downstream",
+        "Downstream",
         [
               &,
               link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())
         ](IncomingListCache & cache, const std::vector<string_> &str) {
           auto map = cache.get_map();
-          EXPECT_TRUE(map["test1"].is_map());
-          EXPECT_TRUE(map["test2"].is_map());
+          EXPECT_TRUE(map["Test1"].is_map());
+          EXPECT_TRUE(map["Test2"].is_map());
           cache.close();
 
           link_req->list(
-              "downstream/test1/main",
+              "Downstream/Test1/Main",
               [
                     &,
                     link_req =
@@ -75,12 +75,12 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
               ](IncomingListCache & cache, const std::vector<string_> &str) {
                 auto map = cache.get_map();
 
-                EXPECT_TRUE(map.find("child_a") != map.end());
-                EXPECT_TRUE(map.find("main_child") != map.end());
-                if (map.find("child_b") != map.end()) {
-                  link_1->remove_from_main_node("child_b");
+                EXPECT_TRUE(map.find("Child_a") != map.end());
+                EXPECT_TRUE(map.find("Main_Child") != map.end());
+                if (map.find("Child_b") != map.end()) {
+                  link_1->remove_from_main_node("Child_b");
                   first_list = true;
-                } else if (map.find("child_b") == map.end()) {
+                } else if (map.find("Child_b") == map.end()) {
                   test_end = true;
                   cache.close();
                 }
@@ -120,11 +120,11 @@ TEST_F(BrokerDsLinkTest, RemoveNodeSubcribe) {
 
   EXPECT_TRUE(port != 0);
 
-  auto link_1 = broker_dslink_test::create_mock_dslink(app, port, "test1", true,
+  auto link_1 = broker_dslink_test::create_mock_dslink(app, port, "Test1", true,
                                                        protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
-  link_1->add_to_main_node("main_child",
+      broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
+  link_1->add_to_main_node("Main_Child",
                            make_ref_<MockNode>(link_1->strand->get_ref()));
 
   bool test_end = false;
@@ -133,32 +133,32 @@ TEST_F(BrokerDsLinkTest, RemoveNodeSubcribe) {
                       ref_<DsLinkRequester> link_req) {
     // downstream should has test1 and test2 nodes
     link_req->list(
-        "downstream",
+        "Downstream",
         [
               &,
               link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())
         ](IncomingListCache & cache, const std::vector<string_> &str) {
           auto map = cache.get_map();
-          EXPECT_TRUE(map["test1"].is_map());
-          EXPECT_TRUE(map["test2"].is_map());
+          EXPECT_TRUE(map["Test1"].is_map());
+          EXPECT_TRUE(map["Test2"].is_map());
           cache.close();
 
           // after client1 disconnected, list update should show it's
           // disconnected
           link_req->list(
-              "downstream/test1/main",
+              "Downstream/Test1/Main",
               [
                     &,
                     link_req =
                         static_cast<ref_<DsLinkRequester>>(link_req->get_ref())
               ](IncomingListCache & cache, const std::vector<string_> &str) {
                 auto map = cache.get_map();
-                EXPECT_TRUE(map["main_child"].is_map());
+                EXPECT_TRUE(map["Main_Child"].is_map());
                 cache.close();
-                link_1->remove_from_main_node("main_child");
+                link_1->remove_from_main_node("Main_Child");
 
                 link_req->subscribe(
-                    "downstream/test1/main/main_child",
+                    "Downstream/Test1/Main/Main_Child",
                     [&](IncomingSubscribeCache &cache,
                         ref_<const SubscribeResponseMessage> &msg) {
                       EXPECT_EQ(msg->get_status(),

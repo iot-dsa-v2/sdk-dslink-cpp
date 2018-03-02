@@ -109,5 +109,6 @@ void HttpConnection::destroy() {
   if (_connection != nullptr) {
     _connection->destroy();
   }
+  _alloc.pool_.destroy();
 }
 }  // namespace dsa
