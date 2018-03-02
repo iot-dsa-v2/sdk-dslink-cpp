@@ -81,8 +81,6 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size += message.size();
 }
 void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
-  // TODO  websocket_ssl_stream &wss_stream = connection.secure_stream();
-
   Websocket &websocket = connection.ws_stream();
 
   if (websocket.is_secure_stream()) {
