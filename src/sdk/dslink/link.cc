@@ -57,7 +57,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
       ;
   config_bucket =
       std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
-
+  try {
+    _exe_path = boost::filesystem::canonical(
+        boost::filesystem::system_complete(argv[0]).parent_path());
+  } catch (const boost::filesystem::filesystem_error &ex) {
+    LOG_FATAL(__FILENAME__, "link executable path is wrong!");
+  }
   opts::variables_map variables;
   try {
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -120,7 +125,15 @@ void DsLink::init_module(ref_<Module> &&default_module,
   if (default_module == nullptr)
     default_module = make_ref_<ModuleDslinkDefault>();
 
-  modules = make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
+  string_ final_module_path;
+  if (module_path.empty() || !fs::is_directory(module_path)) {
+    final_module_path = (_exe_path / "modules").string();
+  } else {
+    final_module_path = module_path;
+  }
+
+  modules =
+      make_ref_<ModuleWithLoader>(final_module_path, std::move(default_module));
   modules->init_all(*_app, strand);
 
   strand->set_client_manager(modules->get_client_manager());
@@ -397,10 +410,12 @@ ref_<IncomingListCache> DsLink::list(const string_ &path,
     if (main_cache.get_map().count("$is") > 0 && !pub_path.empty()) {
       auto is_str = main_cache.get_map().at("$is").to_string();
       list_raw(pub_path + "/" + is_str,
-               [&, callback = std::move(callback) ](
-                   IncomingListCache & cache, const std::vector<string_> &str) {
-                 main_cache.set_profile_map(cache.get_map());
-                 callback(main_cache, main_str);
+               [
+                     &, main_cache = main_cache.get_ref(),
+                     callback = std::move(callback)
+               ](IncomingListCache & cache, const std::vector<string_> &str) {
+                 main_cache->set_profile_map(cache.get_map());
+                 callback(*main_cache, main_str);
                });
     } else {
       callback(main_cache, main_str);

@@ -20,13 +20,13 @@ bool MockNodeRoot::need_list() { return _need_list; }
 
 MockNodeRoot::MockNodeRoot(LinkStrandRef strand)
     : NodeModel(std::move(strand)) {
-  add_list_child("child_a", make_ref_<MockNodeChild>(_strand));
-  add_list_child("child_b", make_ref_<MockNodeChild>(_strand));
+  add_list_child("Child_a", make_ref_<MockNodeChild>(_strand));
+  add_list_child("Child_b", make_ref_<MockNodeChild>(_strand));
 };
 
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
-  const char *empty_argv[1];
-  ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
+  const char *empty_argv[1] = {"broker"};
+  ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(1, empty_argv);
   broker_config->port().set_value(Var(0));
 
   auto broker = make_ref_<DsBroker>(std::move(broker_config),

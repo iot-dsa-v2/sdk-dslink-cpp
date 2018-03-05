@@ -14,15 +14,17 @@ BrokerRoot::BrokerRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
     : NodeModel(std::move(strand)),
       _broker(std::move(broker)),
       _downstream_root(new DownstreamRoot(_strand->get_ref())) {
-  add_list_child("downstream", _downstream_root->get_ref());
-  add_list_child("upstream", new UpstreamRoot(_strand->get_ref()));
-  add_list_child("home", new BrokerHomeRoot(_strand->get_ref()));
-  add_list_child("sys",
+  add_list_child("Downstream", _downstream_root->get_ref());
+  add_list_child("Upstream", new UpstreamRoot(_strand->get_ref()));
+  add_list_child("Home", new BrokerHomeRoot(_strand->get_ref()));
+  add_list_child("Sys",
                  new BrokerSysRoot(_strand->get_ref(), std::move(_broker)));
+
   _pub.reset(new BrokerPubRoot(_strand->get_ref(), ""));
-  add_list_child("pub", _pub->get_ref());
+  add_list_child("Pub", _pub->get_ref());
   _module.reset(new NodeModel(_strand->get_ref()));
-  add_list_child("module", _module->get_ref());
+  add_list_child("Module", _module->get_ref());
+
 }
 
 BrokerRoot::~BrokerRoot() = default;
