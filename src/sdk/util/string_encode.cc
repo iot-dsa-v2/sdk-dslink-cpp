@@ -1,5 +1,12 @@
 #include "dsa_common.h"
 #include "string_encode.h"
+#include <iostream>
+#include <string>
+#include <locale>
+#include <codecvt>
+#include <iomanip>
+#include <vector>
+
 namespace dsa {
 
 static char HEX2DEC[256] =
@@ -67,8 +74,7 @@ std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   for (; p_src < src_end; ++p_src) {
     if (SAFE[*p_src] >= static_cast<char>(level))
       *p_end++ = *p_src;
-    else
-    {
+    else {
       // escape this char
       *p_end++ = '%';
       *p_end++ = dec_to_hex[*p_src >> 4];
@@ -83,35 +89,42 @@ std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
 string_ url_encode_file_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
 }
+string_ url_encode_file_name(const std::wstring &s_src) {
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
+}
+std::wstring url_encode_file_name_w(const std::wstring& s_src) {
+	return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
+}
+
 string_ url_encode_node_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
 }
-bool is_invalid_character(const char& c) {
-  return SAFE[c] > 0;
+string_ url_encode_node_name(const std::wstring &s_src) {
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
 }
-std::string url_decode(const std::string & s_src)
-{
+std::wstring url_encode_node_name_w(const std::wstring& s_src) {
+	return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
+}
+bool is_invalid_character(const char &c) { return SAFE[c] > 0; }
+std::string url_decode(const std::string &s_src) {
   // Note from RFC1630: "Sequences which start with a percent
   // sign but are not followed by two hexadecimal characters
   // (0-9, A-F) are reserved for future extension"
 
-  const unsigned char * p_src = (const unsigned char *)s_src.c_str();
+  const unsigned char *p_src = (const unsigned char *)s_src.c_str();
   const int src_len = s_src.length();
-  const unsigned char * const src_end = p_src + src_len;
+  const unsigned char *const src_end = p_src + src_len;
   // last decodable '%'
-  const unsigned char * const SRC_LAST_DEC = src_end - 2;
+  const unsigned char *const SRC_LAST_DEC = src_end - 2;
 
-  char * const p_start = new char[src_len];
-  char * p_end = p_start;
+  char *const p_start = new char[src_len];
+  char *p_end = p_start;
 
-  while (p_src < SRC_LAST_DEC)
-  {
-    if (*p_src == '%')
-    {
+  while (p_src < SRC_LAST_DEC) {
+    if (*p_src == '%') {
       char dec1, dec2;
-      if (-1 != (dec1 = HEX2DEC[*(p_src + 1)])
-          && -1 != (dec2 = HEX2DEC[*(p_src + 2)]))
-      {
+      if (-1 != (dec1 = HEX2DEC[*(p_src + 1)]) &&
+          -1 != (dec2 = HEX2DEC[*(p_src + 2)])) {
         *p_end++ = (dec1 << 4) + dec2;
         p_src += 3;
         continue;
@@ -122,12 +135,93 @@ std::string url_decode(const std::string & s_src)
   }
 
   // the last 2- chars
-  while (p_src < src_end)
-    *p_end++ = *p_src++;
+  while (p_src < src_end) *p_end++ = *p_src++;
 
   std::string sResult(p_start, p_end);
-  delete [] p_start;
+  delete[] p_start;
   return sResult;
 }
 
+std::string url_encode(const std::wstring &input, StringEncodeLevel level) {
+  std::string output;
+  for (int i = 0; i < input.size(); i++) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
+    std::string u8str = conv1.to_bytes(input.substr(i, 1).c_str());
+    if (u8str.size() > 0) {
+      if (u8str.size() == 1 && u8str[0] < 0x80 &&
+          (SAFE[u8str[0]] >= static_cast<char>(level))) {
+        output.append(1, (static_cast<char>(input[i])));
+      } else {
+        for (auto &u8_char : u8str) {
+          char onehex[5];
+          _snprintf(onehex, sizeof(onehex), "%%%02.2X", (unsigned char)u8_char);
+          output.append(onehex);
+        }
+      }
+    }
+  }
+  return output;
+}
+std::wstring string_to_wstring(const std::string &s) {
+  std::wstring temp(s.length(), L' ');
+  std::copy(s.begin(), s.end(), temp.begin());
+  return temp;
+}
+std::wstring url_encode_w(const std::wstring &input, StringEncodeLevel level) {
+  std::wstring output;
+  for (int i = 0; i < input.size(); i++) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
+    std::string u8str = conv1.to_bytes(input.substr(i, 1).c_str());
+    if (u8str.size() > 0) {
+      if (u8str.size() > 1 ||
+          (u8str.size() == 1 && (u8str[0] < 0x80 &&
+                                 SAFE[u8str[0]] >= static_cast<char>(level)) ||
+           (u8str[0] >= 0x80))) {
+        output.append(1, (static_cast<wchar_t>(input[i])));
+      } else {
+        for (auto &u8_char : u8str) {
+          char onehex[5];
+          _snprintf(onehex, sizeof(onehex), "%%%02.2X", (unsigned char)u8_char);
+          output.append(string_to_wstring(onehex));
+        }
+      }
+    }
+  }
+  return output;
+}
+
+std::wstring unhexlify(const std::wstring &input) {
+  std::wstring output;
+  for (const wchar_t *p = input.c_str(); *p;) {
+    if (p[0] == '%' && isxdigit(p[1]) && isxdigit(p[2])) {
+      int ch = (isdigit(p[1]) ? p[1] - '0' : toupper(p[1]) - 'A' + 10) * 16 +
+               (isdigit(p[2]) ? p[2] - '0' : toupper(p[2]) - 'A' + 10);
+      output.push_back((char)ch);
+      p += 3;
+    } /*else if (p[0] == '%' && p[1] == '#' && isdigit(p[2])) {
+      int ch = atoi(p + 2);
+      output.push_back((char)ch);
+      p += 2;
+      while (*p && isdigit(*p)) p++;
+      if (*p == ';') p++;
+    } */else {
+      output.push_back(*p++);
+    }
+  }
+  return output;
+}
+
+std::wstring url_decode_w(const std::string &input) {
+  std::wstring output, out2;
+  std::string utf8 = url_decode(input);  // unhexlify(input);
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> conv;
+  std::wstring wstr = conv.from_bytes(utf8);
+
+  return wstr;
+}
+std::wstring url_decode_w(const std::wstring &input) {
+  std::wstring output, out2;
+  std::wstring unhex = unhexlify(input);
+  return unhex;
+}
 }
