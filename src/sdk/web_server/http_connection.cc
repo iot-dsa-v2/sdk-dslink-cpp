@@ -11,7 +11,6 @@
 #include "http_request.h"
 #include "network/connection.h"
 #include "web_server.h"
-#include "http_request.h"
 
 namespace websocket = boost::beast::websocket;
 namespace http = boost::beast::http;
@@ -49,12 +48,14 @@ void HttpConnection::accept() {
           // TODO: check error/termination conditions
 
           if (_parser->upgrade()) {
-            // call corresponding server's callback
-            //          TODO - temporary fix for issue on Windowns platform
-            //          _connection =
-            //          _web_server.ws_handler(_req.target().to_string())(
+// call corresponding server's callback
+//          TODO - temporary fix for issue on Windowns platform
+//          _connection =
+//          _web_server.ws_handler(_req.target().to_string())(
+#if 0
             _connection = _web_server.ws_handler("/")(
                 _web_server, std::move(_websocket), std::move(_req));
+#endif
             return;
           }
           auto _target = _parser->get().target().to_string();
@@ -67,13 +68,13 @@ void HttpConnection::accept() {
   } else {
     _websocket = std::make_unique<Websocket>(std::move(_socket),
                                              _web_server.ssl_context());
-    reset_parser();
     // std::lock_guard<std::mutex> lock(_mutex);
     _websocket->secure_stream().next_layer().async_handshake(
         ssl::stream_base::server, [ this, sthis = shared_from_this() ](
                                       const boost::system::error_code& error) {
           // Read a request
           //	  std::lock_guard<std::mutex> lock(_mutex);
+          reset_parser();
           boost::beast::http::async_read(
               _websocket->secure_stream().next_layer(), _buffer, *_parser,
 
@@ -84,30 +85,32 @@ void HttpConnection::accept() {
                     // TODO: check error/termination conditions
 
                     if (_parser->upgrade()) {
-                      // call corresponding server's callback
-                      //          TODO - temporary fix for issue on Windowns
-                      //          platform
-                      //          _connection =
-                      //          _web_server.ws_handler(_req.target().to_string())(
+// call corresponding server's callback
+//          TODO - temporary fix for issue on Windowns
+//          platform
+//          _connection =
+//          _web_server.ws_handler(_req.target().to_string())(
 
+#if 0
                       _connection = _web_server.ws_handler("/")(
                           _web_server, std::move(_websocket), std::move(_req));
+#endif
+                      return;
                     }
+
+                    auto _target = _parser->get().target().to_string();
+                    _req = std::make_shared<HttpRequest>(
+                        _web_server, std::move(_socket),
+                        std::move(_parser->get()));
+                    _web_server.http_handler(_target)(_web_server,
+                                                      std::move(*_req));
                     return;
                   });  // async_read
-                // TODO: check error/termination conditions
-                auto _target = _parser->get().target().to_string();
-                _req = std::make_shared<HttpRequest>(_web_server, std::move(_socket),
-                                                     std::move(_parser->get()));
-                _web_server.http_handler(_target)(_web_server, std::move(*_req));
-                return;
-              });
           check_deadline();
           return;
         });  // async_handshake
   }          // else
 }
-
 
 void HttpConnection::reset_parser() {
   _parser.emplace(std::piecewise_construct, std::make_tuple(),
