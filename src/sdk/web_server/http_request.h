@@ -64,6 +64,10 @@ class HttpRequest {
   void file_server_handler(const string_& target);
   void authentication_handler();
   void timeout_handler();
+
+  bool is_authenticated(const string_ &username, const string_ &password);
+  bool is_session_active(const string_ &session_id);
+  void create_session();
 };
 }
 

@@ -42,9 +42,13 @@ HttpResponse::get_string_response() {
   return _str_resp;
 }
 boost::optional<http::response<
-    boost::beast::http::basic_file_body<boost::beast::file_posix>,
+    boost::beast::http::basic_file_body<boost::beast::file>,
     boost::beast::http::basic_fields<dsa::fields_alloc<char>>>>&
 HttpResponse::get_file_response() {
   return _file_resp;
+}
+
+void HttpResponse::set_cookie(string_ cookie){
+  _str_resp->set(http::field::set_cookie, cookie);
 }
 }

@@ -67,6 +67,8 @@ class HttpResponse {
   void prepare_string_response();
   void prepare_string_serializer();
   void string_writer(tcp::socket&& _socket);
+
+  void set_cookie(string_ cookie);
 };
 }
 

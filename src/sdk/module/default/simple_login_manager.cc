@@ -2,9 +2,6 @@
 
 #include "simple_login_manager.h"
 
-#include "../../util/client_info.h"
-#include "../../web_server/login_manager.h"
-
 namespace dsa {
 
 SimpleLoginManager::SimpleLoginManager(LinkStrandRef strand)

@@ -3,6 +3,7 @@
 #include "web_server.h"
 
 #include "util/app.h"
+#include "fields_alloc.h"
 
 #include <iostream>
 
@@ -10,6 +11,7 @@ namespace dsa {
 
 WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
   : _io_service(app.io_service()), _login_mngr(std::move(login_mngr)),
+     _session_mngr(make_shared_<UserSessionManager>()),
     _ssl_context{boost::asio::ssl::context::sslv23} {
   try {
     _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |

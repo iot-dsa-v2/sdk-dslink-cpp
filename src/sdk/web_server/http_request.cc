@@ -2,6 +2,9 @@
 #include <regex>
 #include "crypto/misc.h"
 #include "http_response.h"
+#include "login_manager.h"
+#include "module/default/simple_login_manager.h"
+#include "util/string.h"
 
 namespace {
 
@@ -55,9 +58,10 @@ std::string path_cat(boost::beast::string_view base,
   return result;
 }
 
-std::map<std::string, std::string> parse(const std::string &query) {
+std::map<std::string, std::string> parse(const std::string &query,
+                                         const std::string separator) {
   std::map<std::string, std::string> data;
-  std::regex pattern("([\\w+%]+)=([^&]*)");
+  std::regex pattern("([\\w+%]+)=([^" + separator + "]*)");
   auto words_begin = std::sregex_iterator(query.begin(), query.end(), pattern);
   auto words_end = std::sregex_iterator();
 
@@ -148,6 +152,8 @@ void HttpRequest::not_found_handler(const string_ &error) {
 }
 
 void HttpRequest::file_server_handler(const string_ &_target) {
+  // check session DGSESSION if exists and not timed out
+  // else redirect to login page
   switch (_req.method()) {
     case http::verb::get:
       send_file(_req.target());
@@ -162,11 +168,60 @@ void HttpRequest::file_server_handler(const string_ &_target) {
 }
 
 void HttpRequest::authentication_handler() {
-  auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()));
-  if (kvMap.at("username") == "dgSuper" &&
-      base64_decode(kvMap.at("password")) == "dglux1234") {
-    std::cout << "User logged in successfully" << std::endl;
-    redirect_handler("/", "Login succeeded");
-  }
+  auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()), "&");
+  string_ token;
+  // if (kvMap.at("b64") == "yes") use base64_decode for password
+  if (!is_authenticated(kvMap.at("username"),
+                        base64_decode(kvMap.at("password"))))
+    return not_found_handler("Login did not succeed");
+  // check session
+  // create new session DGSESSION
+  // if remember me create DGUSER DGTOKEN
+  // response set cookie
+  shared_ptr_<HttpResponse> response = get_response();
+  response->prepare_string_response();
+  response->get_string_response()->result(http::status::found);
+  response->get_string_response()->keep_alive(false);
+  response->get_string_response()->set(http::field::location, _doc_root);
+  response->get_string_response()->set(http::field::server, "dglux_server");
+  response->get_string_response()->set(http::field::content_type, "text/plain");
+  response->get_string_response()->body() = "Login succeeded";
+  response->get_string_response()->prepare_payload();
+  response->set_cookie("DGTOKEN=" + token);
+  response->prepare_string_serializer();
+  response->string_writer(std::move(_socket));
 }
+
+bool HttpRequest::is_authenticated(const string_ &username,
+                                   const string_ &password) {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto dgtoken = cvMap.find("DGTOKEN");
+  bool authenticated = false;
+  if (dgtoken == cvMap.end())
+  {
+    _web_server.login_manager()->check_login(
+        username, password,
+        [&](const ClientInfo client, bool error) {
+          //token = client.permission_str;
+          authenticated = client.default_queue_size;  // TODO check
+        });
+  }
+  return authenticated;
+}
+
+bool HttpRequest::is_session_active(const string_ &session_id) {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto dgsession = cvMap.find("DGSESSION");
+  bool active = false;
+  if (dgsession != cvMap.end())
+    active = true;
+//        _web_server.session_manager()->check_session(cvMap.at("DGSESSION"));
+
+  return active;
+}
+void HttpRequest::create_session() {
+  string_ token = generate_random_string(50);
+//  _web_server.session_manager()->add_session(token);
+}
+
 }
