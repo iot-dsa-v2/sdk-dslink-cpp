@@ -35,5 +35,6 @@ ref_<DsLink> create_dslink(
     dsa::ProtocolType protocol = dsa::ProtocolType::PROT_DS);
 ref_<DsLink> create_mock_dslink(
     std::shared_ptr<App> app, int port, string_ dslink_name,
+    bool connect = false,
     dsa::ProtocolType protocol = dsa::ProtocolType::PROT_DS);
 }

@@ -10,7 +10,7 @@ void BrokerClientManager::get_client(const string_& dsid,
   _strand->post([ dsid, auth_token, callback = std::move(callback) ]() {
     ClientInfo rslt(dsid, auth_token);
     rslt.responder_path =
-        string_("downstream/") + dsid.substr(0, dsid.length() - 43);
+        string_("Downstream/") + dsid.substr(0, dsid.length() - 43);
     callback(std::move(rslt), false);
   });
 }

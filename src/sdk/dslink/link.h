@@ -13,7 +13,7 @@
 #include "module/module.h"
 #include "network/ws/ws_connection.h"
 #include "subscribe_merger.h"
-
+#include <boost/filesystem.hpp>
 namespace dsa {
 class App;
 class TcpServer;
@@ -74,6 +74,7 @@ class DsLink final : public DsLinkRequester {
   uint8_t log_level_from_settings;
   ref_<Module> modules;
   string_ close_token;
+  boost::filesystem::path _exe_path;
 
   bool _running = false;
   bool _connected = false;

@@ -26,7 +26,7 @@ NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
   set_value_require_permission(write_require_permission);
 
   auto &state = profile->get_state();
-  if (state == nullptr || state->get_path().data()->names[0] != "pub") {
+  if (state == nullptr || state->get_path().data()->names[0] != "Pub") {
     LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
   }
   if (state->get_path().data()->names[1] == "dsa") {
@@ -89,7 +89,7 @@ void NodeModel::initialize() {
 
 void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
   if (_profile != nullptr) {
-    stream.update_list_pub_path("pub");
+    stream.update_list_pub_path("Pub");
   }
   send_props_list(stream);
   send_children_list(stream);
@@ -148,7 +148,7 @@ void NodeModel::remove_list_child(const string_ &name) {
   _list_children.erase(name);
   if (_state != nullptr) {
     remove_child(name);
-    _state->update_list_refreshed();
+    _state->update_list_removed();
   }
 }
 
