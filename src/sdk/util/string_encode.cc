@@ -106,6 +106,7 @@ std::wstring url_encode_node_name_w(const std::wstring& s_src) {
 	return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
 }
 bool is_invalid_character(const char &c) { return SAFE[c] > 0; }
+
 std::string url_decode(const std::string &s_src) {
   // Note from RFC1630: "Sequences which start with a percent
   // sign but are not followed by two hexadecimal characters
@@ -154,7 +155,7 @@ std::string url_encode(const std::wstring &input, StringEncodeLevel level) {
       } else {
         for (auto &u8_char : u8str) {
           char onehex[5];
-          _snprintf(onehex, sizeof(onehex), "%%%02.2X", (unsigned char)u8_char);
+          snprintf(onehex, sizeof(onehex), "%%%2.2X", (unsigned char)u8_char);
           output.append(onehex);
         }
       }
@@ -181,7 +182,7 @@ std::wstring url_encode_w(const std::wstring &input, StringEncodeLevel level) {
       } else {
         for (auto &u8_char : u8str) {
           char onehex[5];
-          _snprintf(onehex, sizeof(onehex), "%%%02.2X", (unsigned char)u8_char);
+          snprintf(onehex, sizeof(onehex), "%%%2.2X", (unsigned char)u8_char);
           output.append(string_to_wstring(onehex));
         }
       }
@@ -198,13 +199,7 @@ std::wstring unhexlify(const std::wstring &input) {
                (isdigit(p[2]) ? p[2] - '0' : toupper(p[2]) - 'A' + 10);
       output.push_back((char)ch);
       p += 3;
-    } /*else if (p[0] == '%' && p[1] == '#' && isdigit(p[2])) {
-      int ch = atoi(p + 2);
-      output.push_back((char)ch);
-      p += 2;
-      while (*p && isdigit(*p)) p++;
-      if (*p == ';') p++;
-    } */else {
+    } else {
       output.push_back(*p++);
     }
   }
@@ -213,7 +208,7 @@ std::wstring unhexlify(const std::wstring &input) {
 
 std::wstring url_decode_w(const std::string &input) {
   std::wstring output, out2;
-  std::string utf8 = url_decode(input);  // unhexlify(input);
+  std::string utf8 = url_decode(input);
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> conv;
   std::wstring wstr = conv.from_bytes(utf8);
 
