@@ -112,11 +112,15 @@ TEST_F(DslinkTest, ServerTest) {
 
 TEST_F(DslinkTest, CloseTest) {
   shared_ptr<App> app = make_shared<App>();
-
+#if defined(_WIN32) || defined(_WIN64)
+  wstring_ bucket_name(L"config");
+#else
+  wstring_ bucket_name("config");
+#endif
   // first create .close_token
   string_ close_token = generate_random_string(32);
-  SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
-  string_to_storage(close_token, ".close_token", storage_bucket);
+  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, empty_wstring);
+  string_to_storage(close_token, default_close_token_path, storage_bucket);
 
   const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4122",
                         "-l",         "info",          "--thread",
@@ -183,7 +187,7 @@ TEST_F(DslinkTest, CloseTest) {
   });
 
   destroy_dslink_in_strand(link);
-  storage_bucket.remove(".close_token");
+  storage_bucket.remove(default_close_token_path);
   app->close();
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 

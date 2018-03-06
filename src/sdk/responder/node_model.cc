@@ -9,7 +9,7 @@
 #include "node_state.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
-
+#include "util/string_encode.h"
 namespace dsa {
 
 static const std::vector<string_> default_summary_metas = {
@@ -236,10 +236,10 @@ void NodeModel::save(StorageBucket &storage, bool json) const {
   if (json) {
     string_ str = var.to_json();
     const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
-    storage.write(_state->get_full_path(),
+    storage.write(string_to_wstring(_state->get_full_path()),
                   make_ref_<RefCountBytes>(str_data, str_data + str.length()));
   } else {
-    storage.write(_state->get_full_path(),
+    storage.write(string_to_wstring(_state->get_full_path()),
                   make_ref_<RefCountBytes>(var.to_msgpack()));
   }
 }

@@ -28,6 +28,7 @@
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
 #include "util/string.h"
+#include "util/string_encode.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
@@ -55,8 +56,13 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
       ("module_path", opts::value<string_>()->default_value("./modules"),
        "Module Path")  // custom name
       ;
+#if defined(_WIN32) || defined(_WIN64)
   config_bucket =
-      std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
+	std::make_unique<SimpleSafeStorageBucket>(L"config", nullptr, empty_wstring);
+#else
+  config_bucket =
+	std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
+#endif
 
   opts::variables_map variables;
   try {
@@ -90,7 +96,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
   if (client_token_path.length() != 0) {
-    client_token = string_from_storage(client_token_path, get_config_bucket());
+    client_token = string_from_storage(string_to_wstring(client_token_path), get_config_bucket());
     if (client_token.empty()) {
       LOG_FATAL(__FILENAME__,
                 LOG << "Fatal loading token file " << client_token_path);

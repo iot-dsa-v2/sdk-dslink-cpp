@@ -8,7 +8,7 @@
 #define GET_CURRENT_DIR getcwd
 #endif
 #include <iostream>
-//#include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 
 namespace dsa {
 string_ get_current_working_dir() {
@@ -17,5 +17,13 @@ string_ get_current_working_dir() {
   std::string current_working_dir(buff);
   return current_working_dir;
 //  return boost::filesystem::current_path().string();
+}
+
+wstring_ get_current_working_dir_w() {
+#if (defined(_WIN32) || defined(_WIN64))
+  return boost::filesystem::current_path().wstring();
+#else
+  return boost::filesystem::current_path().string();
+#endif
 }
 }

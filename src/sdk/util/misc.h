@@ -7,6 +7,7 @@
 
 namespace dsa {
 string_ get_current_working_dir();
+wstring_ get_current_working_dir_w();
 };
 
 #endif  // DSA_SDK_MISC_H

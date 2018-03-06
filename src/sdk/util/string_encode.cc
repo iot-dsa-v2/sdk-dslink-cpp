@@ -129,19 +129,12 @@ std::string url_decode(const std::string &s_src) {
 }
 bool is_invalid_character(const char &c) { return SAFE[c] > 0; }
 
-
 #if defined(_WIN32) || defined(_WIN64)
-std::wstring url_encode_file_name_w(const std::wstring& s_src) {
-  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
-}
 string_ url_encode_file_name(const std::wstring &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
 }
 string_ url_encode_node_name(const std::wstring &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
-}
-std::wstring url_encode_node_name_w(const std::wstring& s_src) {
-  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
 }
 std::string url_encode(const std::wstring &input, StringEncodeLevel level) {
   std::string output;
@@ -163,12 +156,7 @@ std::string url_encode(const std::wstring &input, StringEncodeLevel level) {
   }
   return output;
 }
-std::wstring string_to_wstring(const std::string &s) {
-  std::wstring temp(s.length(), L' ');
-  std::copy(s.begin(), s.end(), temp.begin());
-  return temp;
-}
-std::wstring url_encode_w(const std::wstring &input, StringEncodeLevel level) {
+wstring_ url_encode_w(const wstring_ &input, StringEncodeLevel level) {
   std::wstring output;
   for (int i = 0; i < input.size(); i++) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
@@ -207,20 +195,60 @@ std::wstring unhexlify(const std::wstring &input) {
 }
 
 std::wstring url_decode_w(const std::string &input) {
-  std::wstring output, out2;
   std::string utf8 = url_decode(input);
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> conv;
   std::wstring wstr = conv.from_bytes(utf8);
 
   return wstr;
 }
-std::wstring url_decode_w(const std::wstring &input) {
-  std::wstring output, out2;
+wstring_ url_decode_w(const wstring_ &input) {
   std::wstring unhex = unhexlify(input);
   return unhex;
 }
 bool is_invalid_character_w(const wchar_t &c) {
   return c > 0xFF || (c <= 0xFF && SAFE[c] > 0);
 }
+#else
+wstring_ url_encode_w(const wstring_ &input, StringEncodeLevel level) {
+  return url_encode(input, level);
+}
+wstring_ url_decode_w(const wstring_ &input) {
+  return url_decode(input);
+}
 #endif
+wstring_ url_encode_file_name_w(const wstring_& s_src) {
+  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
+}
+wstring_ url_encode_node_name_w(const wstring_& s_src) {
+  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
+}
+
+
+//wstring_
+#if defined(_WIN32) || defined(_WIN64)
+
+wstring_ string_to_wstring(const string_ &s) {
+  std::wstring temp(s.length(), L' ');
+  std::copy(s.begin(), s.end(), temp.begin());
+  return temp;
+}
+string_ wstring_to_string(const wstring_ &s) {
+  std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
+  return conv1.to_bytes(s.c_str());
+}
+bool wstring_equals(const wstring_ &s1, const string_ &s2) {
+  return s1 == string_to_wstring(s2);
+}
+#else 
+wstring_ string_to_wstring(const string_ &s) {
+  return s;
+}
+string_ wstring_to_string(const wstring_ &s) {
+  return s;
+}
+bool wstring_equals(const wstring_ &s1, const string_ &s2) {
+  return s1 == s2;
+}
+#endif
+
 }
