@@ -45,18 +45,38 @@ void HttpConnection::accept() {
         [ this, sthis = shared_from_this() ](
             const boost::system::error_code& error, size_t bytes_transferred) {
 
-          // TODO: check error/termination conditions
+          // check error
+          if (error != boost::system::errc::success) {
+            LOG_ERROR(__FILENAME__,
+                      LOG << "HTTP read failed: " << error.message());
+            // TODO: send error response
+          }
 
           if (_parser->upgrade()) {
-// call corresponding server's callback
-//          TODO - temporary fix for issue on Windowns platform
-//          _connection =
-//          _web_server.ws_handler(_req.target().to_string())(
+            _websocket->stream().async_accept(_parser->get(), [
+              this, sthis = sthis
+            ](const boost::system::error_code& error) {
+
+              // check error
+              if (error != boost::system::errc::success) {
+                LOG_ERROR(
+                    __FILENAME__,
+                    LOG << "websocket handshake failed: " << error.message());
+                // TODO: send error response
+              }
+
+              // call corresponding server's callback
+              //          TODO - temporary fix for issue on Windowns
+              //          platform
+              //          _connection =
+              //          _web_server.ws_handler(_req.target().to_string())(
+
 #if 0
-            _connection = _web_server.ws_handler("/")(
-                _web_server, std::move(_websocket), std::move(_req));
+              _connection = _web_server.ws_handler("/")(
+                  _web_server, std::move(_websocket), std::move(_req));
 #endif
-            return;
+              return;
+            });  // async_accept
           }
           auto _target = _parser->get().target().to_string();
           _req = std::make_shared<HttpRequest>(_web_server, std::move(_socket),
@@ -82,22 +102,49 @@ void HttpConnection::accept() {
               [ this, sthis = sthis ](const boost::system::error_code& error,
                                       size_t bytes_transferred)
                   ->void {
-                    // TODO: check error/termination conditions
 
-                    if (_parser->upgrade()) {
-// call corresponding server's callback
-//          TODO - temporary fix for issue on Windowns
-//          platform
-//          _connection =
-//          _web_server.ws_handler(_req.target().to_string())(
-
-#if 0
-                      _connection = _web_server.ws_handler("/")(
-                          _web_server, std::move(_websocket), std::move(_req));
-#endif
-                      return;
+                    // check error
+                    if (error != boost::system::errc::success) {
+                      LOG_ERROR(
+                          __FILENAME__,
+                          LOG << "HTTPS read failed: " << error.message());
+                      // TODO: send error response
                     }
 
+                    if (_parser->upgrade()) {
+                      // call corresponding server's callback
+                      //          TODO - temporary fix for issue on Windowns
+                      //          platform
+                      //          _connection =
+                      //          _web_server.ws_handler(_req.target().to_string())(
+
+                      _websocket->secure_stream().async_accept(_parser->get(), [
+                        this, sthis = sthis
+                      ](const boost::system::error_code& error) {
+
+                        // check error
+                        if (error != boost::system::errc::success) {
+                          LOG_ERROR(__FILENAME__,
+                                    LOG << "Secure websocket handshake failed: "
+                                        << error.message());
+                          // TODO: send error response
+                        }
+
+                            // call corresponding server's callback
+                            //          TODO - temporary fix for issue on
+                            //          Windowns
+                            //          platform
+                            //          _connection =
+                            //          _web_server.ws_handler(_req.target().to_string())(
+#if 0
+                            _connection = _web_server.ws_handler("/")(
+                                _web_server, std::move(_websocket),
+                                std::move(_req));
+#endif
+                        return;
+                      });  // async_accept
+                      return;
+                    }
                     auto _target = _parser->get().target().to_string();
                     _req = std::make_shared<HttpRequest>(
                         _web_server, std::move(_socket),

@@ -40,34 +40,10 @@ class DsaWsCallback {
     shared_ptr_<Connection> connection;
 
     std::lock_guard<std::mutex> lock(_mutex);
-    if (websocket->is_secure_stream()) {
-      connection =
-          make_shared_<WsServerConnection>(std::move(websocket), _link_strand);
-      std::dynamic_pointer_cast<WsConnection>(connection)
-          ->ws_stream()
-          .secure_stream()
-          .async_accept(req, [ conn = connection,
-                               this ](const boost::system::error_code& error) {
+    connection =
+        make_shared_<WsServerConnection>(std::move(websocket), _link_strand);
+    std::dynamic_pointer_cast<WsConnection>(connection)->accept();
 
-            // TODO: run within the strand?
-            std::dynamic_pointer_cast<WsConnection>(conn)->accept();
-            return;
-          });
-    } else {
-      connection =
-          make_shared_<WsServerConnection>(std::move(websocket), _link_strand);
-      std::dynamic_pointer_cast<WsConnection>(connection)
-          ->ws_stream()
-          .stream()
-          .async_accept(req, [ conn = connection,
-                               this ](const boost::system::error_code& error) {
-
-            // TODO: run within the strand?
-            std::dynamic_pointer_cast<WsConnection>(conn)->accept();
-
-            return;
-          });
-    }
     return connection;
   }
 };
