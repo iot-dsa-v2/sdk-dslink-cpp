@@ -18,6 +18,7 @@ set(SOURCES
         config/broker_config.cc
         config/broker_config_item.cc
         module/broker_client_manager.cc
+        module/broker_client_nodes.cc
         module/broker_authorizer.cc
         module/module_broker_default.cc
         remote_node/broker_session_manager.cc

@@ -48,6 +48,10 @@ class NodeModel : public NodeModelBase {
 
   VarBytesRef &get_summary() override;
 
+  const std::unordered_map<string_, ref_<NodeModelBase>> &get_list_children() {
+    return _list_children;
+  };
+
  protected:
   void on_subscribe(const SubscribeOptions &options,
                     bool first_request) override;

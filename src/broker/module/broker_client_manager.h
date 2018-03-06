@@ -13,22 +13,8 @@ namespace dsa {
 class ModuleLoader;
 class DsBroker;
 class BrokerPubRoot;
-
-class BrokerKnownLinksRoot : public NodeModel {
- public:
-  explicit BrokerKnownLinksRoot(LinkStrandRef&& strand)
-      : NodeModel(std::move(strand)){};
-
- protected:
-  void initialize() override;
-};
-
-class BrokerKnownLinkNode : public NodeModel {
- public:
-  explicit BrokerKnownLinkNode(LinkStrandRef&& strand,
-                               ref_<NodeModel>&& profile)
-      : NodeModel(std::move(strand), std::move(profile)){};
-};
+class BrokerKnownLinksRoot;
+class BrokerKnownLinkNode;
 
 class BrokerClientManager : public ClientManager {
   friend class DsBroker;
@@ -39,6 +25,17 @@ class BrokerClientManager : public ClientManager {
   ref_<NodeModel> _known_links;
   ref_<NodeModel> _quarantine;
 
+  std::unordered_map<string_, string_> _path2id;
+  void rebuild_path2id();
+
+  bool _allow_all_links = true;
+  bool _quarantine_enabled = false;
+
+  void set_allow_all_links(bool value);
+  void set_quarantine_enabled(bool value);
+
+  string_ create_downstream_path(const string_ & dsid);
+
   void destroy_impl() override;
 
  public:
@@ -48,6 +45,7 @@ class BrokerClientManager : public ClientManager {
   ref_<NodeModel>& get_known_links_node() { return _known_links; }
   ref_<NodeModel>& get_quarantine_node() { return _quarantine; };
   void get_client(const string_& dsid, const string_& auth_token,
+                  bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;
 };
 }  // namespace dsa

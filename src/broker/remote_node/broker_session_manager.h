@@ -31,8 +31,9 @@ class BrokerSessionManager final : public SessionManager {
                        ref_<DownstreamRoot> downstream_root);
   ~BrokerSessionManager() final;
   void get_session(const string_ &dsid, const string_ &auth_token,
+                   bool is_responder,
                    Session::GetSessionCallback &&callback) final;
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_BROKER_SESSION_MANAGER_H

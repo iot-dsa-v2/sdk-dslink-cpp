@@ -11,6 +11,7 @@ SimpleAuthorizer::SimpleAuthorizer(LinkStrandRef strand)
 
 void SimpleClientManager::get_client(const string_& dsid,
                                      const string_& auth_token,
+                                     bool is_responder,
                                      ClientInfo::GetClientCallback&& callback) {
   callback(ClientInfo(dsid, auth_token), false);
 }
@@ -18,9 +19,9 @@ void SimpleClientManager::get_client(const string_& dsid,
 AsyncSimpleClientManager::AsyncSimpleClientManager(LinkStrandRef strand)
     : _strand(std::move(strand)){};
 
-void AsyncSimpleClientManager::get_client(const string_& dsid,
-                                          const string_& auth_token,
-                                          ClientInfo::GetClientCallback&& callback) {
+void AsyncSimpleClientManager::get_client(
+    const string_& dsid, const string_& auth_token, bool is_responder,
+    ClientInfo::GetClientCallback&& callback) {
   _strand->post([ dsid, auth_token, callback = std::move(callback) ]() {
     callback(ClientInfo(dsid, auth_token), false);
   });

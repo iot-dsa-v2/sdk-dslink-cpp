@@ -20,8 +20,9 @@ static ClientInfo dummy_info;
 
 void BrokerSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
+                                       bool is_responder,
                                        Session::GetSessionCallback &&callback) {
-  _strand->client_manager().get_client(dsid, auth_token, [
+  _strand->client_manager().get_client(dsid, auth_token, is_responder, [
     =, callback = std::move(callback)
   ](const ClientInfo client_info, bool error) mutable {
     if (error) {

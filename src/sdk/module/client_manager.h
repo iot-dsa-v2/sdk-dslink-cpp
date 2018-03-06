@@ -15,12 +15,10 @@
 
 namespace dsa {
 
-
-
 class ClientManager : public DestroyableRef<ClientManager> {
  public:
-
   virtual void get_client(const string_& dsid, const string_& auth_token,
+                          bool is_responder,
                           ClientInfo::GetClientCallback&& callback) = 0;
 
   virtual ~ClientManager(){};

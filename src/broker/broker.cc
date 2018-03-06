@@ -88,7 +88,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   strand->set_session_manager(
       make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
 
-  modules->add_module_node(broker_root->get_module(), broker_root->get_pub());
+  modules->add_module_node(broker_root->get_module_root(), broker_root->get_pub());
 }
 void DsBroker::destroy_impl() {
   modules->destroy();
