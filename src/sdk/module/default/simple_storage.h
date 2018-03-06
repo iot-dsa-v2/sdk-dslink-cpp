@@ -16,7 +16,7 @@ namespace dsa {
 #if defined(_WIN32) || defined(_WIN64)
   static constexpr wchar_t storage_default[] = L"storage";
 # else 
-  static constexpr char	   empty_wstring[] = "storage";
+  static constexpr char	   storage_default[] = "storage";
 # endif
 class SimpleQueueBucket : public QueueBucket {
 
