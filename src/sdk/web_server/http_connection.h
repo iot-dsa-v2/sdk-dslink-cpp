@@ -14,6 +14,8 @@
 #include "websocket.h"
 
 #include <memory>
+#include <mutex>
+
 #include "fields_alloc.h"
 
 namespace http = boost::beast::http;
@@ -33,12 +35,15 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
   WebServer& _web_server;
   bool _is_secured;
   shared_ptr_<Connection> _connection;
+
   boost::asio::ip::tcp::socket _socket;
   boost::beast::flat_static_buffer<8192> _buffer;
   alloc_t _alloc = alloc_t{8192};
   boost::optional<http::request_parser<request_body_t, alloc_t>> _parser;
   shared_ptr_<HttpRequest> _req;
   boost::asio::basic_waitable_timer<std::chrono::steady_clock> deadline_;
+  std::unique_ptr<Websocket> _websocket;
+  std::mutex _mutex;
   void reset_parser();
 
  public:

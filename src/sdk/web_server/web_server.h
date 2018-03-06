@@ -33,7 +33,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
       WebServer&, HttpRequest&&)>
       HttpCallback;
   typedef std::function<std::shared_ptr<Connection>(
-      WebServer&, Websocket&,
+      WebServer&, std::unique_ptr<Websocket>&&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       WsCallback;
  private:

@@ -21,7 +21,6 @@
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_client_connection.h"
-#include "network/ws/wss_client_connection.h"
 #include "node/link_root.h"
 #include "responder/profile/pub_root.h"
 #include "stream/requester/incoming_invoke_stream.h"
@@ -322,33 +321,12 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
         };
       }
     } else if (ws_port > 0) {
-      if (secure) {
-        static boost::asio::ssl::context context(
-            boost::asio::ssl::context::sslv23);
-        boost::system::error_code error;
-        context.load_verify_file("certificate.pem", error);
-
-        if (error) {
-          LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
-        }
-
-        client_connection_maker =
-            [ dsid_prefix = dsid_prefix, ws_host = ws_host,
-              ws_port = ws_port ](LinkStrandRef & strand) {
-          static tcp::socket tcp_socket{strand->get_io_context()};
-          static websocket_ssl_stream wss_stream{tcp_socket, context};
-
-          return make_shared_<WssClientConnection>(
-              wss_stream, strand, dsid_prefix, ws_host, ws_port);
-        };
-      } else {
-        client_connection_maker =
-            [ dsid_prefix = dsid_prefix, ws_host = ws_host,
-              ws_port = ws_port ](LinkStrandRef & strand) {
-          return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                                  ws_port);
-        };
-      }
+      client_connection_maker = [
+        dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port, this
+      ](LinkStrandRef & strand) {
+        return make_shared_<WsClientConnection>(secure, strand, dsid_prefix,
+                                                ws_host, ws_port);
+      };
     }
 
     _client = make_ref_<Client>(*this);
