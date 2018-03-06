@@ -20,7 +20,7 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
                                          const string_& cwd)
     : _io_service(io_service),
       _storage_root(storage_root),
-      _bucket_name(url_encode(bucket_name)) {
+      _bucket_name(url_encode_file_name(bucket_name)) {
   _cwd = cwd;
   if(cwd.empty())
     _cwd = get_current_working_dir();

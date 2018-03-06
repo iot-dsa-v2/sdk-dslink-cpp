@@ -89,24 +89,9 @@ std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
 string_ url_encode_file_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
 }
-string_ url_encode_file_name(const std::wstring &s_src) {
-  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
-}
-std::wstring url_encode_file_name_w(const std::wstring& s_src) {
-	return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
-}
-
 string_ url_encode_node_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
 }
-string_ url_encode_node_name(const std::wstring &s_src) {
-  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
-}
-std::wstring url_encode_node_name_w(const std::wstring& s_src) {
-	return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
-}
-bool is_invalid_character(const char &c) { return SAFE[c] > 0; }
-
 std::string url_decode(const std::string &s_src) {
   // Note from RFC1630: "Sequences which start with a percent
   // sign but are not followed by two hexadecimal characters
@@ -142,7 +127,22 @@ std::string url_decode(const std::string &s_src) {
   delete[] p_start;
   return sResult;
 }
+bool is_invalid_character(const char &c) { return SAFE[c] > 0; }
 
+
+#if defined(_WIN32) || defined(_WIN64)
+std::wstring url_encode_file_name_w(const std::wstring& s_src) {
+  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
+}
+string_ url_encode_file_name(const std::wstring &s_src) {
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
+}
+string_ url_encode_node_name(const std::wstring &s_src) {
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
+}
+std::wstring url_encode_node_name_w(const std::wstring& s_src) {
+  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
+}
 std::string url_encode(const std::wstring &input, StringEncodeLevel level) {
   std::string output;
   for (int i = 0; i < input.size(); i++) {
@@ -219,4 +219,8 @@ std::wstring url_decode_w(const std::wstring &input) {
   std::wstring unhex = unhexlify(input);
   return unhex;
 }
+bool is_invalid_character_w(const wchar_t &c) {
+  return c > 0xFF || (c <= 0xFF && SAFE[c] > 0);
+}
+#endif
 }
