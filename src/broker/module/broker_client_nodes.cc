@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-void BrokerKnownLinksRoot::initialize() {
+void BrokerClientsRoot::initialize() {
   auto storage = _strand->storage().get_bucket("Known_Links");
   storage->read_all([ this, keepref = get_ref() ](
                         const string_& key, std::vector<uint8_t> data,
@@ -19,7 +19,7 @@ void BrokerKnownLinksRoot::initialize() {
         Var::from_json(reinterpret_cast<const char*>(data.data()), data.size());
     if (map.is_map()) {
       // add a child dslink node
-      auto child = make_ref_<BrokerKnownLinkNode>(
+      auto child = make_ref_<BrokerClientNode>(
           _strand->get_ref(),
           _strand->stream_acceptor().get_profile("Broker/Known_Link", true));
 

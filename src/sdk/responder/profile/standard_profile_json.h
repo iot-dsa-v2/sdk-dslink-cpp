@@ -8,7 +8,8 @@ static const std::string standard_profile = R"({
     "Remove": {
      "$invokable": "config"
     }
-   }
+   },
+   "Client": {}
   }
  }
 })";

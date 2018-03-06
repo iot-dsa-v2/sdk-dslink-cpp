@@ -9,20 +9,20 @@
 #include "util/client_info.h"
 
 namespace dsa {
-class BrokerKnownLinksRoot : public NodeModel {
+class BrokerClientsRoot : public NodeModel {
  public:
-  explicit BrokerKnownLinksRoot(LinkStrandRef&& strand)
+  explicit BrokerClientsRoot(LinkStrandRef&& strand)
       : NodeModel(std::move(strand)){};
 
  protected:
   void initialize() override;
 };
 
-class BrokerKnownLinkNode : public NodeModel {
+class BrokerClientNode : public NodeModel {
   ClientInfo _client_info;
 
  public:
-  explicit BrokerKnownLinkNode(LinkStrandRef&& strand,
+  explicit BrokerClientNode(LinkStrandRef&& strand,
                                ref_<NodeModel>&& profile)
       : NodeModel(std::move(strand), std::move(profile)){};
 

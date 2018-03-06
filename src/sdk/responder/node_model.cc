@@ -25,7 +25,7 @@ NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
     : NodeModelBase(std::move(strand)), _profile(std::move(profile)) {
   set_value_require_permission(write_require_permission);
 
-  auto &state = profile->get_state();
+  auto &state = _profile->get_state();
   if (state == nullptr || state->get_path().data()->names[0] != "Pub") {
     LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
   }

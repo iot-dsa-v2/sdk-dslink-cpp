@@ -10,11 +10,19 @@
 namespace dsa {
 
 class PubRoot : public NodeModel {
-  void init(const string_& profile);
+  void load_standard_profiles(const string_& profile);
+
+  std::unordered_map<string_, ref_<NodeModel>> _standard_profiles;
+
+ protected:
+  void initialize() override;
+  void add_standard_node(const string_& path, ref_<NodeModel> model);
 
  public:
   PubRoot(LinkStrandRef&& strand, const string_& profile);
   ~PubRoot() override;
+
+  ref_<NodeModel>& get_standard_profile(const string_& path);
 
   ref_<NodeModel> add(const string_& path, ref_<NodeModel>&& node);
 };

@@ -43,7 +43,7 @@ void ModuleBrokerDefault::add_module_node(NodeModel& module_node,
     static_cast<BrokerClientManager&>(*_client_manager)
         .create_nodes(module_node, pub_root);
     module_node.add_list_child(
-        "Known_Links", static_cast<BrokerClientManager&>(*_client_manager)
+        "Clients", static_cast<BrokerClientManager&>(*_client_manager)
                            .get_known_links_node());
     module_node.add_list_child(
         "Quarantine", static_cast<BrokerClientManager&>(*_client_manager)

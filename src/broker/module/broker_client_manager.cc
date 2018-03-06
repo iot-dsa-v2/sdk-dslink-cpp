@@ -11,8 +11,8 @@ namespace dsa {
 
 void BrokerClientManager::rebuild_path2id() {
   _path2id.clear();
-  for (auto& it : _known_links->get_list_children()) {
-    auto* link_node = dynamic_cast<BrokerKnownLinkNode*>(it.second.get());
+  for (auto& it : _clients->get_list_children()) {
+    auto* link_node = dynamic_cast<BrokerClientNode*>(it.second.get());
     if (link_node != nullptr) {
     }
   }
@@ -22,7 +22,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                                        BrokerPubRoot& pub_root) {
   // TODO register action for pub root
 
-  _known_links.reset(new BrokerKnownLinksRoot(_strand->get_ref()));
+  _clients.reset(new BrokerClientsRoot(_strand->get_ref()));
   _quarantine.reset(new NodeModel(_strand->get_ref()));
 
   _quarantine->add_list_child(
@@ -58,7 +58,7 @@ void BrokerClientManager::get_client(const string_& dsid,
     this, keepref = get_ref(), dsid, auth_token, callback = std::move(callback),
     is_responder
   ]() {
-    auto search = _known_links->get_list_children().find(dsid);
+    auto search = _clients->get_list_children().find(dsid);
 
     if (PathData::invalid_name(dsid)) {
       // TODO check dsid
@@ -66,10 +66,10 @@ void BrokerClientManager::get_client(const string_& dsid,
       return;
     }
 
-    if (search != _known_links->get_list_children().end()) {
+    if (search != _clients->get_list_children().end()) {
       // a known dslink
 
-      auto* p = dynamic_cast<BrokerKnownLinkNode*>(search->second.get());
+      auto* p = dynamic_cast<BrokerClientNode*>(search->second.get());
       if (p != nullptr) {
         callback(p->get_client_info(), false);
       } else {
@@ -86,14 +86,14 @@ void BrokerClientManager::get_client(const string_& dsid,
         }
 
         // add to downstream
-        auto child = make_ref_<BrokerKnownLinkNode>(
+        auto child = make_ref_<BrokerClientNode>(
             _strand->get_ref(),
-            _strand->stream_acceptor().get_profile("Broker/Known_Link", true));
+            _strand->stream_acceptor().get_profile("Broker/Client", true));
         // TODO, add more into constructor, allow value node change property,
         // add group
         child->get_client_info() = std::move(info);
 
-        _known_links->add_list_child(dsid, ref_<NodeModelBase>(child));
+        _clients->add_list_child(dsid, ref_<NodeModelBase>(child));
 
         callback(child->get_client_info(), false);
       } else if (_quarantine_enabled) {
@@ -133,7 +133,7 @@ void BrokerClientManager::set_quarantine_enabled(bool value) {
 }
 
 void BrokerClientManager::destroy_impl() {
-  _known_links.reset();
+  _clients.reset();
   _quarantine.reset();
   ClientManager::destroy_impl();
 }

@@ -13,8 +13,8 @@ namespace dsa {
 class ModuleLoader;
 class DsBroker;
 class BrokerPubRoot;
-class BrokerKnownLinksRoot;
-class BrokerKnownLinkNode;
+class BrokerClientsRoot;
+class BrokerClientNode;
 
 class BrokerClientManager : public ClientManager {
   friend class DsBroker;
@@ -22,7 +22,7 @@ class BrokerClientManager : public ClientManager {
  protected:
   LinkStrandRef _strand;
 
-  ref_<NodeModel> _known_links;
+  ref_<NodeModel> _clients;
   ref_<NodeModel> _quarantine;
 
   std::unordered_map<string_, string_> _path2id;
@@ -42,7 +42,7 @@ class BrokerClientManager : public ClientManager {
   explicit BrokerClientManager(LinkStrandRef& strand) : _strand(strand){};
 
   void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
-  ref_<NodeModel>& get_known_links_node() { return _known_links; }
+  ref_<NodeModel>& get_known_links_node() { return _clients; }
   ref_<NodeModel>& get_quarantine_node() { return _quarantine; };
   void get_client(const string_& dsid, const string_& auth_token,
                   bool is_responder,
