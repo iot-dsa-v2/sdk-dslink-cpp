@@ -5,23 +5,14 @@
 #pragma once
 #endif
 
-#include <boost/asio/strand.hpp>
 #include <boost/beast/http.hpp>
-#include <boost/beast/websocket.hpp>
 
 #include "core/editable_strand.h"
-#include "module/default/console_logger.h"
-#include "module/default/simple_security.h"
-#include "module/default/simple_session_manager.h"
-#include "module/session_manager.h"
 #include "network/ws/ws_server_connection.h"
 #include "web_server/websocket.h"
+#include "web_server/http_request.h"
 
-#include <memory>
 #include <mutex>
-
-namespace websocket =
-    boost::beast::websocket;  // from <boost/beast/websocket.hpp>
 
 namespace dsa {
 
@@ -36,7 +27,7 @@ class DsaWsCallback {
   auto operator()(
       boost::asio::io_context& io_context,
       std::unique_ptr<Websocket>&& websocket,
-      boost::beast::http::request<boost::beast::http::string_body>&& req) {
+      http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
     shared_ptr_<Connection> connection;
 
     std::lock_guard<std::mutex> lock(_mutex);

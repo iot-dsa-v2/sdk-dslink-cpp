@@ -2,7 +2,6 @@
 
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
 #include <boost/beast/websocket.hpp>
 #include <regex>
 
@@ -13,7 +12,6 @@
 #include "web_server.h"
 
 namespace websocket = boost::beast::websocket;
-namespace http = boost::beast::http;
 
 namespace dsa {
 
@@ -72,18 +70,18 @@ void HttpConnection::accept() {
               //          _web_server.ws_handler(_req.target().to_string())(
 
               _websocket->set_websocket();
-#if 0
               _connection = _web_server.ws_handler("/")(
-                  _web_server, std::move(_websocket), std::move(_req));
-#endif
+                  _web_server, std::move(_websocket),
+                  std::move(_parser->get()));
               return;
             });  // async_accept
+          } else {
+            auto _target = _parser->get().target().to_string();
+            _req = std::make_shared<HttpRequest>(
+                _web_server, std::move(_socket), std::move(_parser->get()));
+            _web_server.http_handler(_target)(_web_server, std::move(*_req));
+            return;
           }
-          auto _target = _parser->get().target().to_string();
-          _req = std::make_shared<HttpRequest>(_web_server, std::move(_socket),
-                                               std::move(_parser->get()));
-          _web_server.http_handler(_target)(_web_server, std::move(*_req));
-          return;
         });  // async_read
     check_deadline();
   } else {
@@ -131,29 +129,28 @@ void HttpConnection::accept() {
                           // TODO: send error response
                         }
 
-                            // call corresponding server's callback
-                            //          TODO - temporary fix for issue on
-                            //          Windowns
-                            //          platform
-                            //          _connection =
-                            //          _web_server.ws_handler(_req.target().to_string())(
-                            _websocket->set_websocket();
-#if 0
-                            _connection = _web_server.ws_handler("/")(
-                                _web_server, std::move(_websocket),
-                                std::move(_req));
-#endif
+                        // call corresponding server's callback
+                        //          TODO - temporary fix for issue on
+                        //          Windowns
+                        //          platform
+                        //          _connection =
+                        //          _web_server.ws_handler(_req.target().to_string())(
+                        _websocket->set_websocket();
+                        _connection = _web_server.ws_handler("/")(
+                            _web_server, std::move(_websocket),
+                            std::move(_parser->get()));
                         return;
                       });  // async_accept
                       return;
+                    } else {
+                      auto _target = _parser->get().target().to_string();
+                      _req = std::make_shared<HttpRequest>(
+                          _web_server, std::move(_socket),
+                          std::move(_parser->get()));
+                      _web_server.http_handler(_target)(_web_server,
+                                                        std::move(*_req));
+                      return;
                     }
-                    auto _target = _parser->get().target().to_string();
-                    _req = std::make_shared<HttpRequest>(
-                        _web_server, std::move(_socket),
-                        std::move(_parser->get()));
-                    _web_server.http_handler(_target)(_web_server,
-                                                      std::move(*_req));
-                    return;
                   });  // async_read
           check_deadline();
           return;
