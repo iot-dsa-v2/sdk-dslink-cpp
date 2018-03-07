@@ -100,7 +100,13 @@ ref_<NodeState> NodeState::find_child(const Path &path) {
   }
   return ref_<NodeState>();
 }
-
+void NodeState::remove_child(const string_ &name) {
+  auto child_state = get_child(name, true);
+  if (child_state != nullptr && child_state->get_model() != nullptr) {
+    child_state->remove_model();
+  }
+  _children.erase(name);
+}
 bool NodeState::remove_model() {
   for (auto it = _children.begin(); it != _children.end();) {
     if (it->second->remove_model()) {
@@ -302,6 +308,12 @@ void NodeState::update_response_status(MessageStatus status) {
 void NodeState::update_list_refreshed() {
   for (auto &it : _list_streams) {
     it.first->update_list_refreshed();
+  }
+}
+void NodeState::update_list_removed() {
+  for (auto &it : _list_streams) {
+    it.first->update_list_refreshed();
+    _model->list(*it.first);
   }
 }
 void NodeState::update_list_pub_path(const string_ &path) {

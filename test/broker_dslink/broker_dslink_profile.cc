@@ -22,12 +22,12 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   EXPECT_TRUE(port != 0);
 
   auto link =
-      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
 
   ref_<NodeModel> profile_example =
       make_ref_<NodeModel>(link->strand->get_ref());
   profile_example->add_list_child(
-      "change",
+      "Change",
       make_ref_<SimpleInvokeNode>(
           link->strand->get_ref(),
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
@@ -38,7 +38,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
             }
             stream.close();
           }));
-  link->add_to_pub("example", profile_example->get_ref());
+  link->add_to_pub("Example", profile_example->get_ref());
 
   ref_<NodeModel> main_node =
       make_ref_<NodeModel>(link->strand->get_ref(), profile_example);
@@ -52,19 +52,20 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
                     ref_<DsLinkRequester> link_req) {
 
     // check the list result
-    list_cache = link_req->list("downstream/test1/main",
+    link_req->list("Downstream/Test1/Main",
                [&](IncomingListCache &cache, const std::vector<string_> &) {
                  if (cache.get_map().count("$is") > 0 &&
-                     cache.get_map().at("$is").to_string() == "example") {
+                     cache.get_map().at("$is").to_string() == "Example") {
                    EXPECT_TRUE(cache.get_profile_map().size() != 0);
-                   EXPECT_NE(cache.get_profile_map().find("change"),
+                   EXPECT_NE(cache.get_profile_map().find("Change"),
                              cache.get_profile_map().end());
                    list_checked = true;
+                   cache.close();
                  }
                });
     // invoke the pub node to change the value
     auto request = make_ref_<InvokeRequestMessage>();
-    request->set_target_path("downstream/test1/main/change");
+    request->set_target_path("Downstream/Test1/Main/Change");
     request->set_body(Var("hello").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
@@ -75,7 +76,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
     // subscribe to check the result
     ref_<IncomingSubscribeCache> sub_cache;
     sub_cache =
-        link_req->subscribe("downstream/test1/main",
+        link_req->subscribe("Downstream/Test1/Main",
                         [&](IncomingSubscribeCache &cache,
                             ref_<const SubscribeResponseMessage> &msg) {
                           if (msg->get_value().value.to_string() == "hello") {
@@ -89,7 +90,6 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   WAIT_EXPECT_TRUE(1000, [&]() -> bool {
     return list_checked && invoked && subscrib_checked;
   });
-  list_cache->close();
   destroy_dslink_in_strand(link);
   broker->strand->post([&]() { broker->destroy(); });
 

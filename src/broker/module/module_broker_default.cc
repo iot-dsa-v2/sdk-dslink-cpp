@@ -8,30 +8,32 @@
 #include "module/default/console_logger.h"
 #include "module/default/simple_storage.h"
 
+#include "responder/node_model.h"
+
 namespace dsa {
 
 ref_<Storage> ModuleBrokerDefault::create_storage(App& app,
-                                                  ref_<LinkStrand> strand) {
+                                                  ref_<LinkStrand>& strand) {
   return make_ref_<SimpleStorage>(&app.io_service());
 }
 
 shared_ptr_<Logger> ModuleBrokerDefault::create_logger(
-    App& app, ref_<LinkStrand> strand) {
+    App& app, ref_<LinkStrand>& strand) {
   return make_shared_<ConsoleLogger>();
 }
 
 ref_<ClientManager> ModuleBrokerDefault::create_client_manager(
-    App& app, ref_<LinkStrand> strand) {
-  return make_ref_<BrokerClientManager>();
+    App& app, ref_<LinkStrand>& strand) {
+  return make_ref_<BrokerClientManager>(strand);
 }
 
 ref_<Authorizer> ModuleBrokerDefault::create_authorizer(
-    App& app, ref_<LinkStrand> strand) {
-  return make_ref_<BrokerAuthorizer>();
+    App& app, ref_<LinkStrand>& strand) {
+  return make_ref_<BrokerAuthorizer>(strand);
 }
 
 shared_ptr_<LoginManager> ModuleBrokerDefault::create_login_manager(
-    App& app, ref_<LinkStrand> strand) {
+    App& app, ref_<LinkStrand>& strand) {
   return make_shared_<BrokerLoginManager>(strand);
 }
 
@@ -39,6 +41,10 @@ void ModuleBrokerDefault::add_module_node(ref_<NodeModel>& module_node) {
   if (_client_manager != nullptr) {
   }
   if (_authorizer != nullptr) {
+  }
+  if (_login_manager != nullptr) {
+    module_node->add_list_child(
+        "Users", static_cast<BrokerLoginManager&>(*_login_manager)._module_node);
   }
 }
 }

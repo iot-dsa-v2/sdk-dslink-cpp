@@ -45,8 +45,9 @@ class SimpleStorageBucket : public StorageBucket {
  public:
   SimpleStorageBucket(const string_& bucket_name,
                       boost::asio::io_service* io_service = nullptr,
-                      const string_& storage_root = "storage");
-
+                      const string_& storage_root = "storage",
+                      const string_& cwd = "" );
+  bool exists (const string_ &key) override;
   void write(const std::string& key, BytesRef&& data,
              bool is_binary = false) override;
   void read(const std::string& key, ReadCallback&& callback,
@@ -64,8 +65,9 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
  public:
   SimpleSafeStorageBucket(const string_& bucket_name,
                           boost::asio::io_service* io_service = nullptr,
-                          const string_& storage_root = "storage")
-      : SimpleStorageBucket(bucket_name, io_service, storage_root) {}
+                          const string_& storage_root = "storage",
+                          const string_& cwd = "" )
+      : SimpleStorageBucket(bucket_name, io_service, storage_root, cwd) {}
 
   void write(const std::string& key, BytesRef&& data,
              bool is_binary = false) override;
