@@ -71,6 +71,7 @@ void HttpConnection::accept() {
               //          _connection =
               //          _web_server.ws_handler(_req.target().to_string())(
 
+              _websocket->set_websocket();
 #if 0
               _connection = _web_server.ws_handler("/")(
                   _web_server, std::move(_websocket), std::move(_req));
@@ -136,6 +137,7 @@ void HttpConnection::accept() {
                             //          platform
                             //          _connection =
                             //          _web_server.ws_handler(_req.target().to_string())(
+                            _websocket->set_websocket();
 #if 0
                             _connection = _web_server.ws_handler("/")(
                                 _web_server, std::move(_websocket),
