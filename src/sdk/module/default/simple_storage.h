@@ -41,8 +41,11 @@ class SimpleStorageBucket : public StorageBucket {
   string_ _storage_root;
   string_ _bucket_name;
   string_ _full_base_path;
+#if defined(_WIN32) || defined(_WIN64)
+  std::wstring get_storage_path(const string_& key = "");
+#else
   string_ get_storage_path(const string_& key = "");
-  std::wstring get_storage_path_w(const string_& key = "");
+#endif
 
  public:
   SimpleStorageBucket(const string_& bucket_name,

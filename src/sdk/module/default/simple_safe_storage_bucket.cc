@@ -22,7 +22,7 @@ void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content,
   auto write_file = [=]() {
     path templ = boost::filesystem::unique_path();
 
-    path p(get_storage_path_w(key));
+    path p(get_storage_path(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;

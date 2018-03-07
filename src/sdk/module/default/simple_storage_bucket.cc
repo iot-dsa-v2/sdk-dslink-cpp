@@ -32,7 +32,7 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
   if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
   _full_base_path += bucket_name;
 
-  path p(get_storage_path_w());
+  path p(get_storage_path());
   if (!fs::exists(p)) {
     try {
       if (!fs::create_directories(p)) {
@@ -45,21 +45,26 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
     }
   }
 }
-
+#if defined(_WIN32) || defined(_WIN64)
+std::wstring SimpleStorageBucket::get_storage_path(const string_& key) {
+  string_ path;
+  if (!_full_base_path.empty()) path = _full_base_path + "/";
+  if (!key.empty()) path += url_encode_file_name(key);
+  return std::move(
+      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+          .from_bytes(path));
+}
+#else
 string_ SimpleStorageBucket::get_storage_path(const string_& key) {
   string_ path;
   if (!_full_base_path.empty()) path = _full_base_path + "/";
   if (!key.empty()) path += url_encode_file_name(key);
   return std::move(path);
 }
-std::wstring SimpleStorageBucket::get_storage_path_w(const string_& key) {
-  return std::move(
-      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
-          .from_bytes(get_storage_path(key)));
-}
+#endif
 
 bool SimpleStorageBucket::is_empty() {
-  path p(get_storage_path_w());
+  path p(get_storage_path());
   if (!boost::filesystem::is_directory(p)) return false;
 
   boost::filesystem::directory_iterator end_it;
@@ -71,14 +76,14 @@ bool SimpleStorageBucket::is_empty() {
 }
 
 bool SimpleStorageBucket::exists(const string_& key) {
-  path p(get_storage_path_w(key));
+  path p(get_storage_path(key));
   return (fs::exists(p) && is_regular_file(p));
 }
 
 void SimpleStorageBucket::write(const string_& key, BytesRef&& content,
                                 bool is_binary) {
   auto write_file = [=, content = std::move(content)]() {
-    path p(get_storage_path_w(key));
+    path p(get_storage_path(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
@@ -122,7 +127,7 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
-    path p(get_storage_path_w(key));
+    path p(get_storage_path(key));
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -131,7 +136,7 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
         if (size) {
           std::ios::openmode open_mode = std::ios::in;
           if (is_binary) open_mode = open_mode | std::ios::binary;
-          std::ifstream ifs(p.wstring(), open_mode);
+          fs::ifstream ifs(p, open_mode);
           if (ifs) {
             vec.resize(static_cast<size_t>(size));
             ifs.read(reinterpret_cast<char*>(&vec.front()),
@@ -181,7 +186,7 @@ void SimpleStorageBucket::remove(const string_& key) {
     }
 
     strand_map.at(key)->post([=]() {
-      path p(get_storage_path_w(key));
+      path p(get_storage_path(key));
 
       try {
         if (fs::exists(p) && is_regular_file(p)) {
@@ -199,7 +204,7 @@ void SimpleStorageBucket::remove(const string_& key) {
 
     return;
   } else {
-    path p(get_storage_path_w(key));
+    path p(get_storage_path(key));
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -214,7 +219,7 @@ void SimpleStorageBucket::remove(const string_& key) {
 /// the callback might run asynchronously
 void SimpleStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
-  path p(get_storage_path_w());
+  path p(get_storage_path());
   std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
@@ -237,7 +242,7 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
 }
 
 void SimpleStorageBucket::remove_all() {
-  path p(get_storage_path_w());
+  path p(get_storage_path());
   std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
