@@ -14,6 +14,8 @@ BrokerClientsRoot::BrokerClientsRoot(LinkStrandRef&& strand,
       _storage(_strand->storage().get_bucket("Clients")){};
 
 void BrokerClientsRoot::initialize() {
+  NodeModel::initialize();
+
   _storage->read_all([ this, keepref = get_ref() ](
                          const string_& key, std::vector<uint8_t> data,
                          BucketReadStatus read_status) mutable {
@@ -24,9 +26,9 @@ void BrokerClientsRoot::initialize() {
     Var map =
         Var::from_json(reinterpret_cast<const char*>(data.data()), data.size());
 
-    // TODO, remove this dispatch, as well as the above mutable, just a work
-    // around before we have strand bucket
     if (map.is_map()) {
+      // TODO, remove this dispatch, as well as the above mutable, just a work
+      // around before we have strand bucket
       _strand->dispatch(
           [ this, keepref = std::move(keepref), key, map = std::move(map) ]() {
             // add a child dslink node

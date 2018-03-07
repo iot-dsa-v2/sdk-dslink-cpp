@@ -63,17 +63,18 @@ void BrokerClientManager::get_client(const string_& dsid,
                                      const string_& auth_token,
                                      bool is_responder,
                                      ClientInfo::GetClientCallback&& callback) {
+  // make the callback async so all the implementation will have same behavior
   _strand->post([
     this, keepref = get_ref(), dsid, auth_token, callback = std::move(callback),
     is_responder
   ]() {
-    auto search = _clients->get_list_children().find(dsid);
-
     if (PathData::invalid_name(dsid)) {
       // TODO check dsid
       callback(ClientInfo(dsid, auth_token), true);
       return;
     }
+
+    auto search = _clients->get_list_children().find(dsid);
 
     if (search != _clients->get_list_children().end()) {
       // a known dslink
@@ -88,6 +89,7 @@ void BrokerClientManager::get_client(const string_& dsid,
     } else {
       // unknown dslink
 
+      // TODO check token first
       if (_allow_all_links) {
         ClientInfo info(dsid, auth_token);
         if (is_responder) {
