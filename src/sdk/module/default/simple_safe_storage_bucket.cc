@@ -1,7 +1,7 @@
+#include "dsa_common.h"
 #include <boost/asio/strand.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
-#include "dsa_common.h"
 #include "module/logger.h"
 #include "simple_storage.h"
 #include "util/string_encode.h"
@@ -17,12 +17,12 @@ using boost::filesystem::path;
 //  return *config_bucket;
 //};
 
-void SimpleSafeStorageBucket::write(const wstring_ &key, BytesRef &&content,
+void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content,
                                     bool is_binary) {
   auto write_file = [=]() {
     path templ = boost::filesystem::unique_path();
 
-    path p(get_storage_path(key));
+    path p(get_storage_path_w(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
@@ -37,12 +37,11 @@ void SimpleSafeStorageBucket::write(const wstring_ &key, BytesRef &&content,
       } else {
         // TODO: is fatal?
         LOG_FATAL(__FILENAME__,
-                  LOG << "Unable to open " << wstring_to_string(key) << " file to write");
+                  LOG << "Unable to open " << key << " file to write");
       }
     } catch (const fs::filesystem_error &ex) {
       // TODO: is fatal?
-      LOG_ERROR(__FILENAME__,
-                LOG << "Write failed for " << wstring_to_string(key) << " file");
+      LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
     }
   };
 
@@ -62,4 +61,4 @@ void SimpleSafeStorageBucket::write(const wstring_ &key, BytesRef &&content,
     write_file();
   }
 }
-}
+}  // namespace dsa

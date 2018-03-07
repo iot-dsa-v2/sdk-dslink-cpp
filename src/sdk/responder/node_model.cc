@@ -236,10 +236,10 @@ void NodeModel::save(StorageBucket &storage, bool json) const {
   if (json) {
     string_ str = var.to_json();
     const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
-    storage.write(string_to_wstring(_state->get_full_path()),
+    storage.write(_state->get_full_path(),
                   make_ref_<RefCountBytes>(str_data, str_data + str.length()));
   } else {
-    storage.write(string_to_wstring(_state->get_full_path()),
+    storage.write(_state->get_full_path(),
                   make_ref_<RefCountBytes>(var.to_msgpack()));
   }
 }

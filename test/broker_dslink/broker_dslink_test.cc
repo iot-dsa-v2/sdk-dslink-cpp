@@ -3,11 +3,7 @@
 using namespace dsa;
 
 using BrokerDsLinkTest = SetUpBase;
-#if defined(_WIN32) || defined(_WIN64)
-const wstring_ bucket_name(L"config");
-#else
-const wstring_ bucket_name("config");
-#endif
+const string_ bucket_name("config");
 TEST_F(BrokerDsLinkTest, Reconnect) {
   auto app = make_shared_<App>();
 
@@ -163,7 +159,7 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
 TEST_F(BrokerDsLinkTest, StopTest) {
 
   std::string close_token = "12345678901234567890123456789012";
-  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,empty_wstring);
+  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,"");
   string_to_storage(close_token, default_close_token_path, storage_bucket);
 
   auto broker = broker_dslink_test::create_broker();
@@ -219,7 +215,7 @@ TEST_F(BrokerDsLinkTest, StopTest) {
 
 TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   std::string close_token = generate_random_string(32);
-  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,empty_wstring);
+  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,"");
   string_to_storage(close_token, default_close_token_path, storage_bucket);
 
   auto app = make_shared_<App>();

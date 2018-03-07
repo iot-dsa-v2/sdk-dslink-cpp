@@ -1,4 +1,5 @@
 #include "dsa_common.h"
+#include "module\logger.h"
 #include "string_encode.h"
 #include <iostream>
 #include <string>
@@ -62,6 +63,41 @@ static char SAFE[256] =
         /* F */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2
     };
 
+#if defined(_WIN32) || defined(_WIN64)
+std::wstring string_to_wstring(const string_ &s) {
+  std::wstring temp(s.length(), L' ');
+  std::copy(s.begin(), s.end(), temp.begin());
+  return temp;
+}
+string_ url_encode(const string_ &input, StringEncodeLevel level) {
+  auto u16str =
+      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+          .from_bytes(input);
+
+  std::wstring output;
+  for (int i = 0; i < u16str.size(); i++) {
+    if ((u16str[i] < 0x80 && SAFE[u16str[i]] >= static_cast<char>(level)) ||
+        (u16str[i] >= 0x80 && SAFE[0xFF] >= static_cast<char>(level))) {
+      output.append(1, (static_cast<wchar_t>(u16str[i])));
+    } else {
+      std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
+      std::string u8str = conv1.to_bytes(u16str.substr(i, 1).c_str());
+      if (u8str.size() > 0) {
+        for (auto &u8_char : u8str) {
+          char onehex[5];
+          snprintf(onehex, sizeof(onehex), "%%%2.2X", (unsigned char)u8_char);
+          output.append(string_to_wstring(onehex));
+        }
+      } else {
+        LOG_FATAL(__FILENAME__, LOG << "String encoding failed!");
+      }
+    }
+  }
+  std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
+  std::string u8str = conv1.to_bytes(output);
+  return u8str;
+}
+#else
 std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   if (s_src.empty()) return "";
   const unsigned char dec_to_hex[16 + 1] = "0123456789ABCDEF";
@@ -86,6 +122,7 @@ std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   delete[] p_start;
   return s_result;
 }
+#endif
 string_ url_encode_file_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
 }
@@ -128,127 +165,4 @@ std::string url_decode(const std::string &s_src) {
   return sResult;
 }
 bool is_invalid_character(const char &c) { return SAFE[c] > 0; }
-
-#if defined(_WIN32) || defined(_WIN64)
-string_ url_encode_file_name(const std::wstring &s_src) {
-  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
-}
-string_ url_encode_node_name(const std::wstring &s_src) {
-  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
-}
-std::string url_encode(const std::wstring &input, StringEncodeLevel level) {
-  std::string output;
-  for (int i = 0; i < input.size(); i++) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
-    std::string u8str = conv1.to_bytes(input.substr(i, 1).c_str());
-    if (u8str.size() > 0) {
-      if (u8str.size() == 1 && u8str[0] < 0x80 &&
-          (SAFE[u8str[0]] >= static_cast<char>(level))) {
-        output.append(1, (static_cast<char>(input[i])));
-      } else {
-        for (auto &u8_char : u8str) {
-          char onehex[5];
-          snprintf(onehex, sizeof(onehex), "%%%2.2X", (unsigned char)u8_char);
-          output.append(onehex);
-        }
-      }
-    }
-  }
-  return output;
-}
-wstring_ url_encode_w(const wstring_ &input, StringEncodeLevel level) {
-  std::wstring output;
-  for (int i = 0; i < input.size(); i++) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
-    std::string u8str = conv1.to_bytes(input.substr(i, 1).c_str());
-    if (u8str.size() > 0) {
-      if (u8str.size() > 1 ||
-          (u8str.size() == 1 && (u8str[0] < 0x80 &&
-                                 SAFE[u8str[0]] >= static_cast<char>(level)) ||
-           (u8str[0] >= 0x80))) {
-        output.append(1, (static_cast<wchar_t>(input[i])));
-      } else {
-        for (auto &u8_char : u8str) {
-          char onehex[5];
-          snprintf(onehex, sizeof(onehex), "%%%2.2X", (unsigned char)u8_char);
-          output.append(string_to_wstring(onehex));
-        }
-      }
-    }
-  }
-  return output;
-}
-
-std::wstring unhexlify(const std::wstring &input) {
-  std::wstring output;
-  for (const wchar_t *p = input.c_str(); *p;) {
-    if (p[0] == '%' && isxdigit(p[1]) && isxdigit(p[2])) {
-      int ch = (isdigit(p[1]) ? p[1] - '0' : toupper(p[1]) - 'A' + 10) * 16 +
-               (isdigit(p[2]) ? p[2] - '0' : toupper(p[2]) - 'A' + 10);
-      output.push_back((char)ch);
-      p += 3;
-    } else {
-      output.push_back(*p++);
-    }
-  }
-  return output;
-}
-
-std::wstring url_decode_w(const std::string &input) {
-  std::string utf8 = url_decode(input);
-  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> conv;
-  std::wstring wstr = conv.from_bytes(utf8);
-
-  return wstr;
-}
-wstring_ url_decode_w(const wstring_ &input) {
-  std::wstring unhex = unhexlify(input);
-  return unhex;
-}
-bool is_invalid_character_w(const wchar_t &c) {
-  return c > 0xFF || (c <= 0xFF && SAFE[c] > 0);
-}
-#else
-wstring_ url_encode_w(const wstring_ &input, StringEncodeLevel level) {
-  return url_encode(input, level);
-}
-wstring_ url_decode_w(const wstring_ &input) {
-  return url_decode(input);
-}
-#endif
-wstring_ url_encode_file_name_w(const wstring_& s_src) {
-  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
-}
-wstring_ url_encode_node_name_w(const wstring_& s_src) {
-  return url_encode_w(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
-}
-
-
-//wstring_
-#if defined(_WIN32) || defined(_WIN64)
-
-wstring_ string_to_wstring(const string_ &s) {
-  std::wstring temp(s.length(), L' ');
-  std::copy(s.begin(), s.end(), temp.begin());
-  return temp;
-}
-string_ wstring_to_string(const wstring_ &s) {
-  std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
-  return conv1.to_bytes(s.c_str());
-}
-bool wstring_equals(const wstring_ &s1, const string_ &s2) {
-  return s1 == string_to_wstring(s2);
-}
-#else 
-wstring_ string_to_wstring(const string_ &s) {
-  return s;
-}
-string_ wstring_to_string(const wstring_ &s) {
-  return s;
-}
-bool wstring_equals(const wstring_ &s1, const string_ &s2) {
-  return s1 == s2;
-}
-#endif
-
 }

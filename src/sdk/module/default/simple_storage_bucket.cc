@@ -9,26 +9,30 @@
 #include <list>
 #include "util/misc.h"
 #include "util/string_encode.h"
+#include <string>
+#include <locale>
+#include <codecvt>
+#include <iomanip>
+#include <vector>
 namespace dsa {
 
 namespace fs = boost::filesystem;
 using boost::filesystem::path;
 
-SimpleStorageBucket::SimpleStorageBucket(const wstring_& bucket_name,
+SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
                                          boost::asio::io_service* io_service,
-                                         const wstring_& storage_root,
-                                         const wstring_& cwd)
+                                         const string_& storage_root,
+                                         const string_& cwd)
     : _io_service(io_service),
       _storage_root(storage_root),
-      _bucket_name(url_encode_file_name_w(bucket_name)) {
+      _bucket_name(url_encode_file_name(bucket_name)) {
   _cwd = cwd;
-  if(cwd.empty())
-    _cwd = get_current_working_dir_w();
-  if (!_cwd.empty()) _full_base_path = _cwd + w_separator;
-  if (!_storage_root.empty()) _full_base_path += _storage_root + w_separator;
+  if (cwd.empty()) _cwd = get_current_working_dir();
+  if (!_cwd.empty()) _full_base_path = _cwd + "/";
+  if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
   _full_base_path += bucket_name;
 
-  path p(get_storage_path());
+  path p(get_storage_path_w());
   if (!fs::exists(p)) {
     try {
       if (!fs::create_directories(p)) {
@@ -42,27 +46,44 @@ SimpleStorageBucket::SimpleStorageBucket(const wstring_& bucket_name,
   }
 }
 
-wstring_ SimpleStorageBucket::get_storage_path(const wstring_& key) {
-  wstring_ path;
-  if (!_full_base_path.empty()) path = _full_base_path + w_separator;
-  if (!key.empty()) path += url_encode_file_name_w(key);
+string_ SimpleStorageBucket::get_storage_path(const string_& key) {
+  string_ path;
+  if (!_full_base_path.empty()) path = _full_base_path + "/";
+  if (!key.empty()) path += url_encode_file_name(key);
   return std::move(path);
 }
+std::wstring SimpleStorageBucket::get_storage_path_w(const string_& key) {
+  return std::move(
+      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+          .from_bytes(get_storage_path(key)));
+}
 
-bool SimpleStorageBucket::exists (const wstring_ &key) {
-  path p(get_storage_path(key));
+bool SimpleStorageBucket::is_empty() {
+  path p(get_storage_path_w());
+  if (!boost::filesystem::is_directory(p)) return false;
+
+  boost::filesystem::directory_iterator end_it;
+  boost::filesystem::directory_iterator it(p);
+  if (it == end_it)
+    return true;
+  else
+    return false;
+}
+
+bool SimpleStorageBucket::exists(const string_& key) {
+  path p(get_storage_path_w(key));
   return (fs::exists(p) && is_regular_file(p));
 }
 
-void SimpleStorageBucket::write(const wstring_& key, BytesRef&& content,
+void SimpleStorageBucket::write(const string_& key, BytesRef&& content,
                                 bool is_binary) {
-  auto write_file = [&, is_binary, content = std::move(content)]() {
-    path p(get_storage_path(key));
+  auto write_file = [=, content = std::move(content)]() {
+    path p(get_storage_path_w(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
       if (is_binary) open_mode = open_mode | std::ios::binary;
-      std::ofstream ofs(p.wstring(), open_mode);
+      fs::ofstream ofs(p, open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
                   content->size());
@@ -70,12 +91,11 @@ void SimpleStorageBucket::write(const wstring_& key, BytesRef&& content,
       } else {
         // TODO: is fatal?
         LOG_FATAL(__FILENAME__,
-                  LOG << "Unable to open " << wstring_to_string(key) << " file to write");
+                  LOG << "Unable to open " << key << " file to write");
       }
     } catch (const fs::filesystem_error& ex) {
       // TODO: is fatal?
-      LOG_ERROR(__FILENAME__,
-                LOG << "Write failed for " << wstring_to_string(key) << " file");
+      LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
     }
   };
 
@@ -96,13 +116,13 @@ void SimpleStorageBucket::write(const wstring_& key, BytesRef&& content,
   }
 }
 
-void SimpleStorageBucket::read(const wstring_& key, ReadCallback&& callback,
+void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
                                bool is_binary) {
-  auto read_file = [&, callback = std::move(callback)]() {
+  auto read_file = [=, callback = std::move(callback)]() {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
-    path p(get_storage_path(key));
+    path p(get_storage_path_w(key));
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -119,22 +139,20 @@ void SimpleStorageBucket::read(const wstring_& key, ReadCallback&& callback,
             ifs.close();
           } else {
             LOG_ERROR(__FILENAME__,
-                      LOG << "Unable to open " << wstring_to_string(key) << " file to read");
+                      LOG << "Unable to open " << key << " file to read");
             status = BucketReadStatus::FILE_OPEN_ERROR;
           }
         }
       } else {
-        LOG_FINE(__FILENAME__,
-                 LOG << "there is no file to read " << wstring_to_string(key));
+        LOG_FINE(__FILENAME__, LOG << "there is no file to read " << key);
         status = BucketReadStatus::NO_FILE;
       }
     } catch (const fs::filesystem_error& ex) {
-      LOG_ERROR(__FILENAME__,
-                LOG << "Read failed for " << wstring_to_string(key) << " file");
+      LOG_ERROR(__FILENAME__, LOG << "Read failed for " << key << " file");
       status = BucketReadStatus::READ_FAILED;
     }
 
-    callback(url_decode_w(key), vec, status);
+    callback(std::move(url_decode(key)), std::move(vec), status);
   };
 
   if (_io_service != nullptr) {
@@ -154,7 +172,7 @@ void SimpleStorageBucket::read(const wstring_& key, ReadCallback&& callback,
   }
 }
 
-void SimpleStorageBucket::remove(const wstring_& key) {
+void SimpleStorageBucket::remove(const string_& key) {
   if (_io_service != nullptr) {
     if (!strand_map.count(key)) {
       boost::asio::io_service::strand* strand =
@@ -163,7 +181,7 @@ void SimpleStorageBucket::remove(const wstring_& key) {
     }
 
     strand_map.at(key)->post([=]() {
-      path p(get_storage_path(key));
+      path p(get_storage_path_w(key));
 
       try {
         if (fs::exists(p) && is_regular_file(p)) {
@@ -181,7 +199,7 @@ void SimpleStorageBucket::remove(const wstring_& key) {
 
     return;
   } else {
-    path p(get_storage_path(key));
+    path p(get_storage_path_w(key));
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -196,20 +214,19 @@ void SimpleStorageBucket::remove(const wstring_& key) {
 /// the callback might run asynchronously
 void SimpleStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
-  path p(get_storage_path());
-  std::list<wstring_> key_list;
+  path p(get_storage_path_w());
+  std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-#if (defined(_WIN32) || defined(_WIN64))
-	  key_list.push_back(x.path().stem().wstring());
-#else
-	  key_list.push_back(x.path().stem().string());
-#endif
-	}
+      key_list.push_back(x.path().stem().wstring());
+    }
     key_list.sort();
     for (auto&& key : key_list) {
       auto cb = callback;
-      this->read(url_decode_w(key), std::move(cb));
+      this->read(
+          url_decode(
+              std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(key)),
+          std::move(cb));
     }
     if (on_done != nullptr) on_done();
   } catch (const fs::filesystem_error& ex) {
@@ -220,18 +237,15 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
 }
 
 void SimpleStorageBucket::remove_all() {
-  path p(get_storage_path());
-  std::list<wstring_> key_list;
+  path p(get_storage_path_w());
+  std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-#if (defined(_WIN32) || defined(_WIN64))
       key_list.push_back(x.path().stem().wstring());
-#else
-	  key_list.push_back(x.path().stem().string());
-#endif
     }
     for (auto&& key : key_list) {
-      remove(url_decode_w(key));
+      remove(url_decode(
+          std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(key)));
     }
   } catch (const fs::filesystem_error& ex) {
     // std::cout << ex.what() << '\n';

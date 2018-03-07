@@ -261,14 +261,10 @@ TEST_F(DslinkTest, TCPServerPortParam) {
 TEST_F(DslinkTest, TokenFile) {
   string_ token("IAmATokenPleaseBelieveME!!!");
   string_ token_file_name("my_test_token.txt");
-#if defined(_WIN32) || defined(_WIN64)
-  wstring_ bucket_name(L"config");
-#else
-  wstring_ bucket_name("config");
-#endif
+
   // First create token file
-  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,empty_wstring);
-  string_to_storage(token, string_to_wstring(token_file_name), storage_bucket);
+  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
+  string_to_storage(token, token_file_name, storage_bucket);
 
   const char *argv[] = {"./test", "--token", token_file_name.c_str()};
   int argc = 3;
@@ -276,7 +272,7 @@ TEST_F(DslinkTest, TokenFile) {
 
   EXPECT_EQ(link.get()->client_token, token);
   end_link(std::move(link));
-  storage_bucket.remove(string_to_wstring(token_file_name));
+  storage_bucket.remove(token_file_name);
 }
 
 TEST_F(DslinkTest, GeneralParam) {

@@ -48,21 +48,6 @@ using shared_ptr_ = std::shared_ptr<T>;
 
 using string_ = std::string;
 
-#if defined(_WIN32) || defined(_WIN64)
-using wstring_ = std::wstring;
-static constexpr wchar_t      w_separator = L'/';
-static constexpr wchar_t      w_preferred_separator = L'\\';
-static constexpr wchar_t      w_dot = L'.';
-static constexpr wchar_t	  empty_wstring[] = L"";
-# else 
-using wstring_ = std::string;
-static constexpr char      w_separator = '/';
-static constexpr char      w_preferred_separator = '/';
-static constexpr char      w_dot = '.';
-static constexpr char	   empty_wstring[] = "";
-# endif
-
-
 template <typename T>
 class ref_;
 

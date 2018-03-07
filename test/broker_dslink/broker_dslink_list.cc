@@ -1,16 +1,11 @@
-
 #include "broker_dslink_util.h"
 
 using BrokerDsLinkTest = SetUpBase;
 
 TEST_F(BrokerDsLinkTest, RootSysSelfList) {
-#if defined(_WIN32) || defined(_WIN64)
-  const wstring_ bucket_name(L"config");
-#else
-  const wstring_ bucket_name("config");
-#endif
+  const string_ bucket_name("config");
   std::string close_token = generate_random_string(32);
-  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, empty_wstring);
+  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
   string_to_storage(close_token, default_close_token_path, storage_bucket);
 
   typedef std::vector<std::vector<string_>> ListResponses;

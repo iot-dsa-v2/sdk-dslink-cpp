@@ -18,13 +18,10 @@ using namespace dsa;
 using BrokerSysTest = SetUpBase;
 
 TEST_F(BrokerSysTest, StopBroker) {
-#if defined(_WIN32) || defined(_WIN64)
-  wstring_ bucket_name(L"config");
-#else
-  wstring_ bucket_name("config");
-#endif
+
+  string_ bucket_name("config");
   string_ token = generate_random_string(32);
-  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,empty_wstring);
+  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
   string_to_storage(token, default_close_token_path, storage_bucket);
 
   auto broker = create_broker();

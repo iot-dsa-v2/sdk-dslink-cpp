@@ -13,13 +13,8 @@ namespace fs = boost::filesystem;
 namespace dsa {
 BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
   init();
-#if defined(_WIN32) || defined(_WIN64)
-  config_bucket =
-      std::make_unique<SimpleSafeStorageBucket>(L"config", nullptr, empty_wstring);
-#else
-  config_bucket =
+ config_bucket =
 	std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
-#endif
   load();
 }
 
@@ -51,7 +46,7 @@ void BrokerConfig::init() {
 }
 // load config json from file
 void BrokerConfig::load() {
-  auto read_callback = [=](wstring_ storage_key, std::vector<uint8_t> vec,
+  auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                            BucketReadStatus read_status) {
 
     // const string_* content = reinterpret_cast<const string_*>(vec.data());
@@ -83,7 +78,7 @@ void BrokerConfig::load() {
       save();
     }
   };
-  config_bucket->read(string_to_wstring(get_file_path()), read_callback);
+  config_bucket->read(get_file_path(), read_callback);
 }
 void BrokerConfig::save() {
   std::stringstream config_file;
@@ -107,7 +102,7 @@ void BrokerConfig::save() {
 
   auto data = new RefCountBytes(&cstr[0], &cstr[strlen(cstr)]);
 
-  config_bucket->write(string_to_wstring(get_file_path()), std::forward<RefCountBytes*>(data));
+  config_bucket->write(get_file_path(), std::forward<RefCountBytes*>(data));
 }
 void BrokerConfig::add_item(const string_& name, Var&& value,
                             VarValidator&& validator) {

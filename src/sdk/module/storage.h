@@ -23,13 +23,13 @@ enum class BucketReadStatus : uint8_t {
 /// key->binary storage
 class QueueBucket {
  public:
-  typedef std::function<void(const wstring_& key, std::vector<uint8_t> data,
+  typedef std::function<void(const string_& key, std::vector<uint8_t> data,
                              bool key_finished)>
       ReadCallback;
 
-  virtual void push_back(const wstring_& key, BytesRef&& data) = 0;
+  virtual void push_back(const string_& key, BytesRef&& data) = 0;
   // when count = 0, remove all elements in the queue
-  virtual void remove_front(const wstring_& key, size_t count) = 0;
+  virtual void remove_front(const string_& key, size_t count) = 0;
 
   virtual void read_all(ReadCallback&& callback,
                         std::function<void()>&& on_done) = 0;
@@ -40,14 +40,16 @@ class QueueBucket {
 /// key->binary storage
 class StorageBucket {
  public:
-  typedef std::function<void(const wstring_& key, std::vector<uint8_t> data, BucketReadStatus read_status)>
+  typedef std::function<void(const string_& key, std::vector<uint8_t> data,
+                             BucketReadStatus read_status)>
       ReadCallback;
-  virtual bool exists (const wstring_ &key) = 0;
-  virtual void write(const wstring_& key, BytesRef&& data,
+  virtual bool is_empty() = 0;
+  virtual bool exists(const string_& key) = 0;
+  virtual void write(const string_& key, BytesRef&& data,
                      bool is_binary = false) = 0;
-  virtual void read(const wstring_& key, ReadCallback&& callback,
+  virtual void read(const string_& key, ReadCallback&& callback,
                     bool is_binary = false) = 0;
-  virtual void remove(const wstring_& key) = 0;
+  virtual void remove(const string_& key) = 0;
 
   /// the callback might run asynchronously
   virtual void read_all(ReadCallback&& callback,
@@ -60,12 +62,12 @@ class StorageBucket {
 class Storage : public DestroyableRef<Storage> {
  public:
   /// create a bucket or find a existing bucket
-  virtual std::unique_ptr<StorageBucket> get_bucket(const wstring_& name) = 0;
+  virtual std::unique_ptr<StorageBucket> get_bucket(const string_& name) = 0;
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket
   virtual std::unique_ptr<QueueBucket> get_queue_bucket(
-      const wstring_& name) = 0;
+      const string_& name) = 0;
 
   virtual ~Storage() = default;
 };
