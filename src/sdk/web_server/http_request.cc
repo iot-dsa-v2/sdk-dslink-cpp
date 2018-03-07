@@ -58,19 +58,17 @@ std::string path_cat(boost::beast::string_view base,
   return result;
 }
 
-std::map<std::string, std::string> parse(const std::string &query,
-                                         const std::string separator) {
-  std::map<std::string, std::string> data;
+std::unordered_map<std::string, std::string> parse(const std::string &query,
+                                         const std::string &separator) {
+  std::unordered_map<std::string, std::string> data;
   std::regex pattern("([\\w+%]+)=([^" + separator + "]*)");
   auto words_begin = std::sregex_iterator(query.begin(), query.end(), pattern);
   auto words_end = std::sregex_iterator();
-
   for (std::sregex_iterator i = words_begin; i != words_end; i++) {
     std::string key = (*i)[1].str();
     std::string value = (*i)[2].str();
     data[key] = value;
   }
-
   return data;
 }
 }
