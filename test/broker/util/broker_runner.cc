@@ -11,12 +11,11 @@
 #include "network/tcp/stcp_client_connection.h"
 #include "network/tcp/tcp_client_connection.h"
 #include "network/ws/ws_client_connection.h"
-#include "network/ws/wss_client_connection.h"
 
 namespace dsa {
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {
-  const char* empty_argv[1];
-  ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(0, empty_argv);
+  const char* empty_argv[1] = {"broker"};
+  ref_<BrokerConfig> broker_config = make_ref_<BrokerConfig>(1, empty_argv);
   broker_config->port().set_value(Var(0));
 
   auto broker = make_ref_<DsBroker>(std::move(broker_config),
@@ -71,17 +70,11 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
         dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
         ws_port = client_strand.ws_port
       ](LinkStrandRef & strand) {
-        return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                                ws_port);
+        return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
+                                                ws_host, ws_port);
       };
-
       break;
     case dsa::ProtocolType::PROT_WSS:
-      context.load_verify_file("certificate.pem", error);
-      if (error) {
-        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
-      }
-
       client_strand.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
       client_strand.ws_port = 8443;
@@ -91,11 +84,8 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
         dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
         ws_port = client_strand.ws_port
       ](LinkStrandRef & strand) {
-        static tcp::socket tcp_socket(strand->get_io_context());
-        static websocket_ssl_stream stream(tcp_socket, context);
-
-        return make_shared_<WssClientConnection>(stream, strand, dsid_prefix,
-                                                 ws_host, ws_port);
+        return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
+                                                ws_host, ws_port);
       };
       break;
     case dsa::ProtocolType::PROT_DS:

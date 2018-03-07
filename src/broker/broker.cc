@@ -2,10 +2,11 @@
 
 #include "broker.h"
 
-#include <util/string.h>
 #include <module/module_with_loader.h>
+#include <util/string.h>
 #include "config/broker_config.h"
 #include "module/broker_authorizer.h"
+#include "module/broker_client_manager.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"
@@ -18,7 +19,6 @@
 #include "util/app.h"
 #include "util/string.h"
 #include "web_server/web_server.h"
-#include "module/broker_client_manager.h"
 
 #include "module/module_broker_default.h"
 
@@ -59,7 +59,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   if (default_module == nullptr)
     default_module = make_ref_<ModuleBrokerDefault>();
 
-  modules = make_ref_<ModuleWithLoader>("./modules", std::move(default_module));
+  modules = make_ref_<ModuleWithLoader>(_config->get_exe_path() / "modules", std::move(default_module));
   modules->init_all(*_app, strand);
 
   // init logger
@@ -117,11 +117,11 @@ void DsBroker::run(bool wait) {
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
     *root_cb = [this](
-        WebServer &_web_server, Websocket& websocket,
+        WebServer& _web_server, std::unique_ptr<Websocket> websocket,
         boost::beast::http::request<boost::beast::http::string_body> req) {
       LinkStrandRef link_strand(strand);
       DsaWsCallback dsa_ws_callback(link_strand);
-      return dsa_ws_callback(_web_server.io_service(), websocket,
+      return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
                              std::move(req));
     };
 

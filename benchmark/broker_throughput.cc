@@ -17,7 +17,6 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
-#include "network/ws/wss_client_connection.h"
 #include "util/date_time.h"
 
 using high_resolution_clock = std::chrono::high_resolution_clock;
@@ -88,33 +87,21 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
     ](LinkStrandRef & strand)->shared_ptr_<Connection> {
-      return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                              ws_port);
+      return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
+                                              ws_host, ws_port);
     };
   } else if (!protocol.compare("wss")) {
     client_strand.ws_host = "127.0.0.1";
     client_strand.ws_port = 8443;
     client_strand.ws_path = "/";
 
-    static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
-    boost::system::error_code error;
-    context.load_verify_file("certificate.pem", error);
-
-    if (error) {
-      LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
-    }
-
     client_strand.client_connection_maker = [
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
     ](LinkStrandRef & strand) {
-      static tcp::socket tcp_socket{strand->get_io_context()};
-      static websocket_ssl_stream wss_stream{tcp_socket, context};
-
-      return make_shared_<WssClientConnection>(wss_stream, strand, dsid_prefix,
-                                               ws_host, ws_port);
+      return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
+                                              ws_host, ws_port);
     };
-
   } else {
     client_strand.client_connection_maker = [
       dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
@@ -172,7 +159,7 @@ int main(int argc, const char* argv[]) {
     message_receive_count.emplace_back(0);
 
     WrapperStrand strand = get_client_wrapper_strand(
-        app, "benchmark" + std::to_string(i), protocol);
+        app, "Benchmark" + std::to_string(i), protocol);
     auto client = make_shared_<Client>(strand);
     auto root_node = make_ref_<BenchmarkNodeRoot>(strand.strand, point_count);
     root_nodes.emplace_back(root_node);
@@ -186,7 +173,7 @@ int main(int argc, const char* argv[]) {
       SubscribeOptions options;
       options.qos = QosLevel::_1;
       for (int a = 0; a < client_count; ++a) {
-        string_ node_path = "downstream/benchmark" + std::to_string(a);
+        string_ node_path = "Downstream/Benchmark" + std::to_string(a);
         for (int b = 0; b < point_count; ++b) {
           string_ point_path = node_path + "/v" + std::to_string(b);
           client->get_session().requester.subscribe(

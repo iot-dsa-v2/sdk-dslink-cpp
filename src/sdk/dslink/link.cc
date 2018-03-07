@@ -21,7 +21,6 @@
 #include "network/tcp/tcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_client_connection.h"
-#include "network/ws/wss_client_connection.h"
 #include "node/link_root.h"
 #include "responder/profile/pub_root.h"
 #include "stream/requester/incoming_invoke_stream.h"
@@ -59,7 +58,12 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
 
   config_bucket =
       std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
-
+  try {
+    _exe_path = boost::filesystem::canonical(
+        boost::filesystem::system_complete(argv[0]).parent_path());
+  } catch (const boost::filesystem::filesystem_error &ex) {
+    LOG_FATAL(__FILENAME__, "link executable path is wrong!");
+  }
   opts::variables_map variables;
   try {
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -122,7 +126,15 @@ void DsLink::init_module(ref_<Module> &&default_module,
   if (default_module == nullptr)
     default_module = make_ref_<ModuleDslinkDefault>();
 
-  modules = make_ref_<ModuleWithLoader>(module_path, std::move(default_module));
+  string_ final_module_path;
+  if (module_path.empty() || !fs::is_directory(module_path)) {
+    final_module_path = (_exe_path / "modules").string();
+  } else {
+    final_module_path = module_path;
+  }
+
+  modules =
+      make_ref_<ModuleWithLoader>(final_module_path, std::move(default_module));
   modules->init_all(*_app, strand);
 
   strand->set_client_manager(modules->get_client_manager());
@@ -311,33 +323,12 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
         };
       }
     } else if (ws_port > 0) {
-      if (secure) {
-        static boost::asio::ssl::context context(
-            boost::asio::ssl::context::sslv23);
-        boost::system::error_code error;
-        context.load_verify_file("certificate.pem", error);
-
-        if (error) {
-          LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
-        }
-
-        client_connection_maker =
-            [ dsid_prefix = dsid_prefix, ws_host = ws_host,
-              ws_port = ws_port ](LinkStrandRef & strand) {
-          static tcp::socket tcp_socket{strand->get_io_context()};
-          static websocket_ssl_stream wss_stream{tcp_socket, context};
-
-          return make_shared_<WssClientConnection>(
-              wss_stream, strand, dsid_prefix, ws_host, ws_port);
-        };
-      } else {
-        client_connection_maker =
-            [ dsid_prefix = dsid_prefix, ws_host = ws_host,
-              ws_port = ws_port ](LinkStrandRef & strand) {
-          return make_shared_<WsClientConnection>(strand, dsid_prefix, ws_host,
-                                                  ws_port);
-        };
-      }
+      client_connection_maker = [
+        dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port, this
+      ](LinkStrandRef & strand) {
+        return make_shared_<WsClientConnection>(secure, strand, dsid_prefix,
+                                                ws_host, ws_port);
+      };
     }
 
     _client = make_ref_<Client>(*this);
@@ -399,10 +390,12 @@ ref_<IncomingListCache> DsLink::list(const string_ &path,
     if (main_cache.get_map().count("$is") > 0 && !pub_path.empty()) {
       auto is_str = main_cache.get_map().at("$is").to_string();
       list_raw(pub_path + "/" + is_str,
-               [&, callback = std::move(callback) ](
-                   IncomingListCache & cache, const std::vector<string_> &str) {
-                 main_cache.set_profile_map(cache.get_map());
-                 callback(main_cache, main_str);
+               [
+                     &, main_cache = main_cache.get_ref(),
+                     callback = std::move(callback)
+               ](IncomingListCache & cache, const std::vector<string_> &str) {
+                 main_cache->set_profile_map(cache.get_map());
+                 callback(*main_cache, main_str);
                });
     } else {
       callback(main_cache, main_str);

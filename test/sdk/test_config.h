@@ -5,6 +5,8 @@
 #include "dslink.h"
 #include "web_server/web_server.h"
 
+#include "network/ws/ws_connection.h"
+
 #include <gtest/gtest.h>
 #include <string>
 
@@ -24,6 +26,11 @@ class TestConfig : public WrapperStrand {
  private:
   std::shared_ptr<App> app;
   dsa::ProtocolType protocol;
+
+  //  shared_ptr_<tcp::socket> _tcp_socket;
+  shared_ptr_<boost::asio::ssl::context> _ssl_context;
+  //  shared_ptr_<websocket_ssl_stream> _wss_stream;
+  websocket_ssl_stream* _wss_stream;
 
  public:
   explicit TestConfig(std::shared_ptr<App>& app, bool async = false,

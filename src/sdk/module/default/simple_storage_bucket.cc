@@ -149,8 +149,9 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
           }
         }
       } else {
-        LOG_FINE(__FILENAME__, LOG << "there is no file to read " << key);
-        status = BucketReadStatus::NO_FILE;
+        LOG_FINE(__FILENAME__,
+                 LOG << "there is no file to read " << key);
+        status = BucketReadStatus::NOT_EXIST;
       }
     } catch (const fs::filesystem_error& ex) {
       LOG_ERROR(__FILENAME__, LOG << "Read failed for " << key << " file");

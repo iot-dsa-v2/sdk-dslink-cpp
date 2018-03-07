@@ -8,10 +8,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include <boost/filesystem.hpp>
 #include "broker_config_item.h"
-#include "util/enable_ref.h"
 #include "module/default/simple_storage.h"
-
+#include "util/enable_ref.h"
 namespace dsa {
 class BrokerConfig : public EnableRef<BrokerConfig> {
   string_ _file_path;
@@ -20,6 +20,7 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
   std::unordered_map<string_, BrokerConfigItem> _items;
   // keep an order of the items so they are saved in a nice order
   std::vector<string_> _names;
+  boost::filesystem::path _exe_path;
 
   // init all the config properties
   void init();
@@ -40,10 +41,8 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
   BrokerConfigItem& https_port() { return _items["https-port"]; }
   BrokerConfigItem& log_level() { return _items["log-level"]; }
 
-  SimpleSafeStorageBucket &get_config_bucket() {
-    return *config_bucket;
-  };
-
+  SimpleSafeStorageBucket& get_config_bucket() { return *config_bucket; };
+  const boost::filesystem::path& get_exe_path() { return _exe_path; };
 };
 }
 

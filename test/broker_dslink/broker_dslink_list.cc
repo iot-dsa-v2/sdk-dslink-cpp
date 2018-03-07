@@ -8,6 +8,7 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
   string_to_storage(close_token, default_close_token_path, storage_bucket);
 
+
   typedef std::vector<std::vector<string_>> ListResponses;
 
   auto app = make_shared_<App>();
@@ -26,7 +27,7 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
 
   EXPECT_TRUE(port != 0);
 
-  auto link = broker_dslink_test::create_mock_dslink(app, port, "test1", false,
+  auto link = broker_dslink_test::create_mock_dslink(app, port, "Test1", false,
                                                      protocol());
 
   bool is_connected = false;
@@ -41,41 +42,41 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
     link_req->list(
         "", [&](IncomingListCache &cache, const std::vector<string_> &str) {
           VarMap map = cache.get_map();
-          EXPECT_TRUE(map["downstream"].is_map());
-          EXPECT_TRUE(map["home"].is_map());
-          EXPECT_TRUE(map["pub"].is_map());
-          EXPECT_TRUE(map["sys"].is_map());
-          EXPECT_TRUE(map["upstream"].is_map());
+          EXPECT_TRUE(map["Downstream"].is_map());
+          EXPECT_TRUE(map["Home"].is_map());
+          EXPECT_TRUE(map["Pub"].is_map());
+          EXPECT_TRUE(map["Sys"].is_map());
+          EXPECT_TRUE(map["Upstream"].is_map());
           listed_1 = true;
           cache.close();
         });
 
     // list on child node
-    link_req->list("downstream", [&](IncomingListCache &cache,
-                                     const std::vector<string_> &str) {
+    link_req->list("Downstream", [&](IncomingListCache &cache,
+                                    const std::vector<string_> &str) {
       VarMap downstream_map = cache.get_map();
-      EXPECT_TRUE(downstream_map["test1"].is_map());
+      EXPECT_TRUE(downstream_map["Test1"].is_map());
       listed_2 = true;
       cache.close();
     });
 
     // list on sys
     link_req->list(
-        "sys", [&](IncomingListCache &cache, const std::vector<string_> &str) {
+        "Sys", [&](IncomingListCache &cache, const std::vector<string_> &str) {
           VarMap sys_map = cache.get_map();
-          EXPECT_TRUE(sys_map["stop"].is_map());
+          EXPECT_TRUE(sys_map["Stop"].is_map());
           listed_3 = true;
           cache.close();
         });
 
     // list on self
-    link_req->list("downstream/test1", [&](IncomingListCache &cache,
-                                           const std::vector<string_> &str) {
+    link_req->list("Downstream/Test1", [&](IncomingListCache &cache,
+                                          const std::vector<string_> &str) {
       VarMap self_map = cache.get_map();
       EXPECT_TRUE(self_map["$$dsid"].is_string());
-      EXPECT_TRUE(self_map["main"].is_map());
-      EXPECT_TRUE(self_map["pub"].is_map());
-      EXPECT_TRUE(self_map["sys"].is_map());
+      EXPECT_TRUE(self_map["Main"].is_map());
+      EXPECT_TRUE(self_map["Pub"].is_map());
+      EXPECT_TRUE(self_map["Sys"].is_map());
       listed_4 = true;
       cache.close();
     });
@@ -117,21 +118,21 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
 
   bool link1_listed = false, link1_connected = false, test_end = false;
-  link_1->connect([&](const shared_ptr_<Connection> connection,
-                      ref_<DsLinkRequester> link_req) {
-    link1_connected = true;
-    // when list on downstream/test1 it should have a metadata for test1's
-    // dsid
-    link_req->list("downstream/test1", [&](IncomingListCache &cache,
-                                           const std::vector<string_> &str) {
-      auto map = cache.get_map();
-      // std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
-      //              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
+  link_1->connect(
+      [&](const shared_ptr_<Connection> connection, ref_<DsLinkRequester> link_req) {
+        link1_connected = true;
+        // when list on downstream/test1 it should have a metadata for test1's
+        // dsid
+        link_req->list("Downstream/Test1", [&](IncomingListCache &cache,
+                                              const std::vector<string_> &str) {
+          auto map = cache.get_map();
+          // std::cout<<"dsid : "<< map["$$dsid"].get_string()<<std::endl;
+          //              EXPECT_EQ(map["$$dsid"].to_string(), link_1->dsid());
 
       link_1->strand->post([link_1]() { link_1->destroy(); });
       link1_listed = true;
@@ -143,29 +144,23 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
     // downstream should has test1 and test2 nodes
-    link_req->list(
-        "downstream",
-        [
-              &,
-              link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())
-        ](IncomingListCache & cache, const std::vector<string_> &str) {
-          auto map = cache.get_map();
-          EXPECT_TRUE(map["test1"].is_map());
-          EXPECT_TRUE(map["test2"].is_map());
+    link_req->list("Downstream", [&, link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())]
+	(IncomingListCache &cache, const std::vector<string_> &str) {
+      auto map = cache.get_map();
+      EXPECT_TRUE(map["Test1"].is_map());
+      EXPECT_TRUE(map["Test2"].is_map());
 
-          // after client1 disconnected, list update should show it's
-          // disconnected
-          link_req->list(
-              "downstream/test1",
-              [&](IncomingListCache &cache, const std::vector<string_> &str) {
-                EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
-                // end the test
+      // after client1 disconnected, list update should show it's disconnected
+      link_req->list("Downstream/test1", [&](IncomingListCache &cache,
+                                            const std::vector<string_> &str) {
+        EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
+        // end the test
 
-                link_2->strand->post([link_2]() { link_2->destroy(); });
-                broker->strand->post([broker]() { broker->destroy(); });
-                test_end = true;
-              });
-        });
+        link_2->strand->post([link_2]() { link_2->destroy(); });
+        broker->strand->post([broker]() { broker->destroy(); });
+        test_end = true;
+      });
+    });
   });
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return test_end; });

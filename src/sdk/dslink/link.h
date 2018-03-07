@@ -11,8 +11,9 @@
 #include "list_merger.h"
 #include "module/default/simple_storage.h"
 #include "module/module.h"
+#include "network/ws/ws_connection.h"
 #include "subscribe_merger.h"
-
+#include <boost/filesystem.hpp>
 namespace dsa {
 class App;
 class TcpServer;
@@ -73,10 +74,12 @@ class DsLink final : public DsLinkRequester {
   uint8_t log_level_from_settings;
   ref_<Module> modules;
   string_ close_token;
+  boost::filesystem::path _exe_path;
 
   bool _running = false;
   bool _connected = false;
   std::unique_ptr<SimpleSafeStorageBucket> config_bucket;
+
   // initialization
   void parse_thread(size_t thread);
   void parse_url(const string_ &url);

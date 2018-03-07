@@ -28,7 +28,7 @@ class MockNodeRoot : public NodeModel {
   static Var last_request;
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
     add_list_child(
-        "action", make_ref_<SimpleInvokeNode>(_strand->get_ref(), [&](Var&& v) {
+        "Action", make_ref_<SimpleInvokeNode>(_strand->get_ref(), [&](Var&& v) {
           last_request = std::move(v);
           return Var();
         }));
@@ -52,14 +52,14 @@ TEST_F(BrokerPageTest, InvokeRequest) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand =
-      get_client_wrapper_strand(broker, "test", protocol());
+      get_client_wrapper_strand(broker, "Test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
-    invoke_req->set_target_path("downstream/test/action");
+    invoke_req->set_target_path("Downstream/Test/Action");
     invoke_req->set_value(Var(big_str1));
 
     tcp_client->get_session().requester.invoke(

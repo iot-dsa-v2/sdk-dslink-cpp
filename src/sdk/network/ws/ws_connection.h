@@ -6,16 +6,24 @@
 #endif
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/stream.hpp>
 #include <boost/beast/websocket.hpp>
+#include <boost/beast/websocket/ssl.hpp>
 
+#include "../../web_server/websocket.h"
 #include "../base_socket_connection.h"
 #include "util/enable_shared.h"
+
+using tcp = boost::asio::ip::tcp;
+namespace ssl = boost::asio::ssl;
 
 namespace dsa {
 
 typedef boost::asio::ip::tcp::socket tcp_socket;
 typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket>
     websocket_stream;
+typedef boost::beast::websocket::stream<ssl::stream<tcp_socket &>>
+    websocket_ssl_stream;
 
 class WsConnection : public BaseSocketConnection {
   class WriteBuffer : public ConnectionWriteBuffer {
@@ -34,19 +42,18 @@ class WsConnection : public BaseSocketConnection {
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
     start_read(std::move(sthis));
   }
-  websocket_stream _socket;
 
   void destroy_impl() override;
 
  public:
-  WsConnection(websocket_stream &ws, LinkStrandRef &strand,
-               const string_ &dsid_prefix, const string_ &path = "");
+  WsConnection(LinkStrandRef &strand, const string_ &dsid_prefix,
+               const string_ &path = "");
+
+  virtual Websocket &ws_stream() = 0;
 
   void start_read(shared_ptr_<Connection> &&connection) final;
 
   std::unique_ptr<ConnectionWriteBuffer> get_write_buffer() override;
-
-  websocket_stream &socket();
 };
 
 }  // namespace dsa

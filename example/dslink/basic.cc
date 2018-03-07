@@ -23,8 +23,8 @@ class ExampleNodeRoot : public NodeModel {
  public:
   explicit ExampleNodeRoot(LinkStrandRef strand)
       : NodeModel(std::move(strand)) {
-    add_list_child("child_a", new ExampleNodeChild(_strand));
-    add_list_child("child_b", new ExampleNodeChild(_strand));
+    add_list_child("Child_a", new ExampleNodeChild(_strand));
+    add_list_child("Child_b", new ExampleNodeChild(_strand));
   };
 };
 
@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
     cout << endl << "connected to broker";
 
     // subscribe
-    link_req->subscribe("main/child_a",
+    link_req->subscribe("Main/Child_a",
                     [](IncomingSubscribeCache&,
                        ref_<const SubscribeResponseMessage>& message) {
                       cout << endl
