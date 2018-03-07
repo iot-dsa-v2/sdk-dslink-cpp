@@ -15,8 +15,11 @@ class BrokerClientsRoot : public NodeModel {
   friend class BrokerClientManager;
   std::unique_ptr<StorageBucket> _storage;
 
+  ref_<BrokerClientManager> _manager;
+
  public:
-  explicit BrokerClientsRoot(LinkStrandRef&& strand);
+  explicit BrokerClientsRoot(LinkStrandRef&& strand,
+                             ref_<BrokerClientManager>&& manager);
 
  protected:
   void initialize() override;

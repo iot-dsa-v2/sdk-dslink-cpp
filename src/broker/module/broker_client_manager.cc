@@ -15,10 +15,14 @@ BrokerClientManager::~BrokerClientManager() = default;
 ref_<NodeModel> BrokerClientManager::get_clients_node() { return _clients; }
 
 void BrokerClientManager::rebuild_path2id() {
+  if (is_destroyed()) return;
+
   _path2id.clear();
   for (auto& it : _clients->get_list_children()) {
     auto* link_node = dynamic_cast<BrokerClientNode*>(it.second.get());
     if (link_node != nullptr) {
+      if (!link_node->get_client_info().id.empty())
+        _path2id[link_node->get_client_info().id] = it.first;
     }
   }
 }
@@ -27,7 +31,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                                        BrokerPubRoot& pub_root) {
   // TODO register action for pub root
 
-  _clients.reset(new BrokerClientsRoot(_strand->get_ref()));
+  _clients.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
   _quarantine.reset(new NodeModel(_strand->get_ref()));
 
   _quarantine->add_list_child(

@@ -26,7 +26,6 @@ class BrokerClientManager : public ClientManager {
   ref_<NodeModel> _quarantine;
 
   std::unordered_map<string_, string_> _path2id;
-  void rebuild_path2id();
 
   bool _allow_all_links = true;
   bool _quarantine_enabled = false;
@@ -41,6 +40,8 @@ class BrokerClientManager : public ClientManager {
  public:
   explicit BrokerClientManager(LinkStrandRef& strand);
   ~BrokerClientManager() override;
+
+  void rebuild_path2id();
 
   void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
   ref_<NodeModel> get_clients_node();
