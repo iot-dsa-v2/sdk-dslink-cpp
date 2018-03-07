@@ -22,7 +22,7 @@ class BrokerClientManager : public ClientManager {
  protected:
   LinkStrandRef _strand;
 
-  ref_<NodeModel> _clients;
+  ref_<BrokerClientsRoot> _clients;
   ref_<NodeModel> _quarantine;
 
   std::unordered_map<string_, string_> _path2id;
@@ -34,15 +34,16 @@ class BrokerClientManager : public ClientManager {
   void set_allow_all_links(bool value);
   void set_quarantine_enabled(bool value);
 
-  string_ create_downstream_path(const string_ & dsid);
+  string_ create_downstream_path(const string_& dsid);
 
   void destroy_impl() override;
 
  public:
-  explicit BrokerClientManager(LinkStrandRef& strand) : _strand(strand){};
+  explicit BrokerClientManager(LinkStrandRef& strand);
+  ~BrokerClientManager() override;
 
   void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
-  ref_<NodeModel>& get_known_links_node() { return _clients; }
+  ref_<NodeModel> get_clients_node();
   ref_<NodeModel>& get_quarantine_node() { return _quarantine; };
   void get_client(const string_& dsid, const string_& auth_token,
                   bool is_responder,

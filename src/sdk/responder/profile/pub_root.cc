@@ -19,6 +19,10 @@ PubRoot::PubRoot(LinkStrandRef &&strand, const string_ &profile)
 }
 PubRoot::~PubRoot() = default;
 
+void PubRoot::destroy_impl() {
+  _standard_profiles.clear();
+  NodeModel::destroy_impl();
+}
 static void load_profile_model(NodeModel *node, VarMap &map) {
   node->load(map);
   for (auto &it : map) {

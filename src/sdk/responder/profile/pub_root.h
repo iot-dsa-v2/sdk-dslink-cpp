@@ -18,6 +18,8 @@ class PubRoot : public NodeModel {
   void initialize() override;
   void add_standard_node(const string_& path, ref_<NodeModel> model);
 
+  void destroy_impl() override;
+
  public:
   PubRoot(LinkStrandRef&& strand, const string_& profile);
   ~PubRoot() override;

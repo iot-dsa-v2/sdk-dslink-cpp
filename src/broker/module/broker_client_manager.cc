@@ -9,6 +9,11 @@
 
 namespace dsa {
 
+BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
+    : _strand(strand) {}
+BrokerClientManager::~BrokerClientManager() = default;
+ref_<NodeModel> BrokerClientManager::get_clients_node() { return _clients; }
+
 void BrokerClientManager::rebuild_path2id() {
   _path2id.clear();
   for (auto& it : _clients->get_list_children()) {
@@ -94,6 +99,7 @@ void BrokerClientManager::get_client(const string_& dsid,
         child->get_client_info() = std::move(info);
 
         _clients->add_list_child(dsid, ref_<NodeModelBase>(child));
+        child->save(*_clients->_storage, dsid, false, true);
 
         callback(child->get_client_info(), false);
       } else if (_quarantine_enabled) {
