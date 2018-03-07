@@ -14,11 +14,12 @@
 
 namespace dsa {
 
+static constexpr char storage_default[] = "storage";
 class SimpleQueueBucket : public QueueBucket {
  public:
-  void push_back(const std::string& key, BytesRef&& data) override;
+  void push_back(const string_& key, BytesRef&& data) override;
   // when count = 0, remove all elements in the queue
-  void remove_front(const std::string& key, size_t count) override;
+  void remove_front(const string_& key, size_t count) override;
 
   void read_all(ReadCallback&& callback,
                 std::function<void()>&& on_done) override;
@@ -28,10 +29,10 @@ class SimpleQueueBucket : public QueueBucket {
 
 class SimpleStorageBucket : public StorageBucket {
  private:
-  typedef std::map<std::string, boost::asio::io_service::strand*> StrandMap;
+  typedef std::map<string_, boost::asio::io_service::strand*> StrandMap;
 
  protected:
-  typedef std::pair<std::string, boost::asio::io_service::strand*> StrandPair;
+  typedef std::pair<string_, boost::asio::io_service::strand*> StrandPair;
   StrandMap strand_map;
   boost::asio::io_service* _io_service;
 
@@ -40,19 +41,25 @@ class SimpleStorageBucket : public StorageBucket {
   string_ _storage_root;
   string_ _bucket_name;
   string_ _full_base_path;
+#if defined(_WIN32) || defined(_WIN64)
+  std::wstring get_storage_path(const string_& key = "");
+#else
   string_ get_storage_path(const string_& key = "");
+#endif
 
  public:
   SimpleStorageBucket(const string_& bucket_name,
                       boost::asio::io_service* io_service = nullptr,
-                      const string_& storage_root = "storage",
-                      const string_& cwd = "" );
-  bool exists (const string_ &key) override;
-  void write(const std::string& key, BytesRef&& data,
+                      const string_& storage_root = storage_default,
+                      const string_& cwd = "");
+
+  bool is_empty() override;
+  bool exists(const string_& key) override;
+  void write(const string_& key, BytesRef&& data,
              bool is_binary = false) override;
-  void read(const std::string& key, ReadCallback&& callback,
+  void read(const string_& key, ReadCallback&& callback,
             bool is_binary = false) override;
-  void remove(const std::string& key) override;
+  void remove(const string_& key) override;
 
   /// the callback might run asynchronously
   void read_all(ReadCallback&& callback,
@@ -65,11 +72,11 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
  public:
   SimpleSafeStorageBucket(const string_& bucket_name,
                           boost::asio::io_service* io_service = nullptr,
-                          const string_& storage_root = "storage",
-                          const string_& cwd = "" )
+                          const string_& storage_root = storage_default,
+                          const string_& cwd = "")
       : SimpleStorageBucket(bucket_name, io_service, storage_root, cwd) {}
 
-  void write(const std::string& key, BytesRef&& data,
+  void write(const string_& key, BytesRef&& data,
              bool is_binary = false) override;
   static SimpleSafeStorageBucket& get_config_bucket();
 };
@@ -82,11 +89,10 @@ class SimpleStorage : public Storage {
   SimpleStorage(boost::asio::io_service* io_service = nullptr)
       : _io_service(io_service) {}
 
-  std::unique_ptr<StorageBucket> get_bucket(const std::string& name) override;
+  std::unique_ptr<StorageBucket> get_bucket(const string_& name) override;
 
   /// create a bucket or find a existing bucket
-  std::unique_ptr<QueueBucket> get_queue_bucket(
-      const std::string& name) override;
+  std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) override;
 
   void set_io_service(boost::asio::io_service* io_service) {
     _io_service = io_service;

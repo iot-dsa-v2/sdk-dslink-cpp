@@ -1,5 +1,13 @@
 #include "dsa_common.h"
+#include "module/logger.h"
 #include "string_encode.h"
+#include <iostream>
+#include <string>
+#include <locale>
+#include <codecvt>
+#include <iomanip>
+#include <vector>
+
 namespace dsa {
 
 static char HEX2DEC[256] =
@@ -55,6 +63,41 @@ static char SAFE[256] =
         /* F */ 2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2
     };
 
+#if defined(_WIN32) || defined(_WIN64)
+std::wstring string_to_wstring(const string_ &s) {
+  std::wstring temp(s.length(), L' ');
+  std::copy(s.begin(), s.end(), temp.begin());
+  return temp;
+}
+string_ url_encode(const string_ &input, StringEncodeLevel level) {
+  auto u16str =
+      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+          .from_bytes(input);
+
+  std::wstring output;
+  for (int i = 0; i < u16str.size(); i++) {
+    if ((u16str[i] < 0x80 && SAFE[u16str[i]] >= static_cast<char>(level)) ||
+        (u16str[i] >= 0x80 && SAFE[0xFF] >= static_cast<char>(level))) {
+      output.append(1, (static_cast<wchar_t>(u16str[i])));
+    } else {
+      std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
+      std::string u8str = conv1.to_bytes(u16str.substr(i, 1).c_str());
+      if (u8str.size() > 0) {
+        for (auto &u8_char : u8str) {
+          char onehex[5];
+          snprintf(onehex, sizeof(onehex), "%%%2.2X", (unsigned char)u8_char);
+          output.append(string_to_wstring(onehex));
+        }
+      } else {
+        LOG_FATAL(__FILENAME__, LOG << "String encoding failed!");
+      }
+    }
+  }
+  std::wstring_convert<std::codecvt_utf8<wchar_t>> conv1;
+  std::string u8str = conv1.to_bytes(output);
+  return u8str;
+}
+#else
 std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   if (s_src.empty()) return "";
   const unsigned char dec_to_hex[16 + 1] = "0123456789ABCDEF";
@@ -67,8 +110,7 @@ std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   for (; p_src < src_end; ++p_src) {
     if (SAFE[*p_src] >= static_cast<char>(level))
       *p_end++ = *p_src;
-    else
-    {
+    else {
       // escape this char
       *p_end++ = '%';
       *p_end++ = dec_to_hex[*p_src >> 4];
@@ -80,38 +122,32 @@ std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   delete[] p_start;
   return s_result;
 }
+#endif
 string_ url_encode_file_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
 }
 string_ url_encode_node_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
 }
-bool is_invalid_character(const char& c) {
-  return SAFE[c] > 0;
-}
-std::string url_decode(const std::string & s_src)
-{
+std::string url_decode(const std::string &s_src) {
   // Note from RFC1630: "Sequences which start with a percent
   // sign but are not followed by two hexadecimal characters
   // (0-9, A-F) are reserved for future extension"
 
-  const unsigned char * p_src = (const unsigned char *)s_src.c_str();
+  const unsigned char *p_src = (const unsigned char *)s_src.c_str();
   const int src_len = s_src.length();
-  const unsigned char * const src_end = p_src + src_len;
+  const unsigned char *const src_end = p_src + src_len;
   // last decodable '%'
-  const unsigned char * const SRC_LAST_DEC = src_end - 2;
+  const unsigned char *const SRC_LAST_DEC = src_end - 2;
 
-  char * const p_start = new char[src_len];
-  char * p_end = p_start;
+  char *const p_start = new char[src_len];
+  char *p_end = p_start;
 
-  while (p_src < SRC_LAST_DEC)
-  {
-    if (*p_src == '%')
-    {
+  while (p_src < SRC_LAST_DEC) {
+    if (*p_src == '%') {
       char dec1, dec2;
-      if (-1 != (dec1 = HEX2DEC[*(p_src + 1)])
-          && -1 != (dec2 = HEX2DEC[*(p_src + 2)]))
-      {
+      if (-1 != (dec1 = HEX2DEC[*(p_src + 1)]) &&
+          -1 != (dec2 = HEX2DEC[*(p_src + 2)])) {
         *p_end++ = (dec1 << 4) + dec2;
         p_src += 3;
         continue;
@@ -122,12 +158,11 @@ std::string url_decode(const std::string & s_src)
   }
 
   // the last 2- chars
-  while (p_src < src_end)
-    *p_end++ = *p_src++;
+  while (p_src < src_end) *p_end++ = *p_src++;
 
   std::string sResult(p_start, p_end);
-  delete [] p_start;
+  delete[] p_start;
   return sResult;
 }
-
+bool is_invalid_character(const char &c) { return SAFE[c] > 0; }
 }

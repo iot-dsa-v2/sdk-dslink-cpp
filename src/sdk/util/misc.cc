@@ -1,21 +1,16 @@
 #include "dsa_common.h"
 #include "misc.h"
-#if (defined(_WIN32) || defined(_WIN64))
-#include <direct.h>
-#define GET_CURRENT_DIR _getcwd
-#else
-#include <unistd.h>
-#define GET_CURRENT_DIR getcwd
-#endif
+#include <boost/filesystem.hpp>
+#include <codecvt>
+#include <iomanip>
 #include <iostream>
-//#include <boost/filesystem.hpp>
+#include <locale>
+#include <string>
+#include <vector>
 
 namespace dsa {
 string_ get_current_working_dir() {
-  char buff[FILENAME_MAX];
-  GET_CURRENT_DIR(buff, FILENAME_MAX);
-  std::string current_working_dir(buff);
-  return current_working_dir;
-//  return boost::filesystem::current_path().string();
+  return std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(
+      boost::filesystem::current_path().wstring());
 }
-}
+}  // namespace dsa
