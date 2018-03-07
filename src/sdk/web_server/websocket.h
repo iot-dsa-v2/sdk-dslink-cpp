@@ -46,10 +46,9 @@ class Websocket {
     if (_is_websocket) return;
 
     if (_is_secure_stream) {
-      // TODO - https
-      // http::absync_write(_socket, std::forward<Args>(args)...);
+      http::async_write(_wss_stream->next_layer(), std::forward<Args>(args)...);
     } else {
-      http::async_write(_socket, std::forward<Args>(args)...);
+      http::async_write(_ws_stream->next_layer(), std::forward<Args>(args)...);
     }
   }
 
@@ -58,10 +57,9 @@ class Websocket {
     if (_is_websocket) return;
 
     if (_is_secure_stream) {
-      // TODO - https
-      // _socket.shutdown(std::forward<Args>(args)...);
+      _wss_stream->lowest_layer().shutdown(std::forward<Args>(args)...);
     } else {
-      _socket.shutdown(std::forward<Args>(args)...);
+      _ws_stream->lowest_layer().shutdown(std::forward<Args>(args)...);
     }
   }
 };
