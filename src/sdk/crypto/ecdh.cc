@@ -9,6 +9,7 @@
 #include "hash.h"
 #include "misc.h"
 #include "module/logger.h"
+#include "util/string_encode.h"
 
 namespace fs = boost::filesystem;
 
@@ -25,7 +26,7 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
   std::vector<uint8_t> data;
   BucketReadStatus ret;
   bool callback_called = false;
-  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec,
+  auto read_callback = [&](string_ storage_key, std::vector<uint8_t> vec,
                            BucketReadStatus read_status) {
     data = vec;
     ret = read_status;

@@ -12,8 +12,6 @@
 
 namespace dsa {
 
-typedef boost::asio::ip::tcp::socket tcp_socket;
-
 // Base TCP socket connection. Used for DSA connections over TCP.
 // Handles DSA handshake, combining outgoing messages,
 // and separating incoming messages.

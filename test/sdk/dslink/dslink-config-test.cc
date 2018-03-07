@@ -10,6 +10,7 @@
 #include "module/default/console_logger.h"
 #include "module/logger.h"
 #include "util/string.h"
+#include "util/string_encode.h"
 
 using boost::format;
 
@@ -260,6 +261,7 @@ TEST_F(DslinkTest, TCPServerPortParam) {
 TEST_F(DslinkTest, TokenFile) {
   string_ token("IAmATokenPleaseBelieveME!!!");
   string_ token_file_name("my_test_token.txt");
+
   // First create token file
   SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
   string_to_storage(token, token_file_name, storage_bucket);

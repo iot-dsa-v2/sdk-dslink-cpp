@@ -21,9 +21,14 @@ class WsServerConnection final : public WsConnection {
   boost::beast::flat_buffer _buffer;
   http::request<http::string_body> _req;
 
+  std::unique_ptr<Websocket> _websocket;
+
  public:
-  WsServerConnection(websocket_stream &ws, LinkStrandRef &strand,
-                     const string_ &dsid_prefix = "", const string_ &path = "");
+  WsServerConnection(std::unique_ptr<Websocket> websocket,
+                     LinkStrandRef &strand, const string_ &dsid_prefix = "",
+                     const string_ &path = "");
+
+  Websocket &ws_stream() final { return *_websocket; }
 
   void accept() final;
 

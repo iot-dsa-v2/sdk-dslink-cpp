@@ -9,11 +9,12 @@
 namespace dsa {
 
 WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
-  : _io_service(app.io_service()), _login_mngr(std::move(login_mngr)),
-    _ssl_context{boost::asio::ssl::context::sslv23} {
+    : _io_service(app.io_service()),
+      _login_mngr(std::move(login_mngr)),
+      _ssl_context{boost::asio::ssl::context::sslv23} {
   try {
     _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::no_sslv2);
+                             boost::asio::ssl::context::no_sslv2);
     _ssl_context.set_password_callback(
         [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
           return "";
@@ -91,8 +92,8 @@ WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
       WebServer& web_server, HttpRequest&& req) {
 
     ErrorCallback error_callback_detail(error_code);
-    // TODO: WSS_TBD
-    //    error_callback_detail(web_server, websocket, std::move(req));
+  // TODO: WSS_TBD
+  //    error_callback_detail(web_server, websocket, std::move(req));
 
     return nullptr;
   };

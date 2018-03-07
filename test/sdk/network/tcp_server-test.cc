@@ -45,11 +45,15 @@ TEST_F(TcpServerTest, SingleThread) {
 
     wait_for_connected = [&](const boost::system::error_code& error) {
       ++waited;
-      if (waited > 20) {  // waited for too long
-        EXPECT_TRUE(false);
-        app->force_stop();
-        return;
+
+      if (protocol() != dsa::ProtocolType::PROT_WSS) {
+        if (waited > 20) {  // waited for too long
+          EXPECT_TRUE(false);
+          app->force_stop();
+          return;
+        }
       }
+
       for (auto& client : clients) {
         if (!client->get_session().is_connected()) {
           timer.async_wait(wait_for_connected);
