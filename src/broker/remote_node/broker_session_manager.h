@@ -34,7 +34,7 @@ class BrokerSessionManager final : public SessionManager {
                    bool is_responder,
                    Session::GetSessionCallback &&callback) final;
 
-  void remove_dsid(const string_ &dsid);
+  void remove_sessions(const string_ &dsid, const string_ &responder_path);
 };
 }  // namespace dsa
 

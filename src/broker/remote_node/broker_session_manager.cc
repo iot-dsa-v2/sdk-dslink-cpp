@@ -44,11 +44,15 @@ void BrokerSessionManager::get_session(const string_ &dsid,
     }
   });
 }
-void BrokerSessionManager::remove_dsid(const string_ &dsid) {
-  // TODO remove all connected sessions
-  // remove the downstream node if it's there
+void BrokerSessionManager::remove_sessions(const string_ &dsid,
+                                           const string_ &responder_path) {
+  auto search = _clients.find(dsid);
+  if (search != _clients.end()) {
+    search->second->destroy();
+    _clients.erase(search);
+  }
+  // TODO remove the downstream node if it's there
 }
-
 
 void BrokerSessionManager::destroy_impl() {
   for (auto &kv : _clients) {

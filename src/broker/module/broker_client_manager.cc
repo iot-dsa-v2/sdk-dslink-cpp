@@ -46,15 +46,15 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
             parent->get_parent() == _clients->get_state()) {
           const string_& dsid =
               static_cast<NodeStateChild*>(parent.get())->name;
-
-          // remove from path2id map
           const string_& responder_path =
               client->get_client_info().responder_path;
+
+          // remove from path2id map
           if (str_starts_with(responder_path, DOWNSTREAM_PATH)) {
             _path2id.erase(responder_path.substr(responder_path.size()));
           }
 
-          // remove the storage
+          // delete the storage
           _clients->_storage->remove(dsid);
           // remove the node
           _clients->remove_child(dsid);
@@ -62,7 +62,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           stream.close();
 
           static_cast<BrokerSessionManager&>(_strand->session_manager())
-              .remove_dsid(dsid);
+              .remove_sessions(dsid, responder_path);
 
         } else {
           stream.close(MessageStatus::INVALID_PARAMETER);
