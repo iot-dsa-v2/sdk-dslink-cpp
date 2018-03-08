@@ -25,6 +25,7 @@ class BrokerClientManager : public ClientManager {
   ref_<BrokerClientsRoot> _clients;
   ref_<NodeModel> _quarantine;
 
+  // map its name in Downstream back to dsid
   std::unordered_map<string_, string_> _path2id;
 
   bool _allow_all_links = true;

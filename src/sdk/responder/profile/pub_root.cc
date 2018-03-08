@@ -134,4 +134,20 @@ ref_<NodeModel> PubRoot::add(const string_ &path_str, ref_<NodeModel> &&node) {
   return std::move(
       pub_parent->add_list_child(path.current_name(), std::move(node)));
 }
+
+void PubRoot::register_standard_profile_function(
+    const string_ &path, SimpleInvokeNode::FullCallback &&callback) {
+  auto search = _standard_profiles.find(path);
+  if (search == _standard_profiles.end()) {
+    LOG_FATAL(__FILENAME__,
+              LOG << "not able to register standard function " << path);
+  }
+  auto *invoke_node = dynamic_cast<SimpleInvokeNode *>(search->second.get());
+  if (invoke_node == nullptr) {
+    LOG_FATAL(__FILENAME__, LOG << "not able to register standard function "
+                                << "not an action node " << path);
+  }
+  invoke_node->set_callback(std::move(callback));
 }
+
+}  // namespace dsa

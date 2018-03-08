@@ -33,6 +33,8 @@ class BrokerSessionManager final : public SessionManager {
   void get_session(const string_ &dsid, const string_ &auth_token,
                    bool is_responder,
                    Session::GetSessionCallback &&callback) final;
+
+  void remove_dsid(const string_ &dsid);
 };
 }  // namespace dsa
 

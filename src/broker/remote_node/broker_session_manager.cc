@@ -42,9 +42,13 @@ void BrokerSessionManager::get_session(const string_ &dsid,
     } else {
       _clients[dsid]->add_session(_strand, std::move(callback));
     }
-
   });
 }
+void BrokerSessionManager::remove_dsid(const string_ &dsid) {
+  // TODO remove all connected sessions
+  // remove the downstream node if it's there
+}
+
 
 void BrokerSessionManager::destroy_impl() {
   for (auto &kv : _clients) {

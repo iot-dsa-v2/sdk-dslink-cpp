@@ -2,12 +2,19 @@
 
 #include "broker_client_manager.h"
 
+#include "../node/pub/pub_root.h"
+#include "../remote_node/broker_session_manager.h"
 #include "broker_client_nodes.h"
 #include "module/logger.h"
 #include "module/stream_acceptor.h"
+#include "responder/node_state.h"
 #include "responder/value_node_model.h"
+#include "stream/responder/outgoing_invoke_stream.h"
+#include "util/string.h"
 
 namespace dsa {
+
+const string_ DOWNSTREAM_PATH = "Downstream/";
 
 BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
     : _strand(strand) {}
@@ -29,7 +36,38 @@ void BrokerClientManager::rebuild_path2id() {
 
 void BrokerClientManager::create_nodes(NodeModel& module_node,
                                        BrokerPubRoot& pub_root) {
-  // TODO register action for pub root
+  pub_root.register_standard_profile_function(
+      "Broker/Client/Remove",
+      [ this, keepref = get_ref() ](Var&&, SimpleInvokeNode&,
+                                    OutgoingInvokeStream & stream,
+                                    ref_<NodeState> && parent) {
+        auto* client = parent->model_cast<BrokerClientNode>();
+        if (client != nullptr &&
+            parent->get_parent() == _clients->get_state()) {
+          const string_& dsid =
+              static_cast<NodeStateChild*>(parent.get())->name;
+
+          // remove from path2id map
+          const string_& responder_path =
+              client->get_client_info().responder_path;
+          if (str_starts_with(responder_path, DOWNSTREAM_PATH)) {
+            _path2id.erase(responder_path.substr(responder_path.size()));
+          }
+
+          // remove the storage
+          _clients->_storage->remove(dsid);
+          // remove the node
+          _clients->remove_child(dsid);
+
+          stream.close();
+
+          static_cast<BrokerSessionManager&>(_strand->session_manager())
+              .remove_dsid(dsid);
+
+        } else {
+          stream.close(MessageStatus::INVALID_PARAMETER);
+        }
+      });
 
   _clients.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
   _quarantine.reset(new NodeModel(_strand->get_ref()));
