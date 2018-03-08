@@ -129,14 +129,6 @@ class NodeState : public DestroyableRef<NodeState> {
   void set(ref_<OutgoingSetStream> &&stream);
 };
 
-class NodeStateChild : public NodeState {
- public:
-  const string_ name;
-
-  NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
-                 const string_ &name);
-};
-
 class NodeStateRoot : public NodeState {
  public:
   explicit NodeStateRoot(NodeStateOwner &owner, ModelRef &&model);

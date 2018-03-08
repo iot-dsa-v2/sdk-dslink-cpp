@@ -5,6 +5,7 @@
 #include "../node/paths.h"
 #include "../node/pub/pub_root.h"
 #include "../remote_node/broker_session_manager.h"
+#include "../remote_node/dynamic_children_parent.h"
 #include "broker_client_nodes.h"
 #include "module/logger.h"
 #include "module/stream_acceptor.h"
@@ -43,8 +44,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         auto* client = parent->model_cast<BrokerClientNode>();
         if (client != nullptr &&
             parent->get_parent() == _clients->get_state()) {
-          const string_& dsid =
-              static_cast<NodeStateChild*>(parent.get())->name;
+          const string_& dsid = parent->get_path().last_name();
           const string_& responder_path =
               client->get_client_info().responder_path;
 
@@ -69,7 +69,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
       });
 
   _clients.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
-  _quarantine.reset(new NodeModel(_strand->get_ref()));
+  _quarantine.reset(new DynamicChildrenParent(_strand->get_ref()));
 
   _quarantine->add_list_child(
       "Allow_All",
@@ -166,7 +166,7 @@ string_ BrokerClientManager::create_downstream_path(const string_& dsid) {
       return "Downstream/" + name;
     }
   }
-  LOG_FATAL("BrokerClientManager",
+  LOG_FATAL(__FILENAME__,
             LOG << "impossible conflict of dsid" << dsid);
 }
 

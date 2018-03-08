@@ -12,7 +12,6 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "node/broker_root.h"
-#include "node/downstream/downstream_root.h"
 #include "remote_node/broker_session_manager.h"
 #include "remote_node/remote_root_node.h"
 #include "responder/node_state_manager.h"

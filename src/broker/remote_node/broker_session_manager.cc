@@ -2,12 +2,12 @@
 
 #include "broker_session_manager.h"
 
-#include "../node/downstream/downstream_root.h"
 #include "broker_client.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "remote_node.h"
 #include "remote_root_node.h"
+#include "responder/node_model.h"
 
 namespace dsa {
 
@@ -51,7 +51,15 @@ void BrokerSessionManager::remove_sessions(const string_ &dsid,
     search->second->destroy();
     _clients.erase(search);
   }
-  // TODO remove the downstream node if it's there
+
+  // remove downstream ndoe
+  if (!responder_path.empty()) {
+    Path path(responder_path);
+    auto state = _state_manager->check_state(path);
+    if (state != nullptr && state->model_cast<RemoteRootNode>() != nullptr) {
+      state->get_parent()->remove_child(state->get_path().last_name());
+    }
+  }
 }
 
 ref_<RemoteRootNode> BrokerSessionManager::add_responder_root(
