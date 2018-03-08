@@ -233,8 +233,8 @@ TEST(ModuleTest, StorageBucketName) {
   string_ storage_key(u8"parent/sample_key呀");
   string_ bucket_name(u8"bucket功");
 
-  std::unique_ptr<StorageBucket> storage_bucket =
-      simple_storage.get_bucket(bucket_name);
+  shared_ptr_<StorageBucket> storage_bucket =
+      simple_storage.get_shared_bucket(bucket_name);
 
   auto on_done = []() {
     std::cout << "on_done" << std::endl;
