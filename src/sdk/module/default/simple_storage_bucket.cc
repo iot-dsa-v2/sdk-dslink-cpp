@@ -268,5 +268,11 @@ void SimpleStorageBucket::remove_all() {
 
   return;
 }
+void SimpleStorageBucket::destroy() {
+  for(auto &strand : strand_map) {
+    delete strand_map.at(strand.first);
+  }
+  strand_map.clear();
+}
 
 }  // namespace dsa

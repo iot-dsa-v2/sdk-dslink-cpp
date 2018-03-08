@@ -11,6 +11,7 @@
 
 #include <map>
 #include <utility>
+#include <list>
 
 namespace dsa {
 
@@ -66,6 +67,7 @@ class SimpleStorageBucket : public StorageBucket {
                 std::function<void()>&& on_done) override;
 
   void remove_all() override;
+  void destroy() override;
 };
 
 class SimpleSafeStorageBucket : public SimpleStorageBucket {
@@ -84,6 +86,7 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
 class SimpleStorage : public Storage {
  private:
   boost::asio::io_service* _io_service;
+  std::list<shared_ptr_<StorageBucket>> _bucket_list;
 
  public:
   SimpleStorage(boost::asio::io_service* io_service = nullptr)
@@ -97,6 +100,8 @@ class SimpleStorage : public Storage {
   void set_io_service(boost::asio::io_service* io_service) {
     _io_service = io_service;
   };
+
+  void destroy_impl() final;
 };
 
 }  // namespace dsa

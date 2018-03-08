@@ -62,6 +62,7 @@ class StorageBucket {
 
   virtual void remove_all() = 0;
   virtual ~StorageBucket() = default;
+  virtual void destroy() {};
 
   boost::asio::io_service::strand* get_owner_strand() { return owner_strand; };
   void set_owner_strand(boost::asio::io_service::strand* strand) { owner_strand = strand; };
@@ -84,6 +85,7 @@ class Storage : public DestroyableRef<Storage> {
       const string_& name) = 0;
 
   virtual ~Storage() = default;
+  void destroy_impl() override {};
 };
 
 }  // namespace dsa
