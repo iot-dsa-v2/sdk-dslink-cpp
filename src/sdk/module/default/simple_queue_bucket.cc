@@ -4,12 +4,12 @@
 
 namespace dsa {
 
-void SimpleQueueBucket::push_back(const std::string& key, BytesRef&& data) {
+void SimpleQueueBucket::push_back(const string_& key, BytesRef&& data) {
   return;
 }
 
 // when count = 0, remove all elements in the queue
-void SimpleQueueBucket::remove_front(const std::string& key, size_t count) {
+void SimpleQueueBucket::remove_front(const string_& key, size_t count) {
   return;
 }
 

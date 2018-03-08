@@ -27,6 +27,7 @@
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
 #include "util/string.h"
+#include "util/string_encode.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
@@ -54,6 +55,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
       ("module_path", opts::value<string_>()->default_value("./modules"),
        "Module Path")  // custom name
       ;
+
   config_bucket =
       std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
   try {

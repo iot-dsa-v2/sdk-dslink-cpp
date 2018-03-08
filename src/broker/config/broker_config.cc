@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include "module/logger.h"
+#include "util/string_encode.h"
 
 namespace fs = boost::filesystem;
 
@@ -18,8 +19,8 @@ BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
     LOG_FATAL(__FILENAME__, "Broker executable path is wrong!");
   }
   init();
-  config_bucket =
-      std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
+ config_bucket =
+	std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
   load();
 }
 
@@ -51,7 +52,7 @@ void BrokerConfig::init() {
 }
 // load config json from file
 void BrokerConfig::load() {
-  auto read_callback = [=](std::string storage_key, std::vector<uint8_t> vec,
+  auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                            BucketReadStatus read_status) {
 
     // const string_* content = reinterpret_cast<const string_*>(vec.data());

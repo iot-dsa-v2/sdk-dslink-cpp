@@ -1,9 +1,10 @@
+#include "dsa_common.h"
 #include <boost/asio/strand.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
-#include "dsa_common.h"
 #include "module/logger.h"
 #include "simple_storage.h"
+#include "util/string_encode.h"
 
 namespace dsa {
 
@@ -16,7 +17,7 @@ using boost::filesystem::path;
 //  return *config_bucket;
 //};
 
-void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content,
+void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content,
                                     bool is_binary) {
   auto write_file = [=]() {
     path templ = boost::filesystem::unique_path();
@@ -40,8 +41,7 @@ void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content,
       }
     } catch (const fs::filesystem_error &ex) {
       // TODO: is fatal?
-      LOG_ERROR(__FILENAME__,
-                LOG << "Write failed for " << key << " file");
+      LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
     }
   };
 
@@ -61,4 +61,4 @@ void SimpleSafeStorageBucket::write(const std::string &key, BytesRef &&content,
     write_file();
   }
 }
-}
+}  // namespace dsa

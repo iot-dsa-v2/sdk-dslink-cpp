@@ -9,7 +9,7 @@
 #include "node_state.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
-
+#include "util/string_encode.h"
 namespace dsa {
 
 static const std::vector<string_> default_summary_metas = {

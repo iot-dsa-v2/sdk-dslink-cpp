@@ -9,6 +9,11 @@
 #include <list>
 #include "util/misc.h"
 #include "util/string_encode.h"
+#include <string>
+#include <locale>
+#include <codecvt>
+#include <iomanip>
+#include <vector>
 namespace dsa {
 
 namespace fs = boost::filesystem;
@@ -20,7 +25,7 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
                                          const string_& cwd)
     : _io_service(io_service),
       _storage_root(storage_root),
-      _bucket_name(url_encode(bucket_name)) {
+      _bucket_name(url_encode_file_name(bucket_name)) {
   _cwd = cwd;
   if (cwd.empty()) _cwd = get_current_working_dir();
   if (!_cwd.empty()) _full_base_path = _cwd + "/";
@@ -40,12 +45,34 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
     }
   }
 }
-
+#if defined(_WIN32) || defined(_WIN64)
+std::wstring SimpleStorageBucket::get_storage_path(const string_& key) {
+  string_ path;
+  if (!_full_base_path.empty()) path = _full_base_path + "/";
+  if (!key.empty()) path += url_encode_file_name(key);
+  return std::move(
+      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+          .from_bytes(path));
+}
+#else
 string_ SimpleStorageBucket::get_storage_path(const string_& key) {
   string_ path;
   if (!_full_base_path.empty()) path = _full_base_path + "/";
   if (!key.empty()) path += url_encode_file_name(key);
   return std::move(path);
+}
+#endif
+
+bool SimpleStorageBucket::is_empty() {
+  path p(get_storage_path());
+  if (!boost::filesystem::is_directory(p)) return false;
+
+  boost::filesystem::directory_iterator end_it;
+  boost::filesystem::directory_iterator it(p);
+  if (it == end_it)
+    return true;
+  else
+    return false;
 }
 
 bool SimpleStorageBucket::exists(const string_& key) {
@@ -53,15 +80,15 @@ bool SimpleStorageBucket::exists(const string_& key) {
   return (fs::exists(p) && is_regular_file(p));
 }
 
-void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
+void SimpleStorageBucket::write(const string_& key, BytesRef&& content,
                                 bool is_binary) {
-  auto write_file = [&, is_binary, content = std::move(content) ]() {
+  auto write_file = [=, content = std::move(content)]() {
     path p(get_storage_path(key));
 
     try {
       auto open_mode = std::ios::out | std::ios::trunc;
       if (is_binary) open_mode = open_mode | std::ios::binary;
-      std::ofstream ofs(p.string().c_str(), open_mode);
+      fs::ofstream ofs(p, open_mode);
       if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
                   content->size());
@@ -94,9 +121,9 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
   }
 }
 
-void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
+void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
                                bool is_binary) {
-  auto read_file = [&, callback = std::move(callback) ]() {
+  auto read_file = [=, callback = std::move(callback)]() {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
@@ -109,7 +136,7 @@ void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
         if (size) {
           std::ios::openmode open_mode = std::ios::in;
           if (is_binary) open_mode = open_mode | std::ios::binary;
-          std::ifstream ifs(p.string().c_str(), open_mode);
+          fs::ifstream ifs(p, open_mode);
           if (ifs) {
             vec.resize(static_cast<size_t>(size));
             ifs.read(reinterpret_cast<char*>(&vec.front()),
@@ -158,7 +185,7 @@ void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
   }
 }
 
-void SimpleStorageBucket::remove(const std::string& key) {
+void SimpleStorageBucket::remove(const string_& key) {
   if (_io_service != nullptr) {
     if (!strand_map.count(key)) {
       boost::asio::io_service::strand* strand =
@@ -201,15 +228,18 @@ void SimpleStorageBucket::remove(const std::string& key) {
 void SimpleStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
   path p(get_storage_path());
-  std::list<string_> key_list;
+  std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-      key_list.push_back(x.path().stem().string());
+      key_list.push_back(x.path().stem().wstring());
     }
     key_list.sort();
     for (auto&& key : key_list) {
       auto cb = callback;
-      this->read(url_decode(key), std::move(cb));
+      this->read(
+          url_decode(
+              std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(key)),
+          std::move(cb));
     }
     if (on_done != nullptr) on_done();
   } catch (const fs::filesystem_error& ex) {
@@ -221,13 +251,14 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
 
 void SimpleStorageBucket::remove_all() {
   path p(get_storage_path());
-  std::list<string_> key_list;
+  std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-      key_list.push_back(x.path().stem().string());
+      key_list.push_back(x.path().stem().wstring());
     }
     for (auto&& key : key_list) {
-      remove(url_decode(key));
+      remove(url_decode(
+          std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(key)));
     }
   } catch (const fs::filesystem_error& ex) {
     // std::cout << ex.what() << '\n';

@@ -1,6 +1,7 @@
 #include "dsa_common.h"
 
 #include "simple_storage.h"
+#include "util/string_encode.h"
 
 namespace dsa {
 shared_ptr_<StorageBucket> SimpleStorage::get_shared_bucket(
@@ -16,7 +17,7 @@ shared_ptr_<StorageBucket> SimpleStorage::get_shared_bucket(
 
 /// create a bucket or find a existing bucket
 std::unique_ptr<QueueBucket> SimpleStorage::get_queue_bucket(
-    const std::string& name) {
+    const string_& name) {
   return std::unique_ptr<QueueBucket>(new SimpleQueueBucket());
 }
 

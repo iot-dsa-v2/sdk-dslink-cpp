@@ -3,7 +3,7 @@
 using namespace dsa;
 
 using BrokerDsLinkTest = SetUpBase;
-
+const string_ bucket_name("config");
 TEST_F(BrokerDsLinkTest, Reconnect) {
   auto app = make_shared_<App>();
 
@@ -157,9 +157,10 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
 }
 
 TEST_F(BrokerDsLinkTest, StopTest) {
+
   std::string close_token = "12345678901234567890123456789012";
-  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_storage(close_token, ".close_token", storage_bucket);
+  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,"");
+  string_to_storage(close_token, default_close_token_path, storage_bucket);
 
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
@@ -207,15 +208,15 @@ TEST_F(BrokerDsLinkTest, StopTest) {
   });
   WAIT_EXPECT_TRUE(500, [&]() -> bool { return connected && invoked; });
   WAIT_EXPECT_TRUE(2000, [&]() -> bool { return link_1->is_destroyed(); });
-  storage_bucket.remove(".close_token");
+  storage_bucket.remove(default_close_token_path);
   broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   std::string close_token = generate_random_string(32);
-  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_storage(close_token, ".close_token", storage_bucket);
+  SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,"");
+  string_to_storage(close_token, default_close_token_path, storage_bucket);
 
   auto app = make_shared_<App>();
 
@@ -255,7 +256,7 @@ TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   link_1->strand->post([&]() { link_1->destroy(); });
 
   broker->strand->post([&]() { broker->destroy(); });
-  storage_bucket.remove(".close_token");
+  storage_bucket.remove(default_close_token_path);
 
   app->close();
 

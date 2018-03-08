@@ -8,7 +8,7 @@
 #include "module/default/simple_storage.h"
 #include "module/storage.h"
 #include "openssl/rand.h"
-
+#include "util/string_encode.h"
 using namespace std;
 namespace fs = boost::filesystem;
 
@@ -32,7 +32,7 @@ void string_to_file(const string_ &data, const string_ &file_path) {
 string_ string_from_storage(const string_ &key, StorageBucket &storage_bucket) {
   string_ data;
   bool callback_called = false;
-  auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec,
+  auto read_callback = [&](string_ storage_key, std::vector<uint8_t> vec,
                            BucketReadStatus read_status) {
     string_ content(vec.begin(), vec.end());
     data = content;
