@@ -23,7 +23,7 @@ TEST_F(BrokerSysTest, StopBroker) {
   string_ token = generate_random_string(32);
 
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
-  string_to_storage(token, default_close_token_path, storage_bucket);
+  string_to_storage(token, default_master_token_path, storage_bucket);
 
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
@@ -53,6 +53,6 @@ TEST_F(BrokerSysTest, StopBroker) {
         std::move(invoke_req));
   });
   broker->wait();
-  storage_bucket.remove(default_close_token_path);
+  storage_bucket.remove(default_master_token_path);
   EXPECT_TRUE(broker->is_destroyed());
 }

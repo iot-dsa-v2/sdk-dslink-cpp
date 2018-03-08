@@ -80,7 +80,7 @@ string_ generate_random_string(int len) {
   return randStr;
 }
 
-string_ get_close_token_from_storage(StorageBucket &storage_bucket,
+string_ get_master_token_from_storage(StorageBucket &storage_bucket,
                                     const string_ &key,
                                     bool force_to_generate_one) {
   string_ token = string_from_storage(key, storage_bucket);
