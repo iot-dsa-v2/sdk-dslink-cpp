@@ -119,7 +119,7 @@ class NodeState : public DestroyableRef<NodeState> {
   void update_list_value(const string_ &key, const VarBytesRef &value);
   void update_response_status(MessageStatus status = MessageStatus::OK);
   void update_list_refreshed();
-  void update_list_removed();
+  void update_list_removed(const string_ &key);
   void update_list_pub_path(const string_ &path);
 
   void list(ref_<BaseOutgoingListStream> &&stream);
