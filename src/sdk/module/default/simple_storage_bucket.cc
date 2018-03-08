@@ -157,6 +157,8 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
       status = BucketReadStatus::READ_FAILED;
     }
 
+    boost::asio::io_service::strand* owner_strand = get_owner_strand();
+
     if (owner_strand != nullptr)
       owner_strand->post([
         callback = std::move(callback), decode_key = std::move(url_decode(key)),

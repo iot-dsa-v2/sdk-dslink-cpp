@@ -63,8 +63,12 @@ class StorageBucket {
   virtual void remove_all() = 0;
   virtual ~StorageBucket() = default;
 
+  boost::asio::io_service::strand* get_owner_strand() { return owner_strand; };
+  void set_owner_strand(boost::asio::io_service::strand* strand) { owner_strand = strand; };
 
+ private:
   boost::asio::io_service::strand* owner_strand = nullptr;
+
 };
 
 class Storage : public DestroyableRef<Storage> {
