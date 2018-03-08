@@ -115,8 +115,8 @@ TEST_F(DslinkTest, SaveMainNode) {
 
   std::string storage_key("vk123");
 
-  std::unique_ptr<StorageBucket> storage_bucket =
-      simple_storage.get_bucket("node");
+  shared_ptr_<StorageBucket> storage_bucket =
+      simple_storage.get_shared_bucket("node");
 
   storage_bucket->remove_all();
   //save main node
@@ -156,8 +156,8 @@ TEST_F(DslinkTest, SaveMainNode) {
 
   SimpleStorage simple_storage2(nullptr);
 
-  std::unique_ptr<StorageBucket> storage_bucket2 =
-      simple_storage2.get_bucket("node");
+  shared_ptr_<StorageBucket> storage_bucket2 =
+      simple_storage2.get_shared_bucket("node");
 
   int read_order = 0;
   auto read_all_callback = [&](std::string storage_key,
