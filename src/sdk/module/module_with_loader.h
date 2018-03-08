@@ -34,7 +34,7 @@ class ModuleWithLoader : public Module {
  public:
   ModuleWithLoader(bf::path lib_path, ref_<Module>&& default_module);
 
-  void add_module_node(ref_<NodeModel>& module_node) override;
+  void add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root) override;
   void add_web_handler() override;
 };
 }

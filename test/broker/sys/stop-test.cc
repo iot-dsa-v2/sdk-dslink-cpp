@@ -21,6 +21,7 @@ TEST_F(BrokerSysTest, StopBroker) {
 
   string_ bucket_name("config");
   string_ token = generate_random_string(32);
+
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
   string_to_storage(token, default_close_token_path, storage_bucket);
 

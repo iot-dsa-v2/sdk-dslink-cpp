@@ -22,7 +22,7 @@ class ModuleBrokerDefault : public Module {
       App& app, ref_<LinkStrand>& strand) override;
 
  public:
-  void add_module_node(ref_<NodeModel>& module_node) override;
+  void add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root) override;
 };
 }
 

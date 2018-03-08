@@ -29,7 +29,7 @@ ref_<NodeState> NodeState::get_child(const string_ &name, bool create) {
   if (result != _children.end()) {
     return result->second;
   } else if (create) {
-    auto child = new NodeStateChild(_owner, get_ref(), name);
+    auto child = new NodeState(_owner, get_ref());
     child->_path = _path.get_child_path(name);
     _children[name] = child;
     return child->get_ref();
@@ -64,7 +64,7 @@ ref_<NodeState> NodeState::create_child(const Path &path,
   if (allows_runtime_change) {
     // create new node
     ref_<NodeState> new_state = ref_<NodeState>(
-        static_cast<NodeState *>(new NodeStateChild(_owner, get_ref(), name)));
+        static_cast<NodeState *>(new NodeState(_owner, get_ref())));
     _children[name] = new_state;
     if (path.is_last()) {
       new_state->_path = path;
@@ -393,10 +393,6 @@ void NodeState::destroy_impl() {
 
   _parent.reset();
 }
-
-NodeStateChild::NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
-                               const string_ &name)
-    : NodeState(owner, std::move(parent)), name(name) {}
 
 NodeStateRoot::NodeStateRoot(NodeStateOwner &owner, ModelRef &&model)
     : NodeState(owner, ref_<NodeState>()) {

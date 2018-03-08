@@ -11,6 +11,7 @@
 
 namespace dsa {
 class NodeModel;
+class BrokerPubRoot;
 
 class Module : public DestroyableRef<Module> {
  protected:
@@ -48,7 +49,7 @@ class Module : public DestroyableRef<Module> {
   shared_ptr_<LoginManager> get_login_manager();
 
   // Override here for add module node in main node
-  virtual void add_module_node(ref_<NodeModel>& module_node);
+  virtual void add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root);
 
   // Override here for addinf web handler
   virtual void add_web_handler();

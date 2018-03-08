@@ -5,7 +5,6 @@
 #include "jansson_9e7847e.h"
 #include "jansson_binary_extension.h"
 
-
 namespace dsa {
 
 Var Var::to_variant(json_t *json_obj) {
@@ -20,11 +19,11 @@ Var Var::to_variant(json_t *json_obj) {
   } else if (json_is_binary(json_obj)) {
     size_t len;
     auto ptr = json_binary_value_new(json_obj, len);
-    if(!ptr) return Var();
+    if (!ptr) return Var();
     auto var = Var(ptr, len);
     delete[] ptr;
     return std::move(var);
-  }else if (json_is_string(json_obj)) {
+  } else if (json_is_string(json_obj)) {
     return Var(json_string_value(json_obj), json_string_length(json_obj));
   } else if (json_is_array(json_obj)) {
     auto array = new VarArray();
@@ -52,11 +51,11 @@ Var Var::to_variant(json_t *json_obj) {
   }
 }
 
-Var Var::from_json(const string_ &data) {
+Var Var::from_json(const char *data, size_t len) {
   json_error_t error;
   json_t *json_obj;
 
-  json_obj = json_loads(data.c_str(), 0, &error);
+  json_obj = json_loadb(data, len, 0, &error);
 
   if (!json_obj) {
     // error handling
@@ -68,6 +67,9 @@ Var Var::from_json(const string_ &data) {
   json_decref(json_obj);
 
   return Var(v);
+}
+Var Var::from_json(const string_ &str) {
+  return from_json(str.data(), str.size());
 }
 
 json_t *to_json_object(const Var &v) {

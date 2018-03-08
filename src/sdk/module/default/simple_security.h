@@ -18,14 +18,16 @@ class SimpleAuthorizer : public Authorizer {
 
  public:
   explicit SimpleAuthorizer(LinkStrandRef strand);
-  void check_permission(const ClientInfo& client_info, const string_& permission_token,
-                        MessageType method, const Path& path,
+  void check_permission(const ClientInfo& client_info,
+                        const string_& permission_token, MessageType method,
+                        const Path& path,
                         CheckPermissionCallback&& callback) override;
 };
 
 class SimpleClientManager : public ClientManager {
  public:
   void get_client(const string_& dsid, const string_& auth_token,
+                  bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;
 };
 
@@ -37,8 +39,8 @@ class AsyncSimpleClientManager : public ClientManager {
   explicit AsyncSimpleClientManager(LinkStrandRef strand);
 
   void get_client(const string_& dsid, const string_& auth_token,
+                  bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;
-
 };
 
 }  // namespace dsa

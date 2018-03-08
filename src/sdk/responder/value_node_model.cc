@@ -3,8 +3,10 @@
 #include "value_node_model.h"
 
 namespace dsa {
-ValueNodeModel::ValueNodeModel(LinkStrandRef &&strand, Callback &&callback)
-    : NodeModel(std::move(strand)), _callback(std::move(callback)) {}
+ValueNodeModel::ValueNodeModel(LinkStrandRef &&strand, Callback &&callback,
+                               PermissionLevel write_require_permission)
+    : NodeModel(std::move(strand), write_require_permission),
+      _callback(std::move(callback)) {}
 
 void ValueNodeModel::destroy_impl() {
   _callback = nullptr;

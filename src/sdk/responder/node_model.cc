@@ -20,12 +20,12 @@ NodeModel::NodeModel(LinkStrandRef &&strand,
     : NodeModelBase(std::move(strand)) {
   set_value_require_permission(write_require_permission);
 };
-NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
+NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
                      PermissionLevel write_require_permission)
-    : NodeModelBase(std::move(strand)), _profile(profile) {
+    : NodeModelBase(std::move(strand)), _profile(std::move(profile)) {
   set_value_require_permission(write_require_permission);
 
-  auto &state = profile->get_state();
+  auto &state = _profile->get_state();
   if (state == nullptr || state->get_path().data()->names[0] != "Pub") {
     LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
   }
@@ -198,11 +198,8 @@ MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
 
 // serialization
 
-void NodeModel::save(StorageBucket &storage, bool json) const {
-  if (_state == nullptr || _state->get_model() != this) {
-    // can't serialize without a path
-    return;
-  }
+void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
+                     bool recursive, bool user_json) const {
   auto map = make_ref_<VarMap>();
   if (_cached_value != nullptr) {
     (*map)["?value"] = _cached_value->get_value().value;
@@ -220,27 +217,33 @@ void NodeModel::save(StorageBucket &storage, bool json) const {
       (*map)[it.first] = it.second->get_value();
     }
   }
+  string_ recursive_path;
+  if (recursive && !storage_path.empty()) {
+    recursive_path = storage_path + '/';
+  }
   for (auto &it : _list_children) {
     if (save_child(it.first)) {
       (*map)[it.first] = it.second->get_summary()->get_value();
-      // save child if it's also a NodeModel
-      auto child_model = dynamic_cast<NodeModel *>(it.second.get());
-      if (child_model != nullptr) {
-        child_model->save(storage);
+      if (recursive) {
+        // save child if it's also a NodeModel
+        auto child_model = dynamic_cast<NodeModel *>(it.second.get());
+        if (child_model != nullptr) {
+          child_model->save(storage, recursive_path + it.first, true,
+                            user_json);
+        }
       }
     }
   }
   save_extra(*map);
   Var var;
   var = map;
-  if (json) {
+  if (user_json) {
     string_ str = var.to_json();
     const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
-    storage.write(_state->get_full_path(),
+    storage.write(storage_path,
                   make_ref_<RefCountBytes>(str_data, str_data + str.length()));
   } else {
-    storage.write(_state->get_full_path(),
-                  make_ref_<RefCountBytes>(var.to_msgpack()));
+    storage.write(storage_path, make_ref_<RefCountBytes>(var.to_msgpack()));
   }
 }
 void NodeModel::load(VarMap &map) {
