@@ -4,9 +4,9 @@ using BrokerDsLinkTest = SetUpBase;
 
 TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   const string_ bucket_name("config");
-  std::string close_token = generate_random_string(32);
+  std::string master_token = generate_random_string(32);
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
-  string_to_storage(close_token, default_close_token_path, storage_bucket);
+  string_to_storage(master_token, default_master_token_path, storage_bucket);
 
 
   typedef std::vector<std::vector<string_>> ListResponses;
@@ -87,7 +87,7 @@ TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   link->strand->post([&]() { link->destroy(); });
   broker->strand->post([&]() { broker->destroy(); });
 
-  storage_bucket.remove(default_close_token_path);
+  storage_bucket.remove(default_master_token_path);
 
   app->close();
 
