@@ -3,14 +3,14 @@
 #include "simple_storage.h"
 
 namespace dsa {
-std::unique_ptr<StorageBucket> SimpleStorage::get_bucket(
+shared_ptr_<StorageBucket> SimpleStorage::get_shared_bucket(
     const std::string& name) {
   //for the special storage requirements, safe bucket can be returned
   if (name == "config")
-    return std::unique_ptr<StorageBucket>(
+    return shared_ptr_<StorageBucket>(
         new SimpleSafeStorageBucket(name, _io_service, ""));
   else
-    return std::unique_ptr<StorageBucket>(
+    return shared_ptr_<StorageBucket>(
         new SimpleStorageBucket(name, _io_service));
 }
 

@@ -5,10 +5,15 @@
 #pragma once
 #endif
 
+#include "dsa_common.h"
+#include "core/link_strand.h"
+
 #include <functional>
 #include <memory>
 #include <string>
 #include <vector>
+#include <boost/asio.hpp>
+#include <boost/asio/strand.hpp>
 
 #include "util/buffer.h"
 #include "util/enable_ref.h"
@@ -42,6 +47,7 @@ class StorageBucket {
  public:
   typedef std::function<void(const string_& key, std::vector<uint8_t> data, BucketReadStatus read_status)>
       ReadCallback;
+
   virtual bool exists (const string_ &key) = 0;
   virtual void write(const string_& key, BytesRef&& data,
                      bool is_binary = false) = 0;
@@ -55,12 +61,18 @@ class StorageBucket {
 
   virtual void remove_all() = 0;
   virtual ~StorageBucket() = default;
+
+
+  boost::asio::io_service::strand* owner_strand = nullptr;
 };
 
 class Storage : public DestroyableRef<Storage> {
  public:
+
   /// create a bucket or find a existing bucket
-  virtual std::unique_ptr<StorageBucket> get_bucket(const string_& name) = 0;
+  virtual shared_ptr_<StorageBucket> get_shared_bucket(const string_& name) = 0;
+
+  shared_ptr_<StorageBucket> get_strand_bucket(const string_& name, boost::asio::io_service::strand* strand);
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket

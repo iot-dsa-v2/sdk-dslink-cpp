@@ -22,8 +22,7 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
       _storage_root(storage_root),
       _bucket_name(url_encode(bucket_name)) {
   _cwd = cwd;
-  if(cwd.empty())
-    _cwd = get_current_working_dir();
+  if (cwd.empty()) _cwd = get_current_working_dir();
   if (!_cwd.empty()) _full_base_path = _cwd + "/";
   if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
   _full_base_path += bucket_name;
@@ -49,14 +48,14 @@ string_ SimpleStorageBucket::get_storage_path(const string_& key) {
   return std::move(path);
 }
 
-bool SimpleStorageBucket::exists (const string_ &key) {
+bool SimpleStorageBucket::exists(const string_& key) {
   path p(get_storage_path(key));
   return (fs::exists(p) && is_regular_file(p));
 }
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
                                 bool is_binary) {
-  auto write_file = [&, is_binary, content = std::move(content)]() {
+  auto write_file = [&, is_binary, content = std::move(content) ]() {
     path p(get_storage_path(key));
 
     try {
@@ -74,8 +73,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
       }
     } catch (const fs::filesystem_error& ex) {
       // TODO: is fatal?
-      LOG_ERROR(__FILENAME__,
-                LOG << "Write failed for " << key << " file");
+      LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
     }
   };
 
@@ -98,7 +96,7 @@ void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
 
 void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
                                bool is_binary) {
-  auto read_file = [&, callback = std::move(callback)]() {
+  auto read_file = [&, callback = std::move(callback) ]() {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
@@ -124,17 +122,23 @@ void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
           }
         }
       } else {
-        LOG_FINE(__FILENAME__,
-                 LOG << "there is no file to read " << key);
+        LOG_FINE(__FILENAME__, LOG << "there is no file to read " << key);
         status = BucketReadStatus::NOT_EXIST;
       }
     } catch (const fs::filesystem_error& ex) {
-      LOG_ERROR(__FILENAME__,
-                LOG << "Read failed for " << key << " file");
+      LOG_ERROR(__FILENAME__, LOG << "Read failed for " << key << " file");
       status = BucketReadStatus::READ_FAILED;
     }
 
-    callback(url_decode(key), vec, status);
+    if (owner_strand != nullptr)
+      owner_strand->post([
+        callback = std::move(callback), decode_key = std::move(url_decode(key)),
+        vec = std::move(vec), status = std::move(status)
+      ]() {
+        callback(std::move(decode_key), std::move(vec), std::move(status));
+      });
+    else
+      callback(std::move(url_decode(key)), std::move(vec), std::move(status));
   };
 
   if (_io_service != nullptr) {

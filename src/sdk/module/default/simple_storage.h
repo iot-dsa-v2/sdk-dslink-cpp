@@ -82,7 +82,7 @@ class SimpleStorage : public Storage {
   SimpleStorage(boost::asio::io_service* io_service = nullptr)
       : _io_service(io_service) {}
 
-  std::unique_ptr<StorageBucket> get_bucket(const std::string& name) override;
+  shared_ptr_<StorageBucket> get_shared_bucket(const std::string& name) override;
 
   /// create a bucket or find a existing bucket
   std::unique_ptr<QueueBucket> get_queue_bucket(
