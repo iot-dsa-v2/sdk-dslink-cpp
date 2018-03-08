@@ -2,6 +2,9 @@
 #include <regex>
 #include "crypto/misc.h"
 #include "http_response.h"
+#include "login_manager.h"
+#include "module/default/simple_login_manager.h"
+#include "util/string.h"
 
 namespace {
 
@@ -55,18 +58,17 @@ std::string path_cat(boost::beast::string_view base,
   return result;
 }
 
-std::map<std::string, std::string> parse(const std::string &query) {
-  std::map<std::string, std::string> data;
-  std::regex pattern("([\\w+%]+)=([^&]*)");
+std::unordered_map<std::string, std::string> parse(const std::string &query,
+                                         const std::string &separator) {
+  std::unordered_map<std::string, std::string> data;
+  std::regex pattern("([\\w+%]+)=([^" + separator + "]*)");
   auto words_begin = std::sregex_iterator(query.begin(), query.end(), pattern);
   auto words_end = std::sregex_iterator();
-
   for (std::sregex_iterator i = words_begin; i != words_end; i++) {
     std::string key = (*i)[1].str();
     std::string value = (*i)[2].str();
     data[key] = value;
   }
-
   return data;
 }
 }
@@ -78,23 +80,22 @@ HttpRequest::HttpRequest(
     http::request<request_body_t, http::basic_fields<alloc_t>> req)
     : _web_server(web_server),
       _socket(std::move(socket)),
-      _req(std::move(req)),
-      _resp(std::make_shared<HttpResponse>()) {}
-
-shared_ptr_<HttpResponse> HttpRequest::get_response() { return _resp; }
+      _req(std::move(req)) {}
 
 void HttpRequest::send_bad_response(http::status status,
                                     std::string const &error) {
-  shared_ptr_<HttpResponse> response = get_response();
-  response->prepare_string_response();
-  response->get_string_response()->result(status);
-  response->get_string_response()->keep_alive(false);
-  response->get_string_response()->set(http::field::server, "dglux_server");
-  response->get_string_response()->set(http::field::content_type, "text/plain");
-  response->get_string_response()->body() = error;
-  response->get_string_response()->prepare_payload();
-  response->prepare_string_serializer();
-  response->string_writer(std::move(_socket));
+  create_response<HttpStringResponse>();
+  get_response<HttpStringResponse>()->init_response();
+  get_response<HttpStringResponse>()->prep_response()->result(status);
+  get_response<HttpStringResponse>()->prep_response()->keep_alive(false);
+  get_response<HttpStringResponse>()->prep_response()->set(http::field::server,
+                                                           "dglux_server");
+  get_response<HttpStringResponse>()->prep_response()->set(
+      http::field::content_type, "text/plain");
+  get_response<HttpStringResponse>()->prep_response()->body() = error;
+  get_response<HttpStringResponse>()->prep_response()->prepare_payload();
+  get_response<HttpStringResponse>()->prep_serializer();
+  get_response<HttpStringResponse>()->writer(std::move(_socket));
 }
 
 void HttpRequest::send_file(boost::beast::string_view target) {
@@ -114,33 +115,37 @@ void HttpRequest::send_file(boost::beast::string_view target) {
     send_bad_response(http::status::not_found, "File not found\r\n");
     return;
   }
-
-  shared_ptr_<HttpResponse> response = get_response();
-  response->prepare_file_response();
-  response->get_file_response()->result(http::status::ok);
-  response->get_file_response()->keep_alive(false);
-  response->get_file_response()->set(http::field::server, "dglux_server");
-  response->get_file_response()->set(http::field::content_type,
-                                     mime_type(full_path));
-  response->get_file_response()->body() = std::move(file);
-  response->get_file_response()->prepare_payload();
-  response->prepare_file_serializer();
-  response->file_writer(std::move(_socket));
+  create_response<HttpFileResponse>();
+  get_response<HttpFileResponse>()->init_response();
+  get_response<HttpFileResponse>()->prep_response()->result(http::status::ok);
+  get_response<HttpFileResponse>()->prep_response()->keep_alive(false);
+  get_response<HttpFileResponse>()->prep_response()->set(http::field::server,
+                                                         "dglux_server");
+  get_response<HttpFileResponse>()->prep_response()->set(
+      http::field::content_type, mime_type(full_path));
+  get_response<HttpFileResponse>()->prep_response()->body() = std::move(file);
+  get_response<HttpFileResponse>()->prep_response()->prepare_payload();
+  get_response<HttpFileResponse>()->prep_serializer();
+  get_response<HttpFileResponse>()->writer(std::move(_socket));
 }
 
 void HttpRequest::redirect_handler(const string_ &location,
                                    const string_ &message) {
-  shared_ptr_<HttpResponse> response = get_response();
-  response->prepare_string_response();
-  response->get_string_response()->result(http::status::found);
-  response->get_string_response()->keep_alive(false);
-  response->get_string_response()->set(http::field::location, location);
-  response->get_string_response()->set(http::field::server, "dglux_server");
-  response->get_string_response()->set(http::field::content_type, "text/plain");
-  response->get_string_response()->body() = message;
-  response->get_string_response()->prepare_payload();
-  response->prepare_string_serializer();
-  response->string_writer(std::move(_socket));
+  create_response<HttpStringResponse>();
+  get_response<HttpStringResponse>()->init_response();
+  get_response<HttpStringResponse>()->prep_response()->result(
+      http::status::found);
+  get_response<HttpStringResponse>()->prep_response()->keep_alive(false);
+  get_response<HttpStringResponse>()->prep_response()->set(
+      http::field::location, location);
+  get_response<HttpStringResponse>()->prep_response()->set(http::field::server,
+                                                           "dglux_server");
+  get_response<HttpStringResponse>()->prep_response()->set(
+      http::field::content_type, "text/plain");
+  get_response<HttpStringResponse>()->prep_response()->body() = message;
+  get_response<HttpStringResponse>()->prep_response()->prepare_payload();
+  get_response<HttpStringResponse>()->prep_serializer();
+  get_response<HttpStringResponse>()->writer(std::move(_socket));
 }
 
 void HttpRequest::not_found_handler(const string_ &error) {
@@ -148,6 +153,10 @@ void HttpRequest::not_found_handler(const string_ &error) {
 }
 
 void HttpRequest::file_server_handler(const string_ &_target) {
+  // check session DGSESSION if exists and not timed out
+  if (!is_authenticated())
+    return redirect_handler("/login", "Login required to access this path");
+  // else redirect to login page
   switch (_req.method()) {
     case http::verb::get:
       send_file(_req.target());
@@ -162,11 +171,82 @@ void HttpRequest::file_server_handler(const string_ &_target) {
 }
 
 void HttpRequest::authentication_handler() {
-  auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()));
-  if (kvMap.at("username") == "dgSuper" &&
-      base64_decode(kvMap.at("password")) == "dglux1234") {
-    std::cout << "User logged in successfully" << std::endl;
-    redirect_handler("/", "Login succeeded");
+  auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()), "&");
+  string_ token;
+  // TODO if (kvMap.at("b64") == "yes") use base64_decode for password
+  if (!is_authenticated(kvMap.at("username"),
+                        base64_decode(kvMap.at("password"))))
+    return not_found_handler("Login did not succeed");
+  // check session
+  // create new session DGSESSION
+  // if remember me create DGUSER DGTOKEN
+  // response set cookie
+  create_response<HttpStringResponse>();
+  get_response<HttpStringResponse>()->init_response();
+  get_response<HttpStringResponse>()->prep_response()->result(
+      http::status::found);
+  get_response<HttpStringResponse>()->prep_response()->keep_alive(false);
+  get_response<HttpStringResponse>()->prep_response()->set(
+      http::field::location, _doc_root);
+  get_response<HttpStringResponse>()->prep_response()->set(http::field::server,
+                                                           "dglux_server");
+  get_response<HttpStringResponse>()->prep_response()->set(
+      http::field::content_type, "text/plain");
+  get_response<HttpStringResponse>()->prep_response()->set(
+      http::field::cookie,
+      _web_server.session_manager()->TOKEN_COOKIE + "=" + token);
+  get_response<HttpStringResponse>()->prep_response()->body() =
+      "Login succeeded";
+  get_response<HttpStringResponse>()->prep_response()->prepare_payload();
+  get_response<HttpStringResponse>()->prep_serializer();
+  get_response<HttpStringResponse>()->writer(std::move(_socket));
+}
+
+bool HttpRequest::is_authenticated(const string_ &username,
+                                   const string_ &password) {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto token_cookie = cvMap.find(_web_server.session_manager()->TOKEN_COOKIE);
+  bool authenticated = false;
+  if (token_cookie == cvMap.end()) {
+    _web_server.login_manager()->check_login(
+        username, password, [&](const ClientInfo client, bool error) {
+          // token = client.permission_str;
+          authenticated = client.default_queue_size;  // TODO check
+        });
   }
+  return authenticated;
+}
+
+bool HttpRequest::is_authenticated() {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto token_cookie = cvMap.find(_web_server.session_manager()->TOKEN_COOKIE);
+  bool authenticated = false;
+  if (token_cookie == cvMap.end())
+    authenticated = _web_server.session_manager()->check_session(
+        cvMap.at(_web_server.session_manager()->TOKEN_COOKIE));
+  return authenticated;
+}
+
+bool HttpRequest::is_session_active() {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto session_cookie =
+      cvMap.find(_web_server.session_manager()->SESSION_COOKIE);
+  bool active = false;
+  if (session_cookie != cvMap.end()) active = true;
+  //        _web_server.session_manager()->check_session(cvMap.at("DGSESSION"));
+
+  return active;
+}
+
+void HttpRequest::create_session() {
+  string_ session_cookie = generate_random_string(50);
+  // if 'remember_me' feature is activated for the user in the users.json file
+  // generate token_cookie = generate_random_string(80);
+  // and user_cookie = "username will be taken from users.json file like
+  // 'dgSuper'";
+  if (!_web_server.session_manager()->check_session(session_cookie))
+    _web_server.session_manager()->add_session(session_cookie);
+  else
+    create_session();
 }
 }

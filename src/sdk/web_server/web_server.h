@@ -12,8 +12,10 @@
 #include <map>
 
 #include "listener.h"
-#include "login_manager.h"
+#include "module/default/simple_login_manager.h"
 #include "module/logger.h"
+#include "user_login_manager.h"
+#include "user_session_manager.h"
 #include "websocket.h"
 
 #include <map>
@@ -26,21 +28,22 @@ namespace dsa {
 class App;
 class Connection;
 class HttpRequest;
+class LoginManager;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  public:
-  typedef std::function<void(
-      WebServer&, HttpRequest&&)>
-      HttpCallback;
+  typedef std::function<void(WebServer&, HttpRequest&&)> HttpCallback;
   typedef std::function<std::shared_ptr<Connection>(
       WebServer&, Websocket&,
       boost::beast::http::request<boost::beast::http::string_body>)>
       WsCallback;
+
  private:
   boost::asio::io_service& _io_service;
   uint16_t _port;
   std::shared_ptr<Listener> _listener;
   shared_ptr_<LoginManager> _login_mngr;
+  shared_ptr_<UserSessionManager> _session_mngr;
   uint16_t _secure_port;
   std::shared_ptr<Listener> _secure_listener;
   boost::asio::ssl::context _ssl_context;
@@ -55,7 +58,9 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   HttpCallbackMap _http_callback_map;
 
  public:
-  WebServer(App& app, shared_ptr_<LoginManager> login_mngr = nullptr);
+  WebServer(App& app,
+            shared_ptr_<LoginManager> _login_mngr =
+                make_shared_<SimpleLoginManager>(nullptr));
   ~WebServer();
 
   void listen(uint16_t port = 80);
@@ -64,6 +69,8 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   void destroy();
   boost::asio::io_service& io_service() { return _io_service; }
   boost::asio::ssl::context& ssl_context() { return _ssl_context; }
+  shared_ptr_<LoginManager> login_manager() { return _login_mngr; }
+  shared_ptr_<UserSessionManager> session_manager() { return _session_mngr; }
 
   // HTTP server specific methods
   void add_http_handler(const string_& path, HttpCallback&& callback);
@@ -82,9 +89,7 @@ class ErrorCallback {
  public:
   explicit ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
-  void operator()(
-      WebServer& web_server, Websocket,
-      HttpRequest&& req) {
+  void operator()(WebServer& web_server, Websocket, HttpRequest&& req) {
     // TODO - construct a proper http response
     LOG_ERROR(__FILENAME__, LOG << "http error code: " << _error_code);
   }

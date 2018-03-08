@@ -6,6 +6,9 @@ list(APPEND WebServerSourceFiles
         websocket.cc
         http_request.cc
         http_response.cc
+        user_session_manager.cc
+        user_session.cc
+        user_login_manager.cc
     )
 
 foreach (file ${WebServerSourceFiles})

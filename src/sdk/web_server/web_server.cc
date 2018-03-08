@@ -2,6 +2,7 @@
 
 #include "web_server.h"
 
+#include "fields_alloc.h"
 #include "util/app.h"
 
 #include <iostream>
@@ -9,11 +10,13 @@
 namespace dsa {
 
 WebServer::WebServer(App& app, shared_ptr_<LoginManager> login_mngr)
-  : _io_service(app.io_service()), _login_mngr(std::move(login_mngr)),
-    _ssl_context{boost::asio::ssl::context::sslv23} {
+    : _io_service(app.io_service()),
+      _login_mngr(std::move(login_mngr)),
+      _session_mngr(make_shared_<UserSessionManager>()),
+      _ssl_context{boost::asio::ssl::context::sslv23} {
   try {
     _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::no_sslv2);
+                             boost::asio::ssl::context::no_sslv2);
     _ssl_context.set_password_callback(
         [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
           return "";
@@ -53,7 +56,7 @@ void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
   // TODO: report error/warning otherwise
 }
 
-//WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
+// WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
 //  if (_ws_callback_map.count(path)) {
 //    return _ws_callback_map.at(path);
 //  }
