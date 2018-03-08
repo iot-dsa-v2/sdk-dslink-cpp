@@ -1,6 +1,21 @@
 #ifndef DSA_SDK_STANDARD_PROFILE_JSON_H
 #define DSA_SDK_STANDARD_PROFILE_JSON_H
 
-static const std::string standard_profile = "{}";
+static const std::string standard_profile = R"({
+ "2.0": {
+  "Broker": {
+   "User": {
+    "Remove": {
+     "$invokable": "config"
+    }
+   },
+   "Client": {
+    "Remove": {
+     "$invokable": "config"
+    }
+   }
+  }
+ }
+})";
 
 #endif //DSA_SDK_STANDARD_PROFILE_JSON_H

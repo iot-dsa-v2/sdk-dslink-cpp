@@ -18,6 +18,7 @@ set(SOURCES
         config/broker_config.cc
         config/broker_config_item.cc
         module/broker_client_manager.cc
+        module/broker_client_nodes.cc
         module/broker_authorizer.cc
         module/module_broker_default.cc
         remote_node/broker_session_manager.cc
@@ -26,8 +27,8 @@ set(SOURCES
         remote_node/remote_root_node.cc
         remote_node/invoke_proxy.cc
         remote_node/set_proxy.cc
+        remote_node/dynamic_children_parent.cc
         node/broker_root.cc
-        node/downstream/downstream_root.cc
         node/upstream/upstream_root.cc
         node/home/home_root.cc
         node/sys/sys_root.cc

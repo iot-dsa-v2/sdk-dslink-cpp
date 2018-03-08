@@ -33,7 +33,7 @@ class NodeModel : public NodeModelBase {
  public:
   NodeModel(LinkStrandRef &&strand,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
-  NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &profile,
+  NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
@@ -48,6 +48,10 @@ class NodeModel : public NodeModelBase {
 
   VarBytesRef &get_summary() override;
 
+  const std::unordered_map<string_, ref_<NodeModelBase>> &get_list_children() {
+    return _list_children;
+  };
+
  protected:
   void on_subscribe(const SubscribeOptions &options,
                     bool first_request) override;
@@ -60,8 +64,11 @@ class NodeModel : public NodeModelBase {
   virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
 
  public:  // serialization logic
-  void save(StorageBucket &storage, bool json = false) const;
+  void save(StorageBucket &storage, const string_ &storage_path = "",
+            bool recursive = false, bool user_json = false) const;
   void load(VarMap &map);
+
+ protected:  // serialization implementation
   // return true if a metadata should be saved
   virtual bool save_meta(const string_ &name) const { return false; }
   // return true if a attribute should be saved

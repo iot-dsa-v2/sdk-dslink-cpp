@@ -72,12 +72,10 @@ class LinkStrand : public DestroyableRef<LinkStrand> {
   ref_<StrandTimer> add_timer(int32_t interval_ms, TimerCallback &&callback);
 
   ClientManager &client_manager() { return *__client_manager; };
-
   Authorizer &authorizer() { return *__authorizer; };
-
   OutgoingStreamAcceptor &stream_acceptor() { return *__stream_acceptor; };
-
   SessionManager &session_manager() { return *__session_manager; };
+  Storage &storage() { return *__storage; };
 
   ECDH &ecdh() { return *__ecdh; };
 };

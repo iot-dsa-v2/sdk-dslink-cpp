@@ -12,7 +12,6 @@
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "node/broker_root.h"
-#include "node/downstream/downstream_root.h"
 #include "remote_node/broker_session_manager.h"
 #include "remote_node/remote_root_node.h"
 #include "responder/node_state_manager.h"
@@ -21,6 +20,7 @@
 #include "web_server/web_server.h"
 
 #include "module/module_broker_default.h"
+#include "node/broker_root.h"
 
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules,
@@ -59,7 +59,8 @@ void DsBroker::init(ref_<Module>&& default_module) {
   if (default_module == nullptr)
     default_module = make_ref_<ModuleBrokerDefault>();
 
-  modules = make_ref_<ModuleWithLoader>(_config->get_exe_path() / "modules", std::move(default_module));
+  modules = make_ref_<ModuleWithLoader>(_config->get_exe_path() / "modules",
+                                        std::move(default_module));
   modules->init_all(*_app, strand);
 
   // init logger
@@ -67,10 +68,11 @@ void DsBroker::init(ref_<Module>&& default_module) {
       Logger::parse(_config->log_level().get_value().to_string());
   Logger::set_default(modules->get_logger());
 
+  // init storage
+  strand->set_storage(modules->get_storage());
+
   // init security manager
-  auto client_manager = modules->get_client_manager();
-  client_manager->set_strand(strand);
-  strand->set_client_manager(client_manager);
+  strand->set_client_manager(modules->get_client_manager());
 
   auto authorizer = modules->get_authorizer();
   strand->set_authorizer(std::move(authorizer));
@@ -83,8 +85,11 @@ void DsBroker::init(ref_<Module>&& default_module) {
       make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
 
   // init session manager
-  strand->set_session_manager(
-      make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
+  strand->set_session_manager(make_ref_<BrokerSessionManager>(
+      strand, static_cast<NodeStateManager&>(strand->stream_acceptor())));
+
+  modules->add_module_node(broker_root->get_module_root(),
+                           broker_root->get_pub());
 }
 void DsBroker::destroy_impl() {
   modules->destroy();
@@ -116,9 +121,10 @@ void DsBroker::run(bool wait) {
     _web_server->secure_listen(https_port);
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
+
     *root_cb = [this](
         WebServer& _web_server, std::unique_ptr<Websocket> websocket,
-        boost::beast::http::request<boost::beast::http::string_body> req) {
+        http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
       LinkStrandRef link_strand(strand);
       DsaWsCallback dsa_ws_callback(link_strand);
       return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
@@ -157,4 +163,4 @@ void DsBroker::wait() {
   _app->wait();
   destroy();
 }
-}
+}  // namespace dsa

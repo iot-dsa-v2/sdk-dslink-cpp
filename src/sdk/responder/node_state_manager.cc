@@ -10,6 +10,7 @@
 #include "model_base.h"
 #include "module/logger.h"
 #include "node_model.h"
+#include "profile/pub_root.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
@@ -157,11 +158,11 @@ ref_<NodeModel> NodeStateManager::get_profile(const string_ &path,
                                               bool dsa_standard) {
   ref_<NodeState> pub_state = get_state(PUB_PATH);
   if (dsa_standard) {
-    NodeModel *pub_model = pub_state->model_cast<NodeModel>();
+    PubRoot *pub_model = pub_state->model_cast<PubRoot>();
     if (pub_model == nullptr) {
-      LOG_FATAL(__FILENAME__, LOG << "failed to create standard profile node");
+      LOG_FATAL(__FILENAME__, LOG << "failed to find standard profile node");
     }
-    // TODO implement a standard profile collection
+    return pub_model->get_standard_profile(path);
   } else {
     auto state = pub_state->find_child(Path(path));
     if (state != nullptr) {

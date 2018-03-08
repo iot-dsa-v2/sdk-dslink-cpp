@@ -60,6 +60,7 @@ class HttpResponse {
   void prepare_file_response();
   void prepare_file_serializer();
   void file_writer(tcp::socket&& _socket);
+  void file_writer(Websocket&& _socket);
 
   boost::optional<
       http::response<http::string_body, http::basic_fields<alloc_t>>>&
@@ -67,6 +68,7 @@ class HttpResponse {
   void prepare_string_response();
   void prepare_string_serializer();
   void string_writer(tcp::socket&& _socket);
+  void string_writer(Websocket&& _socket);
 };
 }
 

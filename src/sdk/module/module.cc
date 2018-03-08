@@ -73,7 +73,7 @@ ref_<ClientManager> Module::get_client_manager() { return _client_manager; }
 ref_<Authorizer> Module::get_authorizer() { return _authorizer; }
 shared_ptr_<LoginManager> Module::get_login_manager() { return _login_manager; }
 
-void Module::add_module_node(ref_<NodeModel>& module_node) {}
+void Module::add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root) {}
 void Module::add_web_handler() {}
 
 void Module::destroy_impl() {

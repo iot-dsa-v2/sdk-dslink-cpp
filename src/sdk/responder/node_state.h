@@ -77,6 +77,7 @@ class NodeState : public DestroyableRef<NodeState> {
 
   bool registered() { return _path.data() != nullptr; }
 
+  ref_<NodeState> get_parent() { return _parent; }
   ref_<NodeState> get_child(const string_ &name, bool create);
   ref_<NodeState> create_child(const Path &path, NodeState &last_modeled_state,
                                bool allows_runtime_change);
@@ -126,14 +127,6 @@ class NodeState : public DestroyableRef<NodeState> {
   void invoke(ref_<OutgoingInvokeStream> &&stream);
 
   void set(ref_<OutgoingSetStream> &&stream);
-};
-
-class NodeStateChild : public NodeState {
- public:
-  const string_ name;
-
-  NodeStateChild(NodeStateOwner &owner, ref_<NodeState> &&parent,
-                 const string_ &name);
 };
 
 class NodeStateRoot : public NodeState {

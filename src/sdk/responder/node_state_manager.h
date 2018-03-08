@@ -20,8 +20,8 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   ref_<NodeStateRoot> _root;
   std::unordered_map<string_, ref_<NodeState>> _states;
 
+  // find or create a state
   ref_<NodeState> get_state(const Path &path);
-  ref_<NodeState> check_state(const Path &path);
 
   TimerRef _timer;
   // clear unused nodestates every minute
@@ -37,6 +37,9 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                    size_t timer_interval = 60);
   ~NodeStateManager() final;
+
+  // find a state if it exists
+  ref_<NodeState> check_state(const Path &path);
 
   void remove_state(const string_ &path) final;
 

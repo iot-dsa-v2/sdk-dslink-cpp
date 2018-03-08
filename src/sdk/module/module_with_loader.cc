@@ -177,10 +177,10 @@ shared_ptr_<LoginManager> ModuleWithLoader::create_login_manager(
   return _default_module->get_login_manager();
 }
 
-void ModuleWithLoader::add_module_node(ref_<NodeModel>& module_node) {
-  _default_module->add_module_node(module_node);
+void ModuleWithLoader::add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root) {
+  _default_module->add_module_node(module_node, pub_root);
   for (auto module : _modules) {
-    module->add_module_node(module_node);
+    module->add_module_node(module_node, pub_root);
   }
 }
 

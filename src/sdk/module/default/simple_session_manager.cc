@@ -11,24 +11,25 @@ SimpleSessionManager::SimpleSessionManager(LinkStrandRef strand)
 
 void SimpleSessionManager::get_session(const string_ &dsid,
                                        const string_ &auth_token,
+                                       bool is_responder,
                                        Session::GetSessionCallback &&callback) {
   if (memory_check_interval > 0 && _count_to_check >= memory_check_interval) {
     check_destroyed_session();
   }
-  _strand->client_manager().get_client(
-      dsid, auth_token, [ =, callback = std::move(callback) ](
-                            const ClientInfo client, bool error) mutable {
-        if (error) {
-          callback(ref_<Session>(), _last_client);  // return nullptr
-          return;
-        }
-        _last_client.id = dsid;
-        auto session = make_ref_<Session>(_strand, client.id);
-        _sessions[session.get()] = session;
+  _strand->client_manager().get_client(dsid, auth_token, is_responder, [
+    =, callback = std::move(callback)
+  ](const ClientInfo client, bool error) mutable {
+    if (error) {
+      callback(ref_<Session>(), _last_client);  // return nullptr
+      return;
+    }
+    _last_client.id = dsid;
+    auto session = make_ref_<Session>(_strand, client.id);
+    _sessions[session.get()] = session;
 
-        callback(session, _last_client);
+    callback(session, _last_client);
 
-      });
+  });
 }
 
 void SimpleSessionManager::check_destroyed_session() {
