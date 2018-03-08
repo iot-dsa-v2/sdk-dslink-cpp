@@ -12,7 +12,7 @@ namespace dsa {
 
 LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, DsLink &lnk)
     : NodeModel(std::move(strand)) {
-  if (lnk.get_close_token() != "") {
+  if (lnk.get_master_token() != "") {
     add_list_child(
         "Stop",
         make_ref_<SimpleInvokeNode>(
@@ -22,7 +22,7 @@ LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, DsLink &lnk)
                 OutgoingInvokeStream & stream, ref_<NodeState> && parent) {
               // Checking Token
               if (v.get_type() == Var::STRING &&
-                  link->get_close_token() == v.get_string()) {
+                  link->get_master_token() == v.get_string()) {
                 link->strand->add_timer(1000, [link](bool canceled) {
                   link->destroy();
                   return false;

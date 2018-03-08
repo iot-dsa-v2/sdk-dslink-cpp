@@ -158,9 +158,9 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
 
 TEST_F(BrokerDsLinkTest, StopTest) {
 
-  std::string close_token = "12345678901234567890123456789012";
+  std::string master_token = "12345678901234567890123456789012";
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,"");
-  string_to_storage(close_token, default_close_token_path, storage_bucket);
+  string_to_storage(master_token, default_master_token_path, storage_bucket);
 
   auto broker = broker_dslink_test::create_broker();
   shared_ptr_<App> &app = broker->get_app();
@@ -191,7 +191,7 @@ TEST_F(BrokerDsLinkTest, StopTest) {
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
-    invoke_req->set_value(Var(close_token));
+    invoke_req->set_value(Var(master_token));
     invoke_req->set_target_path("Downstream/Test_1/Sys/Stop");
 
     link_req->invoke(
@@ -208,15 +208,15 @@ TEST_F(BrokerDsLinkTest, StopTest) {
   });
   WAIT_EXPECT_TRUE(500, [&]() -> bool { return connected && invoked; });
   WAIT_EXPECT_TRUE(2000, [&]() -> bool { return link_1->is_destroyed(); });
-  storage_bucket.remove(default_close_token_path);
+  storage_bucket.remove(default_master_token_path);
   broker->wait();
   EXPECT_TRUE(broker->is_destroyed());
 }
 
 TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
-  std::string close_token = generate_random_string(32);
+  std::string master_token = generate_random_string(32);
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr,"");
-  string_to_storage(close_token, default_close_token_path, storage_bucket);
+  string_to_storage(master_token, default_master_token_path, storage_bucket);
 
   auto app = make_shared_<App>();
 
@@ -256,7 +256,7 @@ TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   link_1->strand->post([&]() { link_1->destroy(); });
 
   broker->strand->post([&]() { broker->destroy(); });
-  storage_bucket.remove(default_close_token_path);
+  storage_bucket.remove(default_master_token_path);
 
   app->close();
 
@@ -271,7 +271,7 @@ TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
 
 TEST_F(BrokerDsLinkTest, SysListWithoutCloseToken) {
   // we force to not have close
-  std::remove("config/.close_token");
+  std::remove("config/.master_token");
 
   auto app = make_shared_<App>();
 

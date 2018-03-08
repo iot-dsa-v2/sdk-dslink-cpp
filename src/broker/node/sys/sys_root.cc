@@ -12,7 +12,7 @@ namespace dsa {
 
 BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
     : NodeModel(std::move(strand)) {
-  if (broker->get_close_token() != "") {
+  if (broker->get_master_token() != "") {
     add_list_child(
         "Stop",
         make_ref_<SimpleInvokeNode>(
@@ -22,7 +22,7 @@ BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
                                          ref_<NodeState> && parent) {
               // Checking Token
               if (v.get_type() == Var::STRING &&
-                  broker->get_close_token() == v.get_string()) {
+                  broker->get_master_token() == v.get_string()) {
                 broker->strand->add_timer(1000, [broker](bool canceled) {
                   LOG_INFO(__FILENAME__, LOG << "DsBroker stopped");
                   broker->destroy();

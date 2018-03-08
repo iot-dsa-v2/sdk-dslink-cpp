@@ -103,7 +103,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     }
   }
 
-  close_token = get_close_token_from_storage(get_config_bucket());
+  master_token = get_master_token_from_storage(get_config_bucket());
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
@@ -439,5 +439,5 @@ ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
   return _client->get_session().requester.set(std::move(callback),
                                               std::move(message));
 }
-string_ DsLink::get_close_token() { return close_token; }
+string_ DsLink::get_master_token() { return master_token; }
 }  // namespace dsa
