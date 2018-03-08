@@ -120,7 +120,7 @@ TEST_F(DslinkTest, SaveMainNode) {
 
   storage_bucket->remove_all();
   //save main node
-  main_node->save(*storage_bucket, true);
+  main_node->save(*storage_bucket, "Main", false, true);
 
   destroy_dslink_in_strand(link);
   main_node.reset();
@@ -214,6 +214,7 @@ TEST_F(DslinkTest, SaveMainNode) {
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return connected && flag1; });
 
   destroy_dslink_in_strand(link2);
+  storage_bucket2->remove_all();
 
   app->close();
   WAIT_EXPECT_TRUE(3000, [&]() -> bool { return app->is_stopped(); });
