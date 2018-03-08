@@ -52,8 +52,8 @@ void ModuleBrokerDefault::add_module_node(NodeModel& module_node,
   if (_authorizer != nullptr) {
   }
   if (_login_manager != nullptr) {
-    module_node.add_list_child(
-        "Users", static_cast<BrokerLoginManager&>(*_login_manager)._module_node);
+//    module_node.add_list_child(
+//        "Users", static_cast<BrokerLoginManager&>(*_login_manager)._module_node);
   }
 }
 }  // namespace dsa
