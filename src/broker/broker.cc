@@ -86,8 +86,8 @@ void DsBroker::init(ref_<Module>&& default_module) {
       make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
 
   // init session manager
-  strand->set_session_manager(
-      make_ref_<BrokerSessionManager>(strand, broker_root->_downstream_root));
+  strand->set_session_manager(make_ref_<BrokerSessionManager>(
+      strand, static_cast<NodeStateManager&>(strand->stream_acceptor())));
 
   modules->add_module_node(broker_root->get_module_root(),
                            broker_root->get_pub());
@@ -123,15 +123,14 @@ void DsBroker::run(bool wait) {
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
 
-    *root_cb =
-        [this](
-            WebServer& _web_server, std::unique_ptr<Websocket> websocket,
-            boost::beast::http::request<boost::beast::http::string_body> req) {
-          LinkStrandRef link_strand(strand);
-          DsaWsCallback dsa_ws_callback(link_strand);
-          return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
-                                 std::move(req));
-        };
+    *root_cb = [this](
+        WebServer& _web_server, std::unique_ptr<Websocket> websocket,
+        boost::beast::http::request<boost::beast::http::string_body> req) {
+      LinkStrandRef link_strand(strand);
+      DsaWsCallback dsa_ws_callback(link_strand);
+      return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
+                             std::move(req));
+    };
 
     _web_server->add_ws_handler("/", std::move(*root_cb));
   });

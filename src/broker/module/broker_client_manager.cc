@@ -2,6 +2,7 @@
 
 #include "broker_client_manager.h"
 
+#include "../node/paths.h"
 #include "../node/pub/pub_root.h"
 #include "../remote_node/broker_session_manager.h"
 #include "broker_client_nodes.h"
@@ -13,8 +14,6 @@
 #include "util/string.h"
 
 namespace dsa {
-
-const string_ DOWNSTREAM_PATH = "Downstream/";
 
 BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
     : _strand(strand) {}

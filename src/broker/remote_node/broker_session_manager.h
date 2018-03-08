@@ -19,7 +19,7 @@ class BrokerSessionManager final : public SessionManager {
 
   LinkStrandRef _strand;
 
-  ref_<DownstreamRoot> _downstream_root;
+  ref_<NodeStateManager> _state_manager;
 
   void client_destroyed(BrokerClient &client);
 
@@ -28,11 +28,14 @@ class BrokerSessionManager final : public SessionManager {
 
  public:
   BrokerSessionManager(LinkStrandRef strand,
-                       ref_<DownstreamRoot> downstream_root);
+                       NodeStateManager& state_manager);
   ~BrokerSessionManager() final;
   void get_session(const string_ &dsid, const string_ &auth_token,
                    bool is_responder,
                    Session::GetSessionCallback &&callback) final;
+
+  ref_<RemoteRootNode> add_responder_root(const ClientInfo &info,
+                                          Session &session);
 
   void remove_sessions(const string_ &dsid, const string_ &responder_path);
 };
