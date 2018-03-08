@@ -125,34 +125,18 @@ TEST_F(DslinkTest, SaveMainNode) {
   destroy_dslink_in_strand(link);
   main_node.reset();
 
-  app->close();
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
-
-  if (!app->is_stopped()) {
-    app->force_stop();
-  }
-  app->wait();
-}
-
-TEST_F(DslinkTest, LoadMainNode) {
   typedef std::vector<std::vector<string_>> ListResponses;
-  shared_ptr<App> app = make_shared<App>();
-
-  const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4121",
-                        "-l",         "info",          "--thread",
-                        "4",          "--server-port", "4121"};
-  int argc = 9;
-  auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
+  auto link2 = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0", app);
   // filter log for unit test
   static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
-  ref_<MockNodeMain> main_node =
-      make_ref_<MockNodeMain>(link->strand->get_ref());
-  main_node->add_list_child(
+  ref_<MockNodeMain> main_node2 =
+      make_ref_<MockNodeMain>(link2->strand->get_ref());
+  main_node2->add_list_child(
       "Add_Child",
       make_ref_<SimpleInvokeNode>(
-          link->strand->get_ref(),
+          link2->strand->get_ref(),
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
               ref_<NodeState> &&parent) {
 
@@ -160,7 +144,7 @@ TEST_F(DslinkTest, LoadMainNode) {
 
             parent_model->add_list_child(
                 v.to_string(),
-                make_ref_<MockNodeChild>(link->strand->get_ref(), v));
+                make_ref_<MockNodeChild>(link2->strand->get_ref(), v));
 
             stream.close();
           }));
@@ -168,12 +152,12 @@ TEST_F(DslinkTest, LoadMainNode) {
   bool connected = false;
   bool flag1 = false;
   ListResponses root_list_responses;
-  ref_<IncomingListCache> list_cache;
+  ref_<IncomingListCache> list_cache2;
 
-  SimpleStorage simple_storage(nullptr);
+  SimpleStorage simple_storage2(nullptr);
 
-  std::unique_ptr<StorageBucket> storage_bucket =
-      simple_storage.get_bucket("node");
+  std::unique_ptr<StorageBucket> storage_bucket2 =
+      simple_storage2.get_bucket("node");
 
   int read_order = 0;
   auto read_all_callback = [&](std::string storage_key,
@@ -185,19 +169,19 @@ TEST_F(DslinkTest, LoadMainNode) {
 
       auto v = Var::from_json(str);
       //load main node
-      main_node->load(v.get_map());
+      main_node2->load(v.get_map());
     }
 
     return;
   };
 
-  storage_bucket->read_all(read_all_callback, [&]() {
+  storage_bucket2->read_all(read_all_callback, [&]() {
     EXPECT_EQ(read_order, 0);
     return;
   });
 
-  link->init_responder(std::move(main_node));
-  link->connect([&](const shared_ptr_<Connection> connection,
+  link2->init_responder(std::move(main_node2));
+  link2->connect([&](const shared_ptr_<Connection> connection,
                     ref_<DsLinkRequester> link_req) {
     connected = true;
 
@@ -229,7 +213,7 @@ TEST_F(DslinkTest, LoadMainNode) {
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return connected && flag1; });
 
-  destroy_dslink_in_strand(link);
+  destroy_dslink_in_strand(link2);
 
   app->close();
   WAIT_EXPECT_TRUE(3000, [&]() -> bool { return app->is_stopped(); });
