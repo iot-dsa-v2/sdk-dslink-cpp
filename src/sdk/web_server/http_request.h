@@ -31,11 +31,12 @@ namespace dsa {
 class WebServer;
 class HttpResponse;
 
+using alloc_t = fields_alloc<char>;
+using request_body_t =
+    http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
+
 class HttpRequest {
  private:
-  using alloc_t = fields_alloc<char>;
-  using request_body_t =
-      http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
 
   std::string _doc_root;
 
