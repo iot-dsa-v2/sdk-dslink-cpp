@@ -146,7 +146,10 @@ void BrokerClientManager::get_client(const string_& dsid,
 
         callback(child->get_client_info(), false);
       } else if (_quarantine_enabled) {
-        // TODO add to quaratine
+        ClientInfo info(dsid, "");
+        info.group = "none";
+        info.responder_path = QUARANTINE_PATH + dsid;
+        callback(std::move(info), false);
       } else {
         callback(ClientInfo(dsid, auth_token), true);
       }
@@ -166,8 +169,7 @@ string_ BrokerClientManager::create_downstream_path(const string_& dsid) {
       return "Downstream/" + name;
     }
   }
-  LOG_FATAL(__FILENAME__,
-            LOG << "impossible conflict of dsid" << dsid);
+  LOG_FATAL(__FILENAME__, LOG << "impossible conflict of dsid" << dsid);
 }
 
 void BrokerClientManager::set_allow_all_links(bool value) {
