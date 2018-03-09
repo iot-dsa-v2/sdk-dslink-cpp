@@ -19,13 +19,13 @@ namespace dsa {
 BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
     : _strand(strand) {}
 BrokerClientManager::~BrokerClientManager() = default;
-ref_<NodeModel> BrokerClientManager::get_clients_node() { return _clients; }
+ref_<NodeModel> BrokerClientManager::get_clients_root() { return _clients_root; }
 
 void BrokerClientManager::rebuild_path2id() {
   if (is_destroyed()) return;
 
   _path2id.clear();
-  for (auto& it : _clients->get_list_children()) {
+  for (auto& it : _clients_root->get_list_children()) {
     auto* link_node = dynamic_cast<BrokerClientNode*>(it.second.get());
     if (link_node != nullptr) {
       if (!link_node->get_client_info().id.empty())
@@ -43,7 +43,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                                     ref_<NodeState> && parent) {
         auto* client = parent->model_cast<BrokerClientNode>();
         if (client != nullptr &&
-            parent->get_parent() == _clients->get_state()) {
+            parent->get_parent() == _clients_root->get_state()) {
           const string_& dsid = parent->get_path().last_name();
           const string_& responder_path =
               client->get_client_info().responder_path;
@@ -54,9 +54,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           }
 
           // delete the storage
-          _clients->_storage->remove(dsid);
+          _clients_root->_storage->remove(dsid);
           // remove the node
-          _clients->remove_child(dsid);
+          _clients_root->remove_child(dsid);
 
           stream.close();
 
@@ -68,10 +68,10 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         }
       });
 
-  _clients.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
-  _quarantine.reset(new DynamicChildrenParent(_strand->get_ref()));
+  _clients_root.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
+  _quarantine_root.reset(new DynamicChildrenParent(_strand->get_ref()));
 
-  _quarantine->add_list_child(
+  _quarantine_root->add_list_child(
       "Allow_All",
       make_ref_<ValueNodeModel>(_strand->get_ref(),
                                 [ this, keepref = get_ref() ](const Var& v) {
@@ -83,7 +83,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                                 },
                                 PermissionLevel::CONFIG));
 
-  _quarantine->add_list_child(
+  _quarantine_root->add_list_child(
       "Enabled",
       make_ref_<ValueNodeModel>(_strand->get_ref(),
                                 [ this, keepref = get_ref() ](const Var& v) {
@@ -111,9 +111,9 @@ void BrokerClientManager::get_client(const string_& dsid,
       return;
     }
 
-    auto search = _clients->get_list_children().find(dsid);
+    auto search = _clients_root->get_list_children().find(dsid);
 
-    if (search != _clients->get_list_children().end()) {
+    if (search != _clients_root->get_list_children().end()) {
       // a known dslink
 
       auto* p = dynamic_cast<BrokerClientNode*>(search->second.get());
@@ -141,8 +141,8 @@ void BrokerClientManager::get_client(const string_& dsid,
         // add group
         child->get_client_info() = std::move(info);
 
-        _clients->add_list_child(dsid, ref_<NodeModelBase>(child));
-        child->save(*_clients->_storage, dsid, false, true);
+        _clients_root->add_list_child(dsid, ref_<NodeModelBase>(child));
+        child->save(*_clients_root->_storage, dsid, false, true);
 
         callback(child->get_client_info(), false);
       } else if (_quarantine_enabled) {
@@ -184,8 +184,8 @@ void BrokerClientManager::set_quarantine_enabled(bool value) {
 }
 
 void BrokerClientManager::destroy_impl() {
-  _clients.reset();
-  _quarantine.reset();
+  _clients_root.reset();
+  _quarantine_root.reset();
   ClientManager::destroy_impl();
 }
 }  // namespace dsa
