@@ -78,7 +78,10 @@ void BrokerClient::destroy_impl() {
     _single_session.reset();
   }
 
-  _manager->client_destroyed(*this);
+  auto *p_manager = _manager.get();
   _manager.reset();
+  // it's possibel that this will be deleted at next line
+  // so reset the smart pointer after is not safe
+  p_manager->client_destroyed(*this);
 }
 }
