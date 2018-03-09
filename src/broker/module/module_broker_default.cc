@@ -48,6 +48,9 @@ void ModuleBrokerDefault::add_module_node(NodeModel& module_node,
     module_node.add_list_child(
         "Quarantine", static_cast<BrokerClientManager &>(*_client_manager)
             .get_quarantine_root());
+	module_node.add_list_child(
+		"Tokens", static_cast<BrokerClientManager &>(*_client_manager)
+		.get_tokens_root());
   }
   if (_authorizer != nullptr) {
   }

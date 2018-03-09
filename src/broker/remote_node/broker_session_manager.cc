@@ -49,7 +49,7 @@ void BrokerSessionManager::remove_sessions(const string_ &dsid,
   auto search = _clients.find(dsid);
   if (search != _clients.end()) {
     search->second->destroy();
-    _clients.erase(search);
+    //_clients.erase(search); // already handled in client->destroy()
   }
 
   // remove downstream ndoe

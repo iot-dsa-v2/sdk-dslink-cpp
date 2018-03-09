@@ -24,6 +24,7 @@ class BrokerClientManager : public ClientManager {
 
   ref_<BrokerClientsRoot> _clients_root;
   ref_<NodeModel> _quarantine_root;
+  ref_<NodeModel> _tokens_root;
 
   // map its name in Downstream back to dsid
   std::unordered_map<string_, string_> _path2id;
@@ -47,6 +48,7 @@ class BrokerClientManager : public ClientManager {
   void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
   ref_<NodeModel> get_clients_root();
   ref_<NodeModel>& get_quarantine_root() { return _quarantine_root; };
+  ref_<NodeModel>& get_tokens_root() { return _tokens_root; };
   void get_client(const string_& dsid, const string_& auth_token,
                   bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;

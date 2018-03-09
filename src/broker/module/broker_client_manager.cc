@@ -19,7 +19,9 @@ namespace dsa {
 BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
     : _strand(strand) {}
 BrokerClientManager::~BrokerClientManager() = default;
-ref_<NodeModel> BrokerClientManager::get_clients_root() { return _clients_root; }
+ref_<NodeModel> BrokerClientManager::get_clients_root() {
+  return _clients_root;
+}
 
 void BrokerClientManager::rebuild_path2id() {
   if (is_destroyed()) return;
@@ -44,8 +46,8 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         auto* client = parent->model_cast<BrokerClientNode>();
         if (client != nullptr &&
             parent->get_parent() == _clients_root->get_state()) {
-          const string_& dsid = parent->get_path().last_name();
-          const string_& responder_path =
+          const string_ dsid = parent->get_path().last_name();
+          const string_ responder_path =
               client->get_client_info().responder_path;
 
           // remove from path2id map
@@ -56,7 +58,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           // delete the storage
           _clients_root->_storage->remove(dsid);
           // remove the node
-          _clients_root->remove_child(dsid);
+          _clients_root->remove_list_child(dsid);
 
           stream.close();
 
@@ -70,6 +72,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _clients_root.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
   _quarantine_root.reset(new DynamicChildrenParent(_strand->get_ref()));
+  _tokens_root.reset(new NodeModel(_strand->get_ref()));
 
   _quarantine_root->add_list_child(
       "Allow_All",

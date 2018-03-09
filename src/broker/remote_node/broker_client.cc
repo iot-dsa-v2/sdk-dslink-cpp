@@ -52,6 +52,8 @@ void BrokerClient::add_session(LinkStrandRef &strand,
 }
 
 void BrokerClient::session_destroyed(Session &session) {
+  if (is_destroyed()) return;
+
   if (&session == _single_session.get()) {
     destroy();
     return;
