@@ -21,7 +21,7 @@ class NodeModel : public NodeModelBase {
   ref_<NodeModel> _profile;
   std::unordered_map<string_, VarBytesRef> _metas;
   std::unordered_map<string_, VarBytesRef> _attributes;
-  std::unordered_map<string_, ref_<NodeModelBase>> _list_children;
+  std::unordered_map<string_, dsa::ref_<NodeModelBase>> _list_children;
 
   VarBytesRef _summary;
 
@@ -42,13 +42,19 @@ class NodeModel : public NodeModelBase {
   void update_property(const string_ &field, Var &&value) {
     update_property(field, make_ref_<VarBytes>(std::move(value)));
   }
+
+  // add a node to children list, and show it in the list response
+  // but if name already exists in profile, it wont be in the list response
+  // In order to show it and overwrite default behavior of the profile
+  // override initialize() function and add_list_child in the end of initialize
   ref_<NodeModelBase> add_list_child(const string_ &name,
                                      ref_<NodeModelBase> &&model);
   void remove_list_child(const string_ &name);
 
   VarBytesRef &get_summary() override;
 
-  const std::unordered_map<string_, ref_<NodeModelBase>> &get_list_children() {
+  const std::unordered_map<string_, dsa::ref_<NodeModelBase>>
+      &get_list_children() {
     return _list_children;
   };
 

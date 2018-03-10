@@ -4,6 +4,8 @@
 #include "broker_client_nodes.h"
 #include "module/storage.h"
 #include "module/stream_acceptor.h"
+#include "responder/node_state.h"
+#include "responder/value_node_model.h"
 
 namespace dsa {
 
@@ -29,25 +31,105 @@ void BrokerClientsRoot::initialize() {
     if (map.is_map()) {
       // TODO, remove this dispatch, as well as the above mutable, just a work
       // around before we have strand bucket
-      _strand->dispatch(
-          [ this, keepref = std::move(keepref), key, map = std::move(map) ]() {
-            // add a child dslink node
-            auto child = make_ref_<BrokerClientNode>(
-                _strand->get_ref(),
-                _strand->stream_acceptor().get_profile("Broker/Client", true));
+      _strand->dispatch([
+        this, keepref = std::move(keepref), key, map = std::move(map)
+      ]() mutable {
+        // add a child dslink node
+        auto child = make_ref_<BrokerClientNode>(
+            _strand->get_ref(),
+            _strand->stream_acceptor().get_profile("Broker/Client", true), key);
+        child->load(map.get_map());
 
-            child->load(map.get_map());
-
-            add_list_child(key, std::move(child));
-          });
+        add_list_child(key, std::move(child));
+      });
     }
   },
                      [manager = _manager]() { manager->rebuild_path2id(); });
 }
 
 BrokerClientNode::BrokerClientNode(LinkStrandRef&& strand,
-                                   ref_<NodeModel>&& profile)
-    : NodeModel(std::move(strand), std::move(profile)){};
+                                   ref_<NodeModel>&& profile,
+                                   const string_& dsid)
+    : NodeModel(std::move(strand), std::move(profile)), _client_info(dsid, "") {
+  // initialize children value nodes;
+  _group_node.reset(new ValueNodeModel(
+      _strand->get_ref(), [ this, keepref = get_ref() ](const Var& v) {
+        if (v.is_string()) {
+          _client_info.group = v.get_string();
+          return true;
+        }
+        return false;
+      },
+      PermissionLevel::CONFIG));
+  _group_node->update_property("$type", Var("string"));
+  add_list_child("Group", _group_node->get_ref());
+
+  _path_node.reset(new ValueNodeModel(
+      _strand->get_ref(), [ this, keepref = get_ref() ](const Var& v) {
+        if (v.is_string()) {
+          if (_client_info.max_session > 1) {
+            return false;
+          }
+          auto* p_client_root =
+              _state->get_parent()->model_cast<BrokerClientsRoot>();
+          if (p_client_root != nullptr) {
+            const string_& new_path = v.get_string();
+            if (new_path == _client_info.responder_path) {
+              // no need to change
+              return true;
+            }
+            string_ error = p_client_root->_manager->update_client_path(
+                _client_info.id, new_path);
+            if (error.empty()) {
+              _client_info.responder_path = new_path;
+              return true;
+            }
+          }
+        }
+        return false;
+      },
+      PermissionLevel::CONFIG));
+  _path_node->update_property("$type", Var("string"));
+  add_list_child("Path", _path_node->get_ref());
+
+  _default_token_node.reset(new ValueNodeModel(
+      _strand->get_ref(), [ this, keepref = get_ref() ](const Var& v) {
+        if (v.is_string()) {
+          _client_info.default_token = v.get_string();
+          return true;
+        }
+        return false;
+      },
+      PermissionLevel::CONFIG));
+  _default_token_node->update_property("$type", Var("string"));
+  add_list_child("Default_Token", _default_token_node->get_ref());
+
+  _max_session_node.reset(new NodeModel(_strand->get_ref()));
+  _max_session_node->update_property("$type", Var("number"));
+  add_list_child("Max_Session", _max_session_node->get_ref());
+
+  _current_session_node.reset(new NodeModel(_strand->get_ref()));
+  _current_session_node->update_property("$type", Var("number"));
+  add_list_child("Current_Session", _current_session_node->get_ref());
+}
+BrokerClientNode::~BrokerClientNode() = default;
+
+void BrokerClientNode::destroy_impl() {
+  _group_node.reset();
+  _path_node.reset();
+  _max_session_node.reset();
+  _current_session_node.reset();
+  _default_token_node.reset();
+
+  NodeModel::destroy_impl();
+}
+void BrokerClientNode::set_client_info(ClientInfo&& info) {
+  _client_info = std::move(info);
+  _group_node->set_value(Var(_client_info.group));
+  _path_node->set_value(Var(_client_info.responder_path));
+  _max_session_node->set_value(Var(_client_info.max_session));
+  _default_token_node->set_value(Var(_client_info.default_token));
+}
 
 void BrokerClientNode::save_extra(VarMap& map) const {
   // TODO, change these to writable children value nodes
@@ -57,11 +139,12 @@ void BrokerClientNode::save_extra(VarMap& map) const {
   map["?max-session"] = static_cast<int64_t>(_client_info.max_session);
 }
 void BrokerClientNode::load_extra(VarMap& map) {
-  // TODO, change these to writable children value nodes
-  _client_info.group = map["?group"].to_string();
-  _client_info.default_token = map["?default-token"].to_string();
-  _client_info.responder_path = map["?path"].to_string();
-  _client_info.max_session = static_cast<size_t>(map["?max-session"].get_int());
+  ClientInfo info(std::move(_client_info));
+  info.group = map["?group"].to_string();
+  info.default_token = map["?default-token"].to_string();
+  info.responder_path = map["?path"].to_string();
+  info.max_session = static_cast<size_t>(map["?max-session"].get_int());
+  set_client_info(std::move(info));
 }
 
 }  // namespace dsa

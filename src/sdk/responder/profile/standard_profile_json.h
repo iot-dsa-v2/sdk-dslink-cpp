@@ -12,6 +12,24 @@ static const std::string standard_profile = R"({
    "Client": {
     "Remove": {
      "$invokable": "config"
+    },
+    "Group": {
+     "$type": "string",
+     "$writable": "config"
+    },
+    "Path": {
+     "$type": "string",
+     "$writable": "config"
+    },
+    "Max_Session": {
+     "$type": "number"
+    },
+    "Current_Session": {
+     "$type": "number"
+    },
+    "Default_Token": {
+     "$type": "string",
+     "$writable": "config"
     }
    }
   }

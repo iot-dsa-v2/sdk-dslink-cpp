@@ -36,6 +36,34 @@ void BrokerClientManager::rebuild_path2id() {
   }
 }
 
+string_ BrokerClientManager::update_client_path(const string_& dsid,
+                                                const string_& new_path) {
+  auto& children = _clients_root->get_list_children();
+
+  auto search = children.find(dsid);
+  if (search == children.end()) {
+    return "internal error";  // shouldn't happen
+  }
+  auto* p_client_model = dynamic_cast<BrokerClientNode*>(search->second.get());
+  if (p_client_model == nullptr) {
+    return "internal error";  // shouldn't happen
+  }
+  if (!str_starts_with(new_path, DOWNSTREAM_PATH)) {
+    return "Path should start with " + DOWNSTREAM_PATH;
+  }
+  Path path(new_path);
+  if (path.data()->names.size() != 2) {
+    return "err";
+  }
+
+  if (_path2id.count(path.data()->names[1]) > 0) {
+    return "Path already in use";
+  }
+
+  // TODO remove the current node and add to new node
+
+  return "";
+}
 void BrokerClientManager::create_nodes(NodeModel& module_node,
                                        BrokerPubRoot& pub_root) {
   pub_root.register_standard_profile_function(
@@ -131,7 +159,7 @@ void BrokerClientManager::get_client(const string_& dsid,
 
       // TODO check token first
       if (_allow_all_links) {
-        ClientInfo info(dsid, auth_token);
+        ClientInfo info(dsid, "");
         if (is_responder) {
           info.responder_path = create_downstream_path(dsid);
         }
@@ -139,10 +167,9 @@ void BrokerClientManager::get_client(const string_& dsid,
         // add to downstream
         auto child = make_ref_<BrokerClientNode>(
             _strand->get_ref(),
-            _strand->stream_acceptor().get_profile("Broker/Client", true));
-        // TODO, add more into constructor, allow value node change property,
-        // add group
-        child->get_client_info() = std::move(info);
+            _strand->stream_acceptor().get_profile("Broker/Client", true),
+            dsid);
+        child->set_client_info(std::move(info));
 
         _clients_root->add_list_child(dsid, ref_<NodeModelBase>(child));
         child->save(*_clients_root->_storage, dsid, false, true);
