@@ -48,19 +48,23 @@ string_ BrokerClientManager::update_client_path(const string_& dsid,
   if (p_client_model == nullptr) {
     return "internal error";  // shouldn't happen
   }
-  if (!str_starts_with(new_path, DOWNSTREAM_PATH)) {
-    return "Path should start with " + DOWNSTREAM_PATH;
-  }
-  Path path(new_path);
-  if (path.data()->names.size() != 2) {
-    return "err";
+  if (!new_path.empty()) {
+    if (!str_starts_with(new_path, DOWNSTREAM_PATH)) {
+      return "Path should start with " + DOWNSTREAM_PATH;
+    }
+    Path path(new_path);
+    if (path.data()->names.size() != 2) {
+      return "err";
+    }
+
+    if (_path2id.count(path.data()->names[1]) > 0) {
+      return "Path already in use";
+    }
   }
 
-  if (_path2id.count(path.data()->names[1]) > 0) {
-    return "Path already in use";
-  }
-
-  // TODO remove the current node and add to new node
+  static_cast<BrokerSessionManager&>(_strand->session_manager())
+      .update_responder_root(
+          dsid, p_client_model->get_client_info().responder_path, new_path);
 
   return "";
 }
@@ -166,7 +170,7 @@ void BrokerClientManager::get_client(const string_& dsid,
 
         // add to downstream
         auto child = make_ref_<BrokerClientNode>(
-            _strand->get_ref(),
+            _strand->get_ref(), _clients_root->get_ref(),
             _strand->stream_acceptor().get_profile("Broker/Client", true),
             dsid);
         child->set_client_info(std::move(info));

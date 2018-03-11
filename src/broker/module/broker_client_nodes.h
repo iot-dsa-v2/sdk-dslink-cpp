@@ -11,9 +11,12 @@
 namespace dsa {
 class BrokerClientManager;
 class ValueNodeModel;
+class BrokerClientsRoot;
 
 class BrokerClientNode : public NodeModel {
   ClientInfo _client_info;
+
+  ref_<BrokerClientsRoot> _parent;
 
   ref_<ValueNodeModel> _group_node;
   ref_<ValueNodeModel> _path_node;
@@ -22,8 +25,8 @@ class BrokerClientNode : public NodeModel {
   ref_<NodeModel> _current_session_node;
 
  public:
-  BrokerClientNode(LinkStrandRef&& strand, ref_<NodeModel>&& profile,
-                   const string_& dsid);
+  BrokerClientNode(LinkStrandRef&& strand, ref_<BrokerClientsRoot>&& parent,
+                   ref_<NodeModel>&& profile, const string_& dsid);
   ~BrokerClientNode() override;
 
   const ClientInfo& get_client_info() const { return _client_info; };

@@ -27,17 +27,19 @@ class BrokerSessionManager final : public SessionManager {
   void destroy_impl() final;
 
  public:
-  BrokerSessionManager(LinkStrandRef strand,
-                       NodeStateManager& state_manager);
+  BrokerSessionManager(LinkStrandRef strand, NodeStateManager &state_manager);
   ~BrokerSessionManager() final;
   void get_session(const string_ &dsid, const string_ &auth_token,
                    bool is_responder,
                    Session::GetSessionCallback &&callback) final;
 
-  ref_<RemoteRootNode> add_responder_root(const ClientInfo &info,
-                                          Session &session);
-
   void remove_sessions(const string_ &dsid, const string_ &responder_path);
+
+  ref_<RemoteRootNode> add_responder_root(const string_ &dsid,
+                                          const string_ &responder_path,
+                                          Session &session);
+  void update_responder_root(const string_ &dsid, const string_ &old_path,
+                             const string_ &new_path);
 };
 }  // namespace dsa
 
