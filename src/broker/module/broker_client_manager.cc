@@ -31,7 +31,8 @@ void BrokerClientManager::rebuild_path2id() {
     auto* link_node = dynamic_cast<BrokerClientNode*>(it.second.get());
     if (link_node != nullptr) {
       if (!link_node->get_client_info().id.empty())
-        _path2id[link_node->get_client_info().id] = it.first;
+        _path2id[link_node->get_client_info().responder_path.substr(
+            DOWNSTREAM_PATH.size())] = it.first;
     }
   }
 }
