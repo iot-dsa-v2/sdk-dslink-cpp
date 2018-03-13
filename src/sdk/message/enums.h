@@ -57,6 +57,13 @@ enum class MessageStatus : uint8_t {
   CONNECTION_ERROR = 0xF9,
 };
 
+struct StatusDetail {
+  MessageStatus status;
+  string_ detail;
+  StatusDetail(MessageStatus status, const string_ &detail = "")
+      : status(status), detail(detail) {}
+};
+
 enum class PermissionLevel : uint8_t {
   NONE = 0x00,
   LIST = 0x10,
