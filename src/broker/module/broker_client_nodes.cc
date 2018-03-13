@@ -15,7 +15,7 @@ BrokerClientsRoot::BrokerClientsRoot(LinkStrandRef&& strand,
                                      ref_<BrokerClientManager>&& manager)
     : NodeModel(std::move(strand)),
       _manager(std::move(manager)),
-      _storage(_strand->storage().get_bucket("Clients")){};
+      _storage(_strand->storage().get_strand_bucket("Clients", _strand)){};
 
 void BrokerClientsRoot::initialize() {
   NodeModel::initialize();
@@ -55,6 +55,12 @@ void BrokerClientsRoot::initialize() {
     }
   },
                      [manager = _manager]() { manager->rebuild_path2id(); });
+}
+
+void BrokerClientsRoot::destroy_impl() {
+  _storage.reset();
+  _manager.reset();
+  NodeModel::destroy_impl();
 }
 
 BrokerClientNode::BrokerClientNode(LinkStrandRef&& strand,

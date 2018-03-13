@@ -15,9 +15,11 @@
 #include "login_manager.h"
 #include "module/logger.h"
 #include "websocket.h"
+#include "http_request.h"
 
 #include <map>
 
+#include <boost/beast/http.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 
@@ -34,7 +36,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
       HttpCallback;
   typedef std::function<std::shared_ptr<Connection>(
       WebServer&, std::unique_ptr<Websocket>&&,
-      boost::beast::http::request<boost::beast::http::string_body>)>
+      http::request<request_body_t, http::basic_fields<alloc_t>>&&)>
       WsCallback;
  private:
   boost::asio::io_service& _io_service;

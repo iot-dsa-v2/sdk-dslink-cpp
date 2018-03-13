@@ -77,7 +77,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   auto authorizer = modules->get_authorizer();
   strand->set_authorizer(std::move(authorizer));
 
-  _close_token = get_close_token_from_storage(_config->get_config_bucket());
+  _master_token = get_master_token_from_storage(_config->get_config_bucket());
 
   auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder
@@ -124,7 +124,7 @@ void DsBroker::run(bool wait) {
 
     *root_cb = [this](
         WebServer& _web_server, std::unique_ptr<Websocket> websocket,
-        boost::beast::http::request<boost::beast::http::string_body> req) {
+        http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
       LinkStrandRef link_strand(strand);
       DsaWsCallback dsa_ws_callback(link_strand);
       return dsa_ws_callback(_web_server.io_service(), std::move(websocket),

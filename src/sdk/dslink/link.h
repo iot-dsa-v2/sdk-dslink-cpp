@@ -59,7 +59,7 @@ class DsLink final : public DsLinkRequester {
          bool use_standard_node_structure = true);
   ~DsLink() final;
   App &get_app();
-  string_ get_close_token();
+  string_ get_master_token();
 
  protected:
   void destroy_impl() final;
@@ -73,7 +73,7 @@ class DsLink final : public DsLinkRequester {
 
   uint8_t log_level_from_settings;
   ref_<Module> modules;
-  string_ close_token;
+  string_ master_token;
   boost::filesystem::path _exe_path;
 
   bool _running = false;

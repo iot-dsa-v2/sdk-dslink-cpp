@@ -113,10 +113,10 @@ TEST_F(DslinkTest, ServerTest) {
 TEST_F(DslinkTest, CloseTest) {
   shared_ptr<App> app = make_shared<App>();
 
-  // first create .close_token
-  string_ close_token = generate_random_string(32);
+  // first create .master_token
+  string_ master_token = generate_random_string(32);
   SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
-  string_to_storage(close_token, default_close_token_path, storage_bucket);
+  string_to_storage(master_token, default_master_token_path, storage_bucket);
 
   const char *argv[] = {"./testResp", "--broker",      "ds://127.0.0.1:4122",
                         "-l",         "info",          "--thread",
@@ -135,7 +135,7 @@ TEST_F(DslinkTest, CloseTest) {
   ASYNC_EXPECT_TRUE(3000, *linkResp->strand,
                     [&]() -> bool { return (is_connected); });
 
-  EXPECT_EQ(close_token, linkResp->get_close_token());
+  EXPECT_EQ(master_token, linkResp->get_master_token());
 
   // Create link
   std::string address = std::string("127.0.0.1:") + std::to_string(4122);
@@ -164,7 +164,7 @@ TEST_F(DslinkTest, CloseTest) {
       EXPECT_FALSE(linkResp->is_destroyed());
 
       auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
-      close_request_with_valid_token->set_value(Var(close_token));
+      close_request_with_valid_token->set_value(Var(master_token));
       close_request_with_valid_token->set_target_path("Sys/Stop");
 
       link_req->invoke(
@@ -183,7 +183,7 @@ TEST_F(DslinkTest, CloseTest) {
   });
 
   destroy_dslink_in_strand(link);
-  storage_bucket.remove(default_close_token_path);
+  storage_bucket.remove(default_master_token_path);
   app->close();
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
 

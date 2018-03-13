@@ -23,7 +23,7 @@ class DsBroker final : public WrapperStrand {
   friend class ListMerger;
 
  private:
-  string_ _close_token;
+  string_ _master_token;
   ref_<Module> modules;
 
  public:
@@ -37,7 +37,7 @@ class DsBroker final : public WrapperStrand {
   shared_ptr_<App>& get_app() { return _app; }
   const ref_<BrokerConfig>& get_config() const { return _config; };
 
-  string_ get_close_token() { return _close_token; }
+  string_ get_master_token() { return _master_token; }
 
   // not from config, coming from tcp_server's active server port
   int32_t get_active_server_port();

@@ -11,6 +11,7 @@ list(APPEND ModulekSourceFiles
         default/module_dslink_default.cc
         module_with_loader.cc
         logger.cc
+        storage.cc
         client_manager.h
         authorizer.h
         session_manager.h

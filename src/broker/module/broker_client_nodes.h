@@ -42,7 +42,7 @@ class BrokerClientsRoot : public NodeModel {
   friend class BrokerClientManager;
   friend class BrokerClientNode;
 
-  std::unique_ptr<StorageBucket> _storage;
+  ref_<StrandStorageBucket> _storage;
 
   ref_<BrokerClientManager> _manager;
 
@@ -52,6 +52,7 @@ class BrokerClientsRoot : public NodeModel {
 
  protected:
   void initialize() override;
+  void destroy_impl() override;
 };
 
 }  // namespace dsa
