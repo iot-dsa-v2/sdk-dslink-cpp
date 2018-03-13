@@ -17,10 +17,8 @@
 namespace dsa {
 
 BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
-    : _strand(strand) {}
-void BrokerClientManager::init_config() {
-  _config = make_ref_<BrokerClientManagerConfig>(
-      std::move(_strand->storage().get_shared_bucket("config")));
+    : _strand(strand) {
+  _config = make_ref_<BrokerClientManagerConfig>();
   _allow_all_links = _config->allow_all_links().get_value().get_bool();
   _quarantine_enabled = _config->enable_quarantine().get_value().get_bool();
 }

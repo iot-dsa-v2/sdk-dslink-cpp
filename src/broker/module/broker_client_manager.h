@@ -43,7 +43,6 @@ class BrokerClientManager : public ClientManager {
  public:
   explicit BrokerClientManager(LinkStrandRef& strand);
   ~BrokerClientManager() override;
-  void init_config() override;
 
   void rebuild_path2id();
 

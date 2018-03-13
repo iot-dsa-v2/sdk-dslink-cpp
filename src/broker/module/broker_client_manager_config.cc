@@ -5,15 +5,16 @@
 
 namespace dsa {
 const string_& config_bucket_key = "client-manager.json";
-BrokerClientManagerConfig::BrokerClientManagerConfig(shared_ptr_<StorageBucket> &&bucket) {
-  _config_bucket = bucket;
+BrokerClientManagerConfig::BrokerClientManagerConfig() {
   init();
   load();
 }
 // init all the config properties
 void BrokerClientManagerConfig::init() {
-  add_item("enable-quarantine", Var(false), [](const Var &var) { return var.is_bool(); });
-  add_item("allow-all-links", Var(true), [](const Var &var) { return var.is_bool(); });
+  add_item("enable-quarantine", Var(false),
+           [](const Var& var) { return var.is_bool(); });
+  add_item("allow-all-links", Var(true),
+           [](const Var& var) { return var.is_bool(); });
 }
 // load config json from file
 void BrokerClientManagerConfig::load() {
@@ -37,7 +38,7 @@ void BrokerClientManagerConfig::load() {
       save();
     }
   };
-  _config_bucket->read(config_bucket_key, read_callback);
+  Storage::get_config_bucket().read(config_bucket_key, read_callback);
 }
 void BrokerClientManagerConfig::save() {
   std::stringstream config_file;
@@ -57,10 +58,11 @@ void BrokerClientManagerConfig::save() {
 
   auto data = new RefCountBytes(&cstr[0], &cstr[strlen(cstr)]);
 
-  _config_bucket->write(config_bucket_key, std::forward<RefCountBytes*>(data));
+  Storage::get_config_bucket().write(config_bucket_key,
+                                     std::forward<RefCountBytes*>(data));
 }
 void BrokerClientManagerConfig::add_item(const string_& name, Var&& value,
-                            VarValidator&& validator) {
+                                         VarValidator&& validator) {
   _names.emplace_back(name);
   _items.emplace(name,
                  BrokerConfigItem(std::move(value), std::move(validator)));

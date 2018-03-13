@@ -29,10 +29,9 @@ class BrokerClientManagerConfig : public EnableRef<BrokerClientManagerConfig> {
   void load();
 
   void add_item(const string_& name, Var&& value, VarValidator&&);
-  shared_ptr_<StorageBucket> _config_bucket;
 
  public:
-  BrokerClientManagerConfig(shared_ptr_<StorageBucket> &&bucket);
+  BrokerClientManagerConfig();
   BrokerConfigItem& enable_quarantine() { return _items["enable-quarantine"]; }
   BrokerConfigItem& allow_all_links() { return _items["allow-all-links"]; }
   void save();
