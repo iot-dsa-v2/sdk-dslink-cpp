@@ -7,13 +7,13 @@ namespace dsa {
 shared_ptr_<StorageBucket> SimpleStorage::get_shared_bucket(
     const std::string& name) {
   shared_ptr_<StorageBucket> new_bucket;
-  //for the special storage requirements, safe bucket can be returned
+  // for the special storage requirements, safe bucket can be returned
   if (name == "config")
     new_bucket = shared_ptr_<StorageBucket>(
         new SimpleSafeStorageBucket(name, _io_service, ""));
   else
-    new_bucket = shared_ptr_<StorageBucket>(
-        new SimpleStorageBucket(name, _io_service));
+    new_bucket =
+        shared_ptr_<StorageBucket>(new SimpleStorageBucket(name, _io_service));
   _bucket_list.push_back(new_bucket);
   return new_bucket;
 }
@@ -25,8 +25,8 @@ std::unique_ptr<QueueBucket> SimpleStorage::get_queue_bucket(
 }
 
 void SimpleStorage::destroy_impl() {
-  for(auto &&bucket : _bucket_list) {
-    bucket->destroy();
+  for (auto&& bucket : _bucket_list) {
+    bucket->destroy_bucket();
     bucket.reset();
   }
   _bucket_list.clear();

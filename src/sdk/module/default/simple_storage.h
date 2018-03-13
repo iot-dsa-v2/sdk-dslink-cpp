@@ -9,9 +9,9 @@
 
 #include <boost/asio/io_service.hpp>
 
+#include <list>
 #include <map>
 #include <utility>
-#include <list>
 
 namespace dsa {
 
@@ -56,10 +56,8 @@ class SimpleStorageBucket : public StorageBucket {
 
   bool is_empty() override;
   bool exists(const string_& key) override;
-  void write(const string_& key, BytesRef&& data,
-             bool is_binary = false) override;
-  void read(const string_& key, ReadCallback&& callback,
-            bool is_binary = false) override;
+  void write(const string_& key, BytesRef&& data) override;
+  void read(const string_& key, ReadCallback&& callback) override;
   void remove(const string_& key) override;
 
   /// the callback might run asynchronously
@@ -67,7 +65,7 @@ class SimpleStorageBucket : public StorageBucket {
                 std::function<void()>&& on_done) override;
 
   void remove_all() override;
-  void destroy() override;
+  void destroy_bucket() override;
 };
 
 class SimpleSafeStorageBucket : public SimpleStorageBucket {
@@ -78,8 +76,7 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
                           const string_& cwd = "")
       : SimpleStorageBucket(bucket_name, io_service, storage_root, cwd) {}
 
-  void write(const string_& key, BytesRef&& data,
-             bool is_binary = false) override;
+  void write(const string_& key, BytesRef&& data) override;
   static SimpleSafeStorageBucket& get_config_bucket();
 };
 

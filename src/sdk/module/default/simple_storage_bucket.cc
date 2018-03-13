@@ -4,16 +4,16 @@
 
 #include <boost/asio/strand.hpp>
 #include <boost/filesystem.hpp>
+#include <codecvt>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <list>
+#include <locale>
+#include <string>
+#include <vector>
 #include "util/misc.h"
 #include "util/string_encode.h"
-#include <string>
-#include <locale>
-#include <codecvt>
-#include <iomanip>
-#include <vector>
 namespace dsa {
 
 namespace fs = boost::filesystem;
@@ -80,15 +80,12 @@ bool SimpleStorageBucket::exists(const string_& key) {
   return (fs::exists(p) && is_regular_file(p));
 }
 
-void SimpleStorageBucket::write(const string_& key, BytesRef&& content,
-                                bool is_binary) {
-  auto write_file = [=, content = std::move(content)]() {
+void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
+  auto write_file = [ =, content = std::move(content) ]() {
     path p(get_storage_path(key));
 
     try {
-      auto open_mode = std::ios::out | std::ios::trunc;
-      if (is_binary) open_mode = open_mode | std::ios::binary;
-      fs::ofstream ofs(p, open_mode);
+      fs::ofstream ofs(p, std::ios::out | std::ios::trunc | std::ios::binary);
       if (ofs) {
         ofs.write(reinterpret_cast<const char*>(content->data()),
                   content->size());
@@ -121,9 +118,8 @@ void SimpleStorageBucket::write(const string_& key, BytesRef&& content,
   }
 }
 
-void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
-                               bool is_binary) {
-  auto read_file = [=, callback = std::move(callback)]() {
+void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback) {
+  auto read_file = [ =, callback = std::move(callback) ]() {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
@@ -134,9 +130,7 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
         size_t size = fs::file_size(p);
 
         if (size) {
-          std::ios::openmode open_mode = std::ios::in;
-          if (is_binary) open_mode = open_mode | std::ios::binary;
-          fs::ifstream ifs(p, open_mode);
+          fs::ifstream ifs(p, std::ios::in | std::ios::binary);
           if (ifs) {
             vec.resize(static_cast<size_t>(size));
             ifs.read(reinterpret_cast<char*>(&vec.front()),
@@ -156,18 +150,7 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback,
       LOG_ERROR(__FILENAME__, LOG << "Read failed for " << key << " file");
       status = BucketReadStatus::READ_FAILED;
     }
-
-    boost::asio::io_service::strand* owner_strand = get_owner_strand();
-
-    if (owner_strand != nullptr)
-      owner_strand->post([
-        callback = std::move(callback), decode_key = std::move(url_decode(key)),
-        vec = std::move(vec), status = std::move(status)
-      ]() {
-        callback(std::move(decode_key), std::move(vec), std::move(status));
-      });
-    else
-      callback(std::move(url_decode(key)), std::move(vec), std::move(status));
+    callback(std::move(url_decode(key)), std::move(vec), std::move(status));
   };
 
   if (_io_service != nullptr) {
@@ -268,8 +251,8 @@ void SimpleStorageBucket::remove_all() {
 
   return;
 }
-void SimpleStorageBucket::destroy() {
-  for(auto &strand : strand_map) {
+void SimpleStorageBucket::destroy_bucket() {
+  for (auto& strand : strand_map) {
     delete strand_map.at(strand.first);
   }
   strand_map.clear();
