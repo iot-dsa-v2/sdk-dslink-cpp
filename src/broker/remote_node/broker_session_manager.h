@@ -33,6 +33,8 @@ class BrokerSessionManager final : public SessionManager {
                    bool is_responder,
                    Session::GetSessionCallback &&callback) final;
 
+  void get_session_sync(const ClientInfo &client_info, Session::GetSessionCallback &&callback);
+
   void remove_sessions(const string_ &dsid, const string_ &responder_path);
 
   ref_<RemoteRootNode> add_responder_root(const string_ &dsid,

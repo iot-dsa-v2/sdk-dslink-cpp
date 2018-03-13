@@ -1,5 +1,6 @@
 #include "dsa_common.h"
 
+#include "../remote_node/broker_session_manager.h"
 #include "broker_client_manager.h"
 #include "broker_client_nodes.h"
 #include "module/session_manager.h"
@@ -44,14 +45,12 @@ void BrokerClientsRoot::initialize() {
         add_list_child(key, child->get_ref());
 
         // initialize the session and responder node
-        if (!child->get_client_info().responder_path.empty()) {
-          _strand->session_manager().get_session(
-              child->get_client_info().id, "",
-              !child->get_client_info().responder_path.empty(),
-              [](const ref_<Session>& session, const ClientInfo& info) {
-                // do nothing
-              });
-        }
+        static_cast<BrokerSessionManager&>(_strand->session_manager())
+            .get_session_sync(
+                child->get_client_info(),
+                [](const ref_<Session>& session, const ClientInfo& info) {
+                  // do nothing
+                });
       });
     }
   },
