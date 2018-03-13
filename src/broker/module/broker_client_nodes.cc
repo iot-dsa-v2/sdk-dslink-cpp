@@ -11,7 +11,7 @@ BrokerClientsRoot::BrokerClientsRoot(LinkStrandRef&& strand,
                                      ref_<BrokerClientManager>&& manager)
     : NodeModel(std::move(strand)),
       _manager(std::move(manager)),
-      _storage(_strand->storage().get_bucket("Clients")){};
+      _storage(_strand->storage().get_shared_bucket("Clients")){};
 
 void BrokerClientsRoot::initialize() {
   NodeModel::initialize();

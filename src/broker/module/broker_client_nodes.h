@@ -13,7 +13,7 @@ class BrokerClientManager;
 
 class BrokerClientsRoot : public NodeModel {
   friend class BrokerClientManager;
-  std::unique_ptr<StorageBucket> _storage;
+  shared_ptr_<StorageBucket> _storage;
 
   ref_<BrokerClientManager> _manager;
 

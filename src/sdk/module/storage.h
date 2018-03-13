@@ -5,6 +5,11 @@
 #pragma once
 #endif
 
+#include "core/link_strand.h"
+#include "dsa_common.h"
+
+#include <boost/asio.hpp>
+#include <boost/asio/strand.hpp>
 #include <functional>
 #include <memory>
 #include <string>
@@ -45,10 +50,8 @@ class StorageBucket {
       ReadCallback;
   virtual bool is_empty() = 0;
   virtual bool exists(const string_& key) = 0;
-  virtual void write(const string_& key, BytesRef&& data,
-                     bool is_binary = false) = 0;
-  virtual void read(const string_& key, ReadCallback&& callback,
-                    bool is_binary = false) = 0;
+  virtual void write(const string_& key, BytesRef&& data) = 0;
+  virtual void read(const string_& key, ReadCallback&& callback) = 0;
   virtual void remove(const string_& key) = 0;
 
   /// the callback might run asynchronously
@@ -57,12 +60,53 @@ class StorageBucket {
 
   virtual void remove_all() = 0;
   virtual ~StorageBucket() = default;
+  virtual void destroy_bucket(){};
+};
+
+class StrandStorageBucket : public StorageBucket,
+                            public DestroyableRef<StrandStorageBucket> {
+ public:
+  bool is_empty() final { return _shared_bucket->is_empty(); }
+  bool exists(const string_& key) final { return _shared_bucket->exists(key); }
+  void write(const string_& key, BytesRef&& data) final {
+    _shared_bucket->write(key, std::move(data));
+  }
+  void read(const string_& key, ReadCallback&& callback) final;
+  void remove(const string_& key) final { _shared_bucket->remove(key); }
+
+  /// the callback might run asynchronously
+  void read_all(ReadCallback&& callback, std::function<void()>&& on_done) final;
+
+  void remove_all() final { _shared_bucket->remove_all(); }
+  virtual ~StrandStorageBucket() = default;
+  void destroy_impl() final {
+    _owner_strand.reset();
+    _shared_bucket->destroy_bucket();
+  }
+
+  StrandStorageBucket(const LinkStrandRef& strand) {
+    set_owner_strand(strand);
+  };
+  LinkStrandRef get_owner_strand() { return _owner_strand->get_ref(); };
+  void set_owner_strand(const LinkStrandRef& strand) {
+    _owner_strand = strand->get_ref();
+  };
+  void set_shared_bucket(shared_ptr_<StorageBucket>&& shared_bucket) {
+    _shared_bucket = std::move(shared_bucket);
+  }
+
+ private:
+  LinkStrandRef _owner_strand = nullptr;
+  shared_ptr_<StorageBucket> _shared_bucket;
 };
 
 class Storage : public DestroyableRef<Storage> {
  public:
   /// create a bucket or find a existing bucket
-  virtual std::unique_ptr<StorageBucket> get_bucket(const string_& name) = 0;
+  virtual shared_ptr_<StorageBucket> get_shared_bucket(const string_& name) = 0;
+
+  ref_<StrandStorageBucket> get_strand_bucket(const string_& name,
+                                              const LinkStrandRef& strand);
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket
@@ -70,6 +114,7 @@ class Storage : public DestroyableRef<Storage> {
       const string_& name) = 0;
 
   virtual ~Storage() = default;
+  void destroy_impl() override{};
 };
 
 }  // namespace dsa

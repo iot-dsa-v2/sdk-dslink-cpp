@@ -32,7 +32,7 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
     ret = read_status;
     callback_called = true;
   };
-  bucket.read(path_str, read_callback, true);
+  bucket.read(path_str, read_callback);
   if (!callback_called) {
     LOG_FATAL(__FILENAME__, LOG << "Storage does not support synchronize reading");
   }
@@ -52,7 +52,7 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
   auto newkey = new ECDH();
   auto new_data = newkey->get_private_key();
   auto content = new RefCountBytes(new_data.begin(), new_data.end());
-  bucket.write(path_str, std::forward<RefCountBytes *>(content), true);
+  bucket.write(path_str, std::forward<RefCountBytes *>(content));
   return newkey;
 }
 

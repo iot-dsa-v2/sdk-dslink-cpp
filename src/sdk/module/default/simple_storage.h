@@ -9,6 +9,7 @@
 
 #include <boost/asio/io_service.hpp>
 
+#include <list>
 #include <map>
 #include <utility>
 
@@ -55,10 +56,8 @@ class SimpleStorageBucket : public StorageBucket {
 
   bool is_empty() override;
   bool exists(const string_& key) override;
-  void write(const string_& key, BytesRef&& data,
-             bool is_binary = false) override;
-  void read(const string_& key, ReadCallback&& callback,
-            bool is_binary = false) override;
+  void write(const string_& key, BytesRef&& data) override;
+  void read(const string_& key, ReadCallback&& callback) override;
   void remove(const string_& key) override;
 
   /// the callback might run asynchronously
@@ -66,6 +65,7 @@ class SimpleStorageBucket : public StorageBucket {
                 std::function<void()>&& on_done) override;
 
   void remove_all() override;
+  void destroy_bucket() override;
 };
 
 class SimpleSafeStorageBucket : public SimpleStorageBucket {
@@ -76,20 +76,20 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
                           const string_& cwd = "")
       : SimpleStorageBucket(bucket_name, io_service, storage_root, cwd) {}
 
-  void write(const string_& key, BytesRef&& data,
-             bool is_binary = false) override;
+  void write(const string_& key, BytesRef&& data) override;
   static SimpleSafeStorageBucket& get_config_bucket();
 };
 
 class SimpleStorage : public Storage {
  private:
   boost::asio::io_service* _io_service;
+  std::list<shared_ptr_<StorageBucket>> _bucket_list;
 
  public:
   SimpleStorage(boost::asio::io_service* io_service = nullptr)
       : _io_service(io_service) {}
 
-  std::unique_ptr<StorageBucket> get_bucket(const string_& name) override;
+  shared_ptr_<StorageBucket> get_shared_bucket(const string_& name) override;
 
   /// create a bucket or find a existing bucket
   std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) override;
@@ -97,6 +97,8 @@ class SimpleStorage : public Storage {
   void set_io_service(boost::asio::io_service* io_service) {
     _io_service = io_service;
   };
+
+  void destroy_impl() final;
 };
 
 }  // namespace dsa

@@ -16,16 +16,16 @@ namespace dsa {
 
 string_ string_from_file(const string_ &file_path) {
   SimpleStorage simple_storage;
-  std::unique_ptr<StorageBucket> storage_bucket;
-  storage_bucket = simple_storage.get_bucket("");
+  shared_ptr_<StorageBucket> storage_bucket;
+  storage_bucket = simple_storage.get_shared_bucket("");
 
   return string_from_storage(file_path, *storage_bucket);
 }
 
 void string_to_file(const string_ &data, const string_ &file_path) {
   SimpleStorage simple_storage;
-  std::unique_ptr<StorageBucket> storage_bucket;
-  storage_bucket = simple_storage.get_bucket("");
+  shared_ptr_<StorageBucket> storage_bucket;
+  storage_bucket = simple_storage.get_shared_bucket("");
   string_to_storage(data, file_path, *storage_bucket);
 }
 
