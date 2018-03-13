@@ -8,6 +8,7 @@
 #include "core/link_strand.h"
 #include "module/client_manager.h"
 #include "responder/node_model.h"
+#include "broker_client_manager_config.h"
 
 namespace dsa {
 class ModuleLoader;
@@ -24,6 +25,7 @@ class BrokerClientManager : public ClientManager {
 
   ref_<BrokerClientsRoot> _clients;
   ref_<NodeModel> _quarantine;
+  ref_<BrokerClientManagerConfig> _config;
 
   // map its name in Downstream back to dsid
   std::unordered_map<string_, string_> _path2id;
@@ -41,6 +43,7 @@ class BrokerClientManager : public ClientManager {
  public:
   explicit BrokerClientManager(LinkStrandRef& strand);
   ~BrokerClientManager() override;
+  void init_config() override;
 
   void rebuild_path2id();
 

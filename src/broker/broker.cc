@@ -73,6 +73,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
 
   // init security manager
   strand->set_client_manager(modules->get_client_manager());
+  strand->client_manager().init_config();
 
   auto authorizer = modules->get_authorizer();
   strand->set_authorizer(std::move(authorizer));
