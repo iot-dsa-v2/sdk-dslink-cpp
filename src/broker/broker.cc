@@ -54,7 +54,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
 
   strand.reset(new EditableStrand(_app->new_strand(),
                                   std::unique_ptr<ECDH>(ECDH::from_storage(
-                                      _config->get_config_bucket(), ".key"))));
+                                      Storage::get_config_bucket(), ".key"))));
 
   if (default_module == nullptr)
     default_module = make_ref_<ModuleBrokerDefault>();
@@ -77,7 +77,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
   auto authorizer = modules->get_authorizer();
   strand->set_authorizer(std::move(authorizer));
 
-  _master_token = get_master_token_from_storage(_config->get_config_bucket());
+  _master_token = get_master_token_from_storage(Storage::get_config_bucket());
 
   auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
   // init responder

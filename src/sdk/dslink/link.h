@@ -78,7 +78,6 @@ class DsLink final : public DsLinkRequester {
 
   bool _running = false;
   bool _connected = false;
-  std::unique_ptr<SimpleSafeStorageBucket> config_bucket;
 
   // initialization
   void parse_thread(size_t thread);
@@ -115,7 +114,6 @@ class DsLink final : public DsLinkRequester {
   void connect(DsLink::LinkOnConnectCallback &&on_connect = nullptr,
                uint8_t callback_type = 1 /*Client::FIRST_CONNECTION*/);
 
-  SimpleSafeStorageBucket &get_config_bucket() { return *config_bucket; };
   // requester functions
  private:
   std::unordered_map<std::string, ref_<SubscribeMerger>> _subscribe_mergers;
