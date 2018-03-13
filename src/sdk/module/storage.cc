@@ -51,7 +51,7 @@ void StrandStorageBucket::read_all(ReadCallback&& callback,
                std::move(read_status));
   };
   _shared_bucket->read_all(
-      read_callback, [ this, on_done = std::move(on_done) ]() {
+      read_callback, [ this, keepref = get_ref(), on_done = std::move(on_done) ]() {
         if (_owner_strand != nullptr)
           _owner_strand->post([on_done = std::move(on_done)]() { on_done(); });
         else
