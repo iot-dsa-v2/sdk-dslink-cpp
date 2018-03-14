@@ -25,14 +25,14 @@ void StrandStorageBucket::read(const string_& key, ReadCallback&& callback) {
       BucketReadStatus read_status) {
     if (_owner_strand != nullptr)
       _owner_strand->post([
-        callback = std::move(callback), decode_key = std::move(url_decode(key)),
+        callback = std::move(callback), key = std::move(key),
         data = std::move(data), read_status = std::move(read_status)
       ]() {
-        callback(std::move(decode_key), std::move(data),
+        callback(std::move(key), std::move(data),
                  std::move(read_status));
       });
     else
-      callback(std::move(url_decode(key)), std::move(data),
+      callback(std::move(key), std::move(data),
                std::move(read_status));
   };
   _shared_bucket->read(key, read_callback);
@@ -45,14 +45,14 @@ void StrandStorageBucket::read_all(ReadCallback&& callback,
       BucketReadStatus read_status) {
     if (_owner_strand != nullptr)
       _owner_strand->post([
-        callback = std::move(callback), decode_key = std::move(url_decode(key)),
+        callback = std::move(callback), key = std::move(key),
         data = std::move(data), read_status = std::move(read_status)
       ]() {
-        callback(std::move(decode_key), std::move(data),
+        callback(std::move(key), std::move(data),
                  std::move(read_status));
       });
     else
-      callback(std::move(url_decode(key)), std::move(data),
+      callback(std::move(key), std::move(data),
                std::move(read_status));
   };
   _shared_bucket->read_all(
