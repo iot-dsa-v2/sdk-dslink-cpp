@@ -17,7 +17,11 @@
 namespace dsa {
 
 BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
-    : _strand(strand) {}
+    : _strand(strand) {
+  _config = make_ref_<BrokerClientManagerConfig>();
+  _allow_all_links = _config->allow_all_links().get_value().get_bool();
+  _quarantine_enabled = _config->enable_quarantine().get_value().get_bool();
+}
 BrokerClientManager::~BrokerClientManager() = default;
 ref_<NodeModel> BrokerClientManager::get_clients_root() {
   return _clients_root;
@@ -210,11 +214,15 @@ string_ BrokerClientManager::create_downstream_path(const string_& dsid) {
 void BrokerClientManager::set_allow_all_links(bool value) {
   if (value != _allow_all_links) {
     _allow_all_links = value;
+    _config->allow_all_links().set_value(Var(_allow_all_links));
+    _config->save();
   }
 }
 void BrokerClientManager::set_quarantine_enabled(bool value) {
   if (value != _quarantine_enabled) {
     _quarantine_enabled = value;
+    _config->enable_quarantine().set_value(Var(_quarantine_enabled));
+    _config->save();
   }
 }
 
@@ -223,4 +231,5 @@ void BrokerClientManager::destroy_impl() {
   _quarantine_root.reset();
   ClientManager::destroy_impl();
 }
+
 }  // namespace dsa

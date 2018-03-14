@@ -102,6 +102,9 @@ class StrandStorageBucket : public StorageBucket,
 
 class Storage : public DestroyableRef<Storage> {
  public:
+  // config bucket
+  static StorageBucket& get_config_bucket();
+
   /// create a bucket or find a existing bucket
   virtual shared_ptr_<StorageBucket> get_shared_bucket(const string_& name) = 0;
 

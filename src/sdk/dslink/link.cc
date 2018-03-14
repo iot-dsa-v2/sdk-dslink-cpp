@@ -56,8 +56,6 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
        "Module Path")  // custom name
       ;
 
-  config_bucket =
-      std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
   try {
     _exe_path = boost::filesystem::canonical(
         boost::filesystem::system_complete(argv[0]).parent_path());
@@ -88,22 +86,23 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     own_app = true;
   }
 
-  strand.reset(new EditableStrand(
-      get_app().new_strand(),
-      std::unique_ptr<ECDH>(ECDH::from_storage(get_config_bucket(), ".key"))));
+  strand.reset(new EditableStrand(get_app().new_strand(),
+                                  std::unique_ptr<ECDH>(ECDH::from_storage(
+                                      Storage::get_config_bucket(), ".key"))));
 
   // TOKEN from file
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
   if (client_token_path.length() != 0) {
-    client_token = string_from_storage(client_token_path, get_config_bucket());
+    client_token =
+        string_from_storage(client_token_path, Storage::get_config_bucket());
     if (client_token.empty()) {
       LOG_FATAL(__FILENAME__,
                 LOG << "Fatal loading token file " << client_token_path);
     }
   }
 
-  master_token = get_master_token_from_storage(get_config_bucket());
+  master_token = get_master_token_from_storage(Storage::get_config_bucket());
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());

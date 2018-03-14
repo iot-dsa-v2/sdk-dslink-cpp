@@ -19,8 +19,6 @@ BrokerConfig::BrokerConfig(int argc, const char* argv[]) {
     LOG_FATAL(__FILENAME__, "Broker executable path is wrong!");
   }
   init();
- config_bucket =
-	std::make_unique<SimpleSafeStorageBucket>("config", nullptr, "");
   load();
 }
 
@@ -84,7 +82,7 @@ void BrokerConfig::load() {
       save();
     }
   };
-  config_bucket->read(get_file_path(), read_callback);
+  Storage::get_config_bucket().read(get_file_path(), read_callback);
 }
 void BrokerConfig::save() {
   std::stringstream config_file;
@@ -108,7 +106,7 @@ void BrokerConfig::save() {
 
   auto data = new RefCountBytes(&cstr[0], &cstr[strlen(cstr)]);
 
-  config_bucket->write(get_file_path(), std::forward<RefCountBytes*>(data));
+  Storage::get_config_bucket().write(get_file_path(), std::forward<RefCountBytes*>(data));
 }
 void BrokerConfig::add_item(const string_& name, Var&& value,
                             VarValidator&& validator) {
