@@ -237,13 +237,12 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
               const string_& key, std::vector<uint8_t> data,
               BucketReadStatus read_status) {
 
-            std::lock_guard<std::mutex> lock(read_cb_track->read_mutex);
             cb(std::move(key), std::move(data), read_status);
+            std::lock_guard<std::mutex> lock(read_cb_track->read_mutex);
             read_cb_track->num_needed--;
             if (read_cb_track->num_needed == 0) {
               if (on_done_cb != nullptr) on_done_cb();
             }
-
           });
     }
   } catch (const fs::filesystem_error& ex) {
