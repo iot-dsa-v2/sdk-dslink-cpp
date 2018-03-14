@@ -37,7 +37,7 @@ TEST(ModuleTest, StorageBucket) {
   {
     const char* content = {"first_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::move(data));
 
     auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -53,7 +53,7 @@ TEST(ModuleTest, StorageBucket) {
   {
     const char* content = {"second_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::move(data));
 
     auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -97,7 +97,7 @@ TEST(ModuleTest, SafeStorageBucket) {
   {
     const char* content = {"first_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::move(data));
 
     auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -113,7 +113,7 @@ TEST(ModuleTest, SafeStorageBucket) {
   {
     const char* content = {"second_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::move(data));
 
     auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -160,7 +160,7 @@ TEST(ModuleTest, StorageBucketReadAll) {
 
   {
     auto data = new RefCountBytes(&content1[0], &content1[strlen(content1)]);
-    storage_bucket->write(storage_key1, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key1, std::move(data));
 
     auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -175,7 +175,7 @@ TEST(ModuleTest, StorageBucketReadAll) {
 
   {
     auto data = new RefCountBytes(&content2[0], &content2[strlen(content2)]);
-    storage_bucket->write(storage_key2, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key2, std::move(data));
 
     auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -241,7 +241,7 @@ TEST(ModuleTest, StorageBucketName) {
   {
     const char* content = {"first_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::move(data));
 
     auto read_callback = [=](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -291,7 +291,7 @@ TEST(ModuleTest, StrandBucket) {
   {
     const char* content = {"first_item"};
     auto data = new RefCountBytes(&content[0], &content[strlen(content)]);
-    storage_bucket->write(storage_key, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key, std::move(data));
 
     auto read_callback = [&](std::string storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -348,7 +348,7 @@ TEST(ModuleTest, StrandBucketReadAll) {
 
   {
     auto data = new RefCountBytes(&content1[0], &content1[strlen(content1)]);
-    storage_bucket->write(storage_key1, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key1, std::move(data));
 
     auto read_callback = [&](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
@@ -365,7 +365,7 @@ TEST(ModuleTest, StrandBucketReadAll) {
   read_done = false;
   {
     auto data = new RefCountBytes(&content2[0], &content2[strlen(content2)]);
-    storage_bucket->write(storage_key2, std::forward<RefCountBytes*>(data));
+    storage_bucket->write(storage_key2, std::move(data));
 
     auto read_callback = [&](string_ storage_key, std::vector<uint8_t> vec,
                              BucketReadStatus read_status) {
