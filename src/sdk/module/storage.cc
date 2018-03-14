@@ -1,7 +1,8 @@
-#include <module/default/simple_storage.h>
 #include "dsa_common.h"
 
 #include "storage.h"
+
+#include "module/default/simple_storage.h"
 #include "util/string_encode.h"
 
 namespace dsa {
