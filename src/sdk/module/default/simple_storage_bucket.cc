@@ -172,29 +172,33 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback) {
 
 void SimpleStorageBucket::remove(const string_& key) {
   if (_io_service != nullptr) {
-    if (!strand_map.count(key)) {
-      boost::asio::io_service::strand* strand =
-          new boost::asio::io_service::strand(*_io_service);
-      strand_map.insert(StrandPair(key, strand));
-    }
-
-    strand_map.at(key)->post([=]() {
-      path p(get_storage_path(key));
-
-      try {
-        if (fs::exists(p) && is_regular_file(p)) {
-          fs::remove(p);
-          delete strand_map.at(key);
-          strand_map.erase(key);  // erase the element from the map as well, if
-                                  // it is removed successfully
-        }
-      } catch (const fs::filesystem_error& ex) {
-        ;
+    {
+      std::lock_guard<std::mutex> lock(remove_mutex);
+      if (!strand_map.count(key)) {
+        boost::asio::io_service::strand* strand =
+            new boost::asio::io_service::strand(*_io_service);
+        strand_map.insert(StrandPair(key, strand));
       }
 
-      return;
-    });
+      strand_map.at(key)->post([=]() {
+        path p(get_storage_path(key));
 
+        try {
+          if (fs::exists(p) && is_regular_file(p)) {
+            fs::remove(p);
+            std::lock_guard<std::mutex> lock(remove_mutex);
+            delete strand_map.at(key);
+            strand_map.erase(
+                key);  // erase the element from the map as well, if
+            // it is removed successfully
+          }
+        } catch (const fs::filesystem_error& ex) {
+          ;
+        }
+
+        return;
+      });
+    }
     return;
   } else {
     path p(get_storage_path(key));
@@ -212,21 +216,36 @@ void SimpleStorageBucket::remove(const string_& key) {
 /// the callback might run asynchronously
 void SimpleStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
+  shared_ptr_<ReadCbTrack> read_cb_track = make_shared_<ReadCbTrack>();
+  read_cb_track->num_needed = 0;
+
   path p(get_storage_path());
   std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
       key_list.push_back(x.path().stem().wstring());
+      read_cb_track->num_needed++;
     }
     key_list.sort();
     for (auto&& key : key_list) {
       auto cb = callback;
+      auto on_done_cb = on_done;
       this->read(
           url_decode(
               std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(key)),
-          std::move(cb));
+          [ =, cb = std::move(cb), on_done_cb = std::move(on_done_cb) ](
+              const string_& key, std::vector<uint8_t> data,
+              BucketReadStatus read_status) {
+
+            std::lock_guard<std::mutex> lock(read_cb_track->read_mutex);
+            cb(std::move(key), std::move(data), read_status);
+            read_cb_track->num_needed--;
+            if (read_cb_track->num_needed == 0) {
+              if (on_done_cb != nullptr) on_done_cb();
+            }
+
+          });
     }
-    if (on_done != nullptr) on_done();
   } catch (const fs::filesystem_error& ex) {
     // std::cout << ex.what() << '\n';
   }

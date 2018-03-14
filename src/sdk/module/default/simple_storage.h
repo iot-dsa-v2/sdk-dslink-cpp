@@ -27,10 +27,15 @@ class SimpleQueueBucket : public QueueBucket {
 
   void remove_all() override;
 };
+struct ReadCbTrack {
+  int num_needed;  // how many is done now
+  std::mutex read_mutex;
+};
 
 class SimpleStorageBucket : public StorageBucket {
  private:
   typedef std::map<string_, boost::asio::io_service::strand*> StrandMap;
+  std::mutex remove_mutex;
 
  protected:
   typedef std::pair<string_, boost::asio::io_service::strand*> StrandPair;
