@@ -91,12 +91,10 @@ void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
                   content->size());
         ofs.close();
       } else {
-        // TODO: is fatal?
-        LOG_FATAL(__FILENAME__,
+        LOG_ERROR(__FILENAME__,
                   LOG << "Unable to open " << key << " file to write");
       }
     } catch (const fs::filesystem_error& ex) {
-      // TODO: is fatal?
       LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
     }
   };
