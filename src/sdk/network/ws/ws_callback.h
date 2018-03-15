@@ -30,12 +30,12 @@ class DsaWsCallback {
       http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
     shared_ptr_<Connection> connection;
 
-    std::lock_guard<std::mutex> lock(_mutex);
+    //    std::lock_guard<std::mutex> lock(_mutex);
     connection =
         make_shared_<WsServerConnection>(std::move(websocket), _link_strand);
     std::dynamic_pointer_cast<WsConnection>(connection)->accept();
 
-    return connection;
+    return std::move(connection);
   }
 };
 }  // namespace dsa
