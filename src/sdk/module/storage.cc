@@ -25,43 +25,47 @@ void StrandStorageBucket::read(const string_& key, ReadCallback&& callback) {
       BucketReadStatus read_status) {
     if (_owner_strand != nullptr)
       _owner_strand->post([
-        callback = std::move(callback), key = std::move(key),
-        data = std::move(data), read_status = std::move(read_status)
-      ]() {
-        callback(std::move(key), std::move(data),
-                 std::move(read_status));
+                              callback = std::move(callback), key = std::move(key),
+                              data = std::move(data), read_status = std::move(read_status)
+                          ]() {
+        callback(std::move(key), std::move(data), std::move(read_status));
       });
     else
-      callback(std::move(key), std::move(data),
-               std::move(read_status));
+      callback(std::move(key), std::move(data), std::move(read_status));
   };
   _shared_bucket->read(key, read_callback);
 }
 
 void StrandStorageBucket::read_all(ReadCallback&& callback,
                                    std::function<void()>&& on_done) {
-  auto read_callback = [ =, callback = std::move(callback) ](
-      const string_& key, std::vector<uint8_t> data,
-      BucketReadStatus read_status) {
-    if (_owner_strand != nullptr)
+  std::shared_ptr<ReadCallback> callback_ptr =
+      std::make_shared<ReadCallback>(std::move(callback));
+
+  auto read_callback = [this, callback_ptr](const string_& key,
+                                            std::vector<uint8_t> data,
+                                            BucketReadStatus read_status) {
+
+    if (_owner_strand != nullptr) {
       _owner_strand->post([
-        callback = std::move(callback), key = std::move(key),
-        data = std::move(data), read_status = std::move(read_status)
-      ]() {
-        callback(std::move(key), std::move(data),
-                 std::move(read_status));
+                              callback_ptr, key = std::move(key), data = std::move(data),
+                              read_status = std::move(read_status)
+                          ]() {
+
+        (*callback_ptr)(std::move(key), std::move(data),
+                        std::move(read_status));
       });
-    else
-      callback(std::move(key), std::move(data),
-               std::move(read_status));
+    } else {
+      (*callback_ptr)(std::move(key), std::move(data), std::move(read_status));
+    }
   };
+
   _shared_bucket->read_all(
-      read_callback,
-      [ this, keepref = get_ref(), on_done = std::move(on_done) ]() {
+      std::move(read_callback),
+      std::move([ this, on_done = std::move(on_done) ]() {
         if (_owner_strand != nullptr)
           _owner_strand->post([on_done = std::move(on_done)]() { on_done(); });
         else
           on_done();
-      });
+      }));
 }
 }
