@@ -173,3 +173,60 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
   }
   app->wait();
 }
+
+TEST_F(BrokerDsLinkTest, ListAgain) {
+  const string_ bucket_name("Clients");
+  SimpleStorage storage;
+  storage.get_shared_bucket(bucket_name)->remove_all();
+
+  for(int i=0;i <2 ; i++) {
+
+    auto app = make_shared_<App>();
+    auto broker = broker_dslink_test::create_broker(app);
+    broker->run();
+
+    int32_t port;
+
+    switch (protocol()) {
+      case dsa::ProtocolType::PROT_DSS:port = broker->get_active_secure_port();
+        break;
+      default:port = broker->get_active_server_port();
+    }
+
+    EXPECT_TRUE(port != 0);
+
+    auto link = broker_dslink_test::create_mock_dslink(app, port, "Test_unique", false,
+                                                       protocol());
+
+    bool is_connected = false;
+    bool listed = false;
+
+    link->connect([&](const shared_ptr_<Connection> connection,
+                      ref_<DsLinkRequester> link_req) {
+      is_connected = true;  // list on root node
+      // list on self
+      link_req->list("Downstream/Test_unique", [&](IncomingListCache &cache,
+                                                   const std::vector<string_> &str) {
+        VarMap self_map = cache.get_map();
+        EXPECT_TRUE(self_map["$$dsid"].is_string());
+        EXPECT_TRUE(!self_map["$$dsid"].get_string().empty());
+        listed = true;
+        cache.close();
+      });
+    });
+    ASYNC_EXPECT_TRUE(2000, *link->strand, [&]() {
+      return is_connected && listed;
+    });
+    link->strand->post([&]() { link->destroy(); });
+    broker->strand->post([&]() { broker->destroy(); });
+
+    app->close();
+
+    WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
+
+    if (!app->is_stopped()) {
+      app->force_stop();
+    }
+    app->wait();
+  }
+}
