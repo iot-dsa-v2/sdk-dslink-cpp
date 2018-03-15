@@ -18,6 +18,7 @@ TEST(StringEncodeTest, EncodeMost) {
       u8"60abcdefghijklmnopqrstuvwxyz%7B%7C%7D%7E%C2%A2%C3%B7%E5%91%A8");
   EXPECT_EQ(str_utf8, url_decode(encode_str));
 }
+#ifndef __MINGW32__
 TEST(StringEncodeTest, EncodeFileName) {
   string_ encode_str = url_encode_file_name(str_utf8);
   EXPECT_EQ(
@@ -28,6 +29,7 @@ TEST(StringEncodeTest, EncodeFileName) {
       u8"\u00A2\u00F7周");
   EXPECT_EQ(str_utf8, url_decode(encode_str));
 }
+#endif
 TEST(StringEncodeTest, EncodeNodeName) {
   string_ encode_str = url_encode_node_name(str_utf8);
   EXPECT_EQ(

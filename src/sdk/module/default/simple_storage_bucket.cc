@@ -91,12 +91,10 @@ void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
                   content->size());
         ofs.close();
       } else {
-        // TODO: is fatal?
-        LOG_FATAL(__FILENAME__,
+        LOG_ERROR(__FILENAME__,
                   LOG << "Unable to open " << key << " file to write");
       }
     } catch (const fs::filesystem_error& ex) {
-      // TODO: is fatal?
       LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
     }
   };
@@ -237,6 +235,9 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
               const string_& key, std::vector<uint8_t> data,
               BucketReadStatus read_status) {
 
+            // TODO: consider not lock callback, but it that case the callback
+            // is not going to be thread safe
+            // thread safety should be provided in the callback
             std::lock_guard<std::mutex> lock(read_cb_track->read_mutex);
             cb(std::move(key), std::move(data), read_status);
             read_cb_track->num_needed--;
@@ -271,6 +272,7 @@ void SimpleStorageBucket::remove_all() {
   return;
 }
 void SimpleStorageBucket::destroy_bucket() {
+  std::lock_guard<std::mutex> lock(remove_mutex);
   for (auto& strand : strand_map) {
     delete strand_map.at(strand.first);
   }

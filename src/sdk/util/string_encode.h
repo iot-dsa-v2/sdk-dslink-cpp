@@ -9,7 +9,7 @@ namespace dsa {
 
 enum class StringEncodeLevel : uint8_t {
   URL_ENCODE_NODE_NAME = 2,
-  URL_ENCODE_FILE_NAME = 2,
+  URL_ENCODE_ASCII = 3,
   URL_ENCODE = 4,
 };
 
