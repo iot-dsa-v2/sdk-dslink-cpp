@@ -67,12 +67,12 @@ void StrandStorageBucket::read_all(ReadCallback&& callback,
   };
 
   auto on_done_callback = [
-    this, keep_ref = get_ref(), callback_ptr = callback_ptr,
+    this, keep_ref = get_ref(), callback_ptr = std::move(callback_ptr),
     on_done = std::move(on_done)
   ]() mutable {
     if (_owner_strand != nullptr) {
       _owner_strand->post([
-        keep_ref = std::move(keep_ref), callback_ptr = callback_ptr,
+        keep_ref = std::move(keep_ref), callback_ptr = std::move(callback_ptr),
         on_done = std::move(on_done)
       ]() { on_done(); });
     } else {
