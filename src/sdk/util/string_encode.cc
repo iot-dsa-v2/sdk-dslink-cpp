@@ -123,8 +123,13 @@ std::string url_encode(const std::string &s_src, StringEncodeLevel level) {
   return s_result;
 }
 #endif
+
 string_ url_encode_file_name(const string_ &s_src) {
-  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_FILE_NAME);
+#ifdef __MINGW32__  // if mingw
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_ASCII);
+#else
+  return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
+#endif
 }
 string_ url_encode_node_name(const string_ &s_src) {
   return url_encode(s_src, StringEncodeLevel::URL_ENCODE_NODE_NAME);
