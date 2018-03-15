@@ -322,7 +322,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
       }
     } else if (ws_port > 0) {
       client_connection_maker = [
-        dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port, this
+        dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port, secure = this->secure
       ](LinkStrandRef & strand) {
         return make_shared_<WsClientConnection>(secure, strand, dsid_prefix,
                                                 ws_host, ws_port);
