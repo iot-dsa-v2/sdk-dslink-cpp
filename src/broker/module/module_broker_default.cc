@@ -2,9 +2,9 @@
 
 #include "module_broker_default.h"
 
-#include "broker_authorizer.h"
-#include "broker_client_manager.h"
-#include "broker_login_manager.h"
+#include "authorizer/broker_authorizer.h"
+#include "client/broker_client_manager.h"
+#include "user/broker_login_manager.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_storage.h"
 

@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include "../../sdk/web_server/login_manager.h"
+#include "web_server/login_manager.h"
 #include "util/client_info.h"
 #include "core/link_strand.h"
 

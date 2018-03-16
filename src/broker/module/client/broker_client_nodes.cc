@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "../remote_node/broker_session_manager.h"
+#include "../../remote_node/broker_session_manager.h"
 #include "broker_client_manager.h"
 #include "broker_client_nodes.h"
 #include "module/session_manager.h"

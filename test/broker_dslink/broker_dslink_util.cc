@@ -1,8 +1,8 @@
 
 #include "broker_dslink_util.h"
 
-#include "module/broker_authorizer.h"
-#include "module/broker_client_manager.h"
+#include "module/authorizer/broker_authorizer.h"
+#include "module/client/broker_client_manager.h"
 #include "module/default/console_logger.h"
 #include "module/default/simple_storage.h"
 

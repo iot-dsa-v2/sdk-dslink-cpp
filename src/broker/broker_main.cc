@@ -9,8 +9,8 @@
 #include "config/broker_config.h"
 
 #include "module/default/console_logger.h"
-#include "module/broker_client_manager.h"
-#include "module/broker_authorizer.h"
+#include "module/client/broker_client_manager.h"
+#include "module/authorizer/broker_authorizer.h"
 
 #include "module/module_broker_default.h"
 
