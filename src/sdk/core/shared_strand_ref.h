@@ -31,7 +31,7 @@ class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
   ~SharedRef() {
     auto p_strand = _strand.get();
     // post 2 reference to strand and they will be released there
-    p_strand->post([ strand = std::move(_strand), ref = std::move(_ref) ](){});
+    p_strand->dispatch([ strand = std::move(_strand), ref = std::move(_ref) ](){});
   }
 
   SharedRef(const SharedRef&) = delete;
