@@ -17,16 +17,16 @@
 namespace dsa {
 
 RemoteNode::RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
-                       ref_<Session> &&session)
+                       const ref_<Session> &session)
     : NodeModelBase(std::move(strand)),
       _remote_path(remote_path),
-      _remote_session(std::move(session)) {}
+      _remote_session(session) {}
 RemoteNode::~RemoteNode() = default;
 
 ModelRef RemoteNode::on_demand_create_child(const Path &path) {
   return make_ref_<RemoteNode>(_strand->get_ref(),
                                str_join_path(_remote_path, path.remain_str()),
-                               _remote_session->get_ref());
+                               _remote_session);
 }
 
 void RemoteNode::destroy_impl() {

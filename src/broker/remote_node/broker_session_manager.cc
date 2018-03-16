@@ -61,9 +61,8 @@ void BrokerSessionManager::update_responder_root(const string_ &dsid,
       auto *parent_model = state->get_parent()->model_cast<NodeModel>();
       if (parent_model != nullptr) {
         parent_model->remove_list_child(state->get_path().last_name());
-        LOG_TRACE(
-            __FILENAME__,
-            LOG << "responder node removed:" << old_path << " : " << dsid);
+        LOG_TRACE(__FILENAME__, LOG << "responder node removed:" << old_path
+                                    << " : " << dsid);
       }
     }
   }
@@ -75,9 +74,8 @@ void BrokerSessionManager::update_responder_root(const string_ &dsid,
           add_responder_root(dsid, new_path, *search->second->_single_session);
       if (rslt != nullptr) {
         search->second->_info.responder_path = new_path;
-        LOG_TRACE(
-            __FILENAME__,
-            LOG << "responder node updated:" << new_path << " : " << dsid);
+        LOG_TRACE(__FILENAME__, LOG << "responder node updated:" << new_path
+                                    << " : " << dsid);
       }
     }
   }
@@ -119,8 +117,7 @@ ref_<RemoteRootNode> BrokerSessionManager::add_responder_root(
     return ref_<RemoteRootNode>();
   }
 
-  auto new_root =
-      make_ref_<RemoteRootNode>(_strand->get_ref(), session.get_ref());
+  auto new_root = make_ref_<RemoteRootNode>(_strand->get_ref(), session.get_ref());
   new_root->set_override_meta("$$dsid", Var(dsid));
   parent_state->model_cast<NodeModel>()->add_list_child(path.last_name(),
                                                         new_root->get_ref());

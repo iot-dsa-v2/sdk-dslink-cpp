@@ -7,8 +7,8 @@
 #include "stream/requester/incoming_list_stream.h"
 
 namespace dsa {
-RemoteRootNode::RemoteRootNode(LinkStrandRef &&strand, ref_<Session> &&session)
-    : RemoteNode(std::move(strand), "", std::move(session)) {}
+RemoteRootNode::RemoteRootNode(LinkStrandRef &&strand, const ref_<Session> &session)
+    : RemoteNode(std::move(strand), "", session) {}
 RemoteRootNode::~RemoteRootNode() = default;
 
 // void RemoteRootNode::on_session(Session &session,
