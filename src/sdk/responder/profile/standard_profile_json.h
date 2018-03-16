@@ -13,6 +13,9 @@ static const std::string standard_profile = R"({
     "Remove": {
      "$invokable": "config"
     },
+    "Detach_Token": {
+     "$invokable": "config"
+    },
     "Group": {
      "$type": "string",
      "$writable": "config"
@@ -28,9 +31,8 @@ static const std::string standard_profile = R"({
     "Current_Session": {
      "$type": "number"
     },
-    "Default_Token": {
-     "$type": "string",
-     "$writable": "config"
+    "From_Token": {
+     "$type": "string"
     }
    },
    "Quarantine_Client": {
@@ -76,6 +78,37 @@ static const std::string standard_profile = R"({
     "$editor": "enum[none,list,read,write,config]",
     "Remove": {
      "$invokable": "config"
+    }
+   },
+   "Token": {
+    "Remove": {
+     "$invokable": "config"
+    },
+    "Remove_All_Clients": {
+     "$invokable": "config"
+    },
+    "Regenerate": {
+     "$invokable": "config"
+    },
+    "Time_Range": {
+     "$type": "string",
+     "$editor": "datarange",
+     "$writable": "config"
+    },
+    "Count": {
+     "$type": "number",
+     "$writable": "config"
+    },
+    "Max_Session": {
+     "$type": "number",
+     "$writable": "config"
+    },
+    "Managed": {
+     "$type": "bool",
+     "$writable": "config"
+    },
+    "Token": {
+     "$type": "string"
     }
    }
   }

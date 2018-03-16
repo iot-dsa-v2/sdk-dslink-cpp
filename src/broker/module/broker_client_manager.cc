@@ -147,7 +147,7 @@ void BrokerClientManager::get_client(const string_& dsid,
   ]() {
     if (PathData::invalid_name(dsid)) {
       // TODO check dsid
-      callback(ClientInfo(dsid, auth_token), true);
+      callback(ClientInfo(dsid), true);
       return;
     }
 
@@ -161,14 +161,14 @@ void BrokerClientManager::get_client(const string_& dsid,
         callback(p->get_client_info(), false);
       } else {
         // this doesn't make sense, a dsId conflict with action node name?
-        callback(ClientInfo(dsid, auth_token), true);
+        callback(ClientInfo(dsid), true);
       }
     } else {
       // unknown dslink
 
       // TODO check token first
       if (_allow_all_links) {
-        ClientInfo info(dsid, "");
+        ClientInfo info(dsid);
         if (is_responder) {
           info.responder_path = create_downstream_path(dsid);
         }
@@ -185,12 +185,12 @@ void BrokerClientManager::get_client(const string_& dsid,
 
         callback(child->get_client_info(), false);
       } else if (_quarantine_enabled) {
-        ClientInfo info(dsid, "");
+        ClientInfo info(dsid);
         info.group = "none";
         info.responder_path = QUARANTINE_PATH + dsid;
         callback(std::move(info), false);
       } else {
-        callback(ClientInfo(dsid, auth_token), true);
+        callback(ClientInfo(dsid), true);
       }
     }
   });

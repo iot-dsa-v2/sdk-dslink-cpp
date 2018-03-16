@@ -64,7 +64,7 @@ BrokerClientNode::BrokerClientNode(LinkStrandRef&& strand,
                                    const string_& dsid)
     : NodeModel(std::move(strand), std::move(profile)),
       _parent(std::move(parent)),
-      _client_info(dsid, "") {
+      _client_info(dsid) {
   // initialize children value nodes;
   _group_node.reset(new ValueNodeModel(
       _strand->get_ref(), [ this, keepref = get_ref() ](const Var& v) {
@@ -104,19 +104,11 @@ BrokerClientNode::BrokerClientNode(LinkStrandRef&& strand,
   _path_node->update_property("$type", Var("string"));
   add_list_child("Path", _path_node->get_ref());
 
-  _default_token_node.reset(new ValueNodeModel(
-      _strand->get_ref(), [ this, keepref = get_ref() ](const Var& v) {
-        if (v.is_string()) {
-          _client_info.default_token = v.get_string();
-          save(*_parent->_storage, _client_info.id, false, true);
-          return true;
-        }
-        return false;
-      },
-      PermissionLevel::CONFIG));
-  _default_token_node->update_property("$type", Var("string"));
-  add_list_child("Default_Token", _default_token_node->get_ref());
+  _from_token_node.reset(new NodeModel(_strand->get_ref()));
+  _from_token_node->update_property("$type", Var("string"));
+  add_list_child("From_Token", _from_token_node->get_ref());
 
+  // TODO make writable
   _max_session_node.reset(new NodeModel(_strand->get_ref()));
   _max_session_node->update_property("$type", Var("number"));
   add_list_child("Max_Session", _max_session_node->get_ref());
@@ -134,7 +126,7 @@ void BrokerClientNode::destroy_impl() {
   _path_node.reset();
   _max_session_node.reset();
   _current_session_node.reset();
-  _default_token_node.reset();
+  _from_token_node.reset();
 
   NodeModel::destroy_impl();
 }
@@ -143,20 +135,20 @@ void BrokerClientNode::set_client_info(ClientInfo&& info) {
   _group_node->set_value(Var(_client_info.group));
   _path_node->set_value(Var(_client_info.responder_path));
   _max_session_node->set_value(Var(_client_info.max_session));
-  _default_token_node->set_value(Var(_client_info.default_token));
+  _from_token_node->set_value(Var(_client_info.from_token));
 }
 
 void BrokerClientNode::save_extra(VarMap& map) const {
   // TODO, change these to writable children value nodes
   map["?group"] = _client_info.group;
-  map["?default-token"] = _client_info.default_token;
+  map["?from-token"] = _client_info.from_token;
   map["?path"] = _client_info.responder_path;
   map["?max-session"] = static_cast<int64_t>(_client_info.max_session);
 }
 void BrokerClientNode::load_extra(VarMap& map) {
   ClientInfo info(std::move(_client_info));
   info.group = map["?group"].to_string();
-  info.default_token = map["?default-token"].to_string();
+  info.from_token = map["?default-token"].to_string();
   info.responder_path = map["?path"].to_string();
   info.max_session = static_cast<size_t>(map["?max-session"].get_int());
   set_client_info(std::move(info));
