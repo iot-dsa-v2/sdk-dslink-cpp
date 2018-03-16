@@ -20,6 +20,7 @@ BrokerClientsRoot::BrokerClientsRoot(LinkStrandRef&& strand,
 void BrokerClientsRoot::initialize() {
   NodeModel::initialize();
 
+  if (false)
   _storage->read_all([ this, keepref = get_ref() ](
                          const string_& key, std::vector<uint8_t> data,
                          BucketReadStatus read_status) mutable {
