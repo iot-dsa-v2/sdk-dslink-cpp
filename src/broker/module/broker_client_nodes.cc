@@ -32,27 +32,21 @@ void BrokerClientsRoot::initialize() {
         Var::from_json(reinterpret_cast<const char*>(data.data()), data.size());
 
     if (map.is_map()) {
-      // TODO, remove this dispatch, as well as the above mutable, just a work
-      // around before we have strand bucket
-      _strand->dispatch([
-        this, keepref = std::move(keepref), key, map = std::move(map)
-      ]() mutable {
-        // add a child dslink node
-        auto child = make_ref_<BrokerClientNode>(
-            _strand->get_ref(), get_ref(),
-            _strand->stream_acceptor().get_profile("Broker/Client", true), key);
-        child->load(map.get_map());
+      // add a child dslink node
+      auto child = make_ref_<BrokerClientNode>(
+          _strand->get_ref(), get_ref(),
+          _strand->stream_acceptor().get_profile("Broker/Client", true), key);
+      child->load(map.get_map());
 
-        add_list_child(key, child->get_ref());
+      add_list_child(key, child->get_ref());
 
-        // initialize the session and responder node
-        static_cast<BrokerSessionManager&>(_strand->session_manager())
-            .get_session_sync(
-                child->get_client_info(),
-                [](const ref_<Session>& session, const ClientInfo& info) {
-                  // do nothing
-                });
-      });
+      // initialize the session and responder node
+      static_cast<BrokerSessionManager&>(_strand->session_manager())
+          .get_session_sync(
+              child->get_client_info(),
+              [](const ref_<Session>& session, const ClientInfo& info) {
+                // do nothing
+              });
     }
   },
                      [manager = _manager]() { manager->rebuild_path2id(); });
