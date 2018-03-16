@@ -5,10 +5,10 @@
 #pragma once
 #endif
 
+#include "broker_client_manager_config.h"
 #include "core/link_strand.h"
 #include "module/client_manager.h"
 #include "responder/node_model.h"
-#include "broker_client_manager_config.h"
 
 namespace dsa {
 class ModuleLoader;
@@ -23,8 +23,10 @@ class BrokerClientManager : public ClientManager {
  protected:
   LinkStrandRef _strand;
 
-  ref_<BrokerClientsRoot> _clients;
-  ref_<NodeModel> _quarantine;
+  ref_<BrokerClientsRoot> _clients_root;
+  ref_<NodeModel> _quarantine_root;
+  ref_<NodeModel> _tokens_root;
+
   ref_<BrokerClientManagerConfig> _config;
 
   // map its name in Downstream back to dsid
@@ -46,9 +48,14 @@ class BrokerClientManager : public ClientManager {
 
   void rebuild_path2id();
 
+  // return error message
+  // return "" for no error, return "err" for a generic error
+  string_ update_client_path(const string_& dsid, const string_& new_path);
+
   void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
-  ref_<NodeModel> get_clients_node();
-  ref_<NodeModel>& get_quarantine_node() { return _quarantine; };
+  ref_<NodeModel> get_clients_root();
+  ref_<NodeModel>& get_quarantine_root() { return _quarantine_root; };
+  ref_<NodeModel>& get_tokens_root() { return _tokens_root; };
   void get_client(const string_& dsid, const string_& auth_token,
                   bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;

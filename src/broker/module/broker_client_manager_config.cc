@@ -4,7 +4,7 @@
 #include "module/logger.h"
 
 namespace dsa {
-const string_& config_bucket_key = "client-manager.json";
+const string_ config_bucket_key = "client-manager.json";
 BrokerClientManagerConfig::BrokerClientManagerConfig() {
   init();
   load();

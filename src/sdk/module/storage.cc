@@ -2,15 +2,15 @@
 
 #include "storage.h"
 
-#include "core/shared_strand_ref.h"
 #include "module/default/simple_storage.h"
 #include "util/string_encode.h"
 
 namespace dsa {
 
-static std::unique_ptr<StorageBucket> config_bucket(
-    std::make_unique<SimpleSafeStorageBucket>("config", nullptr, ""));
-StorageBucket& Storage::get_config_bucket() { return *config_bucket; }
+StorageBucket& Storage::get_config_bucket() {
+  static SimpleSafeStorageBucket config_bucket("config", nullptr, "");
+  return config_bucket;
+}
 
 ref_<StrandStorageBucket> Storage::get_strand_bucket(
     const string_& name, const LinkStrandRef& strand) {

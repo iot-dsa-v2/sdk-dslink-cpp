@@ -23,21 +23,56 @@ BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
   _quarantine_enabled = _config->enable_quarantine().get_value().get_bool();
 }
 BrokerClientManager::~BrokerClientManager() = default;
-ref_<NodeModel> BrokerClientManager::get_clients_node() { return _clients; }
+ref_<NodeModel> BrokerClientManager::get_clients_root() {
+  return _clients_root;
+}
 
 void BrokerClientManager::rebuild_path2id() {
   if (is_destroyed()) return;
 
   _path2id.clear();
-  for (auto& it : _clients->get_list_children()) {
+  for (auto& it : _clients_root->get_list_children()) {
     auto* link_node = dynamic_cast<BrokerClientNode*>(it.second.get());
     if (link_node != nullptr) {
       if (!link_node->get_client_info().id.empty())
-        _path2id[link_node->get_client_info().id] = it.first;
+        _path2id[link_node->get_client_info().responder_path.substr(
+            DOWNSTREAM_PATH.size())] = it.first;
     }
   }
 }
 
+string_ BrokerClientManager::update_client_path(const string_& dsid,
+                                                const string_& new_path) {
+  auto& children = _clients_root->get_list_children();
+
+  auto search = children.find(dsid);
+  if (search == children.end()) {
+    return "internal error";  // shouldn't happen
+  }
+  auto* p_client_model = dynamic_cast<BrokerClientNode*>(search->second.get());
+  if (p_client_model == nullptr) {
+    return "internal error";  // shouldn't happen
+  }
+  if (!new_path.empty()) {
+    if (!str_starts_with(new_path, DOWNSTREAM_PATH)) {
+      return "Path should start with " + DOWNSTREAM_PATH;
+    }
+    Path path(new_path);
+    if (path.data()->names.size() != 2) {
+      return "err";
+    }
+
+    if (_path2id.count(path.data()->names[1]) > 0) {
+      return "Path already in use";
+    }
+  }
+
+  static_cast<BrokerSessionManager&>(_strand->session_manager())
+      .update_responder_root(
+          dsid, p_client_model->get_client_info().responder_path, new_path);
+
+  return "";
+}
 void BrokerClientManager::create_nodes(NodeModel& module_node,
                                        BrokerPubRoot& pub_root) {
   pub_root.register_standard_profile_function(
@@ -47,9 +82,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                                     ref_<NodeState> && parent) {
         auto* client = parent->model_cast<BrokerClientNode>();
         if (client != nullptr &&
-            parent->get_parent() == _clients->get_state()) {
-          const string_& dsid = parent->get_path().last_name();
-          const string_& responder_path =
+            parent->get_parent() == _clients_root->get_state()) {
+          const string_ dsid = parent->get_path().last_name();
+          const string_ responder_path =
               client->get_client_info().responder_path;
 
           // remove from path2id map
@@ -58,9 +93,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           }
 
           // delete the storage
-          _clients->_storage->remove(dsid);
+          _clients_root->_storage->remove(dsid);
           // remove the node
-          _clients->remove_child(dsid);
+          _clients_root->remove_list_child(dsid);
 
           stream.close();
 
@@ -72,10 +107,11 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         }
       });
 
-  _clients.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
-  _quarantine.reset(new DynamicChildrenParent(_strand->get_ref()));
+  _clients_root.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
+  _quarantine_root.reset(new DynamicChildrenParent(_strand->get_ref()));
+  _tokens_root.reset(new NodeModel(_strand->get_ref()));
 
-  _quarantine->add_list_child(
+  _quarantine_root->add_list_child(
       "Allow_All",
       make_ref_<ValueNodeModel>(_strand->get_ref(),
                                 [ this, keepref = get_ref() ](const Var& v) {
@@ -87,7 +123,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                                 },
                                 PermissionLevel::CONFIG));
 
-  _quarantine->add_list_child(
+  _quarantine_root->add_list_child(
       "Enabled",
       make_ref_<ValueNodeModel>(_strand->get_ref(),
                                 [ this, keepref = get_ref() ](const Var& v) {
@@ -115,9 +151,9 @@ void BrokerClientManager::get_client(const string_& dsid,
       return;
     }
 
-    auto search = _clients->get_list_children().find(dsid);
+    auto search = _clients_root->get_list_children().find(dsid);
 
-    if (search != _clients->get_list_children().end()) {
+    if (search != _clients_root->get_list_children().end()) {
       // a known dslink
 
       auto* p = dynamic_cast<BrokerClientNode*>(search->second.get());
@@ -132,25 +168,27 @@ void BrokerClientManager::get_client(const string_& dsid,
 
       // TODO check token first
       if (_allow_all_links) {
-        ClientInfo info(dsid, auth_token);
+        ClientInfo info(dsid, "");
         if (is_responder) {
           info.responder_path = create_downstream_path(dsid);
         }
 
         // add to downstream
         auto child = make_ref_<BrokerClientNode>(
-            _strand->get_ref(),
-            _strand->stream_acceptor().get_profile("Broker/Client", true));
-        // TODO, add more into constructor, allow value node change property,
-        // add group
-        child->get_client_info() = std::move(info);
+            _strand->get_ref(), _clients_root->get_ref(),
+            _strand->stream_acceptor().get_profile("Broker/Client", true),
+            dsid);
+        child->set_client_info(std::move(info));
 
-        _clients->add_list_child(dsid, ref_<NodeModelBase>(child));
-        child->save(*_clients->_storage, dsid, false, true);
+        _clients_root->add_list_child(dsid, ref_<NodeModelBase>(child));
+        child->save(*_clients_root->_storage, dsid, false, true);
 
         callback(child->get_client_info(), false);
       } else if (_quarantine_enabled) {
-        // TODO add to quaratine
+        ClientInfo info(dsid, "");
+        info.group = "none";
+        info.responder_path = QUARANTINE_PATH + dsid;
+        callback(std::move(info), false);
       } else {
         callback(ClientInfo(dsid, auth_token), true);
       }
@@ -189,8 +227,8 @@ void BrokerClientManager::set_quarantine_enabled(bool value) {
 }
 
 void BrokerClientManager::destroy_impl() {
-  _clients.reset();
-  _quarantine.reset();
+  _clients_root.reset();
+  _quarantine_root.reset();
   ClientManager::destroy_impl();
 }
 

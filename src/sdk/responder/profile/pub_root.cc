@@ -2,12 +2,35 @@
 
 #include "pub_root.h"
 
+#include "message/response/set_response_message.h"
 #include "module/logger.h"
 #include "responder/invoke_node_model.h"
-
 #include "standard_profile_json.h"
+#include "stream/responder/outgoing_set_stream.h"
 
 namespace dsa {
+
+class PubValueNode : public NodeModel {
+ public:
+  PubValueNode(LinkStrandRef &&strand) : NodeModel(std::move(strand)) {}
+
+ protected:
+  // pub node should not be subscribed directly
+  void on_subscribe(const SubscribeOptions &options,
+                    bool first_request) override {
+    if (first_request) {
+      auto response = make_ref_<SubscribeResponseMessage>();
+      response->set_status(MessageStatus::NOT_SUPPORTED);
+      set_subscribe_response(std::move(response));
+    }
+  }
+  // pub node should not be set directly
+  void set(ref_<OutgoingSetStream> &&stream) override {
+    auto response = make_ref_<SetResponseMessage>();
+    response->set_status(MessageStatus::NOT_SUPPORTED);
+    stream->send_response(std::move(response));
+  }
+};
 
 PubRoot::PubRoot(LinkStrandRef &&strand, const string_ &profile)
     : NodeModel(std::move(strand)) {
@@ -42,6 +65,9 @@ static void load_profile_model(NodeModel *node, VarMap &map) {
             child.reset(
                 new SimpleInvokeNode(node->get_strand()->get_ref(),
                                      SimpleInvokeNode::FullCallback(nullptr)));
+          } else if (child_map.count("$type") > 0) {
+            // child value
+            child.reset(new PubValueNode(node->get_strand()->get_ref()));
           } else {
             child.reset(new NodeModel(node->get_strand()->get_ref()));
           }
@@ -144,8 +170,9 @@ void PubRoot::register_standard_profile_function(
   }
   auto *invoke_node = dynamic_cast<SimpleInvokeNode *>(search->second.get());
   if (invoke_node == nullptr) {
-    LOG_FATAL(__FILENAME__, LOG << "not able to register standard function "
-                                << "not an action node " << path);
+    LOG_FATAL(__FILENAME__,
+              LOG << "not able to register standard function "
+                  << "not an action node " << path);
   }
   invoke_node->set_callback(std::move(callback));
 }

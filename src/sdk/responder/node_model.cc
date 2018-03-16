@@ -82,6 +82,9 @@ void NodeModel::initialize() {
       // add profile node only when it doesn't exist already
       if (child_state->get_model() == nullptr) {
         child_state->set_model(it.second->get_ref());
+      } else {
+        // remove profile node in list children
+        _list_children.erase(it.first);
       }
     }
   }
