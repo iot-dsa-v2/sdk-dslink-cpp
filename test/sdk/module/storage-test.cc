@@ -1,6 +1,7 @@
 ﻿#include "dsa_common.h"
 
 #include <gtest/gtest.h>
+#include <atomic>
 #include <boost/filesystem.hpp>
 #include <codecvt>
 #include <cstring>
@@ -187,7 +188,7 @@ TEST(ModuleTest, StorageBucketReadAll) {
     };
     storage_bucket->read(storage_key2, read_callback);
   }
-  int read_order = 0;
+  std::atomic<int> read_order{0};
   auto read_all_callback = [&](string_ storage_key, std::vector<uint8_t> vec,
                                BucketReadStatus read_status) {
     EXPECT_EQ(read_status, BucketReadStatus::OK);
@@ -253,7 +254,7 @@ TEST(ModuleTest, StorageBucketReadAllMore) {
         300, [&]() -> bool { return storage_bucket->exists(storage_key); });
   }
 
-  int read_order = 0;
+  std::atomic<int> read_order{0};
   auto read_all_callback = [&](string_ key, std::vector<uint8_t> vec,
                                BucketReadStatus read_status) {
     EXPECT_EQ(read_status, BucketReadStatus::OK);
