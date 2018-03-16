@@ -5,8 +5,8 @@
 #include <module/module_with_loader.h>
 #include <util/string.h>
 #include "config/broker_config.h"
-#include "module/broker_authorizer.h"
-#include "module/broker_client_manager.h"
+#include "module/authorizer/broker_authorizer.h"
+#include "module/client/broker_client_manager.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "network/tcp/tcp_server.h"

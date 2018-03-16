@@ -2,10 +2,10 @@
 
 #include "broker_client_manager.h"
 
-#include "../node/paths.h"
-#include "../node/pub/pub_root.h"
-#include "../remote_node/broker_session_manager.h"
-#include "../remote_node/dynamic_children_parent.h"
+#include "../../node/paths.h"
+#include "../../node/pub/pub_root.h"
+#include "../../remote_node/broker_session_manager.h"
+#include "../../remote_node/dynamic_children_parent.h"
 #include "broker_client_nodes.h"
 #include "module/logger.h"
 #include "module/stream_acceptor.h"

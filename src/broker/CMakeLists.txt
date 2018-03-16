@@ -17,10 +17,10 @@ set(SOURCES
         broker.cc
         config/broker_config.cc
         config/broker_config_item.cc
-        module/broker_client_manager.cc
-        module/broker_client_manager_config.cc
-        module/broker_client_nodes.cc
-        module/broker_authorizer.cc
+        module/client/broker_client_manager.cc
+        module/client/broker_client_manager_config.cc
+        module/client/broker_client_nodes.cc
+        module/authorizer/broker_authorizer.cc
         module/module_broker_default.cc
         remote_node/broker_session_manager.cc
         remote_node/broker_client.cc
@@ -34,8 +34,8 @@ set(SOURCES
         node/home/home_root.cc
         node/sys/sys_root.cc
         node/pub/pub_root.cc
-        module/broker_login_manager.cc
-        module/broker_login_manager.h)
+        module/user/broker_login_manager.cc
+        module/user/broker_login_manager.h)
 
 add_library(dsa_broker ${SOURCES})
 target_link_libraries(dsa_broker ${BROKER_LIBS})

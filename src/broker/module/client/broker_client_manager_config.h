@@ -10,7 +10,7 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
-#include "../config/broker_config_item.h"
+#include "../../config/broker_config_item.h"
 #include "module/default/simple_storage.h"
 #include "util/enable_ref.h"
 
