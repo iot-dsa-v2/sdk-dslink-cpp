@@ -30,7 +30,7 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
   if (cwd.empty()) _cwd = get_current_working_dir();
   if (!_cwd.empty()) _full_base_path = _cwd + "/";
   if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
-  _full_base_path += bucket_name;
+  _full_base_path += _bucket_name;
 
   path p(get_storage_path());
   if (!fs::exists(p)) {
