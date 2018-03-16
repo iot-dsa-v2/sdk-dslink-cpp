@@ -32,6 +32,8 @@ class BrokerClientNode : public NodeModel {
   const ClientInfo& get_client_info() const { return _client_info; };
   void set_client_info(ClientInfo&& info);
 
+  void detach_token();
+
  protected:
   void destroy_impl() override;
   void save_extra(VarMap& map) const override;

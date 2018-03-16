@@ -71,7 +71,7 @@ class NodeModel : public NodeModelBase {
 
  public:  // serialization logic
   void save(StorageBucket &storage, const string_ &storage_path = "",
-            bool recursive = false, bool user_json = false) const;
+            bool recursive = false, bool use_json = false) const;
   void load(VarMap &map);
 
  protected:  // serialization implementation

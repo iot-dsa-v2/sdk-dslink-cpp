@@ -138,6 +138,9 @@ void BrokerClientNode::set_client_info(ClientInfo&& info) {
   _from_token_node->set_value(Var(_client_info.from_token));
 }
 
+void   BrokerClientNode::detach_token() {
+  _from_token_node->set_value(Var());
+}
 void BrokerClientNode::save_extra(VarMap& map) const {
   // TODO, change these to writable children value nodes
   map["?group"] = _client_info.group;

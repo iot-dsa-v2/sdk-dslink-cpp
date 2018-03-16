@@ -107,6 +107,20 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         }
       });
 
+  pub_root.register_standard_profile_function(
+      "Broker/Client/Detach_Token",
+      [ this, keepref = get_ref() ](Var&&, SimpleInvokeNode&,
+                                    OutgoingInvokeStream & stream,
+                                    ref_<NodeState> && parent) {
+        auto* client = parent->model_cast<BrokerClientNode>();
+        if (client != nullptr) {
+          client->detach_token();
+          client->save(*_clients_root->_storage, client->get_client_info().id);
+        } else {
+          stream.close(MessageStatus::INVALID_PARAMETER);
+        }
+      });
+
   _clients_root.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
   _quarantine_root.reset(new DynamicChildrenParent(_strand->get_ref()));
   _tokens_root.reset(new NodeModel(_strand->get_ref()));

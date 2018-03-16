@@ -202,7 +202,7 @@ MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
 // serialization
 
 void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
-                     bool recursive, bool user_json) const {
+                     bool recursive, bool use_json) const {
   auto map = make_ref_<VarMap>();
   if (_cached_value != nullptr) {
     (*map)["?value"] = _cached_value->get_value().value;
@@ -232,7 +232,7 @@ void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
         auto child_model = dynamic_cast<NodeModel *>(it.second.get());
         if (child_model != nullptr) {
           child_model->save(storage, recursive_path + it.first, true,
-                            user_json);
+                            use_json);
         }
       }
     }
@@ -240,8 +240,8 @@ void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
   save_extra(*map);
   Var var;
   var = map;
-  if (user_json) {
-    string_ str = var.to_json();
+  if (use_json) {
+    string_ str = var.to_json(1);
     const uint8_t *str_data = reinterpret_cast<const uint8_t *>(str.data());
     storage.write(storage_path,
                   make_ref_<RefCountBytes>(str_data, str_data + str.length()));
