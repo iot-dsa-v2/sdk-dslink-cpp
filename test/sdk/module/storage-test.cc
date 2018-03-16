@@ -145,7 +145,7 @@ TEST(ModuleTest, StorageBucketReadAll) {
   SimpleStorage simple_storage(nullptr);
   const string_ storage_key1(u8"parent周");
   const string_ storage_key2(u8"parent周/sample_key1周");
-  const string_ bucket_name(u8"bucket周");
+  const string_ bucket_name(u8"bucket/*周");
 
   const char* content1 = {"first_item"};
   const char* content2 = {"second_item"};
