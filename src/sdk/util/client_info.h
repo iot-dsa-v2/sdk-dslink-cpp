@@ -15,7 +15,7 @@ struct ClientInfo {
   string_ id;
 
   string_ group;
-  string_ default_token;
+  string_ from_token;
 
   string_ responder_path;
   size_t max_session;
@@ -26,9 +26,8 @@ struct ClientInfo {
   int32_t max_queue_time = 3600 * 24;
   int32_t default_queue_time = 60;
 
-  ClientInfo(const string_ id = "", const string_ default_token = "",
-             size_t max_session = 1)
-      : id(id), default_token(default_token), max_session(max_session) {}
+  ClientInfo(const string_ id = "", size_t max_session = 1)
+      : id(id), max_session(max_session) {}
 };
-}
+}  // namespace dsa
 #endif  // PROJECT_CLIENT_INFO_H
