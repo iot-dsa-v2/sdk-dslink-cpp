@@ -29,6 +29,7 @@ set(SOURCES
         remote_node/invoke_proxy.cc
         remote_node/set_proxy.cc
         remote_node/dynamic_children_parent.cc
+        remote_node/remote_node_group.cc
         node/broker_root.cc
         node/upstream/upstream_root.cc
         node/home/home_root.cc

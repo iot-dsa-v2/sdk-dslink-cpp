@@ -24,7 +24,7 @@ class RemoteNode : public NodeModelBase {
 
  public:
   RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
-             const ref_<Session> &session);
+             Session &session);
   ~RemoteNode() override;
 
   // when return true, destroy() will be called by NodeState

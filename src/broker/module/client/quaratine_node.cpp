@@ -4,6 +4,6 @@
 
 namespace dsa {
 QuaratineRemoteRoot::QuaratineRemoteRoot(LinkStrandRef &&strand,
-                                         const ref_<Session> &session)
+                                         Session &session)
     : RemoteRootNode(std::move(strand), session) {}
 }  // namespace dsa

@@ -16,7 +16,7 @@ class RemoteRootNode : public RemoteNode {
   std::unordered_map<string_, VarBytesRef> _override_metas;
   void send_all_override_metas();
  public:
-  RemoteRootNode(LinkStrandRef &&strand, const ref_<Session> &session);
+  RemoteRootNode(LinkStrandRef &&strand, Session &session);
   ~RemoteRootNode() override;
 
   // updated the status of connection changes, not used yet

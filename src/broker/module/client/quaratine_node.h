@@ -11,7 +11,7 @@
 namespace dsa {
 
 class QuaratineRemoteRoot : public RemoteRootNode {
-  QuaratineRemoteRoot(LinkStrandRef &&strand, const ref_<Session> &session);
+  QuaratineRemoteRoot(LinkStrandRef &&strand, Session &session);
 };
 }  // namespace dsa
 
