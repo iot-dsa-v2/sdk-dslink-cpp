@@ -58,8 +58,8 @@ std::string path_cat(boost::beast::string_view base,
   return result;
 }
 
-std::unordered_map<std::string, std::string> parse(const std::string &query,
-                                         const std::string &separator) {
+std::unordered_map<std::string, std::string> parse(
+    const std::string &query, const std::string &separator) {
   std::unordered_map<std::string, std::string> data;
   std::regex pattern("([\\w+%]+)=([^" + separator + "]*)");
   auto words_begin = std::sregex_iterator(query.begin(), query.end(), pattern);
@@ -76,11 +76,9 @@ std::unordered_map<std::string, std::string> parse(const std::string &query,
 namespace dsa {
 
 HttpRequest::HttpRequest(
-    WebServer &web_server, boost::asio::ip::tcp::socket socket,
+    WebServer &web_server,
     http::request<request_body_t, http::basic_fields<alloc_t>> req)
-    : _web_server(web_server),
-      _socket(std::move(socket)),
-      _req(std::move(req)) {}
+    : _web_server(web_server), _req(std::move(req)), _is_secured(false) {}
 
 void HttpRequest::send_bad_response(http::status status,
                                     std::string const &error) {
@@ -95,7 +93,7 @@ void HttpRequest::send_bad_response(http::status status,
   get_response<HttpStringResponse>()->prep_response()->body() = error;
   get_response<HttpStringResponse>()->prep_response()->prepare_payload();
   get_response<HttpStringResponse>()->prep_serializer();
-  get_response<HttpStringResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpStringResponse>());
 }
 
 void HttpRequest::send_file(boost::beast::string_view target) {
@@ -126,7 +124,7 @@ void HttpRequest::send_file(boost::beast::string_view target) {
   get_response<HttpFileResponse>()->prep_response()->body() = std::move(file);
   get_response<HttpFileResponse>()->prep_response()->prepare_payload();
   get_response<HttpFileResponse>()->prep_serializer();
-  get_response<HttpFileResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpFileResponse>());
 }
 
 void HttpRequest::redirect_handler(const string_ &location,
@@ -145,7 +143,7 @@ void HttpRequest::redirect_handler(const string_ &location,
   get_response<HttpStringResponse>()->prep_response()->body() = message;
   get_response<HttpStringResponse>()->prep_response()->prepare_payload();
   get_response<HttpStringResponse>()->prep_serializer();
-  get_response<HttpStringResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpStringResponse>());
 }
 
 void HttpRequest::not_found_handler(const string_ &error) {
@@ -199,7 +197,7 @@ void HttpRequest::authentication_handler() {
       "Login succeeded";
   get_response<HttpStringResponse>()->prep_response()->prepare_payload();
   get_response<HttpStringResponse>()->prep_serializer();
-  get_response<HttpStringResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpStringResponse>());
 }
 
 bool HttpRequest::is_authenticated(const string_ &username,
@@ -248,5 +246,99 @@ void HttpRequest::create_session() {
     _web_server.session_manager()->add_session(session_cookie);
   else
     create_session();
+}
+
+PlainHttpRequest::PlainHttpRequest(
+    WebServer &web_server, tcp::socket &&socket,
+    http::request<request_body_t, http::basic_fields<alloc_t>> _req)
+    : HttpRequest(web_server, std::move(_req)), _socket(std::move(socket)) {}
+
+SecureHttpRequest::SecureHttpRequest(
+    WebServer &web_server, ssl_stream<tcp::socket> &&stream,
+    http::request<request_body_t, http::basic_fields<alloc_t>> _req)
+    : HttpRequest(web_server, std::move(_req)), _stream(std::move(stream)) {}
+
+void PlainHttpRequest::writer(shared_ptr_<HttpStringResponse> resp) {
+  http::async_write(_socket, *resp->_str_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _socket.shutdown(tcp::socket::shutdown_send, ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_str_serializer.reset();
+                      resp->_str_resp.reset();
+                    });
+}
+
+void PlainHttpRequest::writer(shared_ptr_<HttpFileResponse> resp) {
+  http::async_write(_socket, *resp->_file_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _socket.shutdown(tcp::socket::shutdown_send, ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_file_serializer.reset();
+                      resp->_file_resp.reset();
+                    });
+}
+
+void SecureHttpRequest::writer(shared_ptr_<HttpStringResponse> resp) {
+  http::async_write(_stream, *resp->_str_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _stream.shutdown(ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_str_serializer.reset();
+                      resp->_str_resp.reset();
+                    });
+}
+
+void SecureHttpRequest::writer(shared_ptr_<HttpFileResponse> resp) {
+  http::async_write(_stream, *resp->_file_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _stream.shutdown(ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_file_serializer.reset();
+                      resp->_file_resp.reset();
+                    });
 }
 }
