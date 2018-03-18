@@ -46,6 +46,12 @@ class SimpleInvokeNode : public InvokeNodeModel {
   SimpleInvokeNode(LinkStrandRef &&strand, FullCallback &&callback,
                    PermissionLevel require_permission = PermissionLevel::WRITE);
 
+  void set_callback(FullCallback &&callback) {
+    if (_full_callback == nullptr) {
+      _full_callback = std::move(callback);
+    }
+  }
+
  protected:
   SimpleCallback _simple_callback;
   FullCallback _full_callback;

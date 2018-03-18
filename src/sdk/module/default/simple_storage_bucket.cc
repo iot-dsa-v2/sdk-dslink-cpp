@@ -8,6 +8,7 @@
 #include <iostream>
 #include <list>
 #include "util/misc.h"
+#include "util/string_encode.h"
 namespace dsa {
 
 namespace fs = boost::filesystem;
@@ -15,11 +16,14 @@ using boost::filesystem::path;
 
 SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
                                          boost::asio::io_service* io_service,
-                                         const string_& storage_root)
+                                         const string_& storage_root,
+                                         const string_& cwd)
     : _io_service(io_service),
       _storage_root(storage_root),
       _bucket_name(url_encode(bucket_name)) {
-  _cwd = get_current_working_dir();
+  _cwd = cwd;
+  if(cwd.empty())
+    _cwd = get_current_working_dir();
   if (!_cwd.empty()) _full_base_path = _cwd + "/";
   if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
   _full_base_path += bucket_name;
@@ -41,8 +45,13 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
 string_ SimpleStorageBucket::get_storage_path(const string_& key) {
   string_ path;
   if (!_full_base_path.empty()) path = _full_base_path + "/";
-  if (!key.empty()) path += url_encode(key);
+  if (!key.empty()) path += url_encode_file_name(key);
   return std::move(path);
+}
+
+bool SimpleStorageBucket::exists (const string_ &key) {
+  path p(get_storage_path(key));
+  return (fs::exists(p) && is_regular_file(p));
 }
 
 void SimpleStorageBucket::write(const std::string& key, BytesRef&& content,
@@ -117,7 +126,7 @@ void SimpleStorageBucket::read(const std::string& key, ReadCallback&& callback,
       } else {
         LOG_FINE(__FILENAME__,
                  LOG << "there is no file to read " << key);
-        status = BucketReadStatus::NO_FILE;
+        status = BucketReadStatus::NOT_EXIST;
       }
     } catch (const fs::filesystem_error& ex) {
       LOG_ERROR(__FILENAME__,
@@ -157,7 +166,7 @@ void SimpleStorageBucket::remove(const std::string& key) {
       path p(get_storage_path(key));
 
       try {
-        if (exists(p) && is_regular_file(p)) {
+        if (fs::exists(p) && is_regular_file(p)) {
           fs::remove(p);
           delete strand_map.at(key);
           strand_map.erase(key);  // erase the element from the map as well, if
@@ -175,7 +184,7 @@ void SimpleStorageBucket::remove(const std::string& key) {
     path p(get_storage_path(key));
 
     try {
-      if (exists(p) && is_regular_file(p)) {
+      if (fs::exists(p) && is_regular_file(p)) {
         fs::remove(p);
       }
     } catch (const fs::filesystem_error& ex) {

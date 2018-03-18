@@ -5,13 +5,13 @@
 #pragma once
 #endif
 
-#include "responder/node_model.h"
+#include "responder/profile/pub_root.h"
 
 namespace dsa {
 
-class BrokerPubRoot : public NodeModel {
+class BrokerPubRoot : public PubRoot {
  public:
-  explicit BrokerPubRoot(LinkStrandRef &&strand);
+  explicit BrokerPubRoot(LinkStrandRef &&strand, const string_ &profile);
 
   bool allows_runtime_child_change() final { return true; }
 };

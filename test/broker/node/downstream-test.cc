@@ -51,12 +51,12 @@ class MockNodeValue : public NodeModel {
 class MockNodeRoot : public NodeModel {
  public:
   explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
-    add_list_child("value", make_ref_<MockNodeValue>(_strand));
+    add_list_child("Value", make_ref_<MockNodeValue>(_strand));
 
     // add a child action
     auto node = make_ref_<NodeModel>(_strand->get_ref());
-    add_list_child("node", node->get_ref());
-    node->add_list_child("action", make_ref_<MockNodeAction>(_strand));
+    add_list_child("Node", node->get_ref());
+    node->add_list_child("Action", make_ref_<MockNodeAction>(_strand));
   };
 };
 }
@@ -70,13 +70,13 @@ TEST_F(BrokerDownstreamTest, Subscribe) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand =
-      get_client_wrapper_strand(broker, "test", protocol());
+      get_client_wrapper_strand(broker, "Test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test/value",
+        "Downstream/Test/Value",
         [&](IncomingSubscribeStream& stream,
             ref_<const SubscribeResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_value().value.to_string(), "hello world");
@@ -103,14 +103,14 @@ TEST_F(BrokerDownstreamTest, Invoke) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand =
-      get_client_wrapper_strand(broker, "test", protocol());
+      get_client_wrapper_strand(broker, "Test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
-    invoke_req->set_target_path("downstream/test/node/action");
+    invoke_req->set_target_path("Downstream/Test/Node/Action");
     invoke_req->set_value(Var("hello"));
 
     tcp_client->get_session().requester.invoke(
@@ -140,7 +140,7 @@ TEST_F(BrokerDownstreamTest, Set) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand =
-      get_client_wrapper_strand(broker, "test", protocol());
+      get_client_wrapper_strand(broker, "Test", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
@@ -149,7 +149,7 @@ TEST_F(BrokerDownstreamTest, Set) {
 
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.subscribe(
-        "downstream/test/value",
+        "Downstream/Test/Value",
         [&](IncomingSubscribeStream& stream,
             ref_<const SubscribeResponseMessage>&& msg) {
           ++step;
@@ -161,7 +161,7 @@ TEST_F(BrokerDownstreamTest, Set) {
                      ref_<const SetResponseMessage>&& set_response) {
 
                   },
-                  make_ref_<SetRequestMessage>("downstream/test/value",
+                  make_ref_<SetRequestMessage>("Downstream/Test/Value",
                                                Var("dsa")));
               break;
             }
@@ -192,19 +192,19 @@ TEST_F(BrokerDownstreamTest, List) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand1 =
-      get_client_wrapper_strand(broker, "test1", protocol());
+      get_client_wrapper_strand(broker, "Test1", protocol());
   client_strand1.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand1.strand)));
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
   WrapperStrand client_strand2 =
-      get_client_wrapper_strand(broker, "test2", protocol());
+      get_client_wrapper_strand(broker, "Test2", protocol());
   auto tcp_client2 = make_ref_<Client>(client_strand2);
 
   // after client1 disconnected, list update should show it's disconnected
   auto step_3_disconnection_list = [&]() {
     tcp_client2->get_session().requester.list(
-        "downstream/test1",
+        "Downstream/Test1",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
           // end the test
@@ -221,11 +221,11 @@ TEST_F(BrokerDownstreamTest, List) {
   // downstream should has test1 and test2 nodes
   auto step_2_downstream_list = [&]() {
     tcp_client2->get_session().requester.list(
-        "downstream",
+        "Downstream",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
           auto map = msg->get_map();
-          EXPECT_TRUE(map["test1"]->get_value().is_map());
-          EXPECT_TRUE(map["test2"]->get_value().is_map());
+          EXPECT_TRUE(map["Test1"]->get_value().is_map());
+          EXPECT_TRUE(map["Test2"]->get_value().is_map());
           step_3_disconnection_list();
         });
   };
@@ -234,7 +234,7 @@ TEST_F(BrokerDownstreamTest, List) {
   auto step_1_downstream_child_list =
       [&](const shared_ptr_<Connection>& connection) {
         tcp_client1->get_session().requester.list(
-            "downstream/test1",
+            "Downstream/Test1",
             [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
               auto map = msg->get_map();
               EXPECT_EQ(map["$$dsid"]->get_value().to_string(),
@@ -265,11 +265,11 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand1 =
-      get_client_wrapper_strand(broker, "test1", protocol());
+      get_client_wrapper_strand(broker, "Test1", protocol());
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
   WrapperStrand client_strand2 =
-      get_client_wrapper_strand(broker, "test2", protocol());
+      get_client_wrapper_strand(broker, "Test2", protocol());
   client_strand2.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
@@ -278,7 +278,7 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
   // list again after previous list is closed
   auto step_5 = [&]() {
     tcp_client1->get_session().requester.list(
-        "downstream/test2",
+        "Downstream/Test2",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
@@ -300,7 +300,7 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
-        "downstream/test2",
+        "Downstream/Test2",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           step++;
           switch (step) {
@@ -356,11 +356,11 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
   broker->run(false);
   EXPECT_TRUE(broker->get_active_server_port() != 0);
   WrapperStrand client_strand1 =
-      get_client_wrapper_strand(broker, "test1", protocol());
+      get_client_wrapper_strand(broker, "Test1", protocol());
   auto tcp_client1 = make_ref_<Client>(client_strand1);
 
   WrapperStrand client_strand2 =
-      get_client_wrapper_strand(broker, "test2", protocol());
+      get_client_wrapper_strand(broker, "Test2", protocol());
   client_strand2.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand2.strand)));
   auto tcp_client2 = make_ref_<Client>(client_strand2);
@@ -369,7 +369,7 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
   // list again after previous list is closed
   auto step_5 = [&]() {
     tcp_client1->get_session().requester.list(
-        "downstream/test2/value",
+        "Downstream/Test2/Value",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
 
@@ -392,7 +392,7 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto step_1_to_4 = [&](const shared_ptr_<Connection>& connection) {
     tcp_client1->get_session().requester.list(
-        "downstream/test2/value",
+        "Downstream/Test2/Value",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           step++;
           switch (step) {
@@ -448,17 +448,17 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
   EXPECT_TRUE(broker->get_active_server_port() != 0);
 
   WrapperStrand client_strand =
-      get_client_wrapper_strand(broker, "test1", protocol());
+      get_client_wrapper_strand(broker, "Test1", protocol());
   client_strand.strand->set_responder_model(
       ModelRef(new MockNodeRoot(client_strand.strand)));
   auto tcp_client = make_ref_<Client>(client_strand);
 
   auto step_2_list_parent = [&]() {
     tcp_client->get_session().requester.list(
-        "downstream/test1/node",
+        "Downstream/Test1/Node",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
-          EXPECT_TRUE((*msg->get_parsed_map())["action"].is_map());
+          EXPECT_TRUE((*msg->get_parsed_map())["Action"].is_map());
           // end the test
           client_strand.strand->post([tcp_client, &client_strand]() {
             tcp_client->destroy();
@@ -471,7 +471,7 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
 
   auto step_1_list_child = [&](const shared_ptr_<Connection>& connection) {
     tcp_client->get_session().requester.list(
-        "downstream/test1/node/action",
+        "Downstream/Test1/Node/Action",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
           EXPECT_EQ(msg->get_status(), MessageStatus::OK);
           auto mapref = msg->get_parsed_map();

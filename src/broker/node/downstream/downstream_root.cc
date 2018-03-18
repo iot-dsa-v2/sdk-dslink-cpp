@@ -9,7 +9,7 @@
 
 namespace dsa {
 
-static const string_ DOWNSRTEAM_PATH = "downstream/";
+static const string_ DOWNSRTEAM_PATH = "Downstream/";
 static const size_t DOWNSTREAM_PATH_LEN = DOWNSRTEAM_PATH.size();
 
 DownstreamRoot::DownstreamRoot(LinkStrandRef &&strand)

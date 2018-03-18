@@ -49,7 +49,7 @@ ModuleWithLoader::ModuleWithLoader(bf::path lib_path,
 }
 
 ref_<Storage> ModuleWithLoader::create_storage(App& app,
-                                               ref_<LinkStrand> strand) {
+                                               ref_<LinkStrand> &strand) {
   ref_<Storage> service = nullptr;
 
   // Check in files
@@ -75,7 +75,7 @@ ref_<Storage> ModuleWithLoader::create_storage(App& app,
 }
 
 shared_ptr_<Logger> ModuleWithLoader::create_logger(App& app,
-                                                    ref_<LinkStrand> strand) {
+                                                    ref_<LinkStrand> &strand) {
   shared_ptr_<Logger> service = nullptr;
 
   // Check in files
@@ -101,7 +101,7 @@ shared_ptr_<Logger> ModuleWithLoader::create_logger(App& app,
 }
 
 ref_<ClientManager> ModuleWithLoader::create_client_manager(
-    App& app, ref_<LinkStrand> strand) {
+    App& app, ref_<LinkStrand> &strand) {
   ref_<ClientManager> service = nullptr;
 
   // Check in files
@@ -127,7 +127,7 @@ ref_<ClientManager> ModuleWithLoader::create_client_manager(
 }
 
 ref_<Authorizer> ModuleWithLoader::create_authorizer(App& app,
-                                                     ref_<LinkStrand> strand) {
+                                                     ref_<LinkStrand> &strand) {
   ref_<Authorizer> service = nullptr;
 
   // Check in files
@@ -152,7 +152,7 @@ ref_<Authorizer> ModuleWithLoader::create_authorizer(App& app,
 }
 
 shared_ptr_<LoginManager> ModuleWithLoader::create_login_manager(
-    App& app, ref_<LinkStrand> strand) {
+    App& app, ref_<LinkStrand> &strand) {
   shared_ptr_<LoginManager> service = nullptr;
 
   // Check in files

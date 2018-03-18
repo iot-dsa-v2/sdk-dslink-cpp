@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 #include "core/link_strand.h"
-#include "module/outgoing_stream_acceptor.h"
+#include "module/stream_acceptor.h"
 #include "node_state.h"
 
 namespace dsa {
@@ -48,8 +48,7 @@ class NodeStateManager final : public OutgoingStreamAcceptor,
   void add(ref_<OutgoingInvokeStream> &&stream) final;
   void add(ref_<OutgoingSetStream> &&stream) final;
 
-  ref_<NodeModel> get_profile(const string_ &path,
-                              bool dsa_standard) final;
+  ref_<NodeModel> get_profile(const string_ &path, bool dsa_standard) final;
 };
 }  // namespace dsa
 

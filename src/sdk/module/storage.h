@@ -16,7 +16,7 @@
 namespace dsa {
 enum class BucketReadStatus : uint8_t {
   OK = 0x00,
-  NO_FILE = 0x01,
+  NOT_EXIST = 0x01,
   READ_FAILED = 0x02,
   FILE_OPEN_ERROR = 0x03
 };
@@ -42,7 +42,7 @@ class StorageBucket {
  public:
   typedef std::function<void(const string_& key, std::vector<uint8_t> data, BucketReadStatus read_status)>
       ReadCallback;
-
+  virtual bool exists (const string_ &key) = 0;
   virtual void write(const string_& key, BytesRef&& data,
                      bool is_binary = false) = 0;
   virtual void read(const string_& key, ReadCallback&& callback,

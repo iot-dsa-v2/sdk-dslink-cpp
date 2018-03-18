@@ -18,7 +18,7 @@
 
 namespace dsa {
 
-static const Path PUB_PATH = Path("pub");
+static const Path PUB_PATH = Path("Pub");
 
 NodeStateManager::NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                                    size_t timer_interval)
@@ -159,8 +159,7 @@ ref_<NodeModel> NodeStateManager::get_profile(const string_ &path,
   if (dsa_standard) {
     NodeModel *pub_model = pub_state->model_cast<NodeModel>();
     if (pub_model == nullptr) {
-      LOG_FATAL(__FILENAME__,
-                LOG << "failed to create standard profile node");
+      LOG_FATAL(__FILENAME__, LOG << "failed to create standard profile node");
     }
     // TODO implement a standard profile collection
   } else {
