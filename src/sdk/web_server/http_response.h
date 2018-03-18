@@ -7,6 +7,7 @@
 
 #include "dsa_common.h"
 #include "fields_alloc.h"
+#include "ssl_stream.h"
 #include "web_server.h"
 
 #include <boost/asio.hpp>
@@ -22,7 +23,7 @@ namespace http = boost::beast::http;
 namespace dsa {
 
 template <typename InternalType>
-struct Self {
+struct SelfType {
   InternalType& internal_resp_type() {
     return static_cast<InternalType&>(*this);
   }
@@ -32,9 +33,10 @@ struct Self {
 };
 
 template <typename ResponseType>
-class HttpResponse : public Self<ResponseType> {
+class HttpResponse : public SelfType<ResponseType> {
  protected:
   using alloc_t = fields_alloc<char>;
+  alloc_t _alloc = alloc_t{8192};
 
  public:
   decltype(auto) prep_response() {
@@ -45,14 +47,16 @@ class HttpResponse : public Self<ResponseType> {
 
   void prep_serializer() { this->internal_resp_type()._prepare_serializer(); }
 
-  void writer(tcp::socket&& _socket) {
-    this->internal_resp_type()._writer(std::move(_socket));
-  }
+  void destroy() { _alloc.pool_.destroy(); }
+
+  virtual ~HttpResponse() { destroy(); }
 };
 
-class HttpStringResponse : public HttpResponse<HttpStringResponse> {
- private:
-  alloc_t _alloc = alloc_t{8192};
+class HttpStringResponse
+    : public HttpResponse<HttpStringResponse>,
+      public std::enable_shared_from_this<HttpStringResponse> {
+ public:
+  //  alloc_t _alloc = alloc_t{8192};
 
   boost::optional<
       http::response_serializer<http::string_body, http::basic_fields<alloc_t>>>
@@ -61,6 +65,8 @@ class HttpStringResponse : public HttpResponse<HttpStringResponse> {
   boost::optional<
       http::response<http::string_body, http::basic_fields<alloc_t>>>
       _str_resp;
+
+  std::mutex _mutex;
 
  public:
   boost::optional<
@@ -76,20 +82,13 @@ class HttpStringResponse : public HttpResponse<HttpStringResponse> {
 
   void _prepare_serializer() { _str_serializer.emplace(*_str_resp); }
 
-  void _writer(tcp::socket&& _socket) {
-    http::async_write(
-        _socket, *_str_serializer,
-        [this, &_socket](boost::beast::error_code ec, std::size_t) {
-          _socket.shutdown(tcp::socket::shutdown_send, ec);
-          _str_serializer.reset();
-          _str_resp.reset();
-        });
-  }
+  ~HttpStringResponse() override = default;
 };
 
-class HttpFileResponse : public HttpResponse<HttpFileResponse> {
- private:
-  alloc_t _alloc = alloc_t{8192};
+class HttpFileResponse : public HttpResponse<HttpFileResponse>,
+                         public std::enable_shared_from_this<HttpFileResponse> {
+ public:
+  //  alloc_t _alloc = alloc_t{8192};
 
   boost::optional<
       http::response_serializer<http::file_body, http::basic_fields<alloc_t>>>
@@ -97,6 +96,8 @@ class HttpFileResponse : public HttpResponse<HttpFileResponse> {
 
   boost::optional<http::response<http::file_body, http::basic_fields<alloc_t>>>
       _file_resp;
+
+  std::mutex _mutex;
 
  public:
   boost::optional<http::response<http::file_body, http::basic_fields<alloc_t>>>&
@@ -111,15 +112,7 @@ class HttpFileResponse : public HttpResponse<HttpFileResponse> {
 
   void _prepare_serializer() { _file_serializer.emplace(*_file_resp); }
 
-  void _writer(tcp::socket&& _socket) {
-    http::async_write(
-        _socket, *_file_serializer,
-        [this, &_socket](boost::beast::error_code ec, std::size_t) {
-          _socket.shutdown(tcp::socket::shutdown_send, ec);
-          _file_serializer.reset();
-          _file_resp.reset();
-        });
-  }
+  ~HttpFileResponse() override = default;
 };
 }
 

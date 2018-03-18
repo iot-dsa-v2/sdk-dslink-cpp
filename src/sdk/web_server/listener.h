@@ -12,7 +12,6 @@
 
 namespace dsa {
 
-class HttpConnection;
 class WebServer;
 
 class Listener : public std::enable_shared_from_this<Listener> {
@@ -21,12 +20,12 @@ class Listener : public std::enable_shared_from_this<Listener> {
   uint16_t _port;
   bool _is_secured;
   std::shared_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
-  std::shared_ptr<HttpConnection> _next_connection;
   std::mutex _mutex;
   bool _destroyed = false;
+  boost::asio::ip::tcp::socket _socket;
 
  public:
-  Listener(WebServer& web_server, uint16_t port, bool is_secured=true);
+  Listener(WebServer& web_server, uint16_t port, bool is_secured = true);
   ~Listener();
 
   void run();

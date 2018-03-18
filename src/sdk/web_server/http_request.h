@@ -7,7 +7,9 @@
 
 #include "dsa_common.h"
 #include "fields_alloc.h"
+#include "http_connection.h"
 #include "http_response.h"
+#include "ssl_stream.h"
 
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
@@ -32,14 +34,14 @@ namespace dsa {
 class WebServer;
 
 class HttpRequest {
- private:
+ protected:
   using alloc_t = fields_alloc<char>;
   using request_body_t =
       http::basic_dynamic_body<boost::beast::flat_static_buffer<1024 * 1024>>;
 
   std::string _doc_root;
 
-  tcp::socket _socket;
+  bool _is_secured = false;
 
   alloc_t _alloc = alloc_t{8192};
 
@@ -54,9 +56,8 @@ class HttpRequest {
   std::shared_ptr<HttpStringResponse> str_response = nullptr;
   std::shared_ptr<HttpFileResponse> file_response = nullptr;
 
-  explicit HttpRequest(
-      WebServer& web_server, boost::asio::ip::tcp::socket socket,
-      http::request<request_body_t, http::basic_fields<alloc_t>> _req);
+  HttpRequest(WebServer& web_server,
+              http::request<request_body_t, http::basic_fields<alloc_t>> _req);
 
   template <typename T>
   void create_response() {
@@ -90,10 +91,56 @@ class HttpRequest {
   void authentication_handler();
   void timeout_handler();
 
+  virtual void writer(shared_ptr_<HttpStringResponse>) = 0;
+  virtual void writer(shared_ptr_<HttpFileResponse>) = 0;
+
   bool is_authenticated(const string_& username, const string_& password);
   bool is_authenticated();
   bool is_session_active();
   void create_session();
+
+  void destroy() { _alloc.pool_.destroy(); }
+
+  virtual ~HttpRequest() { destroy(); }
+};
+
+class SecureHttpRequest
+    : public HttpRequest,
+      public std::enable_shared_from_this<SecureHttpRequest> {
+  ssl_stream<tcp::socket> _stream;
+
+ public:
+  SecureHttpRequest(
+      WebServer& web_server, ssl_stream<tcp::socket>&& socket,
+      http::request<request_body_t, http::basic_fields<alloc_t>> _req);
+
+  ssl_stream<tcp::socket>& stream() { return _stream; }
+
+  ssl_stream<tcp::socket> release_stream() { return std::move(_stream); }
+
+  void writer(shared_ptr_<HttpStringResponse> resp) override;
+  void writer(shared_ptr_<HttpFileResponse> resp) override;
+
+  ~SecureHttpRequest() override = default;
+};
+
+class PlainHttpRequest : public HttpRequest,
+                         public std::enable_shared_from_this<PlainHttpRequest> {
+  tcp::socket _socket;
+
+ public:
+  PlainHttpRequest(
+      WebServer& web_server, tcp::socket&& socket,
+      http::request<request_body_t, http::basic_fields<alloc_t>> _req);
+
+  tcp::socket& stream() { return _socket; }
+
+  tcp::socket release_stream() { return std::move(_socket); }
+
+  void writer(shared_ptr_<HttpStringResponse> resp) override;
+  void writer(shared_ptr_<HttpFileResponse> resp) override;
+
+  ~PlainHttpRequest() override = default;
 };
 }
 
