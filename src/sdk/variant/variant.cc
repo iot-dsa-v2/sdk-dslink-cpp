@@ -89,57 +89,57 @@ Var Var::new_array() { return Var(new VarArray()); }
 
 int Var::get_type() {
   switch (which()) {
-  case Var::SHARED_STRING:
-    return Var::STRING;
-  case Var::SHARED_BINARY:
-    return Var::BINARY;
-  default:
-    return which();
+    case Var::SHARED_STRING:
+      return Var::STRING;
+    case Var::SHARED_BINARY:
+      return Var::BINARY;
+    default:
+      return which();
   }
 }
 Var Var::copy() const {
   switch (which()) {
-  case MAP: {
-    auto new_map = new VarMap();
-    VarMap &map = get_map();
+    case MAP: {
+      auto new_map = new VarMap();
+      VarMap &map = get_map();
 
-    for (auto &it : map) {
-      (*new_map)[it.first] = Var(it.second);
+      for (auto &it : map) {
+        (*new_map)[it.first] = Var(it.second);
+      }
+      return Var(new_map);
     }
-    return Var(new_map);
-  }
-  case ARRAY: {
-    auto new_array = new VarArray();
-    VarArray &array = get_array();
-    new_array->reserve(array.size());
+    case ARRAY: {
+      auto new_array = new VarArray();
+      VarArray &array = get_array();
+      new_array->reserve(array.size());
 
-    for (auto &it : array) {
-      new_array->push_back(Var(it));
+      for (auto &it : array) {
+        new_array->push_back(Var(it));
+      }
+      return Var(new_array);
     }
-    return Var(new_array);
-  }
-  default:
-    return Var(*this);
+    default:
+      return Var(*this);
   }
 }
 
 double Var::to_double(double defaultout) const {
   const string_ *str_value;
   switch (which()) {
-  case DOUBLE:
-    return boost::get<double>(*this);
-  case INT:
-    return boost::get<int64_t>(*this);
-  case BOOL:
-    return boost::get<bool>(*this) ? 1.0 : 0.0;
-  case STRING:
-    str_value = &boost::get<string_>(*this);
-    break;
-  case SHARED_STRING:
-    str_value = boost::get<ref_<const RefCountString>>(*this).get();
-    break;
-  default:
-    return defaultout;
+    case DOUBLE:
+      return boost::get<double>(*this);
+    case INT:
+      return boost::get<int64_t>(*this);
+    case BOOL:
+      return boost::get<bool>(*this) ? 1.0 : 0.0;
+    case STRING:
+      str_value = &boost::get<string_>(*this);
+      break;
+    case SHARED_STRING:
+      str_value = boost::get<ref_<const RefCountString>>(*this).get();
+      break;
+    default:
+      return defaultout;
   }
   try {
     return std::stod(*str_value);
@@ -150,22 +150,22 @@ double Var::to_double(double defaultout) const {
 int64_t Var::to_bool(bool defaultout) const {
   const string_ *str_value;
   switch (which()) {
-  case BOOL:
-    return boost::get<bool>(*this);
-  case DOUBLE: {
-    double v = boost::get<double>(*this);
-    return (v != 0.0 && v == v); // not 0 or NaN
-  }
-  case INT:
-    return boost::get<int64_t>(*this) != 0;
-  case STRING:
-    str_value = &boost::get<string_>(*this);
-    break;
-  case SHARED_STRING:
-    str_value = boost::get<ref_<const RefCountString>>(*this).get();
-    break;
-  default:
-    return defaultout;
+    case BOOL:
+      return boost::get<bool>(*this);
+    case DOUBLE: {
+      double v = boost::get<double>(*this);
+      return (v != 0.0 && v == v);  // not 0 or NaN
+    }
+    case INT:
+      return boost::get<int64_t>(*this) != 0;
+    case STRING:
+      str_value = &boost::get<string_>(*this);
+      break;
+    case SHARED_STRING:
+      str_value = boost::get<ref_<const RefCountString>>(*this).get();
+      break;
+    default:
+      return defaultout;
   }
   if (*str_value == "true" || *str_value == "True" || *str_value == "TRUE") {
     return true;
@@ -174,70 +174,71 @@ int64_t Var::to_bool(bool defaultout) const {
 }
 const string_ Var::to_string(const string_ &defaultout) const {
   switch (which()) {
-  case BOOL:
-    return std::to_string(boost::get<bool>(*this));
-  case DOUBLE:
-    return std::to_string(boost::get<double>(*this));
-  case INT:
-    return std::to_string(boost::get<int64_t>(*this));
-  case STRING:
-    return boost::get<string_>(*this);
-  case SHARED_STRING:
-    return *boost::get<ref_<const RefCountString>>(*this);
-  default:
-    return defaultout;
+    case BOOL:
+      return std::to_string(boost::get<bool>(*this));
+    case DOUBLE:
+      return std::to_string(boost::get<double>(*this));
+    case INT:
+      return std::to_string(boost::get<int64_t>(*this));
+    case STRING:
+      return boost::get<string_>(*this);
+    case SHARED_STRING:
+      return *boost::get<ref_<const RefCountString>>(*this);
+    default:
+      return defaultout;
   }
 }
 
 Var &Var::operator[](const string_ &name) {
-  if (which() == MAP) {
+  static Var null_result;
+  if (which() == MAP && get_map().count(name) > 0) {
     return get_map().at(name);
   }
-  throw std::out_of_range("Varian is not a map");
+  return null_result;
 }
+
 Var &Var::operator[](size_t index) {
-  if (which() == ARRAY) {
+  static Var null_result;
+  if (which() == ARRAY && get_array().size() > index) {
     return get_array().at(index);
   }
-  throw std::out_of_range("Varian is not an array");
+  return null_result;
 }
 
 Var Var::deep_copy() const {
   switch (which()) {
-  case SHARED_STRING: {
-    return Var(*boost::get<ref_<const RefCountString>>(*this));
-  }
-  case SHARED_BINARY: {
-    return Var(*boost::get<BytesRef>(*this));
-  }
-  case MAP: {
-    auto new_map = new VarMap();
-    VarMap &map = get_map();
-
-    for (auto &it : map) {
-      (*new_map)[it.first] = std::move(it.second.deep_copy());
+    case SHARED_STRING: {
+      return Var(*boost::get<ref_<const RefCountString>>(*this));
     }
-    return Var(new_map);
-  }
-  case ARRAY: {
-    auto new_array = new VarArray();
-    VarArray &array = get_array();
-    new_array->reserve(array.size());
-
-    for (auto &it : array) {
-      new_array->push_back(std::move(it.deep_copy()));
+    case SHARED_BINARY: {
+      return Var(*boost::get<BytesRef>(*this));
     }
-    return Var(new_array);
-  }
-  default:
-    return Var(*this);
+    case MAP: {
+      auto new_map = new VarMap();
+      VarMap &map = get_map();
+
+      for (auto &it : map) {
+        (*new_map)[it.first] = std::move(it.second.deep_copy());
+      }
+      return Var(new_map);
+    }
+    case ARRAY: {
+      auto new_array = new VarArray();
+      VarArray &array = get_array();
+      new_array->reserve(array.size());
+
+      for (auto &it : array) {
+        new_array->push_back(std::move(it.deep_copy()));
+      }
+      return Var(new_array);
+    }
+    default:
+      return Var(*this);
   }
 }
 
-
 bool Var::operator==(const Var &val) const {
-  if (which() != val.which())
-    return false;
+  if (which() != val.which()) return false;
   switch (which()) {
     case NUL:
       return true;
@@ -250,15 +251,17 @@ bool Var::operator==(const Var &val) const {
     case STRING:
       return boost::get<string_>(*this) == boost::get<string_>(val);
     case SHARED_STRING:
-      return static_cast<const string_ &>(*boost::get<ref_<const RefCountString>>(
-          *this)) == *boost::get<ref_<const RefCountString>>(val);
+      return static_cast<const string_ &>(
+                 *boost::get<ref_<const RefCountString>>(*this)) ==
+             *boost::get<ref_<const RefCountString>>(val);
     case MAP:
       return boost::get<ref_<VarMap>>(*this) == boost::get<ref_<VarMap>>(val);
     case ARRAY:
-      return boost::get<ref_<VarArray>>(*this) == boost::get<ref_<VarArray>>(val);
+      return boost::get<ref_<VarArray>>(*this) ==
+             boost::get<ref_<VarArray>>(val);
     case BINARY:
       return boost::get<std::vector<uint8_t>>(*this) ==
-          boost::get<std::vector<uint8_t>>(val);
+             boost::get<std::vector<uint8_t>>(val);
     case SHARED_BINARY:
       return boost::get<BytesRef>(*this) == boost::get<BytesRef>(val);
     default:
@@ -266,8 +269,6 @@ bool Var::operator==(const Var &val) const {
   }
 }
 
-bool Var::operator!=(const Var &rhs) const {
-  return !this->operator==(rhs);
-}
+bool Var::operator!=(const Var &rhs) const { return !this->operator==(rhs); }
 
-} // namespace dsa
+}  // namespace dsa

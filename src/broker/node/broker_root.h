@@ -8,13 +8,13 @@
 #include "responder/node_model.h"
 
 namespace dsa {
-class DynamicChildrenParent;
+class RemoteNodeGroup;
 class DsBroker;
 class BrokerPubRoot;
 
 class BrokerRoot : public NodeModel {
   friend class DsBroker;
-  ref_<DynamicChildrenParent> _downstream_root;
+  ref_<RemoteNodeGroup> _downstream_root;
   ref_<DsBroker> _broker;
   ref_<BrokerPubRoot> _pub;
 
