@@ -19,7 +19,7 @@ Module::Module() {
   _login_manager = nullptr;
 }
 
-void Module::init_all(App& app, ref_<LinkStrand> strand) {
+void Module::init_all(App& app, LinkStrandRef strand) {
   init_storage(app, strand);
   init_logger(app, strand);
   init_client_manager(app, strand);
@@ -27,43 +27,43 @@ void Module::init_all(App& app, ref_<LinkStrand> strand) {
   init_login_manager(app, strand);
 }
 
-void Module::init_storage(App& app, ref_<LinkStrand>& strand) {
+void Module::init_storage(App& app, LinkStrandRef& strand) {
   if (_storage == nullptr) _storage = create_storage(app, strand);
 }
 
-void Module::init_logger(App& app, ref_<LinkStrand>& strand) {
+void Module::init_logger(App& app, LinkStrandRef& strand) {
   if (_logger == nullptr) _logger = create_logger(app, strand);
 }
 
-void Module::init_client_manager(App& app, ref_<LinkStrand>& strand) {
+void Module::init_client_manager(App& app, LinkStrandRef& strand) {
   if (_client_manager == nullptr)
     _client_manager = create_client_manager(app, strand);
 }
 
-void Module::init_authorizer(App& app, ref_<LinkStrand>& strand) {
+void Module::init_authorizer(App& app, LinkStrandRef& strand) {
   if (_authorizer == nullptr) _authorizer = create_authorizer(app, strand);
 }
 
-void Module::init_login_manager(App& app, ref_<LinkStrand>& strand) {
+void Module::init_login_manager(App& app, LinkStrandRef& strand) {
   if (_login_manager == nullptr)
     _login_manager = create_login_manager(app, strand);
 }
 
-ref_<Storage> Module::create_storage(App& app, ref_<LinkStrand>& strand) {
+ref_<Storage> Module::create_storage(App& app, LinkStrandRef& strand) {
   return nullptr;
 }
-shared_ptr_<Logger> Module::create_logger(App& app, ref_<LinkStrand>& strand) {
+shared_ptr_<Logger> Module::create_logger(App& app, LinkStrandRef& strand) {
   return nullptr;
 }
 ref_<ClientManager> Module::create_client_manager(App& app,
-                                                  ref_<LinkStrand>& strand) {
+                                                  LinkStrandRef& strand) {
   return nullptr;
 }
-ref_<Authorizer> Module::create_authorizer(App& app, ref_<LinkStrand>& strand) {
+ref_<Authorizer> Module::create_authorizer(App& app, LinkStrandRef& strand) {
   return nullptr;
 }
 shared_ptr_<LoginManager> Module::create_login_manager(
-    App& app, ref_<LinkStrand>& strand) {
+    App& app, LinkStrandRef& strand) {
   return nullptr;
 }
 
