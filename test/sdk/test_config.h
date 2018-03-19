@@ -9,6 +9,7 @@
 
 #include <gtest/gtest.h>
 #include <string>
+#include "module/storage.h"
 
 namespace dsa {
 
@@ -52,6 +53,10 @@ class SetUpBase : public ::testing::Test {
   SetUpBase() : _protocol(dsa::ProtocolType::PROT_DS) {}
 
   virtual void SetUp() {
+
+    dsa::SimpleStorage simple_storage;
+    simple_storage.clear();
+
     const char* protocol = std::getenv("DSA_TEST_PROTOCOL");
     if (protocol == nullptr) return;
 

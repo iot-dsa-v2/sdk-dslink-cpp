@@ -2,6 +2,11 @@
 
 #include "simple_storage.h"
 #include "util/string_encode.h"
+#include <boost/filesystem.hpp>
+#include <codecvt>
+#include <iomanip>
+#include <iostream>
+namespace fs = boost::filesystem;
 
 namespace dsa {
 shared_ptr_<StorageBucket> SimpleStorage::get_shared_bucket(
@@ -30,6 +35,18 @@ void SimpleStorage::destroy_impl() {
     bucket.reset();
   }
   _bucket_list.clear();
+}
+
+void SimpleStorage::clear() {
+  fs::path p(storage_default);
+  for (auto&& x : fs::directory_iterator(p)) {
+    std::wstring path_entry(x.path().stem().wstring());
+    SimpleStorage simple_storage;
+    shared_ptr_<StorageBucket> storage_bucket;
+    storage_bucket = simple_storage.get_shared_bucket(url_decode(
+        std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(path_entry)));
+    storage_bucket->remove_all();
+  }
 }
 
 }  // namespace dsa

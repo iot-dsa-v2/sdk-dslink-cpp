@@ -104,6 +104,8 @@ class SimpleStorage : public Storage {
   };
 
   void destroy_impl() final;
+  void clear() final;
+
 };
 
 }  // namespace dsa

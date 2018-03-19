@@ -118,6 +118,7 @@ class Storage : public DestroyableRef<Storage> {
 
   virtual ~Storage() = default;
   void destroy_impl() override{};
+  virtual void clear() = 0;
 };
 
 }  // namespace dsa
