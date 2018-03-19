@@ -6,6 +6,7 @@
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "remote_node.h"
+#include "remote_node_group.h"
 #include "remote_root_node.h"
 #include "responder/node_model.h"
 
@@ -119,11 +120,17 @@ ref_<RemoteRootNode> BrokerSessionManager::add_responder_root(
     return ref_<RemoteRootNode>();
   }
 
-  auto new_root =
-      make_ref_<RemoteRootNode>(_strand->get_ref(), session.get_ref());
+  ref_<RemoteRootNode> new_root;
+  if (parent_state->model_cast<RemoteNodeGroup>() != nullptr) {
+    new_root = parent_state->model_cast<RemoteNodeGroup>()->create_remote_root(
+        path.last_name(), session);
+  } else {
+    new_root = make_ref_<RemoteRootNode>(_strand->get_ref(), session);
+    parent_state->model_cast<NodeModel>()->add_list_child(path.last_name(),
+                                                          new_root->get_ref());
+  }
   new_root->set_override_meta("$$dsid", Var(dsid));
-  parent_state->model_cast<NodeModel>()->add_list_child(path.last_name(),
-                                                        new_root->get_ref());
+
   LOG_TRACE(__FILENAME__,
             LOG << "responder node added:" << responder_path << " : " << dsid);
   return std::move(new_root);

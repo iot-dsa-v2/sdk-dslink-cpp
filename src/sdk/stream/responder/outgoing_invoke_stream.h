@@ -9,8 +9,8 @@
 
 #include "../message_io_stream.h"
 
-#include "message/response/invoke_response_message.h"
 #include "message/message_page_group.h"
+#include "message/response/invoke_response_message.h"
 
 namespace dsa {
 class InvokeRequestMessage;
@@ -42,7 +42,8 @@ class OutgoingInvokeStream final : public MessageQueueStream {
 
   void send_response(InvokeResponseMessageCRef &&message);
 
-  void close(MessageStatus status = MessageStatus::CLOSED);
+  void close(MessageStatus status = MessageStatus::CLOSED,
+             const string_ &err_detail = "");
 
   bool check_close_message(MessageCRef &message) final;
 };

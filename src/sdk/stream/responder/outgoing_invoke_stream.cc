@@ -61,7 +61,8 @@ void OutgoingInvokeStream::send_response(InvokeResponseMessageCRef &&message) {
     send_message(MessageCRef(std::move(message)));
   }
 };
-void OutgoingInvokeStream::close(MessageStatus status) {
+void OutgoingInvokeStream::close(MessageStatus status,
+                                 const string_ &err_detail) {
   if (_closed) return;
   if (status < MessageStatus::CLOSED) {
     status = MessageStatus::CLOSED;
@@ -73,6 +74,9 @@ void OutgoingInvokeStream::close(MessageStatus status) {
 
   auto message = make_ref_<InvokeResponseMessage>();
   message->set_status(status);
+  if (!err_detail.empty()) {
+    // TODO general error detail
+  }
   send_message(std::move(message), true);
 }
 
