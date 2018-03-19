@@ -12,7 +12,7 @@ namespace dsa {
 
 class RemoteNodeGroup : public NodeModel {
  public:
-  RemoteNodeGroup(LinkStrandRef &&strand);
+  RemoteNodeGroup(const LinkStrandRef &strand);
   ~RemoteNodeGroup() override;
 
   virtual ref_<RemoteRootNode> create_remote_root(const string_ &name,

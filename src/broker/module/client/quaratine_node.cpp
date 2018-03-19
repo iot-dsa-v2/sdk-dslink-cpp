@@ -7,8 +7,8 @@
 
 namespace dsa {
 
-QuaratineRoot::QuaratineRoot(LinkStrandRef &&strand)
-    : RemoteNodeGroup(std::move(strand)) {}
+QuaratineRoot::QuaratineRoot(const LinkStrandRef &strand)
+    : RemoteNodeGroup(strand) {}
 
 ref_<RemoteRootNode> QuaratineRoot::create_remote_root(const string_ &name,
                                                        Session &session) {
@@ -17,9 +17,9 @@ ref_<RemoteRootNode> QuaratineRoot::create_remote_root(const string_ &name,
   return std::move(new_root);
 }
 
-QuaratineRemoteRoot::QuaratineRemoteRoot(LinkStrandRef &&strand,
+QuaratineRemoteRoot::QuaratineRemoteRoot(const LinkStrandRef &strand,
                                          Session &session)
-    : RemoteRootNode(std::move(strand), session) {}
+    : RemoteRootNode(strand, session) {}
 
 void QuaratineRemoteRoot::initialize() {
   auto profile =

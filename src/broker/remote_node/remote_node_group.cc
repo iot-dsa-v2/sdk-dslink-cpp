@@ -3,8 +3,8 @@
 #include "remote_node_group.h"
 
 namespace dsa {
-RemoteNodeGroup::RemoteNodeGroup(LinkStrandRef &&strand)
-    : NodeModel(std::move(strand)) {}
+RemoteNodeGroup::RemoteNodeGroup(const LinkStrandRef &strand)
+    : NodeModel(strand) {}
 RemoteNodeGroup::~RemoteNodeGroup() = default;
 
 ref_<RemoteRootNode> RemoteNodeGroup::create_remote_root(const string_ &name,
