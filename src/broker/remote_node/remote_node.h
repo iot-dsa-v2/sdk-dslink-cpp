@@ -23,7 +23,7 @@ class RemoteNode : public NodeModelBase {
   friend class RemoteSetProxy;
 
  public:
-  RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
+  RemoteNode(const LinkStrandRef &strand, const string_ &remote_path,
              ref_<Session> &&session);
   ~RemoteNode() override;
 

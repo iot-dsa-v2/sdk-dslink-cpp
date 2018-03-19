@@ -31,9 +31,9 @@ class NodeModel : public NodeModelBase {
   void initialize() override;
 
  public:
-  NodeModel(LinkStrandRef &&strand,
+  NodeModel(const LinkStrandRef &strand,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
-  NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
+  NodeModel(const LinkStrandRef &strand, ref_<NodeModel> &&profile,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;

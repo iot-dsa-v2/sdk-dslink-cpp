@@ -11,9 +11,9 @@
 
 namespace dsa {
 
-BrokerClientsRoot::BrokerClientsRoot(LinkStrandRef&& strand,
+BrokerClientsRoot::BrokerClientsRoot(const LinkStrandRef &strand,
                                      ref_<BrokerClientManager>&& manager)
-    : NodeModel(std::move(strand)),
+    : NodeModel(strand),
       _manager(std::move(manager)),
       _storage(_strand->storage().get_strand_bucket("Clients", _strand)){};
 
@@ -58,11 +58,11 @@ void BrokerClientsRoot::destroy_impl() {
   NodeModel::destroy_impl();
 }
 
-BrokerClientNode::BrokerClientNode(LinkStrandRef&& strand,
+BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
                                    ref_<BrokerClientsRoot>&& parent,
                                    ref_<NodeModel>&& profile,
                                    const string_& dsid)
-    : NodeModel(std::move(strand), std::move(profile)),
+    : NodeModel(strand, std::move(profile)),
       _parent(std::move(parent)),
       _client_info(dsid) {
   // initialize children value nodes;

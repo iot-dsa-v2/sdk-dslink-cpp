@@ -10,8 +10,8 @@
 
 namespace dsa {
 
-BrokerSysRoot::BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
-    : NodeModel(std::move(strand)) {
+BrokerSysRoot::BrokerSysRoot(const LinkStrandRef &strand, ref_<DsBroker> &&broker)
+    : NodeModel(strand) {
   if (broker->get_master_token() != "") {
     add_list_child(
         "Stop",

@@ -10,8 +10,8 @@
 
 namespace dsa {
 
-LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, DsLink &lnk)
-    : NodeModel(std::move(strand)) {
+LinkSysRoot::LinkSysRoot(const LinkStrandRef &strand, DsLink &lnk)
+    : NodeModel(strand) {
   if (lnk.get_master_token() != "") {
     add_list_child(
         "Stop",

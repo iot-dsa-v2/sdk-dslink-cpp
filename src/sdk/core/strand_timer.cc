@@ -4,9 +4,9 @@
 
 namespace dsa {
 
-StrandTimer::StrandTimer(LinkStrandRef&& strand, int32_t interval_ms,
+StrandTimer::StrandTimer(const LinkStrandRef &strand, int32_t interval_ms,
                          LinkStrand::TimerCallback&& callback)
-    : _strand(std::move(strand)),
+    : _strand(strand),
       repeat_interval_ms(interval_ms),
       _callback(std::move(callback)),
       _timer(new boost::asio::deadline_timer(_strand->get_io_context())) {

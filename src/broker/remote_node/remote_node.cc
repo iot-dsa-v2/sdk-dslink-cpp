@@ -16,9 +16,9 @@
 
 namespace dsa {
 
-RemoteNode::RemoteNode(LinkStrandRef &&strand, const string_ &remote_path,
+RemoteNode::RemoteNode(const LinkStrandRef &strand, const string_ &remote_path,
                        ref_<Session> &&session)
-    : NodeModelBase(std::move(strand)),
+    : NodeModelBase(strand),
       _remote_path(remote_path),
       _remote_session(std::move(session)) {}
 RemoteNode::~RemoteNode() = default;

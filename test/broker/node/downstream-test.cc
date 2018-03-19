@@ -43,14 +43,14 @@ class MockNodeAction : public InvokeNodeModel {
 
 class MockNodeValue : public NodeModel {
  public:
-  explicit MockNodeValue(LinkStrandRef strand)
-      : NodeModel(std::move(strand), PermissionLevel::WRITE) {
+  explicit MockNodeValue(const LinkStrandRef &strand)
+      : NodeModel(strand, PermissionLevel::WRITE) {
     set_value(Var("hello world"));
   };
 };
 class MockNodeRoot : public NodeModel {
  public:
-  explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
     add_list_child("Value", make_ref_<MockNodeValue>(_strand));
 
     // add a child action

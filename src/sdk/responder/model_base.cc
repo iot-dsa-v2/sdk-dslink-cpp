@@ -22,8 +22,8 @@ ModelRef NodeModelBase::WAITING = ModelRef(new InvalidNodeModel());
 ModelRef NodeModelBase::INVALID = ModelRef(new InvalidNodeModel());
 ModelRef NodeModelBase::UNAVAILABLE = ModelRef(new InvalidNodeModel());
 
-NodeModelBase::NodeModelBase(LinkStrandRef &&strand)
-    : _strand(std::move(strand)) {}
+NodeModelBase::NodeModelBase(const LinkStrandRef &strand)
+    : _strand(strand) {}
 
 NodeModelBase::~NodeModelBase() = default;
 

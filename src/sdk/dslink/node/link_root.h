@@ -17,7 +17,7 @@ class LinkRoot : public NodeModel {
   ref_<PubRoot> _pub_node;
 
  public:
-  LinkRoot(LinkStrandRef &&strand, DsLink &link);
+  LinkRoot(const LinkStrandRef &strand, DsLink &link);
   ~LinkRoot();
 
   ref_<PubRoot> get_pub_node() { return _pub_node; }

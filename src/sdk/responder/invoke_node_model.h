@@ -18,7 +18,7 @@ class InvokeNodeModel : public NodeModel {
 
  public:
   explicit InvokeNodeModel(
-      LinkStrandRef &&strand,
+      const LinkStrandRef &strand,
       PermissionLevel require_permission = PermissionLevel::WRITE);
 
  protected:
@@ -41,9 +41,9 @@ class SimpleInvokeNode : public InvokeNodeModel {
                              ref_<NodeState> &&)>
       FullCallback;
 
-  SimpleInvokeNode(LinkStrandRef &&strand, SimpleCallback &&callback,
+  SimpleInvokeNode(const LinkStrandRef &strand, SimpleCallback &&callback,
                    PermissionLevel require_permission = PermissionLevel::WRITE);
-  SimpleInvokeNode(LinkStrandRef &&strand, FullCallback &&callback,
+  SimpleInvokeNode(const LinkStrandRef &strand, FullCallback &&callback,
                    PermissionLevel require_permission = PermissionLevel::WRITE);
 
   void set_callback(FullCallback &&callback);

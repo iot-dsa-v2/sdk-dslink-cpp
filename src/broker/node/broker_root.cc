@@ -10,8 +10,8 @@
 #include "upstream/upstream_root.h"
 
 namespace dsa {
-BrokerRoot::BrokerRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
-    : NodeModel(std::move(strand)),
+BrokerRoot::BrokerRoot(const LinkStrandRef &strand, ref_<DsBroker> &&broker)
+    : NodeModel(strand),
       _broker(std::move(broker)),
       _downstream_root(new DynamicChildrenParent(_strand->get_ref())) {
   add_list_child("Downstream", _downstream_root->get_ref());

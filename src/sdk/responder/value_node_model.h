@@ -21,7 +21,7 @@ class ValueNodeModel : public NodeModel {
 
  public:
   ValueNodeModel(
-      LinkStrandRef &&strand, Callback &&callback,
+      const LinkStrandRef &strand, Callback &&callback,
       PermissionLevel write_require_permission = PermissionLevel::WRITE);
 
   MessageStatus on_set_value(MessageValue &&value) override;

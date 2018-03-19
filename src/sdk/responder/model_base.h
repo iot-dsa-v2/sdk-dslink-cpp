@@ -41,7 +41,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   static ModelRef INVALID;
   static ModelRef UNAVAILABLE;
 
-  explicit NodeModelBase(LinkStrandRef &&strand);
+  explicit NodeModelBase(const LinkStrandRef &strand);
   virtual ~NodeModelBase();
 
   LinkStrandRef get_strand() { return _strand; }

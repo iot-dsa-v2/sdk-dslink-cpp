@@ -27,8 +27,8 @@ namespace network_reconnect_test {
 class MockNode : public NodeModel {
  public:
   explicit MockNode(
-      LinkStrandRef strand)  // allows set value with write permission
-      : NodeModel(std::move(strand), PermissionLevel::WRITE) {
+      const LinkStrandRef &strand)  // allows set value with write permission
+      : NodeModel(strand, PermissionLevel::WRITE) {
     update_property("$type", Var("string"));
     set_value(Var("hello"));
   };

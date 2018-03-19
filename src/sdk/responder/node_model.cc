@@ -15,14 +15,14 @@ namespace dsa {
 static const std::vector<string_> default_summary_metas = {
     "$is", "$type", "$writable", "$invokable"};
 
-NodeModel::NodeModel(LinkStrandRef &&strand,
+NodeModel::NodeModel(const LinkStrandRef &strand,
                      PermissionLevel write_require_permission)
-    : NodeModelBase(std::move(strand)) {
+    : NodeModelBase(strand) {
   set_value_require_permission(write_require_permission);
 };
-NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
+NodeModel::NodeModel(const LinkStrandRef &strand, ref_<NodeModel> &&profile,
                      PermissionLevel write_require_permission)
-    : NodeModelBase(std::move(strand)), _profile(std::move(profile)) {
+    : NodeModelBase(strand), _profile(std::move(profile)) {
   set_value_require_permission(write_require_permission);
 
   auto &state = _profile->get_state();
