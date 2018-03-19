@@ -22,8 +22,8 @@ namespace broker_downstream_test {
 
 class MockNodeAction : public InvokeNodeModel {
  public:
-  explicit MockNodeAction(LinkStrandRef strand)
-      : InvokeNodeModel(std::move(strand)){};
+  explicit MockNodeAction(const LinkStrandRef &strand)
+      : InvokeNodeModel(strand){};
 
   void on_invoke(ref_<OutgoingInvokeStream>&& stream,
                  ref_<NodeState>& parent) final {
@@ -43,18 +43,18 @@ class MockNodeAction : public InvokeNodeModel {
 
 class MockNodeValue : public NodeModel {
  public:
-  explicit MockNodeValue(LinkStrandRef strand)
-      : NodeModel(std::move(strand), PermissionLevel::WRITE) {
+  explicit MockNodeValue(const LinkStrandRef &strand)
+      : NodeModel(strand, PermissionLevel::WRITE) {
     set_value(Var("hello world"));
   };
 };
 class MockNodeRoot : public NodeModel {
  public:
-  explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
     add_list_child("Value", make_ref_<MockNodeValue>(_strand));
 
     // add a child action
-    auto node = make_ref_<NodeModel>(_strand->get_ref());
+    auto node = make_ref_<NodeModel>(_strand);
     add_list_child("Node", node->get_ref());
     node->add_list_child("Action", make_ref_<MockNodeAction>(_strand));
   };

@@ -29,7 +29,7 @@ class StrandTimer final : public DestroyableRef<StrandTimer> {
   std::unique_ptr<boost::asio::deadline_timer> _timer;
   LinkStrand::TimerCallback _callback;
   bool _running = false;
-  StrandTimer(LinkStrandRef&& strand, int32_t interval_ms,
+  StrandTimer(const LinkStrandRef &strand, int32_t interval_ms,
               LinkStrand::TimerCallback&& callback);
 
   void schedule(ref_<StrandTimer>&& rthis, int32_t interval_ms);

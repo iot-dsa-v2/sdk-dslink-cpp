@@ -18,11 +18,11 @@ namespace dsa {
 
 class DsaWsCallback {
  private:
-  LinkStrandRef& _link_strand;
+  LinkStrandRef _link_strand;
   std::mutex _mutex;
 
  public:
-  DsaWsCallback(LinkStrandRef& link_strand) : _link_strand(link_strand) {}
+  DsaWsCallback(const LinkStrandRef& link_strand) : _link_strand(link_strand) {}
 
   auto operator()(
       boost::asio::io_context& io_context,

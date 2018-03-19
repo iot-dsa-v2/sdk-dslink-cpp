@@ -13,7 +13,7 @@ StorageBucket& Storage::get_config_bucket() {
 }
 
 ref_<StrandStorageBucket> Storage::get_strand_bucket(
-    const string_& name, const LinkStrandRef& strand) {
+    const string_& name, const LinkStrandRef &strand) {
   ref_<StrandStorageBucket> storage_bucket =
       make_ref_<StrandStorageBucket>(strand);
   storage_bucket->set_shared_bucket(get_shared_bucket(name));

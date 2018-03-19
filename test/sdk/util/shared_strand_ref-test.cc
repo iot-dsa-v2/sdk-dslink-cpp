@@ -12,7 +12,7 @@ class SharedRefTestClass : public EnableRef<SharedRefTestClass> {
   int loop_count = 0;
   LinkStrandRef _strand;
 
-  SharedRefTestClass(const LinkStrandRef& strand) : _strand(strand) {}
+  SharedRefTestClass(const LinkStrandRef &strand) : _strand(strand) {}
 
   void loop() {
     if (++loop_count > 1000) {

@@ -78,7 +78,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
         tcp_port = copy.tcp_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         return make_shared_<StcpClientConnection>(strand, context, dsid_prefix,
                                                   tcp_host, tcp_port);
       };
@@ -93,7 +93,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
         ws_port = copy.ws_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
                                                 ws_host, ws_port);
       };
@@ -108,7 +108,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
         ws_port = copy.ws_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
                                                 ws_host, ws_port);
       };
@@ -119,7 +119,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       copy.client_connection_maker = [
         dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
         tcp_port = copy.tcp_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                                  tcp_port);
       };
@@ -182,8 +182,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   *root_cb = [this](
       WebServer &web_server, std::unique_ptr<Websocket> &&websocket,
       http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
-    LinkStrandRef link_strand(strand);
-    DsaWsCallback dsa_ws_callback(link_strand);
+    DsaWsCallback dsa_ws_callback(strand);
     return dsa_ws_callback(web_server.io_service(), std::move(websocket),
                            std::move(req));
   };

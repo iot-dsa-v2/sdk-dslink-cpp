@@ -21,7 +21,7 @@ TEST_F(DslinkTest, ConnectTest) {
   TestConfig server_strand(app, false, protocol());
 
   server_strand.strand->set_responder_model(
-      make_ref_<NodeModel>(server_strand.strand->get_ref()));
+      make_ref_<NodeModel>(server_strand.strand));
 
   auto tcp_server = server_strand.create_server();
   tcp_server->start();

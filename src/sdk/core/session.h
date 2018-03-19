@@ -97,8 +97,8 @@ class Session final : public DestroyableRef<Session> {
   bool responder_enabled = true;
   string_ client_token;
 
-  Session(LinkStrandRef strand, const string_ &dsid);
-  Session(LinkStrandRef strand, const string_ &dsid, const string_ &base_path);
+  Session(const LinkStrandRef &strand, const string_ &dsid);
+  Session(const LinkStrandRef &strand, const string_ &dsid, const string_ &base_path);
   ~Session();
 
   LinkStrandRef &get_strand() { return _strand; };

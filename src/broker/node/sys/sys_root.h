@@ -12,7 +12,7 @@ class DsBroker;
 
 class BrokerSysRoot : public NodeModel {
  public:
-  BrokerSysRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker);
+  BrokerSysRoot(const LinkStrandRef &strand, ref_<DsBroker> &&broker);
 };
 }
 

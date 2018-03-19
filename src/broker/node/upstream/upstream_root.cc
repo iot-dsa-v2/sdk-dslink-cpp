@@ -3,8 +3,8 @@
 #include "upstream_root.h"
 
 namespace dsa {
-UpstreamRoot::UpstreamRoot(LinkStrandRef &&strand)
-  : NodeModel(std::move(strand)) {
+UpstreamRoot::UpstreamRoot(const LinkStrandRef &strand)
+  : NodeModel(strand) {
 
 }
 }

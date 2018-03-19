@@ -11,7 +11,7 @@ namespace dsa {
 
 class DynamicChildrenParent : public NodeModel {
  public:
-  explicit DynamicChildrenParent(LinkStrandRef &&strand);
+  explicit DynamicChildrenParent(const LinkStrandRef &strand);
 
   bool allows_runtime_child_change() final { return true; }
   ModelRef on_demand_create_child(const Path &path) final {

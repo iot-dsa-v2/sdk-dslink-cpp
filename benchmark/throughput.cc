@@ -24,7 +24,7 @@ namespace opts = boost::program_options;
 
 class MockNode : public NodeModelBase {
  public:
-  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
+  explicit MockNode(const LinkStrandRef &strand) : NodeModelBase(strand){};
 };
 
 int main(int argc, const char *argv[]) {

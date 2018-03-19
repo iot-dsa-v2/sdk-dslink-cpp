@@ -28,8 +28,8 @@ static string_ _create_log_id(void *p) {
   return std::move(rslt);
 }
 
-Session::Session(LinkStrandRef strand, const string_ &dsid)
-    : _strand(std::move(strand)),
+Session::Session(const LinkStrandRef &strand, const string_ &dsid)
+    : _strand(strand),
       _remote_id(dsid),
       requester(*this),
       responder(*this),
@@ -37,9 +37,9 @@ Session::Session(LinkStrandRef strand, const string_ &dsid)
       _ack_stream(new AckStream(get_ref())),
       _ping_stream(new PingStream(get_ref())) {}
 
-Session::Session(LinkStrandRef strand, const string_ &dsid,
+Session::Session(const LinkStrandRef &strand, const string_ &dsid,
                  const string_ &base_path)
-    : Session(std::move(strand), dsid) {
+    : Session(strand, dsid) {
   _base_path = base_path;
 }
 

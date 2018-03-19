@@ -7,8 +7,8 @@
 
 namespace dsa {
 
-SimpleLoginManager::SimpleLoginManager(LinkStrandRef strand)
-    : _strand(std::move(strand)) {}
+SimpleLoginManager::SimpleLoginManager(const LinkStrandRef &strand)
+    : _strand(strand) {}
 
 void SimpleLoginManager::check_login(const string_ &username,
                                      const string_ &password,

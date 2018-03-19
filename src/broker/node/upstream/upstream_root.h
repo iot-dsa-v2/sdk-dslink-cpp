@@ -11,7 +11,7 @@ namespace dsa {
 
 class UpstreamRoot : public NodeModel {
  public:
-  explicit UpstreamRoot(LinkStrandRef &&strand);
+  explicit UpstreamRoot(const LinkStrandRef &strand);
 
   bool allows_runtime_child_change() final { return true; }
 };

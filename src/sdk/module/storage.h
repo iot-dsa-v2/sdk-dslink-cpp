@@ -84,12 +84,12 @@ class StrandStorageBucket : public StorageBucket,
     _shared_bucket->destroy_bucket();
   }
 
-  StrandStorageBucket(const LinkStrandRef& strand) {
+  StrandStorageBucket(const LinkStrandRef &strand) {
     set_owner_strand(strand);
   };
-  LinkStrandRef get_owner_strand() { return _owner_strand->get_ref(); };
-  void set_owner_strand(const LinkStrandRef& strand) {
-    _owner_strand = strand->get_ref();
+  LinkStrandRef get_owner_strand() { return _owner_strand; };
+  void set_owner_strand(const LinkStrandRef &strand) {
+    _owner_strand = strand;
   };
   void set_shared_bucket(shared_ptr_<StorageBucket>&& shared_bucket) {
     _shared_bucket = std::move(shared_bucket);
@@ -109,7 +109,7 @@ class Storage : public DestroyableRef<Storage> {
   virtual shared_ptr_<StorageBucket> get_shared_bucket(const string_& name) = 0;
 
   ref_<StrandStorageBucket> get_strand_bucket(const string_& name,
-                                              const LinkStrandRef& strand);
+                                              const LinkStrandRef &strand);
 
   virtual bool queue_supported() { return false; }
   /// create a bucket or find a existing bucket

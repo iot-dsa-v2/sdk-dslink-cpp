@@ -5,7 +5,7 @@
 #include "module/logger.h"
 
 namespace dsa {
-TcpClientConnection::TcpClientConnection(LinkStrandRef &strand,
+TcpClientConnection::TcpClientConnection(const LinkStrandRef &strand,
                                          const string_ &dsid_prefix,
                                          const string_ &tcp_host,
                                          uint16_t tcp_port)

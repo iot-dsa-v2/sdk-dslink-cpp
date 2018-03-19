@@ -21,7 +21,7 @@ class BrokerRoot : public NodeModel {
   ref_<NodeModel> _sys;
 
  public:
-  BrokerRoot(LinkStrandRef&& strand, ref_<DsBroker>&& broker);
+  BrokerRoot(const LinkStrandRef &strand, ref_<DsBroker>&& broker);
   ~BrokerRoot() override;
 
   BrokerPubRoot& get_pub() { return *_pub; }

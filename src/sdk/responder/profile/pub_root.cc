@@ -12,7 +12,7 @@ namespace dsa {
 
 class PubValueNode : public NodeModel {
  public:
-  PubValueNode(LinkStrandRef &&strand) : NodeModel(std::move(strand)) {}
+  PubValueNode(const LinkStrandRef &strand) : NodeModel(strand) {}
 
  protected:
   // pub node should not be subscribed directly
@@ -32,8 +32,8 @@ class PubValueNode : public NodeModel {
   }
 };
 
-PubRoot::PubRoot(LinkStrandRef &&strand, const string_ &profile)
-    : NodeModel(std::move(strand)) {
+PubRoot::PubRoot(const LinkStrandRef &strand, const string_ &profile)
+    : NodeModel(strand) {
   if (profile.empty()) {
     load_standard_profiles(standard_profile);
   } else {
@@ -147,7 +147,7 @@ ref_<NodeModel> PubRoot::add(const string_ &path_str, ref_<NodeModel> &&node) {
       pub_parent = static_cast<NodeModel *>(
           pub_parent
               ->add_list_child(path.current_name(),
-                               make_ref_<NodeModel>(_strand->get_ref()))
+                               make_ref_<NodeModel>(_strand))
               .get());
     } else {
       pub_parent = dynamic_cast<NodeModel *>(child.get());

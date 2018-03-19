@@ -29,7 +29,7 @@ TEST_F(DslinkTest, PagedInvokeResponse) {
   }
 
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
-      server_strand.strand->get_ref(),
+      server_strand.strand,
       [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
           ref_<NodeState> &&parent) {
         auto first_response = make_ref_<InvokeResponseMessage>();

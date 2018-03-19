@@ -17,7 +17,7 @@ class SimpleAuthorizer : public Authorizer {
   LinkStrandRef _strand;
 
  public:
-  explicit SimpleAuthorizer(LinkStrandRef strand);
+  explicit SimpleAuthorizer(const LinkStrandRef &strand);
   void check_permission(const ClientInfo& client_info,
                         const string_& permission_token, MessageType method,
                         const Path& path,
@@ -36,7 +36,7 @@ class AsyncSimpleClientManager : public ClientManager {
   LinkStrandRef _strand;
 
  public:
-  explicit AsyncSimpleClientManager(LinkStrandRef strand);
+  explicit AsyncSimpleClientManager(const LinkStrandRef &strand);
 
   void get_client(const string_& dsid, const string_& auth_token,
                   bool is_responder,

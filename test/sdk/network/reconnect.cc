@@ -27,8 +27,8 @@ namespace network_reconnect_test {
 class MockNode : public NodeModel {
  public:
   explicit MockNode(
-      LinkStrandRef strand)  // allows set value with write permission
-      : NodeModel(std::move(strand), PermissionLevel::WRITE) {
+      const LinkStrandRef &strand)  // allows set value with write permission
+      : NodeModel(strand, PermissionLevel::WRITE) {
     update_property("$type", Var("string"));
     set_value(Var("hello"));
   };
@@ -67,7 +67,7 @@ TEST_F(NetworkTest, ReConnect) {
       client_strand.client_connection_maker = [
         &connection, dsid_prefix = client_strand.dsid_prefix,
         tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         connection = make_shared_<StcpClientConnection>(
             strand, context, dsid_prefix, tcp_host, tcp_port);
         return connection;
@@ -77,7 +77,7 @@ TEST_F(NetworkTest, ReConnect) {
       client_strand.client_connection_maker = [
         &connection, dsid_prefix = client_strand.dsid_prefix,
         ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         connection = make_shared_<WsClientConnection>(
             false, strand, dsid_prefix, ws_host, ws_port);
         return connection;
@@ -87,7 +87,7 @@ TEST_F(NetworkTest, ReConnect) {
       client_strand.client_connection_maker = [
         &connection, dsid_prefix = client_strand.dsid_prefix,
         ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         connection = make_shared_<WsClientConnection>(true, strand, dsid_prefix,
                                                       ws_host, ws_port);
         return connection;
@@ -98,7 +98,7 @@ TEST_F(NetworkTest, ReConnect) {
       client_strand.client_connection_maker = [
         &connection, dsid_prefix = client_strand.dsid_prefix,
         tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
-      ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
         connection = make_shared_<TcpClientConnection>(strand, dsid_prefix,
                                                        tcp_host, tcp_port);
         return connection;

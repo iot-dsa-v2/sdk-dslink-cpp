@@ -14,18 +14,18 @@ namespace dsa {
 // a shared_ptr wrapper on ref_ to make it easier to use ref_ in other thread
 template <class T>
 class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
-  ref_<LinkStrand> _strand;
+  LinkStrandRef _strand;
   ref_<T> _ref;
 
  public:
   typedef std::function<void(T&, LinkStrand&)> PostCallback;
 
   static shared_ptr_<SharedRef<T>> make(ref_<T> ref,
-                                        const ref_<LinkStrand>& strand) {
+                                        const LinkStrandRef &strand) {
     return std::make_shared<SharedRef<T>>(std::move(ref), strand);
   }
 
-  SharedRef(ref_<T> ref, const ref_<LinkStrand>& strand)
+  SharedRef(ref_<T> ref, const LinkStrandRef &strand)
       : _strand(strand), _ref(std::move(ref)) {}
 
   ~SharedRef() {

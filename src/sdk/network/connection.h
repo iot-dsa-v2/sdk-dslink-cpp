@@ -71,7 +71,7 @@ class Connection : public SharedStrandPtr<Connection> {
   Session *session() { return _session.get(); }
 
  protected:
-  Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
+  Connection(const LinkStrandRef &strand, const string_ &dsid_prefix,
              const string_ &path = "");
   virtual ~Connection() = default;
 
