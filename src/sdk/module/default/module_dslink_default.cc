@@ -17,28 +17,28 @@
 namespace dsa {
 
 ref_<Storage> ModuleDslinkDefault::create_storage(App& app,
-                                                  LinkStrandRef& strand) {
+                                                  const LinkStrandRef &strand) {
   // return make_ref_<SimpleStorage>(&app.io_service());
   return nullptr;
 }
 
 shared_ptr_<Logger> ModuleDslinkDefault::create_logger(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_shared_<ConsoleLogger>();
 }
 
 ref_<ClientManager> ModuleDslinkDefault::create_client_manager(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_ref_<SimpleClientManager>();
 }
 
 ref_<Authorizer> ModuleDslinkDefault::create_authorizer(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_ref_<SimpleAuthorizer>(strand);
 }
 
 shared_ptr_<LoginManager> ModuleDslinkDefault::create_login_manager(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_shared_<SimpleLoginManager>(strand);
 }
 }

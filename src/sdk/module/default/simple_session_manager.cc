@@ -6,7 +6,7 @@
 
 namespace dsa {
 
-SimpleSessionManager::SimpleSessionManager(LinkStrandRef strand)
+SimpleSessionManager::SimpleSessionManager(const LinkStrandRef &strand)
     : _strand(strand) {}
 
 void SimpleSessionManager::get_session(const string_ &dsid,

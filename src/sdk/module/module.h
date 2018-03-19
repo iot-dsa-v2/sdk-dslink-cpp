@@ -22,25 +22,25 @@ class Module : public DestroyableRef<Module> {
   shared_ptr_<LoginManager> _login_manager;
 
  protected:
-  virtual ref_<Storage> create_storage(App& app, LinkStrandRef& strand);
-  virtual shared_ptr_<Logger> create_logger(App& app, LinkStrandRef& strand);
+  virtual ref_<Storage> create_storage(App& app, const LinkStrandRef& strand);
+  virtual shared_ptr_<Logger> create_logger(App& app, const LinkStrandRef& strand);
   virtual ref_<ClientManager> create_client_manager(App& app,
-                                                    LinkStrandRef& strand);
+                                                    const LinkStrandRef& strand);
   virtual ref_<Authorizer> create_authorizer(App& app,
-                                             LinkStrandRef& strand);
+                                             const LinkStrandRef& strand);
   virtual shared_ptr_<LoginManager> create_login_manager(
-      App& app, LinkStrandRef& strand);
+      App& app, const LinkStrandRef &strand);
 
   void destroy_impl() override;
 
  public:
-  virtual void init_all(App& app, LinkStrandRef strand);
+  virtual void init_all(App& app, const LinkStrandRef &strand);
 
-  void init_storage(App& app, LinkStrandRef& strand);
-  void init_logger(App& app, LinkStrandRef& strand);
-  void init_client_manager(App& app, LinkStrandRef& strand);
-  void init_authorizer(App& app, LinkStrandRef& strand);
-  void init_login_manager(App& app, LinkStrandRef& strand);
+  void init_storage(App& app, const LinkStrandRef &strand);
+  void init_logger(App& app, const LinkStrandRef &strand);
+  void init_client_manager(App& app, const LinkStrandRef &strand);
+  void init_authorizer(App& app, const LinkStrandRef &strand);
+  void init_login_manager(App& app, const LinkStrandRef &strand);
 
   ref_<Storage> get_storage();
   shared_ptr_<Logger> get_logger();

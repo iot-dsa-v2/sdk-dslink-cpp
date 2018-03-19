@@ -5,7 +5,7 @@
 
 namespace dsa {
 
-BrokerLoginManager::BrokerLoginManager(LinkStrandRef &strand)
+BrokerLoginManager::BrokerLoginManager(const LinkStrandRef &strand)
     : _strand(strand) {}
 BrokerLoginManager::~BrokerLoginManager() = default;
 

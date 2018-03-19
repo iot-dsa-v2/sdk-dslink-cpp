@@ -13,27 +13,27 @@
 namespace dsa {
 
 ref_<Storage> ModuleBrokerDefault::create_storage(App& app,
-                                                  LinkStrandRef& strand) {
+                                                  const LinkStrandRef &strand) {
   return make_ref_<SimpleStorage>(&app.io_service());
 }
 
 shared_ptr_<Logger> ModuleBrokerDefault::create_logger(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_shared_<ConsoleLogger>();
 }
 
 ref_<ClientManager> ModuleBrokerDefault::create_client_manager(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_ref_<BrokerClientManager>(strand);
 }
 
 ref_<Authorizer> ModuleBrokerDefault::create_authorizer(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_ref_<BrokerAuthorizer>(strand);
 }
 
 shared_ptr_<LoginManager> ModuleBrokerDefault::create_login_manager(
-    App& app, LinkStrandRef& strand) {
+    App& app, const LinkStrandRef &strand) {
   return make_shared_<BrokerLoginManager>(strand);
 }
 

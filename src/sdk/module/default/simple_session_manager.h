@@ -27,7 +27,7 @@ class SimpleSessionManager final : public SessionManager {
   void destroy_impl() final;
 
  public:
-  explicit SimpleSessionManager(LinkStrandRef strand);
+  explicit SimpleSessionManager(const LinkStrandRef &strand);
   void get_session(const string_ &dsid, const string_ &auth_token,
                    bool is_responder,
                    Session::GetSessionCallback &&callback) final;

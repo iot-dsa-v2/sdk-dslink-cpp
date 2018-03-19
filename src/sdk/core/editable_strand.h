@@ -66,7 +66,7 @@ class EditableStrand : public LinkStrand {
   void check_injected() override;
 };
 
-typedef std::function<shared_ptr_<Connection>(LinkStrandRef& strand)>
+typedef std::function<shared_ptr_<Connection>(const LinkStrandRef& strand)>
     ClientConnectionMaker;
 
 class WrapperStrand : public DestroyableRef<WrapperStrand> {

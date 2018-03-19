@@ -86,7 +86,7 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     client_strand.client_connection_maker = [
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
-    ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+    ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
       return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
                                               ws_host, ws_port);
     };
@@ -98,7 +98,7 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     client_strand.client_connection_maker = [
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
-    ](LinkStrandRef & strand) {
+    ](const LinkStrandRef &strand) {
       return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
                                               ws_host, ws_port);
     };
@@ -106,7 +106,7 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     client_strand.client_connection_maker = [
       dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
       tcp_port = client_strand.tcp_port
-    ](LinkStrandRef & strand)->shared_ptr_<Connection> {
+    ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
       return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                                tcp_port);
     };

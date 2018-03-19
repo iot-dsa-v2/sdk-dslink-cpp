@@ -4,14 +4,14 @@ using BrokerDsLinkTest = SetUpBase;
 
 class MockChildNode : public NodeModel {
  public:
-  explicit MockChildNode(const LinkStrandRef strand) : NodeModel(strand) {
+  explicit MockChildNode(const LinkStrandRef &strand) : NodeModel(strand) {
     set_value(Var("child value"));
   };
 };
 
 class MockNode : public NodeModel {
  public:
-  explicit MockNode(const LinkStrandRef strand) : NodeModel(strand) {
+  explicit MockNode(const LinkStrandRef &strand) : NodeModel(strand) {
     add_list_child("Child_Node", make_ref_<MockChildNode>(_strand));
   };
 

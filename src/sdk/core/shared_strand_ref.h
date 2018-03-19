@@ -21,11 +21,11 @@ class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
   typedef std::function<void(T&, LinkStrand&)> PostCallback;
 
   static shared_ptr_<SharedRef<T>> make(ref_<T> ref,
-                                        const LinkStrandRef& strand) {
+                                        const LinkStrandRef &strand) {
     return std::make_shared<SharedRef<T>>(std::move(ref), strand);
   }
 
-  SharedRef(ref_<T> ref, const LinkStrandRef& strand)
+  SharedRef(ref_<T> ref, const LinkStrandRef &strand)
       : _strand(strand), _ref(std::move(ref)) {}
 
   ~SharedRef() {

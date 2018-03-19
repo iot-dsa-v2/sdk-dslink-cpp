@@ -22,7 +22,7 @@ class BrokerLoginManager final : public LoginManager {
   ref_<NodeModel> _module_node;
 
  public:
-  explicit BrokerLoginManager(LinkStrandRef &strand);
+  explicit BrokerLoginManager(const LinkStrandRef &strand);
   ~BrokerLoginManager() override;
   void check_login(const string_& username, const string_& password,
                    ClientInfo::GetClientCallback&& callback) override;
