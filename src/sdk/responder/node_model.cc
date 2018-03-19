@@ -29,13 +29,8 @@ NodeModel::NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
   if (state == nullptr || state->get_path().data()->names[0] != "Pub") {
     LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
   }
-  if (state->get_path().data()->names[1] == "dsa") {
-    // global profile on all brokers
-    update_property("$is",
-                    Var("/" + state->get_path().move_pos(1).remain_str()));
-  } else {
-    update_property("$is", Var(state->get_path().move_pos(1).remain_str()));
-  }
+
+  update_property("$is", Var(state->get_path().move_pos(1).remain_str()));
 }
 
 void NodeModel::set_value_require_permission(PermissionLevel permission_level) {

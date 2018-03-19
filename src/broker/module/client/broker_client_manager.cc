@@ -9,6 +9,7 @@
 #include "broker_client_nodes.h"
 #include "module/logger.h"
 #include "module/stream_acceptor.h"
+#include "quaratine_node.h"
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
 #include "stream/responder/outgoing_invoke_stream.h"
@@ -26,7 +27,9 @@ BrokerClientManager::~BrokerClientManager() = default;
 ref_<NodeModel> BrokerClientManager::get_clients_root() {
   return _clients_root;
 }
-
+ref_<NodeModel> BrokerClientManager::get_quarantine_root() {
+  return _quarantine_root;
+}
 void BrokerClientManager::rebuild_path2id() {
   if (is_destroyed()) return;
 
@@ -121,11 +124,80 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         }
       });
 
+  pub_root.register_standard_profile_function(
+      "Broker/Quarantine_Client/Authorize",
+      [ this, keepref = get_ref() ](Var && v, SimpleInvokeNode&,
+                                    OutgoingInvokeStream & stream,
+                                    ref_<NodeState> && parent) {
+        auto* quarantine_root = parent->model_cast<QuaratineRemoteRoot>();
+        if (quarantine_root != nullptr && v.is_map()) {
+          const string_& dsid =
+              quarantine_root->get_state()->get_path().last_name();
+          string_ group;
+          if (v["Group"].is_string()) {
+            group = v["Group"].get_string();
+          }
+          int64_t max_session = 1;
+          if (v["Max_Session"].is_int()) {
+            max_session = v["Max_Session"].get_int();
+            if (max_session < 1) {
+              stream.close(MessageStatus::INVALID_PARAMETER,
+                           "invalid Max_Session");
+              return;
+            }
+          }
+
+          Var& v_path = v["Path"];
+          string_ path;
+          if (v_path.is_string()) {
+            path = v_path.get_string();
+          }
+          if (path.empty()) {
+            path = create_downstream_path(dsid);
+          } else if (max_session == 1) {
+            // TODO, pure requester without responder path
+            // but still limited to 1 max_session??
+            if (!str_starts_with(path, DOWNSTREAM_PATH)) {
+              stream.close(MessageStatus::INVALID_PARAMETER, "invalid Path");
+              return;
+            }
+            string_ downstream_name = path.substr(DOWNSTREAM_PATH.size());
+            if (_path2id.count(downstream_name) > 0) {
+              stream.close(MessageStatus::INVALID_PARAMETER,
+                           "Path is already in use");
+              return;
+            }
+            _path2id[downstream_name] = dsid;
+          }
+          ClientInfo info(dsid);
+          info.responder_path = path;
+          info.max_session = max_session;
+          info.group = group;
+
+          auto child = make_ref_<BrokerClientNode>(
+              _strand->get_ref(), _clients_root->get_ref(),
+              _strand->stream_acceptor().get_profile("Broker/Client", true),
+              dsid);
+          child->set_client_info(std::move(info));
+
+          _clients_root->add_list_child(dsid, ref_<NodeModelBase>(child));
+          child->save(*_clients_root->_storage, dsid, false, true);
+
+          // remove the existing connection as well as the node
+          static_cast<BrokerSessionManager&>(_strand->session_manager())
+              .remove_sessions(
+                  dsid, quarantine_root->get_state()->get_path().full_str());
+          stream.close();
+        } else {
+          stream.close(MessageStatus::INVALID_PARAMETER);
+        }
+      });
+
   _clients_root.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
-  _quarantine_root.reset(new DynamicChildrenParent(_strand->get_ref()));
+  _quarantine_root.reset(new QuaratineRoot(_strand->get_ref()));
   _tokens_root.reset(new NodeModel(_strand->get_ref()));
 
-  _quarantine_root->add_list_child(
+  _clients_root->add_list_child(
       "Allow_All",
       make_ref_<ValueNodeModel>(_strand->get_ref(),
                                 [ this, keepref = get_ref() ](const Var& v) {
@@ -219,7 +291,7 @@ string_ BrokerClientManager::create_downstream_path(const string_& dsid) {
     string_ name = dsid.substr(0, start_len);
     if (_path2id.count(name) == 0) {
       _path2id[name] = dsid;
-      return "Downstream/" + name;
+      return DOWNSTREAM_PATH + name;
     }
   }
   LOG_FATAL(__FILENAME__, LOG << "impossible conflict of dsid" << dsid);

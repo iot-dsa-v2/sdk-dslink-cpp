@@ -15,7 +15,7 @@ class RemoteNodeGroup : public NodeModel {
   RemoteNodeGroup(LinkStrandRef &&strand);
   ~RemoteNodeGroup() override;
 
-  ref_<RemoteRootNode> create_remote_root(const string_ &name,
+  virtual ref_<RemoteRootNode> create_remote_root(const string_ &name,
                                           Session &session);
 
   bool allows_runtime_child_change() final { return true; }

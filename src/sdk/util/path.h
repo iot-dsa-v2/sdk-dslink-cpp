@@ -47,7 +47,7 @@ class Path {
   const string_ &current_name() const { return _data->names[_current]; }
 
   const string_ &last_name() const {
-    return _data->names[_data->names.size() - 1];
+    return _data->names.back();
   }
 
   const string_ &full_str() const { return _data->str; }

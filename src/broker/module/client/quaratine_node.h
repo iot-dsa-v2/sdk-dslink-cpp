@@ -5,13 +5,25 @@
 #pragma once
 #endif
 
+#include "../../remote_node/remote_node_group.h"
 #include "../../remote_node/remote_root_node.h"
 #include "util/client_info.h"
 
 namespace dsa {
 
+class QuaratineRoot : public RemoteNodeGroup {
+ public:
+  QuaratineRoot(LinkStrandRef &&strand);
+  ref_<RemoteRootNode> create_remote_root(const string_ &name,
+                                          Session &session) override;
+};
+
 class QuaratineRemoteRoot : public RemoteRootNode {
+ public:
   QuaratineRemoteRoot(LinkStrandRef &&strand, Session &session);
+
+ protected:
+  void initialize() override;
 };
 }  // namespace dsa
 
