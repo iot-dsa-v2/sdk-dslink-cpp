@@ -147,7 +147,7 @@ ref_<NodeModel> PubRoot::add(const string_ &path_str, ref_<NodeModel> &&node) {
       pub_parent = static_cast<NodeModel *>(
           pub_parent
               ->add_list_child(path.current_name(),
-                               make_ref_<NodeModel>(_strand->get_ref()))
+                               make_ref_<NodeModel>(_strand))
               .get());
     } else {
       pub_parent = dynamic_cast<NodeModel *>(child.get());

@@ -87,9 +87,9 @@ class StrandStorageBucket : public StorageBucket,
   StrandStorageBucket(const LinkStrandRef &strand) {
     set_owner_strand(strand);
   };
-  LinkStrandRef get_owner_strand() { return _owner_strand->get_ref(); };
+  LinkStrandRef get_owner_strand() { return _owner_strand; };
   void set_owner_strand(const LinkStrandRef &strand) {
-    _owner_strand = strand->get_ref();
+    _owner_strand = strand;
   };
   void set_shared_bucket(shared_ptr_<StorageBucket>&& shared_bucket) {
     _shared_bucket = std::move(shared_bucket);

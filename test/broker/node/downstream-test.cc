@@ -54,7 +54,7 @@ class MockNodeRoot : public NodeModel {
     add_list_child("Value", make_ref_<MockNodeValue>(_strand));
 
     // add a child action
-    auto node = make_ref_<NodeModel>(_strand->get_ref());
+    auto node = make_ref_<NodeModel>(_strand);
     add_list_child("Node", node->get_ref());
     node->add_list_child("Action", make_ref_<MockNodeAction>(_strand));
   };

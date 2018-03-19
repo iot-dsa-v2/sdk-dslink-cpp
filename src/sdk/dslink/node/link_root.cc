@@ -10,8 +10,8 @@
 namespace dsa {
 LinkRoot::LinkRoot(const LinkStrandRef &strand, DsLink &link)
     : NodeModel(strand) {
-  add_list_child("Sys", new LinkSysRoot(_strand->get_ref(), link));
-  _pub_node = new PubRoot(_strand->get_ref(), "");
+  add_list_child("Sys", new LinkSysRoot(_strand, link));
+  _pub_node = new PubRoot(_strand, "");
   add_list_child("Pub", _pub_node->get_ref());
 }
 

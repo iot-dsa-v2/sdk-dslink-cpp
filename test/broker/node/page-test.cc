@@ -28,7 +28,7 @@ class MockNodeRoot : public NodeModel {
   static Var last_request;
   explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
     add_list_child(
-        "Action", make_ref_<SimpleInvokeNode>(_strand->get_ref(), [&](Var&& v) {
+        "Action", make_ref_<SimpleInvokeNode>(_strand, [&](Var&& v) {
           last_request = std::move(v);
           return Var();
         }));

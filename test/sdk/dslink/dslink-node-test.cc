@@ -44,7 +44,7 @@ class MockNodeMain : public NodeModel {
 
   void on_load_child(const string_ &name, VarMap &map) override {
     add_list_child(
-        name, make_ref_<MockNodeChild>(this->_strand->get_ref(), Var(name)));
+        name, make_ref_<MockNodeChild>(this->_strand, Var(name)));
   };
 };
 
@@ -61,11 +61,11 @@ TEST_F(DslinkTest, SaveMainNode) {
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   ref_<MockNodeMain> main_node =
-      make_ref_<MockNodeMain>(link->strand->get_ref());
+      make_ref_<MockNodeMain>(link->strand);
   main_node->add_list_child(
       "Add_Child",
       make_ref_<SimpleInvokeNode>(
-          link->strand->get_ref(),
+          link->strand,
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
               ref_<NodeState> &&parent) {
 
@@ -73,7 +73,7 @@ TEST_F(DslinkTest, SaveMainNode) {
             // add new child node
             parent_model->add_list_child(
                 v.to_string(),
-                make_ref_<MockNodeChild>(link->strand->get_ref(), v));
+                make_ref_<MockNodeChild>(link->strand, v));
 
             stream.close();
           }));
@@ -132,11 +132,11 @@ TEST_F(DslinkTest, SaveMainNode) {
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   ref_<MockNodeMain> main_node2 =
-      make_ref_<MockNodeMain>(link2->strand->get_ref());
+      make_ref_<MockNodeMain>(link2->strand);
   main_node2->add_list_child(
       "Add_Child",
       make_ref_<SimpleInvokeNode>(
-          link2->strand->get_ref(),
+          link2->strand,
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
               ref_<NodeState> &&parent) {
 
@@ -144,7 +144,7 @@ TEST_F(DslinkTest, SaveMainNode) {
 
             parent_model->add_list_child(
                 v.to_string(),
-                make_ref_<MockNodeChild>(link2->strand->get_ref(), v));
+                make_ref_<MockNodeChild>(link2->strand, v));
 
             stream.close();
           }));

@@ -34,7 +34,7 @@ void BrokerClientsRoot::initialize() {
     if (map.is_map()) {
       // add a child dslink node
       auto child = make_ref_<BrokerClientNode>(
-          _strand->get_ref(), get_ref(),
+          _strand, get_ref(),
           _strand->stream_acceptor().get_profile("Broker/Client", true), key);
       child->load(map.get_map());
 
@@ -67,7 +67,7 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
       _client_info(dsid) {
   // initialize children value nodes;
   _group_node.reset(new ValueNodeModel(
-      _strand->get_ref(), [ this, keepref = get_ref() ](const Var& v) {
+      _strand, [ this, keepref = get_ref() ](const Var& v) {
         if (v.is_string()) {
           _client_info.group = v.get_string();
           save(*_parent->_storage, _client_info.id, false, true);
@@ -80,7 +80,7 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
   add_list_child("Group", _group_node->get_ref());
 
   _path_node.reset(new ValueNodeModel(
-      _strand->get_ref(), [ this, keepref = get_ref() ](const Var& v) {
+      _strand, [ this, keepref = get_ref() ](const Var& v) {
         if (v.is_string()) {
           if (_client_info.max_session > 1) {
             return false;
@@ -104,16 +104,16 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
   _path_node->update_property("$type", Var("string"));
   add_list_child("Path", _path_node->get_ref());
 
-  _from_token_node.reset(new NodeModel(_strand->get_ref()));
+  _from_token_node.reset(new NodeModel(_strand));
   _from_token_node->update_property("$type", Var("string"));
   add_list_child("From_Token", _from_token_node->get_ref());
 
   // TODO make writable
-  _max_session_node.reset(new NodeModel(_strand->get_ref()));
+  _max_session_node.reset(new NodeModel(_strand));
   _max_session_node->update_property("$type", Var("number"));
   add_list_child("Max_Session", _max_session_node->get_ref());
 
-  _current_session_node.reset(new NodeModel(_strand->get_ref()));
+  _current_session_node.reset(new NodeModel(_strand));
   _current_session_node->update_property("$type", Var("number"));
   add_list_child("Current_Session", _current_session_node->get_ref());
 }

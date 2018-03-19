@@ -144,7 +144,7 @@ void DsLink::init_module(ref_<Module> &&default_module,
 
   strand->set_session_manager(make_ref_<SimpleSessionManager>(strand));
   if (use_standard_node_structure) {
-    _root = make_ref_<LinkRoot>(strand->get_ref(), *this);
+    _root = make_ref_<LinkRoot>(strand, *this);
     strand->set_responder_model(_root->get_ref());
   }
 }

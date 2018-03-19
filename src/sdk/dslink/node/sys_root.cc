@@ -16,7 +16,7 @@ LinkSysRoot::LinkSysRoot(const LinkStrandRef &strand, DsLink &lnk)
     add_list_child(
         "Stop",
         make_ref_<SimpleInvokeNode>(
-            _strand->get_ref(),
+            _strand,
             [link = ref_<DsLink>(lnk.get_ref())](
                 Var && v, SimpleInvokeNode & node,
                 OutgoingInvokeStream & stream, ref_<NodeState> && parent) {

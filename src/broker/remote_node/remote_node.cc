@@ -24,7 +24,7 @@ RemoteNode::RemoteNode(const LinkStrandRef &strand, const string_ &remote_path,
 RemoteNode::~RemoteNode() = default;
 
 ModelRef RemoteNode::on_demand_create_child(const Path &path) {
-  return make_ref_<RemoteNode>(_strand->get_ref(),
+  return make_ref_<RemoteNode>(_strand,
                                str_join_path(_remote_path, path.remain_str()),
                                *_remote_session);
 }

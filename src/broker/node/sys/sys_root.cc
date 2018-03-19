@@ -16,7 +16,7 @@ BrokerSysRoot::BrokerSysRoot(const LinkStrandRef &strand, ref_<DsBroker> &&broke
     add_list_child(
         "Stop",
         make_ref_<SimpleInvokeNode>(
-            _strand->get_ref(),
+            _strand,
             [broker = std::move(broker)](Var && v, SimpleInvokeNode & node,
                                          OutgoingInvokeStream & stream,
                                          ref_<NodeState> && parent) {
