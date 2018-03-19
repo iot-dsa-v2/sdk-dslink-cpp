@@ -12,9 +12,9 @@
 
 namespace dsa {
 
-BrokerSessionManager::BrokerSessionManager(LinkStrandRef strand,
+BrokerSessionManager::BrokerSessionManager(const LinkStrandRef &strand,
                                            NodeStateManager &state_manager)
-    : _strand(std::move(strand)), _state_manager(state_manager.get_ref()) {}
+    : _strand(strand), _state_manager(state_manager.get_ref()) {}
 BrokerSessionManager::~BrokerSessionManager() = default;
 // used by invalid session callback
 static ClientInfo dummy_info;

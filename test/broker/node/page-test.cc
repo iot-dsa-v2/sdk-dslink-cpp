@@ -26,7 +26,7 @@ namespace broker_page_test {
 class MockNodeRoot : public NodeModel {
  public:
   static Var last_request;
-  explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
     add_list_child(
         "Action", make_ref_<SimpleInvokeNode>(_strand->get_ref(), [&](Var&& v) {
           last_request = std::move(v);

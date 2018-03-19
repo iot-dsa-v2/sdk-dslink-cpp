@@ -27,7 +27,7 @@ class BrokerSessionManager final : public SessionManager {
   void destroy_impl() final;
 
  public:
-  BrokerSessionManager(LinkStrandRef strand, NodeStateManager &state_manager);
+  BrokerSessionManager(const LinkStrandRef &strand, NodeStateManager &state_manager);
   ~BrokerSessionManager() final;
   void get_session(const string_ &dsid, const string_ &auth_token,
                    bool is_responder,

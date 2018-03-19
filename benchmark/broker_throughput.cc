@@ -30,15 +30,15 @@ namespace broker_benchmark {
 
 class BenchmarkNodeValue : public NodeModel {
  public:
-  explicit BenchmarkNodeValue(LinkStrandRef strand)
-      : NodeModel(std::move(strand)) {
+  explicit BenchmarkNodeValue(const LinkStrandRef &strand)
+      : NodeModel(strand) {
     update_property("$type", Var("number"));
   };
 };
 class BenchmarkNodeRoot : public NodeModel {
  public:
-  explicit BenchmarkNodeRoot(LinkStrandRef strand, int num_point)
-      : NodeModel(std::move(strand)) {
+  explicit BenchmarkNodeRoot(const LinkStrandRef &strand, int num_point)
+      : NodeModel(strand) {
     for (int i = 0; i < num_point; ++i) {
       add_list_child("v" + std::to_string(i),
                      make_ref_<BenchmarkNodeValue>(_strand));

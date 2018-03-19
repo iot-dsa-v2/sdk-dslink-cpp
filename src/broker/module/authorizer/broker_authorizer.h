@@ -18,7 +18,7 @@ class BrokerAuthorizer : public Authorizer {
   LinkStrandRef _strand;
 
  public:
-  BrokerAuthorizer(LinkStrandRef& strand) : _strand(strand){};
+  BrokerAuthorizer(const LinkStrandRef& strand) : _strand(strand){};
   void check_permission(const ClientInfo& client_info,
                         const string_& permission_token, MessageType method,
                         const Path& path,

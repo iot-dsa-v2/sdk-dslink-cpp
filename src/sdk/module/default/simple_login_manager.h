@@ -16,7 +16,7 @@ class SimpleLoginManager final : public LoginManager {
   LinkStrandRef _strand;
 
  public:
-  explicit SimpleLoginManager(LinkStrandRef strand);
+  explicit SimpleLoginManager(const LinkStrandRef &strand);
   void check_login(const string_& username, const string_& password,
                    ClientInfo::GetClientCallback&& callback) override;
   void get_user(const string_& username,

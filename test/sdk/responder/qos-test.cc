@@ -21,8 +21,8 @@ using ResponderTest = SetUpBase;
 
 class MockNodeQos : public NodeModelBase {
  public:
-  explicit MockNodeQos(LinkStrandRef strand)
-      : NodeModelBase(std::move(strand)){};
+  explicit MockNodeQos(const LinkStrandRef &strand)
+      : NodeModelBase(strand){};
 
   void on_subscribe(const SubscribeOptions &options,
                     bool first_request) override {

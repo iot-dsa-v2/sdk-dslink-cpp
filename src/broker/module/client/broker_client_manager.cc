@@ -17,7 +17,7 @@
 
 namespace dsa {
 
-BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
+BrokerClientManager::BrokerClientManager(const LinkStrandRef& strand)
     : _strand(strand) {
   _config = make_ref_<BrokerClientManagerConfig>();
   _allow_all_links = _config->allow_all_links().get_value().get_bool();

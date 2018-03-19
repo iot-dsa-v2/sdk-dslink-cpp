@@ -44,7 +44,7 @@ class BrokerClientManager : public ClientManager {
   void destroy_impl() override;
 
  public:
-  explicit BrokerClientManager(LinkStrandRef& strand);
+  explicit BrokerClientManager(const LinkStrandRef& strand);
   ~BrokerClientManager() override;
 
   void rebuild_path2id();

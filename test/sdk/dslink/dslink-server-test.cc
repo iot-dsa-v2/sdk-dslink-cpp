@@ -18,8 +18,8 @@ using DslinkTest = SetUpBase;
 
 class ExampleNodeChild : public NodeModel {
  public:
-  explicit ExampleNodeChild(LinkStrandRef strand)
-      : NodeModel(std::move(strand)) {
+  explicit ExampleNodeChild(const LinkStrandRef &strand)
+      : NodeModel(strand) {
     update_property("$type", Var("string"));
     update_property("@attr", Var("test attribute value"));
     set_value(Var("test string value 1"));
@@ -28,8 +28,8 @@ class ExampleNodeChild : public NodeModel {
 
 class ExampleNodeRoot : public NodeModel {
  public:
-  explicit ExampleNodeRoot(LinkStrandRef strand)
-      : NodeModel(std::move(strand)) {
+  explicit ExampleNodeRoot(const LinkStrandRef &strand)
+      : NodeModel(strand) {
     add_list_child("Child_a", new ExampleNodeChild(_strand));
     add_list_child("Child_b", new ExampleNodeChild(_strand));
   };

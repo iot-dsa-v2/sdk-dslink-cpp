@@ -10,16 +10,16 @@
 
 namespace broker_dslink_test {
 
-MockNodeChild::MockNodeChild(LinkStrandRef strand)
-    : NodeModel(std::move(strand)) {
+MockNodeChild::MockNodeChild(const LinkStrandRef &strand)
+    : NodeModel(strand) {
   update_property("$is", Var("test_class"));
   update_property("@unit", Var("test_unit"));
 };
 
 bool MockNodeRoot::need_list() { return _need_list; }
 
-MockNodeRoot::MockNodeRoot(LinkStrandRef strand)
-    : NodeModel(std::move(strand)) {
+MockNodeRoot::MockNodeRoot(const LinkStrandRef &strand)
+    : NodeModel(strand) {
   add_list_child("Child_a", make_ref_<MockNodeChild>(_strand));
   add_list_child("Child_b", make_ref_<MockNodeChild>(_strand));
 };

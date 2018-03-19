@@ -6,8 +6,8 @@
 
 namespace dsa {
 
-SimpleAuthorizer::SimpleAuthorizer(LinkStrandRef strand)
-    : _strand(std::move(strand)){};
+SimpleAuthorizer::SimpleAuthorizer(const LinkStrandRef &strand)
+    : _strand(strand){};
 
 void SimpleClientManager::get_client(const string_& dsid,
                                      const string_& auth_token,
@@ -16,8 +16,8 @@ void SimpleClientManager::get_client(const string_& dsid,
   callback(ClientInfo(dsid), false);
 }
 
-AsyncSimpleClientManager::AsyncSimpleClientManager(LinkStrandRef strand)
-    : _strand(std::move(strand)){};
+AsyncSimpleClientManager::AsyncSimpleClientManager(const LinkStrandRef &strand)
+    : _strand(strand){};
 
 void AsyncSimpleClientManager::get_client(
     const string_& dsid, const string_& auth_token, bool is_responder,

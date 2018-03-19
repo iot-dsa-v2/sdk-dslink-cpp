@@ -24,8 +24,8 @@ using namespace std;
 using DslinkTest = SetUpBase;
 class MockNodeChild : public NodeModel {
  public:
-  explicit MockNodeChild(LinkStrandRef strand, Var v)
-      : NodeModel(std::move(strand)) {
+  explicit MockNodeChild(const LinkStrandRef &strand, Var v)
+      : NodeModel(strand) {
     update_property("$is", Var(v));
   };
   bool save_child(const string_ &name) const override { return true; };
@@ -33,7 +33,7 @@ class MockNodeChild : public NodeModel {
 
 class MockNodeMain : public NodeModel {
  public:
-  explicit MockNodeMain(LinkStrandRef strand) : NodeModel(std::move(strand)){};
+  explicit MockNodeMain(const LinkStrandRef &strand) : NodeModel(strand){};
 
   bool save_child(const string_ &name) const override {
     if (name == "Add_Child")

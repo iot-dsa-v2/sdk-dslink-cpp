@@ -20,7 +20,7 @@ class MockNode : public NodeModelBase {
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
   bool need_subscribe() { return _need_subscribe; }
 
-  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
+  explicit MockNode(const LinkStrandRef &strand) : NodeModelBase(strand){};
 
   void on_subscribe(const SubscribeOptions &options,
                     bool first_request) override {

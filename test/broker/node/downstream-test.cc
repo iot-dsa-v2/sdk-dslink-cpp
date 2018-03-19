@@ -22,8 +22,8 @@ namespace broker_downstream_test {
 
 class MockNodeAction : public InvokeNodeModel {
  public:
-  explicit MockNodeAction(LinkStrandRef strand)
-      : InvokeNodeModel(std::move(strand)){};
+  explicit MockNodeAction(const LinkStrandRef &strand)
+      : InvokeNodeModel(strand){};
 
   void on_invoke(ref_<OutgoingInvokeStream>&& stream,
                  ref_<NodeState>& parent) final {
