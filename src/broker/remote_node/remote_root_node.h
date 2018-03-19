@@ -13,6 +13,7 @@ class Session;
 class Connection;
 
 class RemoteRootNode : public RemoteNode {
+ protected:
   std::unordered_map<string_, VarBytesRef> _override_metas;
   void send_all_override_metas();
  public:
@@ -22,7 +23,7 @@ class RemoteRootNode : public RemoteNode {
   // updated the status of connection changes, not used yet
   // void on_session(Session &session, const shared_ptr_<Connection> &connection);
 
-  VarBytesRef &get_summary() override;
+  VarBytesRef get_summary() override;
 
   void set_override_meta(const string_ &field, Var &&v);
 

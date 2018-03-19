@@ -51,7 +51,7 @@ class NodeModel : public NodeModelBase {
                                      ref_<NodeModelBase> &&model);
   void remove_list_child(const string_ &name);
 
-  VarBytesRef &get_summary() override;
+  VarBytesRef get_summary() override;
 
   const std::unordered_map<string_, dsa::ref_<NodeModelBase>>
       &get_list_children() {

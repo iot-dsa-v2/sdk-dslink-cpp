@@ -18,12 +18,11 @@ class InvalidNodeModel : public NodeModelBase {
   InvalidNodeModel() : NodeModelBase(LinkStrandRef()){};
 };
 
-ModelRef NodeModelBase::WAITING = ModelRef(new InvalidNodeModel());
-ModelRef NodeModelBase::INVALID = ModelRef(new InvalidNodeModel());
-ModelRef NodeModelBase::UNAVAILABLE = ModelRef(new InvalidNodeModel());
+static_ref_<NodeModelBase> NodeModelBase::WAITING(new InvalidNodeModel());
+static_ref_<NodeModelBase> NodeModelBase::INVALID(new InvalidNodeModel());
+static_ref_<NodeModelBase> NodeModelBase::UNAVAILABLE(new InvalidNodeModel());
 
-NodeModelBase::NodeModelBase(const LinkStrandRef &strand)
-    : _strand(strand) {}
+NodeModelBase::NodeModelBase(const LinkStrandRef &strand) : _strand(strand) {}
 
 NodeModelBase::~NodeModelBase() = default;
 
@@ -43,9 +42,8 @@ ModelRef NodeModelBase::get_child(const string_ &name) {
 
 ModelRef NodeModelBase::add_child(const string_ &name, ModelRef &&model) {
   if (_state == nullptr) {
-    LOG_FATAL(__FILENAME__,
-              LOG << "NodeModelBase::add_child shouldn't be "
-                     "called before initialize() ");
+    LOG_FATAL(__FILENAME__, LOG << "NodeModelBase::add_child shouldn't be "
+                                   "called before initialize() ");
   }
   auto child_state = _state->get_child(name, true);
   if (child_state->get_model() != nullptr) {
@@ -111,9 +109,10 @@ void NodeModelBase::unlist() {
     on_unlist();
   }
 }
-static VarBytesRef blank_bytes(new VarBytes());
-VarBytesRef &NodeModelBase::get_summary() {
+
+VarBytesRef NodeModelBase::get_summary() {
   LOG_ERROR(__FILENAME__, LOG << "::get_summary not implemented");
+  static static_ref_<VarBytes> blank_bytes(new VarBytes());
   return blank_bytes;
 }
 

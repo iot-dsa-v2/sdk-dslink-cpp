@@ -22,6 +22,8 @@ class QuaratineRemoteRoot : public RemoteRootNode {
  public:
   QuaratineRemoteRoot(const LinkStrandRef &strand, Session &session);
 
+  VarBytesRef get_summary() override;
+
  protected:
   void initialize() override;
 };

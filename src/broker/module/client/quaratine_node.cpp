@@ -39,4 +39,8 @@ void QuaratineRemoteRoot::initialize() {
   }
 }
 
+VarBytesRef QuaratineRemoteRoot::get_summary() {
+  return make_ref_<VarBytes>(Var{{"$is", _override_metas["$is"]->get_value()}});
+}
+
 }  // namespace dsa

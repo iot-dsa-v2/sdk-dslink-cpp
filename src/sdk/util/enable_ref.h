@@ -176,6 +176,27 @@ class ref_ {
   }
 };
 
+// a reference that allow to keep a const global ref without multi-thread check
+template <class T>
+class static_ref_ {
+ private:
+  T *px;
+
+ public:
+  static_ref_(T *p) : px(p) { px->_refs = 0x6FFF; }
+  // multi-threading might break the ref count
+  // we don't care about it and just give it enough buffer to mess with
+  ~static_ref_() { delete px; }
+
+  T *get() const BOOST_NOEXCEPT { return px; }
+
+  // cast to ref_<T>
+  operator ref_<T>() {
+    if (px->_refs < 0x6FFF) px->_refs = 0x6FFF;
+    return ref_<T>(px);
+  }
+};
+
 template <class T>
 struct RefHash {
   size_t operator()(const ref_<T> &ref) const {
@@ -214,6 +235,16 @@ inline bool operator==(T *a, ref_<U> const &b) {
 template <class T, class U>
 inline bool operator!=(T *a, ref_<U> const &b) {
   return a != b.get();
+}
+
+template <class T, class U>
+inline bool operator==(ref_<T> const &a, static_ref_<U> const &b) {
+  return a.get() == b.get();
+}
+
+template <class T, class U>
+inline bool operator!=(ref_<T> const &a, static_ref_<U> const &b) {
+  return a.get() != b.get();
 }
 
 template <class T>

@@ -41,7 +41,7 @@ void NodeModel::set_value_require_permission(PermissionLevel permission_level) {
   }
 }
 
-VarBytesRef &NodeModel::get_summary() {
+VarBytesRef NodeModel::get_summary() {
   if (_summary == nullptr) {
     Var v = Var::new_map();
     VarMap &map = v.get_map();
@@ -226,8 +226,7 @@ void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
         // save child if it's also a NodeModel
         auto child_model = dynamic_cast<NodeModel *>(it.second.get());
         if (child_model != nullptr) {
-          child_model->save(storage, recursive_path + it.first, true,
-                            use_json);
+          child_model->save(storage, recursive_path + it.first, true, use_json);
         }
       }
     }
