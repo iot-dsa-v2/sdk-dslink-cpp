@@ -158,7 +158,9 @@ class Var : public BaseVariant {
   int64_t to_bool(bool defaultout = false) const;
   const string_ to_string(const string_ &defaultout = "") const;
 
+  // safe operation, return null value Var when not found
   Var &operator[](const string_ &name);
+  // safe operation, return null value Var when out of range
   Var &operator[](size_t index);
 
  public:

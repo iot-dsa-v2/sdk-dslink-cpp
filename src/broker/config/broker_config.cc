@@ -60,8 +60,7 @@ void BrokerConfig::load() {
       if (data.is_map()) {
         try {
           // allows config to be stored in different location
-          if (_file_path.empty() && data.get_map().count("config-path") > 0 &&
-              !data["config-path"].to_string().empty()) {
+          if (_file_path.empty() && !data["config-path"].to_string().empty()) {
             // load broker config from different path
             _file_path = data["config-path"].get_string();
             load();
@@ -106,7 +105,8 @@ void BrokerConfig::save() {
 
   auto data = new RefCountBytes(&cstr[0], &cstr[strlen(cstr)]);
 
-  Storage::get_config_bucket().write(get_file_path(), std::forward<RefCountBytes*>(data));
+  Storage::get_config_bucket().write(get_file_path(),
+                                     std::forward<RefCountBytes*>(data));
 }
 void BrokerConfig::add_item(const string_& name, Var&& value,
                             VarValidator&& validator) {
