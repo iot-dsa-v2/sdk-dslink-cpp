@@ -182,8 +182,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   *root_cb = [this](
       WebServer &web_server, std::unique_ptr<Websocket> &&websocket,
       http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
-    LinkStrandRef link_strand(strand);
-    DsaWsCallback dsa_ws_callback(link_strand);
+    DsaWsCallback dsa_ws_callback(strand);
     return dsa_ws_callback(web_server.io_service(), std::move(websocket),
                            std::move(req));
   };
