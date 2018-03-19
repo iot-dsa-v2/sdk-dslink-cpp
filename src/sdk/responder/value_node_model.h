@@ -21,11 +21,11 @@ class ValueNodeModel : public NodeModel {
 
  public:
   ValueNodeModel(
-      const LinkStrandRef &strand, Callback &&callback,
+      const LinkStrandRef &strand, const string_ &type, Callback &&callback,
       PermissionLevel write_require_permission = PermissionLevel::WRITE);
 
   MessageStatus on_set_value(MessageValue &&value) override;
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_SDK_VALUE_NODE_H

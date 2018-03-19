@@ -11,7 +11,7 @@
 
 namespace dsa {
 
-BrokerClientsRoot::BrokerClientsRoot(const LinkStrandRef &strand,
+BrokerClientsRoot::BrokerClientsRoot(const LinkStrandRef& strand,
                                      ref_<BrokerClientManager>&& manager)
     : NodeModel(strand),
       _manager(std::move(manager)),
@@ -19,7 +19,7 @@ BrokerClientsRoot::BrokerClientsRoot(const LinkStrandRef &strand,
 
 void BrokerClientsRoot::initialize() {
   NodeModel::initialize();
-  
+
   _storage->read_all([ this, keepref = get_ref() ](
                          const string_& key, std::vector<uint8_t> data,
                          BucketReadStatus read_status) mutable {
@@ -57,7 +57,7 @@ void BrokerClientsRoot::destroy_impl() {
   NodeModel::destroy_impl();
 }
 
-BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
+BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
                                    ref_<BrokerClientsRoot>&& parent,
                                    ref_<NodeModel>&& profile,
                                    const string_& dsid)
@@ -66,7 +66,7 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
       _client_info(dsid) {
   // initialize children value nodes;
   _group_node.reset(new ValueNodeModel(
-      _strand, [ this, keepref = get_ref() ](const Var& v) {
+      _strand, "string", [ this, keepref = get_ref() ](const Var& v) {
         if (v.is_string()) {
           _client_info.group = v.get_string();
           save(*_parent->_storage, _client_info.id, false, true);
@@ -75,11 +75,10 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
         return false;
       },
       PermissionLevel::CONFIG));
-  _group_node->update_property("$type", Var("string"));
   add_list_child("Group", _group_node->get_ref());
 
   _path_node.reset(new ValueNodeModel(
-      _strand, [ this, keepref = get_ref() ](const Var& v) {
+      _strand, "string", [ this, keepref = get_ref() ](const Var& v) {
         if (v.is_string()) {
           if (_client_info.max_session > 1) {
             return false;
@@ -100,7 +99,6 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef &strand,
         return false;
       },
       PermissionLevel::CONFIG));
-  _path_node->update_property("$type", Var("string"));
   add_list_child("Path", _path_node->get_ref());
 
   _from_token_node.reset(new NodeModel(_strand));
@@ -137,9 +135,7 @@ void BrokerClientNode::set_client_info(ClientInfo&& info) {
   _from_token_node->set_value(Var(_client_info.from_token));
 }
 
-void   BrokerClientNode::detach_token() {
-  _from_token_node->set_value(Var());
-}
+void BrokerClientNode::detach_token() { _from_token_node->set_value(Var()); }
 void BrokerClientNode::save_extra(VarMap& map) const {
   // TODO, change these to writable children value nodes
   map["?group"] = _client_info.group;

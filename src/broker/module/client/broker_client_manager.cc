@@ -199,7 +199,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _clients_root->add_list_child(
       "Allow_All",
-      make_ref_<ValueNodeModel>(_strand,
+      make_ref_<ValueNodeModel>(_strand, "bool",
                                 [ this, keepref = get_ref() ](const Var& v) {
                                   if (v.is_bool()) {
                                     set_allow_all_links(v.get_bool());
@@ -211,7 +211,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _quarantine_root->add_list_child(
       "Enabled",
-      make_ref_<ValueNodeModel>(_strand,
+      make_ref_<ValueNodeModel>(_strand, "bool",
                                 [ this, keepref = get_ref() ](const Var& v) {
                                   if (v.is_bool()) {
                                     set_quarantine_enabled(v.get_bool());
