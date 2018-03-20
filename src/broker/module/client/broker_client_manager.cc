@@ -197,29 +197,33 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
   _quarantine_root.reset(new QuaratineRoot(_strand));
   _tokens_root.reset(new NodeModel(_strand));
 
-  _clients_root->add_list_child(
-      "Allow_All",
-      make_ref_<ValueNodeModel>(_strand, "bool",
-                                [ this, keepref = get_ref() ](const Var& v) {
-                                  if (v.is_bool()) {
-                                    set_allow_all_links(v.get_bool());
-                                    return true;
-                                  }
-                                  return false;
-                                },
-                                PermissionLevel::CONFIG));
+  _clients_root
+      ->add_list_child(
+          "Allow_All",
+          make_ref_<ValueNodeModel>(
+              _strand, "bool", [ this, keepref = get_ref() ](const Var& v) {
+                if (v.is_bool()) {
+                  set_allow_all_links(v.get_bool());
+                  return true;
+                }
+                return false;
+              },
+              PermissionLevel::CONFIG))
+      ->set_value(Var(_allow_all_links));
 
-  _quarantine_root->add_list_child(
-      "Enabled",
-      make_ref_<ValueNodeModel>(_strand, "bool",
-                                [ this, keepref = get_ref() ](const Var& v) {
-                                  if (v.is_bool()) {
-                                    set_quarantine_enabled(v.get_bool());
-                                    return true;
-                                  }
-                                  return false;
-                                },
-                                PermissionLevel::CONFIG));
+  _quarantine_root
+      ->add_list_child(
+          "Enabled",
+          make_ref_<ValueNodeModel>(
+              _strand, "bool", [ this, keepref = get_ref() ](const Var& v) {
+                if (v.is_bool()) {
+                  set_quarantine_enabled(v.get_bool());
+                  return true;
+                }
+                return false;
+              },
+              PermissionLevel::CONFIG))
+      ->set_value(Var(_quarantine_enabled));
 }
 
 void BrokerClientManager::get_client(const string_& dsid,
