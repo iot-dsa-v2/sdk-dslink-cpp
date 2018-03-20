@@ -120,3 +120,95 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
 
   Storage::get_config_bucket().remove_all();
 }
+
+TEST_F(BrokerDsLinkTest, ClientPathTest) {
+  Storage::get_config_bucket().remove_all();
+
+  // First Create Broker
+  auto app = make_shared_<App>();
+  auto broker = broker_dslink_test::create_broker(app);
+  broker->run();
+
+  int32_t port;
+
+  switch (protocol()) {
+    case dsa::ProtocolType::PROT_DSS:
+      port = broker->get_active_secure_port();
+      break;
+    default:
+      port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
+
+  auto link_1 =
+      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+
+  int downstream_listed = 0;
+  bool link1_connected = false, test_end = false;
+  link_1->connect([&](const shared_ptr_<Connection> connection,
+                      ref_<DsLinkRequester> link_req) {
+    link1_connected = true;
+
+    link_req->list(
+        "Downstream", [&, link_req](IncomingListCache &cache,
+                                    const std::vector<string_> &str) {
+          auto map = cache.get_map();
+          downstream_listed++;
+          if (downstream_listed == 1) {
+            EXPECT_TRUE(map.find("Test1") != map.end());
+
+            link_req->list("Sys/Clients", [&, link_req](
+                                              IncomingListCache &cache,
+                                              const std::vector<string_> &str) {
+              auto map = cache.get_map();
+              string_ test1_id;
+              for (auto &items : map) {
+                if (items.first.substr(0, 5) == "Test1") {
+                  test1_id = items.first;
+                }
+              }
+              EXPECT_TRUE(!test1_id.empty());
+
+              // change path
+              auto set_request = make_ref_<SetRequestMessage>();
+              set_request->set_value(Var("Test_Changed"));
+              set_request->set_target_path("Sys/Clients/" + test1_id + "/Path");
+              link_req->set(
+                  [&, link_req](IncomingSetStream &stream,
+                                ref_<const SetResponseMessage> &&msg) {
+                    EXPECT_TRUE(msg->get_status() == MessageStatus::OK ||
+                                msg->get_status() == MessageStatus::CLOSED);
+
+                  },
+                  std::move(set_request));
+              cache.close();
+
+            });
+
+          } else {
+            EXPECT_TRUE(map.find("Test1") == map.end());
+            EXPECT_TRUE(map.find("Test_Changed") != map.end());
+            cache.close();
+            test_end = true;
+          }
+        });
+
+  });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool {
+    return (link1_connected && (downstream_listed >= 2) && test_end);
+  });
+
+  link_1->strand->post([link_1]() { link_1->destroy(); });
+  broker->strand->post([broker]() { broker->destroy(); });
+  app->close();
+
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+  app->wait();
+
+  Storage::get_config_bucket().remove_all();
+}
