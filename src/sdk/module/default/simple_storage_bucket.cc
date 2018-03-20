@@ -221,7 +221,7 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
   std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-      key_list.push_back(x.path().stem().wstring());
+      key_list.push_back(x.path().filename().wstring());
       read_cb_track->num_needed++;
     }
     key_list.sort();
@@ -259,7 +259,7 @@ void SimpleStorageBucket::remove_all() {
   std::list<std::wstring> key_list;
   try {
     for (auto&& x : fs::directory_iterator(p)) {
-      key_list.push_back(x.path().stem().wstring());
+      key_list.push_back(x.path().filename().wstring());
     }
     for (auto&& key : key_list) {
       remove(url_decode(
