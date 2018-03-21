@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "dynamic_header.h"
-#include "enums.h"
+#include "util/enums.h"
 #include "static_headers.h"
 #include "util/buffer.h"
 #include "util/enable_ref.h"

@@ -25,9 +25,7 @@ void DummyStreamAcceptor::add(ref_<OutgoingInvokeStream> &&stream) {
   stream->close(MessageStatus::NOT_SUPPORTED);
 }
 void DummyStreamAcceptor::add(ref_<OutgoingSetStream> &&stream) {
-  auto response = make_ref_<SetResponseMessage>();
-  response->set_status(MessageStatus::NOT_SUPPORTED);
-  stream->send_response(std::move(response));
+  stream->close(MessageStatus::NOT_SUPPORTED);
 }
 ref_<NodeModel> DummyStreamAcceptor::get_profile(const string_ &path,
                                                  bool dsa_standard) {

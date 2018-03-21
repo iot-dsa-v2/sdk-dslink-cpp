@@ -148,9 +148,7 @@ void NodeStateManager::add(ref_<OutgoingSetStream> &&stream) {
   if (state != nullptr) {
     state->set(std::move(stream));
   } else {
-    auto msg = make_ref_<SetResponseMessage>();
-    msg->set_status(MessageStatus::NOT_SUPPORTED);
-    stream->send_response(std::move(msg));
+    stream->close(MessageStatus::NOT_SUPPORTED);
   }
 }
 

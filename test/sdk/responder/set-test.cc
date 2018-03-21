@@ -48,9 +48,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
         [this](OutgoingSetStream &s, ref_<const SetRequestMessage> &&message) {
           last_set_request = std::move(message);
         });
-    auto response = make_ref_<SetResponseMessage>();
-    response->set_status(MessageStatus::CLOSED);
-    stream->send_response(std::move(response));
+    stream->close();
   }
 
   void add(ref_<OutgoingSubscribeStream> &&stream) {}

@@ -18,6 +18,10 @@ InvokeResponseMessage::InvokeResponseMessage(const InvokeResponseMessage& from)
     refreshed.reset(new DynamicBoolHeader(DynamicHeader::REFRESHED));
   if (from.skippable != nullptr)
     skippable.reset(new DynamicBoolHeader(DynamicHeader::SKIPPABLE));
+  if (from.audit_log != nullptr)
+    audit_log.reset(new DynamicStringHeader(DynamicHeader::AUDIT_LOG, from.audit_log->value()));
+  if (from.error_detail != nullptr)
+    error_detail.reset(new DynamicStringHeader(DynamicHeader::ERROR_DETAIL, from.error_detail->value()));
   if (from.body != nullptr)
     body.reset(from.body.get());
 }
@@ -37,6 +41,10 @@ void InvokeResponseMessage::parse_dynamic_data(const uint8_t *data, size_t dynam
       case DynamicHeader::REFRESHED:refreshed.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
         break;
       case DynamicHeader::SKIPPABLE:skippable.reset(DOWN_CAST<DynamicBoolHeader *>(header.release()));
+        break;
+      case DynamicHeader::AUDIT_LOG:audit_log.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
+        break;
+      case DynamicHeader::ERROR_DETAIL:error_detail.reset(DOWN_CAST<DynamicStringHeader *>(header.release()));
         break;
       default:throw MessageParsingError("Invalid dynamic header");
     }
@@ -67,6 +75,14 @@ void InvokeResponseMessage::write_dynamic_data(uint8_t *data) const {
     skippable->write(data);
     data += skippable->size();
   }
+  if (audit_log != nullptr) {
+    audit_log->write(data);
+    data += audit_log->size();
+  }
+  if (error_detail != nullptr) {
+    error_detail->write(data);
+    data += error_detail->size();
+  }
   if (body != nullptr) {
     std::copy(body->begin(), body->end(), data);
   }
@@ -88,6 +104,12 @@ void InvokeResponseMessage::update_static_header() {
   }
   if (skippable != nullptr) {
     header_size += skippable->size();
+  }
+  if (audit_log != nullptr) {
+    header_size += audit_log->size();
+  }
+  if (error_detail != nullptr) {
+    header_size += error_detail->size();
   }
 
   uint32_t message_size = header_size; 
@@ -114,6 +136,12 @@ void InvokeResponseMessage::print_headers(std::ostream &os) const {
   }
   if (skippable != nullptr) {
     os << " Skippable";
+  }
+  if (audit_log != nullptr) {
+    os << " AuditLog: " << audit_log->value();
+  }
+  if (error_detail != nullptr) {
+    os << " ErrorDetail: " << error_detail->value();
   }
 }
 

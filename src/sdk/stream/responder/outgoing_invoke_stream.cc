@@ -75,7 +75,7 @@ void OutgoingInvokeStream::close(MessageStatus status,
   auto message = make_ref_<InvokeResponseMessage>();
   message->set_status(status);
   if (!err_detail.empty()) {
-    // TODO general error detail
+    message->set_error_detail(err_detail);
   }
   send_message(std::move(message), true);
 }
@@ -88,4 +88,4 @@ bool OutgoingInvokeStream::check_close_message(MessageCRef &message) {
   }
   return false;
 }
-}
+}  // namespace dsa

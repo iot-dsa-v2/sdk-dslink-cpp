@@ -17,6 +17,8 @@ class DynamicHeader {
     STATUS = 0x00,
     SEQUENCE_ID = 0x01,
     PAGE_ID = 0x02,
+    AUDIT_LOG = 0x04,
+    ERROR_DETAIL = 0x05,
     ALIAS_COUNT = 0x08,
     PRIORITY = 0x10,
     NO_STREAM = 0x11,

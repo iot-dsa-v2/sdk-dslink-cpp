@@ -7,7 +7,7 @@
 
 #include <unordered_set>
 #include <vector>
-#include "message/enums.h"
+#include "util/enums.h"
 #include "util/enable_ref.h"
 #include "variant/variant.h"
 

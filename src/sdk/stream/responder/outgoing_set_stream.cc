@@ -62,6 +62,23 @@ void OutgoingSetStream::send_response(
   }
   send_message(MessageCRef(std::move(message)), true);
 };
+void OutgoingSetStream::close(MessageStatus status, const string_ &err_detail) {
+  if (_closed) return;
+  if (status < MessageStatus::CLOSED) {
+    status = MessageStatus::CLOSED;
+  }
+  _closed = true;
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
+
+  auto message = make_ref_<SetResponseMessage>();
+  message->set_status(status);
+  if (!err_detail.empty()) {
+    message->set_error_detail(err_detail);
+  }
+  send_message(std::move(message), true);
+}
 
 bool OutgoingSetStream::check_close_message(MessageCRef &message) {
   if (DOWN_CAST<const ResponseMessage *>(message.get())->get_status() >=
@@ -71,4 +88,4 @@ bool OutgoingSetStream::check_close_message(MessageCRef &message) {
   }
   return false;
 }
-}
+}  // namespace dsa

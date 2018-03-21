@@ -1,5 +1,6 @@
 list(APPEND UtilSourceFiles
         app.cc
+        enums.cc
         certificate.cc
         date_time.cc
         boost_debug.cc

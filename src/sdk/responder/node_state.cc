@@ -360,13 +360,11 @@ void NodeState::set(ref_<OutgoingSetStream> &&stream) {
   } else if (_model_status == MODEL_WAITING) {
     _waiting_cache->sets.emplace_back(std::move(stream));
   } else {
-    auto response = make_ref_<SetResponseMessage>();
     if (_model_status == MODEL_UNAVAILABLE) {
-      response->set_status(MessageStatus::DISCONNECTED);
+      stream->close(MessageStatus::DISCONNECTED);
     } else {
-      response->set_status(MessageStatus::NOT_SUPPORTED);
+      stream->close(MessageStatus::NOT_SUPPORTED);
     }
-    stream->send_response(std::move(response));
   }
 }
 

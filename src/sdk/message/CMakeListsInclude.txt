@@ -1,5 +1,4 @@
 list(APPEND MessageSourceFiles
-        enums.cc
         base_message.cc
         message_factory.cc
         static_headers.cc

@@ -54,7 +54,14 @@ enum class MessageStatus : uint8_t {
   INVALID_PARAMETER = 0x45,
   BUSY = 0x48,
   ALIAS_LOOP = 0x61,
-  CONNECTION_ERROR = 0xF9,
+  CONNECTION_ERROR = 0xC9,
+
+  // internal usage, never sent in dsa protocol
+
+  UNDEFINED = 0xF0,
+
+  // general error
+  INTERNAL_ERROR = 0xFF
 };
 
 struct StatusDetail {

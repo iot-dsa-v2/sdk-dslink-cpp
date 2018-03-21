@@ -15,7 +15,6 @@ InvokeResponseMessage::InvokeResponseMessage(const uint8_t* data, size_t size)
 InvokeResponseMessage::InvokeResponseMessage()
     : ResponseMessage(MessageType::INVOKE_RESPONSE) {}
 
-
 bool InvokeResponseMessage::set_value(const Var& value, int32_t sequence_id) {
   auto msgpack = value.to_msgpack();
   if (msgpack.size() > Var::MAX_PAGE_BODY_SIZE) {
@@ -73,6 +72,26 @@ const bool InvokeResponseMessage::get_refreshed() const {
 void InvokeResponseMessage::set_refreshed(bool value) {
   if (DynamicBoolHeader::write_value(refreshed, DynamicHeader::REFRESHED,
                                      value)) {
+    static_headers.message_size = 0;
+  }
+}
+
+const string_& InvokeResponseMessage::get_audit_log() const {
+  return DynamicStringHeader::read_value(audit_log);
+}
+void InvokeResponseMessage::set_audit_log(const string_& value) {
+  if (DynamicStringHeader::write_value(audit_log, DynamicHeader::AUDIT_LOG,
+                                       value)) {
+    static_headers.message_size = 0;
+  }
+}
+
+const string_& InvokeResponseMessage::get_error_detail() const {
+  return DynamicStringHeader::read_value(error_detail);
+}
+void InvokeResponseMessage::set_error_detail(const string_& value) {
+  if (DynamicStringHeader::write_value(error_detail,
+                                       DynamicHeader::ERROR_DETAIL, value)) {
     static_headers.message_size = 0;
   }
 }

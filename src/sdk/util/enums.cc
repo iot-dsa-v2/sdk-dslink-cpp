@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "enums.h"
+#include "util/enums.h"
 
 #include <iostream>
 

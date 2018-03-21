@@ -40,6 +40,9 @@ class OutgoingSetStream final : public MessageCacheStream {
 
   void send_response(ref_<const SetResponseMessage> &&message);
 
+  void close(MessageStatus status = MessageStatus::CLOSED,
+             const string_ &err_detail = "");
+
   bool check_close_message(MessageCRef &message) final;
 };
 }

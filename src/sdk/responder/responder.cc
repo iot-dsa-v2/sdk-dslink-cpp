@@ -159,9 +159,7 @@ void Responder::receive_message(ref_<Message> &&message) {
         stream->allowed_permission = permission_level;
 
         if (permission_level < PermissionLevel::WRITE) {
-          auto response = make_ref_<SetResponseMessage>();
-          response->set_status(MessageStatus::PERMISSION_DENIED);
-          stream->send_response(std::move(response));
+          stream->close(MessageStatus::PERMISSION_DENIED);
           return;
         } else {
           _session._strand->stream_acceptor().add(std::move(stream));

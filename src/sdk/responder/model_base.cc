@@ -118,15 +118,11 @@ VarBytesRef NodeModelBase::get_summary() {
 
 void NodeModelBase::invoke(ref_<OutgoingInvokeStream> &&stream,
                            ref_<NodeState> &parent) {
-  auto response = make_ref_<InvokeResponseMessage>();
-  response->set_status(MessageStatus::NOT_SUPPORTED);
-  stream->send_response(std::move(response));
+  stream->close(MessageStatus::NOT_SUPPORTED);
 }
 
 void NodeModelBase::set(ref_<OutgoingSetStream> &&stream) {
-  auto response = make_ref_<SetResponseMessage>();
-  response->set_status(MessageStatus::NOT_SUPPORTED);
-  stream->send_response(std::move(response));
+  stream->close(MessageStatus::NOT_SUPPORTED);
 }
 
 }  // namespace dsa
