@@ -172,13 +172,12 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
 
               // change path
               auto set_request = make_ref_<SetRequestMessage>();
-              set_request->set_value(Var("Test_Changed"));
+              set_request->set_value(Var("Downstream/Test_Changed"));
               set_request->set_target_path("Sys/Clients/" + test1_id + "/Path");
               link_req->set(
                   [&, link_req](IncomingSetStream &stream,
                                 ref_<const SetResponseMessage> &&msg) {
-                    EXPECT_TRUE(msg->get_status() == MessageStatus::OK ||
-                                msg->get_status() == MessageStatus::CLOSED);
+                    EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
 
                   },
                   std::move(set_request));

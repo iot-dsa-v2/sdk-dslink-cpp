@@ -8,6 +8,7 @@
 #include "module/stream_acceptor.h"
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
+#include "module/logger.h"
 
 namespace dsa {
 
@@ -94,6 +95,8 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
             _client_info.responder_path = new_path;
             save(*_parent->_storage, _client_info.id, false, true);
             return true;
+          } else {
+            LOG_WARN(__FILENAME__, LOG << "Path couldn't be set: " << error);
           }
         }
         return false;
