@@ -1,5 +1,6 @@
 #include "dsa/util.h"
 #include <gtest/gtest.h>
+#include <boost/filesystem/operations.hpp>
 #include "util/temp_file.h"
 
 using namespace dsa;
@@ -12,6 +13,7 @@ TEST(TempFileTest, CreateTempFile) {
   boost::filesystem::path temp_path = tmp->get();
   // Check if file is created and file path is correct
   EXPECT_NE(temp_path.string().find("temp123"), std::string::npos);
+  EXPECT_TRUE(boost::filesystem::exists(temp_path));
   // Get second temporary file
   boost::filesystem::path temp_path1 = tmp->get();
   // Check if two seperate tempfiles where created

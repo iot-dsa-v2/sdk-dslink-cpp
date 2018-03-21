@@ -20,8 +20,8 @@ using boost::filesystem::path;
 
 void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content) {
   auto write_file = [=]() {
-    auto tmp = std::make_shared<TempFile>();
-    path templ = tmp->get();
+    TempFile tmp;
+    path templ = tmp.get();
 
     path p(get_storage_path(key));
 
