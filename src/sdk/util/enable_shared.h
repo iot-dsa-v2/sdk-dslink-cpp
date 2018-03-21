@@ -18,6 +18,12 @@ inline shared_ptr_<T> make_shared_(Args &&... args) {
 }
 
 template <typename T>
+inline shared_ptr_<T> remove_ptr_(shared_ptr_<T> &p) {
+  shared_ptr_<T> temp = std::move(p);
+  return temp;
+}
+
+template <typename T>
 class SharedDestroyable : public std::enable_shared_from_this<T> {
  private:
   bool _destroyed = false;
