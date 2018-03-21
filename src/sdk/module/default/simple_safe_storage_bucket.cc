@@ -5,6 +5,7 @@
 #include "module/logger.h"
 #include "simple_storage.h"
 #include "util/string_encode.h"
+#include "util/temp_file.h"
 
 namespace dsa {
 
@@ -19,7 +20,8 @@ using boost::filesystem::path;
 
 void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content) {
   auto write_file = [=]() {
-    path templ = boost::filesystem::unique_path();
+    auto tmp = std::make_shared<TempFile>();
+    path templ = tmp->get();
 
     path p(get_storage_path(key));
 
