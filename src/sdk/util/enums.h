@@ -58,7 +58,10 @@ enum class MessageStatus : uint8_t {
 
   // internal usage, never sent in dsa protocol
 
+  // used by VarBytes, unclear status of var
   UNDEFINED = 0xF0,
+  // used by VarBytes, value will encode to empty bytes
+  BLANK = 0xF1,
 
   // general error
   INTERNAL_ERROR = 0xFF

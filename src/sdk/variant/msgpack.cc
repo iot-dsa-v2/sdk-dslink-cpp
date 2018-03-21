@@ -79,6 +79,9 @@ Var Var::to_variant(const msgpack_object &obj) {
 }
 
 Var Var::from_msgpack(const uint8_t *data, size_t size) {
+  if (size == 0) {
+    return Var(MessageStatus::BLANK);
+  }
   MsgpackMemPool mempool;
   msgpack_object obj;
   auto result = msgpack_unpack(reinterpret_cast<const char *>(data), size, NULL,
@@ -148,6 +151,10 @@ std::vector<uint8_t> Var::to_msgpack() const throw(const EncodingError &) {
 #else
   sbuf;
 #endif
+  if (is_status()) {
+    // status is not valid value
+    return std::vector<uint8_t>();
+  }
   if (msgpack_pack(&pk, *this)) {
     size_t sbuf_size = sbuf.size;
 
