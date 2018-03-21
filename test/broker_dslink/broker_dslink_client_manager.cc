@@ -385,22 +385,22 @@ TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
   auto link_2 =
       broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
 
-  bool test_end = false;
+  bool link1_connected = false;
+  bool link2_connected = false;
   link_1->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
-    bool link1_connected = get_connected(connection);
-    bool link2_connected = false;
+    link1_connected |= get_connected(connection);
+
     if (link1_connected) {
       link_2->connect([&](const shared_ptr_<Connection> connection,
                           ref_<DsLinkRequester> link_req) {
-        link2_connected = get_connected(connection);
+        link2_connected |= get_connected(connection);
       });
-    } else {
-      if (link2_connected == true) test_end = true;
     }
 
   });
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return test_end; });
+  WAIT_EXPECT_TRUE(
+      1000, [&]() -> bool { return link1_connected && link2_connected; });
 
   link_1->strand->post([link_1]() { link_1->destroy(); });
   link_2->strand->post([link_2]() { link_2->destroy(); });
