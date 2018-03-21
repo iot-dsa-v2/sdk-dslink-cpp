@@ -5,7 +5,9 @@
 #pragma once
 #endif
 
+#include <cstring>
 #include <sstream>
+#include <string>
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -82,15 +84,15 @@ class Logger : public SharedDestroyable<Logger> {
   }
 
 #if _WIN32 || _WIN64
-
-#include <cstring>
-
-#define __FILENAME__ \
+#define __FILENAME__EXT \
   (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-
 #else
- #define __FILENAME__ \
+#define __FILENAME__EXT \
   (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
+
+#define __FILENAME__            \
+  (std::string(__FILENAME__EXT) \
+       .substr(0, std::string(__FILENAME__EXT).find(".")))
 
 #endif  // DSA_SDK_MODULE_LOGGER_H
