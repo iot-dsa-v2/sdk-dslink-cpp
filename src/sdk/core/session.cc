@@ -51,7 +51,10 @@ void Session::set_on_connect(OnConnectCallback &&callback) {
 
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {
-    _connection->destroy();
+    remove_ptr_(_connection)->destroy();
+  } else if (connection == nullptr) {
+    // switch from a nullptr to a nullptr, do nothing
+    return;
   }
   _connection = std::move(connection);
 
@@ -143,8 +146,7 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  if(is_destroyed())
-    return;
+  if (is_destroyed()) return;
   LOG_TRACE(__FILENAME__, LOG << "receive message: ";
             message->print_message(LOG););
 
