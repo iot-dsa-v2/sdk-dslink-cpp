@@ -213,7 +213,7 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
 }
 
 bool get_connected(const shared_ptr_<Connection> &connection) {
-  if(!connection){
+  if (!connection) {
     return false;
   } else {
     auto session = connection->session();
@@ -223,6 +223,141 @@ bool get_connected(const shared_ptr_<Connection> &connection) {
       return session->is_connected();
     }
   }
+}
+
+TEST_F(BrokerDsLinkTest, QuarantineTest) {
+  Storage::get_config_bucket().remove_all();
+
+  // First Create Broker
+  auto app = make_shared_<App>();
+  auto broker = broker_dslink_test::create_broker(app);
+  broker->run();
+
+  int32_t port;
+
+  switch (protocol()) {
+    case dsa::ProtocolType::PROT_DSS:
+      port = broker->get_active_secure_port();
+      break;
+    default:
+      port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
+
+  auto link_1 =
+      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+  auto link_2 =
+      broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
+
+  int downstream_listed = 0, quarantine_listed = 0;
+  bool link1_connected = false, link2_connected = false;
+  link_1->connect([&](const shared_ptr_<Connection> connection,
+                      ref_<DsLinkRequester> link_req) {
+    link1_connected = get_connected(connection);
+    EXPECT_TRUE(link1_connected);
+
+    // set request to change value
+    auto set_request = make_ref_<SetRequestMessage>();
+    set_request->set_value(Var(false));
+    set_request->set_target_path("Sys/Clients/Allow_All");
+
+    link_req->set(
+        [&, link_req](IncomingSetStream &stream,
+                      ref_<const SetResponseMessage> &&msg) {
+          EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+
+          // set request to change value
+          auto set_request = make_ref_<SetRequestMessage>();
+          set_request->set_value(Var(true));
+          set_request->set_target_path("Sys/Quarantine/Enabled");
+
+          // send set request
+          link_req->set(
+              [&, link_req](IncomingSetStream &stream,
+                            ref_<const SetResponseMessage> &&msg) {
+                EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+
+                link_2->connect([&, link1_req = link_req ](
+                    const shared_ptr_<Connection> connection2,
+                    ref_<DsLinkRequester> link2_req) {
+                  link2_connected = get_connected(connection2);
+                  EXPECT_TRUE(link2_connected);
+                  link1_req->list(
+                      "Downstream",
+                      [&, link1_req](IncomingListCache &cache,
+                                     const std::vector<string_> &str) {
+                        auto map = cache.get_map();
+                        downstream_listed++;
+                        if (downstream_listed == 1) {
+                          EXPECT_TRUE(map.find("Test2") == map.end());
+                        } else {
+                          EXPECT_TRUE(map.find("Test2") != map.end());
+                        }
+                      });
+                  link1_req->list(
+                      "Sys/Quarantine",
+                      [&, link1_req](IncomingListCache &cache,
+                                     const std::vector<string_> &str) {
+                        auto map = cache.get_map();
+                        quarantine_listed++;
+                        string_ test2_id;
+                        for (auto &items : map) {
+                          if (items.first.substr(0, 5) == "Test2") {
+                            test2_id = items.first;
+                          }
+                        }
+                        if (quarantine_listed == 1) {
+                          EXPECT_TRUE(!test2_id.empty());
+                          // invoke authorize
+                          auto invoke_request =
+                              make_ref_<InvokeRequestMessage>();
+                          invoke_request->set_target_path(
+                              "Sys/Quarantine/" + test2_id + "/Authorize");
+                          invoke_request->set_value(
+                              Var({{"Path", Var("Downstream/Test2")}}));
+
+                          link1_req->invoke(
+                              [&](IncomingInvokeStream &stream,
+                                  ref_<const InvokeResponseMessage> &&msg) {
+                                auto response = std::move(msg);
+                                EXPECT_EQ(response->get_status(),
+                                          MessageStatus::CLOSED);
+                                EXPECT_TRUE(response != nullptr);
+                                stream.close();
+                              },
+                              copy_ref_(invoke_request));
+                        } else {
+                          EXPECT_TRUE(test2_id.empty());
+                        }
+                      });
+
+                });
+
+              },
+              std::move(set_request));
+        },
+        std::move(set_request));
+
+  });
+  WAIT_EXPECT_TRUE(3000, [&]() -> bool {
+    return (link1_connected && link2_connected && (downstream_listed >= 2) &&
+            (quarantine_listed >= 2));
+  });
+
+  link_1->strand->post([link_1]() { link_1->destroy(); });
+  link_2->strand->post([link_2]() { link_2->destroy(); });
+  broker->strand->post([broker]() { broker->destroy(); });
+  app->close();
+
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+  app->wait();
+
+  Storage::get_config_bucket().remove_all();
 }
 
 TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
@@ -255,20 +390,17 @@ TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
                       ref_<DsLinkRequester> link_req) {
     bool link1_connected = get_connected(connection);
     bool link2_connected = false;
-    if(link1_connected) {
+    if (link1_connected) {
       link_2->connect([&](const shared_ptr_<Connection> connection,
                           ref_<DsLinkRequester> link_req) {
         link2_connected = get_connected(connection);
       });
     } else {
-      if(link2_connected == true )
-        test_end = true;
+      if (link2_connected == true) test_end = true;
     }
 
   });
-  WAIT_EXPECT_TRUE(1000, [&]() -> bool {
-    return test_end;
-  });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return test_end; });
 
   link_1->strand->post([link_1]() { link_1->destroy(); });
   link_2->strand->post([link_2]() { link_2->destroy(); });
