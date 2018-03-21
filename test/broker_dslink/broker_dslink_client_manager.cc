@@ -211,3 +211,76 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
 
   Storage::get_config_bucket().remove_all();
 }
+
+bool get_connected(const shared_ptr_<Connection> &connection) {
+  if(!connection){
+    return false;
+  } else {
+    auto session = connection->session();
+    if (!session) {
+      return false;
+    } else {
+      return session->is_connected();
+    }
+  }
+}
+
+TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
+  Storage::get_config_bucket().remove_all();
+
+  // First Create Broker
+  auto app = make_shared_<App>();
+  auto broker = broker_dslink_test::create_broker(app);
+  broker->run();
+
+  int32_t port;
+
+  switch (protocol()) {
+    case dsa::ProtocolType::PROT_DSS:
+      port = broker->get_active_secure_port();
+      break;
+    default:
+      port = broker->get_active_server_port();
+  }
+
+  EXPECT_TRUE(port != 0);
+
+  auto link_1 =
+      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+  auto link_2 =
+      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+
+  bool test_end = false;
+  link_1->connect([&](const shared_ptr_<Connection> connection,
+                      ref_<DsLinkRequester> link_req) {
+    bool link1_connected = get_connected(connection);
+    bool link2_connected = false;
+    if(link1_connected) {
+      link_2->connect([&](const shared_ptr_<Connection> connection,
+                          ref_<DsLinkRequester> link_req) {
+        link2_connected = get_connected(connection);
+      });
+    } else {
+      if(link2_connected == true )
+        test_end = true;
+    }
+
+  });
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool {
+    return test_end;
+  });
+
+  link_1->strand->post([link_1]() { link_1->destroy(); });
+  link_2->strand->post([link_2]() { link_2->destroy(); });
+  broker->strand->post([broker]() { broker->destroy(); });
+  app->close();
+
+  WAIT_EXPECT_TRUE(1000, [&]() -> bool { return app->is_stopped(); });
+
+  if (!app->is_stopped()) {
+    app->force_stop();
+  }
+  app->wait();
+
+  Storage::get_config_bucket().remove_all();
+}
