@@ -11,7 +11,8 @@ list(APPEND UtilSourceFiles
         little_endian.h
         string.cc
         misc.cc
-        string_encode.cc)
+        string_encode.cc
+        temp_file.cc)
 
 foreach (file ${UtilSourceFiles})
     list(APPEND ProjectSourceFiles ${LIB_UTIL}/${file})
