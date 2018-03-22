@@ -71,7 +71,7 @@ Var::Var(const std::vector<uint8_t> &&v) {
   }
 }
 
-Var::Var(MessageStatus status, const string_ &detail)
+Var::Var(Status status, const string_ &detail)
     : BaseVariant(StatusDetail(status, detail)) {}
 
 Var::Var(RefCountString *p) : BaseVariant(ref_<const RefCountString>(p)) {}

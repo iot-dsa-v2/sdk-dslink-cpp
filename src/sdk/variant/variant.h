@@ -95,7 +95,7 @@ class Var : public BaseVariant {
   explicit Var(const std::vector<uint8_t> &v);
   explicit Var(const std::vector<uint8_t> &&v);
 
-  explicit Var(MessageStatus status, const string_ &detail = "");
+  explicit Var(Status status, const string_ &detail = "");
 
  public:
   Var(std::initializer_list<VarMap::value_type> init);
@@ -138,11 +138,11 @@ class Var : public BaseVariant {
   bool is_status() const { return which() == STATUS; }
   bool is_undefined() const {
     return which() == STATUS &&
-           boost::get<StatusDetail>(*this).code == MessageStatus ::UNDEFINED;
+           boost::get<StatusDetail>(*this).code == Status ::UNDEFINED;
   }
   bool is_blank() const {
     return which() == STATUS &&
-           boost::get<StatusDetail>(*this).code == MessageStatus ::BLANK;
+           boost::get<StatusDetail>(*this).code == Status ::BLANK;
   }
 
   const StatusDetail &get_status() { return boost::get<StatusDetail>(*this); }
@@ -224,14 +224,14 @@ class VarBytes : public EnableRef<VarBytes> {
   mutable Var _v;
 
  public:
-  VarBytes() : _bytes(new RefCountBytes()), _v(MessageStatus::BLANK) {}
+  VarBytes() : _bytes(new RefCountBytes()), _v(Status::BLANK) {}
   VarBytes(Var &&v) : _v(std::move(v)) {}
   VarBytes(const Var &v) : _v(v) {}
   VarBytes(BytesRef bytes)
-      : _bytes(std::move(bytes)), _v(MessageStatus::UNDEFINED) {}
+      : _bytes(std::move(bytes)), _v(Status::UNDEFINED) {}
   VarBytes(std::vector<uint8_t> &&bytes)
       : _bytes(new RefCountBytes(std::move(bytes))),
-        _v(MessageStatus::UNDEFINED) {}
+        _v(Status::UNDEFINED) {}
 
   BytesRef &get_bytes() const {
     if (_bytes == nullptr) {

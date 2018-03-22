@@ -52,7 +52,7 @@ class RemoteNode : public NodeModelBase {
 
   /// list
  protected:
-  MessageStatus _list_status_cache = MessageStatus::INITIALIZING;
+  Status _list_status_cache = Status::INITIALIZING;
   string_ _list_pub_path_cache;
   std::unordered_map<string_, VarBytesRef> _list_cache;
   ref_<IncomingListStream> _remote_list_stream;

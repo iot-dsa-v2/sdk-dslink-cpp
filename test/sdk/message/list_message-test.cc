@@ -211,7 +211,7 @@ TEST(MessageTest, ListRequestWrite) {
 TEST(MessageTest, ListRequestDynamicStructure) {
   ListRequestMessage request;
 
-  //    request.set_status(MessageStatus::CLOSED);
+  //    request.set_status(Status::DONE);
   request.set_sequence_id(1234);  // no effect
   request.set_page_id(4321);      // no effect
   request.set_alias_count(11);
@@ -250,7 +250,7 @@ TEST(MessageTest, ListResponseConstructor01) {
 TEST(MessageTest, ListResponseConstructor02) {
   ListResponseMessage source_response;
 
-  source_response.set_status(MessageStatus::CLOSED);
+  source_response.set_status(Status::DONE);
   source_response.set_sequence_id(1234);
   source_response.set_page_id(4321);  // no effect
   source_response.set_pub_path("/base/path");
@@ -284,19 +284,19 @@ TEST(MessageTest, ListResponseSourcePath) {
 TEST(MessageTest, ListResponseStatus) {
   ListResponseMessage response;
 
-  static const MessageStatus message_status_all[]{
-      MessageStatus::OK,
-      MessageStatus::INITIALIZING,
-      MessageStatus::REFRESHED,
-      MessageStatus::NOT_AVAILABLE,
-      MessageStatus::CLOSED,
-      MessageStatus::DISCONNECTED,
-      MessageStatus::PERMISSION_DENIED,
-      MessageStatus::INVALID_MESSAGE,
-      MessageStatus::INVALID_PARAMETER,
-      MessageStatus::BUSY,
-      MessageStatus::ALIAS_LOOP,
-      MessageStatus::CONNECTION_ERROR,
+  static const Status message_status_all[]{
+      Status::OK,
+      Status::INITIALIZING,
+      Status::REFRESHED,
+      Status::NOT_AVAILABLE,
+      Status::DONE,
+      Status::DISCONNECTED,
+      Status::PERMISSION_DENIED,
+      Status::INVALID_MESSAGE,
+      Status::INVALID_PARAMETER,
+      Status::BUSY,
+      Status::ALIAS_LOOP,
+      Status::CONNECTION_ERROR,
   };
   for (const auto status : message_status_all) {
     response.set_status(status);
@@ -308,7 +308,7 @@ TEST(MessageTest, ListResponseWrite) {
   ListResponseMessage response;
 
   response.set_source_path("source/path");
-  response.set_status(MessageStatus::BUSY);
+  response.set_status(Status::BUSY);
 
   response.size();
 
@@ -327,7 +327,7 @@ TEST(MessageTest, ListResponseWrite) {
 TEST(MessageTest, ListResponseDynamicStructure) {
   ListResponseMessage response;
 
-  response.set_status(MessageStatus::CLOSED);
+  response.set_status(Status::DONE);
   response.set_sequence_id(1234);
   response.set_page_id(4321);  // no effect
   response.set_pub_path("/base/path");
@@ -352,7 +352,7 @@ TEST(MessageTest, ListResponseDynamicStructure) {
 TEST(MessageTest, ListResponseCopy) {
   ListResponseMessage response;
 
-  response.set_status(MessageStatus::CLOSED);
+  response.set_status(Status::DONE);
   response.set_sequence_id(1234);
   response.set_page_id(4321);  // no effect
   response.set_pub_path("/base/path");

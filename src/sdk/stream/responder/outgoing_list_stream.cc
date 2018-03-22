@@ -30,7 +30,7 @@ void OutgoingListStream::update_list_value(const string_ &key,
   _cached_map[key] = value;
   send_message();
 }
-void OutgoingListStream::update_response_status(MessageStatus status) {
+void OutgoingListStream::update_response_status(Status status) {
   if (_status != status) {
     _status_changed = true;
     _status = status;
@@ -56,7 +56,7 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
   if (_refreshed) {
     size++;
   }
-  if (_status != MessageStatus::OK) {
+  if (_status != Status::OK) {
     size += 2;
   }
   if (!_pending_pub_path.empty()) {
@@ -82,7 +82,7 @@ size_t OutgoingListStream::peek_next_message_size(size_t available,
 }
 MessageCRef OutgoingListStream::get_next_message(AckCallback &) {
   ListResponseMessage *message = new ListResponseMessage();
-  if (_status != MessageStatus::OK) {
+  if (_status != Status::OK) {
     message->set_status(_status);
   }
   _status_changed = false;

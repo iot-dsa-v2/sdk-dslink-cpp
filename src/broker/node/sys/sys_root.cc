@@ -33,7 +33,7 @@ BrokerSysRoot::BrokerSysRoot(const LinkStrandRef &strand, ref_<DsBroker> &&broke
                 // make sure the close message is sent asap
                 stream.make_critical();
               } else {
-                stream.close(MessageStatus::INVALID_PARAMETER);
+                stream.close(Status::INVALID_PARAMETER);
               }
             },
             PermissionLevel::CONFIG));

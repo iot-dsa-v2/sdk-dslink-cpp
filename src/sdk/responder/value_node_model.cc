@@ -21,6 +21,6 @@ StatusDetail ValueNodeModel::on_set_value(MessageValue &&value) {
     StatusDetail status = _callback(value.value);
     return NodeModel::on_set_value(std::move(value));
   }
-  return MessageStatus::INVALID_PARAMETER;
+  return Status::INVALID_PARAMETER;
 }
 }  // namespace dsa

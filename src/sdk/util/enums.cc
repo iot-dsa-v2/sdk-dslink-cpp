@@ -62,38 +62,40 @@ const char *to_string(PermissionLevel permission_level) {
   }
 }
 
-const char *to_string(MessageStatus status) {
+const char *to_string(Status status) {
   switch (status) {
-    case MessageStatus::OK:
+    case Status::OK:
       return "OK";
-    case MessageStatus::INITIALIZING:
+    case Status::INITIALIZING:
       return "INITIALIZING";
-    case MessageStatus::REFRESHED:
+    case Status::REFRESHED:
       return "REFRESHED";
-    case MessageStatus::NOT_AVAILABLE:
+    case Status::NOT_AVAILABLE:
       return "NOT_AVAILABLE";
-    case MessageStatus::DROPPED:
+    case Status::DROPPED:
       return "DROPPED";
-    case MessageStatus::CLOSED:
-      return "CLOSED";
-    case MessageStatus::DISCONNECTED:
+    case Status::DONE:
+      return "DONE";
+    case Status::DISCONNECTED:
       return "DISCONNECTED";
-    case MessageStatus::PERMISSION_DENIED:
+    case Status::PERMISSION_DENIED:
       return "PERMISSION_DENIED";
-    case MessageStatus::NOT_SUPPORTED:
+    case Status::NOT_SUPPORTED:
       return "NOT_SUPPORTED";
-    case MessageStatus::INVALID_MESSAGE:
+    case Status::INVALID_MESSAGE:
       return "INVALID_MESSAGE";
-    case MessageStatus::INVALID_PARAMETER:
+    case Status::INVALID_PARAMETER:
       return "INVALID_PARAMETER";
-    case MessageStatus::BUSY:
+    case Status::BUSY:
       return "BUSY";
-    case MessageStatus::ALIAS_LOOP:
+    case Status::INTERNAL_ERROR:
+      return "INTERNAL_ERROR";
+    case Status::ALIAS_LOOP:
       return "ALIAS_LOOP";
-    case MessageStatus::CONNECTION_ERROR:
+    case Status::CONNECTION_ERROR:
       return "CONNECTION_ERROR";
     default:
-      return "STR_VERSION_OF_STATUS_IS_NOT_AVAILABLE";
+      return "UNKNOWN_STATUS";
   }
 }
 }

@@ -69,7 +69,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
     request->set_body(Var("hello").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+          EXPECT_EQ(msg->get_status(), Status::DONE);
           invoked = true;
         },
         std::move(request));

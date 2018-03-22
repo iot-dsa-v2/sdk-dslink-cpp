@@ -56,16 +56,16 @@ void OutgoingSetStream::send_response(
   if (!_callback_running) {
     _callback = nullptr;
   }
-  if (message->get_status() < MessageStatus::CLOSED) {
+  if (message->get_status() < Status::DONE) {
     LOG_ERROR(__FILENAME__,
               LOG << "set response must have closed or error status");
   }
   send_message(MessageCRef(std::move(message)), true);
 };
-void OutgoingSetStream::close(MessageStatus status, const string_ &err_detail) {
+void OutgoingSetStream::close(Status status, const string_ &err_detail) {
   if (_closed) return;
-  if (status < MessageStatus::CLOSED) {
-    status = MessageStatus::CLOSED;
+  if (status < Status::DONE) {
+    status = Status::DONE;
   }
   _closed = true;
   if (!_callback_running) {
@@ -82,7 +82,7 @@ void OutgoingSetStream::close(MessageStatus status, const string_ &err_detail) {
 
 bool OutgoingSetStream::check_close_message(MessageCRef &message) {
   if (DOWN_CAST<const ResponseMessage *>(message.get())->get_status() >=
-      MessageStatus::CLOSED) {
+      Status::DONE) {
     _session->responder.destroy_stream(rid);
     return true;
   }

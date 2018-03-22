@@ -3,7 +3,7 @@
 #include "simple_stream.h"
 
 namespace dsa {
-SimpleStream::SimpleStream(int32_t rid, MessageType type, MessageStatus status)
+SimpleStream::SimpleStream(int32_t rid, MessageType type, Status status)
     : MessageStream(rid), _message(new ErrorMessage(type, status)) {}
 SimpleStream::SimpleStream(int32_t rid, MessageRef&& msg)
     : MessageStream(rid), _message(std::move(msg)) {}

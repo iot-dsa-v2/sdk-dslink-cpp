@@ -57,13 +57,13 @@ TEST_F(BrokerDsLinkTest, Reconnect) {
       link_req->list(list_path, [&](IncomingListCache &cache,
                                    const std::vector<string_> &str) {
         auto status = cache.get_status();
-        if (status == MessageStatus::OK) {
+        if (status == Status::OK) {
           flag1 = true;
 
           // 3. CHECK DISCONNECT
           link_1->strand->post([&]() { link_1->destroy(); });
         }
-        if ((status == MessageStatus::NOT_AVAILABLE) && flag1) {
+        if ((status == Status::NOT_AVAILABLE) && flag1) {
           flag2 = true;
           cache.close();
         }
@@ -126,14 +126,14 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
         case 1: {
           // step 1, connect client 2
           // std::cout<<"Step 1"<<std::endl;
-          EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
+          EXPECT_EQ(cache.get_status(), Status::NOT_AVAILABLE);
           link_2->connect();
           break;
         }
         case 2: {
           // step 2, disconnect client 2
           // std::cout<<"Step 2"<<std::endl;
-          EXPECT_EQ(cache.get_status(), MessageStatus::OK);
+          EXPECT_EQ(cache.get_status(), Status::OK);
           link_2->strand->post([link_2]() { link_2->destroy(); });
           break;
         }
@@ -141,7 +141,7 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
         default: {  //   case 3:{
           // step 3, end test
           // std::cout<<"Step 3"<<std::endl;
-          EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
+          EXPECT_EQ(cache.get_status(), Status::NOT_AVAILABLE);
           link_1->strand->post([link_1]() { link_1->destroy(); });
           broker->strand->post([broker]() { broker->destroy(); });
         }

@@ -31,7 +31,7 @@ LinkSysRoot::LinkSysRoot(const LinkStrandRef &strand, DsLink &lnk)
                 // make sure the close message is sent asap
                 stream.make_critical();
               } else {
-                stream.close(MessageStatus::INVALID_PARAMETER);
+                stream.close(Status::INVALID_PARAMETER);
               }
             },
             PermissionLevel::CONFIG));

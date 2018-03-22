@@ -56,7 +56,7 @@ void RemoteSetProxy::destroy_impl() {
     _in_stream.reset();
   }
   if (_out_stream != nullptr) {
-    _out_stream->close(MessageStatus::DISCONNECTED);
+    _out_stream->close(Status::DISCONNECTED);
     _out_stream.reset();
   }
   if (_node != nullptr) {

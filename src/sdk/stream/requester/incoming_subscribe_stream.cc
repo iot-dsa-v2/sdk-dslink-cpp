@@ -51,7 +51,7 @@ bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
   return false;
 }
 
-void IncomingSubscribeStream::update_response_status(MessageStatus status) {
+void IncomingSubscribeStream::update_response_status(Status status) {
   if (_callback != nullptr) {
     auto response = make_ref_<SubscribeResponseMessage>();
     response->set_status(status);
@@ -62,7 +62,7 @@ void IncomingSubscribeStream::update_response_status(MessageStatus status) {
 }
 
 bool IncomingSubscribeStream::disconnected() {
-  update_response_status(MessageStatus::NOT_AVAILABLE);
+  update_response_status(Status::NOT_AVAILABLE);
   return false;
 }
 void IncomingSubscribeStream::reconnected() {

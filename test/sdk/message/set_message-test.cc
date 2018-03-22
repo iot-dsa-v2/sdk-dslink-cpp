@@ -204,7 +204,7 @@ TEST(MessageTest, SetRequestWrite) {
 TEST(MessageTest, SetRequest__dynamic_structure) {
   SetRequestMessage request;
 
-  //    request.set_status(MessageStatus::CLOSED);
+  //    request.set_status(Status::DONE);
   request.set_sequence_id(1234);  // no effect
   request.set_page_id(4321);
   request.set_alias_count(11);
@@ -250,7 +250,7 @@ TEST(MessageTest, SetResponse__Constructor_01) {
 
 TEST(MessageTest, SetResponse__Constructor_02) {
   SetResponseMessage source_response;
-  source_response.set_status(MessageStatus::BUSY);
+  source_response.set_status(Status::BUSY);
 
   source_response.size();
 
@@ -280,19 +280,19 @@ TEST(MessageTest, SetResponse__source_path) {
 TEST(MessageTest, SetResponse__status) {
   SetResponseMessage response;
 
-  static const MessageStatus message_status_all[]{
-      MessageStatus::OK,
-      MessageStatus::INITIALIZING,
-      MessageStatus::REFRESHED,
-      MessageStatus::NOT_AVAILABLE,
-      MessageStatus::CLOSED,
-      MessageStatus::DISCONNECTED,
-      MessageStatus::PERMISSION_DENIED,
-      MessageStatus::INVALID_MESSAGE,
-      MessageStatus::INVALID_PARAMETER,
-      MessageStatus::BUSY,
-      MessageStatus::ALIAS_LOOP,
-      MessageStatus::CONNECTION_ERROR,
+  static const Status message_status_all[]{
+      Status::OK,
+      Status::INITIALIZING,
+      Status::REFRESHED,
+      Status::NOT_AVAILABLE,
+      Status::DONE,
+      Status::DISCONNECTED,
+      Status::PERMISSION_DENIED,
+      Status::INVALID_MESSAGE,
+      Status::INVALID_PARAMETER,
+      Status::BUSY,
+      Status::ALIAS_LOOP,
+      Status::CONNECTION_ERROR,
   };
   for (const auto status : message_status_all) {
     response.set_status(status);
@@ -304,7 +304,7 @@ TEST(MessageTest, SetResponse__write) {
   SetResponseMessage response;
 
   response.set_source_path("source/path");
-  response.set_status(MessageStatus::BUSY);
+  response.set_status(Status::BUSY);
 
   response.size();
 
@@ -321,7 +321,7 @@ TEST(MessageTest, SetResponse__write) {
 TEST(MessageTest, SetResponse__dynamic_structure) {
   SetResponseMessage response;
 
-  response.set_status(MessageStatus::CLOSED);
+  response.set_status(Status::DONE);
   response.set_sequence_id(1234);  // no effect
   response.set_page_id(4321);      // no effect
   //  response.set_alias_count(11);
@@ -353,7 +353,7 @@ TEST(MessageTest, copy) {
   SetResponseMessage response;
 
   response.set_source_path("source/path");
-  response.set_status(MessageStatus::BUSY);
+  response.set_status(Status::BUSY);
 
   response.size();
 

@@ -57,7 +57,7 @@ void RemoteInvokeProxy::destroy_impl() {
   }
   if (_out_stream != nullptr) {
     auto response = make_ref_<InvokeResponseMessage>();
-    response->set_status(MessageStatus::DISCONNECTED);
+    response->set_status(Status::DISCONNECTED);
     _out_stream->send_response(std::move(response));
     _out_stream.reset();
   }

@@ -72,9 +72,9 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
           _client_info.group = v.get_string();
           // TODO notify session manager about the clientInfo change ??
           save(*_parent->_storage, _client_info.id, false, true);
-          return MessageStatus::CLOSED;
+          return Status::DONE;
         }
-        return MessageStatus::INVALID_PARAMETER;
+        return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
   add_list_child("Group", _group_node->get_ref());
@@ -84,23 +84,23 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
       [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
         if (v.is_string()) {
           if (_client_info.max_session > 1) {
-            return {MessageStatus::INVALID_PARAMETER,
+            return {Status::INVALID_PARAMETER,
                     "Path must be blank when Max_Session > 1"};
           }
           const string_& new_path = v.get_string();
           if (new_path == _client_info.responder_path) {
             // no need to change
-            return MessageStatus::CLOSED;
+            return Status::DONE;
           }
           StatusDetail status =
               _parent->_manager->update_client_path(_client_info.id, new_path);
-          if (status.is_success()) {
+          if (status.is_done()) {
             _client_info.responder_path = new_path;
             save(*_parent->_storage, _client_info.id, false, true);
           }
           return status;
         }
-        return MessageStatus::INVALID_PARAMETER;
+        return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
   add_list_child("Path", _path_node->get_ref());

@@ -118,11 +118,11 @@ VarBytesRef NodeModelBase::get_summary() {
 
 void NodeModelBase::invoke(ref_<OutgoingInvokeStream> &&stream,
                            ref_<NodeState> &parent) {
-  stream->close(MessageStatus::NOT_SUPPORTED);
+  stream->close(Status::NOT_SUPPORTED);
 }
 
 void NodeModelBase::set(ref_<OutgoingSetStream> &&stream) {
-  stream->close(MessageStatus::NOT_SUPPORTED);
+  stream->close(Status::NOT_SUPPORTED);
 }
 
 }  // namespace dsa

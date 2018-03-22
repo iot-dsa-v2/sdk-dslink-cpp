@@ -91,14 +91,14 @@ void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
   }
   send_props_list(stream);
   send_children_list(stream);
-  stream.update_response_status(MessageStatus::OK);
+  stream.update_response_status(Status::OK);
 }
 
 void NodeModel::on_subscribe(const SubscribeOptions &options,
                              bool first_request) {
   if (first_request && _cached_value == nullptr && _metas.count("$type") == 0) {
     auto response = make_ref_<SubscribeResponseMessage>();
-    response->set_status(MessageStatus::NOT_SUPPORTED);
+    response->set_status(Status::NOT_SUPPORTED);
     set_subscribe_response(std::move(response));
   }
 }
@@ -163,9 +163,9 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
     StatusDetail status;
     if (field.empty()) {
       if (_set_value_require_permission >= PermissionLevel::NEVER) {
-        status = MessageStatus::NOT_SUPPORTED;
+        status = Status::NOT_SUPPORTED;
       } else if (stream->allowed_permission < _set_value_require_permission) {
-        status = MessageStatus::PERMISSION_DENIED;
+        status = Status::PERMISSION_DENIED;
       } else {
         // try merging paged group
         message = IncomingPageCache<SetRequestMessage>::get_first_page(
@@ -191,10 +191,10 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
 
 StatusDetail NodeModel::on_set_value(MessageValue &&value) {
   set_value(std::move(value));
-  return MessageStatus::CLOSED;
+  return Status::DONE;
 }
 StatusDetail NodeModel::on_set_attribute(const string_ &field, Var &&value) {
-  return MessageStatus::NOT_SUPPORTED;
+  return Status::NOT_SUPPORTED;
 }
 
 // serialization

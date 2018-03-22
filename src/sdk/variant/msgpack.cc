@@ -80,7 +80,7 @@ Var Var::to_variant(const msgpack_object &obj) {
 
 Var Var::from_msgpack(const uint8_t *data, size_t size) {
   if (size == 0) {
-    return Var(MessageStatus::BLANK);
+    return Var(Status::BLANK);
   }
   MsgpackMemPool mempool;
   msgpack_object obj;

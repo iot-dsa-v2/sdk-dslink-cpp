@@ -153,7 +153,7 @@ void ResponseMessage::set_source_path(const string_& value) {
   }
 }
 
-void ResponseMessage::set_status(MessageStatus value) {
+void ResponseMessage::set_status(Status value) {
   if (DynamicByteHeader::write_value(status, DynamicHeader::STATUS,
                                      uint8_t(value))) {
     static_headers.message_size = 0;

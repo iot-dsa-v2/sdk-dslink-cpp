@@ -91,7 +91,7 @@ TEST_F(DslinkTest, SaveMainNode) {
     request->set_body(Var("Child_A").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+          EXPECT_EQ(msg->get_status(), Status::DONE);
           invoked = true;
         },
         std::move(request));
@@ -102,7 +102,7 @@ TEST_F(DslinkTest, SaveMainNode) {
     request2->set_body(Var("Child_B").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+          EXPECT_EQ(msg->get_status(), Status::DONE);
           invoked2 = true;
         },
         std::move(request2));

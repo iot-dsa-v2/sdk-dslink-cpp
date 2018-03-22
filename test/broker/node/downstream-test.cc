@@ -32,7 +32,7 @@ class MockNodeAction : public InvokeNodeModel {
       if (msg != nullptr) {
         auto response = make_ref_<InvokeResponseMessage>();
         response->set_value(Var((msg->get_value().to_string() + " world")));
-        response->set_status(MessageStatus::CLOSED);
+        response->set_status(Status::DONE);
         s.send_response(std::move(response));
       } else {
         // nullptr message means stream closed
@@ -206,7 +206,7 @@ TEST_F(BrokerDownstreamTest, List) {
     tcp_client2->get_session().requester.list(
         "Downstream/Test1",
         [&](IncomingListStream&, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+          EXPECT_EQ(msg->get_status(), Status::NOT_AVAILABLE);
           // end the test
 
           client_strand2.strand->post([tcp_client2, &client_strand2]() {
@@ -280,7 +280,7 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
     tcp_client1->get_session().requester.list(
         "Downstream/Test2",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+          EXPECT_EQ(msg->get_status(), Status::OK);
 
           // end the test
           client_strand1.strand->post([tcp_client1, &client_strand1]() {
@@ -306,7 +306,7 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
           switch (step) {
             case 1: {
               // step 1, connect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              EXPECT_EQ(msg->get_status(), Status::NOT_AVAILABLE);
               tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
                 connection2 = conn;
               });
@@ -314,20 +314,20 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
             }
             case 2: {
               // step 2, disconnect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              EXPECT_EQ(msg->get_status(), Status::OK);
               connection2->destroy_in_strand(connection2);
               break;
             }
 
             case 3: {
               // step 3, disconnected
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              EXPECT_EQ(msg->get_status(), Status::NOT_AVAILABLE);
               break;
             }
 
             case 4: {
               // step 4, reconnected
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              EXPECT_EQ(msg->get_status(), Status::OK);
 
               stream.close();
 
@@ -371,7 +371,7 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
     tcp_client1->get_session().requester.list(
         "Downstream/Test2/Value",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+          EXPECT_EQ(msg->get_status(), Status::OK);
 
           // end the test
           client_strand1.strand->post([tcp_client1, &client_strand1]() {
@@ -398,7 +398,7 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
           switch (step) {
             case 1: {
               // step 1, connect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              EXPECT_EQ(msg->get_status(), Status::NOT_AVAILABLE);
               tcp_client2->connect([&](const shared_ptr_<Connection>& conn) {
                 connection2 = conn;
               });
@@ -406,20 +406,20 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
             }
             case 2: {
               // step 2, disconnect client 2
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              EXPECT_EQ(msg->get_status(), Status::OK);
               connection2->destroy_in_strand(connection2);
               break;
             }
 
             case 3: {
               // step 3, disconnected
-              EXPECT_EQ(msg->get_status(), MessageStatus::NOT_AVAILABLE);
+              EXPECT_EQ(msg->get_status(), Status::NOT_AVAILABLE);
               break;
             }
 
             case 4: {
               // step 4, reconnected, close stream
-              EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+              EXPECT_EQ(msg->get_status(), Status::OK);
 
               stream.close();
 
@@ -457,7 +457,7 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
     tcp_client->get_session().requester.list(
         "Downstream/Test1/Node",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+          EXPECT_EQ(msg->get_status(), Status::OK);
           EXPECT_TRUE((*msg->get_parsed_map())["Action"].is_map());
           // end the test
           client_strand.strand->post([tcp_client, &client_strand]() {
@@ -473,7 +473,7 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
     tcp_client->get_session().requester.list(
         "Downstream/Test1/Node/Action",
         [&](IncomingListStream& stream, ref_<const ListResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::OK);
+          EXPECT_EQ(msg->get_status(), Status::OK);
           auto mapref = msg->get_parsed_map();
           EXPECT_EQ((*mapref)["$invokable"].to_string(), "write");
           client_strand.strand->post(std::move(step_2_list_parent));

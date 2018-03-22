@@ -20,7 +20,7 @@ void IncomingInvokeStream::receive_message(ref_<Message>&& message) {
     IncomingPagesMerger::check_merge(_waiting_pages, message);
     if (_callback != nullptr) {
       if (DOWN_CAST<const InvokeResponseMessage*>(message.get())
-              ->get_status() >= MessageStatus::CLOSED) {
+              ->get_status() >= Status::DONE) {
         _closed = true;
       }
       BEFORE_CALLBACK_RUN();
@@ -54,7 +54,7 @@ bool IncomingInvokeStream::check_close_message(MessageCRef& message) {
 bool IncomingInvokeStream::disconnected() {
   if (_callback != nullptr) {
     auto response = make_ref_<InvokeResponseMessage>();
-    response->set_status(MessageStatus::DISCONNECTED);
+    response->set_status(Status::DISCONNECTED);
     BEFORE_CALLBACK_RUN();
     _callback(*this, std::move(response));
     AFTER_CALLBACK_RUN();

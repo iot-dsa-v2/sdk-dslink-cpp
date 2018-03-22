@@ -32,7 +32,7 @@ class MockNode : public NodeModel {
 
   StatusDetail on_set_attribute(const string_ &field, Var &&value) override {
     update_property(field, std::move(value));
-    return MessageStatus::CLOSED;
+    return Status::DONE;
   }
 };
 class MockStreamAcceptor : public OutgoingStreamAcceptor {

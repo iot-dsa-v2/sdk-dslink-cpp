@@ -50,25 +50,25 @@ StatusDetail BrokerClientManager::update_client_path(const string_& dsid,
 
   auto search = children.find(dsid);
   if (search == children.end()) {
-    return MessageStatus::INTERNAL_ERROR;  // shouldn't happen
+    return Status::INTERNAL_ERROR;  // shouldn't happen
   }
   auto* p_client_model = dynamic_cast<BrokerClientNode*>(search->second.get());
   if (p_client_model == nullptr) {
-    return MessageStatus::INTERNAL_ERROR;  // shouldn't happen
+    return Status::INTERNAL_ERROR;  // shouldn't happen
   }
   if (!new_path.empty()) {
     if (!str_starts_with(new_path, DOWNSTREAM_PATH)) {
-      return {MessageStatus::INVALID_PARAMETER,
+      return {Status::INVALID_PARAMETER,
               "Path should start with " + DOWNSTREAM_PATH};
     }
     Path path(new_path);
     if (path.data()->names.size() != 2) {
-      return {MessageStatus::INVALID_PARAMETER,
+      return {Status::INVALID_PARAMETER,
               "Path should start with " + DOWNSTREAM_PATH};
     }
 
     if (_path2id.count(path.data()->names[1]) > 0) {
-      return {MessageStatus::INVALID_PARAMETER, "Path already in use"};
+      return {Status::INVALID_PARAMETER, "Path already in use"};
     }
     _path2id[path.data()->names[1]] = dsid;
   }
@@ -109,7 +109,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
               .remove_sessions(dsid, responder_path);
 
         } else {
-          stream.close(MessageStatus::INVALID_PARAMETER);
+          stream.close(Status::INVALID_PARAMETER);
         }
       });
 
@@ -123,7 +123,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           client->detach_token();
           client->save(*_clients_root->_storage, client->get_client_info().id);
         } else {
-          stream.close(MessageStatus::INVALID_PARAMETER);
+          stream.close(Status::INVALID_PARAMETER);
         }
       });
 
@@ -144,7 +144,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           if (v["Max_Session"].is_int()) {
             max_session = v["Max_Session"].get_int();
             if (max_session < 1) {
-              stream.close(MessageStatus::INVALID_PARAMETER,
+              stream.close(Status::INVALID_PARAMETER,
                            "invalid Max_Session");
               return;
             }
@@ -161,12 +161,12 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
             // TODO, pure requester without responder path
             // but still limited to 1 max_session??
             if (!str_starts_with(path, DOWNSTREAM_PATH)) {
-              stream.close(MessageStatus::INVALID_PARAMETER, "invalid Path");
+              stream.close(Status::INVALID_PARAMETER, "invalid Path");
               return;
             }
             string_ downstream_name = path.substr(DOWNSTREAM_PATH.size());
             if (_path2id.count(downstream_name) > 0) {
-              stream.close(MessageStatus::INVALID_PARAMETER,
+              stream.close(Status::INVALID_PARAMETER,
                            "Path is already in use");
               return;
             }
@@ -192,7 +192,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                   dsid, quarantine_root->get_state()->get_path().full_str());
           stream.close();
         } else {
-          stream.close(MessageStatus::INVALID_PARAMETER);
+          stream.close(Status::INVALID_PARAMETER);
         }
       });
 
@@ -208,9 +208,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
               [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
                 if (v.is_bool()) {
                   set_allow_all_links(v.get_bool());
-                  return MessageStatus::CLOSED;
+                  return Status::DONE;
                 }
-                return MessageStatus::INVALID_PARAMETER;
+                return Status::INVALID_PARAMETER;
               },
               PermissionLevel::CONFIG))
       ->set_value(Var(_allow_all_links));
@@ -223,9 +223,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
               [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
                 if (v.is_bool()) {
                   set_quarantine_enabled(v.get_bool());
-                  return MessageStatus::CLOSED;
+                  return Status::DONE;
                 }
-                return MessageStatus::INVALID_PARAMETER;
+                return Status::INVALID_PARAMETER;
               },
               PermissionLevel::CONFIG))
       ->set_value(Var(_quarantine_enabled));

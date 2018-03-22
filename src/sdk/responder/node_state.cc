@@ -300,7 +300,7 @@ void NodeState::update_list_value(const string_ &key,
   }
 }
 
-void NodeState::update_response_status(MessageStatus status) {
+void NodeState::update_response_status(Status status) {
   for (auto &it : _list_streams) {
     it.first->update_response_status(status);
   }
@@ -333,9 +333,9 @@ void NodeState::list(ref_<BaseOutgoingListStream> &&stream) {
   if (_model != nullptr) {
     _model->list(*p);
   } else if (_model_status == MODEL_INVALID) {
-    p->update_response_status(MessageStatus::NOT_SUPPORTED);
+    p->update_response_status(Status::NOT_SUPPORTED);
   } else {
-    p->update_response_status(MessageStatus::NOT_AVAILABLE);
+    p->update_response_status(Status::NOT_AVAILABLE);
   }
 }
 
@@ -347,9 +347,9 @@ void NodeState::invoke(ref_<OutgoingInvokeStream> &&stream) {
   } else {
     auto response = make_ref_<InvokeResponseMessage>();
     if (_model_status == MODEL_UNAVAILABLE) {
-      response->set_status(MessageStatus::DISCONNECTED);
+      response->set_status(Status::DISCONNECTED);
     } else {
-      response->set_status(MessageStatus::NOT_SUPPORTED);
+      response->set_status(Status::NOT_SUPPORTED);
     }
     stream->send_response(std::move(response));
   }
@@ -361,9 +361,9 @@ void NodeState::set(ref_<OutgoingSetStream> &&stream) {
     _waiting_cache->sets.emplace_back(std::move(stream));
   } else {
     if (_model_status == MODEL_UNAVAILABLE) {
-      stream->close(MessageStatus::DISCONNECTED);
+      stream->close(Status::DISCONNECTED);
     } else {
-      stream->close(MessageStatus::NOT_SUPPORTED);
+      stream->close(Status::NOT_SUPPORTED);
     }
   }
 }

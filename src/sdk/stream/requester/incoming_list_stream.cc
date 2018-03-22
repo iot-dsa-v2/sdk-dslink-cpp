@@ -49,7 +49,7 @@ bool IncomingListStream::check_close_message(MessageCRef& message) {
   return false;
 }
 
-void IncomingListStream::update_response_status(MessageStatus status) {
+void IncomingListStream::update_response_status(Status status) {
   if (_callback != nullptr) {
     auto response = make_ref_<ListResponseMessage>();
     response->set_status(status);
@@ -60,7 +60,7 @@ void IncomingListStream::update_response_status(MessageStatus status) {
 }
 
 bool IncomingListStream::disconnected() {
-  update_response_status(MessageStatus::NOT_AVAILABLE);
+  update_response_status(Status::NOT_AVAILABLE);
   return false;
 }
 void IncomingListStream::reconnected() {

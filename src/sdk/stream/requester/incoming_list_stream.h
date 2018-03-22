@@ -39,7 +39,7 @@ class IncomingListStream final : public MessageCacheStream {
 
   bool disconnected() final;
   void reconnected() final;
-  void update_response_status(MessageStatus status) final;
+  void update_response_status(Status status) final;
 };
 }
 

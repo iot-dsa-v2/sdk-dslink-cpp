@@ -38,7 +38,7 @@ enum class MessageType : uint8_t {
 };
 std::ostream &operator<<(std::ostream &os, dsa::MessageType type);
 
-enum class MessageStatus : uint8_t {
+enum class Status : uint8_t {
   // https://github.com/iot-dsa-v2/docs/blob/master/protocol/Status-Table.md
 
   OK = 0x00,
@@ -46,7 +46,7 @@ enum class MessageStatus : uint8_t {
   REFRESHED = 0x02,
   NOT_AVAILABLE = 0x0E,
   DROPPED = 0x10,
-  CLOSED = 0x20,
+  DONE = 0x20,
   DISCONNECTED = 0x2E,
   PERMISSION_DENIED = 0x40,
   NOT_SUPPORTED = 0x41,
@@ -69,12 +69,12 @@ enum class MessageStatus : uint8_t {
 };
 
 struct StatusDetail {
-  MessageStatus code;
+  Status code;
   string_ detail;
-  StatusDetail(MessageStatus code = MessageStatus::CLOSED,
+  StatusDetail(Status code = Status::DONE,
                const string_ &detail = "")
       : code(code), detail(detail) {}
-  bool is_success() { return code == MessageStatus::CLOSED; }
+  bool is_done() { return code == Status::DONE; }
 };
 
 enum class PermissionLevel : uint8_t {
@@ -90,7 +90,7 @@ enum class PermissionLevel : uint8_t {
 enum class MergeQueueResult { NORMAL, SKIP_THIS, SKIP_NEXT };
 
 const char *to_string(PermissionLevel permission_level);
-const char *to_string(MessageStatus status);
+const char *to_string(Status status);
 
 }  // namespace dsa
 

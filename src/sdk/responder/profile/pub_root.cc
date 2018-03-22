@@ -20,13 +20,13 @@ class PubValueNode : public NodeModel {
                     bool first_request) override {
     if (first_request) {
       auto response = make_ref_<SubscribeResponseMessage>();
-      response->set_status(MessageStatus::NOT_SUPPORTED);
+      response->set_status(Status::NOT_SUPPORTED);
       set_subscribe_response(std::move(response));
     }
   }
   // pub node should not be set directly
   void set(ref_<OutgoingSetStream> &&stream) override {
-    stream->close(MessageStatus::NOT_SUPPORTED);
+    stream->close(Status::NOT_SUPPORTED);
   }
 };
 

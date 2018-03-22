@@ -160,7 +160,7 @@ TEST_F(DslinkTest, CloseTest) {
                          IncomingInvokeStream & stream,
                          ref_<const InvokeResponseMessage> && msg) {
       EXPECT_TRUE(msg != nullptr);
-      EXPECT_EQ(msg->get_status(), MessageStatus::INVALID_PARAMETER);
+      EXPECT_EQ(msg->get_status(), Status::INVALID_PARAMETER);
       EXPECT_FALSE(linkResp->is_destroyed());
 
       auto close_request_with_valid_token = make_ref_<InvokeRequestMessage>();
@@ -250,7 +250,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
     request->set_body(Var("hello").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+          EXPECT_EQ(msg->get_status(), Status::DONE);
           invoked = true;
         },
         std::move(request));

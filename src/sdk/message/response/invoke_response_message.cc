@@ -34,7 +34,7 @@ bool InvokeResponseMessage::set_value(const Var& value, int32_t sequence_id) {
     }
     // move the status to the last
     current->set_status(get_status());
-    set_status(MessageStatus::OK);
+    set_status(Status::OK);
     return true;
   } else {
     set_body(std::move(msgpack));

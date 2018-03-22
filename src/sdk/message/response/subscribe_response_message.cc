@@ -38,7 +38,7 @@ void SubscribeResponseMessage::set_value(MessageValue&& value,
   if (last_page != nullptr) {
     // move the status to the last page
     last_page->set_status(get_status());
-    set_status(MessageStatus::OK);
+    set_status(Status::OK);
   }
 
   // invalidate message_size

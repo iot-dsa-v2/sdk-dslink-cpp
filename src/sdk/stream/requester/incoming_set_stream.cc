@@ -48,7 +48,7 @@ bool IncomingSetStream::check_close_message(MessageCRef& message) {
 bool IncomingSetStream::disconnected() {
   if (_callback != nullptr) {
     auto response = make_ref_<SetResponseMessage>();
-    response->set_status(MessageStatus::DISCONNECTED);
+    response->set_status(Status::DISCONNECTED);
     BEFORE_CALLBACK_RUN();
     _callback(*this, std::move(response));
     AFTER_CALLBACK_RUN();
