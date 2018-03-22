@@ -44,37 +44,40 @@ void BrokerClientManager::rebuild_path2id() {
   }
 }
 
-string_ BrokerClientManager::update_client_path(const string_& dsid,
-                                                const string_& new_path) {
+StatusDetail BrokerClientManager::update_client_path(const string_& dsid,
+                                                     const string_& new_path) {
   auto& children = _clients_root->get_list_children();
 
   auto search = children.find(dsid);
   if (search == children.end()) {
-    return "internal error";  // shouldn't happen
+    return MessageStatus::INTERNAL_ERROR;  // shouldn't happen
   }
   auto* p_client_model = dynamic_cast<BrokerClientNode*>(search->second.get());
   if (p_client_model == nullptr) {
-    return "internal error";  // shouldn't happen
+    return MessageStatus::INTERNAL_ERROR;  // shouldn't happen
   }
   if (!new_path.empty()) {
     if (!str_starts_with(new_path, DOWNSTREAM_PATH)) {
-      return "Path should start with " + DOWNSTREAM_PATH;
+      return {MessageStatus::INVALID_PARAMETER,
+              "Path should start with " + DOWNSTREAM_PATH};
     }
     Path path(new_path);
     if (path.data()->names.size() != 2) {
-      return "err";
+      return {MessageStatus::INVALID_PARAMETER,
+              "Path should start with " + DOWNSTREAM_PATH};
     }
 
     if (_path2id.count(path.data()->names[1]) > 0) {
-      return "Path already in use";
+      return {MessageStatus::INVALID_PARAMETER, "Path already in use"};
     }
+    _path2id[path.data()->names[1]] = dsid;
   }
 
   static_cast<BrokerSessionManager&>(_strand->session_manager())
       .update_responder_root(
           dsid, p_client_model->get_client_info().responder_path, new_path);
 
-  return "";
+  return StatusDetail();
 }
 void BrokerClientManager::create_nodes(NodeModel& module_node,
                                        BrokerPubRoot& pub_root) {
@@ -201,12 +204,13 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
       ->add_list_child(
           "Allow_All",
           make_ref_<ValueNodeModel>(
-              _strand, "bool", [ this, keepref = get_ref() ](const Var& v) {
+              _strand, "bool",
+              [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
                 if (v.is_bool()) {
                   set_allow_all_links(v.get_bool());
-                  return true;
+                  return MessageStatus::CLOSED;
                 }
-                return false;
+                return MessageStatus::INVALID_PARAMETER;
               },
               PermissionLevel::CONFIG))
       ->set_value(Var(_allow_all_links));
@@ -215,12 +219,13 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
       ->add_list_child(
           "Enabled",
           make_ref_<ValueNodeModel>(
-              _strand, "bool", [ this, keepref = get_ref() ](const Var& v) {
+              _strand, "bool",
+              [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
                 if (v.is_bool()) {
                   set_quarantine_enabled(v.get_bool());
-                  return true;
+                  return MessageStatus::CLOSED;
                 }
-                return false;
+                return MessageStatus::INVALID_PARAMETER;
               },
               PermissionLevel::CONFIG))
       ->set_value(Var(_quarantine_enabled));

@@ -78,9 +78,9 @@ void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
 
       if (result.is_status()) {
         auto &rslt_status = result.get_status();
-        if (rslt_status.status > MessageStatus::CLOSED &&
-            rslt_status.status < MessageStatus::UNDEFINED) {
-          response->set_status(rslt_status.status);
+        if (rslt_status.code > MessageStatus::CLOSED &&
+            rslt_status.code < MessageStatus::UNDEFINED) {
+          response->set_status(rslt_status.code);
         } else {
           response->set_status(MessageStatus::CLOSED);
         }

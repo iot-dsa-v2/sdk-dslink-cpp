@@ -66,8 +66,8 @@ class NodeModel : public NodeModelBase {
   void send_children_list(BaseOutgoingListStream &stream);
 
   void set(ref_<OutgoingSetStream> &&stream) override;
-  virtual MessageStatus on_set_value(MessageValue &&value);
-  virtual MessageStatus on_set_attribute(const string_ &field, Var &&value);
+  virtual StatusDetail on_set_value(MessageValue &&value);
+  virtual StatusDetail on_set_attribute(const string_ &field, Var &&value);
 
  public:  // serialization logic
   void save(StorageBucket &storage, const string_ &storage_path = "",

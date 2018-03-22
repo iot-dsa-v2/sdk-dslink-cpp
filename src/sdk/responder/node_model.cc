@@ -160,7 +160,7 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
       return;  // nullptr is for destroyed callback, no need to handle here
     }
     auto field = message->get_attribute_field();
-    MessageStatus status;
+    StatusDetail status;
     if (field.empty()) {
       if (_set_value_require_permission >= PermissionLevel::NEVER) {
         status = MessageStatus::NOT_SUPPORTED;
@@ -181,16 +181,19 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
       status = on_set_attribute(field, std::move(message->get_value().value));
     }
     auto response = make_ref_<SetResponseMessage>();
-    response->set_status(status);
+    response->set_status(status.code);
+    if (!status.detail.empty()) {
+      response->set_error_detail(status.detail);
+    }
     s.send_response(std::move(response));
   });
 }
 
-MessageStatus NodeModel::on_set_value(MessageValue &&value) {
+StatusDetail NodeModel::on_set_value(MessageValue &&value) {
   set_value(std::move(value));
   return MessageStatus::CLOSED;
 }
-MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
+StatusDetail NodeModel::on_set_attribute(const string_ &field, Var &&value) {
   return MessageStatus::NOT_SUPPORTED;
 }
 

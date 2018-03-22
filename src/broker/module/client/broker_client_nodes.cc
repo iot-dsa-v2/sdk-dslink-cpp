@@ -66,37 +66,41 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
       _client_info(dsid) {
   // initialize children value nodes;
   _group_node.reset(new ValueNodeModel(
-      _strand, "string", [ this, keepref = get_ref() ](const Var& v) {
+      _strand, "string",
+      [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
         if (v.is_string()) {
           _client_info.group = v.get_string();
+          // TODO notify session manager about the clientInfo change ??
           save(*_parent->_storage, _client_info.id, false, true);
-          return true;
+          return MessageStatus::CLOSED;
         }
-        return false;
+        return MessageStatus::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
   add_list_child("Group", _group_node->get_ref());
 
   _path_node.reset(new ValueNodeModel(
-      _strand, "string", [ this, keepref = get_ref() ](const Var& v) {
+      _strand, "string",
+      [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
         if (v.is_string()) {
           if (_client_info.max_session > 1) {
-            return false;
+            return {MessageStatus::INVALID_PARAMETER,
+                    "Path must be blank when Max_Session > 1"};
           }
           const string_& new_path = v.get_string();
           if (new_path == _client_info.responder_path) {
             // no need to change
-            return true;
+            return MessageStatus::CLOSED;
           }
-          string_ error =
+          StatusDetail status =
               _parent->_manager->update_client_path(_client_info.id, new_path);
-          if (error.empty()) {
+          if (status.is_success()) {
             _client_info.responder_path = new_path;
             save(*_parent->_storage, _client_info.id, false, true);
-            return true;
           }
+          return status;
         }
-        return false;
+        return MessageStatus::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
   add_list_child("Path", _path_node->get_ref());

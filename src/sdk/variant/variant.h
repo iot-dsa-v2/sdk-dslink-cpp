@@ -138,11 +138,11 @@ class Var : public BaseVariant {
   bool is_status() const { return which() == STATUS; }
   bool is_undefined() const {
     return which() == STATUS &&
-           boost::get<StatusDetail>(*this).status == MessageStatus ::UNDEFINED;
+           boost::get<StatusDetail>(*this).code == MessageStatus ::UNDEFINED;
   }
   bool is_blank() const {
     return which() == STATUS &&
-           boost::get<StatusDetail>(*this).status == MessageStatus ::BLANK;
+           boost::get<StatusDetail>(*this).code == MessageStatus ::BLANK;
   }
 
   const StatusDetail &get_status() { return boost::get<StatusDetail>(*this); }

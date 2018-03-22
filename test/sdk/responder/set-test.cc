@@ -30,7 +30,7 @@ class MockNode : public NodeModel {
     update_property("$type", Var("string"));
   };
 
-  MessageStatus on_set_attribute(const string_ &field, Var &&value) override {
+  StatusDetail on_set_attribute(const string_ &field, Var &&value) override {
     update_property(field, std::move(value));
     return MessageStatus::CLOSED;
   }

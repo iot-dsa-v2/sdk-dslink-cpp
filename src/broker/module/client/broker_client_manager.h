@@ -51,7 +51,7 @@ class BrokerClientManager : public ClientManager {
 
   // return error message
   // return "" for no error, return "err" for a generic error
-  string_ update_client_path(const string_& dsid, const string_& new_path);
+  StatusDetail update_client_path(const string_& dsid, const string_& new_path);
 
   void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
   ref_<NodeModel> get_clients_root();

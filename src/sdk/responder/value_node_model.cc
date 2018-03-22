@@ -16,8 +16,9 @@ void ValueNodeModel::destroy_impl() {
   NodeModel::destroy_impl();
 }
 
-MessageStatus ValueNodeModel::on_set_value(MessageValue &&value) {
-  if (_callback != nullptr && _callback(value.value)) {
+StatusDetail ValueNodeModel::on_set_value(MessageValue &&value) {
+  if (_callback != nullptr) {
+    StatusDetail status = _callback(value.value);
     return NodeModel::on_set_value(std::move(value));
   }
   return MessageStatus::INVALID_PARAMETER;

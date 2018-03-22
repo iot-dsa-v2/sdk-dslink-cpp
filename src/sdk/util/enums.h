@@ -53,6 +53,7 @@ enum class MessageStatus : uint8_t {
   INVALID_MESSAGE = 0x44,
   INVALID_PARAMETER = 0x45,
   BUSY = 0x48,
+  INTERNAL_ERROR = 0x50,
   ALIAS_LOOP = 0x61,
   CONNECTION_ERROR = 0xC9,
 
@@ -64,14 +65,16 @@ enum class MessageStatus : uint8_t {
   BLANK = 0xF1,
 
   // general error
-  INTERNAL_ERROR = 0xFF
+  GENERAL_ERROR = 0xFF
 };
 
 struct StatusDetail {
-  MessageStatus status;
+  MessageStatus code;
   string_ detail;
-  StatusDetail(MessageStatus status, const string_ &detail = "")
-      : status(status), detail(detail) {}
+  StatusDetail(MessageStatus code = MessageStatus::CLOSED,
+               const string_ &detail = "")
+      : code(code), detail(detail) {}
+  bool is_success() { return code == MessageStatus::CLOSED; }
 };
 
 enum class PermissionLevel : uint8_t {
