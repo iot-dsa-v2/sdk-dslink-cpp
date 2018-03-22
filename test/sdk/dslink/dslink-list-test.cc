@@ -18,7 +18,7 @@ using DslinkTest = SetUpBase;
 namespace dslink_list_test {
 class MockNodeChild : public NodeModel {
  public:
-  explicit MockNodeChild(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockNodeChild(const LinkStrandRef &strand) : NodeModel(strand) {
     update_property("$is", Var("test_class"));
     update_property("@unit", Var("test_unit"));
   };
@@ -28,7 +28,7 @@ class MockNodeRoot : public NodeModel {
  public:
   bool need_list() { return _need_list; }
 
-  explicit MockNodeRoot(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
     add_list_child("Child_a", make_ref_<MockNodeChild>(_strand));
     add_list_child("Child_b", make_ref_<MockNodeChild>(_strand));
   };

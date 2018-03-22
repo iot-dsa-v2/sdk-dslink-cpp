@@ -22,8 +22,8 @@ class MockNode : public InvokeNodeModel {
   ref_<OutgoingInvokeStream> last_invoke_stream;
   ref_<const InvokeRequestMessage> last_invoke_request;
 
-  explicit MockNode(LinkStrandRef strand)
-      : InvokeNodeModel(std::move(strand)){};
+  explicit MockNode(const LinkStrandRef &strand)
+      : InvokeNodeModel(strand){};
 
   void on_invoke(ref_<OutgoingInvokeStream> &&stream,
                  ref_<NodeState> &parent) final {

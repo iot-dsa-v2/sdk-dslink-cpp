@@ -3,10 +3,13 @@
 #include "value_node_model.h"
 
 namespace dsa {
-ValueNodeModel::ValueNodeModel(LinkStrandRef &&strand, Callback &&callback,
+ValueNodeModel::ValueNodeModel(const LinkStrandRef &strand, const string_ &type,
+                               Callback &&callback,
                                PermissionLevel write_require_permission)
-    : NodeModel(std::move(strand), write_require_permission),
-      _callback(std::move(callback)) {}
+    : NodeModel(strand, write_require_permission),
+      _callback(std::move(callback)) {
+  update_property("$type", Var(type));
+}
 
 void ValueNodeModel::destroy_impl() {
   _callback = nullptr;
@@ -19,4 +22,4 @@ MessageStatus ValueNodeModel::on_set_value(MessageValue &&value) {
   }
   return MessageStatus::INVALID_PARAMETER;
 }
-}
+}  // namespace dsa

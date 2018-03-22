@@ -17,7 +17,7 @@
 
 namespace dsa {
 
-BrokerClientManager::BrokerClientManager(LinkStrandRef& strand)
+BrokerClientManager::BrokerClientManager(const LinkStrandRef& strand)
     : _strand(strand) {
   _config = make_ref_<BrokerClientManagerConfig>();
   _allow_all_links = _config->allow_all_links().get_value().get_bool();
@@ -175,7 +175,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           info.group = group;
 
           auto child = make_ref_<BrokerClientNode>(
-              _strand->get_ref(), _clients_root->get_ref(),
+              _strand, _clients_root->get_ref(),
               _strand->stream_acceptor().get_profile("Broker/Client", true),
               dsid);
           child->set_client_info(std::move(info));
@@ -193,33 +193,37 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         }
       });
 
-  _clients_root.reset(new BrokerClientsRoot(_strand->get_ref(), get_ref()));
-  _quarantine_root.reset(new QuaratineRoot(_strand->get_ref()));
-  _tokens_root.reset(new NodeModel(_strand->get_ref()));
+  _clients_root.reset(new BrokerClientsRoot(_strand, get_ref()));
+  _quarantine_root.reset(new QuaratineRoot(_strand));
+  _tokens_root.reset(new NodeModel(_strand));
 
-  _clients_root->add_list_child(
-      "Allow_All",
-      make_ref_<ValueNodeModel>(_strand->get_ref(),
-                                [ this, keepref = get_ref() ](const Var& v) {
-                                  if (v.is_bool()) {
-                                    set_allow_all_links(v.get_bool());
-                                    return true;
-                                  }
-                                  return false;
-                                },
-                                PermissionLevel::CONFIG));
+  _clients_root
+      ->add_list_child(
+          "Allow_All",
+          make_ref_<ValueNodeModel>(
+              _strand, "bool", [ this, keepref = get_ref() ](const Var& v) {
+                if (v.is_bool()) {
+                  set_allow_all_links(v.get_bool());
+                  return true;
+                }
+                return false;
+              },
+              PermissionLevel::CONFIG))
+      ->set_value(Var(_allow_all_links));
 
-  _quarantine_root->add_list_child(
-      "Enabled",
-      make_ref_<ValueNodeModel>(_strand->get_ref(),
-                                [ this, keepref = get_ref() ](const Var& v) {
-                                  if (v.is_bool()) {
-                                    set_quarantine_enabled(v.get_bool());
-                                    return true;
-                                  }
-                                  return false;
-                                },
-                                PermissionLevel::CONFIG));
+  _quarantine_root
+      ->add_list_child(
+          "Enabled",
+          make_ref_<ValueNodeModel>(
+              _strand, "bool", [ this, keepref = get_ref() ](const Var& v) {
+                if (v.is_bool()) {
+                  set_quarantine_enabled(v.get_bool());
+                  return true;
+                }
+                return false;
+              },
+              PermissionLevel::CONFIG))
+      ->set_value(Var(_quarantine_enabled));
 }
 
 void BrokerClientManager::get_client(const string_& dsid,
@@ -261,7 +265,7 @@ void BrokerClientManager::get_client(const string_& dsid,
 
         // add to downstream
         auto child = make_ref_<BrokerClientNode>(
-            _strand->get_ref(), _clients_root->get_ref(),
+            _strand, _clients_root->get_ref(),
             _strand->stream_acceptor().get_profile("Broker/Client", true),
             dsid);
         child->set_client_info(std::move(info));

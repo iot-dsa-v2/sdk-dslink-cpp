@@ -79,7 +79,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
 
   _master_token = get_master_token_from_storage(Storage::get_config_bucket());
 
-  auto broker_root = make_ref_<BrokerRoot>(strand->get_ref(), get_ref());
+  auto broker_root = make_ref_<BrokerRoot>(strand, get_ref());
   // init responder
   strand->set_stream_acceptor(
       make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
@@ -125,8 +125,7 @@ void DsBroker::run(bool wait) {
     *root_cb = [this](
         WebServer& _web_server, std::unique_ptr<Websocket> websocket,
         http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
-      LinkStrandRef link_strand(strand);
-      DsaWsCallback dsa_ws_callback(link_strand);
+      DsaWsCallback dsa_ws_callback(strand);
       return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
                              std::move(req));
     };

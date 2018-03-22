@@ -10,5 +10,6 @@ add_library(${TARGET_NAME} OBJECT
         buffer-test.cc
         shared_strand_ref-test.cc
         string-test.cc
+        temp_file-test.cc
         )
 set(SOURCES ${SOURCES} $<TARGET_OBJECTS:${TARGET_NAME}> PARENT_SCOPE)

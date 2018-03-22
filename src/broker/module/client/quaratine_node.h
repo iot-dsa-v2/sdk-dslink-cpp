@@ -13,14 +13,16 @@ namespace dsa {
 
 class QuaratineRoot : public RemoteNodeGroup {
  public:
-  QuaratineRoot(LinkStrandRef &&strand);
+  QuaratineRoot(const LinkStrandRef &strand);
   ref_<RemoteRootNode> create_remote_root(const string_ &name,
                                           Session &session) override;
 };
 
 class QuaratineRemoteRoot : public RemoteRootNode {
  public:
-  QuaratineRemoteRoot(LinkStrandRef &&strand, Session &session);
+  QuaratineRemoteRoot(const LinkStrandRef &strand, Session &session);
+
+  VarBytesRef get_summary() override;
 
  protected:
   void initialize() override;

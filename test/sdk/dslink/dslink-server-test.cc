@@ -18,8 +18,8 @@ using DslinkTest = SetUpBase;
 
 class ExampleNodeChild : public NodeModel {
  public:
-  explicit ExampleNodeChild(LinkStrandRef strand)
-      : NodeModel(std::move(strand)) {
+  explicit ExampleNodeChild(const LinkStrandRef &strand)
+      : NodeModel(strand) {
     update_property("$type", Var("string"));
     update_property("@attr", Var("test attribute value"));
     set_value(Var("test string value 1"));
@@ -28,8 +28,8 @@ class ExampleNodeChild : public NodeModel {
 
 class ExampleNodeRoot : public NodeModel {
  public:
-  explicit ExampleNodeRoot(LinkStrandRef strand)
-      : NodeModel(std::move(strand)) {
+  explicit ExampleNodeRoot(const LinkStrandRef &strand)
+      : NodeModel(strand) {
     add_list_child("Child_a", new ExampleNodeChild(_strand));
     add_list_child("Child_b", new ExampleNodeChild(_strand));
   };
@@ -206,11 +206,11 @@ TEST_F(DslinkTest, ProfileActionTest) {
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
 
   ref_<NodeModel> profile_example =
-      make_ref_<NodeModel>(link->strand->get_ref());
+      make_ref_<NodeModel>(link->strand);
   profile_example->add_list_child(
       "Change",
       make_ref_<SimpleInvokeNode>(
-          link->strand->get_ref(),
+          link->strand,
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
               ref_<NodeState> &&parent) {
             auto *parent_model = parent->model_cast<NodeModel>();
@@ -222,7 +222,7 @@ TEST_F(DslinkTest, ProfileActionTest) {
   link->add_to_pub("Example", profile_example->get_ref());
 
   ref_<NodeModel> main_node =
-      make_ref_<NodeModel>(link->strand->get_ref(), profile_example->get_ref());
+      make_ref_<NodeModel>(link->strand, profile_example->get_ref());
   link->init_responder(std::move(main_node));
 
   bool list_checked = false;

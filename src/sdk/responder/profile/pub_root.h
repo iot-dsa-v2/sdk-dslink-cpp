@@ -22,7 +22,7 @@ class PubRoot : public NodeModel {
   void destroy_impl() override;
 
  public:
-  PubRoot(LinkStrandRef&& strand, const string_& profile);
+  PubRoot(const LinkStrandRef &strand, const string_& profile);
   ~PubRoot() override;
 
   ref_<NodeModel>& get_standard_profile(const string_& path);

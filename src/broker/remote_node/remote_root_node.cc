@@ -7,8 +7,8 @@
 #include "stream/requester/incoming_list_stream.h"
 
 namespace dsa {
-RemoteRootNode::RemoteRootNode(LinkStrandRef &&strand, Session &session)
-    : RemoteNode(std::move(strand), "", session) {}
+RemoteRootNode::RemoteRootNode(const LinkStrandRef &strand, Session &session)
+    : RemoteNode(strand, "", session) {}
 RemoteRootNode::~RemoteRootNode() = default;
 
 // void RemoteRootNode::on_session(Session &session,
@@ -16,11 +16,12 @@ RemoteRootNode::~RemoteRootNode() = default;
 //
 //}
 
-// an empty map, default summary for all remote root node
-static VarBytesRef default_summary(new VarBytes(std::vector<uint8_t>{
-    0x80} /* 0x80 is an empty msgpack map */));
-
-VarBytesRef &RemoteRootNode::get_summary() { return default_summary; }
+VarBytesRef RemoteRootNode::get_summary() {
+  // an empty map, default summary for all remote root node
+  static static_ref_<VarBytes> default_summary(new VarBytes(
+      std::vector<uint8_t>{0x80})); /* 0x80 is an empty msgpack map */
+  return default_summary;
+}
 
 void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
                              bool first_request) {
@@ -78,4 +79,4 @@ void RemoteRootNode::send_all_override_metas() {
     _state->update_list_value(it.first, it.second);
   }
 }
-}
+}  // namespace dsa

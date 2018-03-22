@@ -11,7 +11,7 @@ namespace dsa {
 
 class BrokerPubRoot : public PubRoot {
  public:
-  explicit BrokerPubRoot(LinkStrandRef &&strand, const string_ &profile);
+  explicit BrokerPubRoot(const LinkStrandRef &strand, const string_ &profile);
 
   bool allows_runtime_child_change() final { return true; }
 };

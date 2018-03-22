@@ -37,11 +37,11 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   virtual void initialize() {}
 
  public:
-  static ModelRef WAITING;
-  static ModelRef INVALID;
-  static ModelRef UNAVAILABLE;
+  static static_ref_<NodeModelBase> WAITING;
+  static static_ref_<NodeModelBase> INVALID;
+  static static_ref_<NodeModelBase> UNAVAILABLE;
 
-  explicit NodeModelBase(LinkStrandRef &&strand);
+  explicit NodeModelBase(const LinkStrandRef &strand);
   virtual ~NodeModelBase();
 
   LinkStrandRef get_strand() { return _strand; }
@@ -88,7 +88,7 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   void unlist();
 
   // get the summery Map when it's listed in a parent node
-  virtual VarBytesRef &get_summary();
+  virtual VarBytesRef get_summary();
 
   /// invoke
  public:

@@ -25,7 +25,7 @@ class BrokerClientNode : public NodeModel {
   ref_<NodeModel> _current_session_node;
 
  public:
-  BrokerClientNode(LinkStrandRef&& strand, ref_<BrokerClientsRoot>&& parent,
+  BrokerClientNode(const LinkStrandRef &strand, ref_<BrokerClientsRoot>&& parent,
                    ref_<NodeModel>&& profile, const string_& dsid);
   ~BrokerClientNode() override;
 
@@ -49,7 +49,7 @@ class BrokerClientsRoot : public NodeModel {
   ref_<BrokerClientManager> _manager;
 
  public:
-  explicit BrokerClientsRoot(LinkStrandRef&& strand,
+  explicit BrokerClientsRoot(const LinkStrandRef &strand,
                              ref_<BrokerClientManager>&& manager);
 
  protected:

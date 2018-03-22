@@ -19,9 +19,9 @@ BrokerClient::BrokerClient(ref_<BrokerSessionManager> &&manager,
 BrokerClient::BrokerClient() = default;
 BrokerClient::~BrokerClient() = default;
 
-ref_<Session> &BrokerClient::create_single_session(LinkStrandRef &strand) {
+ref_<Session> &BrokerClient::create_single_session(const LinkStrandRef &strand) {
   _single_session =
-      make_ref_<Session>(strand->get_ref(), _info.id, _info.responder_path);
+      make_ref_<Session>(strand, _info.id, _info.responder_path);
   _single_session->set_on_connect([ this, keep_ref = get_ref() ](
       Session & session1, const shared_ptr_<Connection> &conn) {
     if (session1.is_destroyed()) {
@@ -30,7 +30,7 @@ ref_<Session> &BrokerClient::create_single_session(LinkStrandRef &strand) {
   });
   return _single_session;
 }
-void BrokerClient::add_session(LinkStrandRef &strand,
+void BrokerClient::add_session(const LinkStrandRef &strand,
                                Session::GetSessionCallback &&callback) {
   if (_info.max_session == 1) {
     if (_single_session == nullptr) {
@@ -38,7 +38,7 @@ void BrokerClient::add_session(LinkStrandRef &strand,
     }
     callback(_single_session, _info);
   } else {
-    auto session = make_ref_<Session>(strand->get_ref(), _info.id);
+    auto session = make_ref_<Session>(strand, _info.id);
     session->set_on_connect([ this, keep_ref = get_ref() ](
         Session & session1, const shared_ptr_<Connection> &conn) {
       if (session1.is_destroyed()) {
@@ -80,10 +80,8 @@ void BrokerClient::destroy_impl() {
     _single_session.reset();
   }
 
-  auto *p_manager = _manager.get();
-  _manager.reset();
-  // it's possibel that this will be deleted at next line
-  // so reset the smart pointer after is not safe
-  p_manager->client_destroyed(*this);
+  // it's possibel that this will be deleted here
+  // so reset the smart pointer after this line is not safe
+  remove_ref_(_manager)->client_destroyed(*this);
 }
 }

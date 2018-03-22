@@ -8,7 +8,7 @@
 
 namespace dsa {
 
-WsClientConnection::WsClientConnection(bool is_secured, LinkStrandRef &strand,
+WsClientConnection::WsClientConnection(bool is_secured, const LinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &host, uint16_t port)
     : WsConnection(strand, dsid_prefix),

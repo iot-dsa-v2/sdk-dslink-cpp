@@ -10,13 +10,13 @@
 
 namespace dsa {
 
-LinkSysRoot::LinkSysRoot(LinkStrandRef &&strand, DsLink &lnk)
-    : NodeModel(std::move(strand)) {
+LinkSysRoot::LinkSysRoot(const LinkStrandRef &strand, DsLink &lnk)
+    : NodeModel(strand) {
   if (lnk.get_master_token() != "") {
     add_list_child(
         "Stop",
         make_ref_<SimpleInvokeNode>(
-            _strand->get_ref(),
+            _strand,
             [link = ref_<DsLink>(lnk.get_ref())](
                 Var && v, SimpleInvokeNode & node,
                 OutgoingInvokeStream & stream, ref_<NodeState> && parent) {

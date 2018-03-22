@@ -28,8 +28,8 @@ static string_ _create_log_id(void *p) {
   return std::move(rslt);
 }
 
-Session::Session(LinkStrandRef strand, const string_ &dsid)
-    : _strand(std::move(strand)),
+Session::Session(const LinkStrandRef &strand, const string_ &dsid)
+    : _strand(strand),
       _remote_id(dsid),
       requester(*this),
       responder(*this),
@@ -37,9 +37,9 @@ Session::Session(LinkStrandRef strand, const string_ &dsid)
       _ack_stream(new AckStream(get_ref())),
       _ping_stream(new PingStream(get_ref())) {}
 
-Session::Session(LinkStrandRef strand, const string_ &dsid,
+Session::Session(const LinkStrandRef &strand, const string_ &dsid,
                  const string_ &base_path)
-    : Session(std::move(strand), dsid) {
+    : Session(strand, dsid) {
   _base_path = base_path;
 }
 
@@ -51,7 +51,10 @@ void Session::set_on_connect(OnConnectCallback &&callback) {
 
 void Session::connected(shared_ptr_<Connection> connection) {
   if (_connection != nullptr) {
-    _connection->destroy();
+    remove_ptr_(_connection)->destroy();
+  } else if (connection == nullptr) {
+    // switch from a nullptr to a nullptr, do nothing
+    return;
   }
   _connection = std::move(connection);
 
@@ -143,8 +146,7 @@ void Session::check_pending_acks(int32_t ack) {
 }
 
 void Session::receive_message(MessageRef &&message) {
-  if(is_destroyed())
-    return;
+  if (is_destroyed()) return;
   LOG_TRACE(__FILENAME__, LOG << "receive message: ";
             message->print_message(LOG););
 

@@ -8,9 +8,9 @@
 #include "stream/responder/outgoing_invoke_stream.h"
 
 namespace dsa {
-InvokeNodeModel::InvokeNodeModel(LinkStrandRef &&strand,
+InvokeNodeModel::InvokeNodeModel(const LinkStrandRef &strand,
                                  PermissionLevel require_permission)
-    : NodeModel(std::move(strand)) {
+    : NodeModel(strand) {
   invoke_require_permission(require_permission);
 };
 
@@ -32,16 +32,16 @@ void InvokeNodeModel::invoke(ref_<OutgoingInvokeStream> &&stream,
   on_invoke(std::move(stream), parent);
 }
 
-SimpleInvokeNode::SimpleInvokeNode(LinkStrandRef &&strand,
+SimpleInvokeNode::SimpleInvokeNode(const LinkStrandRef &strand,
                                    SimpleCallback &&callback,
                                    PermissionLevel require_permission)
-    : InvokeNodeModel(std::move(strand), require_permission),
+    : InvokeNodeModel(strand, require_permission),
       _simple_callback(std::move(callback)) {}
 
-SimpleInvokeNode::SimpleInvokeNode(LinkStrandRef &&strand,
+SimpleInvokeNode::SimpleInvokeNode(const LinkStrandRef &strand,
                                    FullCallback &&callback,
                                    PermissionLevel require_permission)
-    : InvokeNodeModel(std::move(strand), require_permission),
+    : InvokeNodeModel(strand, require_permission),
       _full_callback(std::move(callback)) {}
 
 void SimpleInvokeNode::set_callback(FullCallback &&callback) {

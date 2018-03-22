@@ -6,7 +6,7 @@
 
 namespace dsa {
 WsServerConnection::WsServerConnection(std::unique_ptr<Websocket> websocket,
-                                       LinkStrandRef &strand,
+                                       const LinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &path)
     : WsConnection(strand, dsid_prefix, path),

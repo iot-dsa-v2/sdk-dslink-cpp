@@ -17,12 +17,12 @@ class ModuleBrokerDefault;
 class BrokerLoginManager final : public LoginManager {
   friend class ModuleBrokerDefault;
 
-  ref_<LinkStrand> _strand;
+  LinkStrandRef _strand;
 
   ref_<NodeModel> _module_node;
 
  public:
-  explicit BrokerLoginManager(ref_<LinkStrand>& strand);
+  explicit BrokerLoginManager(const LinkStrandRef &strand);
   ~BrokerLoginManager() override;
   void check_login(const string_& username, const string_& password,
                    ClientInfo::GetClientCallback&& callback) override;

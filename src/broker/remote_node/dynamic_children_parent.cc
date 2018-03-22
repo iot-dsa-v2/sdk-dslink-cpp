@@ -4,6 +4,6 @@
 
 namespace dsa {
 
-DynamicChildrenParent::DynamicChildrenParent(LinkStrandRef &&strand)
-    : NodeModel(std::move(strand)) {}
+DynamicChildrenParent::DynamicChildrenParent(const LinkStrandRef &strand)
+    : NodeModel(strand) {}
 }

@@ -7,7 +7,7 @@ namespace dsa {
 
 class LinkPubRoot final : public NodeModel {
  public:
-  LinkPubRoot(LinkStrandRef &&strand);
+  LinkPubRoot(const LinkStrandRef &strand);
   ~LinkPubRoot() final;
 };
 }

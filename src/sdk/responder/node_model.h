@@ -31,9 +31,9 @@ class NodeModel : public NodeModelBase {
   void initialize() override;
 
  public:
-  NodeModel(LinkStrandRef &&strand,
+  NodeModel(const LinkStrandRef &strand,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
-  NodeModel(LinkStrandRef &&strand, ref_<NodeModel> &&profile,
+  NodeModel(const LinkStrandRef &strand, ref_<NodeModel> &&profile,
             PermissionLevel write_require_permission = PermissionLevel::NEVER);
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
@@ -51,7 +51,7 @@ class NodeModel : public NodeModelBase {
                                      ref_<NodeModelBase> &&model);
   void remove_list_child(const string_ &name);
 
-  VarBytesRef &get_summary() override;
+  VarBytesRef get_summary() override;
 
   const std::unordered_map<string_, dsa::ref_<NodeModelBase>>
       &get_list_children() {

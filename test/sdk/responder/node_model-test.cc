@@ -18,7 +18,7 @@ class MockNode : public NodeModelBase {
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
-  explicit MockNode(LinkStrandRef strand) : NodeModelBase(std::move(strand)){};
+  explicit MockNode(const LinkStrandRef &strand) : NodeModelBase(strand){};
 
   void on_subscribe(const SubscribeOptions &options,
                     bool first_request) override {
@@ -54,8 +54,8 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
 
 class MockNodeListChild_0 : public NodeModelBase {
  public:
-  explicit MockNodeListChild_0(LinkStrandRef strand)
-      : NodeModelBase(std::move(strand)){};
+  explicit MockNodeListChild_0(const LinkStrandRef &strand)
+      : NodeModelBase(strand){};
 };
 
 class MockNodeListRoot_0 : public NodeModelBase {
@@ -63,8 +63,8 @@ class MockNodeListRoot_0 : public NodeModelBase {
   std::unique_ptr<SubscribeOptions> first_subscribe_options;
   std::unique_ptr<SubscribeOptions> second_subscribe_options;
 
-  explicit MockNodeListRoot_0(LinkStrandRef strand)
-      : NodeModelBase(std::move(strand)){};
+  explicit MockNodeListRoot_0(const LinkStrandRef &strand)
+      : NodeModelBase(strand){};
 
   void initialize() override {
     add_child("Child_a", ref_<NodeModelBase>(new MockNodeListChild_0(_strand)));

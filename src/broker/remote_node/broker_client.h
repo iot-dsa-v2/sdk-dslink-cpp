@@ -31,7 +31,7 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
 
   void session_destroyed(Session &session);
 
-  ref_<Session> &create_single_session(LinkStrandRef &strand);
+  ref_<Session> &create_single_session(const LinkStrandRef &strand);
 
  public:
   BrokerClient(ref_<BrokerSessionManager> &&manager, const ClientInfo &info);
@@ -39,7 +39,7 @@ class BrokerClient final : public DestroyableRef<BrokerClient> {
   ~BrokerClient();
 
   const ClientInfo &info() const { return _info; };
-  void add_session(LinkStrandRef &strand,
+  void add_session(const LinkStrandRef &strand,
                    Session::GetSessionCallback &&callback);
 };
 }

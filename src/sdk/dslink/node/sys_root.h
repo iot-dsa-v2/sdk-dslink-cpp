@@ -10,7 +10,7 @@ class LinkSysRoot final : public NodeModel {
   ref_<DsLink> _link;
 
  public:
-  LinkSysRoot(LinkStrandRef &&strand, DsLink &link);
+  LinkSysRoot(const LinkStrandRef &strand, DsLink &link);
   ~LinkSysRoot() final;
 };
 }  // namespace dsa

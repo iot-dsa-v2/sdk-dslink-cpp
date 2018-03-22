@@ -21,7 +21,7 @@ class StcpClientConnection final : public StcpConnection {
   uint16_t _port;
 
  public:
-  StcpClientConnection(LinkStrandRef &strand,
+  StcpClientConnection(const LinkStrandRef &strand,
                        boost::asio::ssl::context &context,
                        const string_ &dsid_prefix, const string_ &tcp_host,
                        uint16_t tcp_port);

@@ -19,13 +19,13 @@ namespace broker_dslink_test {
 
 class MockNodeChild : public NodeModel {
  public:
-  explicit MockNodeChild(LinkStrandRef strand);
+  explicit MockNodeChild(const LinkStrandRef &strand);
 };
 
 class MockNodeRoot : public NodeModel {
  public:
   bool need_list();
-  explicit MockNodeRoot(LinkStrandRef strand);
+  explicit MockNodeRoot(const LinkStrandRef &strand);
 };
 
 ref_<DsBroker> create_broker(std::shared_ptr<App> app = nullptr);

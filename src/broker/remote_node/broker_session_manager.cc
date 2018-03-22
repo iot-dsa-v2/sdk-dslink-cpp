@@ -12,9 +12,9 @@
 
 namespace dsa {
 
-BrokerSessionManager::BrokerSessionManager(LinkStrandRef strand,
+BrokerSessionManager::BrokerSessionManager(const LinkStrandRef &strand,
                                            NodeStateManager &state_manager)
-    : _strand(std::move(strand)), _state_manager(state_manager.get_ref()) {}
+    : _strand(strand), _state_manager(state_manager.get_ref()) {}
 BrokerSessionManager::~BrokerSessionManager() = default;
 // used by invalid session callback
 static ClientInfo dummy_info;
@@ -125,7 +125,7 @@ ref_<RemoteRootNode> BrokerSessionManager::add_responder_root(
     new_root = parent_state->model_cast<RemoteNodeGroup>()->create_remote_root(
         path.last_name(), session);
   } else {
-    new_root = make_ref_<RemoteRootNode>(_strand->get_ref(), session);
+    new_root = make_ref_<RemoteRootNode>(_strand, session);
     parent_state->model_cast<NodeModel>()->add_list_child(path.last_name(),
                                                           new_root->get_ref());
   }

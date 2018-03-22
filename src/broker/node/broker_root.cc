@@ -10,18 +10,18 @@
 #include "upstream/upstream_root.h"
 
 namespace dsa {
-BrokerRoot::BrokerRoot(LinkStrandRef &&strand, ref_<DsBroker> &&broker)
-    : NodeModel(std::move(strand)),
+BrokerRoot::BrokerRoot(const LinkStrandRef &strand, ref_<DsBroker> &&broker)
+    : NodeModel(strand),
       _broker(std::move(broker)),
-      _downstream_root(new RemoteNodeGroup(_strand->get_ref())) {
+      _downstream_root(new RemoteNodeGroup(_strand)) {
   add_list_child("Downstream", _downstream_root->get_ref());
-  add_list_child("Upstream", new UpstreamRoot(_strand->get_ref()));
-  add_list_child("Home", new BrokerHomeRoot(_strand->get_ref()));
+  add_list_child("Upstream", new UpstreamRoot(_strand));
+  add_list_child("Home", new BrokerHomeRoot(_strand));
 
-  _sys.reset(new BrokerSysRoot(_strand->get_ref(), std::move(_broker)));
+  _sys.reset(new BrokerSysRoot(_strand, std::move(_broker)));
   add_list_child("Sys", _sys->get_ref());
 
-  _pub.reset(new BrokerPubRoot(_strand->get_ref(), ""));
+  _pub.reset(new BrokerPubRoot(_strand, ""));
   add_list_child("Pub", _pub->get_ref());
 }
 

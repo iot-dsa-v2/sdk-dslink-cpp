@@ -4,14 +4,14 @@ using BrokerDsLinkTest = SetUpBase;
 
 class MockChildNode : public NodeModel {
  public:
-  explicit MockChildNode(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockChildNode(const LinkStrandRef &strand) : NodeModel(strand) {
     set_value(Var("child value"));
   };
 };
 
 class MockNode : public NodeModel {
  public:
-  explicit MockNode(LinkStrandRef strand) : NodeModel(std::move(strand)) {
+  explicit MockNode(const LinkStrandRef &strand) : NodeModel(strand) {
     add_list_child("Child_Node", make_ref_<MockChildNode>(_strand));
   };
 
@@ -48,7 +48,7 @@ TEST_F(BrokerDsLinkTest, RemoveNodeList) {
   auto link_2 =
       broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
   link_1->add_to_main_node("Main_Child",
-                           make_ref_<MockNode>(link_1->strand->get_ref()));
+                           make_ref_<MockNode>(link_1->strand));
 
   bool test_end = false, first_list = false;
 
@@ -125,7 +125,7 @@ TEST_F(BrokerDsLinkTest, RemoveNodeSubcribe) {
   auto link_2 =
       broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
   link_1->add_to_main_node("Main_Child",
-                           make_ref_<MockNode>(link_1->strand->get_ref()));
+                           make_ref_<MockNode>(link_1->strand));
 
   bool test_end = false;
 

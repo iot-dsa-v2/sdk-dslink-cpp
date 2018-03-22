@@ -41,7 +41,7 @@ class StcpConnection : public BaseSocketConnection {
   void destroy_impl() override;
 
  public:
-  StcpConnection(LinkStrandRef &strand, boost::asio::ssl::context &context,
+  StcpConnection(const LinkStrandRef &strand, boost::asio::ssl::context &context,
                  const string_ &dsid_prefix, const string_ &path = "");
 
   void start_read(shared_ptr_<Connection> &&connection) final;

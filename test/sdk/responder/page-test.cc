@@ -27,7 +27,7 @@ TEST_F(ResponderTest, PagedInvokeRequest) {
   TestConfig server_strand(app, false, protocol());
   Var last_request;
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
-      server_strand.strand->get_ref(),
+      server_strand.strand,
       [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
           ref_<NodeState> &&parent) {
         last_request = std::move(v);
@@ -125,7 +125,7 @@ TEST_F(ResponderTest, PagedInvokeResponse) {
   }
 
   SimpleInvokeNode *root_node = new SimpleInvokeNode(
-      server_strand.strand->get_ref(),
+      server_strand.strand,
       [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
           ref_<NodeState> &&parent) {
         auto first_response = make_ref_<InvokeResponseMessage>();
@@ -216,7 +216,7 @@ TEST_F(ResponderTest, PagedSubscribeResponse) {
   }
 
   NodeModel *root_node =
-      new NodeModel(server_strand.strand->get_ref(), PermissionLevel::WRITE);
+      new NodeModel(server_strand.strand, PermissionLevel::WRITE);
   root_node->set_value(Var(big_str1));
 
   server_strand.strand->set_responder_model(ModelRef(root_node));
@@ -297,7 +297,7 @@ TEST_F(ResponderTest, PagedSetRequest) {
   }
 
   NodeModel *root_node =
-      new NodeModel(server_strand.strand->get_ref(), PermissionLevel::WRITE);
+      new NodeModel(server_strand.strand, PermissionLevel::WRITE);
   root_node->set_value(Var(big_str1));
 
   server_strand.strand->set_responder_model(ModelRef(root_node));

@@ -25,11 +25,11 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
       broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
 
   ref_<NodeModel> profile_example =
-      make_ref_<NodeModel>(link->strand->get_ref());
+      make_ref_<NodeModel>(link->strand);
   profile_example->add_list_child(
       "Change",
       make_ref_<SimpleInvokeNode>(
-          link->strand->get_ref(),
+          link->strand,
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
               ref_<NodeState> &&parent) {
             auto *parent_model = parent->model_cast<NodeModel>();
@@ -41,7 +41,7 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   link->add_to_pub("Example", profile_example->get_ref());
 
   ref_<NodeModel> main_node =
-      make_ref_<NodeModel>(link->strand->get_ref(), profile_example->get_ref());
+      make_ref_<NodeModel>(link->strand, profile_example->get_ref());
   link->init_responder(std::move(main_node));
 
   bool list_checked = false;

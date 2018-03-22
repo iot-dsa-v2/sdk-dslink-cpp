@@ -3,8 +3,8 @@
 #include "home_root.h"
 
 namespace dsa {
-BrokerHomeRoot::BrokerHomeRoot(LinkStrandRef &&strand)
-  : NodeModel(std::move(strand)) {
+BrokerHomeRoot::BrokerHomeRoot(const LinkStrandRef &strand)
+  : NodeModel(strand) {
 
 }
 }

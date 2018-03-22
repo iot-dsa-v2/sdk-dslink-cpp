@@ -4,11 +4,11 @@
 
 #include "core/session.h"
 #include "crypto/hmac.h"
-#include "util/app.h"
 #include "module/logger.h"
+#include "util/app.h"
 
 namespace dsa {
-Connection::Connection(LinkStrandRef &strand, const string_ &dsid_prefix,
+Connection::Connection(const LinkStrandRef &strand, const string_ &dsid_prefix,
                        const string_ &path)
     : _handshake_context(dsid_prefix, strand->ecdh()),
       _deadline(strand->get_io_context()),
@@ -39,12 +39,13 @@ void Connection::set_session(const ref_<Session> &session) {
 }
 
 void Connection::destroy_impl() {
-  if (_session != nullptr) {
-    _session->disconnected(shared_from_this());
-    _session.reset();
-  }
-  _strand.reset();
   _deadline.cancel();
+  _strand.reset();
+  if (_session != nullptr) {
+    // it's possibel that this will be deleted here
+    // so reset the smart pointer after this line is not safe
+    remove_ref_(_session)->disconnected(shared_from_this());
+  }
 }
 
 void Connection::post_message(MessageRef &&message) {
@@ -57,8 +58,7 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
     _strand->post([
       this, sthis = std::move(sthis), messages = std::move(copy)
     ]() mutable {
-      if(is_destroyed())
-        return;
+      if (is_destroyed()) return;
       // a special protection to give writing higher priority than reading
       _strand->check_injected();
 
