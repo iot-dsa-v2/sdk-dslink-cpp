@@ -367,6 +367,12 @@ ref_<T> copy_ref_(ref_<T> ref) {
   return ref_<T>(ref.get());
 }
 
+template <typename T>
+inline ref_<T> remove_ref_(ref_<T> &p) {
+  ref_<T> temp = std::move(p);
+  return temp;
+}
+
 }  // namespace dsa
 
 #endif  // DSA_SDK_UTIL_ENABLE_INTRUSIVE_H

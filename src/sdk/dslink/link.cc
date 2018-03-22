@@ -381,25 +381,27 @@ ref_<IncomingSubscribeCache> DsLink::subscribe(
 }
 ref_<IncomingListCache> DsLink::list(const string_ &path,
                                      IncomingListCache::Callback &&callback) {
-  return list_raw(path, [&, callback = std::move(callback) ](
-                            IncomingListCache & main_cache,
-                            const std::vector<string_> &main_str) {
-    auto pub_path = main_cache.get_last_pub_path();
-    // if $is and pub_path both exists
-    if (main_cache.get_map().count("$is") > 0 && !pub_path.empty()) {
-      auto is_str = main_cache.get_map().at("$is").to_string();
-      list_raw(pub_path + "/" + is_str,
-               [
-                     &, main_cache = main_cache.get_ref(),
+  return list_raw(
+      path, [ this, keepref = get_ref(), callback = std::move(callback) ](
+                IncomingListCache & main_cache,
+                const std::vector<string_> &main_str) mutable {
+        auto pub_path = main_cache.get_last_pub_path();
+        // if $is and pub_path both exists
+        if (main_cache.get_map().count("$is") > 0 && !pub_path.empty()) {
+          auto is_str = main_cache.get_map().at("$is").to_string();
+          list_raw(pub_path + "/" + is_str,
+                   [
+                     main_str, main_cache = main_cache.get_ref(),
                      callback = std::move(callback)
-               ](IncomingListCache & cache, const std::vector<string_> &str) {
-                 main_cache->set_profile_map(cache.get_map());
-                 callback(*main_cache, main_str);
-               });
-    } else {
-      callback(main_cache, main_str);
-    }
-  });
+                   ](IncomingListCache & cache,
+                     const std::vector<string_> &str) mutable {
+                     main_cache->set_profile_map(cache.get_map());
+                     callback(*main_cache, main_str);
+                   });
+        } else {
+          callback(main_cache, main_str);
+        }
+      });
 }
 
 ref_<IncomingListCache> DsLink::list_raw(

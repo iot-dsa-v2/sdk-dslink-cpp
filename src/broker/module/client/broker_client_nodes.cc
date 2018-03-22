@@ -8,6 +8,7 @@
 #include "module/stream_acceptor.h"
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
+#include "module/logger.h"
 
 namespace dsa {
 
