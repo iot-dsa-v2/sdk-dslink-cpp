@@ -36,24 +36,37 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
   if (!callback_called) {
     LOG_FATAL(__FILENAME__, LOG << "Storage does not support synchronize reading");
   }
-  if (ret == BucketReadStatus::OK && data.size() == 32) {
-    return new ECDH(data.data(), 32);
+
+  if (ret == BucketReadStatus::OK) {
+    if(data.size() != 32) {
+      LOG_FATAL(__FILENAME__, LOG << "Corrupted key file. ");
+    }
+    try {
+      return new ECDH(data.data(), 32);
+    } catch (std::runtime_error &e) {
+      LOG_FATAL(__FILENAME__, LOG << "Unable to decode key file. " << e.what());
+    }
   }
 
   if (ret == BucketReadStatus::FILE_OPEN_ERROR) {
     LOG_FATAL(__FILENAME__, LOG << "Unable to open " << path_str << " file");
     // file exists but can't open, make a new kwy won't solve the problem
   } else {
-    LOG_ERROR(__FILENAME__,
-              LOG << "error loading existing private key " << path_str
+    LOG_FINE(__FILENAME__,
+              LOG << "couldn't load existing private key " << path_str
                   << ", generating new key");
   }
 
-  auto newkey = new ECDH();
-  auto new_data = newkey->get_private_key();
-  auto content = new RefCountBytes(new_data.begin(), new_data.end());
-  bucket.write(path_str, std::forward<RefCountBytes *>(content));
-  return newkey;
+  try {
+    auto newkey = new ECDH();
+    auto new_data = newkey->get_private_key();
+    auto content = new RefCountBytes(new_data.begin(), new_data.end());
+    bucket.write(path_str, std::forward<RefCountBytes *>(content));
+    return newkey;
+  } catch (std::runtime_error &e) {
+    LOG_FATAL(__FILENAME__, LOG << "Unable to generate key file. " << e.what());
+  }
+
 }
 
 ECDH *ECDH::from_file(const char *path_str) {

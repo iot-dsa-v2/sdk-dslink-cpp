@@ -54,6 +54,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
        "Tcp Server Port")  // custom name
       ("module_path", opts::value<string_>()->default_value("./modules"),
        "Module Path")  // custom name
+      ("master_token", opts::value<string_>()->default_value(""),
+       "Master token file path")  // custom name
       ;
 
   try {
@@ -102,7 +104,18 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     }
   }
 
-  master_token = get_master_token_from_storage(Storage::get_config_bucket());
+  // Master token from file
+  master_token = "";
+  auto master_token_path = variables["master_token"].as<string_>();
+  if (master_token_path.length() != 0) {
+    master_token = get_master_token_from_storage(Storage::get_config_bucket(), master_token_path);
+    if (master_token.empty()) {
+      LOG_FATAL(__FILENAME__,
+                LOG << "Fatal loading master token file " << master_token_path);
+    }
+  } else {
+    master_token = get_master_token_from_storage(Storage::get_config_bucket());
+  }
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
