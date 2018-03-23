@@ -94,8 +94,11 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
   if (client_token_path.length() != 0) {
-    client_token =
-        string_from_storage(client_token_path, Storage::get_config_bucket());
+    if(Storage::get_config_bucket().exists(client_token_path)) {
+      client_token =
+          string_from_storage(client_token_path, Storage::get_config_bucket());
+    } else
+      client_token = string_from_file(client_token_path);
     if (client_token.empty()) {
       LOG_FATAL(__FILENAME__,
                 LOG << "Fatal loading token file " << client_token_path);
