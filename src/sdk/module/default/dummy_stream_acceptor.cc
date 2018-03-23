@@ -15,19 +15,17 @@
 namespace dsa {
 void DummyStreamAcceptor::add(ref_<OutgoingSubscribeStream> &&stream) {
   auto response = make_ref_<SubscribeResponseMessage>();
-  response->set_status(MessageStatus::NOT_SUPPORTED);
+  response->set_status(Status::NOT_SUPPORTED);
   stream->send_subscribe_response(std::move(response));
 }
 void DummyStreamAcceptor::add(ref_<OutgoingListStream> &&stream) {
-  stream->update_response_status(MessageStatus::NOT_SUPPORTED);
+  stream->update_response_status(Status::NOT_SUPPORTED);
 }
 void DummyStreamAcceptor::add(ref_<OutgoingInvokeStream> &&stream) {
-  stream->close(MessageStatus::NOT_SUPPORTED);
+  stream->close(Status::NOT_SUPPORTED);
 }
 void DummyStreamAcceptor::add(ref_<OutgoingSetStream> &&stream) {
-  auto response = make_ref_<SetResponseMessage>();
-  response->set_status(MessageStatus::NOT_SUPPORTED);
-  stream->send_response(std::move(response));
+  stream->close(Status::NOT_SUPPORTED);
 }
 ref_<NodeModel> DummyStreamAcceptor::get_profile(const string_ &path,
                                                  bool dsa_standard) {

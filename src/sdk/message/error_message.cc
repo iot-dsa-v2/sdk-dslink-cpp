@@ -3,7 +3,7 @@
 #include "error_message.h"
 
 namespace dsa {
-ErrorMessage::ErrorMessage(MessageType type, MessageStatus s)
+ErrorMessage::ErrorMessage(MessageType type, Status s)
     : ResponseMessage(type) {
   status.reset(
       new DynamicByteHeader(DynamicHeader::STATUS, static_cast<uint8_t>(s)));

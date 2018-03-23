@@ -20,6 +20,8 @@ class InvokeResponseMessage final : public ResponseMessage {
  protected:
   std::unique_ptr<DynamicBoolHeader> skippable;
   std::unique_ptr<DynamicBoolHeader> refreshed;
+  std::unique_ptr<DynamicStringHeader> audit_log;
+  std::unique_ptr<DynamicStringHeader> error_detail;
 
   // measure the size and header size
   void update_static_header() final;
@@ -39,6 +41,12 @@ class InvokeResponseMessage final : public ResponseMessage {
 
   const bool get_refreshed() const;
   void set_refreshed(bool value);
+
+  const string_& get_audit_log() const;
+  void set_audit_log(const string_& value);
+
+  const string_& get_error_detail() const;
+  void set_error_detail(const string_& value);
 };
 
 typedef ref_<const InvokeResponseMessage> InvokeResponseMessageCRef;

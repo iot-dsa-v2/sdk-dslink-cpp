@@ -27,7 +27,7 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
                              bool first_request) {
   if (!_remote_session->is_connected()) {
     // when link is not connected, send a temp update for the
-    stream.update_response_status(MessageStatus::NOT_AVAILABLE);
+    stream.update_response_status(Status::NOT_AVAILABLE);
     for (auto &it : _override_metas) {
       stream.update_list_value(it.first, it.second);
     }

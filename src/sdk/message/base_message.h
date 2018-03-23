@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "dynamic_header.h"
-#include "enums.h"
+#include "util/enums.h"
 #include "static_headers.h"
 #include "util/buffer.h"
 #include "util/enable_ref.h"
@@ -169,10 +169,10 @@ class ResponseMessage : public Message {
   const string_& get_source_path() const;
   void set_source_path(const string_& value);
 
-  inline MessageStatus get_status() const {
-    return MessageStatus(DynamicByteHeader::read_value(status));
+  inline Status get_status() const {
+    return Status(DynamicByteHeader::read_value(status));
   };
-  void set_status(MessageStatus value);
+  void set_status(Status value);
 };
 
 typedef std::function<void(bool)> AckCallback;
@@ -222,7 +222,7 @@ class MessageStream : public DestroyableRef<MessageStream> {
   // update a status to local callback
   // for incomming message, it sends a status response to callback
   // for outgoing message, it send a status response to network
-  virtual void update_response_status(MessageStatus status){};
+  virtual void update_response_status(Status status){};
 
   // interface for fake outgoing list stream
 

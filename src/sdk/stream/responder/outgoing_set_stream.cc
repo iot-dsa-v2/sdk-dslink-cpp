@@ -56,19 +56,36 @@ void OutgoingSetStream::send_response(
   if (!_callback_running) {
     _callback = nullptr;
   }
-  if (message->get_status() < MessageStatus::CLOSED) {
+  if (message->get_status() < Status::DONE) {
     LOG_ERROR(__FILENAME__,
               LOG << "set response must have closed or error status");
   }
   send_message(MessageCRef(std::move(message)), true);
 };
+void OutgoingSetStream::close(Status status, const string_ &err_detail) {
+  if (_closed) return;
+  if (status < Status::DONE) {
+    status = Status::DONE;
+  }
+  _closed = true;
+  if (!_callback_running) {
+    _callback = nullptr;
+  }
+
+  auto message = make_ref_<SetResponseMessage>();
+  message->set_status(status);
+  if (!err_detail.empty()) {
+    message->set_error_detail(err_detail);
+  }
+  send_message(std::move(message), true);
+}
 
 bool OutgoingSetStream::check_close_message(MessageCRef &message) {
   if (DOWN_CAST<const ResponseMessage *>(message.get())->get_status() >=
-      MessageStatus::CLOSED) {
+      Status::DONE) {
     _session->responder.destroy_stream(rid);
     return true;
   }
   return false;
 }
-}
+}  // namespace dsa

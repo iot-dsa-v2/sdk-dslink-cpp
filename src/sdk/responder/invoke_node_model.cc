@@ -26,7 +26,7 @@ void InvokeNodeModel::invoke_require_permission(
 void InvokeNodeModel::invoke(ref_<OutgoingInvokeStream> &&stream,
                              ref_<NodeState> &parent) {
   if (stream->allowed_permission < _invoke_require_permission) {
-    stream->close(MessageStatus::PERMISSION_DENIED);
+    stream->close(Status::PERMISSION_DENIED);
     return;
   }
   on_invoke(std::move(stream), parent);
@@ -76,20 +76,22 @@ void SimpleInvokeNode::on_invoke(ref_<OutgoingInvokeStream> &&stream,
       Var result = _simple_callback(message->get_value());
       auto response = make_ref_<InvokeResponseMessage>();
 
-      if (result.is_int()) {
-        // return int means status code
-        int64_t rslt_int = result.get_int();
-        if (rslt_int >= static_cast<int64_t>(MessageStatus::CLOSED) &&
-            rslt_int <= 0xFF) {
-          response->set_status(static_cast<MessageStatus>(rslt_int));
+      if (result.is_status()) {
+        auto &rslt_status = result.get_status();
+        if (rslt_status.code > Status::DONE &&
+            rslt_status.code < Status::UNDEFINED) {
+          response->set_status(rslt_status.code);
         } else {
-          response->set_status(MessageStatus::CLOSED);
+          response->set_status(Status::DONE);
+        }
+        if (!rslt_status.detail.empty()) {
+          response->set_error_detail(rslt_status.detail);
         }
       } else {
         if (!result.is_null()) {
           response->set_value(result);
         }
-        response->set_status(MessageStatus::CLOSED);
+        response->set_status(Status::DONE);
       }
       s.send_response(std::move(response));
     } else if (_full_callback != nullptr) {

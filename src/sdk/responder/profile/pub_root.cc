@@ -20,15 +20,13 @@ class PubValueNode : public NodeModel {
                     bool first_request) override {
     if (first_request) {
       auto response = make_ref_<SubscribeResponseMessage>();
-      response->set_status(MessageStatus::NOT_SUPPORTED);
+      response->set_status(Status::NOT_SUPPORTED);
       set_subscribe_response(std::move(response));
     }
   }
   // pub node should not be set directly
   void set(ref_<OutgoingSetStream> &&stream) override {
-    auto response = make_ref_<SetResponseMessage>();
-    response->set_status(MessageStatus::NOT_SUPPORTED);
-    stream->send_response(std::move(response));
+    stream->close(Status::NOT_SUPPORTED);
   }
 };
 
@@ -170,9 +168,8 @@ void PubRoot::register_standard_profile_function(
   }
   auto *invoke_node = dynamic_cast<SimpleInvokeNode *>(search->second.get());
   if (invoke_node == nullptr) {
-    LOG_FATAL(__FILENAME__,
-              LOG << "not able to register standard function "
-                  << "not an action node " << path);
+    LOG_FATAL(__FILENAME__, LOG << "not able to register standard function "
+                                << "not an action node " << path);
   }
   invoke_node->set_callback(std::move(callback));
 }

@@ -13,6 +13,7 @@
 
 #include "util/buffer.h"
 #include "util/enable_ref.h"
+#include "util/enums.h"
 #include "util/exception.h"
 
 struct msgpack_object;
@@ -47,10 +48,13 @@ class RefCountString : public string_, public EnableRef<RefCountString> {
       : string_(std::forward<Args>(args)...){};
 };
 
-typedef boost::variant<boost::blank, double, int64_t, bool, string_,
-                       ref_<const RefCountString>, ref_<VarMap>, ref_<VarArray>,
-                       std::vector<uint8_t>, BytesRef>
-    BaseVariant;
+// dsa::ref_ being used instead of just ref_ is
+// only a workaround for clion code analyzer bug
+using BaseVariant =
+    boost::variant<boost::blank, double, int64_t, bool, string_,
+                   dsa::ref_<const RefCountString>, dsa::ref_<VarMap>,
+                   dsa::ref_<VarArray>, std::vector<uint8_t>, BytesRef,
+                   StatusDetail>;
 
 class Var : public BaseVariant {
  public:
@@ -64,7 +68,8 @@ class Var : public BaseVariant {
     MAP,
     ARRAY,
     BINARY,
-    SHARED_BINARY
+    SHARED_BINARY,
+    STATUS
   };
 
   static const size_t MAX_PAGE_BODY_SIZE = 0xC000;
@@ -89,6 +94,8 @@ class Var : public BaseVariant {
   explicit Var(const uint8_t *data, size_t size);
   explicit Var(const std::vector<uint8_t> &v);
   explicit Var(const std::vector<uint8_t> &&v);
+
+  explicit Var(Status status, const string_ &detail = "");
 
  public:
   Var(std::initializer_list<VarMap::value_type> init);
@@ -128,7 +135,17 @@ class Var : public BaseVariant {
     return which() == BINARY || which() == SHARED_BINARY;
   }
   bool is_null() const { return which() == NUL; }
+  bool is_status() const { return which() == STATUS; }
+  bool is_undefined() const {
+    return which() == STATUS &&
+           boost::get<StatusDetail>(*this).code == Status ::UNDEFINED;
+  }
+  bool is_blank() const {
+    return which() == STATUS &&
+           boost::get<StatusDetail>(*this).code == Status ::BLANK;
+  }
 
+  const StatusDetail &get_status() { return boost::get<StatusDetail>(*this); }
   double get_double() const { return boost::get<double>(*this); }
   int64_t get_int() const { return boost::get<int64_t>(*this); }
   bool get_bool() const { return boost::get<bool>(*this); }
@@ -207,12 +224,14 @@ class VarBytes : public EnableRef<VarBytes> {
   mutable Var _v;
 
  public:
-  VarBytes() : _bytes(new RefCountBytes()) {}
+  VarBytes() : _bytes(new RefCountBytes()), _v(Status::BLANK) {}
   VarBytes(Var &&v) : _v(std::move(v)) {}
   VarBytes(const Var &v) : _v(v) {}
-  VarBytes(BytesRef bytes) : _bytes(std::move(bytes)) {}
+  VarBytes(BytesRef bytes)
+      : _bytes(std::move(bytes)), _v(Status::UNDEFINED) {}
   VarBytes(std::vector<uint8_t> &&bytes)
-      : _bytes(new RefCountBytes(std::move(bytes))) {}
+      : _bytes(new RefCountBytes(std::move(bytes))),
+        _v(Status::UNDEFINED) {}
 
   BytesRef &get_bytes() const {
     if (_bytes == nullptr) {
@@ -221,14 +240,18 @@ class VarBytes : public EnableRef<VarBytes> {
     return _bytes;
   }
   Var &get_value() const {
-    if (_v.is_null() && _bytes != nullptr && _bytes->size() != 0) {
+    if (_v.is_undefined()) {
       _v = Var::from_msgpack(&(*_bytes)[0], _bytes->size());
     }
     return _v;
   }
   // blank
   inline bool is_blank() const {
-    return _bytes != nullptr && _bytes->size() == 0;
+    if (_bytes == nullptr) {
+      return _v.is_blank();
+    } else {
+      return _bytes->size() == 0;
+    }
   }
   inline size_t size() const { return get_bytes()->size(); }
   bool operator==(const Var &other) const { return other == get_value(); };

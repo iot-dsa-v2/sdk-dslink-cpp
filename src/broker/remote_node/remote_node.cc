@@ -75,7 +75,7 @@ void RemoteNode::on_unsubscribe() {
 void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
   if (!_remote_session->is_connected()) {
     // when link is not connected, send a temp update for the status
-    stream.update_response_status(MessageStatus::NOT_AVAILABLE);
+    stream.update_response_status(Status::NOT_AVAILABLE);
   }
   if (first_request) {
     _remote_list_stream = _remote_session->requester.list(_remote_path, [
@@ -115,7 +115,7 @@ void RemoteNode::on_unlist() {
   }
   _list_cache.clear();
   _list_pub_path_cache.clear();
-  _list_status_cache = MessageStatus::INITIALIZING;
+  _list_status_cache = Status::INITIALIZING;
 }
 
 void RemoteNode::invoke(ref_<OutgoingInvokeStream> &&stream,

@@ -12,7 +12,7 @@ namespace dsa {
 
 class ErrorMessage final : public ResponseMessage {
  public:
-  ErrorMessage(MessageType type, MessageStatus status);
+  ErrorMessage(MessageType type, Status status);
   void write_dynamic_data(uint8_t* data) const final;
   void update_static_header() final;
 };

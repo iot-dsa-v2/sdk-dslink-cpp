@@ -103,7 +103,7 @@ json_t *to_json_object(const Var &v) {
                                   to_json_object(it.second));
     }
   } else {
-    json_obj = nullptr;
+    json_obj = json_null();
   }
 
   return json_obj;

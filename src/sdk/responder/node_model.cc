@@ -91,14 +91,14 @@ void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
   }
   send_props_list(stream);
   send_children_list(stream);
-  stream.update_response_status(MessageStatus::OK);
+  stream.update_response_status(Status::OK);
 }
 
 void NodeModel::on_subscribe(const SubscribeOptions &options,
                              bool first_request) {
   if (first_request && _cached_value == nullptr && _metas.count("$type") == 0) {
     auto response = make_ref_<SubscribeResponseMessage>();
-    response->set_status(MessageStatus::NOT_SUPPORTED);
+    response->set_status(Status::NOT_SUPPORTED);
     set_subscribe_response(std::move(response));
   }
 }
@@ -160,12 +160,12 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
       return;  // nullptr is for destroyed callback, no need to handle here
     }
     auto field = message->get_attribute_field();
-    MessageStatus status;
+    StatusDetail status;
     if (field.empty()) {
       if (_set_value_require_permission >= PermissionLevel::NEVER) {
-        status = MessageStatus::NOT_SUPPORTED;
+        status = Status::NOT_SUPPORTED;
       } else if (stream->allowed_permission < _set_value_require_permission) {
-        status = MessageStatus::PERMISSION_DENIED;
+        status = Status::PERMISSION_DENIED;
       } else {
         // try merging paged group
         message = IncomingPageCache<SetRequestMessage>::get_first_page(
@@ -181,17 +181,20 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
       status = on_set_attribute(field, std::move(message->get_value().value));
     }
     auto response = make_ref_<SetResponseMessage>();
-    response->set_status(status);
+    response->set_status(status.code);
+    if (!status.detail.empty()) {
+      response->set_error_detail(status.detail);
+    }
     s.send_response(std::move(response));
   });
 }
 
-MessageStatus NodeModel::on_set_value(MessageValue &&value) {
+StatusDetail NodeModel::on_set_value(MessageValue &&value) {
   set_value(std::move(value));
-  return MessageStatus::CLOSED;
+  return Status::DONE;
 }
-MessageStatus NodeModel::on_set_attribute(const string_ &field, Var &&value) {
-  return MessageStatus::NOT_SUPPORTED;
+StatusDetail NodeModel::on_set_attribute(const string_ &field, Var &&value) {
+  return Status::NOT_SUPPORTED;
 }
 
 // serialization

@@ -7,7 +7,7 @@
 
 #include <unordered_set>
 #include <vector>
-#include "message/enums.h"
+#include "util/enums.h"
 #include "util/enable_ref.h"
 #include "variant/variant.h"
 
@@ -42,7 +42,7 @@ class IncomingListCache : public DestroyableRef<IncomingListCache> {
   const VarMap& get_map() const;
   const VarMap& get_profile_map() const;
   void set_profile_map(const VarMap& item) const;
-  MessageStatus get_status() const;
+  Status get_status() const;
   const string_& get_last_pub_path() const;
 
   void close() { destroy(); }
@@ -64,7 +64,7 @@ class ListMerger : public DestroyableRef<ListMerger> {
   VarMap _map;
   ref_<VarMap> _profile_map;
   std::vector<string_> _changes;
-  MessageStatus _last_status = MessageStatus::INITIALIZING;
+  Status _last_status = Status::INITIALIZING;
   string_ last_pub_path;
 
   void destroy_impl() final;

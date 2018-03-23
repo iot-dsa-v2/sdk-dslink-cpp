@@ -13,7 +13,7 @@ namespace dsa {
 
 class ValueNodeModel : public NodeModel {
  public:
-  typedef std::function<bool(const Var &)> Callback;
+  typedef std::function<StatusDetail(const Var &)> Callback;
 
  protected:
   Callback _callback;
@@ -24,7 +24,7 @@ class ValueNodeModel : public NodeModel {
       const LinkStrandRef &strand, const string_ &type, Callback &&callback,
       PermissionLevel write_require_permission = PermissionLevel::WRITE);
 
-  MessageStatus on_set_value(MessageValue &&value) override;
+  StatusDetail on_set_value(MessageValue &&value) override;
 };
 }  // namespace dsa
 

@@ -23,7 +23,7 @@ class OutgoingListStream final : public MessageRefedStream {
   size_t _next_size;
 
   bool _status_changed = false;
-  MessageStatus _status = MessageStatus::INITIALIZING;
+  Status _status = Status::INITIALIZING;
 
   string_ _pending_pub_path;
 
@@ -35,7 +35,7 @@ class OutgoingListStream final : public MessageRefedStream {
 
   void on_list_close(ListCloseCallback &&callback) final;
 
-  void update_response_status(MessageStatus status = MessageStatus::OK) final;
+  void update_response_status(Status status = Status::OK) final;
   void update_list_value(const string_ &key, const ref_<VarBytes> &value) final;
   void update_list_refreshed() final;
   void update_list_pub_path(const string_& path) final;

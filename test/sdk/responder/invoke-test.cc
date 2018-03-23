@@ -121,7 +121,7 @@ TEST_F(ResponderTest, InvokeModel) {
 
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
-  EXPECT_EQ(last_response->get_status(), MessageStatus::CLOSED);
+  EXPECT_EQ(last_response->get_status(), Status::DONE);
 
   ASYNC_EXPECT_TRUE(1000, *server_strand.strand, [&]() -> bool {
     return root_node->last_invoke_stream->is_destroyed() &&

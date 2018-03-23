@@ -51,7 +51,7 @@ void OutgoingInvokeStream::on_request(Callback &&callback) {
   }
 }
 void OutgoingInvokeStream::send_response(InvokeResponseMessageCRef &&message) {
-  if (message->get_status() >= MessageStatus::CLOSED && !_closed) {
+  if (message->get_status() >= Status::DONE && !_closed) {
     _closed = true;
     if (!_callback_running) {
       _callback = nullptr;
@@ -61,11 +61,11 @@ void OutgoingInvokeStream::send_response(InvokeResponseMessageCRef &&message) {
     send_message(MessageCRef(std::move(message)));
   }
 };
-void OutgoingInvokeStream::close(MessageStatus status,
+void OutgoingInvokeStream::close(Status status,
                                  const string_ &err_detail) {
   if (_closed) return;
-  if (status < MessageStatus::CLOSED) {
-    status = MessageStatus::CLOSED;
+  if (status < Status::DONE) {
+    status = Status::DONE;
   }
   _closed = true;
   if (!_callback_running) {
@@ -75,17 +75,17 @@ void OutgoingInvokeStream::close(MessageStatus status,
   auto message = make_ref_<InvokeResponseMessage>();
   message->set_status(status);
   if (!err_detail.empty()) {
-    // TODO general error detail
+    message->set_error_detail(err_detail);
   }
   send_message(std::move(message), true);
 }
 
 bool OutgoingInvokeStream::check_close_message(MessageCRef &message) {
   if (DOWN_CAST<const ResponseMessage *>(message.get())->get_status() >=
-      MessageStatus::CLOSED) {
+      Status::DONE) {
     _session->responder.destroy_stream(rid);
     return true;
   }
   return false;
 }
-}
+}  // namespace dsa

@@ -194,6 +194,8 @@ const messages = {
             new IntHeader('PageId'),
             new BoolHeader('Refreshed'),
             new BoolHeader('Skippable'),
+            new StringHeader('AuditLog'),
+            new StringHeader('ErrorDetail'),
             new BodyHeader('Body'),
         ],
         List: [
@@ -206,6 +208,8 @@ const messages = {
         ],
         Set: [
             new ByteHeader('Status'),
+            new StringHeader('AuditLog'),
+            new StringHeader('ErrorDetail'),
         ],
         Subscribe: [
             new ByteHeader('Status'),

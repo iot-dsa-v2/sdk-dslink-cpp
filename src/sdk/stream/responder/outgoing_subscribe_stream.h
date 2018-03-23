@@ -40,7 +40,7 @@ class OutgoingSubscribeStream final : public MessageQueueStream {
     send_message(MessageCRef(std::move(message)));
   }
 
-  void update_response_status(MessageStatus status = MessageStatus::OK) final;
+  void update_response_status(Status status = Status::OK) final;
 };
 }
 

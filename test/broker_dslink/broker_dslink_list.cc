@@ -153,7 +153,7 @@ TEST_F(BrokerDsLinkTest, Disconnect) {
       // after client1 disconnected, list update should show it's disconnected
       link_req->list("Downstream/test1", [&](IncomingListCache &cache,
                                             const std::vector<string_> &str) {
-        EXPECT_EQ(cache.get_status(), MessageStatus::NOT_AVAILABLE);
+        EXPECT_EQ(cache.get_status(), Status::NOT_AVAILABLE);
         // end the test
 
         link_2->strand->post([link_2]() { link_2->destroy(); });

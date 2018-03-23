@@ -86,7 +86,7 @@ TEST_F(ResponderTest, PagedInvokeRequest) {
 
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() -> bool { return last_response != nullptr; });
-  EXPECT_TRUE(last_response->get_status() == MessageStatus::CLOSED);
+  EXPECT_TRUE(last_response->get_status() == Status::DONE);
 
   // close the invoke stream
   last_response.reset();
@@ -129,7 +129,7 @@ TEST_F(ResponderTest, PagedInvokeResponse) {
       [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
           ref_<NodeState> &&parent) {
         auto first_response = make_ref_<InvokeResponseMessage>();
-        first_response->set_status(MessageStatus::CLOSED);
+        first_response->set_status(Status::DONE);
         first_response->set_value(Var(big_str1));
         stream.send_response(std::move(first_response));
       });
@@ -330,7 +330,7 @@ TEST_F(ResponderTest, PagedSetRequest) {
 
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand, [&]() -> bool {
     return last_response != nullptr &&
-           last_response->get_status() == MessageStatus::CLOSED;
+           last_response->get_status() == Status::DONE;
   });
 
   string_ response_str1 = root_node->get_cached_value().value.to_string();

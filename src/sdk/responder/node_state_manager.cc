@@ -121,7 +121,7 @@ void NodeStateManager::add(ref_<OutgoingSubscribeStream> &&stream) {
     state->subscribe(std::move(stream));
   } else {
     auto msg = make_ref_<SubscribeResponseMessage>();
-    msg->set_status(MessageStatus::NOT_SUPPORTED);
+    msg->set_status(Status::NOT_SUPPORTED);
     stream->send_subscribe_response(std::move(msg));
   }
 }
@@ -139,7 +139,7 @@ void NodeStateManager::add(ref_<OutgoingInvokeStream> &&stream) {
     state->invoke(std::move(stream));
   } else {
     auto msg = make_ref_<InvokeResponseMessage>();
-    msg->set_status(MessageStatus::NOT_SUPPORTED);
+    msg->set_status(Status::NOT_SUPPORTED);
     stream->send_response(std::move(msg));
   }
 }
@@ -148,9 +148,7 @@ void NodeStateManager::add(ref_<OutgoingSetStream> &&stream) {
   if (state != nullptr) {
     state->set(std::move(stream));
   } else {
-    auto msg = make_ref_<SetResponseMessage>();
-    msg->set_status(MessageStatus::NOT_SUPPORTED);
-    stream->send_response(std::move(msg));
+    stream->close(Status::NOT_SUPPORTED);
   }
 }
 

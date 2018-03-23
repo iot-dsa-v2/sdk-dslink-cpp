@@ -43,7 +43,7 @@ TEST_F(BrokerSysTest, StopBroker) {
 
     tcp_client->get_session().requester.invoke(
         [&](IncomingInvokeStream&, ref_<const InvokeResponseMessage>&& msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+          EXPECT_EQ(msg->get_status(), Status::DONE);
           client_strand.strand->post([&]() {
             tcp_client->destroy();
             client_strand.destroy();

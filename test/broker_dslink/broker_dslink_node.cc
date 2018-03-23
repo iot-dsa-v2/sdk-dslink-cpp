@@ -162,7 +162,7 @@ TEST_F(BrokerDsLinkTest, RemoveNodeSubcribe) {
                     [&](IncomingSubscribeCache &cache,
                         ref_<const SubscribeResponseMessage> &msg) {
                       EXPECT_EQ(msg->get_status(),
-                                MessageStatus::NOT_SUPPORTED);
+                                Status::NOT_SUPPORTED);
                       test_end = true;
                     });
 

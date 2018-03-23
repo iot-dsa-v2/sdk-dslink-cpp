@@ -37,7 +37,7 @@ const VarMap& IncomingListCache::get_profile_map() const {
 void IncomingListCache::set_profile_map(const VarMap& item) const {
   _merger->_profile_map = make_ref_<VarMap>(item);
 }
-MessageStatus IncomingListCache::get_status() const {
+Status IncomingListCache::get_status() const {
   return _merger->_last_status;
 }
 const string_& IncomingListCache::get_last_pub_path() const {
@@ -82,7 +82,7 @@ ref_<IncomingListCache> ListMerger::list(
       }
     });
   }
-  if (_last_status != MessageStatus::INITIALIZING) {
+  if (_last_status != Status::INITIALIZING) {
     // send a fresh update
     cache->_receive_update({});
   }
@@ -111,7 +111,7 @@ void ListMerger::new_list_response(ref_<const ListResponseMessage>&& message) {
       }
     }
   }
-  if (_last_status != MessageStatus::INITIALIZING) {
+  if (_last_status != Status::INITIALIZING) {
     _iterating_caches = true;
     bool removed_some = false;
     for (auto it = _caches.begin(); it != _caches.end();) {

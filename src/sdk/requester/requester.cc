@@ -55,7 +55,7 @@ void Requester::receive_message(MessageRef &&message) {
     auto &stream = search->second;
 
     if (DOWN_CAST<ResponseMessage *>(message.get())->get_status() >=
-        MessageStatus::CLOSED) {
+        Status::DONE) {
       stream->receive_message(std::move(message));
       stream->destroy();
       _incoming_streams.erase(search);

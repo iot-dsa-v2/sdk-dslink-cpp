@@ -42,8 +42,8 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
     link_req->set(
         [&, link_req](IncomingSetStream &stream,
                       ref_<const SetResponseMessage> &&msg) {
-          EXPECT_TRUE(msg->get_status() == MessageStatus::OK ||
-                      msg->get_status() == MessageStatus::CLOSED);
+          EXPECT_TRUE(msg->get_status() == Status::OK ||
+                      msg->get_status() == Status::DONE);
           allow_all_set = true;
 
           link_req->list("Downstream", [&, link_req](
@@ -177,7 +177,7 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
               link_req->set(
                   [&, link_req](IncomingSetStream &stream,
                                 ref_<const SetResponseMessage> &&msg) {
-                    EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+                    EXPECT_EQ(msg->get_status(), Status::DONE);
 
                   },
                   std::move(set_request));
@@ -265,7 +265,7 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
     link_req->set(
         [&, link_req](IncomingSetStream &stream,
                       ref_<const SetResponseMessage> &&msg) {
-          EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+          EXPECT_EQ(msg->get_status(), Status::DONE);
 
           // set request to change value
           auto set_request = make_ref_<SetRequestMessage>();
@@ -276,7 +276,7 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
           link_req->set(
               [&, link_req](IncomingSetStream &stream,
                             ref_<const SetResponseMessage> &&msg) {
-                EXPECT_EQ(msg->get_status(), MessageStatus::CLOSED);
+                EXPECT_EQ(msg->get_status(), Status::DONE);
 
                 link_2->connect([&, link1_req = link_req ](
                     const shared_ptr_<Connection> connection2,
@@ -322,7 +322,7 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
                                   ref_<const InvokeResponseMessage> &&msg) {
                                 auto response = std::move(msg);
                                 EXPECT_EQ(response->get_status(),
-                                          MessageStatus::CLOSED);
+                                          Status::DONE);
                                 EXPECT_TRUE(response != nullptr);
                                 stream.close();
                               },

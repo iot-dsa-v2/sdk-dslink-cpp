@@ -8,7 +8,7 @@
 #include <functional>
 #include <string>
 
-#include "message/enums.h"
+#include "util/enums.h"
 #include "storage.h"
 #include "util/client_info.h"
 #include "util/enable_ref.h"

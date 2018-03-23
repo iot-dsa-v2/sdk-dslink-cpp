@@ -81,7 +81,7 @@ void Responder::receive_message(ref_<Message> &&message) {
     MessageType response_type = Message::get_response_type(request->type());
     if (response_type != MessageType::INVALID) {
       _session.write_stream(make_ref_<SimpleStream>(
-          request->get_rid(), response_type, MessageStatus::INVALID_MESSAGE));
+          request->get_rid(), response_type, Status::INVALID_MESSAGE));
     }
     return;
   }
@@ -100,7 +100,7 @@ void Responder::receive_message(ref_<Message> &&message) {
 
         if (permission_level < PermissionLevel::READ) {
           auto response = make_ref_<InvokeResponseMessage>();
-          response->set_status(MessageStatus::PERMISSION_DENIED);
+          response->set_status(Status::PERMISSION_DENIED);
           stream->send_response(std::move(response));
           return;
         } else {
@@ -121,7 +121,7 @@ void Responder::receive_message(ref_<Message> &&message) {
 
         if (permission_level < PermissionLevel::READ) {
           auto response = make_ref_<SubscribeResponseMessage>();
-          response->set_status(MessageStatus::PERMISSION_DENIED);
+          response->set_status(Status::PERMISSION_DENIED);
           stream->send_subscribe_response(std::move(response));
           return;
         } else {
@@ -141,7 +141,7 @@ void Responder::receive_message(ref_<Message> &&message) {
         stream->allowed_permission = permission_level;
 
         if (permission_level < PermissionLevel::LIST) {
-          stream->update_response_status(MessageStatus::PERMISSION_DENIED);
+          stream->update_response_status(Status::PERMISSION_DENIED);
           return;
         } else {
           _session._strand->stream_acceptor().add(std::move(stream));
@@ -159,9 +159,7 @@ void Responder::receive_message(ref_<Message> &&message) {
         stream->allowed_permission = permission_level;
 
         if (permission_level < PermissionLevel::WRITE) {
-          auto response = make_ref_<SetResponseMessage>();
-          response->set_status(MessageStatus::PERMISSION_DENIED);
-          stream->send_response(std::move(response));
+          stream->close(Status::PERMISSION_DENIED);
           return;
         } else {
           _session._strand->stream_acceptor().add(std::move(stream));

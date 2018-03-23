@@ -103,7 +103,7 @@ void OutgoingSubscribeStream::receive_message(ref_<Message> &&message) {
   }
 }
 
-void OutgoingSubscribeStream::update_response_status(MessageStatus status) {
+void OutgoingSubscribeStream::update_response_status(Status status) {
   auto status_message = make_ref_<SubscribeResponseMessage>();
   status_message->set_status(status);
   send_message(std::move(status_message));

@@ -6,7 +6,7 @@
 #endif
 
 #include <cstddef>
-#include "enums.h"
+#include "util/enums.h"
 
 namespace dsa {
 
