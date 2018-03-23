@@ -198,7 +198,6 @@ TEST_F(BrokerDsLinkTest, StopTest) {
         [&](IncomingInvokeStream &stream,
             ref_<const InvokeResponseMessage> &&msg) {
           // no response here!!!
-          std::cout << "Close Invoked" << std::endl;
           broker->strand->post([broker]() { broker->destroy(); });
           link_2->strand->post([link_2]() { link_2->destroy(); });
           invoked = true;

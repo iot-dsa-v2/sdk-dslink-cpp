@@ -28,10 +28,10 @@ using DslinkTest = SetUpBase;
 #define DEFAULT_TCP_SERVER_PORT 0
 
 static ref_<DsLink> create_test_dslink(int argc, const char *argv[]) {
-  auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
   // filter log for unit test
   static_cast<ConsoleLogger &>(Logger::_()).filter =
       Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
+  auto link = make_ref_<DsLink>(argc, argv, "mydslink", "1.0.0");
   return std::move(link);
 }
 
