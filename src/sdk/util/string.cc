@@ -1,7 +1,7 @@
 #include "dsa_common.h"
 
-#include "string.h"
 #include "module/logger.h"
+#include "string.h"
 
 #include <boost/asio/io_service.hpp>
 #include <boost/filesystem.hpp>
@@ -15,18 +15,46 @@ namespace fs = boost::filesystem;
 namespace dsa {
 
 string_ string_from_file(const string_ &file_path) {
-  SimpleStorage simple_storage;
-  shared_ptr_<StorageBucket> storage_bucket;
-  storage_bucket = simple_storage.get_shared_bucket("");
+  std::vector<uint8_t> vec{};
 
-  return string_from_storage(file_path, *storage_bucket);
+  if (fs::exists(file_path) && fs::is_regular_file(file_path)) {
+    size_t size = fs::file_size(file_path);
+
+    if (size) {
+      fs::ifstream ifs(file_path, std::ios::in | std::ios::binary);
+      if (ifs) {
+        vec.resize(static_cast<size_t>(size));
+        ifs.read(reinterpret_cast<char *>(&vec.front()),
+                 static_cast<size_t>(size));
+        ifs.close();
+      } else {
+        LOG_ERROR(__FILENAME__,
+                  LOG << "Unable to open " << file_path << " file to read");
+      }
+    }
+  } else {
+    LOG_FINE(__FILENAME__, LOG << "there is no file to read " << file_path);
+  }
+
+  string_ content(vec.begin(), vec.end());
+
+  return content;
 }
 
 void string_to_file(const string_ &data, const string_ &file_path) {
-  SimpleStorage simple_storage;
-  shared_ptr_<StorageBucket> storage_bucket;
-  storage_bucket = simple_storage.get_shared_bucket("");
-  string_to_storage(data, file_path, *storage_bucket);
+  try {
+    fs::ofstream ofs(file_path,
+                     std::ios::out | std::ios::trunc | std::ios::binary);
+    if (ofs) {
+      ofs << data;
+      ofs.close();
+    } else {
+      LOG_ERROR(__FILENAME__,
+                LOG << "Unable to open " << file_path << " file to write");
+    }
+  } catch (const fs::filesystem_error &ex) {
+    LOG_ERROR(__FILENAME__, LOG << "Write failed for " << file_path << " file");
+  }
 }
 
 string_ string_from_storage(const string_ &key, StorageBucket &storage_bucket) {
@@ -40,7 +68,8 @@ string_ string_from_storage(const string_ &key, StorageBucket &storage_bucket) {
   };
   storage_bucket.read(key, read_callback);
   if (!callback_called) {
-    LOG_FATAL(__FILENAME__, LOG << "Storage does not support synchronize reading");
+    LOG_FATAL(__FILENAME__,
+              LOG << "Storage does not support synchronize reading");
   }
   return data;
 }
@@ -81,8 +110,8 @@ string_ generate_random_string(int len) {
 }
 
 string_ get_master_token_from_storage(StorageBucket &storage_bucket,
-                                    const string_ &key,
-                                    bool force_to_generate_one) {
+                                      const string_ &key,
+                                      bool force_to_generate_one) {
   string_ token = string_from_storage(key, storage_bucket);
   if (token.length() == 32) return token;
 
