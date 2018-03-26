@@ -69,7 +69,7 @@ class Logger : public SharedDestroyable<Logger> {
   DSA_LOG(INFO__, "Info  ", stream_exp, log_name)
 
 #define LOG_ADMIN(log_name, stream_exp) \
-  DSA_LOG(ADMIN___, "Admin ", stream_exp, log_name)
+  DSA_LOG(ADMIN_, "Admin ", stream_exp, log_name)
 
 #define LOG_DEBUG(log_name, stream_exp) \
   DSA_LOG(DEBUG_, "Debug ", stream_exp, log_name)
