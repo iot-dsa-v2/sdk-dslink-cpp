@@ -9,7 +9,7 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(SharedLinkStrandRef &strand, const string_ &dsid_prefix,
+TcpConnection::TcpConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                              const string_ &path)
     : BaseSocketConnection(strand, dsid_prefix, path),
       _socket(strand->get_io_context()) {}

@@ -5,7 +5,7 @@
 #include "module/logger.h"
 
 namespace dsa {
-TcpClientConnection::TcpClientConnection(SharedLinkStrandRef &strand,
+TcpClientConnection::TcpClientConnection(const SharedLinkStrandRef &strand,
                                          const string_ &dsid_prefix,
                                          const string_ &tcp_host,
                                          uint16_t tcp_port)
@@ -16,7 +16,7 @@ TcpClientConnection::TcpClientConnection(SharedLinkStrandRef &strand,
 void TcpClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(_strand->get_io_context());
+  tcp::resolver resolver(_shared_strand->get_io_context());
   LOG_FINE(__FILENAME__,
            LOG << "TCP client connecting to " << _hostname << ":" << _port);
   _socket.async_connect(

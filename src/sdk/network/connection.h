@@ -47,7 +47,7 @@ class Connection : public SharedStrandPtr<Connection> {
 
  public:
   void post_in_strand(std::function<void()> &&callback) override {
-    return _strand->post(std::move(callback));
+    return _shared_strand->post(std::move(callback));
   }
 
   std::function<void(MessageRef)> on_read_message;
@@ -71,12 +71,12 @@ class Connection : public SharedStrandPtr<Connection> {
   Session *session() { return _session.get(); }
 
  protected:
-  Connection(SharedLinkStrandRef &strand, const string_ &dsid_prefix,
+  Connection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
              const string_ &path = "");
   virtual ~Connection() = default;
 
   HandshakeContext _handshake_context;
-  SharedLinkStrandRef _strand;
+  SharedLinkStrandRef _shared_strand;
 
   // this should rarely be touched
   ref_<Session> _session;

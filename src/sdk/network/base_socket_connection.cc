@@ -7,7 +7,7 @@
 
 namespace dsa {
 
-BaseSocketConnection::BaseSocketConnection(SharedLinkStrandRef &strand,
+BaseSocketConnection::BaseSocketConnection(const SharedLinkStrandRef &strand,
                                            const string_ &dsid_prefix,
                                            const string_ &path)
     : Connection(strand, dsid_prefix, path),

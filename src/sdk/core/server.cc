@@ -6,11 +6,11 @@
 
 namespace dsa {
 
-Server::Server(WrapperStrand& config) : _strand(share_strand_(config.strand)) {}
+Server::Server(WrapperStrand& config) : _shared_strand(share_strand_(config.strand)) {}
 
 void Server::destroy_impl() {
   // make sure strand ref is rest within strand
-  _strand.reset();
+  _shared_strand.reset();
 }
 
 }  // namespace dsa

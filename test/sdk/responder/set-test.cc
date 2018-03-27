@@ -55,7 +55,7 @@ class MockStreamAcceptor : public OutgoingStreamAcceptor {
   void add(ref_<OutgoingListStream> &&stream) override {}
   void add(ref_<OutgoingInvokeStream> &&stream) override {}
 };
-}
+}  // namespace responder_set_test
 
 TEST_F(ResponderTest, SetModel) {
   typedef responder_set_test::MockNode MockNode;
@@ -84,6 +84,7 @@ TEST_F(ResponderTest, SetModel) {
   ref_<const SubscribeResponseMessage> last_subscribe_response;
   ref_<const ListResponseMessage> last_list_response;
   int list_response_count = 0;
+
 
   client_strand.strand->post([&]() {
     // subscribe on root node value

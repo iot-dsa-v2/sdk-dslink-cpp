@@ -6,6 +6,7 @@
 #endif
 
 #include "link_strand.h"
+#include "shared_strand_ref.h"
 
 #include <boost/asio/io_context.hpp>
 #include <memory>
@@ -66,7 +67,7 @@ class EditableStrand : public LinkStrand {
   void check_injected() override;
 };
 
-typedef std::function<shared_ptr_<Connection>(const LinkStrandRef& strand)>
+typedef std::function<shared_ptr_<Connection>(const SharedLinkStrandRef& shared_strand)>
     ClientConnectionMaker;
 
 class WrapperStrand : public DestroyableRef<WrapperStrand> {

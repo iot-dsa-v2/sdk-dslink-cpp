@@ -18,7 +18,7 @@ class Server : public SharedStrandPtr<Server> {
   // for Session/Requester/Responder
 
   // for ServerConnection
-  SharedLinkStrandRef _strand;
+  SharedLinkStrandRef _shared_strand;
   string_ _dsid_prefix;
 
   //  void on_session_connected(const ref_ <Session> session);
@@ -30,7 +30,7 @@ class Server : public SharedStrandPtr<Server> {
   virtual ~Server() = default;
 
   void post_in_strand(std::function<void()> &&callback) override {
-    return _strand->post(std::move(callback));
+    return _shared_strand->post(std::move(callback));
   }
 
   const string_ &get_dsid_prefix() const { return _dsid_prefix; }

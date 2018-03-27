@@ -9,7 +9,7 @@ namespace dsa {
 
 using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
 
-WsConnection::WsConnection(SharedLinkStrandRef &strand, const string_ &dsid_prefix,
+WsConnection::WsConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                            const string_ &path)
     : BaseSocketConnection(strand, dsid_prefix, path) {}
 

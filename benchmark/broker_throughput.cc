@@ -30,14 +30,13 @@ namespace broker_benchmark {
 
 class BenchmarkNodeValue : public NodeModel {
  public:
-  explicit BenchmarkNodeValue(const LinkStrandRef &strand)
-      : NodeModel(strand) {
+  explicit BenchmarkNodeValue(const LinkStrandRef& strand) : NodeModel(strand) {
     update_property("$type", Var("number"));
   };
 };
 class BenchmarkNodeRoot : public NodeModel {
  public:
-  explicit BenchmarkNodeRoot(const LinkStrandRef &strand, int num_point)
+  explicit BenchmarkNodeRoot(const LinkStrandRef& strand, int num_point)
       : NodeModel(strand) {
     for (int i = 0; i < num_point; ++i) {
       add_list_child("v" + std::to_string(i),
@@ -54,7 +53,7 @@ class BenchmarkNodeRoot : public NodeModel {
     }
   }
 };
-}
+}  // namespace broker_benchmark
 
 WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
                                         const string_& dsid_prefix,
@@ -83,12 +82,14 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     client_strand.ws_port = 8080;
     client_strand.ws_path = "/";
 
-    client_strand.client_connection_maker = [
-      dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
-      ws_port = client_strand.ws_port
-    ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
-      return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
-                                              ws_host, ws_port);
+    client_strand.client_connection_maker =
+        [
+          dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
+          ws_port = client_strand.ws_port
+        ](const SharedLinkStrandRef& strand)
+            ->shared_ptr_<Connection> {
+      return make_shared_<WsClientConnection>(false, strand,
+                                              dsid_prefix, ws_host, ws_port);
     };
   } else if (!protocol.compare("wss")) {
     client_strand.ws_host = "127.0.0.1";
@@ -98,17 +99,19 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     client_strand.client_connection_maker = [
       dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
       ws_port = client_strand.ws_port
-    ](const LinkStrandRef &strand) {
-      return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
-                                              ws_host, ws_port);
+    ](const SharedLinkStrandRef& strand) {
+      return make_shared_<WsClientConnection>(true, strand,
+                                              dsid_prefix, ws_host, ws_port);
     };
   } else {
-    client_strand.client_connection_maker = [
-      dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-      tcp_port = client_strand.tcp_port
-    ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
-      return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                               tcp_port);
+    client_strand.client_connection_maker =
+        [
+          dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+          tcp_port = client_strand.tcp_port
+        ](const SharedLinkStrandRef& strand)
+            ->shared_ptr_<Connection> {
+      return make_shared_<TcpClientConnection>(strand,
+                                               dsid_prefix, tcp_host, tcp_port);
     };
   }
   return std::move(client_strand);
@@ -210,8 +213,9 @@ int main(int argc, const char* argv[]) {
           }
           if (current_time - last_time > 1000) {
             std::cout << std::endl
-                      << "per second: " << ceil((count - last_count) * 1000.0 /
-                                                (current_time - last_time))
+                      << "per second: "
+                      << ceil((count - last_count) * 1000.0 /
+                              (current_time - last_time))
                       << " total: " << count;
             last_time = current_time;
             last_count = count;

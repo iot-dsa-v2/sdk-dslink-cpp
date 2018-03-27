@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <memory>
+#include "crypto/ecdh.h"
 #include "link_strand.h"
 
 namespace dsa {
@@ -18,7 +19,7 @@ class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
   ref_<T> _ref;
 
  public:
-  typedef std::function<void(T&, const LinkStrand&)> PostCallback;
+  typedef std::function<void(ref_<T>&, LinkStrand&)> PostCallback;
 
   static shared_ptr_<SharedRef<T>> make(const ref_<T>& ref,
                                         const LinkStrandRef& strand) {
@@ -42,28 +43,33 @@ class SharedRef : public std::enable_shared_from_this<SharedRef<T>> {
     _strand->post([
       this, keep_shared = this->shared_from_this(),
       callback = std::move(callback)
-    ]() { callback(*_ref, *_strand); });
+    ]() { callback(_ref, *_strand); });
   }
 
   void post(std::function<void()>&& callback) {
     _strand->post(std::move(callback));
   }
+
+  boost::asio::io_context& get_io_context() {
+    return _strand->get_io_context();
+  }
+  ECDH get_ecdh() { return ECDH(_strand->ecdh()); }
 };
 
 typedef shared_ptr_<SharedRef<LinkStrand>> SharedLinkStrandRef;
 
 inline SharedLinkStrandRef share_strand_(const LinkStrandRef& strand) {
-  return make_shared_<SharedRef<LinkStrand>>(nullptr, strand);
+  return std::make_shared<SharedRef<LinkStrand>>(nullptr, strand);
 }
-}
+}  // namespace dsa
 
 #define POST_TO_REF(shared_ref, function_name) \
-  shared_ref->post([](auto& t, LinkStrand& strand) { t.function_name(); });
+  shared_ref->post([](auto& t, LinkStrand& strand) { t->function_name(); });
 
 // one parameter as R reference
 #define POST_TO_REF_R(shared_ref, function_name, v1)                    \
   shared_ref->post([cv1 = std::move(v1)](auto& t, LinkStrand& strand) { \
-    t.function_name(std::move(cv1));                                    \
+    t->function_name(std::move(cv1));                                   \
   });
 
 #endif  // DSA_SDK_SHARED_REF_H_

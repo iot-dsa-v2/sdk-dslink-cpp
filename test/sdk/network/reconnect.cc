@@ -33,7 +33,7 @@ class MockNode : public NodeModel {
     set_value(Var("hello"));
   };
 };
-}
+}  // namespace network_reconnect_test
 TEST_F(NetworkTest, ReConnect) {
   typedef network_reconnect_test::MockNode MockNode;
 
@@ -64,43 +64,51 @@ TEST_F(NetworkTest, ReConnect) {
         LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
       }
 
-      client_strand.client_connection_maker = [
-        &connection, dsid_prefix = client_strand.dsid_prefix,
-        tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
-      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
+      client_strand.client_connection_maker =
+          [
+            &connection, dsid_prefix = client_strand.dsid_prefix,
+            tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
+          ](const SharedLinkStrandRef &strand)
+              ->shared_ptr_<Connection> {
         connection = make_shared_<StcpClientConnection>(
             strand, context, dsid_prefix, tcp_host, tcp_port);
         return connection;
       };
       break;
     case dsa::ProtocolType::PROT_WS:
-      client_strand.client_connection_maker = [
-        &connection, dsid_prefix = client_strand.dsid_prefix,
-        ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
-      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
+      client_strand.client_connection_maker =
+          [
+            &connection, dsid_prefix = client_strand.dsid_prefix,
+            ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
+          ](const SharedLinkStrandRef &strand)
+              ->shared_ptr_<Connection> {
         connection = make_shared_<WsClientConnection>(
             false, strand, dsid_prefix, ws_host, ws_port);
         return connection;
       };
       break;
     case dsa::ProtocolType::PROT_WSS:
-      client_strand.client_connection_maker = [
-        &connection, dsid_prefix = client_strand.dsid_prefix,
-        ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
-      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
-        connection = make_shared_<WsClientConnection>(true, strand, dsid_prefix,
-                                                      ws_host, ws_port);
+      client_strand.client_connection_maker =
+          [
+            &connection, dsid_prefix = client_strand.dsid_prefix,
+            ws_host = client_strand.ws_host, ws_port = client_strand.ws_port
+          ](const SharedLinkStrandRef &strand)
+              ->shared_ptr_<Connection> {
+        connection = make_shared_<WsClientConnection>(
+            true, strand, dsid_prefix, ws_host, ws_port);
         return connection;
       };
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
-      client_strand.client_connection_maker = [
-        &connection, dsid_prefix = client_strand.dsid_prefix,
-        tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
-      ](const LinkStrandRef &strand)->shared_ptr_<Connection> {
-        connection = make_shared_<TcpClientConnection>(strand, dsid_prefix,
-                                                       tcp_host, tcp_port);
+      client_strand.client_connection_maker =
+          [
+            &connection, dsid_prefix = client_strand.dsid_prefix,
+            tcp_host = client_strand.tcp_host, tcp_port = client_strand.tcp_port
+          ](const SharedLinkStrandRef &strand)
+              ->shared_ptr_<Connection> {
+        connection = make_shared_<TcpClientConnection>(
+            strand, dsid_prefix, tcp_host, tcp_port);
         return connection;
       };
   }

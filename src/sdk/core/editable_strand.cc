@@ -105,12 +105,12 @@ void EditableStrand::inject(std::function<void()>&& callback) {
   DSA_REF_GUARD;
   std::lock_guard<std::mutex> lock(_inject_mutex);
 
-  _inject_queue.emplace_back(std::move(callback));
   if (_inject_callback != nullptr) {
+    _inject_queue.emplace_back(std::move(callback));
     post(std::move(_inject_callback));
-  } else if (is_destroyed()) {
-    // strand is destroyed, callback might have a back ref and cause memory leak
-    _inject_queue.clear();
+  } else {
+    // destroy the callback in strand
+    post([callback = std::move(callback)](){});
   }
 }
 
