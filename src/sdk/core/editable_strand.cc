@@ -108,9 +108,13 @@ void EditableStrand::inject(std::function<void()>&& callback) {
   if (_inject_callback != nullptr) {
     _inject_queue.emplace_back(std::move(callback));
     post(std::move(_inject_callback));
-  } else {
-    // destroy the callback in strand
+  } else if (is_destroyed()) {
+    // no need to call it
+    // just destroy the callback in strand
     post([callback = std::move(callback)](){});
+  } else {
+    // callback not ready, but still need to put it in queue
+    _inject_queue.emplace_back(std::move(callback));
   }
 }
 
