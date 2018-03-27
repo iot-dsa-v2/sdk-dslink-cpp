@@ -27,7 +27,7 @@ class HandshakeContext {
   std::vector<uint8_t> _shared_secret;
 
  public:
-  explicit HandshakeContext(string_ dsid_prefix, const ECDH &ecdh);
+  explicit HandshakeContext(string_ dsid_prefix, ECDH &&ecdh);
   explicit HandshakeContext(string_ dsid_prefix);
 
   const std::vector<uint8_t> &public_key() const {

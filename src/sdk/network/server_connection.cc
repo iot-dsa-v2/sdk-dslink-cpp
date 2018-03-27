@@ -60,11 +60,11 @@ void Connection::on_receive_f2(MessageRef &&msg) {
                  _handshake_context.remote_auth().end(), f2->auth.begin())) {
     _deadline.cancel();
     _remote_path = f2->path;
-    _strand->post([
+    _shared_strand->post([
       msg, this, sthis = shared_from_this(), is_responder = f2->is_responder
-    ]() mutable {
+    ](ref_<LinkStrand>&, LinkStrand& strand) mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
-      _strand->session_manager().get_session(
+      strand.session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token, is_responder,
           [ this, sthis = std::move(sthis) ](const ref_<Session> &session,
                                              const ClientInfo &info) {

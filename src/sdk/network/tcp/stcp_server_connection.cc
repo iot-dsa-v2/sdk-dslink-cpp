@@ -7,7 +7,7 @@
 
 namespace dsa {
 
-StcpServerConnection::StcpServerConnection(const LinkStrandRef &strand,
+StcpServerConnection::StcpServerConnection(const SharedLinkStrandRef &strand,
                                            boost::asio::ssl::context &context,
                                            const string_ &dsid_prefix,
                                            const string_ &path)

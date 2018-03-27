@@ -39,7 +39,7 @@ class TcpConnection : public BaseSocketConnection {
   void destroy_impl() override;
 
  public:
-  TcpConnection(const LinkStrandRef &strand, const string_ &dsid_prefix,
+  TcpConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                 const string_ &path = "");
 
   void start_read(shared_ptr_<Connection> &&connection) final;

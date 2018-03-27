@@ -39,7 +39,7 @@ class BaseSocketConnection : public Connection {
                           shared_ptr_<Connection> &&sthis);
 
  public:
-  BaseSocketConnection(const LinkStrandRef &strand, const string_ &dsid_prefix,
+  BaseSocketConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                        const string_ &path = "");
 
   virtual void start_read(shared_ptr_<Connection> &&connection) = 0;

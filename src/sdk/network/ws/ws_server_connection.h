@@ -25,8 +25,8 @@ class WsServerConnection final : public WsConnection {
 
  public:
   WsServerConnection(std::unique_ptr<Websocket> websocket,
-                     const LinkStrandRef &strand, const string_ &dsid_prefix = "",
-                     const string_ &path = "");
+                     const SharedLinkStrandRef &strand,
+                     const string_ &dsid_prefix = "", const string_ &path = "");
 
   Websocket &ws_stream() final { return *_websocket; }
 

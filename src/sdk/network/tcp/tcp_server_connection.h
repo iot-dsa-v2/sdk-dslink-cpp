@@ -16,7 +16,7 @@ class TcpServer;
 // Handles server side of DSA handshake and starts read loop.
 class TcpServerConnection final : public TcpConnection {
  public:
-  TcpServerConnection(const LinkStrandRef &strand, const string_ &dsid_prefix = "",
+  TcpServerConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix = "",
                       const string_ &path = "");
 
   void accept() final;

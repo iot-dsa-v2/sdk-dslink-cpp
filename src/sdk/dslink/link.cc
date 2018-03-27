@@ -69,9 +69,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL(__FILENAME__,
-              LOG << "Invalid input, please check available "
-                     "parameters with --help\n");
+    LOG_FATAL(__FILENAME__, LOG << "Invalid input, please check available "
+                                   "parameters with --help\n");
   }
 
   // show help and exit
@@ -96,7 +95,7 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   client_token = "";
   auto client_token_path = variables["token"].as<string_>();
   if (client_token_path.length() != 0) {
-    if(Storage::get_config_bucket().exists(client_token_path)) {
+    if (Storage::get_config_bucket().exists(client_token_path)) {
       client_token =
           string_from_storage(client_token_path, Storage::get_config_bucket());
     } else
@@ -111,7 +110,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   master_token = "";
   auto master_token_path = variables["master_token"].as<string_>();
   if (master_token_path.length() != 0) {
-    master_token = get_master_token_from_storage(Storage::get_config_bucket(), master_token_path);
+    master_token = get_master_token_from_storage(Storage::get_config_bucket(),
+                                                 master_token_path);
     if (master_token.empty()) {
       LOG_FATAL(__FILENAME__,
                 LOG << "Fatal loading master token file " << master_token_path);
@@ -325,22 +325,22 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
 
         client_connection_maker = [
           dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
-        ](const LinkStrandRef &strand) {
+        ](const SharedLinkStrandRef &strand) {
           return make_shared_<StcpClientConnection>(
               strand, context, dsid_prefix, tcp_host, tcp_port);
         };
       } else {
         client_connection_maker = [
           dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
-        ](const LinkStrandRef &strand) {
-          return make_shared_<TcpClientConnection>(strand, dsid_prefix,
-                                                   tcp_host, tcp_port);
+        ](const SharedLinkStrandRef &strand) {
+          return make_shared_<TcpClientConnection>(
+              strand, dsid_prefix, tcp_host, tcp_port);
         };
       }
     } else if (ws_port > 0) {
       client_connection_maker = [
         dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port, this
-      ](const LinkStrandRef &strand) {
+      ](const SharedLinkStrandRef &strand) {
         return make_shared_<WsClientConnection>(secure, strand, dsid_prefix,
                                                 ws_host, ws_port);
       };
@@ -372,10 +372,9 @@ void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_INFO(__FILENAME__,
-             LOG << "DsLink on_connect callback "
-                    "ignored since it was connected "
-                    "before\n");
+    LOG_INFO(__FILENAME__, LOG << "DsLink on_connect callback "
+                                  "ignored since it was connected "
+                                  "before\n");
   }
   LOG_INFO(__FILENAME__, LOG << "DsLink running");
   if (own_app) {

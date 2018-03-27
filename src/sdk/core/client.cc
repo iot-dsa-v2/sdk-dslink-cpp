@@ -10,6 +10,7 @@
 namespace dsa {
 Client::Client(WrapperStrand &config)
     : _strand(config.strand),
+      _shared_strand(share_strand_(_strand)),
       _client_token(config.client_token),
       _session(make_ref_<Session>(
           config.strand, config.strand->ecdh().get_dsid(config.dsid_prefix))),
@@ -62,9 +63,9 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
     if (!_last_remote_dsid.empty() && !connection->get_remote_dsid().empty() &&
         _last_remote_dsid != connection->get_remote_dsid()) {
       // remote dsid should not change
-      LOG_WARN(__FILENAME__,
-               LOG << "remote dsid changed from " << _last_remote_dsid << " to "
-                   << connection->get_remote_path());
+      LOG_WARN(__FILENAME__, LOG << "remote dsid changed from "
+                                 << _last_remote_dsid << " to "
+                                 << connection->get_remote_path());
     }
     _last_connected_time = std::time(nullptr);
     if (_reconnect_interval_s > 0) {
@@ -111,9 +112,8 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
   }
 }
 void Client::_reconnect() {
-  LOG_DEBUG(__FILENAME__,
-            LOG << "Disconnected, reconnect in " << _reconnect_interval_s
-                << " seconds");
+  LOG_DEBUG(__FILENAME__, LOG << "Disconnected, reconnect in "
+                              << _reconnect_interval_s << " seconds");
   _reconnect_timer =
       _strand->add_timer(_reconnect_interval_s * 1000,
                          [ this, keep_ref = get_ref() ](bool canceled) {
@@ -129,7 +129,7 @@ void Client::make_new_connection() {
     _connection->destroy();
     _connection.reset();
   }
-  _connection = _client_connection_maker(_strand);
+  _connection = _client_connection_maker(_shared_strand);
   _connection->set_session(_session);
 
   _connection->connect(_reconnect_interval_s);

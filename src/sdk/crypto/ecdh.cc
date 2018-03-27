@@ -34,11 +34,12 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
   };
   bucket.read(path_str, read_callback);
   if (!callback_called) {
-    LOG_FATAL(__FILENAME__, LOG << "Storage does not support synchronize reading");
+    LOG_FATAL(__FILENAME__,
+              LOG << "Storage does not support synchronize reading");
   }
 
   if (ret == BucketReadStatus::OK) {
-    if(data.size() != 32) {
+    if (data.size() != 32) {
       LOG_FATAL(__FILENAME__, LOG << "Corrupted key file. ");
     }
     try {
@@ -52,9 +53,8 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
     LOG_FATAL(__FILENAME__, LOG << "Unable to open " << path_str << " file");
     // file exists but can't open, make a new kwy won't solve the problem
   } else {
-    LOG_FINE(__FILENAME__,
-              LOG << "couldn't load existing private key " << path_str
-                  << ", generating new key");
+    LOG_FINE(__FILENAME__, LOG << "couldn't load existing private key "
+                               << path_str << ", generating new key");
   }
 
   try {
@@ -66,7 +66,6 @@ ECDH *ECDH::from_storage(StorageBucket &bucket, const string_ &path_str) {
   } catch (std::runtime_error &e) {
     LOG_FATAL(__FILENAME__, LOG << "Unable to generate key file. " << e.what());
   }
-
 }
 
 ECDH *ECDH::from_file(const char *path_str) {
@@ -81,14 +80,14 @@ ECDH *ECDH::from_file(const char *path_str) {
         return new ECDH(data, 32);
 
       } else {
-        LOG_FATAL(__FILENAME__, LOG << "Unable to open " << path_str << " file");
+        LOG_FATAL(__FILENAME__,
+                  LOG << "Unable to open " << path_str << " file");
         // file exists but can't open, make a new kwy won't solve the problem
       }
     }
   } catch (std::exception &e) {
-    LOG_ERROR(__FILENAME__,
-              LOG << "error loading existing private key " << path_str
-                  << ", generating new key");
+    LOG_ERROR(__FILENAME__, LOG << "error loading existing private key "
+                                << path_str << ", generating new key");
   }
 
   auto newkey = new ECDH();

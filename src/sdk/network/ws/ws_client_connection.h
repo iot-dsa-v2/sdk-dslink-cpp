@@ -28,7 +28,7 @@ class WsClientConnection final : public WsConnection {
   std::mutex _mutex;
 
  public:
-  WsClientConnection(bool is_secured, const LinkStrandRef &strand,
+  WsClientConnection(bool is_secured, const SharedLinkStrandRef &strand,
                      const string_ &dsid_prefix, const string_ &ws_host,
                      uint16_t ws_port);
 

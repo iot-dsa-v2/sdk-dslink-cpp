@@ -11,10 +11,10 @@
 
 #include "core/link_strand.h"
 #include "core/session.h"
+#include "core/shared_strand_ref.h"
 #include "crypto/handshake_context.h"
-#include "util/enums.h"
-
 #include "util/enable_shared.h"
+#include "util/enums.h"
 
 namespace dsa {
 class App;
@@ -47,7 +47,7 @@ class Connection : public SharedStrandPtr<Connection> {
 
  public:
   void post_in_strand(std::function<void()> &&callback) override {
-    return _strand->post(std::move(callback));
+    return _shared_strand->post(std::move(callback));
   }
 
   std::function<void(MessageRef)> on_read_message;
@@ -71,12 +71,12 @@ class Connection : public SharedStrandPtr<Connection> {
   Session *session() { return _session.get(); }
 
  protected:
-  Connection(const LinkStrandRef &strand, const string_ &dsid_prefix,
+  Connection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
              const string_ &path = "");
   virtual ~Connection() = default;
 
   HandshakeContext _handshake_context;
-  LinkStrandRef _strand;
+  SharedLinkStrandRef _shared_strand;
 
   // this should rarely be touched
   ref_<Session> _session;
@@ -112,8 +112,8 @@ class Connection : public SharedStrandPtr<Connection> {
  protected:
   string_ _client_token;
 
-  static void on_client_connect(
-      shared_ptr_<Connection> connection) throw(const std::runtime_error &);
+  static void on_client_connect(shared_ptr_<Connection> connection) throw(
+      const std::runtime_error &);
 
   void start_client_f0();
   void on_receive_f1(MessageRef &&msg);

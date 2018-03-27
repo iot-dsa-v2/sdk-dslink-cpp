@@ -24,8 +24,8 @@ int wait_for_bool(int wait_time, std::shared_ptr<dsa::SharedRef<T>>& sptr,
   bool succeed = false;
   int waited = 0;
   while (waited < wait_time) {
-    sptr->post([&, callback](T& t, dsa::LinkStrand& strand) {
-      if (callback(t)) {
+    sptr->post([&, callback](dsa::ref_<T>& t, dsa::LinkStrand& strand) {
+      if (callback(*t)) {
         succeed = true;
       }
     });

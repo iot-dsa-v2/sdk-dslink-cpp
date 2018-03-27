@@ -8,7 +8,8 @@
 
 namespace dsa {
 
-WsClientConnection::WsClientConnection(bool is_secured, const LinkStrandRef &strand,
+WsClientConnection::WsClientConnection(bool is_secured,
+                                       const SharedLinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &host, uint16_t port)
     : WsConnection(strand, dsid_prefix),
@@ -34,7 +35,7 @@ WsClientConnection::WsClientConnection(bool is_secured, const LinkStrandRef &str
 void WsClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
-  tcp::resolver resolver(_strand->get_io_context());
+  tcp::resolver resolver(_shared_strand->get_io_context());
 
   tcp::resolver::results_type results =
       resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port)));
@@ -77,9 +78,8 @@ void WsClientConnection::connect(size_t reconnect_interval) {
           });
         });
   } else {
-    LOG_FINE(
-        __FILENAME__,
-        LOG << "WS secure client connecting to " << _hostname << ":" << _port);
+    LOG_FINE(__FILENAME__, LOG << "WS secure client connecting to " << _hostname
+                               << ":" << _port);
 
     std::lock_guard<std::mutex> lock(_mutex);
     boost::asio::async_connect(

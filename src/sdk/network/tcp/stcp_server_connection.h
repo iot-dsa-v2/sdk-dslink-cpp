@@ -17,7 +17,7 @@ namespace dsa {
 // Handles server side of DSA handshake and starts read loop.
 class StcpServerConnection final : public StcpConnection {
  public:
-  StcpServerConnection(const LinkStrandRef &strand,
+  StcpServerConnection(const SharedLinkStrandRef &strand,
                        boost::asio::ssl::context &_context,
                        const string_ &dsid_prefix = "",
                        const string_ &path = "");

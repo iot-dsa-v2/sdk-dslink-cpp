@@ -89,7 +89,7 @@ void Connection::on_receive_f3(MessageRef &&msg) {
     _deadline.cancel();
     _remote_path = f3->path;
 
-    _strand->post([sthis = shared_from_this()]() mutable {
+    _shared_strand->post([sthis = shared_from_this()]() mutable {
       on_client_connect(std::move(sthis));
     });
     on_read_message = [this](MessageRef &&message) {

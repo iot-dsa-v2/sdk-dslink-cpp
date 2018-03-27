@@ -21,7 +21,7 @@ class TcpClientConnection final : public TcpConnection {
   uint16_t _port;
 
  public:
-  TcpClientConnection(const LinkStrandRef &strand, const string_ &dsid_prefix,
+  TcpClientConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                    const string_ &tcp_host, uint16_t tcp_port);
 
   string_ name() final { return "TcpClientConnection"; }

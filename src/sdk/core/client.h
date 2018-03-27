@@ -30,6 +30,8 @@ class Client : public DestroyableRef<Client> {
 
   // for ClientConnection
   LinkStrandRef _strand;
+  SharedLinkStrandRef _shared_strand;
+
   string_ _dsid_prefix;
   string_ _client_token;
 

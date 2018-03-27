@@ -8,11 +8,11 @@
 #include "util/app.h"
 
 namespace dsa {
-Connection::Connection(const LinkStrandRef &strand, const string_ &dsid_prefix,
+Connection::Connection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                        const string_ &path)
-    : _handshake_context(dsid_prefix, strand->ecdh()),
+    : _handshake_context(dsid_prefix, strand->get_ecdh()),
       _deadline(strand->get_io_context()),
-      _strand(strand),
+      _shared_strand(strand),
       _path(path) {}
 
 void Connection::connect(size_t reconnect_interval) {
@@ -40,7 +40,7 @@ void Connection::set_session(const ref_<Session> &session) {
 
 void Connection::destroy_impl() {
   _deadline.cancel();
-  _strand.reset();
+  _shared_strand.reset();
   if (_session != nullptr) {
     // it's possibel that this will be deleted here
     // so reset the smart pointer after this line is not safe
@@ -55,12 +55,12 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
   if (_session != nullptr && !_batch_post.empty()) {
     std::vector<MessageRef> copy;
     _batch_post.swap(copy);
-    _strand->post([
+    _shared_strand->post([
       this, sthis = std::move(sthis), messages = std::move(copy)
-    ]() mutable {
+    ](ref_<LinkStrand> &, LinkStrand & strand) mutable {
       if (is_destroyed()) return;
       // a special protection to give writing higher priority than reading
-      _strand->check_injected();
+      strand.check_injected();
 
       continue_read_loop(std::move(sthis));
       if (_session != nullptr) {

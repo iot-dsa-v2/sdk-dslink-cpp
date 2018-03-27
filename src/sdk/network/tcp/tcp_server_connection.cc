@@ -14,7 +14,7 @@
 #define DEBUG 0
 
 namespace dsa {
-TcpServerConnection::TcpServerConnection(const LinkStrandRef &strand,
+TcpServerConnection::TcpServerConnection(const SharedLinkStrandRef &strand,
                                          const string_ &dsid_prefix,
                                          const string_ &path)
     : TcpConnection(strand, dsid_prefix, path) {}

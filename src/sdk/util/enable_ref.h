@@ -24,21 +24,28 @@ extern thread_local int _dsa_ref_guard_rand;
 
 class DsaRefGuard {
  public:
+  bool released = false;
   DsaRefGuard() {
     _dsa_ref_guard_rand = rand();
     ++_dsa_ref_guard_count;
   }
-  ~DsaRefGuard() {
+  ~DsaRefGuard() { release(); }
+  void release() {
+    if (released) return;
+    released = true;
     --_dsa_ref_guard_count;
     _dsa_ref_guard_rand = rand();
   }
 };
 // when DsaRefGuard is locked, refcount change shouldn't happen
-#define DSA_REF_GUARD() DsaRefGuard dsa_ref_guard();
+#define DSA_REF_GUARD DsaRefGuard dsa_ref_guard;
+#define DSA_REF_GUARD_RELEASE dsa_ref_guard.release();
 
 #else
 // do nothing in release mode
-#define DSA_REF_GUARD()
+#define DSA_REF_GUARD
+#define DSA_REF_GUARD_RELEASE
+
 #endif
 
 namespace dsa {

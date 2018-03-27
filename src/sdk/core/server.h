@@ -7,6 +7,7 @@
 
 #include "editable_strand.h"
 
+#include "core/shared_strand_ref.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -17,7 +18,7 @@ class Server : public SharedStrandPtr<Server> {
   // for Session/Requester/Responder
 
   // for ServerConnection
-  LinkStrandRef _strand;
+  SharedLinkStrandRef _shared_strand;
   string_ _dsid_prefix;
 
   //  void on_session_connected(const ref_ <Session> session);
@@ -29,10 +30,9 @@ class Server : public SharedStrandPtr<Server> {
   virtual ~Server() = default;
 
   void post_in_strand(std::function<void()> &&callback) override {
-    return _strand->post(std::move(callback));
+    return _shared_strand->post(std::move(callback));
   }
 
-  LinkStrand &get_strand() const { return *_strand; }
   const string_ &get_dsid_prefix() const { return _dsid_prefix; }
 
   virtual void start() = 0;

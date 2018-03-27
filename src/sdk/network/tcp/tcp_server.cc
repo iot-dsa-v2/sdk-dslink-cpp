@@ -18,7 +18,7 @@ TcpServer::TcpServer(WrapperStrand &config)
       _context(boost::asio::ssl::context::sslv23) {
   try {
     _acceptor = make_unique_<boost::asio::ip::tcp::acceptor>(tcp::acceptor(
-        _strand->get_io_context(),
+        _shared_strand->get_io_context(),
         tcp::endpoint(boost::asio::ip::address::from_string(config.server_host),
                       config.tcp_server_port),
         true));  // TODO: true means port reusable
@@ -43,7 +43,7 @@ TcpServer::TcpServer(WrapperStrand &config)
 
   try {
     _secure_acceptor = make_unique_<boost::asio::ip::tcp::acceptor>(
-        tcp::acceptor(_strand->get_io_context(),
+        tcp::acceptor(_shared_strand->get_io_context(),
                       tcp::endpoint(boost::asio::ip::address::from_string(
                                         config.server_host),
                                     config.tcp_secure_port),
@@ -75,7 +75,7 @@ TcpServer::~TcpServer() {
 }
 void TcpServer::start() {
   // start taking connections
-  _next_connection = make_shared_<TcpServerConnection>(_strand);
+  _next_connection = make_shared_<TcpServerConnection>(_shared_strand);
 
   _acceptor->async_accept(_next_connection->socket(), [
     this, sthis = shared_from_this()
@@ -88,7 +88,7 @@ void TcpServer::start() {
 
   // if (!_secure_acceptor->is_open()) return;
   _secure_next_connection =
-      make_shared_<StcpServerConnection>(_strand, _context);
+      make_shared_<StcpServerConnection>(_shared_strand, _context);
 
   _secure_acceptor->async_accept(_secure_next_connection->socket(), [
     this, sthis = shared_from_this()
@@ -109,10 +109,10 @@ void TcpServer::destroy_impl() {
 }
 
 void TcpServer::accept_loop(const boost::system::error_code &error) {
-  DSA_REF_GUARD();
+  DSA_REF_GUARD;
   if (!error) {
     _next_connection->accept();
-    _next_connection = make_shared_<TcpServerConnection>(_strand);
+    _next_connection = make_shared_<TcpServerConnection>(_shared_strand);
     _acceptor->async_accept(_next_connection->socket(), [
       this, sthis = shared_from_this()
     ](const boost::system::error_code &err) { accept_loop(err); });
@@ -122,11 +122,11 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
 }
 
 void TcpServer::secure_accept_loop(const boost::system::error_code &error) {
-  DSA_REF_GUARD();
+  DSA_REF_GUARD;
   if (!error) {
     _secure_next_connection->accept();
     _secure_next_connection =
-        make_shared_<StcpServerConnection>(_strand, _context);
+        make_shared_<StcpServerConnection>(_shared_strand, _context);
     _secure_acceptor->async_accept(_secure_next_connection->socket(), [
       this, sthis = shared_from_this()
     ](const boost::system::error_code &err) { secure_accept_loop(err); });
