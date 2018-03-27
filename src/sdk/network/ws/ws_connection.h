@@ -46,7 +46,7 @@ class WsConnection : public BaseSocketConnection {
   void destroy_impl() override;
 
  public:
-  WsConnection(const LinkStrandRef &strand, const string_ &dsid_prefix,
+  WsConnection(SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                const string_ &path = "");
 
   virtual Websocket &ws_stream() = 0;

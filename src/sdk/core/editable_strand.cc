@@ -102,7 +102,7 @@ void EditableStrand::_prepare_inject_callback() {
   };
 }
 void EditableStrand::inject(std::function<void()>&& callback) {
-  DSA_REF_GUARD();
+  DSA_REF_GUARD;
   std::lock_guard<std::mutex> lock(_inject_mutex);
 
   _inject_queue.emplace_back(std::move(callback));

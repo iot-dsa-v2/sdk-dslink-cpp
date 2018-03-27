@@ -9,7 +9,7 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(const LinkStrandRef &strand, const string_ &dsid_prefix,
+TcpConnection::TcpConnection(SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                              const string_ &path)
     : BaseSocketConnection(strand, dsid_prefix, path),
       _socket(strand->get_io_context()) {}
@@ -69,7 +69,7 @@ void TcpConnection::WriteBuffer::write(WriteHandler &&callback) {
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
-        DSA_REF_GUARD();
+        DSA_REF_GUARD;
         callback(error);
       });
 }

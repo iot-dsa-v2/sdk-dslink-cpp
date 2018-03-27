@@ -40,7 +40,7 @@ void StrandTimer::schedule(ref_<StrandTimer>&& rthis, int32_t interval_ms) {
   _timer->expires_from_now(boost::posix_time::milliseconds(interval_ms));
   _timer->async_wait([ this, rthis = std::move(rthis) ](
       const boost::system::error_code& error) mutable {
-    DSA_REF_GUARD();
+    DSA_REF_GUARD;
     _strand->dispatch([
       this, rthis = std::move(rthis),
       canceled = (error == boost::asio::error::operation_aborted)

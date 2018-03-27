@@ -9,7 +9,7 @@
 
 namespace dsa {
 
-StcpConnection::StcpConnection(const LinkStrandRef &strand,
+StcpConnection::StcpConnection(SharedLinkStrandRef &strand,
                                boost::asio::ssl::context &context,
                                const string_ &dsid_prefix, const string_ &path)
     : BaseSocketConnection(strand, dsid_prefix, path),
@@ -70,7 +70,7 @@ void StcpConnection::WriteBuffer::write(WriteHandler &&callback) {
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
-        DSA_REF_GUARD();
+        DSA_REF_GUARD;
         callback(error);
       });
 }

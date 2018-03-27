@@ -7,7 +7,7 @@
 
 namespace dsa {
 
-BaseSocketConnection::BaseSocketConnection(const LinkStrandRef &strand,
+BaseSocketConnection::BaseSocketConnection(SharedLinkStrandRef &strand,
                                            const string_ &dsid_prefix,
                                            const string_ &path)
     : Connection(strand, dsid_prefix, path),
@@ -24,7 +24,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
                                       size_t from_prev,
                                       const boost::system::error_code &error,
                                       size_t bytes_transferred) {
-  DSA_REF_GUARD();
+  DSA_REF_GUARD;
 
   if (!error) {
     std::vector<uint8_t> &buffer = _read_buffer;

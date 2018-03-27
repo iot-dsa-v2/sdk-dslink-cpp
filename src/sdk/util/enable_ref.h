@@ -34,11 +34,11 @@ class DsaRefGuard {
   }
 };
 // when DsaRefGuard is locked, refcount change shouldn't happen
-#define DSA_REF_GUARD() DsaRefGuard dsa_ref_guard();
+#define DSA_REF_GUARD DsaRefGuard dsa_ref_guard;
 
 #else
 // do nothing in release mode
-#define DSA_REF_GUARD()
+#define DSA_REF_GUARD
 #endif
 
 namespace dsa {
