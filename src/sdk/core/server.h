@@ -23,8 +23,6 @@ class Server : public SharedStrandPtr<Server> {
 
   //  void on_session_connected(const ref_ <Session> session);
 
-  void destroy_impl() override;
-
  public:
   explicit Server(WrapperStrand &config);
   virtual ~Server() = default;

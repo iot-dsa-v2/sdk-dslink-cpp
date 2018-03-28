@@ -71,10 +71,8 @@ class ref_ {
       // allow a ref to be created in different thread
       px->_first_guard = _dsa_ref_guard_rand;
     } else {
-#if !defined(_MSC_VER)
       BOOST_ASSERT(_dsa_ref_guard_count == 0 ||
                    px->_first_guard == _dsa_ref_guard_rand);
-#endif
     }
 
     BOOST_ASSERT(px->_ref_mutex.try_lock());
@@ -82,10 +80,8 @@ class ref_ {
     px->_ref_mutex.unlock();
   }
   size_t dec_ref() {
-#if !defined(_MSC_VER)
     BOOST_ASSERT(_dsa_ref_guard_count == 0 ||
                  px->_first_guard == _dsa_ref_guard_rand);
-#endif
     BOOST_ASSERT(px->_ref_mutex.try_lock());
     --px->_refs;
     px->_ref_mutex.unlock();

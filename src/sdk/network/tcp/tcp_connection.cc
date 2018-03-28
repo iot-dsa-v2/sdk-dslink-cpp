@@ -9,8 +9,8 @@
 
 namespace dsa {
 
-TcpConnection::TcpConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
-                             const string_ &path)
+TcpConnection::TcpConnection(const SharedLinkStrandRef &strand,
+                             const string_ &dsid_prefix, const string_ &path)
     : BaseSocketConnection(strand, dsid_prefix, path),
       _socket(strand->get_io_context()) {}
 
@@ -52,9 +52,8 @@ void TcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                      int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
-    LOG_FATAL(
-        __FILENAME__,
-        LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
+    LOG_FATAL(__FILENAME__, LOG << "message is bigger than max buffer size: "
+                                << MAX_BUFFER_SIZE);
   }
 
   while (total_size > connection._write_buffer.size()) {
@@ -69,7 +68,9 @@ void TcpConnection::WriteBuffer::write(WriteHandler &&callback) {
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
+#if !defined(_MSC_VER)
         DSA_REF_GUARD;
+#endif
         callback(error);
       });
 }
