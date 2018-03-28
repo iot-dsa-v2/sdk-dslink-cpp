@@ -79,7 +79,7 @@ class Var : public BaseVariant {
   explicit Var(int64_t v);
   explicit Var(int32_t v);
   explicit Var(uint32_t v);
-  explicit Var(uint64_t v);
+  explicit Var(size_t v);
 
   explicit Var(double v);
   explicit Var(bool v);
