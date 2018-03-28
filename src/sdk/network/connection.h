@@ -46,9 +46,7 @@ class Connection : public SharedStrandPtr<Connection> {
   virtual string_ name() = 0;
 
  public:
-  void post_in_strand(std::function<void()> &&callback) override {
-    return _shared_strand->post(std::move(callback));
-  }
+  void post_in_strand(std::function<void()> &&callback) override;
 
   std::function<void(MessageRef)> on_read_message;
 

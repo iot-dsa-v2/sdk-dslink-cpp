@@ -8,12 +8,19 @@
 #include "util/app.h"
 
 namespace dsa {
-Connection::Connection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
-                       const string_ &path)
+Connection::Connection(const SharedLinkStrandRef &strand,
+                       const string_ &dsid_prefix, const string_ &path)
     : _handshake_context(dsid_prefix, strand->get_ecdh()),
       _deadline(strand->get_io_context()),
       _shared_strand(strand),
       _path(path) {}
+
+void Connection::post_in_strand(std::function<void()> &&callback) {
+  std::lock_guard<std::mutex> unique_lock(mutex);
+  if (_shared_strand != nullptr) {
+    return _shared_strand->post(std::move(callback));
+  }
+}
 
 void Connection::connect(size_t reconnect_interval) {
   throw std::runtime_error("not implemented");
