@@ -40,6 +40,8 @@ class DsaRefGuard {
 // when DsaRefGuard is locked, refcount change shouldn't happen
 #define DSA_REF_GUARD DsaRefGuard dsa_ref_guard;
 #define DSA_REF_GUARD_RELEASE dsa_ref_guard.release();
+// the above ref count protection can not be done on visual studio because of this bug
+// https://developercommunity.visualstudio.com/content/problem/224120/lambda-can-not-be-added-into-vector-without-copy.html
 
 #else
 // do nothing in release mode
@@ -69,8 +71,10 @@ class ref_ {
       // allow a ref to be created in different thread
       px->_first_guard = _dsa_ref_guard_rand;
     } else {
+#if !defined(_MSC_VER)
       BOOST_ASSERT(_dsa_ref_guard_count == 0 ||
                    px->_first_guard == _dsa_ref_guard_rand);
+#endif
     }
 
     BOOST_ASSERT(px->_ref_mutex.try_lock());
@@ -78,8 +82,10 @@ class ref_ {
     px->_ref_mutex.unlock();
   }
   size_t dec_ref() {
+#if !defined(_MSC_VER)
     BOOST_ASSERT(_dsa_ref_guard_count == 0 ||
                  px->_first_guard == _dsa_ref_guard_rand);
+#endif
     BOOST_ASSERT(px->_ref_mutex.try_lock());
     --px->_refs;
     px->_ref_mutex.unlock();
