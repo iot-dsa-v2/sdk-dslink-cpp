@@ -13,7 +13,7 @@ void ConsoleLogger::write_meta(std::ostream& stream, const char* level,
   const string_& ts = DateTime::get_ts();
   // use substrings of the timestamp
   stream << "[" << level << string_(&ts[0], &ts[10]) << " "
-         << string_(&ts[11], &ts[23]) << "][" << log_name << "]  ";
+         << string_(&ts[11], &ts[23]) << "][" << log_name << "] ";
 }
 
 void ConsoleLogger::log(const string_& str, uint8_t lvl) {

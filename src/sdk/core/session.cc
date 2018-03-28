@@ -15,15 +15,23 @@ namespace dsa {
 // logid format : 8 bytes of dsid, and space
 //                4 bytes of base64 encoded this pointer,
 //                1 byte of reconnection id
-static string_ _create_log_id(void *p) {
-  string_ rslt = "???????? xxxxA";
+static string_ _create_log_id(const string_ &id, void *p) {
+  size_t pt_offset = 9;
+  string_ rslt;
+  if (id.size() > 8) {
+    rslt = id.substr(0, 8) + ":xxxx";
+  } else {
+    rslt = id + ":xxxx";
+    pt_offset = id.size() + 1;
+  }
 
   uint8_t *p8 = reinterpret_cast<uint8_t *>(&p);
   // encode 3 bytes of the pointer into base64, and a unique id fo the session
   // instance
-  string_ encoded_pointer = base64_encode(p8 + sizeof(void *) - 3, 3);
+  string_ encoded_pointer = base64_encode(p8, 3);
 
-  std::copy(encoded_pointer.begin(), encoded_pointer.end(), rslt.begin() + 9);
+  std::copy(encoded_pointer.begin(), encoded_pointer.end(),
+            rslt.begin() + pt_offset);
 
   return std::move(rslt);
 }
@@ -31,6 +39,7 @@ static string_ _create_log_id(void *p) {
 Session::Session(const LinkStrandRef &strand, const string_ &dsid)
     : _strand(strand),
       _remote_id(dsid),
+      _log_id(_create_log_id(_remote_id, this)),
       requester(*this),
       responder(*this),
       _timer(_strand->add_timer(0, nullptr)),
@@ -57,27 +66,33 @@ void Session::connected(shared_ptr_<Connection> connection) {
     return;
   }
   _connection = std::move(connection);
+  if (_connection != nullptr) {
+    if (_connection->get_dsid() != _remote_id) {
+      _remote_id = _connection->get_dsid();
+      _log_id = _create_log_id(_remote_id, this);
+    }
 
-  requester.connected();
+    requester.connected();
 
-  // TODO, what if previous write loop is not finished
-  write_loop(get_ref());
+    // TODO, what if previous write loop is not finished
+    write_loop(get_ref());
+
+    _timer->destroy();
+    // start the 15 seconds timer
+    _no_receive_in_loop = 0;
+    _no_sent_in_loop = 0;
+    _timer = _strand->add_timer(15000,
+                                [ this, keep_ref = get_ref() ](bool canceled) {
+                                  if (canceled) {
+                                    return false;
+                                  }
+                                  return _on_timer();
+                                });
+  }
 
   if (_on_connect != nullptr) {
     _on_connect(*this, _connection);
   }
-
-  _timer->destroy();
-  // start the 15 seconds timer
-  _no_receive_in_loop = 0;
-  _no_sent_in_loop = 0;
-  _timer =
-      _strand->add_timer(15000, [ this, keep_ref = get_ref() ](bool canceled) {
-        if (canceled) {
-          return false;
-        }
-        return _on_timer();
-      });
 }
 void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
@@ -147,8 +162,7 @@ void Session::check_pending_acks(int32_t ack) {
 
 void Session::receive_message(MessageRef &&message) {
   if (is_destroyed()) return;
-  LOG_TRACE(__FILENAME__, LOG << "receive message: ";
-            message->print_message(LOG););
+  LOG_TRACE(_log_id, LOG << ">> "; message->print_message(LOG););
 
   _no_receive_in_loop = 0;
   if (message->type() == MessageType::PING) return;
@@ -228,7 +242,7 @@ void Session::write_loop(ref_<Session> ref) {
                                       std::move(ack_callback));
     }
 
-    LOG_TRACE(__FILENAME__, LOG << "send message: ";
+    LOG_TRACE(ref->_log_id, LOG << "<<<< ";
               message->print_message(LOG, stream->rid););
 
     write_buffer->add(*message, stream->rid, ref->_waiting_ack);

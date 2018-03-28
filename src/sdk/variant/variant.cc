@@ -12,7 +12,6 @@ VarArray::VarArray(std::initializer_list<Var> init) : std::vector<Var>(init) {}
 
 Var::Var(const int64_t v) : BaseVariant(v) {}
 Var::Var(const int32_t v) : BaseVariant(static_cast<int64_t>(v)) {}
-Var::Var(const uint32_t v) : BaseVariant(static_cast<int64_t>(v)) {}
 Var::Var(const size_t v) : BaseVariant(static_cast<int64_t>(v)) {}
 
 Var::Var(const double v) : BaseVariant(v) {}
