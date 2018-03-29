@@ -5,17 +5,15 @@
 #pragma once
 #endif
 
-#include "dsa_common.h"
 #include <boost/asio/io_service.hpp>
+#include "dsa_common.h"
 #include "login_manager.h"
 #include "util/client_info.h"
 #include "web_server.h"
 
-
 namespace dsa {
 
 class UserLoginManager final : public LoginManager {
-
   WebServer& _web_server;
 
  public:
@@ -24,10 +22,7 @@ class UserLoginManager final : public LoginManager {
                    ClientInfo::GetClientCallback&& callback) override;
   void get_user(const string_& username,
                 ClientInfo::GetClientCallback&& callback) override;
-
 };
-
 }
 
-
-#endif //DSA_SDK_USER_LOGIN_MANAGER_H
+#endif  // DSA_SDK_USER_LOGIN_MANAGER_H

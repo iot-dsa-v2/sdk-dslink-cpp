@@ -1,9 +1,3 @@
 #include "user_session.h"
 
-namespace dsa {
-
-
-
-
-
-}
+namespace dsa {}

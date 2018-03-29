@@ -58,8 +58,8 @@ std::string path_cat(boost::beast::string_view base,
   return result;
 }
 
-std::unordered_map<std::string, std::string> parse(const std::string &query,
-                                         const std::string &separator) {
+std::unordered_map<std::string, std::string> parse(
+    const std::string &query, const std::string &separator) {
   std::unordered_map<std::string, std::string> data;
   std::regex pattern("([\\w+%]+)=([^" + separator + "]*)");
   auto words_begin = std::sregex_iterator(query.begin(), query.end(), pattern);
@@ -76,11 +76,9 @@ std::unordered_map<std::string, std::string> parse(const std::string &query,
 namespace dsa {
 
 HttpRequest::HttpRequest(
-    WebServer &web_server, boost::asio::ip::tcp::socket socket,
+    WebServer &web_server,
     http::request<request_body_t, http::basic_fields<alloc_t>> req)
-    : _web_server(web_server),
-      _socket(std::move(socket)),
-      _req(std::move(req)) {}
+    : _web_server(web_server), _req(std::move(req)), _is_secured(false) {}
 
 void HttpRequest::send_bad_response(http::status status,
                                     std::string const &error) {
@@ -95,7 +93,7 @@ void HttpRequest::send_bad_response(http::status status,
   get_response<HttpStringResponse>()->prep_response()->body() = error;
   get_response<HttpStringResponse>()->prep_response()->prepare_payload();
   get_response<HttpStringResponse>()->prep_serializer();
-  get_response<HttpStringResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpStringResponse>());
 }
 
 void HttpRequest::send_file(boost::beast::string_view target) {
@@ -126,7 +124,7 @@ void HttpRequest::send_file(boost::beast::string_view target) {
   get_response<HttpFileResponse>()->prep_response()->body() = std::move(file);
   get_response<HttpFileResponse>()->prep_response()->prepare_payload();
   get_response<HttpFileResponse>()->prep_serializer();
-  get_response<HttpFileResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpFileResponse>());
 }
 
 void HttpRequest::redirect_handler(const string_ &location,
@@ -145,7 +143,7 @@ void HttpRequest::redirect_handler(const string_ &location,
   get_response<HttpStringResponse>()->prep_response()->body() = message;
   get_response<HttpStringResponse>()->prep_response()->prepare_payload();
   get_response<HttpStringResponse>()->prep_serializer();
-  get_response<HttpStringResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpStringResponse>());
 }
 
 void HttpRequest::not_found_handler(const string_ &error) {
@@ -170,6 +168,34 @@ void HttpRequest::file_server_handler(const string_ &_target) {
   }
 }
 
+void HttpRequest::login_handler() {
+  if (_req.method() == http::verb::post) {
+    auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()), "&");
+    auto username = kvMap.at("username");
+    if (_req.body().data().size() == 0 || username.empty()) {
+      return send_bad_response(http::status::bad_request, "Invalid request-method \r\n");
+    }
+
+    auto isRemember = !kvMap.at("remember").empty();  // TODO global secure mode check
+
+    string_ password = nullptr;
+    if (kvMap.at("b64") == "yes")
+      password = base64_decode(kvMap.at("password"));
+
+    bool success = false;
+    _web_server.login_manager()->check_login(username, password, [=, &success](const ClientInfo clientInfo, bool error){
+      if (username == "dgSuper" && password == "dglux1234")
+        success = true;
+    });
+
+    // TODO audit user login with username and remote address
+    // update current session
+
+
+
+  }
+}
+
 void HttpRequest::authentication_handler() {
   auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()), "&");
   string_ token;
@@ -177,10 +203,7 @@ void HttpRequest::authentication_handler() {
   if (!is_authenticated(kvMap.at("username"),
                         base64_decode(kvMap.at("password"))))
     return not_found_handler("Login did not succeed");
-  // check session
-  // create new session DGSESSION
-  // if remember me create DGUSER DGTOKEN
-  // response set cookie
+
   create_response<HttpStringResponse>();
   get_response<HttpStringResponse>()->init_response();
   get_response<HttpStringResponse>()->prep_response()->result(
@@ -192,22 +215,63 @@ void HttpRequest::authentication_handler() {
                                                            "dglux_server");
   get_response<HttpStringResponse>()->prep_response()->set(
       http::field::content_type, "text/plain");
-  get_response<HttpStringResponse>()->prep_response()->set(
-      http::field::cookie,
-      _web_server.session_manager()->TOKEN_COOKIE + "=" + token);
+
+  // check session
+  // create new session DGSESSION
+  // if remember me create DGUSER DGTOKEN
+  // response set cookie
+
+  if (!is_session_active()) {
+    get_response<HttpStringResponse>()->prep_response()->set(
+        http::field::cookie,
+        _web_server.session_manager()->SESSION_COOKIE + "=" +
+            create_new_session());
+  }
+
+  //  get_response<HttpStringResponse>()->prep_response()->set(
+  //      http::field::cookie,
+  //      _web_server.session_manager()->TOKEN_COOKIE + "=" + token);
+
   get_response<HttpStringResponse>()->prep_response()->body() =
       "Login succeeded";
   get_response<HttpStringResponse>()->prep_response()->prepare_payload();
   get_response<HttpStringResponse>()->prep_serializer();
-  get_response<HttpStringResponse>()->writer(std::move(_socket));
+  writer(get_response<HttpStringResponse>());
+}
+
+std::string HttpRequest::get_session_cookie() {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto session_cookie =
+      cvMap.find(_web_server.session_manager()->SESSION_COOKIE);
+  if (session_cookie != cvMap.end())
+    return cvMap.at(_web_server.session_manager()->SESSION_COOKIE);
+  else
+    return {};
+}
+
+std::string HttpRequest::get_token_cookie() {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto token_cookie = cvMap.find(_web_server.session_manager()->TOKEN_COOKIE);
+  if (token_cookie != cvMap.end())
+    return cvMap.at(_web_server.session_manager()->TOKEN_COOKIE);
+  else
+    return {};
+}
+
+std::string HttpRequest::get_user_cookie() {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto user_cookie = cvMap.find(_web_server.session_manager()->USER_COOKIE);
+  if (user_cookie != cvMap.end())
+    return cvMap.at(_web_server.session_manager()->USER_COOKIE);
+  else
+    return {};
 }
 
 bool HttpRequest::is_authenticated(const string_ &username,
                                    const string_ &password) {
-  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
-  auto token_cookie = cvMap.find(_web_server.session_manager()->TOKEN_COOKIE);
+  auto token_cookie = get_token_cookie();
   bool authenticated = false;
-  if (token_cookie == cvMap.end()) {
+  if (!token_cookie.empty()) {
     _web_server.login_manager()->check_login(
         username, password, [&](const ClientInfo client, bool error) {
           // token = client.permission_str;
@@ -218,35 +282,132 @@ bool HttpRequest::is_authenticated(const string_ &username,
 }
 
 bool HttpRequest::is_authenticated() {
-  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
-  auto token_cookie = cvMap.find(_web_server.session_manager()->TOKEN_COOKIE);
+  auto token_cookie = get_token_cookie();
   bool authenticated = false;
-  if (token_cookie == cvMap.end())
-    authenticated = _web_server.session_manager()->check_session(
-        cvMap.at(_web_server.session_manager()->TOKEN_COOKIE));
+  if (!token_cookie.empty()) {
+    authenticated = _web_server.session_manager()->check_session_info(
+        get_session_cookie(), get_user_cookie(), get_token_cookie());
+    authenticated = true;
+  }
   return authenticated;
 }
 
 bool HttpRequest::is_session_active() {
-  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
-  auto session_cookie =
-      cvMap.find(_web_server.session_manager()->SESSION_COOKIE);
-  bool active = false;
-  if (session_cookie != cvMap.end()) active = true;
-  //        _web_server.session_manager()->check_session(cvMap.at("DGSESSION"));
-
-  return active;
+  auto session_cookie = get_session_cookie();
+  return !session_cookie.empty() && is_session_active(session_cookie);
 }
 
-void HttpRequest::create_session() {
+bool HttpRequest::is_session_active(const string_ &session_cookie) {
+  return _web_server.session_manager()->check_session(session_cookie);
+}
+
+string_ HttpRequest::create_new_session() {
   string_ session_cookie = generate_random_string(50);
-  // if 'remember_me' feature is activated for the user in the users.json file
-  // generate token_cookie = generate_random_string(80);
-  // and user_cookie = "username will be taken from users.json file like
-  // 'dgSuper'";
-  if (!_web_server.session_manager()->check_session(session_cookie))
-    _web_server.session_manager()->add_session(session_cookie);
+  auto user_cookie = get_user_cookie();
+  auto token_cookie = get_token_cookie();
+  if (!token_cookie.empty() && !user_cookie.empty())
+    _web_server.session_manager()->add_session(session_cookie, user_cookie,
+                                               token_cookie);
   else
-    create_session();
+    _web_server.session_manager()->add_session(session_cookie);
+  return session_cookie;
+  //   if 'remember_me' feature is activated for the user in the users.json
+  //   file generate token_cookie = generate_random_string(80);
+  //   and user_cookie = "username will be taken from users.json file like
+  //   'dgSuper'";
+}
+
+PlainHttpRequest::PlainHttpRequest(
+    WebServer &web_server, tcp::socket &&socket,
+    http::request<request_body_t, http::basic_fields<alloc_t>> _req)
+    : HttpRequest(web_server, std::move(_req)), _socket(std::move(socket)) {}
+
+SecureHttpRequest::SecureHttpRequest(
+    WebServer &web_server, ssl_stream<tcp::socket> &&stream,
+    http::request<request_body_t, http::basic_fields<alloc_t>> _req)
+    : HttpRequest(web_server, std::move(_req)), _stream(std::move(stream)) {}
+
+void PlainHttpRequest::writer(shared_ptr_<HttpStringResponse> resp) {
+  http::async_write(_socket, *resp->_str_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _socket.shutdown(tcp::socket::shutdown_send, ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_str_serializer.reset();
+                      resp->_str_resp.reset();
+                    });
+}
+
+void PlainHttpRequest::writer(shared_ptr_<HttpFileResponse> resp) {
+  http::async_write(_socket, *resp->_file_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _socket.shutdown(tcp::socket::shutdown_send, ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_file_serializer.reset();
+                      resp->_file_resp.reset();
+                    });
+}
+
+void SecureHttpRequest::writer(shared_ptr_<HttpStringResponse> resp) {
+  http::async_write(_stream, *resp->_str_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _stream.shutdown(ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_str_serializer.reset();
+                      resp->_str_resp.reset();
+                    });
+}
+
+void SecureHttpRequest::writer(shared_ptr_<HttpFileResponse> resp) {
+  http::async_write(_stream, *resp->_file_serializer,
+                    [ this, self = shared_from_this(), &resp ](
+                        boost::beast::error_code ec, std::size_t) {
+
+                      if (ec == boost::asio::error::operation_aborted) return;
+
+                      if (ec == http::error::end_of_stream) {
+                        _stream.shutdown(ec);
+                        return;
+                      }
+
+                      if (ec) {
+                        std::cerr << "write: " << ec.message() << "\n";
+                        return;
+                      }
+                      resp->_file_serializer.reset();
+                      resp->_file_resp.reset();
+                    });
 }
 }
