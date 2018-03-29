@@ -1,9 +1,47 @@
+# Installation
+
+1. Install dependent packages
+  * cmake
+  * g++
+  * boost version 1.66
+  * openssl
+  * ninja
+
+2. Clone the SDK
+
+  `$ git clone https://github.com/iot-dsa-v2/sdk-dslink-cpp.git`
+
+3. If dependent packages (i.e. boost, openssl) are not installed to 
+standard locations, setup SDK to point to locations which those packages were installed
+
+  - By default, Boost install location is set to `/usr/local`. Modify ./install.sh to point it to your Boost install location
+
+  - By default, openSSL root directory is set to `/usr/local/ssl` on Linux and `/usr/local/Cellar/openssl/1.0.2n` on macOS. Modify `CMakeListConfig.txt`to point it to your openssl install location
+
+4. On Windows, refer to platform specific installation information below.
+
+  On other platform, run ```./install.sh``` to build the sdk or you can use cmake directly by doing something along the lines of
+
+  ```
+  $ cd sdk-dslink-cpp
+  $ mkdir build
+  $ cd build
+  $ cmake -GNinja ..
+  $ ninja
+  ```
+
+
+# Platform specific installation information
+
 ## Ubuntu Setup
-1. install libssl-dev
-1. download and extract boost 1.66
-1. cd boost_1_66_0/
-1. run `./bootstrap.sh`
-1. run `./b2 install`
+1. Install Boost
+  - download and extract boost 1.66
+  - cd boost_1_66_0/
+  - run `./bootstrap.sh`
+  - run `./b2 install`
+
+2. Install openssl
+  - `sudo apt install libssl-dev`
 
 ## Windows Visual Studio Setup
 
@@ -18,7 +56,7 @@
 1. run `.\vcpkg integrate install`
 1. In visual studio, use `file-open-folder..` instead of creating project 
 
-## WIndows MinGW Setup
+## Windows MinGW Setup
 
 * install mysys2 64 bit
 * run `pacman -Syu` and close window when finished
@@ -40,15 +78,3 @@ Once homebrew is installed, run the command
 
 ```brew install cmake ninja boost openssl```
 
-Once the dependencies have been installed, you should be good to go. 
-
-Run ```./install.sh``` to build the sdk or you can use cmake directly by doing something along the lines of
-
-```
-$ git clone https://github.com/iot-dsa-v2/sdk-dslink-cpp.git
-$ cd sdk-dslink-cpp
-$ mkdir build
-$ cd build
-$ cmake -GNinja ..
-$ ninja
-```
