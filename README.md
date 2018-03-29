@@ -7,18 +7,18 @@
   * openssl
   * ninja
 
-1. Clone the SDK
+2. Clone the SDK
 
   `$ git clone https://github.com/iot-dsa-v2/sdk-dslink-cpp.git`
 
-1. if dependent packages (i.e. boost, openssl) are not installed to 
+3. If dependent packages (i.e. boost, openssl) are not installed to 
 standard locations, setup SDK to point to locations which those packages were installed
 
   - By default, Boost install location is set to `/usr/local`. Modify ./install.sh to point it to your Boost install location
 
   - By default, openSSL root directory is set to `/usr/local/ssl` on Linux and `/usr/local/Cellar/openssl/1.0.2n` on macOS. Modify `CMakeListConfig.txt`to point it to your openssl install location
 
-1. On Windows, refer to platform specific installation information below.
+4. On Windows, refer to platform specific installation information below.
 
   On other platform, run ```./install.sh``` to build the sdk or you can use cmake directly by doing something along the lines of
 
@@ -40,7 +40,7 @@ standard locations, setup SDK to point to locations which those packages were in
   - run `./bootstrap.sh`
   - run `./b2 install`
 
-1. Install openssl
+2. Install openssl
   - `sudo apt install libssl-dev`
 
 ## Windows Visual Studio Setup
