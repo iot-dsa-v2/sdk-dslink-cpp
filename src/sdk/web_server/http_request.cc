@@ -168,6 +168,34 @@ void HttpRequest::file_server_handler(const string_ &_target) {
   }
 }
 
+void HttpRequest::login_handler() {
+  if (_req.method() == http::verb::post) {
+    auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()), "&");
+    auto username = kvMap.at("username");
+    if (_req.body().data().size() == 0 || username.empty()) {
+      return send_bad_response(http::status::bad_request, "Invalid request-method \r\n");
+    }
+
+    auto isRemember = !kvMap.at("remember").empty();  // TODO global secure mode check
+
+    string_ password = nullptr;
+    if (kvMap.at("b64") == "yes")
+      password = base64_decode(kvMap.at("password"));
+
+    bool success = false;
+    _web_server.login_manager()->check_login(username, password, [=, &success](const ClientInfo clientInfo, bool error){
+      if (username == "dgSuper" && password == "dglux1234")
+        success = true;
+    });
+
+    // TODO audit user login with username and remote address
+    // update current session
+
+
+
+  }
+}
+
 void HttpRequest::authentication_handler() {
   auto kvMap = parse(boost::beast::buffers_to_string(_req.body().data()), "&");
   string_ token;
@@ -175,10 +203,7 @@ void HttpRequest::authentication_handler() {
   if (!is_authenticated(kvMap.at("username"),
                         base64_decode(kvMap.at("password"))))
     return not_found_handler("Login did not succeed");
-  // check session
-  // create new session DGSESSION
-  // if remember me create DGUSER DGTOKEN
-  // response set cookie
+
   create_response<HttpStringResponse>();
   get_response<HttpStringResponse>()->init_response();
   get_response<HttpStringResponse>()->prep_response()->result(
@@ -190,9 +215,23 @@ void HttpRequest::authentication_handler() {
                                                            "dglux_server");
   get_response<HttpStringResponse>()->prep_response()->set(
       http::field::content_type, "text/plain");
-  get_response<HttpStringResponse>()->prep_response()->set(
-      http::field::cookie,
-      _web_server.session_manager()->TOKEN_COOKIE + "=" + token);
+
+  // check session
+  // create new session DGSESSION
+  // if remember me create DGUSER DGTOKEN
+  // response set cookie
+
+  if (!is_session_active()) {
+    get_response<HttpStringResponse>()->prep_response()->set(
+        http::field::cookie,
+        _web_server.session_manager()->SESSION_COOKIE + "=" +
+            create_new_session());
+  }
+
+  //  get_response<HttpStringResponse>()->prep_response()->set(
+  //      http::field::cookie,
+  //      _web_server.session_manager()->TOKEN_COOKIE + "=" + token);
+
   get_response<HttpStringResponse>()->prep_response()->body() =
       "Login succeeded";
   get_response<HttpStringResponse>()->prep_response()->prepare_payload();
@@ -200,12 +239,39 @@ void HttpRequest::authentication_handler() {
   writer(get_response<HttpStringResponse>());
 }
 
-bool HttpRequest::is_authenticated(const string_ &username,
-                                   const string_ &password) {
+std::string HttpRequest::get_session_cookie() {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto session_cookie =
+      cvMap.find(_web_server.session_manager()->SESSION_COOKIE);
+  if (session_cookie != cvMap.end())
+    return cvMap.at(_web_server.session_manager()->SESSION_COOKIE);
+  else
+    return {};
+}
+
+std::string HttpRequest::get_token_cookie() {
   auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
   auto token_cookie = cvMap.find(_web_server.session_manager()->TOKEN_COOKIE);
+  if (token_cookie != cvMap.end())
+    return cvMap.at(_web_server.session_manager()->TOKEN_COOKIE);
+  else
+    return {};
+}
+
+std::string HttpRequest::get_user_cookie() {
+  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
+  auto user_cookie = cvMap.find(_web_server.session_manager()->USER_COOKIE);
+  if (user_cookie != cvMap.end())
+    return cvMap.at(_web_server.session_manager()->USER_COOKIE);
+  else
+    return {};
+}
+
+bool HttpRequest::is_authenticated(const string_ &username,
+                                   const string_ &password) {
+  auto token_cookie = get_token_cookie();
   bool authenticated = false;
-  if (token_cookie == cvMap.end()) {
+  if (!token_cookie.empty()) {
     _web_server.login_manager()->check_login(
         username, password, [&](const ClientInfo client, bool error) {
           // token = client.permission_str;
@@ -216,36 +282,39 @@ bool HttpRequest::is_authenticated(const string_ &username,
 }
 
 bool HttpRequest::is_authenticated() {
-  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
-  auto token_cookie = cvMap.find(_web_server.session_manager()->TOKEN_COOKIE);
+  auto token_cookie = get_token_cookie();
   bool authenticated = false;
-  if (token_cookie == cvMap.end())
-    authenticated = _web_server.session_manager()->check_session(
-        cvMap.at(_web_server.session_manager()->TOKEN_COOKIE));
+  if (!token_cookie.empty()) {
+    authenticated = _web_server.session_manager()->check_session_info(
+        get_session_cookie(), get_user_cookie(), get_token_cookie());
+    authenticated = true;
+  }
   return authenticated;
 }
 
 bool HttpRequest::is_session_active() {
-  auto cvMap = parse(_req.at(http::field::cookie).to_string(), ";");
-  auto session_cookie =
-      cvMap.find(_web_server.session_manager()->SESSION_COOKIE);
-  bool active = false;
-  if (session_cookie != cvMap.end()) active = true;
-  //        _web_server.session_manager()->check_session(cvMap.at("DGSESSION"));
-
-  return active;
+  auto session_cookie = get_session_cookie();
+  return !session_cookie.empty() && is_session_active(session_cookie);
 }
 
-void HttpRequest::create_session() {
+bool HttpRequest::is_session_active(const string_ &session_cookie) {
+  return _web_server.session_manager()->check_session(session_cookie);
+}
+
+string_ HttpRequest::create_new_session() {
   string_ session_cookie = generate_random_string(50);
-  // if 'remember_me' feature is activated for the user in the users.json file
-  // generate token_cookie = generate_random_string(80);
-  // and user_cookie = "username will be taken from users.json file like
-  // 'dgSuper'";
-  if (!_web_server.session_manager()->check_session(session_cookie))
-    _web_server.session_manager()->add_session(session_cookie);
+  auto user_cookie = get_user_cookie();
+  auto token_cookie = get_token_cookie();
+  if (!token_cookie.empty() && !user_cookie.empty())
+    _web_server.session_manager()->add_session(session_cookie, user_cookie,
+                                               token_cookie);
   else
-    create_session();
+    _web_server.session_manager()->add_session(session_cookie);
+  return session_cookie;
+  //   if 'remember_me' feature is activated for the user in the users.json
+  //   file generate token_cookie = generate_random_string(80);
+  //   and user_cookie = "username will be taken from users.json file like
+  //   'dgSuper'";
 }
 
 PlainHttpRequest::PlainHttpRequest(

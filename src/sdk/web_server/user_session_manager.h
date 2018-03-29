@@ -5,12 +5,11 @@
 #pragma once
 #endif
 
+#include <memory>
 #include <unordered_map>
 #include "dsa_common.h"
-#include "util/client_info.h"
 #include "user_session.h"
-#include <memory>
-
+#include "util/client_info.h"
 
 namespace dsa {
 class UserSessionManager {
@@ -23,10 +22,11 @@ class UserSessionManager {
   const string_ USER_COOKIE = "DGUSER";
   const int64_t SESSION_TIMEOUT = 100000000;
 
-
-  void add_session(const string_& session_cookie);
-  void remove_session(const string_& session_cookie);
-  bool check_session(const string_& session_cookie);
+  void add_session(string_, string_ = "", string_ = "");
+  void update_session_info(const string_&, const string_&, const string_&);
+  bool check_session_info(const string_&, const string_&, const string_&);
+  void remove_session(const string_&);
+  bool check_session(const string_&);
 };
 }
 

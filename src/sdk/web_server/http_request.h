@@ -88,16 +88,22 @@ class HttpRequest {
   void not_found_handler(const string_& error);
   void rewrite_handler(const string_& redirect_path);
   void file_server_handler(const string_& target);
+  void login_handler();
   void authentication_handler();
   void timeout_handler();
 
   virtual void writer(shared_ptr_<HttpStringResponse>) = 0;
   virtual void writer(shared_ptr_<HttpFileResponse>) = 0;
 
-  bool is_authenticated(const string_& username, const string_& password);
+  string_ get_session_cookie();
+  string_ get_token_cookie();
+  string_ get_user_cookie();
+
   bool is_authenticated();
+  bool is_authenticated(const string_& username, const string_& password);
   bool is_session_active();
-  void create_session();
+  bool is_session_active(const string_& session_cookie);
+  string_ create_new_session();
 
   void destroy() { _alloc.pool_.destroy(); }
 
