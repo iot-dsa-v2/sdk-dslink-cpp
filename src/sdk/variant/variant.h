@@ -134,6 +134,7 @@ class Var : public BaseVariant {
   bool is_binary() const {
     return which() == BINARY || which() == SHARED_BINARY;
   }
+  bool has_value() const { return which() != NUL && which() != STATUS; }
   bool is_null() const { return which() == NUL; }
   bool is_status() const { return which() == STATUS; }
   bool is_undefined() const {
@@ -227,11 +228,9 @@ class VarBytes : public EnableRef<VarBytes> {
   VarBytes() : _bytes(new RefCountBytes()), _v(Status::BLANK) {}
   VarBytes(Var &&v) : _v(std::move(v)) {}
   VarBytes(const Var &v) : _v(v) {}
-  VarBytes(BytesRef bytes)
-      : _bytes(std::move(bytes)), _v(Status::UNDEFINED) {}
+  VarBytes(BytesRef bytes) : _bytes(std::move(bytes)), _v(Status::UNDEFINED) {}
   VarBytes(std::vector<uint8_t> &&bytes)
-      : _bytes(new RefCountBytes(std::move(bytes))),
-        _v(Status::UNDEFINED) {}
+      : _bytes(new RefCountBytes(std::move(bytes))), _v(Status::UNDEFINED) {}
 
   BytesRef &get_bytes() const {
     if (_bytes == nullptr) {

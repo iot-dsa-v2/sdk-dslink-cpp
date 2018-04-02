@@ -57,7 +57,7 @@ class BrokerClientManager : public ClientManager {
   ref_<NodeModel> get_clients_root();
   ref_<NodeModel> get_quarantine_root();
   ref_<NodeModel>& get_tokens_root() { return _tokens_root; };
-  void get_client(const string_& dsid, const string_& auth_token,
+  void get_client(const string_& id, const string_& auth_token,
                   bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;
 };

@@ -18,7 +18,7 @@ class HMAC {
   bool initialized;
 
  public:
-  HMAC(const std::vector<uint8_t> &to_hash) throw(const std::runtime_error &);
+  HMAC(const std::vector<uint8_t> &key) throw(const std::runtime_error &);
   ~HMAC();
 
   void update(const std::vector<uint8_t> &data) throw(

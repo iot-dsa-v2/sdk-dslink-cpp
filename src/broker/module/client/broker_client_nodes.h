@@ -25,14 +25,17 @@ class BrokerClientNode : public NodeModel {
   ref_<NodeModel> _current_session_node;
 
  public:
-  BrokerClientNode(const LinkStrandRef &strand, ref_<BrokerClientsRoot>&& parent,
-                   ref_<NodeModel>&& profile, const string_& dsid);
+  BrokerClientNode(const LinkStrandRef& strand,
+                   ref_<BrokerClientsRoot>&& parent, ref_<NodeModel>&& profile,
+                   const string_& dsid);
   ~BrokerClientNode() override;
 
   const ClientInfo& get_client_info() const { return _client_info; };
   void set_client_info(ClientInfo&& info);
 
-  void detach_token();
+  bool detach_token();
+
+  mutable bool temporary_client = false;
 
  protected:
   void destroy_impl() override;
@@ -49,7 +52,7 @@ class BrokerClientsRoot : public NodeModel {
   ref_<BrokerClientManager> _manager;
 
  public:
-  explicit BrokerClientsRoot(const LinkStrandRef &strand,
+  explicit BrokerClientsRoot(const LinkStrandRef& strand,
                              ref_<BrokerClientManager>&& manager);
 
  protected:

@@ -3,14 +3,15 @@
 #include "connection.h"
 
 #include "core/server.h"
+#include "crypto/hmac.h"
+#include "crypto/misc.h"
 #include "message/handshake/f0_message.h"
 #include "message/handshake/f1_message.h"
 #include "message/handshake/f2_message.h"
 #include "message/handshake/f3_message.h"
 #include "module/logger.h"
-#include "stream/simple_stream.h"
-
 #include "module/session_manager.h"
+#include "stream/simple_stream.h"
 
 namespace dsa {
 
@@ -46,6 +47,52 @@ void Connection::on_receive_f0(MessageRef &&msg) {
   };
 }
 
+bool Connection::validate_auth(HandshakeF2Message *f2) {
+  if (f2 == nullptr) return false;
+
+  if (_handshake_context.remote_dsid().size() < 43) {
+    // when dsid size < 43, it's a requester only user session
+    if (requester_auth_key.empty()) return false;
+    // for now we don't allow web user to be responder
+    if (f2->is_responder || f2->token.empty()) return false;
+
+    // replace ; to / so we can parse it like a path
+    for (char &c : f2->token) {
+      if (c == ';') c = '/';
+    }
+    Path parsed_token(f2->token);
+    auto &names = parsed_token.data()->names;
+    if (parsed_token.is_invalid() || names.size() != 3 ||
+        names[1] != _handshake_context.remote_dsid()) {
+      // invalid token structure
+      return false;
+    }
+
+    // validate signature == url_base64(sha256_hmac(user_auth_binary).hash(
+    //   UTF8("$permission_group;$username") + salt_binary
+    // ))
+    std::vector<uint8_t> to_hash;
+    to_hash.insert(to_hash.end(), names[0].begin(), names[0].end());
+    to_hash.push_back(';');
+    to_hash.insert(to_hash.end(), names[1].begin(), names[1].end());
+    to_hash.insert(to_hash.end(), _handshake_context.salt().begin(),
+                   _handshake_context.salt().end());
+
+    HMAC hash(requester_auth_key);
+    hash.update(to_hash);
+    auto digist = hash.digest();
+    return names[2] ==
+           base64_url_convert(base64_encode(&digist[0], digist.size()));
+
+  } else {
+    // dslink with private/public key
+    _handshake_context.compute_secret();
+
+    return std::equal(_handshake_context.remote_auth().begin(),
+                      _handshake_context.remote_auth().end(), f2->auth.begin());
+  }
+}
+
 void Connection::on_receive_f2(MessageRef &&msg) {
   if (msg->type() != MessageType::HANDSHAKE2) {
     throw MessageParsingError("invalid handshake message, expect f2");
@@ -54,15 +101,12 @@ void Connection::on_receive_f2(MessageRef &&msg) {
 
   auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
 
-  _handshake_context.compute_secret();
-
-  if (std::equal(_handshake_context.remote_auth().begin(),
-                 _handshake_context.remote_auth().end(), f2->auth.begin())) {
+  if (validate_auth(f2)) {
     _deadline.cancel();
     _remote_path = f2->path;
     _shared_strand->post([
       msg, this, sthis = shared_from_this(), is_responder = f2->is_responder
-    ](ref_<LinkStrand>&, LinkStrand& strand) mutable {
+    ](ref_<LinkStrand> &, LinkStrand & strand) mutable {
       auto *f2 = DOWN_CAST<HandshakeF2Message *>(msg.get());
       strand.session_manager().get_session(
           _handshake_context.remote_dsid(), f2->token, is_responder,

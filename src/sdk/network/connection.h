@@ -8,6 +8,7 @@
 #include <boost/asio/deadline_timer.hpp>
 #include <functional>
 #include <utility>
+#include <vector>
 
 #include "core/link_strand.h"
 #include "core/session.h"
@@ -23,6 +24,8 @@ class Server;
 class Client;
 
 struct StaticHeaders;
+
+class HandshakeF2Message;
 
 class Message;
 typedef ref_<Message> MessageRef;
@@ -100,6 +103,11 @@ class Connection : public SharedStrandPtr<Connection> {
   void reset_deadline_timer(size_t seconds);
 
   // server connection
+
+  // the key to login requester only dslink
+  std::vector<uint8_t> requester_auth_key;
+  bool validate_auth(HandshakeF2Message *f2);
+
  protected:
   //  void on_server_connect() throw(const std::runtime_error &);
 
@@ -108,8 +116,6 @@ class Connection : public SharedStrandPtr<Connection> {
 
   // client connection
  protected:
-  string_ _client_token;
-
   static void on_client_connect(shared_ptr_<Connection> connection) throw(
       const std::runtime_error &);
 

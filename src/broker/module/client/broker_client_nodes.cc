@@ -3,12 +3,12 @@
 #include "../../remote_node/broker_session_manager.h"
 #include "broker_client_manager.h"
 #include "broker_client_nodes.h"
+#include "module/logger.h"
 #include "module/session_manager.h"
 #include "module/storage.h"
 #include "module/stream_acceptor.h"
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
-#include "module/logger.h"
 
 namespace dsa {
 
@@ -140,8 +140,16 @@ void BrokerClientNode::set_client_info(ClientInfo&& info) {
   _from_token_node->set_value(Var(_client_info.from_token));
 }
 
-void BrokerClientNode::detach_token() { _from_token_node->set_value(Var()); }
+bool BrokerClientNode::detach_token() {
+  if (_from_token_node->get_cached_value().value.has_value()) {
+    _from_token_node->set_value(Var());
+    return true;
+  }
+  return false;
+}
 void BrokerClientNode::save_extra(VarMap& map) const {
+  // when the node is saved, it's no longer temporary
+  temporary_client = false;
   // TODO, change these to writable children value nodes
   map["?group"] = _client_info.group;
   map["?from-token"] = _client_info.from_token;

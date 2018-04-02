@@ -7,19 +7,18 @@
 
 namespace dsa {
 
-HMAC::HMAC(const std::vector<uint8_t> &data) throw(const std::runtime_error &) {
+HMAC::HMAC(const std::vector<uint8_t> &key) throw(const std::runtime_error &) {
   ctx = HMAC_CTX_new();
   const EVP_MD *md = EVP_sha256();
 
   HMAC_CTX_reset(ctx);
 
-  if (!HMAC_Init_ex(ctx, reinterpret_cast<const uint8_t *>(data.data()),
-                    (int)data.size(), md, nullptr))
+  if (!HMAC_Init_ex(ctx, reinterpret_cast<const uint8_t *>(key.data()),
+                    (int)key.size(), md, nullptr))
     throw std::runtime_error("Failed to initialize HMAC");
 
   initialized = true;
 }
-
 
 HMAC::~HMAC() {
   //TODO: for openssl 1.1 there is illogical memleak on it, maybe bug in openssl
