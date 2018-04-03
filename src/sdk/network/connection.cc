@@ -6,8 +6,23 @@
 #include "crypto/hmac.h"
 #include "module/logger.h"
 #include "util/app.h"
+#include "util/string.h"
 
 namespace dsa {
+
+bool Connection::_requester_auth_key_inited = false;
+std::vector<uint8_t> Connection::_requester_auth_key;
+
+const std::vector<uint8_t> &Connection::get_requester_auth_key() {
+  if (!_requester_auth_key_inited) {
+    _requester_auth_key_inited = true;
+    auto auth_key_str =
+        string_from_storage("requester-auth-key", Storage::get_config_bucket());
+    // convert string back to vector
+    _requester_auth_key.assign(auth_key_str.begin(), auth_key_str.end());
+  }
+  return _requester_auth_key;
+}
 Connection::Connection(const SharedLinkStrandRef &strand,
                        const string_ &dsid_prefix, const string_ &path)
     : _handshake_context(dsid_prefix, strand->get_ecdh()),

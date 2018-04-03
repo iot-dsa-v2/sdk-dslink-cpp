@@ -45,6 +45,11 @@ class Connection : public SharedStrandPtr<Connection> {
   friend class Session;
   friend class Client;
 
+  // the key to login requester only dslink
+  static std::vector<uint8_t> _requester_auth_key;
+  static bool _requester_auth_key_inited;
+  static const std::vector<uint8_t> &get_requester_auth_key();
+
  public:
   virtual string_ name() = 0;
 
@@ -104,8 +109,6 @@ class Connection : public SharedStrandPtr<Connection> {
 
   // server connection
 
-  // the key to login requester only dslink
-  std::vector<uint8_t> requester_auth_key;
   bool validate_auth(HandshakeF2Message *f2);
 
  protected:

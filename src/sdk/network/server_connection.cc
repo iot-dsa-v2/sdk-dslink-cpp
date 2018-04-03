@@ -51,6 +51,7 @@ bool Connection::validate_auth(HandshakeF2Message *f2) {
   if (f2 == nullptr) return false;
 
   if (_handshake_context.remote_dsid().size() < 43) {
+    auto &requester_auth_key = get_requester_auth_key();
     // when dsid size < 43, it's a requester only user session
     if (requester_auth_key.empty()) return false;
     // for now we don't allow web user to be responder
