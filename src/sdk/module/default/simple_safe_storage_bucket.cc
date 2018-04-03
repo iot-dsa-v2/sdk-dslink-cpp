@@ -32,8 +32,13 @@ void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content) {
         ofs.write(reinterpret_cast<const char *>(content->data()),
                   content->size());
         ofs.close();
-
-        boost::filesystem::rename(templ, p);
+        boost::system::error_code err;
+        fs::rename(templ, p, err);
+        if (err.value() == EXDEV) {
+          // when rename is not allowed
+          fs::copy(templ, p);
+          fs::remove(templ);
+        }
       } else {
         // TODO: is fatal?
         LOG_FATAL(__FILENAME__,
