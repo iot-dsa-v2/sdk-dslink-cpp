@@ -18,38 +18,43 @@ using boost::filesystem::path;
 //  return *config_bucket;
 //};
 
-void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content) {
-  auto write_file = [=]() {
-    TempFile tmp;
-    path templ = tmp.get();
+static void _write(SimpleSafeStorageBucket *bucket, const string_ &key,
+                   BytesRef &&content) {
+  TempFile tmp;
+  path templ = tmp.get();
 
-    path p(get_storage_path(key));
+  path p(bucket->get_storage_path(key));
 
-    try {
-      std::ofstream ofs(templ.string(),
-                        std::ios::out | std::ios::trunc | std::ios::binary);
-      if (ofs) {
-        ofs.write(reinterpret_cast<const char *>(content->data()),
-                  content->size());
-        ofs.close();
-        boost::system::error_code err;
-        fs::rename(templ, p, err);
-        if (err.value() == EXDEV) {
-          // when rename is not allowed
-          fs::copy(templ, p);
+  try {
+    std::ofstream ofs(templ.string(),
+                      std::ios::out | std::ios::trunc | std::ios::binary);
+    if (ofs) {
+      ofs.write(reinterpret_cast<const char *>(content->data()),
+                content->size());
+      ofs.close();
+      boost::system::error_code err;
+      fs::rename(templ, p, err);
+      if (err.value() == EXDEV) {
+        // when rename is not allowed
+        fs::copy_file(templ, p, fs::copy_option::overwrite_if_exists, err);
+        if (!err) {
           fs::remove(templ);
+        } else {
+          LOG_ERROR(__FILENAME__,
+                    LOG << "Failed to rename or copy the file from " << templ
+                        << " to " << p);
         }
-      } else {
-        // TODO: is fatal?
-        LOG_FATAL(__FILENAME__,
-                  LOG << "Unable to open " << key << " file to write");
       }
-    } catch (const fs::filesystem_error &ex) {
-      // TODO: is fatal?
-      LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
+    } else {
+      LOG_ERROR(__FILENAME__,
+                LOG << "Unable to open " << templ << " file to write");
     }
-  };
+  } catch (const fs::filesystem_error &ex) {
+    LOG_ERROR(__FILENAME__, LOG << "Write failed for " << key << " file");
+  }
+}
 
+void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content) {
   if (_io_service != nullptr) {
     if (!strand_map.count(key)) {
       boost::asio::io_service::strand *strand =
@@ -57,13 +62,16 @@ void SimpleSafeStorageBucket::write(const string_ &key, BytesRef &&content) {
       strand_map.insert(StrandPair(key, strand));
     }
 
-    strand_map.at(key)->post([=]() {
-      write_file();
+    strand_map.at(key)->post([
+      keep_ptr = shared_from_this(), key, content = std::move(content)
+    ]() mutable {
+      _write(static_cast<SimpleSafeStorageBucket *>(keep_ptr.get()), key,
+             std::move(content));
       return;
     });
     return;
   } else {
-    write_file();
+    _write(this, key, std::move(content));
   }
 }
 }  // namespace dsa

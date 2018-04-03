@@ -5,13 +5,12 @@
 
 namespace dsa {
 class TempFile {
-  boost::filesystem::path tmp_file_prefix;
-  std::atomic<int> counter{0};
+  static boost::filesystem::path tmp_file_prefix;
+  static std::atomic<int> counter;
 
  public:
-  TempFile();
-  void init(dsa::string_ name);
-  boost::filesystem::path get();
+  static void init(dsa::string_ name);
+  static boost::filesystem::path get();
 };
-}
+}  // namespace dsa
 #endif  // DSA_SDK_TEMP_FILE_H

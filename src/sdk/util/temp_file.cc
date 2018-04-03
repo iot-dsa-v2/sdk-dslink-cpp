@@ -7,9 +7,15 @@
 namespace fs = boost::filesystem;
 
 namespace dsa {
-TempFile::TempFile() {}
+
+boost::filesystem::path TempFile::tmp_file_prefix;
+std::atomic<int> TempFile::counter{0};
 
 void TempFile::init(dsa::string_ name) {
+  if (!tmp_file_prefix.empty()) {
+    // dont init twice
+    return;
+  }
   boost::system::error_code ec;
   fs::path tmp_dir_path(fs::temp_directory_path().string() + "/" + name);
 
@@ -28,9 +34,8 @@ void TempFile::init(dsa::string_ name) {
   } else {
     auto tmp_dir = fs::create_directory(tmp_dir_path);
     if (!tmp_dir)
-      LOG_FATAL(__FILENAME__,
-                LOG << "Unable to create " << tmp_dir_path.string()
-                    << " temp folder");
+      LOG_FATAL(__FILENAME__, LOG << "Unable to create "
+                                  << tmp_dir_path.string() << " temp folder");
   }
   tmp_file_prefix = fs::temp_directory_path().string() + "/" + name + "/" +
                     boost::filesystem::unique_path().string();
@@ -46,12 +51,12 @@ fs::path TempFile::get() {
                   boost::filesystem::unique_path().string();
   }
 
-  auto tmp_file = std::ofstream(unique_path.c_str());
-
-  if (tmp_file.bad())
-    LOG_FATAL(__FILENAME__,
-              LOG << "Unable to create " << unique_path << " log file");
+  //  auto tmp_file = std::ofstream(unique_path.c_str());
+  //
+  //  if (tmp_file.bad())
+  //    LOG_FATAL(__FILENAME__,
+  //              LOG << "Unable to create " << unique_path << " log file");
 
   return fs::path(unique_path);
 }
-}
+}  // namespace dsa

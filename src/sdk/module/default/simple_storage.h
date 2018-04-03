@@ -32,7 +32,7 @@ struct ReadCbTrack {
   std::mutex read_mutex;
 };
 
-class SimpleStorageBucket : public StorageBucket {
+class SimpleStorageBucket : public SharedStorageBucket {
  private:
   typedef std::map<string_, boost::asio::io_service::strand*> StrandMap;
   std::mutex remove_mutex;
@@ -47,13 +47,14 @@ class SimpleStorageBucket : public StorageBucket {
   string_ _storage_root;
   string_ _bucket_name;
   string_ _full_base_path;
+
+ public:
 #if defined(_WIN32) || defined(_WIN64)
   std::wstring get_storage_path(const string_& key = "");
 #else
   string_ get_storage_path(const string_& key = "");
 #endif
 
- public:
   SimpleStorageBucket(const string_& bucket_name,
                       boost::asio::io_service* io_service = nullptr,
                       const string_& storage_root = storage_default,
@@ -88,13 +89,13 @@ class SimpleSafeStorageBucket : public SimpleStorageBucket {
 class SimpleStorage : public Storage {
  private:
   boost::asio::io_service* _io_service;
-  std::list<shared_ptr_<StorageBucket>> _bucket_list;
+  std::list<shared_ptr_<SharedStorageBucket>> _bucket_list;
 
  public:
   SimpleStorage(boost::asio::io_service* io_service = nullptr)
       : _io_service(io_service) {}
 
-  shared_ptr_<StorageBucket> get_shared_bucket(const string_& name) override;
+  shared_ptr_<SharedStorageBucket> get_shared_bucket(const string_& name) override;
 
   /// create a bucket or find a existing bucket
   std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) override;
@@ -105,7 +106,6 @@ class SimpleStorage : public Storage {
 
   void destroy_impl() final;
   void clear() final;
-
 };
 
 }  // namespace dsa

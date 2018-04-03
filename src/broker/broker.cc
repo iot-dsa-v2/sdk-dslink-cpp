@@ -21,6 +21,8 @@
 
 #include "module/module_broker_default.h"
 #include "node/broker_root.h"
+#include "util/temp_file.h"
+
 
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules,
@@ -41,6 +43,8 @@ void DsBroker::init(ref_<Module>&& default_module) {
     _app.reset(new App(thread));
     _own_app = true;
   }
+
+  TempFile::init("dsa-broker");
 
   server_host = _config->host().get_value().get_string();
   tcp_server_port =

@@ -27,7 +27,7 @@
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
 #include "util/string.h"
-#include "util/string_encode.h"
+#include "util/temp_file.h"
 
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
@@ -79,13 +79,13 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     exit(0);
   }
 
-  own_app = false;
   _app = app;
   // If app object is already given, thread option is ignored in args
   if (_app.get() == nullptr) {
     parse_thread(variables["thread"].as<size_t>());
     own_app = true;
   }
+  TempFile::init("dslink-" + link_name);
 
   strand.reset(new EditableStrand(get_app().new_strand(),
                                   std::unique_ptr<ECDH>(ECDH::from_storage(
@@ -333,8 +333,8 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
         client_connection_maker = [
           dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
         ](const SharedLinkStrandRef &strand) {
-          return make_shared_<TcpClientConnection>(
-              strand, dsid_prefix, tcp_host, tcp_port);
+          return make_shared_<TcpClientConnection>(strand, dsid_prefix,
+                                                   tcp_host, tcp_port);
         };
       }
     } else if (ws_port > 0) {
