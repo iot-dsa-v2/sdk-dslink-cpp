@@ -82,8 +82,13 @@ bool Connection::validate_auth(HandshakeF2Message *f2) {
     HMAC hash(requester_auth_key);
     hash.update(to_hash);
     auto digist = hash.digest();
-    return names[2] ==
-           base64_url_convert(base64_encode(&digist[0], digist.size()));
+
+    if (names[2] ==
+        base64_url_convert(base64_encode(&digist[0], digist.size()))) {
+      _handshake_context.set_dummy_auth();
+      return true;
+    }
+    return false;
 
   } else {
     // dslink with private/public key

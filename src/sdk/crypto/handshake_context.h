@@ -44,6 +44,9 @@ class HandshakeContext {
   void set_remote(string_ &&dsid, std::vector<uint8_t> &&public_key,
                   std::vector<uint8_t> &&salt);
   void compute_secret();
+  // when ecdh is not needed, set a blank auth array so the remain steps
+  // in handshake can still use it
+  void set_dummy_auth() { _auth = std::vector<uint8_t>(32); }
 };
 
 }  // namespace dsa

@@ -42,14 +42,6 @@ void HandshakeContext::compute_secret() {
   dsa::HMAC other_hmac(_shared_secret);
   other_hmac.update(salt());
   _remote_auth = other_hmac.digest();
-
-#if DEBUG
-  std::stringstream ss;
-  ss << name() << "::compute_secret()" << std::endl;
-  ss << "auth:       " << *_auth << std::endl;
-  ss << "other auth: " << *_other_auth << std::endl;
-  std::cout << ss.str();
-#endif
 }
 
 }  // namespace dsa
