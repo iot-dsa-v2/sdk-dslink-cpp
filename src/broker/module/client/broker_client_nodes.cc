@@ -66,11 +66,11 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
       _parent(std::move(parent)),
       _client_info(dsid) {
   // initialize children value nodes;
-  _group_node.reset(new ValueNodeModel(
+  _role_node.reset(new ValueNodeModel(
       _strand, "string",
       [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
         if (v.is_string()) {
-          _client_info.group = v.get_string();
+          _client_info.role = v.get_string();
           // TODO notify session manager about the clientInfo change ??
           save(*_parent->_storage, _client_info.id, false, true);
           return Status::DONE;
@@ -78,7 +78,7 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Group", _group_node->get_ref());
+  add_list_child("Role", _role_node->get_ref());
 
   _path_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -124,7 +124,7 @@ BrokerClientNode::~BrokerClientNode() = default;
 void BrokerClientNode::destroy_impl() {
   _parent.reset();
 
-  _group_node.reset();
+  _role_node.reset();
   _path_node.reset();
   _max_session_node.reset();
   _current_session_node.reset();
@@ -134,7 +134,7 @@ void BrokerClientNode::destroy_impl() {
 }
 void BrokerClientNode::set_client_info(ClientInfo&& info) {
   _client_info = std::move(info);
-  _group_node->set_value(Var(_client_info.group));
+  _role_node->set_value(Var(_client_info.role));
   _path_node->set_value(Var(_client_info.responder_path));
   _max_session_node->set_value(Var(_client_info.max_session));
   _from_token_node->set_value(Var(_client_info.from_token));
@@ -151,14 +151,14 @@ void BrokerClientNode::save_extra(VarMap& map) const {
   // when the node is saved, it's no longer temporary
   temporary_client = false;
   // TODO, change these to writable children value nodes
-  map["?group"] = _client_info.group;
+  map["?role"] = _client_info.role;
   map["?from-token"] = _client_info.from_token;
   map["?path"] = _client_info.responder_path;
   map["?max-session"] = static_cast<int64_t>(_client_info.max_session);
 }
 void BrokerClientNode::load_extra(VarMap& map) {
   ClientInfo info(std::move(_client_info));
-  info.group = map["?group"].to_string();
+  info.role = map["?role"].to_string();
   info.from_token = map["?default-token"].to_string();
   info.responder_path = map["?path"].to_string();
   info.max_session = static_cast<size_t>(map["?max-session"].get_int());

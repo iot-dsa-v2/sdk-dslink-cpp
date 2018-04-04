@@ -18,7 +18,7 @@ class BrokerClientNode : public NodeModel {
 
   ref_<BrokerClientsRoot> _parent;
 
-  ref_<ValueNodeModel> _group_node;
+  ref_<ValueNodeModel> _role_node;
   ref_<ValueNodeModel> _path_node;
   ref_<NodeModel> _from_token_node;
   ref_<NodeModel> _max_session_node;

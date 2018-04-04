@@ -138,9 +138,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         if (quarantine_root != nullptr && v.is_map()) {
           const string_& dsid =
               quarantine_root->get_state()->get_path().last_name();
-          string_ group;
-          if (v["Group"].is_string()) {
-            group = v["Group"].get_string();
+          string_ role;
+          if (v["Role"].is_string()) {
+            role = v["Role"].get_string();
           }
           int64_t max_session = 1;
           if (v["Max_Session"].is_int()) {
@@ -175,7 +175,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           ClientInfo info(dsid);
           info.responder_path = path;
           info.max_session = max_session;
-          info.group = group;
+          info.role = role;
 
           auto child = make_ref_<BrokerClientNode>(
               _strand, _clients_root->get_ref(),
@@ -253,7 +253,7 @@ void BrokerClientManager::get_client(const string_& id,
         // invalid token
         callback(ClientInfo(id), true);
       }
-      string_ permission_group = auth_token.substr(0, pos);
+      string_ permission_role = auth_token.substr(0, pos);
 
       auto search = _clients_root->get_list_children().find(id);
 
@@ -263,9 +263,9 @@ void BrokerClientManager::get_client(const string_& id,
         auto* p = dynamic_cast<BrokerClientNode*>(search->second.get());
         if (p != nullptr) {
           if (p->temporary_client &&
-              p->get_client_info().group != permission_group) {
+              p->get_client_info().role != permission_role) {
             auto copy_info = p->get_client_info();
-            copy_info.group = permission_group;
+            copy_info.role = permission_role;
             p->set_client_info(std::move(copy_info));
             // todo. kick all clients because permission is different?
           }
@@ -278,7 +278,7 @@ void BrokerClientManager::get_client(const string_& id,
         // new client
         ClientInfo info(id);
         info.max_session = 0xFFFFFFFF;
-        info.group = permission_group;
+        info.role = permission_role;
 
         // add to downstream
         auto child = make_ref_<BrokerClientNode>(
@@ -331,7 +331,7 @@ void BrokerClientManager::get_client(const string_& id,
           callback(child->get_client_info(), false);
         } else if (_quarantine_enabled) {
           ClientInfo info(id);
-          info.group = "none";
+          info.role = "none";
           info.responder_path = QUARANTINE_PATH + id;
           callback(std::move(info), false);
         } else {

@@ -14,7 +14,7 @@ struct ClientInfo {
   // could be dsid or user id
   string_ id;
 
-  string_ group;
+  string_ role;
   string_ from_token;
 
   string_ responder_path;

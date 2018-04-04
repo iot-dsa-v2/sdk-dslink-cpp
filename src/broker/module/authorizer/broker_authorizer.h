@@ -10,6 +10,9 @@
 
 namespace dsa {
 class DsBroker;
+class PermissionRoleRootNode;
+class NodeModel;
+class BrokerPubRoot;
 
 class BrokerAuthorizer : public Authorizer {
   friend class DsBroker;
@@ -17,13 +20,19 @@ class BrokerAuthorizer : public Authorizer {
  protected:
   LinkStrandRef _strand;
 
+  ref_<PermissionRoleRootNode> _permission_root;
+
  public:
-  BrokerAuthorizer(const LinkStrandRef& strand) : _strand(strand){};
+  BrokerAuthorizer(const LinkStrandRef& strand);
+  ~BrokerAuthorizer();
   void check_permission(const ClientInfo& client_info,
                         const string_& permission_token, MessageType method,
                         const Path& path,
                         CheckPermissionCallback&& callback) override;
+
+  void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
+  ref_<NodeModel> get_permission_root();
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_SDK_BROKER_AUTHORIZER_H

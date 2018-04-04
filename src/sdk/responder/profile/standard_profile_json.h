@@ -16,7 +16,7 @@ static const std::string standard_profile = R"({
     "Detach_Token": {
      "$invokable": "config"
     },
-    "Group": {
+    "Role": {
      "$type": "string",
      "$writable": "config"
     },
@@ -44,7 +44,7 @@ static const std::string standard_profile = R"({
        "type": "string"
       },
       {
-       "name": "Group",
+       "name": "Role",
        "type": "string"
       },
       {
@@ -54,7 +54,7 @@ static const std::string standard_profile = R"({
      ]
     }
    },
-   "Permission_Group": {
+   "Permission_Role": {
     "Add_Rule": {
      "$invokable": "config",
      "$params": [
@@ -69,7 +69,7 @@ static const std::string standard_profile = R"({
      ]
     },
     "Fallback": {
-     "$type": "number",
+     "$type": "string",
      "$writable": "config"
     }
    },
