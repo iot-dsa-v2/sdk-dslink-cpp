@@ -36,11 +36,9 @@ set(SOURCES
         node/sys/sys_root.cc
         node/pub/pub_root.cc
         module/user/broker_login_manager.cc
-        module/user/broker_login_manager.h
         module/client/quaratine_node.cpp
-        module/client/quaratine_node.h
         module/authorizer/permission_nodes.cpp
-        module/authorizer/permission_nodes.h)
+       )
 
 add_library(dsa_broker ${SOURCES})
 target_link_libraries(dsa_broker ${BROKER_LIBS})

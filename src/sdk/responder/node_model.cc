@@ -37,7 +37,8 @@ void NodeModel::set_value_require_permission(PermissionLevel permission_level) {
   if (permission_level >= PermissionLevel::WRITE &&
       permission_level <= PermissionLevel::CONFIG) {
     _set_value_require_permission = permission_level;
-    update_property("$writable", Var(to_string(permission_level)));
+    update_property("$writable",
+                    Var(PermissionName::convert((permission_level))));
   }
 }
 

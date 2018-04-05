@@ -5,10 +5,14 @@
 #pragma once
 #endif
 
+#include <map>
 #include "core/link_strand.h"
 #include "responder/node_model.h"
+#include "util/enums.h"
 
 namespace dsa {
+
+class PermissionRuleNode;
 
 class PermissionRoleRootNode : public NodeModel {
  public:
@@ -16,13 +20,32 @@ class PermissionRoleRootNode : public NodeModel {
 };
 
 class PermissionRoleNode : public NodeModel {
+  friend class PermissionRuleNode;
+
+  // use map to keep it sorted
+  std::map<string_, PermissionLevel> _rules;
+  ref_<PermissionRoleNode> _fallback;
+
  public:
   PermissionRoleNode(const LinkStrandRef &strand, ref_<NodeModel> &&profile);
+  PermissionLevel get_permission(const string_ &path);
 };
 
 class PermissionRuleNode : public NodeModel {
+  ref_<PermissionRoleNode> _role;
+  PermissionLevel _level;
+  string_ _path;
+
  public:
-  PermissionRuleNode(const LinkStrandRef &strand, ref_<NodeModel> &&profile);
+  PermissionRuleNode(const LinkStrandRef &strand,
+                     ref_<PermissionRoleNode> &&role,
+                     ref_<NodeModel> &&profile);
+
+  PermissionLevel get_level() const { return _level; }
+  const string_ &get_path() const { return _path; }
+
+ protected:
+  StatusDetail on_set_value(MessageValue &&value) override;
 };
 
 }  // namespace dsa

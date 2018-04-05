@@ -43,23 +43,37 @@ std::ostream &operator<<(std::ostream &os, MessageType type) {
   }
 }
 
-const char *to_string(PermissionLevel permission_level) {
+const char *PermissionName::convert(PermissionLevel permission_level) {
   switch (permission_level) {
     case PermissionLevel::NONE:
-      return "none";
+      return PermissionName::NONE;
     case PermissionLevel::LIST:
-      return "list";
+      return PermissionName::LIST;
     case PermissionLevel::READ:
-      return "read";
+      return PermissionName::READ;
     case PermissionLevel::WRITE:
-      return "write";
+      return PermissionName::WRITE;
     case PermissionLevel::CONFIG:
-      return "config";
+      return PermissionName::CONFIG;
     case PermissionLevel::NEVER:
-      return "never";
+      return PermissionName::NEVER;
     default:
       return "Unknown Permission Level";
   }
+}
+PermissionLevel PermissionName::parse(string_ str) {
+  if (str == PermissionName::CONFIG) {
+    return PermissionLevel::CONFIG;
+  } else if (str == PermissionName::WRITE) {
+    return PermissionLevel::WRITE;
+  } else if (str == PermissionName::READ) {
+    return PermissionLevel::READ;
+  } else if (str == PermissionName::LIST) {
+    return PermissionLevel::LIST;
+  } else if (str == PermissionName::NONE) {
+    return PermissionLevel::NONE;
+  }
+  return PermissionLevel::NEVER;
 }
 
 const char *to_string(Status status) {
@@ -98,4 +112,4 @@ const char *to_string(Status status) {
       return "UNKNOWN_STATUS";
   }
 }
-}
+}  // namespace dsa

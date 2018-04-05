@@ -115,9 +115,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   pub_root.register_standard_profile_function(
       "Broker/Client/Detach_Token",
-      [ this, keepref = get_ref() ](Var&&, SimpleInvokeNode&,
-                                    OutgoingInvokeStream & stream,
-                                    ref_<NodeState> && parent) {
+      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+          Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
+          ref_<NodeState> && parent) {
         auto* client = parent->model_cast<BrokerClientNode>();
         if (client != nullptr) {
           if (client->detach_token()) {
@@ -131,9 +131,9 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   pub_root.register_standard_profile_function(
       "Broker/Quarantine_Client/Authorize",
-      [ this, keepref = get_ref() ](Var && v, SimpleInvokeNode&,
-                                    OutgoingInvokeStream & stream,
-                                    ref_<NodeState> && parent) {
+      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+          Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
+          ref_<NodeState> && parent) {
         auto* quarantine_root = parent->model_cast<QuaratineRemoteRoot>();
         if (quarantine_root != nullptr && v.is_map()) {
           const string_& dsid =
