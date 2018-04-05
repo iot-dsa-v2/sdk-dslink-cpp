@@ -5,19 +5,29 @@
 #include <boost/asio/strand.hpp>
 #include <thread>
 
+#include "module/logger.h"
+
 namespace dsa {
 
 static void run_worker_thread(
     const shared_ptr_<boost::asio::io_service> &io_service) {
-  while (true) {
-    boost::system::error_code err;
-    io_service->run(err);
-    if (err != boost::system::errc::success) {
-      // TODO: log error message to file?
-    } else {
-      return;
+#ifdef _DSA_DEBUG
+  try {
+#endif
+    while (true) {
+      boost::system::error_code err;
+      io_service->run(err);
+      if (err != boost::system::errc::success) {
+        // TODO: log error message to file?
+      } else {
+        return;
+      }
     }
+#ifdef _DSA_DEBUG
+  } catch (std::exception &e) {
+    LOG_FATAL("app::worker_thread", LOG << e.what());
   }
+#endif
 }
 
 //////////////
@@ -67,7 +77,5 @@ void App::force_stop() {
 
 bool App::is_stopped() { return _io_service->stopped(); }
 
-size_t App::get_thread_size() {
-  return _threads.get()->size();
-}
+size_t App::get_thread_size() { return _threads.get()->size(); }
 }  // namespace dsa
