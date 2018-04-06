@@ -38,7 +38,7 @@ standard locations, setup SDK to point to locations which those packages were in
   - download and extract boost 1.66
   - cd boost_1_66_0/
   - run `./bootstrap.sh`
-  - run `./b2 install`
+  - run `sudo ./b2 install`
 
 2. Install openssl
   - `sudo apt install libssl-dev`

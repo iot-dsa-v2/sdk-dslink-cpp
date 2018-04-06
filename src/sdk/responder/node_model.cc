@@ -31,6 +31,16 @@ NodeModel::NodeModel(const LinkStrandRef &strand, ref_<NodeModel> &&profile,
   }
 
   update_property("$is", Var(state->get_path().move_pos(1).remain_str()));
+  // copy necessary data for the permission and summary
+  if (_profile->_metas.count("$type") > 0) {
+    _metas["$type"] = profile->_metas["$type"];
+  }
+  if (_profile->_metas.count("$writable") > 0) {
+    _metas["$writable"] = profile->_metas["$writable"];
+  }
+  if (_profile->_metas.count("$type") > 0) {
+    _metas["$invokable"] = profile->_metas["$invokable"];
+  }
 }
 
 void NodeModel::set_value_require_permission(PermissionLevel permission_level) {

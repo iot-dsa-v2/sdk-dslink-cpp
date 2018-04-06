@@ -74,6 +74,48 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
         }
       });
 
+  pub_root.register_standard_profile_function(
+      "Broker/Permission_Role/Remove",
+      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+          Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
+          ref_<NodeState> && parent) {
+        auto* role = parent->model_cast<PermissionRoleNode>();
+        if (role != nullptr &&
+            role->get_state()->get_parent()->get_model() == _permission_root) {
+          const string_& role_name = role->get_state()->get_path().last_name();
+          _storage->remove(role_name);
+          _permission_root->remove_list_child(role_name);
+
+          stream.close();
+        } else {
+          stream.close(Status::INVALID_PARAMETER);
+        }
+      });
+
+  pub_root.register_standard_profile_function(
+      "Broker/Permission_Rule/Remove",
+      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+          Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
+          ref_<NodeState> && parent) {
+        auto* rule = parent->model_cast<PermissionRuleNode>();
+        if (rule != nullptr) {
+          auto* role = parent->get_parent()->model_cast<PermissionRoleNode>();
+          if (role != nullptr) {
+            const string_& rule_name =
+                rule->get_state()->get_path().last_name();
+            const string_& role_name =
+                role->get_state()->get_path().last_name();
+
+            role->_rules.erase(rule->_path);
+            role->save(*_storage, role_name, false, true);
+            role->remove_list_child(rule_name);
+            stream.close();
+            return;
+          }
+        }
+        stream.close(Status::INVALID_PARAMETER);
+      });
+
   _permission_root.reset(new PermissionRoleRootNode(_strand));
 }
 

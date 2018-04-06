@@ -25,11 +25,15 @@ class PermissionRoleNode : public NodeModel {
 
   // use map to keep it sorted
   std::map<string_, PermissionLevel> _rules;
+  PermissionLevel _default_level = PermissionLevel::INVALID;
   ref_<PermissionRoleNode> _fallback;
 
  public:
   PermissionRoleNode(const LinkStrandRef &strand, ref_<NodeModel> &&profile);
   PermissionLevel get_permission(const string_ &path);
+
+ protected:
+  StatusDetail on_set_value(MessageValue &&value) override;
 };
 
 class PermissionRuleNode : public NodeModel {

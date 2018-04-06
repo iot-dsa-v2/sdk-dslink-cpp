@@ -75,8 +75,6 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
   client_strand.strand->set_authorizer(
       make_ref_<SimpleAuthorizer>(client_strand.strand));
 
-  Logger::_().level = Logger::ERROR_;
-
   if (!protocol.compare("ws")) {
     client_strand.ws_host = "127.0.0.1";
     client_strand.ws_port = 8080;
@@ -190,6 +188,7 @@ int main(int argc, const char* argv[]) {
 
     strands.emplace_back(strand.strand);
   }
+  Logger::_().level = Logger::INFO__;
 
   int interval_ms = 5;
   int msg_per_interval = num_message * interval_ms / 1000;
@@ -212,8 +211,7 @@ int main(int argc, const char* argv[]) {
             count += message_receive_count[i];
           }
           if (current_time - last_time > 1000) {
-            LOG_INFO("benchmark", LOG << std::endl
-                                      << "per second: "
+            LOG_INFO("benchmark", LOG << "per second: "
                                       << ceil((count - last_count) * 1000.0 /
                                               (current_time - last_time))
                                       << " total: " << count);

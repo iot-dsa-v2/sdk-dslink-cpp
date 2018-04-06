@@ -21,10 +21,28 @@ PermissionLevel PermissionRoleNode::get_permission(const string_ &path) {
       }
     }
   }
+  if (_default_level != PermissionLevel::INVALID) {
+    return _default_level;
+  }
   if (_fallback != nullptr) {
     return _fallback->get_permission(path);
   }
   return PermissionLevel::NONE;
+}
+
+StatusDetail PermissionRoleNode::on_set_value(MessageValue &&value) {
+  if (value.value.is_string()) {
+    const string_ &str = value.value.get_string();
+    auto level = PermissionName::parse(str);
+
+    if (level != PermissionLevel::INVALID || str.empty()) {
+      if (level != _default_level) {
+        _default_level = level;
+        return NodeModel::on_set_value(std::move(value));
+      }
+    }
+  }
+  return Status::INVALID_PARAMETER;
 }
 
 PermissionRuleNode::PermissionRuleNode(const LinkStrandRef &strand,
