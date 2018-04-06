@@ -55,8 +55,8 @@ const char *PermissionName::convert(PermissionLevel permission_level) {
       return PermissionName::WRITE;
     case PermissionLevel::CONFIG:
       return PermissionName::CONFIG;
-    case PermissionLevel::NEVER:
-      return PermissionName::NEVER;
+    case PermissionLevel::INVALID:
+      return PermissionName::INVALID;
     default:
       return "Unknown Permission Level";
   }
@@ -73,7 +73,7 @@ PermissionLevel PermissionName::parse(string_ str) {
   } else if (str == PermissionName::NONE) {
     return PermissionLevel::NONE;
   }
-  return PermissionLevel::NEVER;
+  return PermissionLevel::INVALID;
 }
 
 const char *to_string(Status status) {

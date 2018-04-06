@@ -68,6 +68,8 @@ enum class Status : uint8_t {
   GENERAL_ERROR = 0xFF
 };
 
+const char* to_string(Status status);
+
 struct StatusDetail {
   Status code;
   string_ detail;
@@ -82,7 +84,7 @@ enum class PermissionLevel : uint8_t {
   READ = 0x20,
   WRITE = 0x30,
   CONFIG = 0x40,
-  NEVER = 0x7f,
+  INVALID = 0x7f,
   UNKNOWN = 0xff
 };
 
@@ -93,17 +95,13 @@ class PermissionName {
   static constexpr const char* READ = "read";
   static constexpr const char* WRITE = "write";
   static constexpr const char* CONFIG = "config";
-  static constexpr const char* NEVER = "never";
+  static constexpr const char* INVALID = "invalid";
 
   static const char* convert(PermissionLevel level);
   static PermissionLevel parse(string_ str);
 };
 
 enum class MergeQueueResult { NORMAL, SKIP_THIS, SKIP_NEXT };
-
-const char* to_string(PermissionLevel permission_level);
-
-const char* to_string(Status status);
 
 }  // namespace dsa
 

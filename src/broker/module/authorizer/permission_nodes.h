@@ -11,7 +11,7 @@
 #include "util/enums.h"
 
 namespace dsa {
-
+class BrokerAuthorizer;
 class PermissionRuleNode;
 
 class PermissionRoleRootNode : public NodeModel {
@@ -20,6 +20,7 @@ class PermissionRoleRootNode : public NodeModel {
 };
 
 class PermissionRoleNode : public NodeModel {
+  friend class BrokerAuthorizer;
   friend class PermissionRuleNode;
 
   // use map to keep it sorted
@@ -32,6 +33,8 @@ class PermissionRoleNode : public NodeModel {
 };
 
 class PermissionRuleNode : public NodeModel {
+  friend class BrokerAuthorizer;
+
   ref_<PermissionRoleNode> _role;
   PermissionLevel _level;
   string_ _path;

@@ -35,7 +35,7 @@ PermissionRuleNode::PermissionRuleNode(const LinkStrandRef &strand,
 StatusDetail PermissionRuleNode::on_set_value(MessageValue &&value) {
   if (value.value.is_string()) {
     auto level = PermissionName::parse(value.value.get_string());
-    if (level != PermissionLevel::NEVER) {
+    if (level != PermissionLevel::INVALID) {
       if (level != _level) {
         _level = level;
         _role->_rules[_path] = _level;

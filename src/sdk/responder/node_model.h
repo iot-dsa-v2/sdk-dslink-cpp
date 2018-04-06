@@ -14,7 +14,7 @@ class StorageBucket;
 
 class NodeModel : public NodeModelBase {
  private:
-  PermissionLevel _set_value_require_permission = PermissionLevel::NEVER;
+  PermissionLevel _set_value_require_permission = PermissionLevel::INVALID;
   void set_value_require_permission(PermissionLevel permission_level);
 
  protected:
@@ -32,9 +32,9 @@ class NodeModel : public NodeModelBase {
 
  public:
   NodeModel(const LinkStrandRef &strand,
-            PermissionLevel write_require_permission = PermissionLevel::NEVER);
+            PermissionLevel write_require_permission = PermissionLevel::INVALID);
   NodeModel(const LinkStrandRef &strand, ref_<NodeModel> &&profile,
-            PermissionLevel write_require_permission = PermissionLevel::NEVER);
+            PermissionLevel write_require_permission = PermissionLevel::INVALID);
 
   void on_list(BaseOutgoingListStream &stream, bool first_request) override;
 

@@ -55,6 +55,9 @@ static const std::string standard_profile = R"({
     }
    },
    "Permission_Role": {
+    "Remove": {
+     "$invokable": "config"
+    },
     "Add_Rule": {
      "$invokable": "config",
      "$params": [
@@ -64,7 +67,8 @@ static const std::string standard_profile = R"({
       },
       {
        "name": "Permission",
-       "type": "string"
+       "type": "string",
+       "editor": "enum[none,list,read,write,config]"
       }
      ]
     },

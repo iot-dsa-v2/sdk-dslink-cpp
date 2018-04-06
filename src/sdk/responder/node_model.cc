@@ -163,7 +163,7 @@ void NodeModel::set(ref_<OutgoingSetStream> &&stream) {
     auto field = message->get_attribute_field();
     StatusDetail status;
     if (field.empty()) {
-      if (_set_value_require_permission >= PermissionLevel::NEVER) {
+      if (_set_value_require_permission >= PermissionLevel::INVALID) {
         status = Status::NOT_SUPPORTED;
       } else if (stream->allowed_permission < _set_value_require_permission) {
         status = Status::PERMISSION_DENIED;

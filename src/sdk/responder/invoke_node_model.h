@@ -13,7 +13,7 @@ namespace dsa {
 
 class InvokeNodeModel : public NodeModel {
  private:
-  PermissionLevel _invoke_require_permission = PermissionLevel::NEVER;
+  PermissionLevel _invoke_require_permission = PermissionLevel::INVALID;
   void invoke_require_permission(PermissionLevel permission_level);
 
  public:
