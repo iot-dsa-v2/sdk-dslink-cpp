@@ -7,6 +7,7 @@
 #include <string>
 #include "module/logger.h"
 #include "util/string_encode.h"
+#include "module/storage.h"
 
 namespace fs = boost::filesystem;
 

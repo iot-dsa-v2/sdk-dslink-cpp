@@ -17,7 +17,6 @@
 namespace dsa {
 
 namespace fs = boost::filesystem;
-using boost::filesystem::path;
 
 SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
                                          boost::asio::io_service* io_service,
@@ -45,6 +44,10 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
   }
 }
 
+fs::path SimpleStorageBucket::get_storage_path(const string_& key) {
+  return utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
+}
+
 bool SimpleStorageBucket::is_empty() {
   if (!boost::filesystem::is_directory(_full_base_path)) return true;
 
@@ -57,13 +60,13 @@ bool SimpleStorageBucket::is_empty() {
 }
 
 bool SimpleStorageBucket::exists(const string_& key) {
-  path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
+  fs::path p = get_storage_path(key);
   return (fs::exists(p) && is_regular_file(p));
 }
 
 void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
   auto write_file = [ =, content = std::move(content) ]() {
-    path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
+    fs::path p = get_storage_path(key);
 
     try {
       fs::ofstream ofs(p, std::ios::out | std::ios::trunc | std::ios::binary);
@@ -102,7 +105,7 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback) {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
-    path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
+    fs::path p = get_storage_path(key);
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -160,7 +163,7 @@ void SimpleStorageBucket::remove(const string_& key) {
       }
 
       strand_map.at(key)->post([=]() {
-        path p =
+        fs::path p =
             utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
 
         try {
@@ -181,7 +184,7 @@ void SimpleStorageBucket::remove(const string_& key) {
     }
     return;
   } else {
-    path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
+    fs::path p = get_storage_path(key);
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {

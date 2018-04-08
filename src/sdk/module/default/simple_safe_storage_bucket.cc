@@ -10,7 +10,6 @@
 namespace dsa {
 
 namespace fs = boost::filesystem;
-using boost::filesystem::path;
 
 // static std::unique_ptr<SimpleSafeStorageBucket> config_bucket(
 //    new SimpleSafeStorageBucket("config", nullptr, ""));
@@ -21,10 +20,9 @@ using boost::filesystem::path;
 static void _write(SimpleSafeStorageBucket *bucket, const string_ &key,
                    BytesRef &&content) {
   TempFile tmp;
-  path templ = tmp.get();
+  fs::path templ = tmp.get();
 
-  const path p = utf8_str_to_path(bucket->get_base_path_str() + "/" +
-                                  url_encode_file_name(key));
+  const fs::path p = bucket->get_storage_path(key);
 
   try {
     std::ofstream ofs(templ.string(),

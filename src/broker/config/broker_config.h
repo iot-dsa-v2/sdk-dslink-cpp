@@ -10,8 +10,8 @@
 
 #include <boost/filesystem.hpp>
 #include "broker_config_item.h"
-#include "module/default/simple_storage.h"
 #include "util/enable_ref.h"
+
 namespace dsa {
 class BrokerConfig : public EnableRef<BrokerConfig> {
   string_ _file_path;

@@ -62,7 +62,7 @@ class SimpleStorageBucket : public SharedStorageBucket {
                       boost::asio::io_service* io_service = nullptr,
                       const string_& storage_root = storage_default,
                       const string_& cwd = "");
-  const string_& get_base_path_str() const { return _full_base_str; }
+  fs::path get_storage_path(const string_& key);
   bool is_empty() override;
   bool exists(const string_& key) override;
   void write(const string_& key, BytesRef&& data) override;
