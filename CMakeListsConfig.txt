@@ -22,7 +22,9 @@ if (CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror=return-type -Wno-deprecated")
 
     if (MINGW)
-
+        # mingw
+    elseif(CMAKE_SOURCE_DIR MATCHES "^/mnt/c/")
+        # windows subsystem for linux
     else()
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fstack-protector-all")
