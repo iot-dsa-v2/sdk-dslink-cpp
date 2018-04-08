@@ -25,3 +25,7 @@ add_executable(${TARGET_NAME} playground.cc
 target_link_libraries(${TARGET_NAME} ${TEST_LIBS} dsa_broker)
 
 add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
+
+
+add_executable(nondsa nondsa.cc)
+target_link_libraries(nondsa ${Boost_LIBRARIES})

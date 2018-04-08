@@ -8,12 +8,20 @@
 #include "../storage.h"
 
 #include <boost/asio/io_service.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include <list>
 #include <map>
 #include <utility>
 
+namespace fs = boost::filesystem;
+
 namespace dsa {
+
+// handle both utf8 file system and utf16 system
+const string_ path_to_utf8_str(const boost::filesystem::path& path);
+// handle both utf8 file system and utf16 system
+fs::path utf8_str_to_path(const string_& str);
 
 static constexpr char storage_default[] = "storage";
 class SimpleQueueBucket : public QueueBucket {
@@ -46,20 +54,15 @@ class SimpleStorageBucket : public SharedStorageBucket {
   string_ _cwd;
   string_ _storage_root;
   string_ _bucket_name;
-  string_ _full_base_path;
+  string_ _full_base_str;
+  fs::path _full_base_path;
 
  public:
-#if defined(_WIN32) || defined(_WIN64)
-  std::wstring get_storage_path(const string_& key = "");
-#else
-  string_ get_storage_path(const string_& key = "");
-#endif
-
   SimpleStorageBucket(const string_& bucket_name,
                       boost::asio::io_service* io_service = nullptr,
                       const string_& storage_root = storage_default,
                       const string_& cwd = "");
-
+  const string_& get_base_path_str() const { return _full_base_str; }
   bool is_empty() override;
   bool exists(const string_& key) override;
   void write(const string_& key, BytesRef&& data) override;
@@ -95,7 +98,8 @@ class SimpleStorage : public Storage {
   SimpleStorage(boost::asio::io_service* io_service = nullptr)
       : _io_service(io_service) {}
 
-  shared_ptr_<SharedStorageBucket> get_shared_bucket(const string_& name) override;
+  shared_ptr_<SharedStorageBucket> get_shared_bucket(
+      const string_& name) override;
 
   /// create a bucket or find a existing bucket
   std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) override;

@@ -32,6 +32,10 @@ sudo make install
 sudo update-alternatives --install /usr/bin/c++ c++ /usr/local/gcc-7.3/bin/c++ 100
 sudo update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-7.3/bin/g++ 100
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/local/gcc-7.3/bin/gcc 100
+cd ~
+echo 'export PATH=/usr/local/gcc-7.3/bin:$PATH' >> .bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/gcc-7.3/lib64:$LD_LIBRARY_PATH' >> .bashrc
+source .bashrc
 ```
 
 * build boost
@@ -45,5 +49,5 @@ sudo ./b2 --without-python  install
 
 
 * start ssh server
-  * `sudo gedit /etc/ssh/sshd_config` enable password
+  * `sudo vim /etc/ssh/sshd_config` enable password
   * `sudo service ssh start`

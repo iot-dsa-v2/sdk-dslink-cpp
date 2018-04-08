@@ -25,50 +25,31 @@ SimpleStorageBucket::SimpleStorageBucket(const string_& bucket_name,
                                          const string_& cwd)
     : _io_service(io_service),
       _storage_root(storage_root),
-      _bucket_name(url_encode_file_name(bucket_name)) {
+      _bucket_name(bucket_name) {
   _cwd = cwd;
   if (cwd.empty()) _cwd = get_current_working_dir();
-  if (!_cwd.empty()) _full_base_path = _cwd + "/";
-  if (!_storage_root.empty()) _full_base_path += _storage_root + "/";
-  _full_base_path += _bucket_name;
-
-  path p(get_storage_path());
-  if (!fs::exists(p)) {
+  if (!_cwd.empty()) _full_base_str = _cwd + "/";
+  if (!_storage_root.empty()) _full_base_str += _storage_root + "/";
+  _full_base_str += url_encode_file_name(_bucket_name);
+  _full_base_path = utf8_str_to_path(_full_base_str);
+  if (!fs::exists(_full_base_path)) {
     try {
-      if (!fs::create_directories(p)) {
+      if (!fs::create_directories(_full_base_path)) {
         LOG_FATAL(__FILENAME__,
-                  LOG << p.string() << " storage path cannot be created!");
+                  LOG << _full_base_str << " storage path cannot be created!");
       }
     } catch (const fs::filesystem_error& ex) {
       LOG_FATAL(__FILENAME__,
-                LOG << p.string() << " storage path cannot be created!");
+                LOG << _full_base_str << " storage path cannot be created!");
     }
   }
 }
-#if defined(_WIN32) || defined(_WIN64)
-std::wstring SimpleStorageBucket::get_storage_path(const string_& key) {
-  string_ path;
-  if (!_full_base_path.empty()) path = _full_base_path + "/";
-  if (!key.empty()) path += url_encode_file_name(key);
-  return std::move(
-      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
-          .from_bytes(path));
-}
-#else
-string_ SimpleStorageBucket::get_storage_path(const string_& key) {
-  string_ path;
-  if (!_full_base_path.empty()) path = _full_base_path + "/";
-  if (!key.empty()) path += url_encode_file_name(key);
-  return std::move(path);
-}
-#endif
 
 bool SimpleStorageBucket::is_empty() {
-  path p(get_storage_path());
-  if (!boost::filesystem::is_directory(p)) return false;
+  if (!boost::filesystem::is_directory(_full_base_path)) return true;
 
   boost::filesystem::directory_iterator end_it;
-  boost::filesystem::directory_iterator it(p);
+  boost::filesystem::directory_iterator it(_full_base_path);
   if (it == end_it)
     return true;
   else
@@ -76,13 +57,13 @@ bool SimpleStorageBucket::is_empty() {
 }
 
 bool SimpleStorageBucket::exists(const string_& key) {
-  path p(get_storage_path(key));
+  path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
   return (fs::exists(p) && is_regular_file(p));
 }
 
 void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
   auto write_file = [ =, content = std::move(content) ]() {
-    path p(get_storage_path(key));
+    path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
 
     try {
       fs::ofstream ofs(p, std::ios::out | std::ios::trunc | std::ios::binary);
@@ -121,7 +102,7 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback) {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
-    path p(get_storage_path(key));
+    path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -179,7 +160,8 @@ void SimpleStorageBucket::remove(const string_& key) {
       }
 
       strand_map.at(key)->post([=]() {
-        path p(get_storage_path(key));
+        path p =
+            utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
 
         try {
           if (fs::exists(p) && is_regular_file(p)) {
@@ -199,7 +181,7 @@ void SimpleStorageBucket::remove(const string_& key) {
     }
     return;
   } else {
-    path p(get_storage_path(key));
+    path p = utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
 
     try {
       if (fs::exists(p) && is_regular_file(p)) {
@@ -217,35 +199,33 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
   shared_ptr_<ReadCbTrack> read_cb_track = make_shared_<ReadCbTrack>();
   read_cb_track->num_needed = 0;
 
-  path p(get_storage_path());
-  std::list<std::wstring> key_list;
+  std::list<string_> key_list;
   try {
-    for (auto&& x : fs::directory_iterator(p)) {
-      key_list.push_back(x.path().filename().wstring());
+    for (auto&& x : fs::directory_iterator(_full_base_path)) {
+      key_list.push_back(path_to_utf8_str(x.path().filename()));
       read_cb_track->num_needed++;
     }
     key_list.sort();
     for (auto&& key : key_list) {
       auto cb = callback;
       auto on_done_cb = on_done;
-      this->read(
-          url_decode(
-              std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(key)),
-          [ =, cb = std::move(cb), on_done_cb = std::move(on_done_cb) ](
-              const string_& key, std::vector<uint8_t> data,
-              BucketReadStatus read_status) {
+      this->read(url_decode(key),
+                 [ =, cb = std::move(cb), on_done_cb = std::move(on_done_cb) ](
+                     const string_& key, std::vector<uint8_t> data,
+                     BucketReadStatus read_status) {
 
-            // TODO: consider not lock callback, but it that case the callback
-            // is not going to be thread safe
-            // thread safety should be provided in the callback
-            std::lock_guard<std::mutex> lock(read_cb_track->read_mutex);
-            cb(std::move(key), std::move(data), read_status);
-            read_cb_track->num_needed--;
-            if (read_cb_track->num_needed == 0) {
-              if (on_done_cb != nullptr) on_done_cb();
-            }
+                   // TODO: consider not lock callback, but it that case the
+                   // callback
+                   // is not going to be thread safe
+                   // thread safety should be provided in the callback
+                   std::lock_guard<std::mutex> lock(read_cb_track->read_mutex);
+                   cb(std::move(key), std::move(data), read_status);
+                   read_cb_track->num_needed--;
+                   if (read_cb_track->num_needed == 0) {
+                     if (on_done_cb != nullptr) on_done_cb();
+                   }
 
-          });
+                 });
     }
   } catch (const fs::filesystem_error& ex) {
     // std::cout << ex.what() << '\n';
@@ -255,15 +235,13 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
 }
 
 void SimpleStorageBucket::remove_all() {
-  path p(get_storage_path());
-  std::list<std::wstring> key_list;
+  std::list<string_> key_list;
   try {
-    for (auto&& x : fs::directory_iterator(p)) {
-      key_list.push_back(x.path().filename().wstring());
+    for (auto&& x : fs::directory_iterator(_full_base_path)) {
+      key_list.push_back(path_to_utf8_str(x.path().filename()));
     }
     for (auto&& key : key_list) {
-      remove(url_decode(
-          std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(key)));
+      remove(url_decode(key));
     }
   } catch (const fs::filesystem_error& ex) {
     // std::cout << ex.what() << '\n';

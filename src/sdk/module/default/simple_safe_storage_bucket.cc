@@ -23,7 +23,8 @@ static void _write(SimpleSafeStorageBucket *bucket, const string_ &key,
   TempFile tmp;
   path templ = tmp.get();
 
-  path p(bucket->get_storage_path(key));
+  const path p = utf8_str_to_path(bucket->get_base_path_str() + "/" +
+                                  url_encode_file_name(key));
 
   try {
     std::ofstream ofs(templ.string(),

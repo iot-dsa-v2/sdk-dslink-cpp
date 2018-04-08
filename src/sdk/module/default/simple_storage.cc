@@ -9,6 +9,28 @@
 namespace fs = boost::filesystem;
 
 namespace dsa {
+
+#if defined(_WIN32) || defined(_WIN64)
+
+const string_ path_to_utf8_str(const boost::filesystem::path& path) {
+  return std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(
+      path.wstring());
+}
+fs::path utf8_str_to_path(const string_& str) {
+  return fs::path(
+      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+          .from_bytes(str));
+}
+
+#else
+
+const string_ path_to_utf8_str(const boost::filesystem::path& path) {
+  return path.string();
+}
+fs::path utf8_str_to_path(const string_& str) { return fs::path(str); }
+
+#endif
+
 shared_ptr_<SharedStorageBucket> SimpleStorage::get_shared_bucket(
     const std::string& name) {
   shared_ptr_<SharedStorageBucket> new_bucket;
@@ -39,12 +61,8 @@ void SimpleStorage::clear() {
   fs::path p(storage_default);
   if (fs::exists(p)) {
     for (auto&& x : fs::directory_iterator(p)) {
-      std::wstring path_entry(x.path().stem().wstring());
-      SimpleStorage simple_storage;
-      shared_ptr_<StorageBucket> storage_bucket;
-      storage_bucket = simple_storage.get_shared_bucket(url_decode(
-          std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(
-              path_entry)));
+      shared_ptr_<StorageBucket> storage_bucket =
+          get_shared_bucket(url_decode(path_to_utf8_str(x.path().filename())));
       storage_bucket->remove_all();
     }
   }
