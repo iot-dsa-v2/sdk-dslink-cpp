@@ -9,8 +9,9 @@
 namespace dsa {
 
 StorageBucket& Storage::get_config_bucket() {
-  static SimpleSafeStorageBucket config_bucket("config", nullptr, "");
-  return config_bucket;
+  static shared_ptr_<SimpleSafeStorageBucket> config_bucket =
+      make_shared_<SimpleSafeStorageBucket>("config", nullptr, "");
+  return *config_bucket;
 }
 
 ref_<StrandStorageBucket> Storage::get_strand_bucket(
