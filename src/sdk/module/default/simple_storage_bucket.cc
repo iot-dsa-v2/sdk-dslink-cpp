@@ -65,7 +65,8 @@ bool SimpleStorageBucket::exists(const string_& key) {
 }
 
 void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
-  auto write_file = [ =, content = std::move(content) ]() {
+  auto write_file =
+      [ =, keeyptr = share_this(), content = std::move(content) ]() {
     fs::path p = get_storage_path(key);
 
     try {
@@ -90,7 +91,7 @@ void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
       strand_map.insert(StrandPair(key, strand));
     }
 
-    strand_map.at(key)->post([=]() {
+    strand_map.at(key)->post([write_file = std::move(write_file)]() {
       write_file();
       return;
     });
@@ -101,7 +102,8 @@ void SimpleStorageBucket::write(const string_& key, BytesRef&& content) {
 }
 
 void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback) {
-  auto read_file = [ =, callback = std::move(callback) ]() {
+  auto read_file =
+      [ =, keepptr = share_this(), callback = std::move(callback) ]() {
     BucketReadStatus status = BucketReadStatus::OK;
     std::vector<uint8_t> vec{};
 
@@ -142,7 +144,7 @@ void SimpleStorageBucket::read(const string_& key, ReadCallback&& callback) {
       strand_map.insert(StrandPair(key, strand));
     }
 
-    strand_map.at(key)->post([=]() {
+    strand_map.at(key)->post([read_file = std::move(read_file)]() {
       read_file();
       return;
     });
@@ -162,7 +164,7 @@ void SimpleStorageBucket::remove(const string_& key) {
         strand_map.insert(StrandPair(key, strand));
       }
 
-      strand_map.at(key)->post([=]() {
+      strand_map.at(key)->post([ =, keepptr = share_this() ]() {
         fs::path p =
             utf8_str_to_path(_full_base_str + "/" + url_encode_file_name(key));
 
@@ -213,9 +215,11 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
       auto cb = callback;
       auto on_done_cb = on_done;
       this->read(url_decode(key),
-                 [ =, cb = std::move(cb), on_done_cb = std::move(on_done_cb) ](
-                     const string_& key, std::vector<uint8_t> data,
-                     BucketReadStatus read_status) {
+                 [
+                   read_cb_track, cb = std::move(cb),
+                   on_done_cb = std::move(on_done_cb)
+                 ](const string_& key, std::vector<uint8_t> data,
+                   BucketReadStatus read_status) {
 
                    // TODO: consider not lock callback, but it that case the
                    // callback
