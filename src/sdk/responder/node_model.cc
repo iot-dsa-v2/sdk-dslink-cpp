@@ -25,21 +25,28 @@ NodeModel::NodeModel(const LinkStrandRef &strand, ref_<NodeModel> &&profile,
     : NodeModelBase(strand), _profile(std::move(profile)) {
   set_value_require_permission(write_require_permission);
 
-  auto &state = _profile->get_state();
-  if (state == nullptr || state->get_path().data()->names[0] != "Pub") {
-    LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
-  }
+  if (_profile != nullptr) {
+    auto &state = _profile->get_state();
+    if (state == nullptr || state->get_path().data()->names[0] != "Pub") {
+      LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
+    }
 
-  update_property("$is", Var(state->get_path().move_pos(1).remain_str()));
-  // copy necessary data for the permission and summary
-  if (_profile->_metas.count("$type") > 0) {
-    _metas["$type"] = profile->_metas["$type"];
-  }
-  if (_profile->_metas.count("$writable") > 0) {
-    _metas["$writable"] = profile->_metas["$writable"];
-  }
-  if (_profile->_metas.count("$type") > 0) {
-    _metas["$invokable"] = profile->_metas["$invokable"];
+    update_property("$is", Var(state->get_path().move_pos(1).remain_str()));
+
+    // copy necessary data for the permission and summary
+    if (_profile->_metas.count("$type") > 0) {
+      _metas["$type"] = _profile->_metas["$type"];
+    }
+    if (_set_value_require_permission == PermissionLevel::INVALID &&
+        _profile->_metas.count("$writable") > 0) {
+      // overwrite the permission when it's not defined in constructor
+      _metas["$writable"] = _profile->_metas["$writable"];
+      _set_value_require_permission =
+          PermissionName::parse(_metas["$writable"]->get_value().to_string());
+    }
+    if (_profile->_metas.count("$invokable") > 0) {
+      _metas["$invokable"] = _profile->_metas["$invokable"];
+    }
   }
 }
 

@@ -5,6 +5,7 @@
 #pragma once
 #endif
 
+#include "module/storage.h"
 #include "responder/node_model.h"
 #include "util/client_info.h"
 

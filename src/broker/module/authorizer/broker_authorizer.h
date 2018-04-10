@@ -19,7 +19,6 @@ class BrokerAuthorizer : public Authorizer {
 
  protected:
   LinkStrandRef _strand;
-  ref_<StrandStorageBucket> _storage;
 
   ref_<PermissionRoleRootNode> _permission_root;
 

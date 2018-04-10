@@ -23,16 +23,28 @@ void BrokerAuthorizer::check_permission(const ClientInfo& client_info,
                                         const string_& permission_token,
                                         MessageType method, const Path& path,
                                         CheckPermissionCallback&& callback) {
-  _strand->post([callback = std::move(callback)]() {
-    callback(PermissionLevel::CONFIG);
+  _strand->post([
+    this, keepref = get_ref(), role = client_info.role, path,
+    callback = std::move(callback)
+  ]() {
+    if (role.empty()) {
+      callback(
+          _permission_root->_default_role->get_permission(path.full_str()));
+      return;
+    }
+    auto* p_role = dynamic_cast<PermissionRoleNode*>(
+        _permission_root->get_child(role).get());
+    if (p_role != nullptr) {
+      callback(p_role->get_permission(path.full_str()));
+    } else {
+      callback(
+          _permission_root->_default_role->get_permission(path.full_str()));
+    }
   });
 }
 
 void BrokerAuthorizer::create_nodes(NodeModel& module_node,
                                     BrokerPubRoot& pub_root) {
-  // init the storage for nodes
-  _storage = _strand->storage().get_strand_bucket("Roles", _strand);
-
   pub_root.register_standard_profile_function(
       "Broker/Permission_Role/Add_Rule",
       (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
@@ -47,13 +59,15 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
             stream.close(Status::INVALID_PARAMETER);
             return;
           }
-          if (role->_rules.count(path) > 0) {
+
+          string_ node_name = url_encode_node_name(path);
+
+          if (role->get_child(node_name) != nullptr) {
             stream.close(Status::INVALID_PARAMETER, "Path is already defined");
             return;
           }
-          role->_rules[path] = permisison_level;
 
-          string_ node_name = url_encode_node_name(path);
+          role->_rules[path] = permisison_level;
 
           auto rule = make_ref_<PermissionRuleNode>(
               _strand, role->get_ref(),
@@ -66,7 +80,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
           role->add_list_child(node_name, ref_<NodeModelBase>(rule));
 
           const string_& role_name = role->get_state()->get_path().last_name();
-          role->save(*_storage, role_name, false, true);
+          role->save_role();
 
           stream.close();
         } else {
@@ -83,7 +97,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
         if (role != nullptr &&
             role->get_state()->get_parent()->get_model() == _permission_root) {
           const string_& role_name = role->get_state()->get_path().last_name();
-          _storage->remove(role_name);
+          _permission_root->_storage->remove(role_name);
           _permission_root->remove_list_child(role_name);
 
           stream.close();
@@ -107,7 +121,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
                 role->get_state()->get_path().last_name();
 
             role->_rules.erase(rule->_path);
-            role->save(*_storage, role_name, false, true);
+            role->save_role();
             role->remove_list_child(rule_name);
             stream.close();
             return;
@@ -117,6 +131,33 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
       });
 
   _permission_root.reset(new PermissionRoleRootNode(_strand));
+  _permission_root->add_list_child(
+      "Add_Role",
+      make_ref_<SimpleInvokeNode>(
+          _strand, [ this, keepref = get_ref() ](Var && v)->Var {
+            if (_permission_root != nullptr && v.is_map()) {
+              string_ name = v["Name"].to_string();
+              if (name.empty()) {
+                return Var(Status::INVALID_PARAMETER);
+              }
+              if (_permission_root->get_list_children().count(name) > 0) {
+                return Var(Status::INVALID_PARAMETER,
+                           "Name of role is already defined");
+              }
+              if (PathData::invalid_name(name)) {
+                return Var(Status::INVALID_PARAMETER, "Name is invalid");
+              }
+              auto role = make_ref_<PermissionRoleNode>(
+                  _strand, _permission_root->get_ref(),
+                  _strand->stream_acceptor().get_profile(
+                      "Broker/Permission_Role", true));
+              _permission_root->add_list_child(name, std::move(role));
+              return Var(Status::DONE);
+            } else {
+              return Var(Status::INVALID_PARAMETER);
+            }
+          },
+          PermissionLevel::CONFIG));
 }
 
 }  // namespace dsa

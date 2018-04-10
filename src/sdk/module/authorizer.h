@@ -9,7 +9,6 @@
 #include <string>
 
 #include "util/enums.h"
-#include "storage.h"
 #include "util/client_info.h"
 #include "util/enable_ref.h"
 
