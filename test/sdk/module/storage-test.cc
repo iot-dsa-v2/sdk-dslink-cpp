@@ -71,7 +71,7 @@ TEST(ModuleTest, StorageBucket) {
 
   app.close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();
@@ -131,7 +131,7 @@ TEST(ModuleTest, SafeStorageBucket) {
 
   app.close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();
@@ -215,12 +215,39 @@ TEST(ModuleTest, StorageBucketReadAll) {
   EXPECT_TRUE(storage_bucket->is_empty());
   app.close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();
   }
 
+  app.wait();
+}
+
+TEST(ModuleTest, StorageBucketReadAllEmpty) {
+  App app;
+
+  SimpleStorage simple_storage(nullptr);
+  const string_ bucket_name(u8"emptybucket");
+
+  shared_ptr_<StorageBucket> storage_bucket =
+      simple_storage.get_shared_bucket(bucket_name);
+
+  bool read_done = false;
+
+  storage_bucket->read_all([](string_ storage_key, std::vector<uint8_t> vec,
+                              BucketReadStatus read_status) {},
+                           [&]() { read_done = true; });
+
+  WAIT_EXPECT_TRUE(3000, [&]() -> bool { return read_done; });
+
+  app.close();
+
+  WAIT_EXPECT_TRUE(1000, [&]() { return app.is_stopped(); });
+
+  if (!app.is_stopped()) {
+    app.force_stop();
+  }
   app.wait();
 }
 TEST(ModuleTest, StorageBucketReadAllMore) {
@@ -275,7 +302,7 @@ TEST(ModuleTest, StorageBucketReadAllMore) {
   simple_storage.destroy();
   app.close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();
@@ -320,7 +347,7 @@ TEST(ModuleTest, StorageBucketName) {
 
   app.close();
 
-  wait_for_bool(500, [&]() { return app.is_stopped(); });
+  WAIT_EXPECT_TRUE(1000, [&]() { return app.is_stopped(); });
 
   if (!app.is_stopped()) {
     app.force_stop();

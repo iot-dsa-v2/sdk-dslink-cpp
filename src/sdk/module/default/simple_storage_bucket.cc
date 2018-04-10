@@ -210,6 +210,10 @@ void SimpleStorageBucket::read_all(ReadCallback&& callback,
       key_list.push_back(path_to_utf8_str(x.path().filename()));
       read_cb_track->num_needed++;
     }
+    if (key_list.empty()) {
+      on_done();
+      return;
+    }
     key_list.sort();
     for (auto&& key : key_list) {
       auto cb = callback;
