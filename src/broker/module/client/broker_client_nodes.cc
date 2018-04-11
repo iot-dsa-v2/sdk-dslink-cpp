@@ -151,17 +151,17 @@ void BrokerClientNode::save_extra(VarMap& map) const {
   // when the node is saved, it's no longer temporary
   temporary_client = false;
   // TODO, change these to writable children value nodes
-  map["?role"] = _client_info.role;
-  map["?from-token"] = _client_info.from_token;
-  map["?path"] = _client_info.responder_path;
-  map["?max-session"] = static_cast<int64_t>(_client_info.max_session);
+  map[":role"] = _client_info.role;
+  map[":from-token"] = _client_info.from_token;
+  map[":path"] = _client_info.responder_path;
+  map[":max-session"] = static_cast<int64_t>(_client_info.max_session);
 }
 void BrokerClientNode::load_extra(VarMap& map) {
   ClientInfo info(std::move(_client_info));
-  info.role = map["?role"].to_string();
-  info.from_token = map["?default-token"].to_string();
-  info.responder_path = map["?path"].to_string();
-  info.max_session = static_cast<size_t>(map["?max-session"].get_int());
+  info.role = map[":role"].to_string();
+  info.from_token = map[":default-token"].to_string();
+  info.responder_path = map[":path"].to_string();
+  info.max_session = static_cast<size_t>(map[":max-session"].get_int());
   set_client_info(std::move(info));
 }
 

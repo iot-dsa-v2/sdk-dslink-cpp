@@ -183,14 +183,14 @@ void PermissionRoleNode::save_role() const {
 }
 void PermissionRoleNode::save_extra(VarMap &map) const {
   if (!_fallback_name.empty()) {
-    map["?fallback"] = _fallback_name;
+    map[":fallback"] = _fallback_name;
   }
 
   auto rules = make_ref_<VarMap>();
   for (auto it : _rules) {
     (*rules)[it.first] = Var(PermissionName::convert(it.second));
   }
-  map["?rules"] = std::move(rules);
+  map[":rules"] = std::move(rules);
 }
 void PermissionRoleNode::load_extra(VarMap &map) {
   if (_cached_value != nullptr) {
@@ -198,14 +198,14 @@ void PermissionRoleNode::load_extra(VarMap &map) {
         PermissionName::parse(_cached_value->get_value().value.to_string());
   }
 
-  if (map.count("?fallback") > 0 && map["?fallback"].is_string()) {
-    _fallback_name = map["?fallback"].get_string();
+  if (map.count(":fallback") > 0 && map[":fallback"].is_string()) {
+    _fallback_name = map[":fallback"].get_string();
   } else {
     _fallback_name = "";
   }
 
-  if (map.count("?rules") > 0 && map["?rules"].is_map()) {
-    auto &rules = map["?rules"].get_map();
+  if (map.count(":rules") > 0 && map[":rules"].is_map()) {
+    auto &rules = map[":rules"].get_map();
     for (auto &it : rules) {
       if (it.second.is_string()) {
         auto &str = it.second.get_string();

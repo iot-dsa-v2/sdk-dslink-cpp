@@ -37,7 +37,7 @@ set(SOURCES
         node/pub/pub_root.cc
         module/user/broker_login_manager.cc
         module/client/quaratine_node.cpp
-        module/authorizer/permission_nodes.cpp
+        module/authorizer/permission_nodes.cc
        )
 
 add_library(dsa_broker ${SOURCES})

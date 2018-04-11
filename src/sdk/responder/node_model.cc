@@ -221,9 +221,9 @@ void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
                      bool recursive, bool use_json) const {
   auto map = make_ref_<VarMap>();
   if (_cached_value != nullptr) {
-    (*map)["?value"] = _cached_value->get_value().value;
+    (*map)[":value"] = _cached_value->get_value().value;
     if (!_cached_value->get_value().meta.is_null()) {
-      (*map)["?vmeta"] = _cached_value->get_value().meta;
+      (*map)[":vmeta"] = _cached_value->get_value().meta;
     }
   }
   for (auto &it : _metas) {
@@ -265,10 +265,10 @@ void NodeModel::save(StorageBucket &storage, const string_ &storage_path,
   }
 }
 void NodeModel::load(VarMap &map) {
-  if (map.count("?value")) {
-    MessageValue v(map["?value"]);
-    if (map.count("?vmeta") && map["?vmeta"].is_map()) {
-      v.meta = map["?vmeta"];
+  if (map.count(":value")) {
+    MessageValue v(map[":value"]);
+    if (map.count(":vmeta") && map[":vmeta"].is_map()) {
+      v.meta = map[":vmeta"];
     }
     set_value(std::move(v));
   }
