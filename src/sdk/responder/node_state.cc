@@ -228,7 +228,7 @@ bool NodeState::periodic_check(int64_t ts) {
   }
   // check if model is still in use
   if (is_idle() && (_model == nullptr || _model->periodic_check(this, ts))) {
-    if (_model->_state != this) {
+    if (_model != nullptr && _model->_state != this) {
       // don't destroy the model, since its owned by other state
       _model = nullptr;
     }
