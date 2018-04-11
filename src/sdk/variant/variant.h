@@ -173,6 +173,7 @@ class Var : public BaseVariant {
   VarArray &get_array() const { return *boost::get<ref_<VarArray>>(*this); }
 
   double to_double(double defaultout = 0.0 / 0.0) const;
+  int64_t to_int(int64_t defaultout = 0) const;
   int64_t to_bool(bool defaultout = false) const;
   const string_ to_string(const string_ &defaultout = "") const;
 

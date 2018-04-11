@@ -161,7 +161,7 @@ void BrokerClientNode::load_extra(VarMap& map) {
   info.role = map[":role"].to_string();
   info.from_token = map[":default-token"].to_string();
   info.responder_path = map[":path"].to_string();
-  info.max_session = static_cast<size_t>(map[":max-session"].get_int());
+  info.max_session = static_cast<size_t>(map[":max-session"].to_int());
   set_client_info(std::move(info));
 }
 

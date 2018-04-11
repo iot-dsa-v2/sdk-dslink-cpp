@@ -11,9 +11,6 @@ namespace dsa {
 
 static void run_worker_thread(
     const shared_ptr_<boost::asio::io_service> &io_service) {
-#ifdef _DSA_DEBUG
-  try {
-#endif
     while (true) {
       boost::system::error_code err;
       io_service->run(err);
@@ -23,11 +20,6 @@ static void run_worker_thread(
         return;
       }
     }
-#ifdef _DSA_DEBUG
-  } catch (std::exception &e) {
-    LOG_FATAL("app::worker_thread", LOG << e.what());
-  }
-#endif
 }
 
 //////////////

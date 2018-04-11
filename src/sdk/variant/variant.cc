@@ -150,6 +150,28 @@ double Var::to_double(double defaultout) const {
     return defaultout;
   }
 }
+int64_t Var::to_int(int64_t defaultout) const {
+  const string_ *str_value;
+  switch (which()) {
+    case INT:
+      return boost::get<int64_t>(*this);
+    case DOUBLE:
+      return boost::get<double>(*this);
+    case STRING:
+      str_value = &boost::get<string_>(*this);
+      break;
+    case SHARED_STRING:
+      str_value = boost::get<ref_<const RefCountString>>(*this).get();
+      break;
+    default:
+      return defaultout;
+  }
+  try {
+    return std::stoll(*str_value);
+  } catch (std::exception &err) {
+    return defaultout;
+  }
+}
 int64_t Var::to_bool(bool defaultout) const {
   const string_ *str_value;
   switch (which()) {
