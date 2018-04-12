@@ -16,12 +16,18 @@
 
 const bool DSA_DEBUG = true;
 
+// a work around for clion code analyzer issue
+#define CAST_LAMBDA(function_type) (function_type &&)
+
 #else  // DSA_DEBUG
 
 #define DOWN_CAST static_cast
 #define BOOST_DISABLE_ASSERTS
 
 const bool DSA_DEBUG = false;
+
+// a work around for clion code analyzer issue
+#define CAST_LAMBDA(function_type)
 
 #endif  // _DSA_DEBUG
 

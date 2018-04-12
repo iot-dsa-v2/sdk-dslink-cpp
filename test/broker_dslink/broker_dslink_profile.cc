@@ -24,20 +24,18 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
   auto link =
       broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
 
-  ref_<NodeModel> profile_example =
-      make_ref_<NodeModel>(link->strand);
+  ref_<NodeModel> profile_example = make_ref_<NodeModel>(link->strand);
   profile_example->add_list_child(
-      "Change",
-      make_ref_<SimpleInvokeNode>(
-          link->strand,
-          [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
-              ref_<NodeState> &&parent) {
-            auto *parent_model = parent->model_cast<NodeModel>();
-            if (parent_model != nullptr) {
-              parent_model->set_value(std::move(v));
-            }
-            stream.close();
-          }));
+      "Change", make_ref_<SimpleInvokeNode>(
+                    link->strand, [&](Var &&v, SimpleInvokeNode &node,
+                                      OutgoingInvokeStream &stream,
+                                      ref_<NodeState> &&parent) {
+                      auto *parent_model = parent->model_cast<NodeModel>();
+                      if (parent_model != nullptr) {
+                        parent_model->set_value(std::move(v));
+                      }
+                      stream.close();
+                    }));
   link->add_to_pub("Example", profile_example->get_ref());
 
   ref_<NodeModel> main_node =
@@ -53,37 +51,38 @@ TEST_F(BrokerDsLinkTest, ProfileActionTest) {
 
     // check the list result
     link_req->list("Downstream/Test1/Main",
-               [&](IncomingListCache &cache, const std::vector<string_> &) {
-                 if (cache.get_map().count("$is") > 0 &&
-                     cache.get_map().at("$is").to_string() == "Example") {
-                   EXPECT_TRUE(cache.get_profile_map().size() != 0);
-                   EXPECT_NE(cache.get_profile_map().find("Change"),
-                             cache.get_profile_map().end());
-                   list_checked = true;
-                   cache.close();
-                 }
-               });
+                   [&](IncomingListCache &cache, const std::vector<string_> &) {
+                     if (cache.get_map().count("$is") > 0 &&
+                         cache.get_map().at("$is").to_string() == "Example") {
+                       EXPECT_TRUE(cache.get_profile_map().size() != 0);
+                       EXPECT_NE(cache.get_profile_map().find("Change"),
+                                 cache.get_profile_map().end());
+                       list_checked = true;
+                       cache.close();
+                     }
+                   });
     // invoke the pub node to change the value
     auto request = make_ref_<InvokeRequestMessage>();
     request->set_target_path("Downstream/Test1/Main/Change");
     request->set_body(Var("hello").to_msgpack());
     link_req->invoke(
-        [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
+        CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
+            IncomingInvokeStream &, ref_<const InvokeResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
           invoked = true;
         },
         std::move(request));
     // subscribe to check the result
     ref_<IncomingSubscribeCache> sub_cache;
-    sub_cache =
-        link_req->subscribe("Downstream/Test1/Main",
-                        [&](IncomingSubscribeCache &cache,
-                            ref_<const SubscribeResponseMessage> &msg) {
-                          if (msg->get_value().value.to_string() == "hello") {
-                            subscrib_checked = true;
-                            cache.close();
-                          }
-                        });
+    sub_cache = link_req->subscribe(
+        "Downstream/Test1/Main",
+        [&](IncomingSubscribeCache &cache,
+            ref_<const SubscribeResponseMessage> &msg) {
+          if (msg->get_value().value.to_string() == "hello") {
+            subscrib_checked = true;
+            cache.close();
+          }
+        });
 
   });
 

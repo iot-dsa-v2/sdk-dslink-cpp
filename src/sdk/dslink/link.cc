@@ -394,45 +394,22 @@ ref_<IncomingSubscribeCache> DsLink::subscribe(
   auto merger = _subscribe_mergers[path];
   return merger->subscribe(std::move(callback), options);
 }
-ref_<IncomingListCache> DsLink::list(const string_ &path,
-                                     IncomingListCache::Callback &&callback) {
-  return list_raw(
-      path, [ this, keepref = get_ref(), callback = std::move(callback) ](
-                IncomingListCache & main_cache,
-                const std::vector<string_> &main_str) mutable {
-        auto pub_path = main_cache.get_last_pub_path();
-        // if $is and pub_path both exists
-        if (main_cache.get_map().count("$is") > 0 && !pub_path.empty()) {
-          auto is_str = main_cache.get_map().at("$is").to_string();
-          list_raw(pub_path + "/" + is_str,
-                   [
-                     main_str, main_cache = main_cache.get_ref(),
-                     callback = std::move(callback)
-                   ](IncomingListCache & cache,
-                     const std::vector<string_> &str) mutable {
-                     main_cache->set_profile_map(cache.get_map());
-                     callback(*main_cache, main_str);
-                   });
-        } else {
-          callback(main_cache, main_str);
-        }
-      });
-}
 
-ref_<IncomingListCache> DsLink::list_raw(
-    const string_ &path, IncomingListCache::Callback &&callback) {
+ref_<IncomingListCache> DsLink::list(const string_ &path,
+                                     IncomingListCache::Callback &&callback,
+                                     bool list_profile) {
   if (_list_mergers.count(path) == 0) {
     _list_mergers[path] = make_ref_<ListMerger>(get_ref(), path);
   }
   auto merger = _list_mergers[path];
-  return merger->list(std::move(callback));
+  return merger->list(std::move(callback), list_profile);
 }
 
 ref_<IncomingInvokeStream> DsLink::invoke(
     IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   return _client->get_session().requester.invoke(
-      ([
+      CAST_LAMBDA(IncomingInvokeStreamCallback)([
         user_callback = std::move(callback),
         paged_cache = ref_<IncomingPageCache<InvokeResponseMessage>>()
       ](IncomingInvokeStream & s,

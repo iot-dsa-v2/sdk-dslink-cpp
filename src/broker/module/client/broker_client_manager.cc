@@ -117,7 +117,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   pub_root.register_standard_profile_function(
       "Broker/Client/Detach_Token",
-      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
         auto* client = parent->model_cast<BrokerClientNode>();
@@ -133,7 +133,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   pub_root.register_standard_profile_function(
       "Broker/Quarantine_Client/Authorize",
-      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
         auto* quarantine_root = parent->model_cast<QuaratineRemoteRoot>();

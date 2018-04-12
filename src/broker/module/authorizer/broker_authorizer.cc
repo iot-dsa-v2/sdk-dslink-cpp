@@ -47,7 +47,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
                                     BrokerPubRoot& pub_root) {
   pub_root.register_standard_profile_function(
       "Broker/Permission_Role/Add_Rule",
-      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
         auto* role = parent->model_cast<PermissionRoleNode>();
@@ -90,7 +90,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
 
   pub_root.register_standard_profile_function(
       "Broker/Permission_Role/Remove",
-      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
         auto* role = parent->model_cast<PermissionRoleNode>();
@@ -108,7 +108,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
 
   pub_root.register_standard_profile_function(
       "Broker/Permission_Rule/Remove",
-      (SimpleInvokeNode::FullCallback &&)[this, keepref = get_ref()](
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
         auto* rule = parent->model_cast<PermissionRuleNode>();

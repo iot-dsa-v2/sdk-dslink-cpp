@@ -5,6 +5,7 @@
 #pragma once
 #endif
 
+#include <boost/filesystem.hpp>
 #include "core/client.h"
 #include "core/editable_strand.h"
 #include "core/session.h"
@@ -13,7 +14,6 @@
 #include "module/module.h"
 #include "network/ws/ws_connection.h"
 #include "subscribe_merger.h"
-#include <boost/filesystem.hpp>
 namespace dsa {
 class App;
 class TcpServer;
@@ -25,11 +25,9 @@ class DsLinkRequester : public WrapperStrand {
       const string_ &path, IncomingSubscribeCache::Callback &&callback,
       const SubscribeOptions &options = SubscribeOptions::default_options) = 0;
 
-  virtual ref_<IncomingListCache> list(
-      const string_ &path, IncomingListCache::Callback &&callback) = 0;
-
-  virtual ref_<IncomingListCache> list_raw(
-      const string_ &path, IncomingListCache::Callback &&callback) = 0;
+  virtual ref_<IncomingListCache> list(const string_ &path,
+                                       IncomingListCache::Callback &&callback,
+                                       bool list_profile = true) = 0;
 
   virtual ref_<IncomingInvokeStream> invoke(
       IncomingInvokeStreamCallback &&callback,
@@ -126,10 +124,8 @@ class DsLink final : public DsLinkRequester {
           SubscribeOptions::default_options) final;
 
   ref_<IncomingListCache> list(const string_ &path,
-                               IncomingListCache::Callback &&callback) final;
-
-  ref_<IncomingListCache> list_raw(
-      const string_ &path, IncomingListCache::Callback &&callback) final;
+                               IncomingListCache::Callback &&callback,
+                               bool list_profile = true) final;
 
   ref_<IncomingInvokeStream> invoke(
       IncomingInvokeStreamCallback &&callback,
