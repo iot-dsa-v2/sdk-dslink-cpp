@@ -11,11 +11,10 @@
 #include <boost/beast/http.hpp>
 #include <map>
 
+#include "http_request.h"
 #include "listener.h"
-#include "login_manager.h"
 #include "module/logger.h"
 #include "websocket.h"
-#include "http_request.h"
 
 #include <map>
 
@@ -31,18 +30,16 @@ class HttpRequest;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
  public:
-  typedef std::function<void(
-      WebServer&, HttpRequest&&)>
-      HttpCallback;
+  typedef std::function<void(WebServer&, HttpRequest&&)> HttpCallback;
   typedef std::function<std::shared_ptr<Connection>(
       WebServer&, std::unique_ptr<Websocket>&&,
       http::request<request_body_t, http::basic_fields<alloc_t>>&&)>
       WsCallback;
+
  private:
   boost::asio::io_service& _io_service;
   uint16_t _port;
   std::shared_ptr<Listener> _listener;
-  shared_ptr_<LoginManager> _login_mngr;
   uint16_t _secure_port;
   std::shared_ptr<Listener> _secure_listener;
   boost::asio::ssl::context _ssl_context;
@@ -57,7 +54,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   HttpCallbackMap _http_callback_map;
 
  public:
-  WebServer(App& app, shared_ptr_<LoginManager> login_mngr = nullptr);
+  WebServer(App& app);
   ~WebServer();
 
   void listen(uint16_t port = 80);
@@ -84,9 +81,7 @@ class ErrorCallback {
  public:
   explicit ErrorCallback(uint16_t error_code) : _error_code(error_code) {}
 
-  void operator()(
-      WebServer& web_server, Websocket,
-      HttpRequest&& req) {
+  void operator()(WebServer& web_server, Websocket, HttpRequest&& req) {
     // TODO - construct a proper http response
     LOG_ERROR(__FILENAME__, LOG << "http error code: " << _error_code);
   }

@@ -7,7 +7,6 @@
 
 #include "core/link_strand.h"
 #include "util/app.h"
-#include "web_server/login_manager.cc"
 
 namespace dsa {
 class NodeModel;
@@ -19,7 +18,6 @@ class Module : public DestroyableRef<Module> {
   shared_ptr_<Logger> _logger;
   ref_<ClientManager> _client_manager;
   ref_<Authorizer> _authorizer;
-  shared_ptr_<LoginManager> _login_manager;
 
  protected:
   virtual ref_<Storage> create_storage(App& app, const LinkStrandRef& strand);
@@ -28,8 +26,6 @@ class Module : public DestroyableRef<Module> {
                                                     const LinkStrandRef& strand);
   virtual ref_<Authorizer> create_authorizer(App& app,
                                              const LinkStrandRef& strand);
-  virtual shared_ptr_<LoginManager> create_login_manager(
-      App& app, const LinkStrandRef &strand);
 
   void destroy_impl() override;
 
@@ -40,13 +36,11 @@ class Module : public DestroyableRef<Module> {
   void init_logger(App& app, const LinkStrandRef &strand);
   void init_client_manager(App& app, const LinkStrandRef &strand);
   void init_authorizer(App& app, const LinkStrandRef &strand);
-  void init_login_manager(App& app, const LinkStrandRef &strand);
 
   ref_<Storage> get_storage();
   shared_ptr_<Logger> get_logger();
   ref_<ClientManager> get_client_manager();
   ref_<Authorizer> get_authorizer();
-  shared_ptr_<LoginManager> get_login_manager();
 
   // Override here for add module node in main node
   virtual void add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root);

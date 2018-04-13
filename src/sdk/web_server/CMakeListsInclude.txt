@@ -2,7 +2,6 @@ list(APPEND WebServerSourceFiles
         web_server.cc
         http_connection.cc
         listener.cc
-        login_manager.cc
         websocket.cc
         http_request.cc
         http_response.cc

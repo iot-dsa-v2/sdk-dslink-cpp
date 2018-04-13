@@ -2,7 +2,6 @@
 
 #include "module_with_loader.h"
 
-#include "../web_server/login_manager.h"
 #include "authorizer.h"
 #include "client_manager.h"
 #include "logger.h"
@@ -49,7 +48,7 @@ ModuleWithLoader::ModuleWithLoader(bf::path lib_path,
 }
 
 ref_<Storage> ModuleWithLoader::create_storage(App& app,
-                                               const LinkStrandRef &strand) {
+                                               const LinkStrandRef& strand) {
   ref_<Storage> service = nullptr;
 
   // Check in files
@@ -74,8 +73,8 @@ ref_<Storage> ModuleWithLoader::create_storage(App& app,
   return _default_module->get_storage();
 }
 
-shared_ptr_<Logger> ModuleWithLoader::create_logger(App& app,
-                                                    const LinkStrandRef &strand) {
+shared_ptr_<Logger> ModuleWithLoader::create_logger(
+    App& app, const LinkStrandRef& strand) {
   shared_ptr_<Logger> service = nullptr;
 
   // Check in files
@@ -101,7 +100,7 @@ shared_ptr_<Logger> ModuleWithLoader::create_logger(App& app,
 }
 
 ref_<ClientManager> ModuleWithLoader::create_client_manager(
-    App& app, const LinkStrandRef &strand) {
+    App& app, const LinkStrandRef& strand) {
   ref_<ClientManager> service = nullptr;
 
   // Check in files
@@ -126,8 +125,8 @@ ref_<ClientManager> ModuleWithLoader::create_client_manager(
   return _default_module->get_client_manager();
 }
 
-ref_<Authorizer> ModuleWithLoader::create_authorizer(App& app,
-                                                     const LinkStrandRef &strand) {
+ref_<Authorizer> ModuleWithLoader::create_authorizer(
+    App& app, const LinkStrandRef& strand) {
   ref_<Authorizer> service = nullptr;
 
   // Check in files
@@ -151,33 +150,8 @@ ref_<Authorizer> ModuleWithLoader::create_authorizer(App& app,
   return _default_module->get_authorizer();
 }
 
-shared_ptr_<LoginManager> ModuleWithLoader::create_login_manager(
-    App& app, const LinkStrandRef &strand) {
-  shared_ptr_<LoginManager> service = nullptr;
-
-  // Check in files
-  for (auto module : _modules) {
-    module->init_login_manager(app, strand);
-    auto temp = module->get_login_manager();
-    if (temp == nullptr) continue;
-
-    if (service == nullptr) {
-      service = temp;
-    } else {
-      LOG_FATAL(
-          __FILENAME__,
-          "There are more than one login manager in libs directory, cannot "
-          "select them!")
-    }
-  }
-
-  if (service != nullptr) return service;
-
-  _default_module->init_login_manager(app, strand);
-  return _default_module->get_login_manager();
-}
-
-void ModuleWithLoader::add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root) {
+void ModuleWithLoader::add_module_node(NodeModel& module_node,
+                                       BrokerPubRoot& pub_root) {
   _default_module->add_module_node(module_node, pub_root);
   for (auto module : _modules) {
     module->add_module_node(module_node, pub_root);
@@ -190,4 +164,4 @@ void ModuleWithLoader::add_web_handler() {
     module->add_web_handler();
   }
 }
-}
+}  // namespace dsa

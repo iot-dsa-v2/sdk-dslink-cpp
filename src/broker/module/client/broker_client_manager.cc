@@ -13,6 +13,7 @@
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
 #include "stream/responder/outgoing_invoke_stream.h"
+#include "token_nodes.h"
 #include "util/string.h"
 
 namespace dsa {
@@ -24,12 +25,15 @@ BrokerClientManager::BrokerClientManager(const LinkStrandRef& strand)
   _quarantine_enabled = _config->enable_quarantine().get_value().get_bool();
 }
 BrokerClientManager::~BrokerClientManager() = default;
+
 ref_<NodeModel> BrokerClientManager::get_clients_root() {
   return _clients_root;
 }
 ref_<NodeModel> BrokerClientManager::get_quarantine_root() {
   return _quarantine_root;
 }
+ref_<NodeModel> BrokerClientManager::get_tokens_root() { return _tokens_root; }
+
 void BrokerClientManager::rebuild_path2id() {
   if (is_destroyed()) return;
 
@@ -200,7 +204,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _clients_root.reset(new BrokerClientsRoot(_strand, get_ref()));
   _quarantine_root.reset(new QuaratineRoot(_strand));
-  _tokens_root.reset(new NodeModel(_strand));
+  _tokens_root.reset(new TokensRoot(_strand));
 
   _clients_root
       ->add_list_child(

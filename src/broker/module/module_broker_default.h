@@ -18,8 +18,6 @@ class ModuleBrokerDefault : public Module {
                                             const LinkStrandRef &strand) override;
   ref_<Authorizer> create_authorizer(App& app,
                                      const LinkStrandRef &strand) override;
-  shared_ptr_<LoginManager> create_login_manager(
-      App& app, const LinkStrandRef &strand) override;
 
  public:
   void add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root) override;

@@ -21,22 +21,21 @@ class ModuleWithLoader : public Module {
   std::vector<boost::shared_ptr<Module>> _modules;
 
  protected:
-  ref_<Storage> create_storage(App& app, const LinkStrandRef &strand) override;
+  ref_<Storage> create_storage(App& app, const LinkStrandRef& strand) override;
   shared_ptr_<Logger> create_logger(App& app,
-                                    const LinkStrandRef &strand) override;
-  ref_<ClientManager> create_client_manager(App& app,
-                                            const LinkStrandRef &strand) override;
+                                    const LinkStrandRef& strand) override;
+  ref_<ClientManager> create_client_manager(
+      App& app, const LinkStrandRef& strand) override;
   ref_<Authorizer> create_authorizer(App& app,
-                                     const LinkStrandRef &strand) override;
-  shared_ptr_<LoginManager> create_login_manager(
-      App& app, const LinkStrandRef &strand) override;
+                                     const LinkStrandRef& strand) override;
 
  public:
   ModuleWithLoader(bf::path lib_path, ref_<Module>&& default_module);
 
-  void add_module_node(NodeModel& module_node, BrokerPubRoot& pub_root) override;
+  void add_module_node(NodeModel& module_node,
+                       BrokerPubRoot& pub_root) override;
   void add_web_handler() override;
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_SDK_MODULE_LOADER_H

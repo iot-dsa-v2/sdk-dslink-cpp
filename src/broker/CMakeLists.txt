@@ -35,10 +35,9 @@ set(SOURCES
         node/home/home_root.cc
         node/sys/sys_root.cc
         node/pub/pub_root.cc
-        module/user/broker_login_manager.cc
         module/client/quaratine_node.cpp
         module/authorizer/permission_nodes.cc
-       )
+        module/client/token_nodes.cc)
 
 add_library(dsa_broker ${SOURCES})
 target_link_libraries(dsa_broker ${BROKER_LIBS})

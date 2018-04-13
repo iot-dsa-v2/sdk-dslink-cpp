@@ -17,6 +17,7 @@ class BrokerPubRoot;
 class BrokerClientsRoot;
 class BrokerClientNode;
 class QuaratineRoot;
+class TokensRoot;
 
 class BrokerClientManager : public ClientManager {
   friend class DsBroker;
@@ -26,7 +27,7 @@ class BrokerClientManager : public ClientManager {
 
   ref_<BrokerClientsRoot> _clients_root;
   ref_<QuaratineRoot> _quarantine_root;
-  ref_<NodeModel> _tokens_root;
+  ref_<TokensRoot> _tokens_root;
 
   ref_<BrokerClientManagerConfig> _config;
 
@@ -56,7 +57,7 @@ class BrokerClientManager : public ClientManager {
   void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
   ref_<NodeModel> get_clients_root();
   ref_<NodeModel> get_quarantine_root();
-  ref_<NodeModel>& get_tokens_root() { return _tokens_root; };
+  ref_<NodeModel> get_tokens_root();
   void get_client(const string_& id, const string_& auth_token,
                   bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;
