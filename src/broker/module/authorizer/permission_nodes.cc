@@ -171,7 +171,7 @@ StatusDetail PermissionRoleNode::on_set_value(MessageValue &&value) {
       if (level != _default_level) {
         _default_level = level;
         auto result = NodeModel::on_set_value(std::move(value));
-        save(*_parent->_storage, _state->get_path().last_name(), false, true);
+        save(*_parent->_storage, _state->get_path().node_name(), false, true);
         return std::move(result);
       }
     }
@@ -179,7 +179,7 @@ StatusDetail PermissionRoleNode::on_set_value(MessageValue &&value) {
   return Status::INVALID_PARAMETER;
 }
 void PermissionRoleNode::save_role() const {
-  save(*_parent->_storage, _state->get_path().last_name(), false, true);
+  save(*_parent->_storage, _state->get_path().node_name(), false, true);
 }
 void PermissionRoleNode::save_extra(VarMap &map) const {
   if (!_fallback_name.empty()) {

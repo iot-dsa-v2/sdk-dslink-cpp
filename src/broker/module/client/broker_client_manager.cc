@@ -95,7 +95,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         auto* client = parent->model_cast<BrokerClientNode>();
         if (client != nullptr &&
             parent->get_parent() == _clients_root->get_state()) {
-          const string_ dsid = parent->get_path().last_name();
+          const string_ dsid = parent->get_path().node_name();
           const string_ responder_path =
               client->get_client_info().responder_path;
 
@@ -143,7 +143,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         auto* quarantine_root = parent->model_cast<QuaratineRemoteRoot>();
         if (quarantine_root != nullptr && v.is_map()) {
           const string_& dsid =
-              quarantine_root->get_state()->get_path().last_name();
+              quarantine_root->get_state()->get_path().node_name();
           string_ role;
           if (v["Role"].is_string()) {
             role = v["Role"].get_string();
@@ -196,6 +196,54 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           static_cast<BrokerSessionManager&>(_strand->session_manager())
               .remove_sessions(
                   dsid, quarantine_root->get_state()->get_path().full_str());
+          stream.close();
+        } else {
+          stream.close(Status::INVALID_PARAMETER);
+        }
+      });
+
+  pub_root.register_standard_profile_function(
+      "Broker/Token/Remove",
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
+          Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
+          ref_<NodeState> && parent) {
+        auto* token = parent->model_cast<TokenNode>();
+        if (token != nullptr &&
+            parent->get_parent() == _tokens_root->get_state()) {
+          if (token->_managed) {
+            token->remove_all_clients();
+          }
+          string_ token_name = parent->get_path().node_name();
+          _tokens_root->_storage->remove(token_name);
+          _tokens_root->remove_list_child(token_name);
+          stream.close();
+        } else {
+          stream.close(Status::INVALID_PARAMETER);
+        }
+      });
+  pub_root.register_standard_profile_function(
+      "Broker/Token/Remove_All_Clients",
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
+          Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
+          ref_<NodeState> && parent) {
+        auto* token = parent->model_cast<TokenNode>();
+        if (token != nullptr &&
+            parent->get_parent() == _tokens_root->get_state()) {
+          token->remove_all_clients();
+          stream.close();
+        } else {
+          stream.close(Status::INVALID_PARAMETER);
+        }
+      });
+  pub_root.register_standard_profile_function(
+      "Broker/Token/Regenerate",
+      CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
+          Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
+          ref_<NodeState> && parent) {
+        auto* token = parent->model_cast<TokenNode>();
+        if (token != nullptr &&
+            parent->get_parent() == _tokens_root->get_state()) {
+          token->regenerate();
           stream.close();
         } else {
           stream.close(Status::INVALID_PARAMETER);

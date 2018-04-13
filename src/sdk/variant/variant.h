@@ -174,7 +174,7 @@ class Var : public BaseVariant {
 
   double to_double(double defaultout = 0.0 / 0.0) const;
   int64_t to_int(int64_t defaultout = 0) const;
-  int64_t to_bool(bool defaultout = false) const;
+  bool to_bool(bool defaultout = false) const;
   const string_ to_string(const string_ &defaultout = "") const;
 
   // safe operation, return null value Var when not found

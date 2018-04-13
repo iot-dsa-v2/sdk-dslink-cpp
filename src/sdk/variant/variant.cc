@@ -172,7 +172,7 @@ int64_t Var::to_int(int64_t defaultout) const {
     return defaultout;
   }
 }
-int64_t Var::to_bool(bool defaultout) const {
+bool Var::to_bool(bool defaultout) const {
   const string_ *str_value;
   switch (which()) {
     case BOOL:

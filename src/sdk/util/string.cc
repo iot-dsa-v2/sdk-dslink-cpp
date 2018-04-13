@@ -81,31 +81,39 @@ void string_to_storage(const string_ &data, const string_ &key,
   storage_bucket.write(key, std::forward<RefCountBytes *>(content));
 }
 
-std::vector<unsigned char> get_random_byte_array(int len) {
+std::vector<uint8_t> get_random_byte_array(int len) {
   if (!IS_RAND_INITIALIZED) {
     RAND_poll();
     IS_RAND_INITIALIZED = 1;
   }
-  std::vector<unsigned char> buffer(len);
+  std::vector<uint8_t> buffer(len);
   RAND_bytes(buffer.data(), len);
   return buffer;
 }
-static unsigned char get_random_char() {
-  while (1) {
-    unsigned char n = (unsigned char)(get_random_byte_array(1)[0] & 0x7F);
+static char get_random_char(std::vector<uint8_t>::iterator &current,
+                            const std::vector<uint8_t>::iterator &end) {
+  while (current != end) {
+    char n = static_cast<char>(*current++ & 0x7F);
     if ((n >= '0' && n <= '9') || (n >= 'A' && n <= 'Z') ||
         (n >= 'a' && n <= 'z')) {
       return n;
     }
   }
+  return 0;
 }
 string_ generate_random_string(int len) {
   string_ randStr;
-
+  auto bytes = get_random_byte_array(4 * len);
+  auto it = bytes.begin();
   for (int i = 0; i < len; ++i) {
-    randStr += get_random_char();
+    auto next_char = get_random_char(it, bytes.end());
+    while (next_char <= 0) {
+      // just in case bytes doesn't have enough valid char
+      bytes = get_random_byte_array(2 * len);
+      next_char = get_random_char(it, bytes.end());
+    }
+    randStr.push_back(next_char);
   }
-
   return randStr;
 }
 
@@ -122,4 +130,4 @@ string_ get_master_token_from_storage(StorageBucket &storage_bucket,
     token = "";
   return token;
 }
-}
+}  // namespace dsa

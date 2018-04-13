@@ -46,7 +46,7 @@ class Path {
   const size_t &current_pos() const { return _current; }
   const string_ &current_name() const { return _data->names[_current]; }
 
-  const string_ &last_name() const {
+  const string_ &node_name() const {
     return _data->names.back();
   }
 

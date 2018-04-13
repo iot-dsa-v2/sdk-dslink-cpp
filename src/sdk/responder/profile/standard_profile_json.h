@@ -98,9 +98,13 @@ static const std::string standard_profile = R"({
     "Regenerate": {
      "$invokable": "config"
     },
+    "Role": {
+     "$type": "string",
+     "$writable": "config"
+    },
     "Time_Range": {
      "$type": "string",
-     "$editor": "datarange",
+     "$editor": "daterange",
      "$writable": "config"
     },
     "Count": {

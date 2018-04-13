@@ -79,7 +79,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
 
           role->add_list_child(node_name, ref_<NodeModelBase>(rule));
 
-          const string_& role_name = role->get_state()->get_path().last_name();
+          const string_& role_name = role->get_state()->get_path().node_name();
           role->save_role();
 
           stream.close();
@@ -96,7 +96,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
         auto* role = parent->model_cast<PermissionRoleNode>();
         if (role != nullptr &&
             role->get_state()->get_parent()->get_model() == _permission_root) {
-          const string_& role_name = role->get_state()->get_path().last_name();
+          const string_& role_name = role->get_state()->get_path().node_name();
           _permission_root->_storage->remove(role_name);
           _permission_root->remove_list_child(role_name);
 
@@ -116,9 +116,9 @@ void BrokerAuthorizer::create_nodes(NodeModel& module_node,
           auto* role = parent->get_parent()->model_cast<PermissionRoleNode>();
           if (role != nullptr) {
             const string_& rule_name =
-                rule->get_state()->get_path().last_name();
+                rule->get_state()->get_path().node_name();
             const string_& role_name =
-                role->get_state()->get_path().last_name();
+                role->get_state()->get_path().node_name();
 
             role->_rules.erase(rule->_path);
             role->save_role();
