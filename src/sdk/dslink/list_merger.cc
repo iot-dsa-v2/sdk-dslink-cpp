@@ -35,7 +35,12 @@ void IncomingListCache::_receive_update(const std::vector<string_>& update) {
 
 const VarMap& IncomingListCache::get_map() const { return _merger->_map; }
 const VarMap& IncomingListCache::get_profile_map() const {
-  return *_merger->_profile_map;
+  static const VarMap emptymap;
+  if (_merger->_profile_map != nullptr) {
+    return *_merger->_profile_map;
+  } else {
+    return emptymap;
+  }
 }
 Status IncomingListCache::get_status() const { return _merger->_last_status; }
 const string_& IncomingListCache::get_last_pub_path() const {
