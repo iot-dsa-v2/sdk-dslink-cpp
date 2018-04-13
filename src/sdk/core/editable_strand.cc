@@ -83,7 +83,7 @@ void EditableStrand::destroy_impl() {
 
 void EditableStrand::check_injected() {
   if (_inject_queue.empty()) return;
-  std::vector<std::function<void()>> temp;
+  INJECT_QUEUE_TYPE temp;
   {
     std::lock_guard<std::mutex> lock(_inject_mutex);
     std::swap(_inject_queue, temp);
@@ -102,9 +102,8 @@ void EditableStrand::_prepare_inject_callback() {
   };
 }
 void EditableStrand::inject(std::function<void()>&& callback) {
-#if !defined(_MSC_VER)
   DSA_REF_GUARD;
-#endif
+
   std::lock_guard<std::mutex> lock(_inject_mutex);
 
   if (_inject_callback != nullptr) {

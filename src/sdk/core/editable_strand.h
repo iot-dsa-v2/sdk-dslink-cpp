@@ -13,6 +13,14 @@
 #include <mutex>
 #include <vector>
 
+// a work around for the bug
+#if defined(_MSC_VER)
+#include <list>
+typedef std::list<std::function<void()>> INJECT_QUEUE_TYPE;
+#else
+typedef std::vector<std::function<void()>> INJECT_QUEUE_TYPE;
+#endif
+
 namespace dsa {
 
 class NodeModelBase;
@@ -41,7 +49,7 @@ class EditableStrand : public LinkStrand {
   void inject(std::function<void()>&&) override;
 
   std::mutex _inject_mutex;
-  std::vector<std::function<void()>> _inject_queue;
+  INJECT_QUEUE_TYPE _inject_queue;
   std::function<void()> _inject_callback;
   void _prepare_inject_callback();
 
@@ -67,7 +75,8 @@ class EditableStrand : public LinkStrand {
   void check_injected() override;
 };
 
-typedef std::function<shared_ptr_<Connection>(const SharedLinkStrandRef& shared_strand)>
+typedef std::function<shared_ptr_<Connection>(
+    const SharedLinkStrandRef& shared_strand)>
     ClientConnectionMaker;
 
 class WrapperStrand : public DestroyableRef<WrapperStrand> {

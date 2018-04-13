@@ -11,22 +11,25 @@ namespace dsa {
 TokensRoot::TokensRoot(const LinkStrandRef &strand)
     : NodeModel(strand),
       _storage(_strand->storage().get_strand_bucket("Tokens", _strand)) {
-  add_list_child("Add",
-                 make_ref_<SimpleInvokeNode>(
-                     strand, [ this, keepref = get_ref() ](Var && v)->Var {
-                       if (v.is_map()) {
-                         string_ role = v["Role"].to_string();
-                         string_ time_range = v["Time_Range"].to_string();
-                         int64_t count = v["Count"].to_int(-1);
-                         int64_t max_session = v["Max_Session"].to_int(1);
-                         bool managed = v["Manager"].to_bool();
+  add_list_child(
+      "Add", make_ref_<SimpleInvokeNode>(
+                 strand, [ this, keepref = get_ref() ](Var && v)->Var {
+                   if (v.is_map()) {
+                     string_ role = v["Role"].to_string();
+                     string_ time_range = v["Time_Range"].to_string();
+                     int64_t count = v["Count"].to_int(-1);
+                     int64_t max_session = v["Max_Session"].to_int(1);
+                     bool managed = v["Manager"].to_bool();
 
-                         string_ token_name = generate_random_string(16);
-                         string_ token_body = generate_random_string(32);
-                       }
-                       return Var(Status::INVALID_PARAMETER);
-                     },
-                     PermissionLevel::CONFIG));
+                     string_ token_name = generate_random_string(16);
+                     while (_list_children.count(token_name) > 0) {
+                       token_name = generate_random_string(16);
+                     }
+                     string_ token = token_name + generate_random_string(32);
+                   }
+                   return Var(Status::INVALID_PARAMETER);
+                 },
+                 PermissionLevel::CONFIG));
 }
 TokensRoot::~TokensRoot() = default;
 

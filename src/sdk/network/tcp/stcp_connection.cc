@@ -69,9 +69,8 @@ void StcpConnection::WriteBuffer::write(WriteHandler &&callback) {
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
-#if !defined(_MSC_VER)
         DSA_REF_GUARD;
-#endif
+
         callback(error);
       });
 }
