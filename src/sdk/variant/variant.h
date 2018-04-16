@@ -125,6 +125,7 @@ class Var : public BaseVariant {
 
   bool is_double() const { return which() == DOUBLE; }
   bool is_int() const { return which() == INT; }
+  bool is_number() const { return which() == DOUBLE || which() == INT; }
   bool is_bool() const { return which() == BOOL; }
   bool is_string() const {
     return which() == STRING || which() == SHARED_STRING;

@@ -74,6 +74,8 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
 
  public:
   void set_value(Var &&value);
+  // set a value with no metadata, timestamp is blank
+  void set_value_lite(Var &&value);
   void set_value(MessageValue &&value);
   void set_subscribe_response(SubscribeResponseMessageCRef &&message);
 

@@ -11,6 +11,7 @@ namespace dsa {
 class BrokerClientManager;
 class StrandStorageBucket;
 class TokenNode;
+class ValueNodeModel;
 
 class TokensRoot : public NodeModel {
   friend class BrokerClientManager;
@@ -34,7 +35,7 @@ class TokenNode : public NodeModel {
   string_ _token;
   string_ _role;
 
-  string_ time_range;
+  string_ _time_range;
   // valid time, ms since epoch
   int64_t _valid_from = LLONG_MIN;
   int64_t _valid_to = LLONG_MIN;
@@ -46,10 +47,23 @@ class TokenNode : public NodeModel {
   // when token is removed, should all link be removed with it
   bool _managed = false;
 
+  ref_<NodeModel> _token_node;
+  ref_<ValueNodeModel> _role_node;
+  ref_<ValueNodeModel> _time_range_node;
+  ref_<ValueNodeModel> _count_node;
+  ref_<ValueNodeModel> _max_session_node;
+  ref_<ValueNodeModel> _managed_node;
+
+  void udpate_timerange();
+
  public:
   TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
-            ref_<NodeModel> &&profile);
-
+            ref_<NodeModel> &&profile, const string_ &token = "",
+            const string_ &role = "", const string_ &time_range = "",
+            int64_t count = -1, int64_t max_session = 1, bool managed = false);
+  ~TokenNode() override;
+  // token has count and not expired
+  bool is_valid();
   void remove_all_clients();
   void regenerate();
   void save_token() const;

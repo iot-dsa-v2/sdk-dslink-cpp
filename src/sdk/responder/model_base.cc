@@ -82,6 +82,14 @@ void NodeModelBase::set_value(Var &&value) {
     _state->new_subscribe_response(copy_ref_(_cached_value));
   }
 }
+void NodeModelBase::set_value_lite(Var &&value) {
+  auto response = make_ref_<SubscribeResponseMessage>();
+  response->set_value(MessageValue(std::move(value)));
+  _cached_value = response;
+  if (_need_subscribe) {
+    _state->new_subscribe_response(copy_ref_(_cached_value));
+  }
+}
 void NodeModelBase::set_value(MessageValue &&value) {
   auto response = make_ref_<SubscribeResponseMessage>();
   response->set_value(std::move(value));

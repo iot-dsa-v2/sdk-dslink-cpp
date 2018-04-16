@@ -64,8 +64,15 @@ Var Var::to_variant(const msgpack_object &obj) {
       return Var(static_cast<int64_t>(obj.via.u64));
     case MSGPACK_OBJECT_NEGATIVE_INTEGER:
       return Var(obj.via.i64);
-    case MSGPACK_OBJECT_FLOAT64:
-      return Var(obj.via.f64);
+    case MSGPACK_OBJECT_FLOAT64: {
+      double f64 = obj.via.f64;
+      int64_t n = static_cast<int64_t>(f64);
+      // prefer int if possible
+      if (f64 == n) {
+        return Var(n);
+      }
+      return Var(f64);
+    }
     case MSGPACK_OBJECT_BOOLEAN:
       return Var(obj.via.boolean);
     case MSGPACK_OBJECT_BIN:

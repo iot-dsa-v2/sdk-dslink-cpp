@@ -60,7 +60,7 @@ void PermissionRoleRootNode::initialize() {
         if (_default_role == nullptr) {
           _default_role =
               make_ref_<PermissionRoleNode>(_strand, get_ref(), nullptr);
-          _default_role->set_value(Var(PermissionName::CONFIG));
+          _default_role->set_value_lite(Var(PermissionName::CONFIG));
           _default_role->_default_level = PermissionLevel ::CONFIG;
           add_list_child(DEFAULT_ROLE_NAME, _default_role->get_ref());
         }
@@ -79,7 +79,7 @@ void PermissionRoleRootNode::init_default_role_node() {
                                  Var("enum[,none,list,read,write,config]"));
   if (_default_role->_default_level == PermissionLevel::INVALID) {
     _default_role->_default_level = PermissionLevel::NONE;
-    _default_role->set_value(Var(PermissionName::NONE));
+    _default_role->set_value_lite(Var(PermissionName::NONE));
   }
   // copy a profile node into list children
   // since the profile node is already in state tree
@@ -220,7 +220,7 @@ void PermissionRoleNode::load_extra(VarMap &map) {
                                                      true));
           rule->_path = it.first;
           rule->_level = level;
-          rule->set_value(Var(str));
+          rule->set_value_lite(Var(str));
 
           add_list_child(url_encode_node_name(it.first),
                          ref_<NodeModelBase>(rule));

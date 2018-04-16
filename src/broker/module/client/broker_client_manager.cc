@@ -7,6 +7,7 @@
 #include "../../remote_node/broker_session_manager.h"
 #include "../../remote_node/dynamic_children_parent.h"
 #include "broker_client_nodes.h"
+#include "crypto/hash.h"
 #include "module/logger.h"
 #include "module/stream_acceptor.h"
 #include "quaratine_node.h"
@@ -300,8 +301,8 @@ void BrokerClientManager::get_client(const string_& id,
     }
     if (id.size() < 43) {
       // requester only clients
-      // split token, find the first '/' (it was originally ';'
-      // converted to '/' by the server connection)
+      // split token, find the first '/'
+      // (it was originally ';', converted to '/' by the server connection)
       auto pos = auth_token.find('/');
       if (pos == string_::npos) {
         // invalid token
@@ -365,8 +366,56 @@ void BrokerClientManager::get_client(const string_& id,
       } else {
         // unknown dslink
 
-        // TODO check token first
-        if (_allow_all_links) {
+        // token is 59 character, 16 bytes token name, and 43 bytes base64 hash
+        if (auth_token.length() == 59) {
+          // check if token is valid
+          auto token_name = auth_token.substr(0, 16);
+          auto token_node = static_cast<TokenNode*>(
+              _tokens_root->get_child(token_name).get());
+          // find the token
+          if (token_node != nullptr && token_node->is_valid()) {
+            // check hash
+            Hash hash;
+            std::vector<uint8_t> v;
+            v.insert(v.end(), id.begin(), id.end());
+            v.insert(v.end(), token_node->_token.begin(),
+                     token_node->_token.end());
+            hash.update(v);
+            auto hash_result = hash.digest_base64();
+            if (hash_result == auth_token.substr(16)) {
+              // token is valid ! create a client for this id
+              ClientInfo info(id);
+              info.role = token_node->_role;
+              info.from_token = token_name;
+              info.max_session = token_node->_max_session;
+              if (is_responder && info.max_session == 1) {
+                info.responder_path = create_downstream_path(id);
+              }
+
+              if (token_node->_count > 0) {
+                // the token is used
+                token_node->_count--;
+                token_node->save_token();
+              }
+
+              // add to downstream
+              auto child = make_ref_<BrokerClientNode>(
+                  _strand, _clients_root->get_ref(),
+                  _strand->stream_acceptor().get_profile("Broker/Client", true),
+                  id);
+              child->set_client_info(std::move(info));
+
+              _clients_root->add_list_child(id, ref_<NodeModelBase>(child));
+              child->save(*_clients_root->_storage, id, false, true);
+
+              callback(child->get_client_info(), false);
+              return;
+            }
+          }
+          callback(ClientInfo(id), true);
+        } else if (_allow_all_links) {
+          // check if all links are allowed by default
+          // setting this to true means you don't care about security
           ClientInfo info(id);
           if (is_responder) {
             info.responder_path = create_downstream_path(id);

@@ -134,10 +134,10 @@ void BrokerClientNode::destroy_impl() {
 }
 void BrokerClientNode::set_client_info(ClientInfo&& info) {
   _client_info = std::move(info);
-  _role_node->set_value(Var(_client_info.role));
-  _path_node->set_value(Var(_client_info.responder_path));
-  _max_session_node->set_value(Var(_client_info.max_session));
-  _from_token_node->set_value(Var(_client_info.from_token));
+  _role_node->set_value_lite(Var(_client_info.role));
+  _path_node->set_value_lite(Var(_client_info.responder_path));
+  _max_session_node->set_value_lite(Var(_client_info.max_session));
+  _from_token_node->set_value_lite(Var(_client_info.from_token));
 }
 
 bool BrokerClientNode::detach_token() {
