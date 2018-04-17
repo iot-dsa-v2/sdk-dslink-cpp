@@ -150,7 +150,7 @@ bool load_server_certificate(ssl::context &context,
   context.use_certificate_chain(
       boost::asio::buffer(certificate.data(), certificate.size()), error_code);
   if (error_code != boost::system::errc::success) {
-    LOG_INFO(__FILENAME__, LOG << error_code.message());
+    LOG_INFO(__FILENAME__, LOG << "Server failed to load certificate.pem");
     return false;
   }
 
@@ -158,7 +158,7 @@ bool load_server_certificate(ssl::context &context,
   context.use_private_key(boost::asio::buffer(privkey.data(), privkey.size()),
                           boost::asio::ssl::context::pem, error_code);
   if (error_code != boost::system::errc::success) {
-    LOG_INFO(__FILENAME__, LOG << error_code.message());
+    LOG_INFO(__FILENAME__, LOG << "Server failed to load key.pem");
     return false;
   }
 
