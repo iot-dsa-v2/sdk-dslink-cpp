@@ -5,6 +5,8 @@
 #include <chrono>
 #include <iomanip>
 
+#include <time.h>
+
 #ifdef __MINGW32__
 #include <timezoneapi.h>
 #include <cstring>
@@ -13,6 +15,10 @@
 #if _MSC_VER
 #define localtime_r(a, b) localtime_s(b, a)
 #endif
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <climits>
+#include <regex>
 
 namespace dsa {
 
@@ -111,4 +117,53 @@ int64_t DateTime::ms_since_epoch() {
              now.time_since_epoch())
       .count();
 }
+
+int64_t DateTime::parse_ts(const string_& ts) {
+  // ISO8601 string
+  static std::regex ts_regex(
+      R"(^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(:(\d{2})(\.\d{3,10})?)?((\+|-)(\d{2}):(\d{2})|Z|z)?$)");
+  auto it = std::sregex_iterator(ts.begin(), ts.end(), ts_regex);
+  if (it == std::sregex_iterator()) {  // match is a empty iterator
+    return LLONG_MIN;
+  }
+  auto& match = *it;
+  int year = atoi(match[1].str().c_str());
+  int month = atoi(match[2].str().c_str());
+  int day = atoi(match[3].str().c_str());
+
+  int hour = atoi(match[4].str().c_str());
+  int minute = atoi(match[5].str().c_str());
+  int second = 0;
+  int ms = 0;
+  if (match[6].matched) {
+    second = atoi(match[7].str().c_str());
+    if (match[8].matched) {
+      ms = atoi(match[8].str().substr(1, 3).c_str());
+    }
+  }
+
+  boost::posix_time::ptime ptime(
+      boost::gregorian::date(year, month, day),
+      boost::posix_time::time_duration(hour, minute, second));
+  if (match[9].matched) {
+    int64_t since_epoch = to_time_t(ptime) * 1000 + ms;
+    if (match[10].matched) {
+      int tz_hour = atoi(match[11].str().c_str());
+      int tz_minute = atoi(match[12].str().c_str());
+      int tz_off = (tz_hour * 60 + tz_minute) * 60000;
+      if (*match[10].first == '-') {
+        return since_epoch + tz_off;
+      } else {
+        return since_epoch - tz_off;
+      }
+    } else {
+      // Z or z
+      return since_epoch;
+    }
+  } else {
+    // TODO implement local time conversion
+    // for now use UTC
+    return to_time_t(ptime) * 1000 + ms;
+  }
 }
+}  // namespace dsa
