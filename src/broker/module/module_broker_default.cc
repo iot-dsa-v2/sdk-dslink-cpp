@@ -18,7 +18,7 @@ ref_<Storage> ModuleBrokerDefault::create_storage(App &app,
 
 shared_ptr_<Logger> ModuleBrokerDefault::create_logger(
     App &app, const LinkStrandRef &strand) {
-  return make_shared_<ConsoleLogger>();
+  return Logger::_().shared_from_this();
 }
 
 ref_<ClientManager> ModuleBrokerDefault::create_client_manager(

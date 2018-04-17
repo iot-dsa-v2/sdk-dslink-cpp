@@ -58,41 +58,50 @@ void DsBroker::init(ref_<Module>&& default_module) {
   strand.reset(new EditableStrand(_app->new_strand(),
                                   std::unique_ptr<ECDH>(ECDH::from_storage(
                                       Storage::get_config_bucket(), ".key"))));
-
-  if (default_module == nullptr)
-    default_module = make_ref_<ModuleBrokerDefault>();
-
-  modules = make_ref_<ModuleWithLoader>(_config->get_exe_path() / "modules",
-                                        std::move(default_module));
-  modules->init_all(*_app, strand);
-
-  // init logger
-  modules->get_logger()->level =
+  Logger::_().level =
       Logger::parse(_config->log_level().get_value().to_string());
-  Logger::set_default(modules->get_logger());
 
-  // init storage
-  strand->set_storage(modules->get_storage());
+  strand->dispatch([
+    this, keepref = get_ref(), default_module = std::move(default_module)
+  ]() mutable {
+    if (default_module == nullptr)
+      default_module = make_ref_<ModuleBrokerDefault>();
 
-  // init security manager
-  strand->set_client_manager(modules->get_client_manager());
+    modules = make_ref_<ModuleWithLoader>(_config->get_exe_path() / "modules",
+                                          std::move(default_module));
+    modules->init_all(*_app, strand);
 
-  auto authorizer = modules->get_authorizer();
-  strand->set_authorizer(std::move(authorizer));
+    // init logger
+    if (modules->get_logger().get() != nullptr &&
+        modules->get_logger().get() != &Logger::_()) {
+      modules->get_logger()->level =
+          Logger::parse(_config->log_level().get_value().to_string());
+      Logger::set_default(modules->get_logger());
+    }
 
-  _master_token = get_master_token_from_storage(Storage::get_config_bucket());
+    // init storage
+    strand->set_storage(modules->get_storage());
 
-  auto broker_root = make_ref_<BrokerRoot>(strand, get_ref());
-  // init responder
-  strand->set_stream_acceptor(
-      make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
+    // init security manager
+    strand->set_client_manager(modules->get_client_manager());
 
-  // init session manager
-  strand->set_session_manager(make_ref_<BrokerSessionManager>(
-      strand, static_cast<NodeStateManager&>(strand->stream_acceptor())));
+    auto authorizer = modules->get_authorizer();
+    strand->set_authorizer(std::move(authorizer));
 
-  modules->add_module_node(broker_root->get_module_root(),
-                           broker_root->get_pub());
+    _master_token = get_master_token_from_storage(Storage::get_config_bucket());
+
+    auto broker_root = make_ref_<BrokerRoot>(strand, get_ref());
+    // init responder
+    strand->set_stream_acceptor(
+        make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
+
+    // init session manager
+    strand->set_session_manager(make_ref_<BrokerSessionManager>(
+        strand, static_cast<NodeStateManager&>(strand->stream_acceptor())));
+
+    modules->add_module_node(broker_root->get_module_root(),
+                             broker_root->get_pub());
+  });
 }
 void DsBroker::destroy_impl() {
   modules->destroy();
@@ -137,13 +146,14 @@ void DsBroker::run(bool wait) {
     _web_server->start();
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
 
-    *root_cb = [this](
-        WebServer& _web_server, std::unique_ptr<Websocket> websocket,
-        http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
-      DsaWsCallback dsa_ws_callback(strand);
-      return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
-                             std::move(req));
-    };
+    *root_cb =
+        [this](
+            WebServer& _web_server, std::unique_ptr<Websocket> websocket,
+            http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
+          DsaWsCallback dsa_ws_callback(strand);
+          return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
+                                 std::move(req));
+        };
 
     _web_server->add_ws_handler("/", std::move(*root_cb));
   });
