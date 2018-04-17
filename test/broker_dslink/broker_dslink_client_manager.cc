@@ -9,7 +9,8 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
   int32_t port;
 
   switch (protocol()) {
@@ -128,7 +129,8 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
   int32_t port;
 
   switch (protocol()) {
@@ -232,7 +234,8 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
   int32_t port;
 
   switch (protocol()) {
@@ -367,7 +370,8 @@ TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
   auto app = make_shared_<App>();
   auto broker = broker_dslink_test::create_broker(app);
   broker->run();
-
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
   int32_t port;
 
   switch (protocol()) {

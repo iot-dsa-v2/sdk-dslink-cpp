@@ -23,7 +23,6 @@
 #include "node/broker_root.h"
 #include "util/temp_file.h"
 
-
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules,
                    const shared_ptr_<App>& app)
@@ -114,6 +113,18 @@ void DsBroker::destroy_impl() {
   }
 }
 void DsBroker::run(bool wait) {
+  // start tcp server
+
+  if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
+    strand->dispatch([this]() {
+      _tcp_server = make_shared_<TcpServer>(*this);
+      _tcp_server->start();
+      LOG_INFO(__FILENAME__, LOG << "DsBroker started");
+    });
+  }
+
+  // start web server
+
   strand->dispatch([this]() {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app);
@@ -136,14 +147,6 @@ void DsBroker::run(bool wait) {
 
     _web_server->add_ws_handler("/", std::move(*root_cb));
   });
-
-  // start tcp server
-
-  if (tcp_server_port >= 0 && tcp_server_port <= 65535) {
-    _tcp_server = make_shared_<TcpServer>(*this);
-    _tcp_server->start();
-    LOG_INFO(__FILENAME__, LOG << "DsBroker started");
-  }
 
   if (_own_app && wait) {
     _app->wait();

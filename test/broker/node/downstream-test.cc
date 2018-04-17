@@ -11,6 +11,7 @@
 #include "core/client.h"
 #include "module/logger.h"
 
+#include "../../sdk/async_test.h"
 #include "../../sdk/test_config.h"
 #include "dslink.h"
 
@@ -22,7 +23,7 @@ namespace broker_downstream_test {
 
 class MockNodeAction : public InvokeNodeModel {
  public:
-  explicit MockNodeAction(const LinkStrandRef &strand)
+  explicit MockNodeAction(const LinkStrandRef& strand)
       : InvokeNodeModel(strand){};
 
   void on_invoke(ref_<OutgoingInvokeStream>&& stream,
@@ -43,14 +44,14 @@ class MockNodeAction : public InvokeNodeModel {
 
 class MockNodeValue : public NodeModel {
  public:
-  explicit MockNodeValue(const LinkStrandRef &strand)
+  explicit MockNodeValue(const LinkStrandRef& strand)
       : NodeModel(strand, PermissionLevel::WRITE) {
     set_value(Var("hello world"));
   };
 };
 class MockNodeRoot : public NodeModel {
  public:
-  explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
+  explicit MockNodeRoot(const LinkStrandRef& strand) : NodeModel(strand) {
     add_list_child("Value", make_ref_<MockNodeValue>(_strand));
 
     // add a child action
@@ -67,7 +68,8 @@ TEST_F(BrokerDownstreamTest, Subscribe) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand =
       get_client_wrapper_strand(broker, "Test", protocol());
@@ -100,7 +102,8 @@ TEST_F(BrokerDownstreamTest, Invoke) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand =
       get_client_wrapper_strand(broker, "Test", protocol());
@@ -137,7 +140,8 @@ TEST_F(BrokerDownstreamTest, Set) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand =
       get_client_wrapper_strand(broker, "Test", protocol());
@@ -189,7 +193,8 @@ TEST_F(BrokerDownstreamTest, List) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 =
       get_client_wrapper_strand(broker, "Test1", protocol());
@@ -262,7 +267,8 @@ TEST_F(BrokerDownstreamTest, ListDisconnect) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand1 =
       get_client_wrapper_strand(broker, "Test1", protocol());
@@ -354,7 +360,8 @@ TEST_F(BrokerDownstreamTest, ListChildDisconnect) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
   WrapperStrand client_strand1 =
       get_client_wrapper_strand(broker, "Test1", protocol());
   auto tcp_client1 = make_ref_<Client>(client_strand1);
@@ -445,7 +452,8 @@ TEST_F(BrokerDownstreamTest, ListChildBeforeParent) {
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
   broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+  ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                    [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand =
       get_client_wrapper_strand(broker, "Test1", protocol());

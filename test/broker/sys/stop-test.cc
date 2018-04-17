@@ -27,8 +27,9 @@ TEST_F(BrokerSysTest, StopBroker) {
 
   auto broker = create_broker();
   shared_ptr_<App>& app = broker->get_app();
-  broker->run(false);
-  EXPECT_TRUE(broker->get_active_server_port() != 0);
+    broker->run(false);
+    ASYNC_EXPECT_TRUE(1000, *broker->strand,
+                      [&]() { return broker->get_active_server_port() != 0; });
 
   WrapperStrand client_strand =
       get_client_wrapper_strand(broker, "test", protocol());
