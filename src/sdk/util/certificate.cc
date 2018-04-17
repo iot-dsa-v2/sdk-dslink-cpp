@@ -3,6 +3,8 @@
 #include "certificate.h"
 
 #include <boost/filesystem.hpp>
+#include "module/storage.h"
+#include "util/string.h"
 
 #include <cmath>
 #include <memory>
@@ -127,6 +129,40 @@ void generate_certificate() {
   fclose(f);
 
   return;
+}
+
+void load_root_certificate(ssl::context &context,
+                           boost::system::error_code &error_code) {
+  auto &config_bucket = Storage::get_config_bucket();
+  string_ certificate = string_from_storage("certificate.pem", config_bucket);
+  context.add_certificate_authority(
+      boost::asio::buffer(certificate.data(), certificate.size()), error_code);
+  if (error_code) {
+    LOG_FATAL(__FILENAME__, LOG << "Client failed to verify certificate");
+  }
+}
+
+bool load_server_certificate(ssl::context &context,
+                             boost::system::error_code &error_code) {
+  auto &config_bucket = Storage::get_config_bucket();
+
+  string_ certificate = string_from_storage("certificate.pem", config_bucket);
+  context.use_certificate_chain(
+      boost::asio::buffer(certificate.data(), certificate.size()), error_code);
+  if (error_code != boost::system::errc::success) {
+    LOG_INFO(__FILENAME__, LOG << error_code.message());
+    return false;
+  }
+
+  string_ privkey = string_from_storage("key.pem", config_bucket);
+  context.use_private_key(boost::asio::buffer(privkey.data(), privkey.size()),
+                          boost::asio::ssl::context::pem, error_code);
+  if (error_code != boost::system::errc::success) {
+    LOG_INFO(__FILENAME__, LOG << error_code.message());
+    return false;
+  }
+
+  return true;
 }
 
 }  // namespace dsa
