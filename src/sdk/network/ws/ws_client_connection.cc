@@ -1,10 +1,10 @@
 #include "dsa_common.h"
 
+#include "module/logger.h"
+#include "util/certificate.h"
 #include "ws_client_connection.h"
 
 #include <boost/asio/connect.hpp>
-
-#include "module/logger.h"
 
 namespace dsa {
 
@@ -19,11 +19,8 @@ WsClientConnection::WsClientConnection(bool is_secured,
       _hostname(host),
       _port(port) {
   if (_is_secured) {
-    boost::system::error_code error;
-    _ssl_context.load_verify_file("certificate.pem", error);
-    if (error) {
-      LOG_FATAL(__FILENAME__, LOG << "Client failed to verify SSL certificate");
-    }
+    boost::system::error_code error_code;
+    load_root_certificate(_ssl_context, error_code);
 
     _websocket =
         std::make_unique<Websocket>(std::move(_tcp_socket), _ssl_context);
@@ -78,8 +75,9 @@ void WsClientConnection::connect(size_t reconnect_interval) {
           });
         });
   } else {
-    LOG_FINE(__FILENAME__, LOG << "WS secure client connecting to " << _hostname
-                               << ":" << _port);
+    LOG_FINE(
+        __FILENAME__,
+        LOG << "WS secure client connecting to " << _hostname << ":" << _port);
 
     std::lock_guard<std::mutex> lock(_mutex);
     boost::asio::async_connect(

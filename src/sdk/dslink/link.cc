@@ -26,7 +26,7 @@
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_set_stream.h"
 #include "util/app.h"
-#include "util/string.h"
+#include "util/certificate.h"
 #include "util/temp_file.h"
 
 namespace opts = boost::program_options;
@@ -69,8 +69,9 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL(__FILENAME__, LOG << "Invalid input, please check available "
-                                   "parameters with --help\n");
+    LOG_FATAL(__FILENAME__,
+              LOG << "Invalid input, please check available "
+                     "parameters with --help\n");
   }
 
   // show help and exit
@@ -317,11 +318,8 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
       if (secure) {
         static boost::asio::ssl::context context(
             boost::asio::ssl::context::sslv23);
-        boost::system::error_code error;
-        context.load_verify_file("certificate.pem", error);
-        if (error) {
-          LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
-        }
+        boost::system::error_code error_code;
+        load_root_certificate(context, error_code);
 
         client_connection_maker = [
           dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
@@ -372,9 +370,10 @@ void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_INFO(__FILENAME__, LOG << "DsLink on_connect callback "
-                                  "ignored since it was connected "
-                                  "before\n");
+    LOG_INFO(__FILENAME__,
+             LOG << "DsLink on_connect callback "
+                    "ignored since it was connected "
+                    "before\n");
   }
   LOG_INFO(__FILENAME__, LOG << "DsLink running");
   if (own_app) {

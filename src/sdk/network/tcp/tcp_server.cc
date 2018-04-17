@@ -5,6 +5,7 @@
 #include "module/logger.h"
 #include "stcp_server_connection.h"
 #include "tcp_server_connection.h"
+#include "util/certificate.h"
 
 #include <iostream>
 
@@ -53,8 +54,9 @@ TcpServer::TcpServer(WrapperStrand &config)
                          boost::asio::ssl::context::no_sslv2);
     _context.set_password_callback(boost::bind(&TcpServer::get_password, this));
 
-    _context.use_certificate_chain_file("certificate.pem");
-    _context.use_private_key_file("key.pem", boost::asio::ssl::context::pem);
+    boost::system::error_code error_code;
+    if (!load_server_certificate(_context, error_code)) return;
+
   } catch (boost::system::system_error &e) {
     LOG_ERROR(__FILENAME__, LOG << "Bind Error: " << e.what() << "\n");
     return;

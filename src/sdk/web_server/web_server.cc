@@ -3,6 +3,7 @@
 #include "web_server.h"
 
 #include "util/app.h"
+#include "util/certificate.h"
 
 #include <iostream>
 
@@ -18,9 +19,11 @@ WebServer::WebServer(App& app)
         [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
           return "";
         });
-    _ssl_context.use_certificate_chain_file("certificate.pem");
-    _ssl_context.use_private_key_file("key.pem",
-                                      boost::asio::ssl::context::pem);
+
+    boost::system::error_code error_code;
+    if (load_server_certificate(_ssl_context, error_code)) {
+      return;
+    }
   } catch (boost::system::system_error& e) {
     LOG_ERROR(__FILENAME__, LOG << "SSL context setup error: " << e.what());
     return;
@@ -60,17 +63,16 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
 
   // TODO - construct a proper http response
   uint16_t error_code = 404;
-  static WebServer::WsCallback error_callback =
-      [error_code](
-          WebServer& web_server, std::unique_ptr<Websocket>&&,
-          http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
+  static WebServer::WsCallback error_callback = [error_code](
+      WebServer& web_server, std::unique_ptr<Websocket>&&,
+      http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
 
-        ErrorCallback error_callback_detail(error_code);
-        // TODO: WSS_TBD
-        //    error_callback_detail(web_server, websocket, std::move(req));
+    ErrorCallback error_callback_detail(error_code);
+    // TODO: WSS_TBD
+    //    error_callback_detail(web_server, websocket, std::move(req));
 
-        return nullptr;
-      };
+    return nullptr;
+  };
 
   return error_callback;
 }
@@ -88,15 +90,15 @@ WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
   }
 
   uint16_t error_code = 404;
-  static WebServer::HttpCallback error_callback =
-      [error_code](WebServer& web_server, HttpRequest&& req) {
+  static WebServer::HttpCallback error_callback = [error_code](
+      WebServer& web_server, HttpRequest&& req) {
 
-        ErrorCallback error_callback_detail(error_code);
-        // TODO: WSS_TBD
-        //    error_callback_detail(web_server, websocket, std::move(req));
+    ErrorCallback error_callback_detail(error_code);
+    // TODO: WSS_TBD
+    //    error_callback_detail(web_server, websocket, std::move(req));
 
-        return nullptr;
-      };
+    return nullptr;
+  };
 
   return error_callback;
 }
