@@ -9,9 +9,9 @@
 
 #include <gtest/gtest.h>
 #include <string>
-#include "module/storage.h"
-#include "module/logger.h"
 #include "module/default/console_logger.h"
+#include "module/logger.h"
+#include "module/storage.h"
 namespace dsa {
 
 class App;
@@ -54,9 +54,9 @@ class SetUpBase : public ::testing::Test {
   SetUpBase() : _protocol(dsa::ProtocolType::PROT_DS) {}
 
   virtual void SetUp() {
-    static_cast<dsa::ConsoleLogger &>(dsa::Logger::_()).level = 1;
+    static_cast<dsa::ConsoleLogger&>(dsa::Logger::_()).level = 1;
     // filter log for unit test
-    static_cast<dsa::ConsoleLogger &>(dsa::Logger::_()).filter =
+    static_cast<dsa::ConsoleLogger&>(dsa::Logger::_()).filter =
         dsa::Logger::FATAL_ | dsa::Logger::ERROR_ | dsa::Logger::WARN__;
     dsa::SimpleStorage simple_storage;
     simple_storage.clear();

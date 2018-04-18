@@ -314,35 +314,7 @@ void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
       _tcp_server->start();
     }
 
-    if (tcp_port > 0) {
-      if (secure) {
-        static boost::asio::ssl::context context(
-            boost::asio::ssl::context::sslv23);
-        boost::system::error_code error_code;
-        load_root_certificate(context, error_code);
-
-        client_connection_maker = [
-          dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
-        ](const SharedLinkStrandRef &strand) {
-          return make_shared_<StcpClientConnection>(
-              strand, context, dsid_prefix, tcp_host, tcp_port);
-        };
-      } else {
-        client_connection_maker = [
-          dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port
-        ](const SharedLinkStrandRef &strand) {
-          return make_shared_<TcpClientConnection>(strand, dsid_prefix,
-                                                   tcp_host, tcp_port);
-        };
-      }
-    } else if (ws_port > 0) {
-      client_connection_maker = [
-        dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port, this
-      ](const SharedLinkStrandRef &strand) {
-        return make_shared_<WsClientConnection>(secure, strand, dsid_prefix,
-                                                ws_host, ws_port);
-      };
-    }
+    set_client_connection_maker();
 
     _client = make_ref_<Client>(*this);
     _client->connect([ this, on_connect = std::move(on_connect) ](

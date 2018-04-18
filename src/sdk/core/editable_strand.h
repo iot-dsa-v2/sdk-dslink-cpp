@@ -104,6 +104,7 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
   string_ client_token;
 
   ClientConnectionMaker client_connection_maker;
+  void set_client_connection_maker();
 
   string_ get_dsid() const;
 

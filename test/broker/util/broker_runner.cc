@@ -37,56 +37,25 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
 
   client_strand.strand = EditableStrand::make_default(app);
 
-  boost::system::error_code error;
-  static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
-      context.load_verify_file("certificate.pem", error);
-      if (error) {
-        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
-      }
-
       client_strand.tcp_port =
           broker->get_config()->secure_port().get_value().get_int();
       if (!client_strand.tcp_port) {
         client_strand.tcp_port = broker->get_active_secure_port();
       }
-      client_strand.client_connection_maker = [
-        dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-        tcp_port = client_strand.tcp_port
-      ](const SharedLinkStrandRef &strand)->shared_ptr_<Connection> {
-        return make_shared_<StcpClientConnection>( strand, context, dsid_prefix,
-                                                  tcp_host, tcp_port);
-      };
-
       break;
     case dsa::ProtocolType::PROT_WS:
       client_strand.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
       client_strand.ws_port = 8080;
       client_strand.ws_path = "/";
-
-      client_strand.client_connection_maker = [
-        dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
-        ws_port = client_strand.ws_port
-      ](const SharedLinkStrandRef &strand) {
-        return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
-                                                ws_host, ws_port);
-      };
       break;
     case dsa::ProtocolType::PROT_WSS:
       client_strand.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
       client_strand.ws_port = 8443;
       client_strand.ws_path = "/";
-
-      client_strand.client_connection_maker = [
-        dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
-        ws_port = client_strand.ws_port
-      ](const SharedLinkStrandRef &strand) {
-        return make_shared_<WsClientConnection>(true,  strand, dsid_prefix,
-                                                ws_host, ws_port);
-      };
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
@@ -95,14 +64,8 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
             broker->get_config()->port().get_value().get_int();
       else
         client_strand.tcp_port = broker->get_active_server_port();
-      client_strand.client_connection_maker = [
-        dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-        tcp_port = client_strand.tcp_port
-      ](const SharedLinkStrandRef &strand)->shared_ptr_<Connection> {
-        return make_shared_<TcpClientConnection>( strand, dsid_prefix, tcp_host,
-                                                 tcp_port);
-      };
   }
+  client_strand.set_client_connection_maker();
 
   return std::move(client_strand);
 }

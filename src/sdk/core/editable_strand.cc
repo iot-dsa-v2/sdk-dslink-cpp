@@ -9,8 +9,12 @@
 #include "module/default/simple_session_manager.h"
 #include "module/logger.h"
 #include "module/session_manager.h"
+#include "network/tcp/stcp_client_connection.h"
+#include "network/tcp/tcp_client_connection.h"
+#include "network/ws/ws_client_connection.h"
 #include "responder/node_state_manager.h"
 #include "util/app.h"
+#include "util/certificate.h"
 
 namespace dsa {
 
@@ -121,5 +125,42 @@ void EditableStrand::inject(std::function<void()>&& callback) {
 
 string_ WrapperStrand::get_dsid() const {
   return strand->ecdh().get_dsid(dsid_prefix);
+}
+
+void WrapperStrand::set_client_connection_maker() {
+  static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
+  boost::system::error_code error_code;
+
+  if (tcp_port > 0 && secure) {
+    load_root_certificate(context, error_code);
+
+    client_connection_maker =
+        [ dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+          tcp_port = tcp_port ](const SharedLinkStrandRef& strand)
+            ->shared_ptr_<Connection> {
+      return make_shared_<StcpClientConnection>(strand, context, dsid_prefix,
+                                                tcp_host, tcp_port);
+    };
+    return;
+  }
+  if (ws_port > 0) {
+    client_connection_maker =
+        [
+          dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port,
+          secure = secure
+        ](const SharedLinkStrandRef& strand)
+            ->shared_ptr_<Connection> {
+      return make_shared_<WsClientConnection>(secure, strand, dsid_prefix,
+                                              ws_host, ws_port);
+    };
+    return;
+  }
+  client_connection_maker =
+      [ dsid_prefix = dsid_prefix, tcp_host = tcp_host,
+        tcp_port = tcp_port ](const SharedLinkStrandRef& strand)
+          ->shared_ptr_<Connection> {
+    return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
+                                             tcp_port);
+  };
 }
 }  // namespace dsa
