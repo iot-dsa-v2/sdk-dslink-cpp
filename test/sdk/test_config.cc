@@ -42,15 +42,6 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
       break;
     }
   }
-
-  _ssl_context = make_shared_<boost::asio::ssl::context>(
-      boost::asio::ssl::context::sslv23);
-
-  boost::system::error_code error;
-  _ssl_context->load_verify_file("certificate.pem", error);
-  if (error) {
-    LOG_FATAL(__FILENAME__, LOG << "Failed to verify certificate");
-  }
 }
 
 WrapperStrand TestConfig::get_client_wrapper_strand() {
@@ -65,39 +56,15 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
 
   copy.strand = EditableStrand::make_default(app);
 
-  boost::system::error_code error;
-  static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
-      context.load_verify_file("certificate.pem", error);
-      if (error) {
-        LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
-      }
-
       copy.tcp_port = tcp_secure_port;
-      copy.client_connection_maker = [
-        dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
-        tcp_port = copy.tcp_port
-      ](const SharedLinkStrandRef &strand)->shared_ptr_<Connection> {
-        return make_shared_<StcpClientConnection>(strand, context, dsid_prefix,
-                                                  tcp_host, tcp_port);
-      };
-
       break;
     case dsa::ProtocolType::PROT_WS:
       copy.ws_host = "127.0.0.1";
       // TODO: ws_port and ws_path
       copy.ws_port = 8080;
       copy.ws_path = "/";
-
-      copy.client_connection_maker = [
-        dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
-        ws_port = copy.ws_port
-      ](const SharedLinkStrandRef &strand)->shared_ptr_<Connection> {
-        return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
-                                                ws_host, ws_port);
-      };
-
       break;
     case dsa::ProtocolType::PROT_WSS:
       copy.ws_host = "127.0.0.1";
@@ -105,25 +72,13 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       copy.ws_port = 8443;
       copy.ws_path = "/";
 
-      copy.client_connection_maker = [
-        dsid_prefix = dsid_prefix, ws_host = copy.ws_host,
-        ws_port = copy.ws_port
-      ](const SharedLinkStrandRef &strand)->shared_ptr_<Connection> {
-        return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
-                                                ws_host, ws_port);
-      };
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
       copy.tcp_port = tcp_server_port;
-      copy.client_connection_maker = [
-        dsid_prefix = dsid_prefix, tcp_host = copy.tcp_host,
-        tcp_port = copy.tcp_port
-      ](const SharedLinkStrandRef &strand)->shared_ptr_<Connection> {
-        return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
-                                                 tcp_port);
-      };
   }
+
+  copy.set_client_connection_maker();
 
   return std::move(copy);
 }
@@ -181,7 +136,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   WebServer::WsCallback *root_cb = new WebServer::WsCallback();
   *root_cb = [this](
       WebServer &web_server, std::unique_ptr<Websocket> &&websocket,
-      http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
+      http::request<request_body_t, http::basic_fields<alloc_t>> &&req) {
     DsaWsCallback dsa_ws_callback(strand);
     return dsa_ws_callback(web_server.io_service(), std::move(websocket),
                            std::move(req));
