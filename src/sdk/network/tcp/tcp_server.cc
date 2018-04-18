@@ -42,6 +42,7 @@ TcpServer::TcpServer(WrapperStrand &config)
     return;
   }
 
+  if (_secure_port < 0) return;
   try {
     _secure_acceptor = make_unique_<boost::asio::ip::tcp::acceptor>(
         tcp::acceptor(_shared_strand->get_io_context(),
@@ -55,7 +56,9 @@ TcpServer::TcpServer(WrapperStrand &config)
     _context.set_password_callback(boost::bind(&TcpServer::get_password, this));
 
     boost::system::error_code error_code;
-    if (!load_server_certificate(_context, error_code)) return;
+    if (!load_server_certificate(_context, error_code)) {
+      _secure_port = -1;
+    }
 
   } catch (boost::system::system_error &e) {
     LOG_ERROR(__FILENAME__, LOG << "Bind Error: " << e.what() << "\n");
