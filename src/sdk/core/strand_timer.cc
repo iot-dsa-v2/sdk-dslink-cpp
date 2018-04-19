@@ -4,7 +4,7 @@
 
 namespace dsa {
 
-StrandTimer::StrandTimer(const LinkStrandRef &strand, int32_t interval_ms,
+StrandTimer::StrandTimer(const LinkStrandRef& strand, int32_t interval_ms,
                          LinkStrand::TimerCallback&& callback)
     : _strand(strand),
       repeat_interval_ms(interval_ms),
@@ -25,12 +25,12 @@ void StrandTimer::destroy_impl() {
 }
 
 void StrandTimer::reschedule(int32_t interval_ms) {
-  if (interval_ms > 0) {
+  if (interval_ms > 0 && _callback != nullptr) {
     _timer->expires_from_now(boost::posix_time::milliseconds(interval_ms));
   }
 }
 void StrandTimer::restart(int32_t interval_ms) {
-  if (interval_ms > 0 && _running == false) {
+  if (interval_ms > 0 && _running == false && _callback != nullptr) {
     schedule(get_ref(), interval_ms);
   }
 }
@@ -48,9 +48,11 @@ void StrandTimer::schedule(ref_<StrandTimer>&& rthis, int32_t interval_ms) {
         _running = _callback(canceled);
         if (_running && repeat_interval_ms > 0) {
           schedule(std::move(rthis), repeat_interval_ms);
+        } else {
+          _callback = nullptr;
         }
       }
     });
   });
 }
-}
+}  // namespace dsa

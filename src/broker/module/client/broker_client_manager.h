@@ -61,6 +61,7 @@ class BrokerClientManager : public ClientManager {
   void get_client(const string_& id, const string_& auth_token,
                   bool is_responder,
                   ClientInfo::GetClientCallback&& callback) override;
+  void remove_clients_from_token(const string_& token_name);
 };
 }  // namespace dsa
 

@@ -253,7 +253,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _clients_root.reset(new BrokerClientsRoot(_strand, get_ref()));
   _quarantine_root.reset(new QuaratineRoot(_strand));
-  _tokens_root.reset(new TokensRoot(_strand));
+  _tokens_root.reset(new TokensRoot(_strand, get_ref()));
 
   _clients_root
       ->add_list_child(
@@ -284,6 +284,37 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
               },
               PermissionLevel::CONFIG))
       ->set_value(Var(_quarantine_enabled));
+}
+
+void BrokerClientManager::remove_clients_from_token(const string_& token_name) {
+  auto clients_node = _clients_root->get_list_children();
+  std::vector<std::tuple<string_, BrokerClientNode*>> to_remove;
+  for (auto& it : _clients_root->get_list_children()) {
+    BrokerClientNode* p = dynamic_cast<BrokerClientNode*>(it.second.get());
+    if (p != nullptr && p->get_client_info().from_token == token_name) {
+      to_remove.push_back({it.first, p});
+    }
+  }
+  string_ dsid;
+  BrokerClientNode* client_node;
+  for (auto& it : to_remove) {
+    std::tie(dsid, client_node) = it;
+    const string_ responder_path =
+        client_node->get_client_info().responder_path;
+
+    // remove from path2id map
+    if (str_starts_with(responder_path, DOWNSTREAM_PATH)) {
+      _path2id.erase(responder_path.substr(responder_path.size()));
+    }
+
+    // delete the storage
+    _clients_root->_storage->remove(dsid);
+    // remove the node
+    _clients_root->remove_list_child(dsid);
+
+    static_cast<BrokerSessionManager&>(_strand->session_manager())
+        .remove_sessions(dsid, responder_path);
+  }
 }
 
 void BrokerClientManager::get_client(const string_& id,

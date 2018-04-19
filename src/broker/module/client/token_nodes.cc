@@ -2,16 +2,21 @@
 
 #include "token_nodes.h"
 
+#include "broker_client_manager.h"
+#include "core/strand_timer.h"
 #include "module/storage.h"
 #include "module/stream_acceptor.h"
 #include "responder/invoke_node_model.h"
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
+#include "util/date_time.h"
 #include "util/string.h"
 
 namespace dsa {
-TokensRoot::TokensRoot(const LinkStrandRef &strand)
+TokensRoot::TokensRoot(const LinkStrandRef &strand,
+                       ref_<BrokerClientManager> &&manager)
     : NodeModel(strand),
+      _manager(std::move(manager)),
       _storage(_strand->storage().get_strand_bucket("Tokens", _strand)) {
   add_list_child(
       "Add",
@@ -44,6 +49,39 @@ TokensRoot::TokensRoot(const LinkStrandRef &strand)
 }
 TokensRoot::~TokensRoot() = default;
 
+void TokensRoot::destroy_impl() {
+  NodeModel::destroy_impl();
+  _storage.reset();
+  _manager.reset();
+}
+
+void TokensRoot::initialize() {
+  NodeModel::initialize();
+
+  _storage->read_all(  //
+      [ this, keepref = get_ref() ](const string_ &key,
+                                    std::vector<uint8_t> data,
+                                    BucketReadStatus read_status) mutable {
+        if (PathData::invalid_name(key)) {
+          return;
+        }
+        Var map = Var::from_json(reinterpret_cast<const char *>(data.data()),
+                                 data.size());
+
+        if (map.is_map()) {
+          // add a child dslink node
+          ref_<TokenNode> child;
+          child = make_ref_<TokenNode>(
+              _strand, get_ref(),
+              _strand->stream_acceptor().get_profile("Broker/Token", true));
+          child->load(map.get_map());
+
+          add_list_child(key, child->get_ref());
+        }
+      },
+      []() {});
+}
+
 TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
                      ref_<NodeModel> &&profile, const string_ &token,
                      const string_ &role, const string_ &time_range,
@@ -57,7 +95,6 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
       _max_session(max_session),
       _managed(managed) {
   _token_node.reset(new NodeModel(_strand));
-  _token_node->set_value_lite(Var(_token));
   _token_node->update_property("$type", Var("string"));
   add_list_child("Token", _token_node->get_ref());
 
@@ -78,7 +115,6 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  _role_node->set_value_lite(Var(_role));
   add_list_child("Role", _role_node->get_ref());
 
   _time_range_node.reset(new ValueNodeModel(
@@ -87,16 +123,18 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         if (v.is_string()) {
           auto &str = v.get_string();
           if (str != _time_range) {
-            _time_range = str;
-            save_token();
-            udpate_timerange();
+            if (udpate_timerange(str)) {
+              save_token();
+            } else {
+              return StatusDetail(Status::INVALID_PARAMETER,
+                                  "TimeRange format error");
+            }
           }
           return Status::DONE;
         }
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  _time_range_node->set_value_lite(Var(_time_range));
   add_list_child("Time_Range", _time_range_node->get_ref());
 
   _count_node.reset(new ValueNodeModel(
@@ -113,7 +151,6 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  _count_node->set_value_lite(Var(_count));
   add_list_child("Count", _count_node->get_ref());
 
   _max_session_node.reset(new ValueNodeModel(
@@ -130,7 +167,6 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  _max_session_node->set_value_lite(Var(_role));
   add_list_child("Max_Session", _max_session_node->get_ref());
 
   _managed_node.reset(new ValueNodeModel(
@@ -147,25 +183,84 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  _managed_node->set_value_lite(Var(_managed));
   add_list_child("Managed", _managed_node->get_ref());
+
+  update_node_values();
 }
 TokenNode::~TokenNode() = default;
 
-void TokenNode::udpate_timerange() {
-  // TODO
+void TokenNode::destroy_impl() {
+  if (_timer != nullptr) {
+    _timer->destroy();
+    _timer.reset();
+  }
+  NodeModel::destroy_impl();
+}
+
+void TokenNode::update_node_values() {
+  _token_node->set_value_lite(Var(_token));
+  _role_node->set_value_lite(Var(_role));
+  _time_range_node->set_value_lite(Var(_time_range));
+  _count_node->set_value_lite(Var(_count));
+  _max_session_node->set_value_lite(Var(_role));
+  _managed_node->set_value_lite(Var(_managed));
+}
+
+bool TokenNode::udpate_timerange(const string_ &value) {
+  if (!value.empty()) {
+    auto slash_pos = _time_range.find('/');
+    if (slash_pos != string_::npos) {
+      _valid_from = DateTime::parse_ts(_time_range.substr(0, slash_pos));
+      _valid_to = DateTime::parse_ts(_time_range.substr(slash_pos + 1));
+      if (_valid_from != LLONG_MIN && _valid_to != LLONG_MIN) {
+        _time_range = value;
+
+        if (_timer != nullptr) {
+          _timer->destroy();
+          _timer = nullptr;
+        }
+        auto ts = DateTime::ms_since_epoch();
+        if (ts < _valid_to) {
+          _timer = _strand->add_timer(
+              _valid_to - ts, [ this, keepref = get_ref() ](bool canceled) {
+                if (canceled) return false;
+                if (_managed) {
+                  remove_all_clients();
+                }
+                return false;
+              });
+        } else
+          return true;
+      }
+    }
+    return false;
+  }
+
+  _time_range = value;
+  if (_timer != nullptr) {
+    _timer->destroy();
+    _timer = nullptr;
+  }
+  _valid_from = LLONG_MIN;
+  _valid_to = LLONG_MIN;
+  return true;
 }
 
 bool TokenNode::is_valid() {
   if (_count == 0) return false;
-  //TODO check time range
-  return true;
+  if (_valid_from != LLONG_MIN) {
+    auto ts = DateTime::ms_since_epoch();
+    return ts >= _valid_from && ts < _valid_to;
+  }
 
+  return true;
 }
 
 void TokenNode::remove_all_clients() {
-  // TODO
+  this->_parent->_manager->remove_clients_from_token(
+      _state->get_path().node_name());
 }
+
 void TokenNode::regenerate() {
   // only change the rest
   _token = _token.substr(0, 16) + generate_random_string(32);
@@ -177,4 +272,29 @@ void TokenNode::save_token() const {
   save(*_parent->_storage, _state->get_path().node_name(), false, true);
 }
 
+void TokenNode::save_extra(VarMap &map) const {
+  map[":token"] = _token;
+  map[":role"] = _role;
+  if (!_time_range.empty()) {
+    map[":time-range"] = _time_range;
+  }
+  if (_count >= 0) {
+    map[":count"] = _count;
+  }
+  if (_max_session > 1) {
+    map[":max-session"] = _max_session;
+  }
+  if (_managed) {
+    map[":managed"] = true;
+  }
+}
+void TokenNode::load_extra(VarMap &map) {
+  _token = map[":token"].to_string();
+  _role = map[":role"].to_string();
+  _time_range = map[":time-range"].to_string();
+  _count = map[":count"].to_int(-1);
+  _max_session = map[":max-session"].to_int(1);
+  _managed = map[":managed"].to_bool();
+  update_node_values();
+}
 }  // namespace dsa

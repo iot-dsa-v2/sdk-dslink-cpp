@@ -18,10 +18,14 @@ class TokensRoot : public NodeModel {
   friend class TokenNode;
 
  protected:
+  ref_<BrokerClientManager> _manager;
   ref_<StrandStorageBucket> _storage;
 
+  void initialize() override;
+  void destroy_impl() override;
+
  public:
-  TokensRoot(const LinkStrandRef &strand);
+  TokensRoot(const LinkStrandRef &strand, ref_<BrokerClientManager> &&manager);
   ~TokensRoot() override;
 };
 
@@ -39,6 +43,7 @@ class TokenNode : public NodeModel {
   // valid time, ms since epoch
   int64_t _valid_from = LLONG_MIN;
   int64_t _valid_to = LLONG_MIN;
+  TimerRef _timer;
 
   // how many times this tokne can be used
   int64_t _count = -1;
@@ -54,7 +59,14 @@ class TokenNode : public NodeModel {
   ref_<ValueNodeModel> _max_session_node;
   ref_<ValueNodeModel> _managed_node;
 
-  void udpate_timerange();
+  bool udpate_timerange(const string_ &value);
+
+  void save_extra(VarMap &map) const override;
+  void load_extra(VarMap &map) override;
+
+  void update_node_values();
+
+  void destroy_impl() override;
 
  public:
   TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,

@@ -21,21 +21,21 @@ class StrandTimer final : public DestroyableRef<StrandTimer> {
   // reschedule the timer, this won't affect the repeat interval
   void reschedule(int32_t interval_ms);
   void restart(int32_t interval_ms);
-  bool is_running() {return _running;}
-
+  bool is_running() { return _running; }
 
  protected:
   LinkStrandRef _strand;
   std::unique_ptr<boost::asio::deadline_timer> _timer;
   LinkStrand::TimerCallback _callback;
   bool _running = false;
-  StrandTimer(const LinkStrandRef &strand, int32_t interval_ms,
+  // callback should return false if it doesn't want to repeat the timer
+  StrandTimer(const LinkStrandRef& strand, int32_t interval_ms,
               LinkStrand::TimerCallback&& callback);
 
   void schedule(ref_<StrandTimer>&& rthis, int32_t interval_ms);
-
+  // destroy the timer and call the callback with canceled = true
   void destroy_impl() final;
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_SDK_STRAND_TIMER_H
