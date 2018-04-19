@@ -37,28 +37,28 @@ TcpServer::TcpServer(WrapperStrand &config)
            LOG << "Bind to TCP server port: " << config.tcp_server_port);
 
   // secure tcp
-  if (config.tcp_secure_port < 0) {
+  if (_secure_port < 0) {
     LOG_FINE(__FILENAME__, LOG << "Secure TCP is disabled\n");
     return;
   }
 
-  if (_secure_port < 0) return;
+  _context.set_options(boost::asio::ssl::context::default_workarounds |
+                       boost::asio::ssl::context::no_sslv2);
+  _context.set_password_callback(boost::bind(&TcpServer::get_password, this));
+
+  boost::system::error_code error_code;
+  if (!load_server_certificate(_context, error_code)) {
+    _secure_port = -1;
+    return;
+  }
+
   try {
     _secure_acceptor = make_unique_<boost::asio::ip::tcp::acceptor>(
         tcp::acceptor(_shared_strand->get_io_context(),
                       tcp::endpoint(boost::asio::ip::address::from_string(
                                         config.server_host),
-                                    config.tcp_secure_port),
+                                    _secure_port),
                       true));
-
-    _context.set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::no_sslv2);
-    _context.set_password_callback(boost::bind(&TcpServer::get_password, this));
-
-    boost::system::error_code error_code;
-    if (!load_server_certificate(_context, error_code)) {
-      _secure_port = -1;
-    }
 
   } catch (boost::system::system_error &e) {
     LOG_ERROR(__FILENAME__, LOG << "Bind Error: " << e.what() << "\n");

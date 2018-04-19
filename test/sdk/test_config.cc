@@ -59,6 +59,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
   switch (protocol) {
     case dsa::ProtocolType::PROT_DSS:
       copy.tcp_port = tcp_secure_port;
+      copy.secure = true;
       break;
     case dsa::ProtocolType::PROT_WS:
       copy.ws_host = "127.0.0.1";
@@ -71,7 +72,7 @@ WrapperStrand TestConfig::get_client_wrapper_strand() {
       // TODO: ws_port and ws_path
       copy.ws_port = 8443;
       copy.ws_path = "/";
-
+      copy.secure = true;
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
