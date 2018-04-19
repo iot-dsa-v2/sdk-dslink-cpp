@@ -25,7 +25,7 @@ void StcpServerConnection::handle_handshake(
     const boost::system::error_code &error) {
   if (error != boost::system::errc::success) {
     LOG_ERROR(__FILENAME__,
-              LOG << "Server SSL handshake failed: " << error << "\n");
+              LOG << "Server SSL handshake failed: " << error.message() << "\n");
   } else {
     {
       std::lock_guard<std::mutex> lock(mutex);

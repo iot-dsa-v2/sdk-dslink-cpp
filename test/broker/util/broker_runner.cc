@@ -44,6 +44,7 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
       if (!client_strand.tcp_port) {
         client_strand.tcp_port = broker->get_active_secure_port();
       }
+      client_strand.secure = true;
       break;
     case dsa::ProtocolType::PROT_WS:
       client_strand.ws_host = "127.0.0.1";
@@ -56,6 +57,7 @@ WrapperStrand get_client_wrapper_strand(const ref_<DsBroker>& broker,
       // TODO: ws_port and ws_path
       client_strand.ws_port = 8443;
       client_strand.ws_path = "/";
+      client_strand.secure = true;
       break;
     case dsa::ProtocolType::PROT_DS:
     default:
