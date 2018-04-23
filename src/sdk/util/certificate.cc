@@ -137,8 +137,9 @@ void load_root_certificate(ssl::context &context,
   string_ certificate = string_from_storage("certificate.pem", config_bucket);
   context.add_certificate_authority(
       boost::asio::buffer(certificate.data(), certificate.size()), error_code);
-  if (error_code) {
-    LOG_FATAL(__FILENAME__, LOG << "Client failed to verify certificate");
+
+  if (error_code && ERR_GET_REASON(error_code.value()) != X509_R_CERT_ALREADY_IN_HASH_TABLE) {
+      LOG_FATAL(__FILENAME__, LOG << "Client failed to verify certificate");
   }
 }
 
