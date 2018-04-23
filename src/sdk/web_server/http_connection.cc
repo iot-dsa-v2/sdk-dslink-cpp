@@ -83,7 +83,7 @@ void HttpConnection::accept() {
             return;
           }
         });  // async_read
-    check_deadline();
+    // check_deadline();
   } else {
     _websocket = std::make_unique<Websocket>(std::move(_socket),
                                              _web_server.ssl_context());
@@ -152,7 +152,7 @@ void HttpConnection::accept() {
                       return;
                     }
                   });  // async_read
-          check_deadline();
+          // check_deadline();
           return;
         });  // async_handshake
   }          // else
