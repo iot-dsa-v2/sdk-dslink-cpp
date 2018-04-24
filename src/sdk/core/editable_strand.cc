@@ -27,10 +27,6 @@ ref_<EditableStrand> EditableStrand::make_default(shared_ptr_<App> app) {
   strand->set_client_manager(make_ref_<SimpleClientManager>());
   strand->set_authorizer(make_ref_<SimpleAuthorizer>(strand));
 
-  static_cast<ConsoleLogger&>(Logger::_()).filter =
-      Logger::FATAL_ | Logger::ERROR_ | Logger::WARN__;
-  Logger::_().level = Logger::WARN__;
-
   return strand;
 }
 

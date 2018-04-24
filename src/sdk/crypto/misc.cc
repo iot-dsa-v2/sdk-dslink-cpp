@@ -9,6 +9,8 @@
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 
+#include "hash.h"
+
 static inline bool is_base64(uint8_t c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
 }
@@ -100,4 +102,24 @@ string_ hex2bin(const char *src) {
 }
 
 void gen_salt(uint8_t *data, size_t len) { RAND_bytes(data, len); }
+
+bool validate_token_auth(const string_ &id, const string_ &token,
+                         const string_ &auth) {
+  Hash hash;
+  std::vector<uint8_t> v;
+  v.insert(v.end(), id.begin(), id.end());
+  v.insert(v.end(), token.begin(), token.end());
+  hash.update(v);
+  auto hash_result = hash.digest_base64();
+  return hash_result == auth;
+}
+string_ generate_auth_token(const string_ &id, const string_ &token) {
+  Hash hash;
+  std::vector<uint8_t> v;
+  v.insert(v.end(), id.begin(), id.end());
+  v.insert(v.end(), token.begin(), token.end());
+  hash.update(v);
+  auto hash_result = hash.digest_base64();
+  return token.substr(0, 16) + hash_result;
+}
 }  // namespace dsa

@@ -8,6 +8,7 @@
 #include "../../remote_node/dynamic_children_parent.h"
 #include "broker_client_nodes.h"
 #include "crypto/hash.h"
+#include "crypto/misc.h"
 #include "module/logger.h"
 #include "module/stream_acceptor.h"
 #include "quaratine_node.h"
@@ -405,15 +406,7 @@ void BrokerClientManager::get_client(const string_& id,
               _tokens_root->get_child(token_name).get());
           // find the token
           if (token_node != nullptr && token_node->is_valid()) {
-            // check hash
-            Hash hash;
-            std::vector<uint8_t> v;
-            v.insert(v.end(), id.begin(), id.end());
-            v.insert(v.end(), token_node->_token.begin(),
-                     token_node->_token.end());
-            hash.update(v);
-            auto hash_result = hash.digest_base64();
-            if (hash_result == auth_token.substr(16)) {
+            if (validate_token_auth(id, token_node->_token, auth_token.substr(16))) {
               // token is valid ! create a client for this id
               ClientInfo info(id);
               info.role = token_node->_role;

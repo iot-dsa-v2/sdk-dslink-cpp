@@ -4,6 +4,7 @@
 
 #include "core/client.h"
 #include "core/session.h"
+#include "crypto/misc.h"
 #include "message/handshake/f0_message.h"
 #include "message/handshake/f1_message.h"
 #include "message/handshake/f2_message.h"
@@ -15,8 +16,7 @@ namespace dsa {
 void Connection::on_client_connect(shared_ptr_<Connection> connection) throw(
     const std::runtime_error &) {
   if (connection->_session == nullptr) {
-    LOG_FATAL(__FILENAME__,
-              LOG << "no session attached to client connection");
+    LOG_FATAL(__FILENAME__, LOG << "no session attached to client connection");
   }
   Connection *raw_ptr = connection.get();
   raw_ptr->_session->connected(std::move(connection));
@@ -56,7 +56,10 @@ void Connection::on_receive_f1(MessageRef &&msg) {
   HandshakeF2Message f2;
   f2.auth = _handshake_context.auth();
   f2.is_responder = _session->responder_enabled;
-  f2.token = _session->client_token;
+  if (_session->client_token.length() > 16) {
+    f2.token =
+        generate_auth_token(_handshake_context.dsid(), _session->client_token);
+  }
 
   auto write_buffer = get_write_buffer();
   write_buffer->add(f2, 0, 0);

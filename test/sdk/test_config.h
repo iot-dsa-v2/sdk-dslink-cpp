@@ -47,14 +47,15 @@ class TestConfig : public WrapperStrand {
 
 void destroy_client_in_strand(ref_<Client>& client);
 void destroy_dslink_in_strand(ref_<DsLink>& dslink);
-}
+}  // namespace dsa
 
 class SetUpBase : public ::testing::Test {
  protected:
   SetUpBase() : _protocol(dsa::ProtocolType::PROT_DS) {}
 
   virtual void SetUp() {
-    static_cast<dsa::ConsoleLogger&>(dsa::Logger::_()).level = 1;
+    static_cast<dsa::ConsoleLogger&>(dsa::Logger::_()).level =
+        dsa::Logger::WARN__;
     // filter log for unit test
     static_cast<dsa::ConsoleLogger&>(dsa::Logger::_()).filter =
         dsa::Logger::FATAL_ | dsa::Logger::ERROR_ | dsa::Logger::WARN__;
