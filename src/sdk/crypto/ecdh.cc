@@ -268,7 +268,7 @@ const string_ &ECDH::get_dsid(const string_ &prefix) const {
     _dsid_cached_prefix = prefix;
     Hash hash;
     hash.update(get_public_key());
-    _dsid_cache = prefix + base64_url_convert(hash.digest_base64());
+    _dsid_cache = prefix + hash.digest_base64();
   }
 
   return _dsid_cache;

@@ -11,6 +11,7 @@
 #include "util/buffer.h"
 
 namespace dsa {
+void base64_url_convert_(string_ &str);
 string_ base64_url_convert(const string_ &str);
 string_ base64_decode(const string_ &encoded_string);
 string_ base64_encode(const uint8_t *bytes_to_encode, unsigned int in_len);

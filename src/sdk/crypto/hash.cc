@@ -2,8 +2,8 @@
 
 #include "hash.h"
 
-#include <regex>
 #include <iostream>
+#include <regex>
 #include "misc.h"
 
 #include "util/openssl.h"
@@ -22,9 +22,7 @@ Hash::Hash() throw(const std::runtime_error &) : finalized(false) {
   }
 }
 
-Hash::~Hash() {
-  EVP_MD_CTX_free(mdctx);
-}
+Hash::~Hash() { EVP_MD_CTX_free(mdctx); }
 
 void Hash::update(const std::vector<uint8_t> &content) {
   if (finalized) throw std::runtime_error("Hash has been finalized already");
@@ -44,6 +42,7 @@ string_ Hash::digest_base64() throw(const std::runtime_error &) {
   finalized = true;
 
   string_ out = base64_encode(md_value, md_len);
-  return out;
+  base64_url_convert_(out);
+  return std::move(out);
 }
 }  // namespace dsa

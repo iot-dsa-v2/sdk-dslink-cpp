@@ -68,24 +68,27 @@ string_ base64_decode(string_ const &encoded_string) {
   return ret;
 }
 
-string_ base64_url_convert(const string_ &str) {
-  string_ out(str);
+void base64_url_convert_(string_ &str) {
   size_t length = str.size();
-
   for (size_t idx = 0; idx < length; ++idx) {
-    switch (out[idx]) {
+    switch (str[idx]) {
       case '+':
-        out[idx] = '-';
+        str[idx] = '-';
         break;
       case '/':
-        out[idx] = '_';
+        str[idx] = '_';
         break;
       case '=':
-        out.resize(idx);
-        return std::move(out);
+        str.resize(idx);
+        return;
       default:;
     }
   }
+}
+
+string_ base64_url_convert(const string_ &str) {
+  string_ out(str);
+  base64_url_convert_(out);
   return std::move(out);
 }
 

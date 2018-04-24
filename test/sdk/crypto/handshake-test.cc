@@ -122,7 +122,7 @@ TEST(HandshakeTest, ClientInfo) {
   hash.update(ecdh.get_public_key());
 
   EXPECT_EQ("TTDXtL-U_NQ2sgFRU5w0HrZVib2D-O4CxXQrKk4hUsI",
-            base64_url_convert(hash.digest_base64()));
+           hash.digest_base64());
 
   // Shared secret
   char server_private_key[] =
@@ -178,7 +178,7 @@ TEST(HandshakeTest, ServerInfo) {
   hash.update(ecdh.get_public_key());
 
   EXPECT_EQ("g675gaSQogzMxjJFvL7HsCbyS8B0Ly2_Abhkw_-g4iI",
-            base64_url_convert(hash.digest_base64()));
+           hash.digest_base64());
 
   // Shared secret
   char client_private_key[] =
@@ -222,4 +222,13 @@ TEST(HandshakeTest, HMAC) {
 
   EXPECT_EQ("f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8",
             hex_string(auth_message));
+}
+
+
+TEST(HandshakeTest, Token) {
+  const string_ client_token = "55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da";
+  const string_ id = "test-dslink-55e1bcad391b655f97fe3ba2f8e3031c9b5828b16793b7da";
+  string_ auth_token = generate_auth_token(id, client_token);
+  EXPECT_EQ(auth_token, "55e1bcad391b655fEanDwxMkz8T8JHqxLxnDLh8qVLiwAOzGKJg2AYr-hkI");
+  EXPECT_TRUE(validate_token_auth(id, client_token, auth_token.substr(16)));
 }
