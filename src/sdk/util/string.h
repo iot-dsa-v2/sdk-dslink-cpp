@@ -33,7 +33,7 @@ void string_to_storage(const string_ &data, const string_ &key,
 
 static int IS_RAND_INITIALIZED = 0;
 string_ generate_random_string(int len);
-static constexpr char default_master_token_path[] = ".master_token";
+static constexpr char default_master_token_path[] = ".master-token";
 // todo, handle token loading from StorageBucket and remove this function
 string_ get_master_token_from_storage(
     StorageBucket &storage_bucket,

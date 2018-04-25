@@ -159,7 +159,7 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
 }
 
 TEST_F(BrokerDsLinkTest, StopTest) {
-  std::string master_token = "12345678901234567890123456789012";
+  std::string master_token = "123456789012345678901234567890123456789012345678";
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
   string_to_storage(master_token, default_master_token_path, storage_bucket);
 
@@ -215,7 +215,7 @@ TEST_F(BrokerDsLinkTest, StopTest) {
 }
 
 TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
-  std::string master_token = generate_random_string(32);
+  std::string master_token = generate_random_string(48);
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
   string_to_storage(master_token, default_master_token_path, storage_bucket);
 

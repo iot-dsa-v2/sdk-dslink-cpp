@@ -4,7 +4,7 @@ using BrokerDsLinkTest = SetUpBase;
 
 TEST_F(BrokerDsLinkTest, RootSysSelfList) {
   const string_ bucket_name("config");
-  std::string master_token = generate_random_string(32);
+  std::string master_token = generate_random_string(48);
   SimpleSafeStorageBucket storage_bucket(bucket_name, nullptr, "");
   string_to_storage(master_token, default_master_token_path, storage_bucket);
 

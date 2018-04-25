@@ -121,13 +121,15 @@ string_ get_master_token_from_storage(StorageBucket &storage_bucket,
                                       const string_ &key,
                                       bool force_to_generate_one) {
   string_ token = string_from_storage(key, storage_bucket);
-  if (token.length() == 32) return token;
+  if (token.length() == 48) return std::move(token);
 
   if (force_to_generate_one) {
-    token = generate_random_string(32);
+    token = generate_random_string(48);
     string_to_storage(token, key, storage_bucket);
-  } else
-    token = "";
-  return token;
+  } else {
+    return "";
+  }
+
+  return std::move(token);
 }
 }  // namespace dsa

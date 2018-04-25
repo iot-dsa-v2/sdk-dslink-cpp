@@ -54,8 +54,6 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
        "Tcp Server Port")  // custom name
       ("module_path", opts::value<string_>()->default_value("./modules"),
        "Module Path")  // custom name
-      ("master_token", opts::value<string_>()->default_value(""),
-       "Master token file path")  // custom name
       ;
 
   try {
@@ -69,9 +67,8 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
     opts::store(opts::parse_command_line(argc, argv, desc), variables);
     opts::notify(variables);
   } catch (std::exception &e) {
-    LOG_FATAL(__FILENAME__,
-              LOG << "Invalid input, please check available "
-                     "parameters with --help\n");
+    LOG_FATAL(__FILENAME__, LOG << "Invalid input, please check available "
+                                   "parameters with --help\n");
   }
 
   // show help and exit
@@ -93,33 +90,19 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
                                       Storage::get_config_bucket(), ".key"))));
 
   // TOKEN from file
-  client_token = "";
-  auto client_token_path = variables["token"].as<string_>();
-  if (client_token_path.length() != 0) {
-    if (Storage::get_config_bucket().exists(client_token_path)) {
+  client_token = variables["token"].as<string_>();
+  if (client_token.empty()) {
+    if (Storage::get_config_bucket().exists("client-token")) {
       client_token =
-          string_from_storage(client_token_path, Storage::get_config_bucket());
-    } else
-      client_token = string_from_file(client_token_path);
-    if (client_token.empty()) {
-      LOG_FATAL(__FILENAME__,
-                LOG << "Fatal loading token file " << client_token_path);
+          string_from_storage("client-token", Storage::get_config_bucket());
+      if (client_token.empty()) {
+        LOG_FATAL(__FILENAME__, LOG << "Failed to load client-token file");
+      }
     }
   }
 
   // Master token from file
-  master_token = "";
-  auto master_token_path = variables["master_token"].as<string_>();
-  if (master_token_path.length() != 0) {
-    master_token = get_master_token_from_storage(Storage::get_config_bucket(),
-                                                 master_token_path);
-    if (master_token.empty()) {
-      LOG_FATAL(__FILENAME__,
-                LOG << "Fatal loading master token file " << master_token_path);
-    }
-  } else {
-    master_token = get_master_token_from_storage(Storage::get_config_bucket());
-  }
+  master_token = get_master_token_from_storage(Storage::get_config_bucket());
 
   parse_url(variables["broker"].as<string_>());
   parse_name(variables["name"].as<string_>());
@@ -300,9 +283,8 @@ ref_<NodeModel> DsLink::add_to_pub(const string_ &path,
 void DsLink::connect(DsLink::LinkOnConnectCallback &&on_connect,
                      uint8_t callback_type) {
   if (_connected) {
-    LOG_FATAL(
-        __FILENAME__,
-        LOG << "DsLink::connect(), Dslink is already requested for connection");
+    LOG_FATAL(__FILENAME__, LOG << "DsLink::connect(), Dslink is already "
+                                   "requested for connection");
     return;
   }
   _connected = true;
@@ -342,10 +324,9 @@ void DsLink::run(DsLink::LinkOnConnectCallback &&on_connect,
   if (!_connected) {
     connect(std::move(on_connect), callback_type);
   } else {
-    LOG_INFO(__FILENAME__,
-             LOG << "DsLink on_connect callback "
-                    "ignored since it was connected "
-                    "before\n");
+    LOG_INFO(__FILENAME__, LOG << "DsLink on_connect callback "
+                                  "ignored since it was connected "
+                                  "before\n");
   }
   LOG_INFO(__FILENAME__, LOG << "DsLink running");
   if (own_app) {
