@@ -15,13 +15,8 @@ WsConnection::WsConnection(const SharedLinkStrandRef &strand,
 
 void WsConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
-  Websocket &websocket = ws_stream();
   if (_socket_open.exchange(false)) {
-    if (websocket.is_secure_stream()) {
-      websocket.secure_stream().lowest_layer().close();
-    } else {
-      websocket.stream().next_layer().close();
-    }
+    ws_stream().destroy_impl();
   }
   Connection::destroy_impl();
 }
@@ -37,6 +32,7 @@ void WsConnection::start_read(shared_ptr_<Connection> &&connection) {
   if (_read_next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
+
   Websocket &websocket = ws_stream();
   if (websocket.is_secure_stream()) {
     websocket.secure_stream().async_read_some(
@@ -98,7 +94,6 @@ void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
         [callback = std::move(callback)](const boost::system::error_code &error,
                                          size_t bytes_transferred) {
           DSA_REF_GUARD;
-
           callback(error);
         });
   }
