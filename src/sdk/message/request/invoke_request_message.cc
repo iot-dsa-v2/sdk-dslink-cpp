@@ -16,6 +16,12 @@ InvokeRequestMessage::InvokeRequestMessage(const uint8_t* data, size_t size)
 InvokeRequestMessage::InvokeRequestMessage()
     : RequestMessage(MessageType::INVOKE_REQUEST) {}
 
+InvokeRequestMessage::InvokeRequestMessage(const string_& path, Var&& value)
+    : RequestMessage(MessageType::INVOKE_REQUEST) {
+  set_target_path(path);
+  set_value(std::move(value));
+}
+
 bool InvokeRequestMessage::set_value(const Var& value, int32_t sequence_id) {
   auto msgpack = value.to_msgpack();
   if (msgpack.size() > Var::MAX_PAGE_BODY_SIZE) {

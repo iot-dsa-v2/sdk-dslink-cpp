@@ -5,6 +5,8 @@ using namespace dsa;
 using BrokerDsLinkTest = SetUpBase;
 const string_ bucket_name("config");
 TEST_F(BrokerDsLinkTest, Reconnect) {
+  Storage::get_config_bucket().remove_all();
+
   auto app = make_shared_<App>();
 
   auto broker = broker_dslink_test::create_broker(app);

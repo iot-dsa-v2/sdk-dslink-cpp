@@ -73,21 +73,25 @@ void Client::_on_connect(const shared_ptr_<Connection> &connection) {
       // so during next check we know the dslink is just connected
       _reconnect_interval_s = -_reconnect_interval_s;
     }
+    bool user_on_connect_needed = false;
     if (_user_on_connect != nullptr) {
       if (_user_on_connect_type & BROKER_INFO_CHANGE) {
         if (_last_remote_dsid != connection->get_dsid() ||
             _last_remote_path != connection->get_remote_path()) {
-          _user_on_connect(connection);
+          user_on_connect_needed = true;
         }
       } else if (_user_on_connect_type & FIRST_CONNECTION) {
         _user_on_connect_type ^= FIRST_CONNECTION;
-        _user_on_connect(connection);
+        user_on_connect_needed = true;
       } else if (_user_on_connect_type & EVERY_CONNECTION) {
-        _user_on_connect(connection);
+        user_on_connect_needed = true;
       }
     }
     _last_remote_dsid = connection->get_remote_dsid();
     _last_remote_path = connection->get_remote_path();
+    if (user_on_connect_needed) {
+      _user_on_connect(connection);
+    }
   } else {
     if (_user_on_connect != nullptr &&
         (_user_on_connect_type & DISCONNECTION)) {

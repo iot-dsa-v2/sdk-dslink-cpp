@@ -54,8 +54,7 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
     link_req->set(
         [&, link_req](IncomingSetStream &stream,
                       ref_<const SetResponseMessage> &&msg) {
-          EXPECT_TRUE(msg->get_status() == Status::OK ||
-                      msg->get_status() == Status::DONE);
+          EXPECT_TRUE(msg->get_status() == Status::DONE);
           allow_all_set = true;
 
           link_req->list("Downstream", [&, link_req](

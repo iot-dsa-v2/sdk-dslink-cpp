@@ -17,6 +17,7 @@ class InvokeRequestMessage final : public RequestMessage {
   InvokeRequestMessage(const uint8_t* data, size_t size);
   InvokeRequestMessage();
   InvokeRequestMessage(const InvokeRequestMessage&);
+  InvokeRequestMessage(const string_& path, Var && value);
 
   std::unique_ptr<DynamicByteHeader> max_permission;
 
