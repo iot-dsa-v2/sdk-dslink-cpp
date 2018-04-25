@@ -65,33 +65,7 @@ WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
   uint16_t error_code = 404;
   static WebServer::WsCallback error_callback = [error_code](
       WebServer& web_server, std::unique_ptr<Websocket>&&,
-      http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
-
-    ErrorCallback error_callback_detail(error_code);
-    // TODO: WSS_TBD
-    //    error_callback_detail(web_server, websocket, std::move(req));
-
-    return nullptr;
-  };
-
-  return error_callback;
-}
-
-void WebServer::add_http_handler(const string_& path, HttpCallback&& callback) {
-  if (!_http_callback_map.count(path)) {
-    _http_callback_map.insert(HttpCallbackPair(path, std::move(callback)));
-  }
-  // TODO: report error/warning otherwise
-}
-
-WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
-  if (_http_callback_map.count(path)) {
-    return _http_callback_map.at(path);
-  }
-
-  uint16_t error_code = 404;
-  static WebServer::HttpCallback error_callback = [error_code](
-      WebServer& web_server, HttpRequest&& req) {
+      http::request<boost::beast::http::string_body>&& req) {
 
     ErrorCallback error_callback_detail(error_code);
     // TODO: WSS_TBD

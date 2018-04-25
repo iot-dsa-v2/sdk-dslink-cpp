@@ -9,7 +9,6 @@
 
 #include "core/editable_strand.h"
 #include "network/ws/ws_server_connection.h"
-#include "web_server/http_request.h"
 #include "web_server/websocket.h"
 
 #include <mutex>
@@ -28,7 +27,7 @@ class DsaWsCallback {
   auto operator()(
       boost::asio::io_context& io_context,
       std::unique_ptr<Websocket>&& websocket,
-      http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
+      http::request<boost::beast::http::string_body>&& req) {
     shared_ptr_<Connection> connection;
 
     std::lock_guard<std::mutex> lock(_mutex);

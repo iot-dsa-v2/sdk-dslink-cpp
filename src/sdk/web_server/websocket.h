@@ -62,6 +62,8 @@ class Websocket {
       _ws_stream->lowest_layer().shutdown(std::forward<Args>(args)...);
     }
   }
+
+  void destroy_impl();
 };
 }  // namespace dsa
 
