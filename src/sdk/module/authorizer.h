@@ -5,12 +5,8 @@
 #pragma once
 #endif
 
-#include <functional>
-#include <string>
-
-#include "util/enums.h"
-#include "util/client_info.h"
 #include "util/enable_ref.h"
+#include "util/enums.h"
 
 namespace dsa {
 
@@ -21,12 +17,12 @@ class Authorizer : public DestroyableRef<Authorizer> {
   typedef std::function<void(PermissionLevel permission)>
       CheckPermissionCallback;
 
-  virtual void check_permission(const ClientInfo& client_info,
+  virtual void check_permission(const string_& id, const string_& role,
                                 const string_& permission_token,
                                 MessageType method, const Path& path,
                                 CheckPermissionCallback&& callback) = 0;
   virtual ~Authorizer(){};
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_SDK_AUTHORIZER_H

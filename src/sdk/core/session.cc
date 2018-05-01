@@ -36,9 +36,11 @@ static string_ _create_log_id(const string_ &id, void *p) {
   return std::move(rslt);
 }
 
-Session::Session(const LinkStrandRef &strand, const string_ &dsid)
+Session::Session(const LinkStrandRef &strand, const string_ &dsid,
+                 const string_ &role)
     : _strand(strand),
       _remote_id(dsid),
+      _role(role),
       _log_id(_create_log_id(_remote_id, this)),
       requester(*this),
       responder(*this),
@@ -47,8 +49,8 @@ Session::Session(const LinkStrandRef &strand, const string_ &dsid)
       _ping_stream(new PingStream(get_ref())) {}
 
 Session::Session(const LinkStrandRef &strand, const string_ &dsid,
-                 const string_ &base_path)
-    : Session(strand, dsid) {
+                 const string_ &role, const string_ &base_path)
+    : Session(strand, dsid, role) {
   _base_path = base_path;
 }
 
@@ -67,8 +69,8 @@ void Session::connected(shared_ptr_<Connection> connection) {
   }
   _connection = std::move(connection);
   if (_connection != nullptr) {
-    if (_connection->get_dsid() != _remote_id) {
-      _remote_id = _connection->get_dsid();
+    if (_connection->get_remote_dsid() != _remote_id) {
+      _remote_id = _connection->get_remote_dsid();
       _log_id = _create_log_id(_remote_id, this);
     }
 

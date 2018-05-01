@@ -38,6 +38,9 @@ class InvokeRequestMessage final : public RequestMessage {
   bool set_value(const Var& value, int32_t sequence_id = 0);
   Var get_value() const;
 
+  const PermissionLevel get_max_permission() const;
+  void set_max_permission(PermissionLevel value);
+
   const bool get_skippable() const;
   void set_skippable(bool value);
 

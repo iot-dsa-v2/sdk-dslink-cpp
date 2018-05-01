@@ -11,10 +11,10 @@
 #include "network/connection.h"
 #include "util/enable_shared.h"
 
-#include "util/client_info.h"
 #include "requester/requester.h"
 #include "responder/responder.h"
 #include "strand_timer.h"
+#include "util/client_info.h"
 
 namespace dsa {
 class MessageStream;
@@ -59,6 +59,7 @@ class Session final : public DestroyableRef<Session> {
   void check_pending_acks(int32_t ack);
 
   string_ _remote_id;
+  string_ _role;
   string_ _log_id;
   shared_ptr_<Connection> _connection;
   bool _reconnection_expired = false;
@@ -97,8 +98,10 @@ class Session final : public DestroyableRef<Session> {
   bool responder_enabled = true;
   string_ client_token;
 
-  Session(const LinkStrandRef &strand, const string_ &dsid);
-  Session(const LinkStrandRef &strand, const string_ &dsid, const string_ &base_path);
+  Session(const LinkStrandRef &strand, const string_ &dsid,
+          const string_ &role);
+  Session(const LinkStrandRef &strand, const string_ &dsid, const string_ &role,
+          const string_ &base_path);
   ~Session();
 
   LinkStrandRef &get_strand() { return _strand; };

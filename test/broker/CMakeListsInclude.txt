@@ -4,6 +4,8 @@ set(BROKER_TEST_SOURCES
     broker/node/downstream-test.cc
     broker/node/page-test.cc
     broker/sys/stop-test.cc
+    broker/sys/token-test.cc
+    broker/sys/permission-test.cc
     sdk/async_test.cc
 )
 
