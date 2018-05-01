@@ -26,7 +26,7 @@ struct ClientInfo {
   int32_t max_queue_time = 3600 * 24;
   int32_t default_queue_time = 60;
 
-  ClientInfo(const string_ id = "", size_t max_session = 1)
+  explicit ClientInfo(const string_ id = "", size_t max_session = 1)
       : id(id), max_session(max_session) {}
 };
 }  // namespace dsa

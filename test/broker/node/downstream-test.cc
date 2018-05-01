@@ -63,6 +63,8 @@ class MockNodeRoot : public NodeModel {
 }
 
 TEST_F(BrokerDownstreamTest, Subscribe) {
+  Storage::get_config_bucket().remove_all();
+
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 
   auto broker = create_broker();

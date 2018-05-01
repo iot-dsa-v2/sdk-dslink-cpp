@@ -174,8 +174,8 @@ void Responder::receive_message(ref_<Message> &&message) {
   }
 
   _session._strand->authorizer().check_permission(
-    _session.get_remote_id(), request->get_permission_token(), request->type(),
-      request->get_target_path(), std::move(callback));
+      _session.get_remote_id(), _session._role, request->get_permission_token(),
+      request->type(), request->get_target_path(), std::move(callback));
 }
 
 bool Responder::destroy_stream(int32_t rid) {

@@ -19,13 +19,12 @@ ref_<NodeModel> BrokerAuthorizer::get_permission_root() {
   return _permission_root;
 }
 
-void BrokerAuthorizer::check_permission(const ClientInfo& client_info,
+void BrokerAuthorizer::check_permission(const string_& id, const string_& role,
                                         const string_& permission_token,
                                         MessageType method, const Path& path,
                                         CheckPermissionCallback&& callback) {
   _strand->post([
-    this, keepref = get_ref(), role = client_info.role, path,
-    callback = std::move(callback)
+    this, keepref = get_ref(), role, path, callback = std::move(callback)
   ]() {
     if (role.empty()) {
       callback(
