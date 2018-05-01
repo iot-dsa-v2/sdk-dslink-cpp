@@ -3,12 +3,12 @@
 #include "invoke_proxy.h"
 
 #include "core/session.h"
+#include "message/request/invoke_request_message.h"
+#include "message/response/invoke_response_message.h"
 #include "remote_node.h"
 #include "requester/requester.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
-#include "message/response/invoke_response_message.h"
-#include "message/request/invoke_request_message.h"
 
 namespace dsa {
 RemoteInvokeProxy::RemoteInvokeProxy() {}
@@ -16,8 +16,9 @@ RemoteInvokeProxy::RemoteInvokeProxy(ref_<OutgoingInvokeStream>&& stream,
                                      ref_<RemoteNode> node)
     : _out_stream(std::move(stream)), _node(std::move(node)) {
   // check request message
-  _out_stream->on_request([ this, keep_ref = get_ref() ](
-      OutgoingInvokeStream&, ref_<InvokeRequestMessage> && req_msg) {
+  _out_stream->on_request(CAST_LAMBDA(
+      OutgoingInvokeStream::Callback)[this, keep_ref = get_ref()](
+      OutgoingInvokeStream & stream1, ref_<InvokeRequestMessage> && req_msg) {
 
     if (req_msg == nullptr) {
       // out stream is closed by requester
@@ -27,9 +28,12 @@ RemoteInvokeProxy::RemoteInvokeProxy(ref_<OutgoingInvokeStream>&& stream,
     } else if (_in_stream == nullptr) {
       // forward the request
       req_msg->set_target_path(_node->_remote_path);
+      if (stream1.allowed_permission < PermissionLevel::CONFIG) {
+        req_msg->set_max_permission(stream1.allowed_permission);
+      }
       _in_stream = _node->_remote_session->requester.invoke(
-          [ this, keep_ref = get_ref() ](
-              IncomingInvokeStream& in_stream,
+          CAST_LAMBDA(IncomingInvokeStreamCallback)[this, keep_ref = get_ref()](
+              IncomingInvokeStream & in_stream,
               ref_<const InvokeResponseMessage> && resp_msg) {
             auto* p_msg = resp_msg.get();
             if (_out_stream != nullptr) {
@@ -66,4 +70,4 @@ void RemoteInvokeProxy::destroy_impl() {
     _node.reset();
   }
 }
-}
+}  // namespace dsa

@@ -60,6 +60,18 @@ Var InvokeRequestMessage::get_value() const {
   return Var();
 }
 
+const PermissionLevel InvokeRequestMessage::get_max_permission() const {
+  return static_cast<PermissionLevel>(
+      DynamicByteHeader::read_value(max_permission));
+}
+void InvokeRequestMessage::set_max_permission(PermissionLevel value) {
+  if (DynamicByteHeader::write_value(max_permission,
+                                     DynamicHeader::MAX_PERMISSION,
+                                     static_cast<uint8_t>(value))) {
+    static_headers.message_size = 0;
+  }
+}
+
 const bool InvokeRequestMessage::get_skippable() const {
   return DynamicBoolHeader::read_value(skippable);
 }

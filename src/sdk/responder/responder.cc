@@ -92,10 +92,17 @@ void Responder::receive_message(ref_<Message> &&message) {
     case MessageType::INVOKE_REQUEST: {
       auto stream =
           on_invoke_request(ref_<InvokeRequestMessage>(message->get_ref()));
-      callback = [stream, this](PermissionLevel permission_level) mutable {
+      callback = [
+        stream, this,
+        max_permission = static_cast<InvokeRequestMessage *>(message.get())
+                             ->get_max_permission()
+      ](PermissionLevel permission_level) mutable {
         // it's possible stream is closed before permission check
         if (stream->is_destroyed()) return;
-
+        if (max_permission != PermissionLevel::NONE &&
+            max_permission < permission_level) {
+          permission_level = max_permission;
+        }
         stream->allowed_permission = permission_level;
 
         if (permission_level < PermissionLevel::READ) {
