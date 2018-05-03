@@ -122,6 +122,35 @@ static const std::string standard_profile = R"({
     "Token": {
      "$type": "string"
     }
+   },
+   "Upstream_Connection": {
+    "Remove": {
+     "$invokable": "config"
+    },
+    "Enabled": {
+     "$type": "bool",
+     "$writable": "config"
+    },
+    "Name_On_Local": {
+     "$type": "string",
+     "$writable": "config"
+    },
+    "Url": {
+     "$type": "string",
+     "$writable": "config"
+    },
+    "Name_On_Remote": {
+     "$type": "string",
+     "$writable": "config"
+    },
+    "Token": {
+     "$type": "string",
+     "$writable": "config"
+    },
+    "Role": {
+     "$type": "string",
+     "$writable": "config"
+    }
    }
   }
  }
