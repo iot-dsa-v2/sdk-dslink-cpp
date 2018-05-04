@@ -6,8 +6,9 @@
 #include <iostream>
 #include <string>
 #include "module/logger.h"
-#include "util/string_encode.h"
 #include "module/storage.h"
+#include "util/path.h"
+#include "util/string_encode.h"
 
 namespace fs = boost::filesystem;
 
@@ -34,6 +35,9 @@ const string_& BrokerConfig::get_file_path() {
 
 // init all the config properties
 void BrokerConfig::init() {
+  add_item("name", Var(""), [](const Var& var) {
+    return var.is_string() && !PathData::invalid_name(var.get_string());
+  });
   add_item("thread", Var(2), VarValidatorInt(1, 100));
   add_item("host", Var("0.0.0.0"), [](const Var& var) {
     return var.is_string() && !var.get_string().empty();
@@ -115,4 +119,4 @@ void BrokerConfig::add_item(const string_& name, Var&& value,
   _items.emplace(name,
                  BrokerConfigItem(std::move(value), std::move(validator)));
 }
-}
+}  // namespace dsa

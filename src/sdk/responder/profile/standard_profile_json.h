@@ -131,15 +131,11 @@ static const std::string standard_profile = R"({
      "$type": "bool",
      "$writable": "config"
     },
-    "Name_On_Local": {
+    "Name": {
      "$type": "string",
      "$writable": "config"
     },
     "Url": {
-     "$type": "string",
-     "$writable": "config"
-    },
-    "Name_On_Remote": {
      "$type": "string",
      "$writable": "config"
     },

@@ -29,10 +29,15 @@ class UpstreamConnectionNode : public NodeModel {
   ref_<Client> _client;
   ref_<UpstreamRootNode> _parent;
 
+  bool _enabled = true;
+  string_ _name;
+  string_ _url;
+  string_ _token;
+  string_ _role;
+
   ref_<ValueNodeModel> _enabled_node;
-  ref_<ValueNodeModel> _name_on_local_node;
+  ref_<ValueNodeModel> _name_node;
   ref_<ValueNodeModel> _url_node;
-  ref_<ValueNodeModel> _name_on_remote_node;
   ref_<ValueNodeModel> _token_node;
   ref_<ValueNodeModel> _role_node;
 
@@ -48,6 +53,8 @@ class UpstreamConnectionNode : public NodeModel {
   void save_upstream() const;
   void save_extra(VarMap &map) const override;
   void load_extra(VarMap &map) override;
+
+  void connection_changed();
 };
 
 }  // namespace dsa

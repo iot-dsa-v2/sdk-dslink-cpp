@@ -26,6 +26,7 @@ namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules,
                    const shared_ptr_<App>& app)
     : _config(std::move(config)), _app(app) {
+  dsid_prefix = _config->name().get_value().get_string();
   init(std::move(modules));
 }
 DsBroker::~DsBroker() {}
