@@ -194,6 +194,14 @@ void TokenNode::destroy_impl() {
     _timer->destroy();
     _timer.reset();
   }
+  _parent.reset();
+  _token_node.reset();
+  _role_node.reset();
+  _time_range_node.reset();
+  _count_node.reset();
+  _max_session_node.reset();
+  _managed_node.reset();
+
   NodeModel::destroy_impl();
 }
 

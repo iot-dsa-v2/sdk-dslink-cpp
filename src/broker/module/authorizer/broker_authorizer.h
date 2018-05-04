@@ -30,7 +30,7 @@ class BrokerAuthorizer : public Authorizer {
                         const Path& path,
                         CheckPermissionCallback&& callback) override;
 
-  void create_nodes(NodeModel& module_node, BrokerPubRoot& pub_root);
+  void create_nodes(NodeModel& sys_node, BrokerPubRoot& pub_root);
   ref_<NodeModel> get_permission_root();
 };
 }  // namespace dsa

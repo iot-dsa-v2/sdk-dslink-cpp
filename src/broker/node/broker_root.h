@@ -15,6 +15,7 @@ class BrokerPubRoot;
 class BrokerRoot : public NodeModel {
   friend class DsBroker;
   ref_<RemoteNodeGroup> _downstream_root;
+  ref_<RemoteNodeGroup> _upstream_root;
   ref_<DsBroker> _broker;
   ref_<BrokerPubRoot> _pub;
 
@@ -25,7 +26,7 @@ class BrokerRoot : public NodeModel {
   ~BrokerRoot() override;
 
   BrokerPubRoot& get_pub() { return *_pub; }
-  NodeModel& get_module_root() { return *_sys; }
+  NodeModel& get_sys() { return *_sys; }
 
  protected:
   void destroy_impl() final;

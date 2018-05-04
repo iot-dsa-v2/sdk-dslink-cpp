@@ -9,19 +9,18 @@
 #include "module/client/broker_client_manager.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
+#include "module/module_broker_default.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "node/broker_root.h"
 #include "remote_node/broker_session_manager.h"
 #include "remote_node/remote_root_node.h"
 #include "responder/node_state_manager.h"
+#include "upstream/upstream_manager.h"
 #include "util/app.h"
 #include "util/string.h"
-#include "web_server/web_server.h"
-
-#include "module/module_broker_default.h"
-#include "node/broker_root.h"
 #include "util/temp_file.h"
+#include "web_server/web_server.h"
 
 namespace dsa {
 DsBroker::DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules,
@@ -99,11 +98,14 @@ void DsBroker::init(ref_<Module>&& default_module) {
     strand->set_session_manager(make_ref_<BrokerSessionManager>(
         strand, static_cast<NodeStateManager&>(strand->stream_acceptor())));
 
-    modules->add_module_node(broker_root->get_module_root(),
-                             broker_root->get_pub());
+    modules->add_module_node(broker_root->get_sys(), broker_root->get_pub());
+
+    _upstream = make_ref_<UpstreamManager>(strand);
+    _upstream->add_node(broker_root->get_sys(), broker_root->get_pub());
   });
 }
 void DsBroker::destroy_impl() {
+  _upstream->destroy();
   modules->destroy();
 
   if (_tcp_server != nullptr) {
