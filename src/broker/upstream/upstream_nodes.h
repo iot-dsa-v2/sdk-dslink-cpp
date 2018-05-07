@@ -12,9 +12,11 @@ namespace dsa {
 class Client;
 class UpstreamConnectionNode;
 class ValueNodeModel;
+class UpstreamManager;
 
 class UpstreamRootNode : public NodeModel {
   friend class UpstreamConnectionNode;
+  friend class UpstreamManager;
 
  protected:
   ref_<StrandStorageBucket> _storage;
@@ -26,26 +28,29 @@ class UpstreamRootNode : public NodeModel {
 };
 
 class UpstreamConnectionNode : public NodeModel {
+  friend class UpstreamRootNode;
+
   ref_<Client> _client;
   ref_<UpstreamRootNode> _parent;
 
   bool _enabled = true;
-  string_ _name;
   string_ _url;
   string_ _token;
   string_ _role;
 
   ref_<ValueNodeModel> _enabled_node;
-  ref_<ValueNodeModel> _name_node;
   ref_<ValueNodeModel> _url_node;
   ref_<ValueNodeModel> _token_node;
   ref_<ValueNodeModel> _role_node;
+  // todo add responder_path
 
  public:
   UpstreamConnectionNode(const LinkStrandRef &strand,
                          ref_<UpstreamRootNode> &&parent,
                          ref_<NodeModel> &&profile);
   ~UpstreamConnectionNode();
+
+  void update_node_values();
 
  protected:
   void destroy_impl() override;

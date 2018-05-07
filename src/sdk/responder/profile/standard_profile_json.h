@@ -131,10 +131,6 @@ static const std::string standard_profile = R"({
      "$type": "bool",
      "$writable": "config"
     },
-    "Name": {
-     "$type": "string",
-     "$writable": "config"
-    },
     "Url": {
      "$type": "string",
      "$writable": "config"

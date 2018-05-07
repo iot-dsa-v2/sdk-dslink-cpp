@@ -4,6 +4,7 @@
 
 #include "core/client.h"
 #include "module/stream_acceptor.h"
+#include "responder/invoke_node_model.h"
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
 
@@ -11,7 +12,38 @@ namespace dsa {
 
 UpstreamRootNode::UpstreamRootNode(const LinkStrandRef &strand)
     : NodeModel(strand),
-      _storage(_strand->storage().get_strand_bucket("Upstreams", _strand)) {}
+      _storage(_strand->storage().get_strand_bucket("Upstreams", _strand)) {
+  add_list_child("Add",
+                 make_ref_<SimpleInvokeNode>(
+                     _strand, [ this, keepref = get_ref() ](Var && v)->Var {
+                       if (v.is_map()) {
+                         string_ name = v["Name"].to_string();
+                         string_ url = v["Url"].to_string();
+                         string_ token = v["Token"].to_string();
+                         string_ role = v["Role"].to_string();
+                         if (name.empty() || url.empty()) {
+                           return Var(Status::INVALID_PARAMETER);
+                         }
+                         if (get_list_children().count(name) > 0) {
+                           return Var(Status::INVALID_PARAMETER,
+                                      "Name is already in use");
+                         }
+                         ref_<UpstreamConnectionNode> child =
+                             make_ref_<UpstreamConnectionNode>(
+                                 _strand, get_ref(),
+                                 _strand->stream_acceptor().get_profile(
+                                     "Broker/Upstream_Connection", true));
+                         child->_enabled = true;
+                         child->_url = url;
+                         child->_token = token;
+                         child->_role = role;
+                         add_list_child(name, child->get_ref());
+                         child->save_upstream();
+                         return Var(Status::OK);
+                       }
+                       return Var(Status::INVALID_PARAMETER);
+                     }));
+}
 
 void UpstreamRootNode::destroy_impl() {
   _storage.reset();
@@ -67,25 +99,6 @@ UpstreamConnectionNode::UpstreamConnectionNode(const LinkStrandRef &strand,
       },
       PermissionLevel::CONFIG));
   add_list_child("Enabled", _enabled_node->get_ref());
-
-  _name_node.reset(new ValueNodeModel(
-      _strand, "string",
-      [ this, keepref = get_ref() ](const Var &v)->StatusDetail {
-        if (v.is_string()) {
-          auto str = v.get_string();
-          if (PathData::invalid_name(str)) {
-            return Status::INVALID_PARAMETER;
-          }
-          if (_name != str) {
-            _name = str;
-            save_upstream();
-          }
-          return Status::DONE;
-        }
-        return Status::INVALID_PARAMETER;
-      },
-      PermissionLevel::CONFIG));
-  add_list_child("Name", _name_node->get_ref());
 
   _url_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -146,6 +159,13 @@ UpstreamConnectionNode::UpstreamConnectionNode(const LinkStrandRef &strand,
 }
 UpstreamConnectionNode::~UpstreamConnectionNode() = default;
 
+void UpstreamConnectionNode::update_node_values() {
+  _enabled_node->set_value_lite(Var(_enabled));
+  _url_node->set_value_lite(Var(_url));
+  _token_node->set_value_lite(Var(_token));
+  _role_node->set_value_lite(Var(_role));
+}
+
 void UpstreamConnectionNode::destroy_impl() {
   if (_client != nullptr) {
     _client->destroy();
@@ -154,7 +174,6 @@ void UpstreamConnectionNode::destroy_impl() {
   _parent.reset();
 
   _enabled_node.reset();
-  _name_node.reset();
   _url_node.reset();
   _token_node.reset();
   _role_node.reset();
@@ -165,8 +184,24 @@ void UpstreamConnectionNode::destroy_impl() {
 void UpstreamConnectionNode::save_upstream() const {
   save(*_parent->_storage, _state->get_path().node_name(), false, true);
 }
-void UpstreamConnectionNode::save_extra(VarMap &map) const {}
-void UpstreamConnectionNode::load_extra(VarMap &map) { connection_changed(); }
+void UpstreamConnectionNode::save_extra(VarMap &map) const {
+  map[":enabled"] = _enabled;
+  map[":url"] = _url;
+  if (!_token.empty()) {
+    map[":token"] = _token;
+  }
+  if (!_role.empty()) {
+    map[":role"] = _role;
+  }
+}
+void UpstreamConnectionNode::load_extra(VarMap &map) {
+  _enabled = map[":enabled"].to_bool();
+  _url = map[":url"].to_string();
+  _token = map[":token"].to_string();
+  _role = map[":role"].to_string();
+  update_node_values();
+  connection_changed();
+}
 
 void UpstreamConnectionNode::connection_changed() {
   if (_client != nullptr) {

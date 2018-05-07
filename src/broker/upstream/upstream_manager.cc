@@ -4,6 +4,7 @@
 
 #include "../node/pub/pub_root.h"
 #include "core/client.h"
+#include "module/stream_acceptor.h"
 #include "responder/node_state.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "upstream_nodes.h"
@@ -22,20 +23,17 @@ void UpstreamManager::add_node(NodeModel& sys_node, BrokerPubRoot& pub_root) {
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
         auto* upstream = parent->model_cast<UpstreamConnectionNode>();
-        if (upstream != nullptr) {
+        if (upstream != nullptr &&   parent->get_parent() == _upstream_root->get_state()) {
+          string_ upstream_name = parent->get_path().node_name();
+          _upstream_root->_storage->remove(upstream_name);
+          _upstream_root->remove_list_child(upstream_name);
+          stream.close();
         }
         stream.close(Status::INVALID_PARAMETER);
       });
 
   _upstream_root.reset(new UpstreamRootNode(_strand));
-  _upstream_root->add_list_child(
-      "Add", make_ref_<SimpleInvokeNode>(
-                 _strand, [ this, keepref = get_ref() ](Var && v)->Var {
-                   if (v.is_map()) {
 
-                   }
-                   return Var(Status::INVALID_PARAMETER);
-                 }));
   sys_node.add_list_child("Upstream", _upstream_root->get_ref());
 }
 }  // namespace dsa
