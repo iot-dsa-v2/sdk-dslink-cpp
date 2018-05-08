@@ -44,6 +44,9 @@ class NodeModelBase : public DestroyableRef<NodeModelBase> {
   explicit NodeModelBase(const LinkStrandRef &strand);
   virtual ~NodeModelBase();
 
+  // remove the node from parent state and destroy it
+  void remove_and_destroy();
+
   LinkStrandRef get_strand() { return _strand; }
   const ref_<NodeState> &get_state() const { return _state; };
 

@@ -79,7 +79,6 @@ class DsLink final : public DsLinkRequester {
 
   // initialization
   void parse_thread(size_t thread);
-  void parse_url(const string_ &url);
   void parse_name(const string_ &name);
   void parse_server_port(uint16_t port);
 

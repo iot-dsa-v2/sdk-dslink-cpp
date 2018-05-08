@@ -2,8 +2,12 @@
 
 #include "upstream_nodes.h"
 
+#include "../remote_node/broker_session_manager.h"
+#include "../remote_node/remote_root_node.h"
 #include "core/client.h"
+#include "module/logger.h"
 #include "module/stream_acceptor.h"
+#include "network/connection.h"
 #include "responder/invoke_node_model.h"
 #include "responder/node_state.h"
 #include "responder/value_node_model.h"
@@ -168,6 +172,10 @@ void UpstreamConnectionNode::update_node_values() {
 
 void UpstreamConnectionNode::destroy_impl() {
   if (_client != nullptr) {
+    if (_responder_node != nullptr) {
+      _responder_node->remove_and_destroy();
+      _responder_node = nullptr;
+    }
     _client->destroy();
     _client.reset();
   }
@@ -205,10 +213,41 @@ void UpstreamConnectionNode::load_extra(VarMap &map) {
 
 void UpstreamConnectionNode::connection_changed() {
   if (_client != nullptr) {
+    if (_responder_node != nullptr) {
+      _responder_node->remove_and_destroy();
+      _responder_node = nullptr;
+    }
     _client->destroy();
     _client = nullptr;
   }
   if (_enabled) {
+    WrapperStrand strand;
+    strand.strand = _strand;
+    if (strand.parse_url(_url)) {
+      strand.set_client_connection_maker();
+      _client = make_ref_<Client>(strand);
+
+      _client->connect([ this, keepref = get_ref() ](
+                           const shared_ptr_<Connection> &connection) {
+        if (is_destroyed()) {
+          return;
+        }
+        if (_responder_node == nullptr) {
+          _responder_node =
+              static_cast<BrokerSessionManager &>(_strand->session_manager())
+                  .add_responder_root(
+                      connection->get_remote_dsid(),
+                      "Upstream/" + _state->get_path().node_name(),
+                      _client->get_session());
+        }
+
+        // todo connection name
+        // todo remote dsid
+        // todo remote path
+        // todo status
+      },
+                       Client::EVERY_CONNECTION);
+    }
   }
 }
 }  // namespace dsa

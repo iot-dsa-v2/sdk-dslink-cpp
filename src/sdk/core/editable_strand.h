@@ -108,6 +108,8 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
 
   string_ get_dsid() const;
 
+  bool parse_url(const string_& url);
+
  protected:
   void destroy_impl() override {
     if (strand != nullptr) {

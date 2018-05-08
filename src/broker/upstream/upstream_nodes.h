@@ -13,6 +13,7 @@ class Client;
 class UpstreamConnectionNode;
 class ValueNodeModel;
 class UpstreamManager;
+class RemoteRootNode;
 
 class UpstreamRootNode : public NodeModel {
   friend class UpstreamConnectionNode;
@@ -32,6 +33,7 @@ class UpstreamConnectionNode : public NodeModel {
 
   ref_<Client> _client;
   ref_<UpstreamRootNode> _parent;
+  ref_<RemoteRootNode> _responder_node;
 
   bool _enabled = true;
   string_ _url;
