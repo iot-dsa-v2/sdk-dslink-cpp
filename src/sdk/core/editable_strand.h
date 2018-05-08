@@ -103,6 +103,9 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
 
   string_ client_token;
 
+  // permission role given to upstream;
+  string_ role;
+
   ClientConnectionMaker client_connection_maker;
   void set_client_connection_maker();
 

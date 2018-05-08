@@ -36,6 +36,7 @@ class UpstreamConnectionNode : public NodeModel {
   ref_<RemoteRootNode> _responder_node;
 
   bool _enabled = true;
+  string_ _connection_name;
   string_ _url;
   string_ _token;
   string_ _role;

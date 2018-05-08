@@ -21,14 +21,15 @@ UpstreamRootNode::UpstreamRootNode(const LinkStrandRef &strand)
                  make_ref_<SimpleInvokeNode>(
                      _strand, [ this, keepref = get_ref() ](Var && v)->Var {
                        if (v.is_map()) {
-                         string_ name = v["Name"].to_string();
+                         string_ node_name = v["Node_Name"].to_string();
+                         string_ conn_name = v["Connection_Name"].to_string();
                          string_ url = v["Url"].to_string();
                          string_ token = v["Token"].to_string();
                          string_ role = v["Role"].to_string();
-                         if (name.empty() || url.empty()) {
+                         if (node_name.empty() || url.empty()) {
                            return Var(Status::INVALID_PARAMETER);
                          }
-                         if (get_list_children().count(name) > 0) {
+                         if (get_list_children().count(node_name) > 0) {
                            return Var(Status::INVALID_PARAMETER,
                                       "Name is already in use");
                          }
@@ -38,10 +39,11 @@ UpstreamRootNode::UpstreamRootNode(const LinkStrandRef &strand)
                                  _strand->stream_acceptor().get_profile(
                                      "Broker/Upstream_Connection", true));
                          child->_enabled = true;
+                         child->_connection_name = conn_name;
                          child->_url = url;
                          child->_token = token;
                          child->_role = role;
-                         add_list_child(name, child->get_ref());
+                         add_list_child(node_name, child->get_ref());
                          child->save_upstream();
                          child->connection_changed();
                          return Var(Status::OK);
@@ -199,6 +201,7 @@ void UpstreamConnectionNode::save_upstream() const {
 void UpstreamConnectionNode::save_extra(VarMap &map) const {
   map[":enabled"] = _enabled;
   map[":url"] = _url;
+  map[":connection-name"] = _connection_name;
   if (!_token.empty()) {
     map[":token"] = _token;
   }
@@ -209,6 +212,7 @@ void UpstreamConnectionNode::save_extra(VarMap &map) const {
 void UpstreamConnectionNode::load_extra(VarMap &map) {
   _enabled = map[":enabled"].to_bool();
   _url = map[":url"].to_string();
+  _connection_name = map[":connection-name"].to_string();
   _token = map[":token"].to_string();
   _role = map[":role"].to_string();
   update_node_values();
@@ -229,6 +233,9 @@ void UpstreamConnectionNode::connection_changed() {
   }
   if (_enabled) {
     WrapperStrand strand;
+    strand.dsid_prefix = _connection_name;
+    strand.role = _role;
+    strand.client_token = _token;
     strand.strand = _strand;
     if (strand.parse_url(_url)) {
       strand.set_client_connection_maker();
@@ -248,7 +255,6 @@ void UpstreamConnectionNode::connection_changed() {
                       _client->get_session());
         }
 
-        // todo connection name
         // todo remote dsid
         // todo remote path
         // todo status
