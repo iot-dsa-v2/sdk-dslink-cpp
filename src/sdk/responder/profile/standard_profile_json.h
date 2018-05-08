@@ -142,6 +142,15 @@ static const std::string standard_profile = R"({
     "Role": {
      "$type": "string",
      "$writable": "config"
+    },
+    "Status": {
+     "$type": "string"
+    },
+    "Remote_Id": {
+     "$type": "string"
+    },
+    "Remote_Path": {
+     "$type": "string"
     }
    }
   }

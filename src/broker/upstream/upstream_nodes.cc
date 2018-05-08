@@ -163,6 +163,15 @@ UpstreamConnectionNode::UpstreamConnectionNode(const LinkStrandRef &strand,
       },
       PermissionLevel::CONFIG));
   add_list_child("Role", _role_node->get_ref());
+
+  _status_node.reset(new NodeModel(_strand));
+  add_list_child("Status", _status_node->get_ref());
+
+  _remote_id_node.reset(new NodeModel(_strand));
+  add_list_child("Remote_Id", _remote_id_node->get_ref());
+
+  _remote_path_node.reset(new NodeModel(_strand));
+  add_list_child("Remote_Path", _remote_path_node->get_ref());
 }
 UpstreamConnectionNode::~UpstreamConnectionNode() = default;
 
@@ -246,21 +255,33 @@ void UpstreamConnectionNode::connection_changed() {
         if (is_destroyed()) {
           return;
         }
-        if (_responder_node == nullptr) {
-          _responder_node =
-              static_cast<BrokerSessionManager &>(_strand->session_manager())
-                  .add_responder_root(
-                      connection->get_remote_dsid(),
-                      "Upstream/" + _state->get_path().node_name(),
-                      _client->get_session());
+        if (connection == nullptr) {
+          _status_node->set_value(Var("ReConnecting"));
+        } else {
+          if (_responder_node == nullptr) {
+            _responder_node =
+                static_cast<BrokerSessionManager &>(_strand->session_manager())
+                    .add_responder_root(
+                        connection->get_remote_dsid(),
+                        "Upstream/" + _state->get_path().node_name(),
+                        _client->get_session());
+
+            _remote_id_node->set_value(Var(connection->get_remote_dsid()));
+            _remote_path_node->set_value(Var(connection->get_remote_path()));
+          }
+          _status_node->set_value(Var("Connected"));
         }
 
-        // todo remote dsid
-        // todo remote path
-        // todo status
       },
                        Client::EVERY_CONNECTION);
     }
+    _status_node->set_value(Var("Connecting"));
+    _remote_id_node->set_value(Var());
+    _remote_path_node->set_value(Var());
+  } else {
+    _status_node->set_value(Var("Disconnected"));
+    _remote_id_node->set_value(Var());
+    _remote_path_node->set_value(Var());
   }
 }
 }  // namespace dsa

@@ -45,6 +45,10 @@ class UpstreamConnectionNode : public NodeModel {
   ref_<ValueNodeModel> _url_node;
   ref_<ValueNodeModel> _token_node;
   ref_<ValueNodeModel> _role_node;
+
+  ref_<NodeModel> _status_node;
+  ref_<NodeModel> _remote_id_node;
+  ref_<NodeModel> _remote_path_node;
   // todo add responder_path
 
  public:
