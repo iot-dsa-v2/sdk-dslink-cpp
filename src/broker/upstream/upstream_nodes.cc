@@ -43,6 +43,7 @@ UpstreamRootNode::UpstreamRootNode(const LinkStrandRef &strand)
                          child->_role = role;
                          add_list_child(name, child->get_ref());
                          child->save_upstream();
+                         child->connection_changed();
                          return Var(Status::OK);
                        }
                        return Var(Status::INVALID_PARAMETER);
@@ -173,7 +174,10 @@ void UpstreamConnectionNode::update_node_values() {
 void UpstreamConnectionNode::destroy_impl() {
   if (_client != nullptr) {
     if (_responder_node != nullptr) {
-      _responder_node->remove_and_destroy();
+      static_cast<BrokerSessionManager &>(_strand->session_manager())
+          .update_responder_root(
+              _responder_node->get_dsid(),
+              _responder_node->get_state()->get_path().full_str(), "");
       _responder_node = nullptr;
     }
     _client->destroy();
@@ -214,7 +218,10 @@ void UpstreamConnectionNode::load_extra(VarMap &map) {
 void UpstreamConnectionNode::connection_changed() {
   if (_client != nullptr) {
     if (_responder_node != nullptr) {
-      _responder_node->remove_and_destroy();
+      static_cast<BrokerSessionManager &>(_strand->session_manager())
+          .update_responder_root(
+              _responder_node->get_dsid(),
+              _responder_node->get_state()->get_path().full_str(), "");
       _responder_node = nullptr;
     }
     _client->destroy();

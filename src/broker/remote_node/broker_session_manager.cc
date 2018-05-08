@@ -129,7 +129,7 @@ ref_<RemoteRootNode> BrokerSessionManager::add_responder_root(
     parent_state->model_cast<NodeModel>()->add_list_child(path.node_name(),
                                                           new_root->get_ref());
   }
-  new_root->set_override_meta("$$dsid", Var(dsid));
+  new_root->set_dsid(dsid);
 
   LOG_TRACE(__FILENAME__,
             LOG << "responder node added:" << responder_path << " : " << dsid);

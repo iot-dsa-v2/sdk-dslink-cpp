@@ -31,13 +31,6 @@ void NodeModelBase::destroy_impl() {
   _state.reset();
 }
 
-void NodeModelBase::remove_and_destroy() {
-  if (_state != nullptr) {
-    _state->set_model(nullptr);
-  }
-  destroy();
-}
-
 ModelRef NodeModelBase::get_child(const string_ &name) {
   auto child_state = _state->get_child(name, false);
   if (child_state != nullptr) {
