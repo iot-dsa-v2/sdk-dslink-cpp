@@ -54,6 +54,9 @@ void BrokerSessionManager::get_session_sync(
 void BrokerSessionManager::update_responder_root(const string_ &dsid,
                                                  const string_ &old_path,
                                                  const string_ &new_path) {
+  if (is_destroyed()) {
+    return;
+  }
   // remove old node
   if (!old_path.empty()) {
     Path path(old_path);
@@ -62,9 +65,8 @@ void BrokerSessionManager::update_responder_root(const string_ &dsid,
       auto *parent_model = state->get_parent()->model_cast<NodeModel>();
       if (parent_model != nullptr) {
         parent_model->remove_list_child(state->get_path().node_name());
-        LOG_TRACE(
-            __FILENAME__,
-            LOG << "responder node removed:" << old_path << " : " << dsid);
+        LOG_TRACE(__FILENAME__, LOG << "responder node removed:" << old_path
+                                    << " : " << dsid);
       }
     }
   }
@@ -76,9 +78,8 @@ void BrokerSessionManager::update_responder_root(const string_ &dsid,
           add_responder_root(dsid, new_path, *search->second->_single_session);
       if (rslt != nullptr) {
         search->second->_info.responder_path = new_path;
-        LOG_TRACE(
-            __FILENAME__,
-            LOG << "responder node updated:" << new_path << " : " << dsid);
+        LOG_TRACE(__FILENAME__, LOG << "responder node updated:" << new_path
+                                    << " : " << dsid);
       }
     }
   }

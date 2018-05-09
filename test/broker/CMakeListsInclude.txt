@@ -6,6 +6,7 @@ set(BROKER_TEST_SOURCES
     broker/sys/stop-test.cc
     broker/sys/token-test.cc
     broker/sys/permission-test.cc
+    broker/sys/upstream-test.cc
     sdk/async_test.cc
 )
 
