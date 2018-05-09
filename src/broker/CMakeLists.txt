@@ -30,8 +30,9 @@ set(SOURCES
         remote_node/set_proxy.cc
         remote_node/dynamic_children_parent.cc
         remote_node/remote_node_group.cc
+        upstream/upstream_manager.cc
+        upstream/upstream_nodes.cc
         node/broker_root.cc
-        node/upstream/upstream_root.cc
         node/home/home_root.cc
         node/sys/sys_root.cc
         node/pub/pub_root.cc

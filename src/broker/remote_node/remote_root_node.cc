@@ -16,6 +16,11 @@ RemoteRootNode::~RemoteRootNode() = default;
 //
 //}
 
+void RemoteRootNode::set_dsid(const string_ &str) {
+  _dsid = str;
+  set_override_meta("$$dsid", Var(str));
+}
+
 VarBytesRef RemoteRootNode::get_summary() {
   // an empty map, default summary for all remote root node
   static static_ref_<VarBytes> default_summary(new VarBytes(

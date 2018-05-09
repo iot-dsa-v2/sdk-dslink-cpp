@@ -84,6 +84,7 @@ class PermissionRuleNode : public NodeModel {
 
  protected:
   StatusDetail on_set_value(MessageValue &&value) override;
+  void destroy_impl() override;
 };
 
 }  // namespace dsa

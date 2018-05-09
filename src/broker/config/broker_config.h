@@ -32,6 +32,7 @@ class BrokerConfig : public EnableRef<BrokerConfig> {
 
  public:
   BrokerConfig(int argc, const char* argv[]);
+  BrokerConfigItem& name() { return _items["name"]; }
   BrokerConfigItem& thread() { return _items["thread"]; }
   BrokerConfigItem& host() { return _items["host"]; }
   BrokerConfigItem& port() { return _items["port"]; }

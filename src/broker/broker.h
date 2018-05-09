@@ -17,6 +17,7 @@ class WebServer;
 class Client;
 class BrokerConfig;
 class ModuleLoader;
+class UpstreamManager;
 
 class DsBroker final : public WrapperStrand {
   friend class SubscribeMerger;
@@ -25,6 +26,7 @@ class DsBroker final : public WrapperStrand {
  private:
   string_ _master_token;
   ref_<Module> modules;
+  ref_<UpstreamManager> _upstream;
 
  public:
   DsBroker(ref_<BrokerConfig>&& config,

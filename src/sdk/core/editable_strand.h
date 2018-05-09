@@ -103,10 +103,15 @@ class WrapperStrand : public DestroyableRef<WrapperStrand> {
 
   string_ client_token;
 
+  // permission role given to upstream;
+  string_ role;
+
   ClientConnectionMaker client_connection_maker;
   void set_client_connection_maker();
 
   string_ get_dsid() const;
+
+  bool parse_url(const string_& url);
 
  protected:
   void destroy_impl() override {

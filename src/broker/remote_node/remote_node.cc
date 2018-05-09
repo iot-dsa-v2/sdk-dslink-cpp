@@ -46,7 +46,7 @@ void RemoteNode::destroy_impl() {
     it.first->destroy();
   }
   _set_streams.clear();
-
+  _remote_session.reset();
   NodeModelBase::destroy_impl();
 }
 
@@ -54,9 +54,10 @@ void RemoteNode::on_subscribe(const SubscribeOptions &options,
                               bool first_request) {
   if (first_request) {
     _remote_subscribe_stream = _remote_session->requester.subscribe(
-        _remote_path, [ this, keep_ref = get_ref() ](
-                          IncomingSubscribeStream &,
-                          ref_<const SubscribeResponseMessage> && msg) {
+        _remote_path,
+        [ this, keep_ref = get_ref() ](
+            IncomingSubscribeStream &,
+            ref_<const SubscribeResponseMessage> && msg) {
           set_subscribe_response(std::move(msg));
         },
         options);
@@ -141,4 +142,4 @@ void RemoteNode::remove_set(RemoteSetProxy *set_proxy) {
     _set_streams.erase(search);
   }
 }
-}
+}  // namespace dsa

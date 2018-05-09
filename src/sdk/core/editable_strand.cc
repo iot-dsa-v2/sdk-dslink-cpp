@@ -2,6 +2,7 @@
 
 #include "editable_strand.h"
 
+#include <regex>
 #include "module/authorizer.h"
 #include "module/client_manager.h"
 #include "module/default/console_logger.h"
@@ -158,5 +159,44 @@ void WrapperStrand::set_client_connection_maker() {
     return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                              tcp_port);
   };
+}
+
+bool WrapperStrand::parse_url(const string_& url) {
+  static std::regex url_regex(
+      R"(^(ds://|dss://|ws://|wss://)?([^/:\[]+|\[[0-9A-Fa-f:]+\])(:\d+)?(/.*)?$)");
+
+  auto match = std::sregex_iterator(url.begin(), url.end(), url_regex);
+  if (match == std::sregex_iterator()) {  // match is a empty iterator
+    return false;
+  }
+  string_ protocol = (*match)[1].str();
+
+  if (protocol == "ws://" || protocol == "wss://") {
+    if (protocol == "wss://") {
+      secure = true;
+      ws_port = 443;  // default wss port
+    } else {
+      ws_port = 80;  // default ws port
+    }
+    ws_host = (*match)[2].str();
+    if ((*match)[3].length() > 1) {
+      ws_port = static_cast<uint16_t>(
+          std::stoi(string_((*match)[3].first + 1, (*match)[3].second)));
+    }
+    ws_path = (*match)[4].str();
+  } else {
+    if (protocol == "dss://") {
+      secure = true;
+      tcp_port = 4128;  // default dss port
+    } else {            // "ds://" or blank
+      tcp_port = 4120;  // default ds port
+    }
+    tcp_host = (*match)[2].str();
+    if ((*match)[3].length() > 1) {
+      tcp_port = static_cast<uint16_t>(
+          std::stoi(string_((*match)[3].first + 1, (*match)[3].second)));
+    }
+  }
+  return true;
 }
 }  // namespace dsa

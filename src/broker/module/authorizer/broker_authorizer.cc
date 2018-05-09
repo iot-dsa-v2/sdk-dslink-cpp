@@ -42,7 +42,7 @@ void BrokerAuthorizer::check_permission(const string_& id, const string_& role,
   });
 }
 
-void BrokerAuthorizer::create_nodes(NodeModel& module_node,
+void BrokerAuthorizer::create_nodes(NodeModel& sys_node,
                                     BrokerPubRoot& pub_root) {
   pub_root.register_standard_profile_function(
       "Broker/Permission_Role/Add_Rule",

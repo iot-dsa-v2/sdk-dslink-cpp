@@ -160,6 +160,8 @@ ref_<PermissionRoleNode> &PermissionRoleNode::get_fallback_role() {
 void PermissionRoleNode::destroy_impl() {
   _parent.reset();
   _fallback_name_node.reset();
+  _fallback_role_cache.reset();
+
   NodeModel::destroy_impl();
 }
 StatusDetail PermissionRoleNode::on_set_value(MessageValue &&value) {
@@ -239,6 +241,10 @@ PermissionRuleNode::PermissionRuleNode(const LinkStrandRef &strand,
                                        ref_<NodeModel> &&profile)
     : NodeModel(strand, std::move(profile)), _role(std::move(role)) {}
 
+void PermissionRuleNode::destroy_impl() {
+  _role.reset();
+  NodeModel::destroy_impl();
+}
 StatusDetail PermissionRuleNode::on_set_value(MessageValue &&value) {
   if (value.value.is_string()) {
     auto level = PermissionName::parse(value.value.get_string());

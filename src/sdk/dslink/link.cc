@@ -8,7 +8,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <fstream>
-#include <regex>
 
 #include "core/client.h"
 #include "crypto/ecdh.h"
@@ -104,7 +103,10 @@ DsLink::DsLink(int argc, const char *argv[], const string_ &link_name,
   // Master token from file
   master_token = get_master_token_from_storage(Storage::get_config_bucket());
 
-  parse_url(variables["broker"].as<string_>());
+  if (!parse_url(variables["broker"].as<string_>())) {
+    LOG_FATAL(__FILENAME__, LOG << "Invalid Broker Url: "
+                                << variables["broker"].as<string_>());
+  }
   parse_name(variables["name"].as<string_>());
 
   // Adapted from parse_logger
@@ -209,44 +211,6 @@ void DsLink::parse_thread(size_t thread) {
     Message::decode_all = true;
   }
   _app.reset(new App(thread));
-}
-
-void DsLink::parse_url(const string_ &url) {
-  static std::regex url_regex(
-      R"(^(ds://|dss://|ws://|wss://)?([^/:\[]+|\[[0-9A-Fa-f:]+\])(:\d+)?(/.*)?$)");
-
-  auto match = std::sregex_iterator(url.begin(), url.end(), url_regex);
-  if (match == std::sregex_iterator()) {  // match is a empty iterator
-    LOG_FATAL(__FILENAME__, LOG << "Invalid Broker Url: " << url);
-  }
-  string_ protocol = (*match)[1].str();
-
-  if (protocol == "ws://" || protocol == "wss://") {
-    if (protocol == "wss://") {
-      secure = true;
-      ws_port = 443;  // default wss port
-    } else {
-      ws_port = 80;  // default ws port
-    }
-    ws_host = (*match)[2].str();
-    if ((*match)[3].length() > 1) {
-      ws_port = static_cast<uint16_t>(
-          std::stoi(string_((*match)[3].first + 1, (*match)[3].second)));
-    }
-    ws_path = (*match)[4].str();
-  } else {
-    if (protocol == "dss://") {
-      secure = true;
-      tcp_port = 4128;  // default dss port
-    } else {            // "ds://" or blank
-      tcp_port = 4120;  // default ds port
-    }
-    tcp_host = (*match)[2].str();
-    if ((*match)[3].length() > 1) {
-      tcp_port = static_cast<uint16_t>(
-          std::stoi(string_((*match)[3].first + 1, (*match)[3].second)));
-    }
-  }
 }
 
 void DsLink::parse_name(const string_ &name) { dsid_prefix = name; }

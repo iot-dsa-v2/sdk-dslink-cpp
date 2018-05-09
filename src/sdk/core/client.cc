@@ -13,7 +13,8 @@ Client::Client(WrapperStrand &config)
       _shared_strand(share_strand_(_strand)),
       _client_token(config.client_token),
       _session(make_ref_<Session>(
-          config.strand, config.strand->ecdh().get_dsid(config.dsid_prefix), "")),
+          config.strand, config.strand->ecdh().get_dsid(config.dsid_prefix),
+          config.role)),
       _client_connection_maker(config.client_connection_maker),
       _reconnect_timer() {
   _session->client_token = config.client_token;
