@@ -134,6 +134,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   uint16_t https_port = 8443;
   web_server->secure_listen(https_port);
 
+#if 0
   WebServer::WsCallback *root_cb = new WebServer::WsCallback();
   *root_cb = [this](
       WebServer &web_server, std::unique_ptr<Websocket> &&websocket,
@@ -144,6 +145,7 @@ std::shared_ptr<WebServer> TestConfig::create_webserver() {
   };
 
   web_server->add_ws_handler("/", std::move(*root_cb));
+#endif
 
   return web_server;
 }

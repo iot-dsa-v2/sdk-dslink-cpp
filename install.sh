@@ -12,7 +12,7 @@ if [ ! -f deps/jansson/CMakeLists.txt ]; then
 	git clone https://github.com/akheron/jansson.git deps/jansson
 fi
  
-cmake -GNinja . -DBOOST_ROOT=/usr/local -DBoost_USE_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=. -B./build
+cmake -GNinja . -DBOOST_ROOT=/home/akiyoshi/usr/local -DBoost_USE_STATIC_LIBS=ON -DDSA_INCLUDE_TEST=ON -DCMAKE_INSTALL_PREFIX=. -B./build
 cd build
 # make
 ninja install

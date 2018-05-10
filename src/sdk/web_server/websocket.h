@@ -37,6 +37,7 @@ class Websocket {
   bool is_secure_stream() { return _is_secure_stream; }
   bool is_websocket() { return _is_websocket; }
   void set_websocket() { _is_websocket = true; }
+  bool is_server() { return _is_websocket; }
   tcp::socket& socket() { return _socket; }
   websocket_stream& stream() { return *_ws_stream; }
   websocket_ssl_stream& secure_stream() { return *_wss_stream; }
@@ -62,8 +63,6 @@ class Websocket {
       _ws_stream->lowest_layer().shutdown(std::forward<Args>(args)...);
     }
   }
-
-  void destroy_impl();
 };
 }  // namespace dsa
 

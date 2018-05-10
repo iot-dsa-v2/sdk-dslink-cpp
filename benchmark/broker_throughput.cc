@@ -147,7 +147,7 @@ int main(int argc, const char* argv[]) {
   int num_message = variables["num-message"].as<int>();
   Message::decode_all = variables["decode-value"].as<bool>();
 
-  auto app = std::make_shared<App>(8);
+  auto app = std::make_shared<App>(2);
 
   std::vector<shared_ptr_<Client>> clients;
   std::vector<ref_<EditableStrand>> strands;

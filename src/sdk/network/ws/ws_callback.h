@@ -35,7 +35,8 @@ class DsaWsCallback {
         make_shared_<WsServerConnection>(std::move(websocket), _shared_strand);
     std::dynamic_pointer_cast<WsConnection>(connection)->accept();
 
-    return connection;
+    // return connection;
+    return std::move(connection);
   }
 };
 }  // namespace dsa

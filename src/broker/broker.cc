@@ -11,7 +11,6 @@
 #include "module/logger.h"
 #include "module/module_broker_default.h"
 #include "network/tcp/tcp_server.h"
-#include "network/ws/ws_callback.h"
 #include "node/broker_root.h"
 #include "remote_node/broker_session_manager.h"
 #include "remote_node/remote_root_node.h"
@@ -147,6 +146,8 @@ void DsBroker::run(bool wait) {
         static_cast<uint16_t>(_config->https_port().get_value().get_int());
     _web_server->secure_listen(https_port);
     _web_server->start();
+
+#if AK
     WebServer::WsCallback* root_cb = new WebServer::WsCallback();
 
     *root_cb =
@@ -159,6 +160,7 @@ void DsBroker::run(bool wait) {
         };
 
     _web_server->add_ws_handler("/", std::move(*root_cb));
+#endif
   });
 
   if (_own_app && wait) {

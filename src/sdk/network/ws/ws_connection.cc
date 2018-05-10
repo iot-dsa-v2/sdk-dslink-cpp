@@ -15,10 +15,26 @@ WsConnection::WsConnection(const SharedLinkStrandRef &strand,
 
 void WsConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
+
+  auto on_close = [sthis =
+                       shared_from_this()](const boost::system::error_code ec) {
+    LOG_ERROR(__FILENAME__, LOG << "websocket close error: " << ec.message());
+    if (ec) {
+      LOG_DEBUG(__FILENAME__, LOG << "websocket close error: " << ec.message());
+    }
+  };
+
+  Websocket &websocket = ws_stream();
   if (_socket_open.exchange(false)) {
-    ws_stream().destroy_impl();
+    if (websocket.is_secure_stream()) {
+      websocket.secure_stream().async_close(websocket::close_code::normal,
+                                            on_close);
+    }
+  } else {
+    websocket.stream().async_close(websocket::close_code::normal, on_close);
   }
-  Connection::destroy_impl();
+}
+Connection::destroy_impl();
 }
 
 void WsConnection::start_read(shared_ptr_<Connection> &&connection) {
@@ -65,8 +81,9 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                     int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
-    LOG_FATAL(__FILENAME__, LOG << "message is bigger than max buffer size: "
-                                << MAX_BUFFER_SIZE);
+    LOG_FATAL(
+        __FILENAME__,
+        LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
   }
 
   while (total_size > connection._write_buffer.size()) {

@@ -25,6 +25,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
     endif()
 endif()
 
+
 #set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 if (NOT SDK_PROJECT_SOURCE_DIR)
     set(SDK_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
@@ -32,7 +33,8 @@ if (NOT SDK_PROJECT_SOURCE_DIR)
     set(SDK_PROJECT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 endif ()
 
-
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fstack-protector-all -g")
+# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 option(DSA_INCLUDE_BROKER "build dsa broker" ON)
 
 option(DSA_INCLUDE_MODULE_PACK "Include set additional modules" OFF)
@@ -53,7 +55,8 @@ if (MACOSX)
     set(OPENSSL_INCLUDE_DIR "/usr/local/Cellar/openssl/1.0.2n/include")
     set(OPENSSL_LIBRARIES "/usr/local/Cellar/openssl/1.0.2n/lib")
 elseif (UNIX)
-    set(OPENSSL_ROOT_DIR "/usr/local/ssl")
+    #set(OPENSSL_ROOT_DIR "/usr/local/ssl")
+    set(OPENSSL_ROOT_DIR "/home/akiyoshi/usr/local/lib")
 endif ()
 find_package(OpenSSL REQUIRED)
 
