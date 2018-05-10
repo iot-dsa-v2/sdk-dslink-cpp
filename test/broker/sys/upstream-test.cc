@@ -64,7 +64,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
             "Sys/Upstream/Add",
             Var({{"Node_Name", Var("up1")},
                  {"Connection_Name", Var("down1")},
-                 {"Url", Var(string_("localhost:") + std::to_string(port))}})));
+                 {"Url", Var(string_("127.0.0.1:") + std::to_string(port))}})));
 
   });
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return upstream_added; });
