@@ -131,54 +131,58 @@ TEST_F(BrokerSysTest, PermissionTest) {
   });
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return client_2_connected; });
-  
+
   bool action_read_done = false;
   bool action_write_done = false;
   bool action_config_done = false;
   bool list_valid_done = false;
   bool list_invalid_done = false;
-  client_2->get_session().requester.invoke(
-      CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
-          IncomingInvokeStream & stream,
-          ref_<const InvokeResponseMessage> && msg) {
-        EXPECT_EQ(msg->get_status(), Status::DONE);
-        action_read_done = true;
-      },
-      make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Read", Var()));
+  client_2->get_strand().post([&]() {
+    client_2->get_session().requester.invoke(
+        CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
+            IncomingInvokeStream & stream,
+            ref_<const InvokeResponseMessage> && msg) {
+          EXPECT_EQ(msg->get_status(), Status::DONE);
+          action_read_done = true;
+        },
+        make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Read", Var()));
 
-  client_2->get_session().requester.invoke(
-      CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
-          IncomingInvokeStream & stream,
-          ref_<const InvokeResponseMessage> && msg) {
-        EXPECT_EQ(msg->get_status(), Status::DONE);
-        action_write_done = true;
-      },
-      make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Write", Var()));
+    client_2->get_session().requester.invoke(
+        CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
+            IncomingInvokeStream & stream,
+            ref_<const InvokeResponseMessage> && msg) {
+          EXPECT_EQ(msg->get_status(), Status::DONE);
+          action_write_done = true;
+        },
+        make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Write",
+                                        Var()));
 
-  client_2->get_session().requester.invoke(
-      CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
-          IncomingInvokeStream & stream,
-          ref_<const InvokeResponseMessage> && msg) {
-        EXPECT_EQ(msg->get_status(), Status::PERMISSION_DENIED);
-        action_config_done = true;
-      },
-      make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Config", Var()));
+    client_2->get_session().requester.invoke(
+        CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
+            IncomingInvokeStream & stream,
+            ref_<const InvokeResponseMessage> && msg) {
+          EXPECT_EQ(msg->get_status(), Status::PERMISSION_DENIED);
+          action_config_done = true;
+        },
+        make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Config",
+                                        Var()));
 
-  client_2->get_session().requester.list(
-      "Downstream/Test1",
-      CAST_LAMBDA(IncomingListStreamCallback)[&](
-          IncomingListStream&, ref_<const ListResponseMessage> && msg) {
-        EXPECT_EQ(msg->get_status(), Status::OK);
-        list_valid_done = true;
-      });
+    client_2->get_session().requester.list(
+        "Downstream/Test1",
+        CAST_LAMBDA(IncomingListStreamCallback)[&](
+            IncomingListStream&, ref_<const ListResponseMessage> && msg) {
+          EXPECT_EQ(msg->get_status(), Status::OK);
+          list_valid_done = true;
+        });
 
-  client_2->get_session().requester.list(
-      "Downstream",
-      CAST_LAMBDA(IncomingListStreamCallback)[&](
-          IncomingListStream&, ref_<const ListResponseMessage> && msg) {
-        EXPECT_EQ(msg->get_status(), Status::PERMISSION_DENIED);
-        list_invalid_done = true;
-      });
+    client_2->get_session().requester.list(
+        "Downstream",
+        CAST_LAMBDA(IncomingListStreamCallback)[&](
+            IncomingListStream&, ref_<const ListResponseMessage> && msg) {
+          EXPECT_EQ(msg->get_status(), Status::PERMISSION_DENIED);
+          list_invalid_done = true;
+        });
+  });
 
   WAIT_EXPECT_TRUE(1000, [&]() -> bool {
     return action_read_done && action_write_done && action_config_done &&
