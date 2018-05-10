@@ -33,8 +33,6 @@ if (NOT SDK_PROJECT_SOURCE_DIR)
     set(SDK_PROJECT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 endif ()
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fstack-protector-all -g")
-# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 option(DSA_INCLUDE_BROKER "build dsa broker" ON)
 
 option(DSA_INCLUDE_MODULE_PACK "Include set additional modules" OFF)
