@@ -29,9 +29,9 @@ void WsConnection::destroy_impl() {
     if (websocket.is_secure_stream()) {
       websocket.secure_stream().async_close(websocket::close_code::normal,
                                             on_close);
+    } else {
+      websocket.stream().async_close(websocket::close_code::normal, on_close);
     }
-  } else {
-    websocket.stream().async_close(websocket::close_code::normal, on_close);
   }
 }
 Connection::destroy_impl();
