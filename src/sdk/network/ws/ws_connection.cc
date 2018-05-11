@@ -18,7 +18,6 @@ void WsConnection::destroy_impl() {
 
   auto on_close = [sthis =
                        shared_from_this()](const boost::system::error_code ec) {
-    LOG_ERROR(__FILENAME__, LOG << "websocket close error: " << ec.message());
     if (ec) {
       LOG_DEBUG(__FILENAME__, LOG << "websocket close error: " << ec.message());
     }
@@ -33,8 +32,7 @@ void WsConnection::destroy_impl() {
       websocket.stream().async_close(websocket::close_code::normal, on_close);
     }
   }
-}
-Connection::destroy_impl();
+  Connection::destroy_impl();
 }
 
 void WsConnection::start_read(shared_ptr_<Connection> &&connection) {

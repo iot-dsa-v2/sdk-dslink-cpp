@@ -32,7 +32,7 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   boost::asio::ssl::context _ssl_context;
 
  public:
-  WebServer(App& app);
+  WebServer(App& app, const LinkStrandRef& strand);
   ~WebServer();
 
   void listen(uint16_t port = 80);

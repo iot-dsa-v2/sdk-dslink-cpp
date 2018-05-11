@@ -58,17 +58,15 @@ void HttpConnection::accept() {
               //          _web_server.ws_handler(_req.target().to_string())(
 
               _websocket->set_websocket();
-#if 0
-              _connection = _web_server.ws_handler("/")(
-                  _web_server, std::move(_websocket),
-                  std::move(_req));
-	      ///-----
 
-#endif
+              _connection = make_shared_<WsServerConnection>(
+                  std::move(_websocket), _web_server.get_shared_strand());
+              std::dynamic_pointer_cast<WsConnection>(_connection)->accept();
+
               return;
             });  // async_accept
           } else {
-	      // TODO: http code
+            // TODO: http code
             return;
           }
         });  // async_read
@@ -124,8 +122,11 @@ void HttpConnection::accept() {
                         //          _web_server.ws_handler(_req.target().to_string())(
                         _websocket->set_websocket();
 
-                        _connection = make_shared_<WsServerConnection>(std::move(_websocket), _web_server.get_shared_strand());
-			std::dynamic_pointer_cast<WsConnection>(_connection)->accept();
+                        _connection = make_shared_<WsServerConnection>(
+                            std::move(_websocket),
+                            _web_server.get_shared_strand());
+                        std::dynamic_pointer_cast<WsConnection>(_connection)
+                            ->accept();
 
                         return;
                       });  // async_accept

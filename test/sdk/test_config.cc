@@ -128,7 +128,7 @@ std::shared_ptr<TcpServer> TestConfig::create_server() {
 }
 
 std::shared_ptr<WebServer> TestConfig::create_webserver() {
-  shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
+  shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app, strand);
   uint16_t http_port = 8080;
   web_server->listen(http_port);
   uint16_t https_port = 8443;

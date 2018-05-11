@@ -135,10 +135,9 @@ void DsBroker::run(bool wait) {
   }
 
   // start web server
-
   strand->dispatch([this]() {
     // start web_server
-    _web_server = std::make_shared<WebServer>(*_app);
+    _web_server = std::make_shared<WebServer>(*_app, strand);
     uint16_t http_port =
         static_cast<uint16_t>(_config->http_port().get_value().get_int());
     _web_server->listen(http_port);
@@ -146,21 +145,6 @@ void DsBroker::run(bool wait) {
         static_cast<uint16_t>(_config->https_port().get_value().get_int());
     _web_server->secure_listen(https_port);
     _web_server->start();
-
-#if AK
-    WebServer::WsCallback* root_cb = new WebServer::WsCallback();
-
-    *root_cb =
-        [this](
-            WebServer& _web_server, std::unique_ptr<Websocket> websocket,
-            http::request<boost::beast::http::string_body>&& req) {
-          DsaWsCallback dsa_ws_callback(strand);
-          return dsa_ws_callback(_web_server.io_service(), std::move(websocket),
-                                 std::move(req));
-        };
-
-    _web_server->add_ws_handler("/", std::move(*root_cb));
-#endif
   });
 
   if (_own_app && wait) {
