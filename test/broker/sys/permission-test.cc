@@ -38,7 +38,7 @@ class MockNodeRoot : public NodeModel {
 using BrokerSysTest = SetUpBase;
 
 TEST_F(BrokerSysTest, PermissionTest) {
-  // Storage::get_config_bucket().remove_all();
+  Storage::get_config_bucket().remove_all();
 
   // First Create Broker
   auto broker = create_broker();

@@ -22,7 +22,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
 
   // First Create Broker
   auto broker = create_broker();
-  shared_ptr_<App>& app = broker->get_app();
+  shared_ptr_<App> &app = broker->get_app();
   broker->run(false);
   ASYNC_EXPECT_TRUE(1000, *broker->strand,
                     [&]() { return broker->get_active_server_port() != 0; });
@@ -44,7 +44,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
   auto root_node = make_ref_<NodeModel>(client_strand1.strand);
   auto child_node =
       make_ref_<ValueNodeModel>(client_strand1.strand, "string",
-                                [](const Var&) { return StatusDetail(); });
+                                [](const Var &) { return StatusDetail(); });
   child_node->set_value(Var("hello"));
   root_node->add_list_child("Value", std::move(child_node));
   client_strand1.strand->set_responder_model(ModelRef(root_node.get()));
@@ -70,39 +70,46 @@ TEST_F(BrokerSysTest, UpstreamTest) {
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return upstream_added; });
 
   string_ upstream_status = "";
-  client_1->get_session().requester.subscribe(
-      "Sys/Upstream/up1/Status",
-      CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
-          IncomingSubscribeStream&,
-          ref_<const SubscribeResponseMessage> && msg) {
-        EXPECT_TRUE(msg->get_status() == Status::OK);
-        upstream_status = msg->get_value().value.to_string();
-      });
+  client_strand1.strand->dispatch([&]() {
+    client_1->get_session().requester.subscribe(
+        "Sys/Upstream/up1/Status",
+        CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
+            IncomingSubscribeStream &,
+            ref_<const SubscribeResponseMessage> && msg) {
+          EXPECT_TRUE(msg->get_status() == Status::OK);
+          upstream_status = msg->get_value().value.to_string();
+        });
+  });
+
   WAIT_EXPECT_TRUE(1000,
                    [&]() -> bool { return upstream_status == "Connected"; });
 
   bool value_upstream_checked = false;
-  client_1->get_session().requester.subscribe(
-      "Upstream/up1/Downstream/Test1/Value",
-      CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
-          IncomingSubscribeStream&,
-          ref_<const SubscribeResponseMessage> && msg) {
-        EXPECT_TRUE(msg->get_status() == Status::OK);
-        EXPECT_EQ(msg->get_value().value.to_string(), "hello");
-        value_upstream_checked = true;
-      });
+  client_strand1.strand->dispatch([&]() {
+    client_1->get_session().requester.subscribe(
+        "Upstream/up1/Downstream/Test1/Value",
+        CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
+            IncomingSubscribeStream &,
+            ref_<const SubscribeResponseMessage> && msg) {
+          EXPECT_TRUE(msg->get_status() == Status::OK);
+          EXPECT_EQ(msg->get_value().value.to_string(), "hello");
+          value_upstream_checked = true;
+        });
+  });
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return value_upstream_checked; });
 
   bool value_downstream_checked = false;
-  client_1->get_session().requester.subscribe(
-      "Downstream/down1/Downstream/Test1/Value",
-      CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
-          IncomingSubscribeStream&,
-          ref_<const SubscribeResponseMessage> && msg) {
-        EXPECT_TRUE(msg->get_status() == Status::OK);
-        EXPECT_EQ(msg->get_value().value.to_string(), "hello");
-        value_downstream_checked = true;
-      });
+  client_strand1.strand->dispatch([&]() {
+    client_1->get_session().requester.subscribe(
+        "Downstream/down1/Downstream/Test1/Value",
+        CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
+            IncomingSubscribeStream &,
+            ref_<const SubscribeResponseMessage> && msg) {
+          EXPECT_TRUE(msg->get_status() == Status::OK);
+          EXPECT_EQ(msg->get_value().value.to_string(), "hello");
+          value_downstream_checked = true;
+        });
+  });
   WAIT_EXPECT_TRUE(1000, [&]() -> bool { return value_downstream_checked; });
 
   client_strand1.strand->post([&]() {

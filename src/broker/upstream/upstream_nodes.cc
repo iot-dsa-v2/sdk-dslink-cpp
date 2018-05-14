@@ -184,7 +184,7 @@ void UpstreamConnectionNode::update_node_values() {
 
 void UpstreamConnectionNode::destroy_impl() {
   if (_client != nullptr) {
-    if (_responder_node != nullptr) {
+    if (_responder_node != nullptr && !_responder_node->is_destroyed()) {
       static_cast<BrokerSessionManager &>(_strand->session_manager())
           .update_responder_root(
               _responder_node->get_dsid(),
@@ -230,7 +230,7 @@ void UpstreamConnectionNode::load_extra(VarMap &map) {
 
 void UpstreamConnectionNode::connection_changed() {
   if (_client != nullptr) {
-    if (_responder_node != nullptr) {
+    if (_responder_node != nullptr && !_responder_node->is_destroyed()) {
       static_cast<BrokerSessionManager &>(_strand->session_manager())
           .update_responder_root(
               _responder_node->get_dsid(),
