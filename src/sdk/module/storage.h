@@ -26,22 +26,6 @@ enum class BucketReadStatus : uint8_t {
   READ_FAILED = 0x02,
   FILE_OPEN_ERROR = 0x03
 };
-/// key->binary storage
-class QueueBucket {
- public:
-  typedef std::function<void(const string_& key, std::vector<uint8_t> data,
-                             bool key_finished)>
-      ReadCallback;
-
-  virtual void push_back(const string_& key, BytesRef&& data) = 0;
-  // when count = 0, remove all elements in the queue
-  virtual void remove_front(const string_& key, size_t count) = 0;
-
-  virtual void read_all(ReadCallback&& callback,
-                        std::function<void()>&& on_done) = 0;
-
-  virtual void remove_all() = 0;
-};
 
 /// key->binary storage
 class StorageBucket {
@@ -115,11 +99,6 @@ class Storage : public DestroyableRef<Storage> {
 
   ref_<StrandStorageBucket> get_strand_bucket(const string_& name,
                                               const LinkStrandRef& strand);
-
-  virtual bool queue_supported() { return false; }
-  /// create a bucket or find a existing bucket
-  virtual std::unique_ptr<QueueBucket> get_queue_bucket(
-      const string_& name) = 0;
 
   virtual ~Storage() = default;
   void destroy_impl() override{};

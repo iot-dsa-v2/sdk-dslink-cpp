@@ -24,17 +24,7 @@ const string_ path_to_utf8_str(const boost::filesystem::path& path);
 fs::path utf8_str_to_path(const string_& str);
 
 static constexpr char storage_default[] = "storage";
-class SimpleQueueBucket : public QueueBucket {
- public:
-  void push_back(const string_& key, BytesRef&& data) override;
-  // when count = 0, remove all elements in the queue
-  void remove_front(const string_& key, size_t count) override;
 
-  void read_all(ReadCallback&& callback,
-                std::function<void()>&& on_done) override;
-
-  void remove_all() override;
-};
 struct ReadCbTrack {
   int num_needed;  // how many is done now
   std::mutex read_mutex;
@@ -100,9 +90,6 @@ class SimpleStorage : public Storage {
 
   shared_ptr_<SharedStorageBucket> get_shared_bucket(
       const string_& name) override;
-
-  /// create a bucket or find a existing bucket
-  std::unique_ptr<QueueBucket> get_queue_bucket(const string_& name) override;
 
   void set_io_service(boost::asio::io_service* io_service) {
     _io_service = io_service;

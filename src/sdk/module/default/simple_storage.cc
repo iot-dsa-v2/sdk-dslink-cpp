@@ -43,12 +43,6 @@ shared_ptr_<SharedStorageBucket> SimpleStorage::get_shared_bucket(
   return std::move(new_bucket);
 }
 
-/// create a bucket or find a existing bucket
-std::unique_ptr<QueueBucket> SimpleStorage::get_queue_bucket(
-    const string_& name) {
-  return std::unique_ptr<QueueBucket>(new SimpleQueueBucket());
-}
-
 void SimpleStorage::destroy_impl() {
   for (auto&& bucket : _bucket_list) {
     bucket->destroy_bucket();
