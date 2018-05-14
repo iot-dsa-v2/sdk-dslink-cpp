@@ -114,7 +114,7 @@ TEST_F(DslinkTest, CloseTest) {
   shared_ptr<App> app = make_shared<App>();
 
   // first create .master_token
-  string_ master_token = generate_random_string(32);
+  string_ master_token = generate_random_string(48);
   SimpleSafeStorageBucket storage_bucket("config", nullptr, "");
   string_to_storage(master_token, default_master_token_path, storage_bucket);
 

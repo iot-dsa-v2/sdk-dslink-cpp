@@ -258,21 +258,17 @@ TEST_F(DslinkTest, TCPServerPortParam) {
   end_link(std::move(link));
 }
 
-TEST_F(DslinkTest, TokenFile) {
-  string_ token("IAmATokenPleaseBelieveME!!!");
-  string_ token_file_name("my_test_token.txt");
+TEST_F(DslinkTest, TokenParameter) {
+  string_ token("abcdefghijklmnopqrstuvwxyz7890123456789012345678");
 
   // First create token file
-  SimpleSafeStorageBucket storage_bucket("config", nullptr,"");
-  string_to_storage(token, token_file_name, storage_bucket);
 
-  const char *argv[] = {"./test", "--token", token_file_name.c_str()};
+  const char *argv[] = {"./test", "--token", token.c_str()};
   int argc = 3;
   auto link = create_test_dslink(argc, argv);
 
   EXPECT_EQ(link.get()->client_token, token);
   end_link(std::move(link));
-  storage_bucket.remove(token_file_name);
 }
 
 TEST_F(DslinkTest, GeneralParam) {
