@@ -7,7 +7,6 @@
 
 #include "crypto/misc.h"
 #include "http_connection.h"
-#include "http_request.h"
 #include "network/connection.h"
 #include "web_server.h"
 
@@ -33,12 +32,11 @@ HttpConnection::HttpConnection(WebServer& web_server, bool is_secured)
 
 void HttpConnection::accept() {
   if (!_is_secured) {
-    reset_parser();
     _websocket = std::make_unique<Websocket>(std::move(_socket));
 
     // Read a request
     boost::beast::http::async_read(
-        _websocket->stream().next_layer(), _buffer, *_parser,
+        _websocket->stream().next_layer(), _buffer, _req,
         // TODO: run within the strand?
         [ this, sthis = shared_from_this() ](
             const boost::system::error_code& error, size_t bytes_transferred) {
@@ -50,8 +48,8 @@ void HttpConnection::accept() {
             // TODO: send error response
           }
 
-          if (_parser->upgrade()) {
-            _websocket->stream().async_accept(_parser->get(), [
+          if (websocket::is_upgrade(_req)) {
+            _websocket->stream().async_accept(_req, [
               this, sthis = sthis
             ](const boost::system::error_code& error) {
 
@@ -72,14 +70,11 @@ void HttpConnection::accept() {
               _websocket->set_websocket();
               _connection = _web_server.ws_handler("/")(
                   _web_server, std::move(_websocket),
-                  std::move(_parser->get()));
+                  std::move(_req));
               return;
             });  // async_accept
           } else {
-            auto _target = _parser->get().target().to_string();
-            _req = std::make_shared<HttpRequest>(
-                _web_server, std::move(_socket), std::move(_parser->get()));
-            _web_server.http_handler(_target)(_web_server, std::move(*_req));
+	      // TODO: http code
             return;
           }
         });  // async_read
@@ -93,9 +88,8 @@ void HttpConnection::accept() {
                                       const boost::system::error_code& error) {
           // Read a request
           //	  std::lock_guard<std::mutex> lock(_mutex);
-          reset_parser();
           boost::beast::http::async_read(
-              _websocket->secure_stream().next_layer(), _buffer, *_parser,
+              _websocket->secure_stream().next_layer(), _buffer, _req,
 
               // TODO: run within the strand?
               [ this, sthis = sthis ](const boost::system::error_code& error,
@@ -110,14 +104,14 @@ void HttpConnection::accept() {
                       // TODO: send error response
                     }
 
-                    if (_parser->upgrade()) {
+                    if (websocket::is_upgrade(_req)) {
                       // call corresponding server's callback
                       //          TODO - temporary fix for issue on Windowns
                       //          platform
                       //          _connection =
                       //          _web_server.ws_handler(_req.target().to_string())(
 
-                      _websocket->secure_stream().async_accept(_parser->get(), [
+                      _websocket->secure_stream().async_accept(_req, [
                         this, sthis = sthis
                       ](const boost::system::error_code& error) {
 
@@ -138,17 +132,12 @@ void HttpConnection::accept() {
                         _websocket->set_websocket();
                         _connection = _web_server.ws_handler("/")(
                             _web_server, std::move(_websocket),
-                            std::move(_parser->get()));
+                            std::move(_req));
                         return;
                       });  // async_accept
                       return;
                     } else {
-                      auto _target = _parser->get().target().to_string();
-                      _req = std::make_shared<HttpRequest>(
-                          _web_server, std::move(_socket),
-                          std::move(_parser->get()));
-                      _web_server.http_handler(_target)(_web_server,
-                                                        std::move(*_req));
+                      // TODO: http code
                       return;
                     }
                   });  // async_read
@@ -158,15 +147,9 @@ void HttpConnection::accept() {
   }          // else
 }
 
-void HttpConnection::reset_parser() {
-  _parser.emplace(std::piecewise_construct, std::make_tuple(),
-                  std::make_tuple(_alloc));
-}
-
 void HttpConnection::destroy() {
   if (_connection != nullptr) {
     _connection->destroy();
   }
-  _alloc.pool_.destroy();
 }
 }  // namespace dsa
