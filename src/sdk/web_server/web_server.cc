@@ -4,14 +4,17 @@
 
 #include "util/app.h"
 #include "util/certificate.h"
+#include "module/default/simple_session_manager.h"
+#include "module/default/simple_security.h"
 
 #include <iostream>
 
 namespace dsa {
 
-WebServer::WebServer(App& app)
+WebServer::WebServer(App& app, const LinkStrandRef& strand)
     : _io_service(app.io_service()),
-      _ssl_context{boost::asio::ssl::context::sslv23} {
+      _ssl_context{boost::asio::ssl::context::sslv23},
+      _shared_strand(share_strand_(strand)) {
   try {
     _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
                              boost::asio::ssl::context::no_sslv2);
@@ -21,7 +24,7 @@ WebServer::WebServer(App& app)
         });
 
     boost::system::error_code error_code;
-    if (load_server_certificate(_ssl_context, error_code)) {
+    if (!load_server_certificate(_ssl_context, error_code)) {
       return;
     }
   } catch (boost::system::system_error& e) {
@@ -49,71 +52,12 @@ void WebServer::start() {
   }
 }
 
-void WebServer::add_ws_handler(const string_& path, WsCallback&& callback) {
-  if (!_ws_callback_map.count(path)) {
-    _ws_callback_map.insert(WsCallbackPair(path, std::move(callback)));
-  }
-  // TODO: report error/warning otherwise
-}
-
-WebServer::WsCallback& WebServer::ws_handler(const string_& path) {
-  if (_ws_callback_map.count(path)) {
-    return _ws_callback_map.at(path);
-  }
-
-  // TODO - construct a proper http response
-  uint16_t error_code = 404;
-  static WebServer::WsCallback error_callback = [error_code](
-      WebServer& web_server, std::unique_ptr<Websocket>&&,
-      http::request<request_body_t, http::basic_fields<alloc_t>>&& req) {
-
-    ErrorCallback error_callback_detail(error_code);
-    // TODO: WSS_TBD
-    //    error_callback_detail(web_server, websocket, std::move(req));
-
-    return nullptr;
-  };
-
-  return error_callback;
-}
-
-void WebServer::add_http_handler(const string_& path, HttpCallback&& callback) {
-  if (!_http_callback_map.count(path)) {
-    _http_callback_map.insert(HttpCallbackPair(path, std::move(callback)));
-  }
-  // TODO: report error/warning otherwise
-}
-
-WebServer::HttpCallback& WebServer::http_handler(const string_& path) {
-  if (_http_callback_map.count(path)) {
-    return _http_callback_map.at(path);
-  }
-
-  uint16_t error_code = 404;
-  static WebServer::HttpCallback error_callback = [error_code](
-      WebServer& web_server, HttpRequest&& req) {
-
-    ErrorCallback error_callback_detail(error_code);
-    // TODO: WSS_TBD
-    //    error_callback_detail(web_server, websocket, std::move(req));
-
-    return nullptr;
-  };
-
-  return error_callback;
-}
-
 void WebServer::destroy() {
   if (_listener != nullptr) {
     _listener->destroy();
   }
   if (_secure_listener != nullptr) {
     _secure_listener->destroy();
-  }
-  // TODO - hard coded for now
-  if (_ws_callback_map.count("/")) {
-    delete &_ws_callback_map.at("/");
-    _ws_callback_map.erase("/");
   }
 }
 

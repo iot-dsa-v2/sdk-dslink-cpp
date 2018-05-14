@@ -128,22 +128,11 @@ std::shared_ptr<TcpServer> TestConfig::create_server() {
 }
 
 std::shared_ptr<WebServer> TestConfig::create_webserver() {
-  shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app);
+  shared_ptr_<WebServer> web_server = std::make_shared<WebServer>(*app, strand);
   uint16_t http_port = 8080;
   web_server->listen(http_port);
   uint16_t https_port = 8443;
   web_server->secure_listen(https_port);
-
-  WebServer::WsCallback *root_cb = new WebServer::WsCallback();
-  *root_cb = [this](
-      WebServer &web_server, std::unique_ptr<Websocket> &&websocket,
-      http::request<request_body_t, http::basic_fields<alloc_t>> &&req) {
-    DsaWsCallback dsa_ws_callback(strand);
-    return dsa_ws_callback(web_server.io_service(), std::move(websocket),
-                           std::move(req));
-  };
-
-  web_server->add_ws_handler("/", std::move(*root_cb));
 
   return web_server;
 }
