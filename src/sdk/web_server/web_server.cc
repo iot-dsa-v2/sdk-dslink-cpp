@@ -31,7 +31,6 @@ WebServer::WebServer(App& app, const LinkStrandRef& strand)
     LOG_ERROR(__FILENAME__, LOG << "SSL context setup error: " << e.what());
     return;
   }
-  // shared strand
 }
 
 void WebServer::listen(uint16_t port) {
