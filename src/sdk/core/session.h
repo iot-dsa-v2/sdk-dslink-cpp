@@ -38,10 +38,18 @@ struct AckHolder {
       : ack(ack), callback(std::move(callback)){};
 };
 
-class Session;
+class StreamManager : public DestroyableRef<StreamManager> {
+ public:
+  virtual void write_stream(ref_<MessageStream> &&stream) = 0;
+  // this stream must be handled first
+  virtual void write_critical_stream(ref_<MessageStream> &&stream) = 0;
+
+  virtual bool destroy_resp_stream(int32_t rid) = 0;
+  virtual bool destroy_req_stream(int32_t rid) = 0;
+};
 
 // maintain request and response streams
-class Session final : public DestroyableRef<Session> {
+class Session final : public StreamManager {
   friend class Connection;
 
   friend class MessageStream;
@@ -122,9 +130,9 @@ class Session final : public DestroyableRef<Session> {
 
   void destroy_impl() final;
 
-  void write_stream(ref_<MessageStream> &&stream);
+  void write_stream(ref_<MessageStream> &&stream) final;
   // this stream must be handled first
-  void write_critical_stream(ref_<MessageStream> &&stream);
+  void write_critical_stream(ref_<MessageStream> &&stream) final;
 
  private:
   string_ _base_path;
@@ -133,8 +141,8 @@ class Session final : public DestroyableRef<Session> {
   // used by broker to forward the pub path
   string_ map_pub_path(const string_ &path);
 
-  bool destroy_resp_stream(int32_t rid);
-  bool destroy_req_stream(int32_t rid);
+  virtual bool destroy_resp_stream(int32_t rid);
+  virtual bool destroy_req_stream(int32_t rid);
 
  protected:  // responder
   std::unordered_map<int32_t, ref_<MessageStream>> _outgoing_streams;

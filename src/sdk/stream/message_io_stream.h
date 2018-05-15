@@ -20,13 +20,13 @@
   _callback_running = false;
 
 namespace dsa {
-
 class Session;
+class StreamManager;
 class OutgoingPages;
 
 class MessageRefedStream : public MessageStream {
  protected:
-  ref_<Session> _session;
+  ref_<StreamManager> _session;
   bool _closed = false;
 
   void destroy_impl() override;
@@ -35,7 +35,7 @@ class MessageRefedStream : public MessageStream {
   const Path path;
   bool is_closed() const { return _closed; }
 
-  explicit MessageRefedStream(ref_<Session> &&session, const Path &path,
+  explicit MessageRefedStream(ref_<StreamManager> &&session, const Path &path,
                               uint32_t rid = 0);
 
   void send_message();
@@ -113,6 +113,6 @@ class MessageQueueStream : public MessageRefedStream {
   size_t peek_next_message_size(size_t available, int64_t time) override;
   MessageCRef get_next_message(AckCallback &callback) override;
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_SDK_MESSAGE_IO_STREAM_H

@@ -15,7 +15,7 @@ static inline int32_t GET_REMAIN_SIZE(const ref_<const Message> &msg) {
   return msg->size();
 }
 
-MessageRefedStream::MessageRefedStream(ref_<Session> &&session,
+MessageRefedStream::MessageRefedStream(ref_<StreamManager> &&session,
                                        const Path &path, uint32_t rid)
     : MessageStream(rid), path(path), _session(std::move(session)){};
 MessageRefedStream::~MessageRefedStream() = default;
