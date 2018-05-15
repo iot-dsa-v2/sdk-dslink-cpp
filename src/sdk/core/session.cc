@@ -42,8 +42,6 @@ Session::Session(const LinkStrandRef &strand, const string_ &dsid,
       _remote_id(dsid),
       _role(role),
       _log_id(_create_log_id(_remote_id, this)),
-      requester(*this),
-      responder(*this),
       _timer(_strand->add_timer(0, nullptr)),
       _ack_stream(new AckStream(get_ref())),
       _ping_stream(new PingStream(get_ref())) {}
@@ -74,7 +72,10 @@ void Session::connected(shared_ptr_<Connection> connection) {
       _log_id = _create_log_id(_remote_id, this);
     }
 
-    requester.connected();
+    for (auto it = _incoming_streams.begin(); it != _incoming_streams.end();
+         ++it) {
+      it->second->reconnected();
+    }
 
     // TODO, what if previous write loop is not finished
     write_loop(get_ref());
@@ -100,8 +101,8 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
   if (_connection.get() == connection.get()) {
     _connection.reset();
     _timer->destroy();
-    requester.disconnected();
-    responder.disconnected();
+    requester_disconnected();
+    responder_disconnected();
   }
   if (_on_connect != nullptr && _connection == nullptr) {
     // disconnect event
@@ -110,8 +111,16 @@ void Session::disconnected(const shared_ptr_<Connection> &connection) {
 }
 
 void Session::destroy_impl() {
-  requester.destroy_impl();
-  responder.destroy_impl();
+  for (auto &it : _incoming_streams) {
+    it.second->destroy();
+  }
+  _incoming_streams.clear();
+
+  for (auto &it : _outgoing_streams) {
+    it.second->destroy();
+  }
+  _outgoing_streams.clear();
+
   if (_connection != nullptr) {
     _connection->destroy_in_strand(_connection);
     _connection.reset();
@@ -178,10 +187,10 @@ void Session::receive_message(MessageRef &&message) {
   }
   if (message->is_request()) {
     // responder receive request and send response
-    responder.receive_message(std::move(message));
+    receive_resp_message(std::move(message));
   } else {
     // requester send request and receive response
-    requester.receive_message(std::move(message));
+    receive_req_message(std::move(message));
   }
 }
 

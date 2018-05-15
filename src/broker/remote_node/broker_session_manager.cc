@@ -9,6 +9,7 @@
 #include "remote_node_group.h"
 #include "remote_root_node.h"
 #include "responder/node_model.h"
+#include "responder/node_state_manager.h"
 
 namespace dsa {
 

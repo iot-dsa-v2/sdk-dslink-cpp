@@ -63,7 +63,7 @@ TEST_F(BrokerPageTest, InvokeRequest) {
     invoke_req->set_target_path("Downstream/Test/Action");
     invoke_req->set_value(Var(big_str1));
 
-    tcp_client->get_session().requester.invoke(
+    tcp_client->get_session().invoke(
         [&](IncomingInvokeStream&, ref_<const InvokeResponseMessage>&& msg) {
           string_ request_str = MockNodeRoot::last_request.to_string();
 

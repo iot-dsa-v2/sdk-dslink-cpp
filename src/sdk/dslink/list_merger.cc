@@ -83,7 +83,7 @@ ref_<IncomingListCache> ListMerger::list(IncomingListCache::Callback&& callback,
   _caches.emplace(cache);
 
   if (_stream == nullptr) {
-    _stream = _link->_client->get_session().requester.list(
+    _stream = _link->_client->get_session().list(
         _path,
         CAST_LAMBDA(IncomingListStreamCallback)[this, copy_ref = get_ref()](
             IncomingListStream & stream,

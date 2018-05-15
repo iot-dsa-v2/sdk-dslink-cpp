@@ -11,5 +11,6 @@
 #include "stream/responder/outgoing_list_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
+#include "module/stream_acceptor.h"
 
 #endif  // DSA_STREAM_H_

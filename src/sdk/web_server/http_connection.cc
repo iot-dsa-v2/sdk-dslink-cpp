@@ -59,9 +59,14 @@ void HttpConnection::accept() {
 
               _websocket->set_websocket();
 
-              _connection = make_shared_<WsServerConnection>(
-                  std::move(_websocket), _web_server.get_shared_strand());
-              std::dynamic_pointer_cast<WsConnection>(_connection)->accept();
+              if (_req.target().to_string() == "/ws") {
+
+              } else {
+                _connection = make_shared_<WsServerConnection>(
+                    std::move(_websocket), _web_server.get_shared_strand());
+                std::dynamic_pointer_cast<WsConnection>(_connection)->accept();
+              }
+
 
               return;
             });  // async_accept

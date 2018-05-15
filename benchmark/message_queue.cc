@@ -71,7 +71,7 @@ int main(int argc, const char *argv[]) {
   wait_for_bool(500, *client_strand.strand,
                 [&]() { return client->get_session().is_connected(); });
 
-  client->get_session().requester.subscribe(
+  client->get_session().subscribe(
       "",
       [&](IncomingSubscribeStream &stream,
           ref_<const SubscribeResponseMessage> &&msg) {

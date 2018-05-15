@@ -6,6 +6,7 @@
 #include "link.h"
 #include "module/logger.h"
 #include "stream/requester/incoming_subscribe_stream.h"
+#include "message/response/subscribe_response_message.h"
 
 namespace dsa {
 IncomingSubscribeCache::IncomingSubscribeCache(){};
@@ -67,7 +68,7 @@ ref_<IncomingSubscribeCache> SubscribeMerger::subscribe(
 
   if (_stream == nullptr) {
     _merged_subscribe_options = options;
-    _stream = _link->_client->get_session().requester.subscribe(
+    _stream = _link->_client->get_session().subscribe(
         _path, [ this, copy_ref = get_ref() ](
                    IncomingSubscribeStream & stream,
                    ref_<const SubscribeResponseMessage> && msg) {

@@ -83,7 +83,7 @@ void OutgoingSetStream::close(Status status, const string_ &err_detail) {
 bool OutgoingSetStream::check_close_message(MessageCRef &message) {
   if (DOWN_CAST<const ResponseMessage *>(message.get())->get_status() >=
       Status::DONE) {
-    _session->responder.destroy_stream(rid);
+    _session->destroy_resp_stream(rid);
     return true;
   }
   return false;

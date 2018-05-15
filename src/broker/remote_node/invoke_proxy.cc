@@ -6,7 +6,6 @@
 #include "message/request/invoke_request_message.h"
 #include "message/response/invoke_response_message.h"
 #include "remote_node.h"
-#include "requester/requester.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 
@@ -31,7 +30,7 @@ RemoteInvokeProxy::RemoteInvokeProxy(ref_<OutgoingInvokeStream>&& stream,
       if (stream1.allowed_permission < PermissionLevel::CONFIG) {
         req_msg->set_max_permission(stream1.allowed_permission);
       }
-      _in_stream = _node->_remote_session->requester.invoke(
+      _in_stream = _node->_remote_session->invoke(
           CAST_LAMBDA(IncomingInvokeStreamCallback)[this, keep_ref = get_ref()](
               IncomingInvokeStream & in_stream,
               ref_<const InvokeResponseMessage> && resp_msg) {

@@ -83,7 +83,7 @@ void OutgoingInvokeStream::close(Status status,
 bool OutgoingInvokeStream::check_close_message(MessageCRef &message) {
   if (DOWN_CAST<const ResponseMessage *>(message.get())->get_status() >=
       Status::DONE) {
-    _session->responder.destroy_stream(rid);
+    _session->destroy_resp_stream(rid);
     return true;
   }
   return false;

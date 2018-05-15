@@ -1,8 +1,7 @@
 #include "dsa_common.h"
 
-#include "requester.h"
-
 #include "core/session.h"
+
 #include "message/request/invoke_request_message.h"
 #include "message/request/set_request_message.h"
 #include "stream/requester/incoming_invoke_stream.h"
@@ -12,23 +11,9 @@
 
 namespace dsa {
 
-Requester::Requester(Session &session) : _session(session) {}
-Requester::~Requester() {}
 
-void Requester::destroy_impl() {
-  for (auto &it : _incoming_streams) {
-    it.second->destroy();
-  }
-  _incoming_streams.clear();
-}
-void Requester::connected() {
-  for (auto it = _incoming_streams.begin(); it != _incoming_streams.end();
-       ++it) {
-    it->second->reconnected();
-  }
-}
 
-void Requester::disconnected() {
+void Session::requester_disconnected() {
   for (auto it = _incoming_streams.begin(); it != _incoming_streams.end();) {
     if (it->second->disconnected()) {
       it = _incoming_streams.erase(it);
@@ -39,7 +24,7 @@ void Requester::disconnected() {
   }
 }
 
-int32_t Requester::next_rid() {
+int32_t Session::next_rid() {
   while (_incoming_streams.find(++_next_rid) != _incoming_streams.end()) {
     // find next available get_rid;
   }
@@ -49,7 +34,7 @@ int32_t Requester::next_rid() {
   return _next_rid;
 }
 
-void Requester::receive_message(MessageRef &&message) {
+void Session::receive_req_message(MessageRef &&message) {
   auto search = _incoming_streams.find(message->get_rid());
   if (search != _incoming_streams.end()) {
     auto &stream = search->second;
@@ -64,12 +49,12 @@ void Requester::receive_message(MessageRef &&message) {
     }
   }
 }
-ref_<IncomingSubscribeStream> Requester::subscribe(
+ref_<IncomingSubscribeStream> Session::subscribe(
     const string_ &path, IncomingSubscribeStreamCallback &&callback,
     const SubscribeOptions &options) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingSubscribeStream>(
-      _session.get_ref(), Path(path), rid, std::move(callback));
+      get_ref(), Path(path), rid, std::move(callback));
   _incoming_streams[rid] = stream;
 
   stream->subscribe(options);
@@ -77,11 +62,11 @@ ref_<IncomingSubscribeStream> Requester::subscribe(
   return stream;
 }
 
-ref_<IncomingListStream> Requester::list(const string_ &path,
+ref_<IncomingListStream> Session::list(const string_ &path,
                                          IncomingListStreamCallback &&callback,
                                          const ListOptions &options) {
   int32_t rid = next_rid();
-  auto stream = make_ref_<IncomingListStream>(_session.get_ref(), Path(path),
+  auto stream = make_ref_<IncomingListStream>(get_ref(), Path(path),
                                               rid, std::move(callback));
   _incoming_streams[rid] = stream;
 
@@ -90,12 +75,12 @@ ref_<IncomingListStream> Requester::list(const string_ &path,
   return stream;
 }
 
-ref_<IncomingInvokeStream> Requester::invoke(
+ref_<IncomingInvokeStream> Session::invoke(
     IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
   int32_t rid = next_rid();
   auto stream = make_ref_<IncomingInvokeStream>(
-      _session.get_ref(), Path(message->get_target_path()), rid,
+      get_ref(), Path(message->get_target_path()), rid,
       std::move(callback));
   _incoming_streams[rid] = stream;
 
@@ -104,11 +89,11 @@ ref_<IncomingInvokeStream> Requester::invoke(
   return stream;
 }
 
-ref_<IncomingSetStream> Requester::set(
+ref_<IncomingSetStream> Session::set(
     IncomingSetStreamCallback &&callback,
     ref_<const SetRequestMessage> &&message) {
   int32_t rid = next_rid();
-  auto stream = make_ref_<IncomingSetStream>(_session.get_ref(),
+  auto stream = make_ref_<IncomingSetStream>(get_ref(),
                                              Path(message->get_target_path()),
                                              rid, std::move(callback));
   _incoming_streams[rid] = stream;
@@ -118,7 +103,7 @@ ref_<IncomingSetStream> Requester::set(
   return stream;
 }
 
-bool Requester::remove_stream(int32_t rid) {
+bool Session::destroy_req_stream(int32_t rid) {
   auto search = _incoming_streams.find(rid);
   if (search != _incoming_streams.end()) {
     auto &stream = search->second;

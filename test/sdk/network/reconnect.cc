@@ -121,7 +121,7 @@ TEST_F(NetworkTest, ReConnect) {
 
   // subscribe on root node value
   ref_<const SubscribeResponseMessage> last_subscribe_response;
-  auto subscribe_stream = client->get_session().requester.subscribe(
+  auto subscribe_stream = client->get_session().subscribe(
       "", [&](IncomingSubscribeStream &stream,
               ref_<const SubscribeResponseMessage> &&msg) {
         last_subscribe_response = std::move(msg);  // store response
@@ -129,7 +129,7 @@ TEST_F(NetworkTest, ReConnect) {
 
   // list on root node
   ref_<const ListResponseMessage> last_list_response;
-  client->get_session().requester.list(
+  client->get_session().list(
       "",
       [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
         last_list_response = msg;

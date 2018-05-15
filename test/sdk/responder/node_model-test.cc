@@ -99,7 +99,7 @@ TEST_F(ResponderTest, ModelAddChild) {
   initial_options.queue_size = 0x5678;
 
   // test invalid path scenario
-  auto subscribe_stream = tcp_client->get_session().requester.subscribe(
+  auto subscribe_stream = tcp_client->get_session().subscribe(
       "Child_a", [&](IncomingSubscribeStream &stream,
                      ref_<const SubscribeResponseMessage> &&msg) { ; },
       initial_options);
@@ -204,7 +204,7 @@ TEST_F(ResponderTest, ModelSetValue) {
   root_node->set_value(MessageValue(Var(0)));
 
   int subs_resp = 0;
-  auto subscribe_stream = tcp_client->get_session().requester.subscribe(
+  auto subscribe_stream = tcp_client->get_session().subscribe(
       "",
       [&](IncomingSubscribeStream &stream,
           ref_<const SubscribeResponseMessage> &&msg) {

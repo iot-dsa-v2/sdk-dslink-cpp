@@ -324,7 +324,7 @@ ref_<IncomingListCache> DsLink::list(const string_ &path,
 ref_<IncomingInvokeStream> DsLink::invoke(
     IncomingInvokeStreamCallback &&callback,
     ref_<const InvokeRequestMessage> &&message) {
-  return _client->get_session().requester.invoke(
+  return _client->get_session().invoke(
       CAST_LAMBDA(IncomingInvokeStreamCallback)([
         user_callback = std::move(callback),
         paged_cache = ref_<IncomingPageCache<InvokeResponseMessage>>()
@@ -345,7 +345,7 @@ ref_<IncomingInvokeStream> DsLink::invoke(
 
 ref_<IncomingSetStream> DsLink::set(IncomingSetStreamCallback &&callback,
                                     ref_<const SetRequestMessage> &&message) {
-  return _client->get_session().requester.set(std::move(callback),
+  return _client->get_session().set(std::move(callback),
                                               std::move(message));
 }
 string_ DsLink::get_master_token() { return master_token; }

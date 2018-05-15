@@ -1,8 +1,7 @@
 #include "dsa_common.h"
 
-#include "responder.h"
-
 #include "core/session.h"
+
 #include "message/request/invoke_request_message.h"
 #include "message/request/list_request_message.h"
 #include "message/request/set_request_message.h"
@@ -13,19 +12,11 @@
 #include "stream/responder/outgoing_set_stream.h"
 #include "stream/responder/outgoing_subscribe_stream.h"
 #include "stream/simple_stream.h"
+#include "node_state_manager.h"
 
 namespace dsa {
 
-Responder::Responder(Session &session) : _session(session) {}
-
-void Responder::destroy_impl() {
-  for (auto &it : _outgoing_streams) {
-    it.second->destroy();
-  }
-  _outgoing_streams.clear();
-}
-
-void Responder::disconnected() {
+void Session::responder_disconnected() {
   for (auto it = _outgoing_streams.begin(); it != _outgoing_streams.end();
        ++it) {
     it->second->disconnected();
@@ -33,35 +24,35 @@ void Responder::disconnected() {
   _outgoing_streams.clear();
 }
 
-inline ref_<OutgoingSubscribeStream> Responder::on_subscribe_request(
+inline ref_<OutgoingSubscribeStream> Session::on_subscribe_request(
     ref_<SubscribeRequestMessage> &&message) {
   return make_ref_<OutgoingSubscribeStream>(
-      _session.get_ref(), message->get_target_path(), message->get_rid(),
+      get_ref(), message->get_target_path(), message->get_rid(),
       message->get_subscribe_options());
 }
 
-inline ref_<OutgoingListStream> Responder::on_list_request(
+inline ref_<OutgoingListStream> Session::on_list_request(
     ref_<ListRequestMessage> &&message) {
   return make_ref_<OutgoingListStream>(
-      _session.get_ref(), message->get_target_path(), message->get_rid(),
+      get_ref(), message->get_target_path(), message->get_rid(),
       message->get_list_options());
 }
 
-inline ref_<OutgoingInvokeStream> Responder::on_invoke_request(
+inline ref_<OutgoingInvokeStream> Session::on_invoke_request(
     ref_<InvokeRequestMessage> &&message) {
   return make_ref_<OutgoingInvokeStream>(
-      _session.get_ref(), message->get_target_path(), message->get_rid(),
+      get_ref(), message->get_target_path(), message->get_rid(),
       std::move(message));
 }
 
-inline ref_<OutgoingSetStream> Responder::on_set_request(
+inline ref_<OutgoingSetStream> Session::on_set_request(
     ref_<SetRequestMessage> &&message) {
-  return make_ref_<OutgoingSetStream>(_session.get_ref(),
+  return make_ref_<OutgoingSetStream>(get_ref(),
                                       message->get_target_path(),
                                       message->get_rid(), std::move(message));
 }
 
-void Responder::receive_message(ref_<Message> &&message) {
+void Session::receive_resp_message(ref_<Message> &&message) {
   auto find_stream = _outgoing_streams.find(message->get_rid());
   if (find_stream != _outgoing_streams.end()) {
     if (message->type() == MessageType::CLOSE_REQUEST) {
@@ -80,7 +71,7 @@ void Responder::receive_message(ref_<Message> &&message) {
   if (request->get_target_path().is_invalid()) {
     MessageType response_type = Message::get_response_type(request->type());
     if (response_type != MessageType::INVALID) {
-      _session.write_stream(make_ref_<SimpleStream>(
+      write_stream(make_ref_<SimpleStream>(
           request->get_rid(), response_type, Status::INVALID_MESSAGE));
     }
     return;
@@ -111,7 +102,7 @@ void Responder::receive_message(ref_<Message> &&message) {
           stream->send_response(std::move(response));
           return;
         } else {
-          _session._strand->stream_acceptor().add(std::move(stream));
+          _strand->stream_acceptor().add(std::move(stream));
         }
       };
       _outgoing_streams[stream->rid] = std::move(stream);
@@ -132,7 +123,7 @@ void Responder::receive_message(ref_<Message> &&message) {
           stream->send_subscribe_response(std::move(response));
           return;
         } else {
-          _session._strand->stream_acceptor().add(std::move(stream));
+          _strand->stream_acceptor().add(std::move(stream));
         }
       };
       _outgoing_streams[stream->rid] = std::move(stream);
@@ -151,7 +142,7 @@ void Responder::receive_message(ref_<Message> &&message) {
           stream->update_response_status(Status::PERMISSION_DENIED);
           return;
         } else {
-          _session._strand->stream_acceptor().add(std::move(stream));
+          _strand->stream_acceptor().add(std::move(stream));
         }
       };
       _outgoing_streams[stream->rid] = std::move(stream);
@@ -169,7 +160,7 @@ void Responder::receive_message(ref_<Message> &&message) {
           stream->close(Status::PERMISSION_DENIED);
           return;
         } else {
-          _session._strand->stream_acceptor().add(std::move(stream));
+          _strand->stream_acceptor().add(std::move(stream));
         }
       };
       _outgoing_streams[stream->rid] = std::move(stream);
@@ -180,12 +171,12 @@ void Responder::receive_message(ref_<Message> &&message) {
       return;
   }
 
-  _session._strand->authorizer().check_permission(
-      _session.get_remote_id(), _session._role, request->get_permission_token(),
+  _strand->authorizer().check_permission(
+      get_remote_id(), _role, request->get_permission_token(),
       request->type(), request->get_target_path(), std::move(callback));
 }
 
-bool Responder::destroy_stream(int32_t rid) {
+bool Session::destroy_resp_stream(int32_t rid) {
   auto search = _outgoing_streams.find(rid);
   if (search != _outgoing_streams.end()) {
     auto &stream = search->second;

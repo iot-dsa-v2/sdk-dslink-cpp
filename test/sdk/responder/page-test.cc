@@ -67,7 +67,7 @@ TEST_F(ResponderTest, PagedInvokeRequest) {
 
   ref_<const InvokeResponseMessage> last_response;
 
-  auto invoke_stream = tcp_client->get_session().requester.invoke(
+  auto invoke_stream = tcp_client->get_session().invoke(
       [&](IncomingInvokeStream &stream,
           ref_<const InvokeResponseMessage> &&msg) {
         last_response = std::move(msg);
@@ -156,7 +156,7 @@ TEST_F(ResponderTest, PagedInvokeResponse) {
   ref_<const InvokeResponseMessage> first_response;
   ref_<const InvokeResponseMessage> last_response;
 
-  auto invoke_stream = tcp_client->get_session().requester.invoke(
+  auto invoke_stream = tcp_client->get_session().invoke(
       [&](IncomingInvokeStream &stream,
           ref_<const InvokeResponseMessage> &&msg) {
         // cache the first response and last response
@@ -239,7 +239,7 @@ TEST_F(ResponderTest, PagedSubscribeResponse) {
   ref_<const SubscribeResponseMessage> first_response;
   ref_<const SubscribeResponseMessage> last_response;
 
-  auto subscribe_stream = tcp_client->get_session().requester.subscribe(
+  auto subscribe_stream = tcp_client->get_session().subscribe(
       "", [&](IncomingSubscribeStream &stream,
               ref_<const SubscribeResponseMessage> &&msg) {
         if (first_response == nullptr) {
@@ -322,7 +322,7 @@ TEST_F(ResponderTest, PagedSetRequest) {
 
   ref_<const SetResponseMessage> last_response;
 
-  auto set_stream = tcp_client->get_session().requester.set(
+  auto set_stream = tcp_client->get_session().set(
       [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&message) {
         last_response = std::move(message);
       },

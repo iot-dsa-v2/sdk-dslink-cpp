@@ -1,6 +1,7 @@
 #include "dsa/message.h"
 #include "dsa/network.h"
 #include "dsa/stream.h"
+#include "dsa/responder.h"
 
 #include <chrono>
 
@@ -63,7 +64,7 @@ TEST_F(ResponderTest, QosQueueSizeTest) {
 
   ref_<const SubscribeResponseMessage> last_response;
   size_t msg_count = 0;
-  auto subscribe_stream = tcp_client->get_session().requester.subscribe(
+  auto subscribe_stream = tcp_client->get_session().subscribe(
       "",
       [&](IncomingSubscribeStream &stream,
           ref_<const SubscribeResponseMessage> &&msg) {

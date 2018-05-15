@@ -177,7 +177,7 @@ int main(int argc, const char* argv[]) {
         string_ node_path = "Downstream/Benchmark" + std::to_string(a);
         for (int b = 0; b < point_count; ++b) {
           string_ point_path = node_path + "/v" + std::to_string(b);
-          client->get_session().requester.subscribe(
+          client->get_session().subscribe(
               point_path,
               [&count](IncomingSubscribeStream&,
                        ref_<const SubscribeResponseMessage>&&) { ++count; },

@@ -115,7 +115,7 @@ int main(int argc, const char *argv[]) {
 
     std::atomic_int &count = receive_count[i];
 
-    clients[i]->get_session().requester.subscribe(
+    clients[i]->get_session().subscribe(
         "",
         [&](IncomingSubscribeStream &stream,
             ref_<const SubscribeResponseMessage> &&msg) {

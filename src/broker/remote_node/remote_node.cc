@@ -6,6 +6,7 @@
 #include "message/request/invoke_request_message.h"
 #include "message/request/set_request_message.h"
 #include "message/response/list_response_message.h"
+#include "responder/node_state.h"
 #include "stream/requester/incoming_invoke_stream.h"
 #include "stream/requester/incoming_list_stream.h"
 #include "stream/requester/incoming_set_stream.h"
@@ -53,7 +54,7 @@ void RemoteNode::destroy_impl() {
 void RemoteNode::on_subscribe(const SubscribeOptions &options,
                               bool first_request) {
   if (first_request) {
-    _remote_subscribe_stream = _remote_session->requester.subscribe(
+    _remote_subscribe_stream = _remote_session->subscribe(
         _remote_path,
         [ this, keep_ref = get_ref() ](
             IncomingSubscribeStream &,
@@ -79,7 +80,7 @@ void RemoteNode::on_list(BaseOutgoingListStream &stream, bool first_request) {
     stream.update_response_status(Status::NOT_AVAILABLE);
   }
   if (first_request) {
-    _remote_list_stream = _remote_session->requester.list(_remote_path, [
+    _remote_list_stream = _remote_session->list(_remote_path, [
       this, keep_ref = get_ref()
     ](IncomingListStream &, ref_<const ListResponseMessage> && msg) {
       if (msg->get_refreshed()) {

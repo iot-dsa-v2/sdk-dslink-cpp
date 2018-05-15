@@ -45,7 +45,7 @@ void IncomingSubscribeStream::close() {
 
 bool IncomingSubscribeStream::check_close_message(MessageCRef& message) {
   if (message->type() == MessageType::CLOSE_REQUEST) {
-    _session->requester.remove_stream(rid);
+    _session->destroy_req_stream(rid);
     return true;
   }
   return false;

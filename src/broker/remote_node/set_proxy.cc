@@ -4,7 +4,6 @@
 
 #include "core/session.h"
 #include "remote_node.h"
-#include "requester/requester.h"
 #include "stream/requester/incoming_set_stream.h"
 #include "stream/responder/outgoing_set_stream.h"
 #include "message/response/set_response_message.h"
@@ -27,7 +26,7 @@ RemoteSetProxy::RemoteSetProxy(ref_<OutgoingSetStream>&& stream,
     } else if (_in_stream == nullptr) {
       // forward the request
       req_msg->set_target_path(_node->_remote_path);
-      _in_stream = _node->_remote_session->requester.set(
+      _in_stream = _node->_remote_session->set(
         [ this, keep_ref = get_ref() ](
           IncomingSetStream& in_stream,
           ref_<const SetResponseMessage> && resp_msg) {

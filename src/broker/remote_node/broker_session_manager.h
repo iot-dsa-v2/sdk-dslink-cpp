@@ -9,7 +9,7 @@
 #include "module/session_manager.h"
 
 namespace dsa {
-
+class NodeStateManager;
 class DownstreamRoot;
 
 class BrokerSessionManager final : public SessionManager {
@@ -27,13 +27,15 @@ class BrokerSessionManager final : public SessionManager {
   void destroy_impl() final;
 
  public:
-  BrokerSessionManager(const LinkStrandRef &strand, NodeStateManager &state_manager);
+  BrokerSessionManager(const LinkStrandRef &strand,
+                       NodeStateManager &state_manager);
   ~BrokerSessionManager() final;
   void get_session(const string_ &dsid, const string_ &auth_token,
                    bool is_responder,
                    Session::GetSessionCallback &&callback) final;
 
-  void get_session_sync(const ClientInfo &client_info, Session::GetSessionCallback &&callback);
+  void get_session_sync(const ClientInfo &client_info,
+                        Session::GetSessionCallback &&callback);
 
   void remove_sessions(const string_ &dsid, const string_ &responder_path);
 

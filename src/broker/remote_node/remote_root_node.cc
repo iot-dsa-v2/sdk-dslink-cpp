@@ -4,6 +4,7 @@
 
 #include "core/session.h"
 #include "message/response/list_response_message.h"
+#include "responder/node_state.h"
 #include "stream/requester/incoming_list_stream.h"
 
 namespace dsa {
@@ -38,7 +39,7 @@ void RemoteRootNode::on_list(BaseOutgoingListStream &stream,
     }
   }
   if (first_request) {
-    _remote_list_stream = _remote_session->requester.list(_remote_path, [
+    _remote_list_stream = _remote_session->list(_remote_path, [
       this, keep_ref = get_ref()
     ](IncomingListStream &, ref_<const ListResponseMessage> && msg) {
       if (msg->get_refreshed()) {

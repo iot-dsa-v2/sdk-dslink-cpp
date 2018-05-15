@@ -48,7 +48,7 @@ TEST_F(BrokerSysTest, TokenTest) {
   client_1->connect([&](const shared_ptr_<Connection> connection) {
 
     // send set request
-    client_1->get_session().requester.set(
+    client_1->get_session().set(
         CAST_LAMBDA(IncomingSetStreamCallback)[&](
             IncomingSetStream & stream, ref_<const SetResponseMessage> && msg) {
           EXPECT_TRUE(msg->get_status() == Status::DONE);
@@ -56,7 +56,7 @@ TEST_F(BrokerSysTest, TokenTest) {
         },
         make_ref_<SetRequestMessage>("Sys/Clients/Allow_All", Var(false)));
 
-    client_1->get_session().requester.invoke(
+    client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {

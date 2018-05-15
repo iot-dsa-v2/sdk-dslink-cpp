@@ -53,7 +53,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
   bool upstream_added = false;
   client_1->connect([&](const shared_ptr_<Connection> connection) {
 
-    client_1->get_session().requester.invoke(
+    client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
@@ -71,7 +71,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
 
   string_ upstream_status = "";
   client_strand1.strand->dispatch([&]() {
-    client_1->get_session().requester.subscribe(
+    client_1->get_session().subscribe(
         "Sys/Upstream/up1/Status",
         CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
             IncomingSubscribeStream &,
@@ -86,7 +86,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
 
   bool value_upstream_checked = false;
   client_strand1.strand->dispatch([&]() {
-    client_1->get_session().requester.subscribe(
+    client_1->get_session().subscribe(
         "Upstream/up1/Downstream/Test1/Value",
         CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
             IncomingSubscribeStream &,
@@ -100,7 +100,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
 
   bool value_downstream_checked = false;
   client_strand1.strand->dispatch([&]() {
-    client_1->get_session().requester.subscribe(
+    client_1->get_session().subscribe(
         "Downstream/down1/Downstream/Test1/Value",
         CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
             IncomingSubscribeStream &,

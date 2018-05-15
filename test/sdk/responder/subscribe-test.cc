@@ -99,7 +99,7 @@ TEST_F(ResponderTest, SubscribeModel) {
 
   int msg_count = 0;
   ref_<const SubscribeResponseMessage> last_response;
-  auto subscribe_stream = tcp_client->get_session().requester.subscribe(
+  auto subscribe_stream = tcp_client->get_session().subscribe(
       "",
       [&](IncomingSubscribeStream &stream,
           ref_<const SubscribeResponseMessage> &&msg) {
@@ -199,7 +199,7 @@ TEST_F(ResponderTest, SubscribeAcceptor) {
 
   int msg_count = 0;
   ref_<const SubscribeResponseMessage> last_response;
-  auto subscribe_stream = tcp_client->get_session().requester.subscribe(
+  auto subscribe_stream = tcp_client->get_session().subscribe(
       "path",
       [&](IncomingSubscribeStream &stream,
           ref_<const SubscribeResponseMessage> &&msg) {

@@ -88,13 +88,13 @@ TEST_F(ResponderTest, SetModel) {
 
   client_strand.strand->post([&]() {
     // subscribe on root node value
-    tcp_client->get_session().requester.subscribe(
+    tcp_client->get_session().subscribe(
         "", [&](IncomingSubscribeStream &stream,
                 ref_<const SubscribeResponseMessage> &&msg) {
           last_subscribe_response = std::move(msg);  // store response
         });
     // list on root node
-    tcp_client->get_session().requester.list(
+    tcp_client->get_session().list(
         "",
         [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
           last_list_response = msg;
@@ -113,7 +113,7 @@ TEST_F(ResponderTest, SetModel) {
 
   // send set request
   tcp_client->get_strand().post([&]() {
-    tcp_client->get_session().requester.set(
+    tcp_client->get_session().set(
         [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
         std::move(first_request));
   });
@@ -121,7 +121,7 @@ TEST_F(ResponderTest, SetModel) {
     return last_subscribe_response != nullptr;
   });
   tcp_client->get_strand().post([&]() {
-    tcp_client->get_session().requester.set(
+    tcp_client->get_session().set(
         [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {},
         std::move(second_request));
   });
@@ -190,7 +190,7 @@ TEST_F(ResponderTest, SetAcceptor) {
 
   ref_<const SetResponseMessage> last_response;
   // test invalid path scenario
-  auto set_stream = tcp_client->get_session().requester.set(
+  auto set_stream = tcp_client->get_session().set(
       [&](IncomingSetStream &stream, ref_<const SetResponseMessage> &&msg) {
         last_response = std::move(msg);
       },

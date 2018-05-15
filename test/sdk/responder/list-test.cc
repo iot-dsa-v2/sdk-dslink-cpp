@@ -63,7 +63,7 @@ TEST_F(ResponderTest, ListTest) {
 
   // list on root node
   ref_<const ListResponseMessage> root_list_response;
-  auto list_stream = tcp_client->get_session().requester.list(
+  auto list_stream = tcp_client->get_session().list(
       "",
       [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
         root_list_response = msg;
@@ -71,7 +71,7 @@ TEST_F(ResponderTest, ListTest) {
 
   // list on child node
   ref_<const ListResponseMessage> child_list_response;
-  tcp_client->get_session().requester.list(
+  tcp_client->get_session().list(
       "Child_a",
       [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
         child_list_response = msg;

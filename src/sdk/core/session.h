@@ -8,13 +8,13 @@
 #include <deque>
 #include <unordered_map>
 
+#include "message/base_message.h"
+#include "message/message_options.h"
 #include "network/connection.h"
-#include "util/enable_shared.h"
-
-#include "requester/requester.h"
-#include "responder/responder.h"
 #include "strand_timer.h"
+#include "stream/stream_callbacks.h"
 #include "util/client_info.h"
+#include "util/enable_shared.h"
 
 namespace dsa {
 class MessageStream;
@@ -24,6 +24,12 @@ class IncomingMessageStream;
 class OutgoingMessageStream;
 class Connection;
 class SessionManager;
+class OutgoingInvokeStream;
+class OutgoingSubscribeStream;
+class OutgoingListStream;
+class OutgoingSetStream;
+class ListRequestMessage;
+class SubscribeRequestMessage;
 
 struct AckHolder {
   int32_t ack;
@@ -37,7 +43,7 @@ class Session;
 // maintain request and response streams
 class Session final : public DestroyableRef<Session> {
   friend class Connection;
-  friend class Responder;
+
   friend class MessageStream;
 
  public:
@@ -90,9 +96,6 @@ class Session final : public DestroyableRef<Session> {
   bool _on_timer();
 
  public:
-  Requester requester;
-  Responder responder;
-
   // client session features
 
   bool responder_enabled = true;
@@ -129,6 +132,46 @@ class Session final : public DestroyableRef<Session> {
  public:
   // used by broker to forward the pub path
   string_ map_pub_path(const string_ &path);
+
+  bool destroy_resp_stream(int32_t rid);
+  bool destroy_req_stream(int32_t rid);
+
+ protected:  // responder
+  std::unordered_map<int32_t, ref_<MessageStream>> _outgoing_streams;
+
+  ref_<OutgoingInvokeStream> on_invoke_request(
+      ref_<InvokeRequestMessage> &&request);
+  ref_<OutgoingListStream> on_list_request(ref_<ListRequestMessage> &&request);
+  ref_<OutgoingSetStream> on_set_request(ref_<SetRequestMessage> &&request);
+  ref_<OutgoingSubscribeStream> on_subscribe_request(
+      ref_<SubscribeRequestMessage> &&request);
+
+  void receive_resp_message(ref_<Message> &&message);
+  void responder_disconnected();
+
+ protected:  // requester
+  int32_t _next_rid = 0;
+  int32_t next_rid();
+
+  std::unordered_map<int32_t, ref_<MessageStream>> _incoming_streams;
+
+  void receive_req_message(ref_<Message> &&message);
+  void requester_disconnected();
+
+ public:  // requester
+  ref_<IncomingSubscribeStream> subscribe(
+      const string_ &path, IncomingSubscribeStreamCallback &&callback,
+      const SubscribeOptions &options = SubscribeOptions::default_options);
+
+  ref_<IncomingListStream> list(
+      const string_ &path, IncomingListStreamCallback &&callback,
+      const ListOptions &options = ListOptions::default_options);
+
+  ref_<IncomingInvokeStream> invoke(IncomingInvokeStreamCallback &&callback,
+                                    ref_<const InvokeRequestMessage> &&message);
+
+  ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
+                              ref_<const SetRequestMessage> &&message);
 };
 
 }  // namespace dsa

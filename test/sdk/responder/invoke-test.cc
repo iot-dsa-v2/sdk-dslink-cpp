@@ -96,7 +96,7 @@ TEST_F(ResponderTest, InvokeModel) {
 
   ref_<const InvokeResponseMessage> last_response;
 
-  auto invoke_stream = tcp_client->get_session().requester.invoke(
+  auto invoke_stream = tcp_client->get_session().invoke(
       [&](IncomingInvokeStream &stream,
           ref_<const InvokeResponseMessage> &&msg) {
         last_response = std::move(msg);
@@ -181,7 +181,7 @@ TEST_F(ResponderTest, InvokeAcceptor) {
   second_request->set_value(Var("world"));
 
   ref_<const InvokeResponseMessage> last_response;
-  auto invoke_stream = tcp_client->get_session().requester.invoke(
+  auto invoke_stream = tcp_client->get_session().invoke(
       [&](IncomingInvokeStream &stream,
           ref_<const InvokeResponseMessage> &&msg) {
         last_response = std::move(msg);

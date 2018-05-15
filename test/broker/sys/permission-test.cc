@@ -70,7 +70,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
   client_1->connect([&](const shared_ptr_<Connection> connection) {
 
     // send set request
-    client_1->get_session().requester.set(
+    client_1->get_session().set(
         CAST_LAMBDA(IncomingSetStreamCallback)[&](
             IncomingSetStream & stream, ref_<const SetResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
@@ -78,7 +78,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
         },
         make_ref_<SetRequestMessage>("Sys/Clients/Allow_All", Var(false)));
 
-    client_1->get_session().requester.invoke(
+    client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
@@ -90,7 +90,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
         },
         make_ref_<InvokeRequestMessage>(
             "Sys/Tokens/Add", Var({{"Count", Var(1)}, {"Role", Var("G2")}})));
-    client_1->get_session().requester.invoke(
+    client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
@@ -98,14 +98,14 @@ TEST_F(BrokerSysTest, PermissionTest) {
         },
         make_ref_<InvokeRequestMessage>("Sys/Roles/Add_Role",
                                         Var({{"Name", Var("G2")}})));
-    client_1->get_session().requester.set(
+    client_1->get_session().set(
         CAST_LAMBDA(IncomingSetStreamCallback)[&](
             IncomingSetStream & stream, ref_<const SetResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
         },
         make_ref_<SetRequestMessage>("Sys/Roles/G2", Var("none")));
 
-    client_1->get_session().requester.invoke(
+    client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
@@ -138,7 +138,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
   bool list_valid_done = false;
   bool list_invalid_done = false;
   client_2->get_strand().post([&]() {
-    client_2->get_session().requester.invoke(
+    client_2->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
@@ -147,7 +147,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
         },
         make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Read", Var()));
 
-    client_2->get_session().requester.invoke(
+    client_2->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
@@ -157,7 +157,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
         make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Write",
                                         Var()));
 
-    client_2->get_session().requester.invoke(
+    client_2->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
@@ -167,7 +167,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
         make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Config",
                                         Var()));
 
-    client_2->get_session().requester.list(
+    client_2->get_session().list(
         "Downstream/Test1",
         CAST_LAMBDA(IncomingListStreamCallback)[&](
             IncomingListStream&, ref_<const ListResponseMessage> && msg) {
@@ -175,7 +175,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
           list_valid_done = true;
         });
 
-    client_2->get_session().requester.list(
+    client_2->get_session().list(
         "Downstream",
         CAST_LAMBDA(IncomingListStreamCallback)[&](
             IncomingListStream&, ref_<const ListResponseMessage> && msg) {
