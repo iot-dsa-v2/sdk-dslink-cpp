@@ -18,7 +18,7 @@
 namespace dsa {
 
 RemoteNode::RemoteNode(const LinkStrandRef &strand, const string_ &remote_path,
-                       Session &session)
+                       BaseSession &session)
     : NodeModelBase(strand),
       _remote_path(remote_path),
       _remote_session(&session) {}

@@ -13,7 +13,7 @@
 
 namespace dsa {
 
-class Session;
+class BaseSession;
 class Connection;
 class IncomingSubscribeStream;
 class IncomingListStream;
@@ -24,7 +24,7 @@ class RemoteNode : public NodeModelBase {
 
  public:
   RemoteNode(const LinkStrandRef &strand, const string_ &remote_path,
-             Session &session);
+             BaseSession &session);
   ~RemoteNode() override;
 
   // when return true, destroy() will be called by NodeState
@@ -38,7 +38,7 @@ class RemoteNode : public NodeModelBase {
 
  protected:
   const string_ _remote_path;
-  ref_<Session> _remote_session;
+  ref_<BaseSession> _remote_session;
   void destroy_impl() override;
 
   /// subscribe

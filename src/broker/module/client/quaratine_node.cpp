@@ -11,14 +11,14 @@ QuaratineRoot::QuaratineRoot(const LinkStrandRef &strand)
     : RemoteNodeGroup(strand) {}
 
 ref_<RemoteRootNode> QuaratineRoot::create_remote_root(const string_ &name,
-                                                       Session &session) {
+                                                       BaseSession &session) {
   auto new_root = make_ref_<QuaratineRemoteRoot>(_strand, session);
   add_list_child(name, new_root->get_ref());
   return std::move(new_root);
 }
 
 QuaratineRemoteRoot::QuaratineRemoteRoot(const LinkStrandRef &strand,
-                                         Session &session)
+                                         BaseSession &session)
     : RemoteRootNode(strand, session) {}
 
 void QuaratineRemoteRoot::initialize() {

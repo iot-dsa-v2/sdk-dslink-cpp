@@ -15,12 +15,12 @@ class QuaratineRoot : public RemoteNodeGroup {
  public:
   QuaratineRoot(const LinkStrandRef &strand);
   ref_<RemoteRootNode> create_remote_root(const string_ &name,
-                                          Session &session) override;
+                                          BaseSession &session) override;
 };
 
 class QuaratineRemoteRoot : public RemoteRootNode {
  public:
-  QuaratineRemoteRoot(const LinkStrandRef &strand, Session &session);
+  QuaratineRemoteRoot(const LinkStrandRef &strand, BaseSession &session);
 
   VarBytesRef get_summary() override;
 

@@ -8,7 +8,7 @@ RemoteNodeGroup::RemoteNodeGroup(const LinkStrandRef &strand)
 RemoteNodeGroup::~RemoteNodeGroup() = default;
 
 ref_<RemoteRootNode> RemoteNodeGroup::create_remote_root(const string_ &name,
-                                                         Session &session) {
+                                                         BaseSession &session) {
   auto new_root = make_ref_<RemoteRootNode>(_strand, session);
   add_list_child(name, new_root->get_ref());
   return std::move(new_root);

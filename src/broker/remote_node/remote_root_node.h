@@ -9,7 +9,6 @@
 
 namespace dsa {
 
-class Session;
 class Connection;
 
 class RemoteRootNode : public RemoteNode {
@@ -19,7 +18,7 @@ class RemoteRootNode : public RemoteNode {
   void send_all_override_metas();
 
  public:
-  RemoteRootNode(const LinkStrandRef &strand, Session &session);
+  RemoteRootNode(const LinkStrandRef &strand, BaseSession &session);
   ~RemoteRootNode() override;
 
   void set_dsid(const string_ &str);

@@ -38,7 +38,7 @@ struct AckHolder {
       : ack(ack), callback(std::move(callback)){};
 };
 
-class StreamManager : public DestroyableRef<StreamManager> {
+class BaseSession : public DestroyableRef<BaseSession> {
  public:
   virtual void write_stream(ref_<MessageStream> &&stream) = 0;
   // this stream must be handled first
@@ -46,10 +46,30 @@ class StreamManager : public DestroyableRef<StreamManager> {
 
   virtual bool destroy_resp_stream(int32_t rid) = 0;
   virtual bool destroy_req_stream(int32_t rid) = 0;
+
+  // requester
+  virtual ref_<IncomingSubscribeStream> subscribe(
+      const string_ &path, IncomingSubscribeStreamCallback &&callback,
+      const SubscribeOptions &options = SubscribeOptions::default_options) = 0;
+
+  virtual ref_<IncomingListStream> list(
+      const string_ &path, IncomingListStreamCallback &&callback,
+      const ListOptions &options = ListOptions::default_options) = 0;
+
+  virtual ref_<IncomingInvokeStream> invoke(
+      IncomingInvokeStreamCallback &&callback,
+      ref_<const InvokeRequestMessage> &&message) = 0;
+
+  virtual ref_<IncomingSetStream> set(
+      IncomingSetStreamCallback &&callback,
+      ref_<const SetRequestMessage> &&message) = 0;
+
+  virtual bool is_connected() const = 0;
+  virtual string_ map_pub_path(const string_ &path) = 0;
 };
 
 // maintain request and response streams
-class Session final : public StreamManager {
+class Session final : public BaseSession {
   friend class Connection;
 
   friend class MessageStream;
@@ -120,7 +140,7 @@ class Session final : public StreamManager {
   const string_ &get_remote_id() const { return _remote_id; }
   const string_ &get_log_id() const { return _log_id; }
 
-  bool is_connected() const { return _connection != nullptr; }
+  bool is_connected() const final { return _connection != nullptr; }
   bool is_writing() const { return _is_writing; }
 
   int32_t last_sent_ack();
@@ -139,7 +159,7 @@ class Session final : public StreamManager {
 
  public:
   // used by broker to forward the pub path
-  string_ map_pub_path(const string_ &path);
+  string_ map_pub_path(const string_ &path) final;
 
   virtual bool destroy_resp_stream(int32_t rid);
   virtual bool destroy_req_stream(int32_t rid);
@@ -169,17 +189,19 @@ class Session final : public StreamManager {
  public:  // requester
   ref_<IncomingSubscribeStream> subscribe(
       const string_ &path, IncomingSubscribeStreamCallback &&callback,
-      const SubscribeOptions &options = SubscribeOptions::default_options);
+      const SubscribeOptions &options =
+          SubscribeOptions::default_options) final;
 
   ref_<IncomingListStream> list(
       const string_ &path, IncomingListStreamCallback &&callback,
-      const ListOptions &options = ListOptions::default_options);
+      const ListOptions &options = ListOptions::default_options) final;
 
-  ref_<IncomingInvokeStream> invoke(IncomingInvokeStreamCallback &&callback,
-                                    ref_<const InvokeRequestMessage> &&message);
+  ref_<IncomingInvokeStream> invoke(
+      IncomingInvokeStreamCallback &&callback,
+      ref_<const InvokeRequestMessage> &&message) final;
 
   ref_<IncomingSetStream> set(IncomingSetStreamCallback &&callback,
-                              ref_<const SetRequestMessage> &&message);
+                              ref_<const SetRequestMessage> &&message) final;
 };
 
 }  // namespace dsa

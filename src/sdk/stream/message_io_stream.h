@@ -21,12 +21,12 @@
 
 namespace dsa {
 class Session;
-class StreamManager;
+class BaseSession;
 class OutgoingPages;
 
 class MessageRefedStream : public MessageStream {
  protected:
-  ref_<StreamManager> _session;
+  ref_<BaseSession> _session;
   bool _closed = false;
 
   void destroy_impl() override;
@@ -35,7 +35,7 @@ class MessageRefedStream : public MessageStream {
   const Path path;
   bool is_closed() const { return _closed; }
 
-  explicit MessageRefedStream(ref_<StreamManager> &&session, const Path &path,
+  explicit MessageRefedStream(ref_<BaseSession> &&session, const Path &path,
                               uint32_t rid = 0);
 
   void send_message();

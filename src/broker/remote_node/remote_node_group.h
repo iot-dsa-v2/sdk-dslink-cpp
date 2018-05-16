@@ -16,13 +16,13 @@ class RemoteNodeGroup : public NodeModel {
   ~RemoteNodeGroup() override;
 
   virtual ref_<RemoteRootNode> create_remote_root(const string_ &name,
-                                          Session &session);
+                                                  BaseSession &session);
 
   bool allows_runtime_child_change() final { return true; }
   ModelRef on_demand_create_child(const Path &path) final {
     return UNAVAILABLE;
   }
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_SDK_REMOTE_NODE_GROUP_H
