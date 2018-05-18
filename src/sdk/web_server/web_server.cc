@@ -2,10 +2,10 @@
 
 #include "web_server.h"
 
+#include "module/default/simple_security.h"
+#include "module/default/simple_session_manager.h"
 #include "util/app.h"
 #include "util/certificate.h"
-#include "module/default/simple_session_manager.h"
-#include "module/default/simple_security.h"
 
 #include <iostream>
 
@@ -33,6 +33,14 @@ WebServer::WebServer(App& app, const LinkStrandRef& strand)
   }
 }
 
+void WebServer::initV1Connection(V1ConnCallback&& conn_callback,
+                                 V1WsCallback&& ws_callback) {
+  if (_v1_conn_callback == nullptr && _v1_ws_callback == nullptr &&
+      conn_callback != nullptr && ws_callback != nullptr) {
+    _v1_conn_callback = std::move(conn_callback);
+    _v1_ws_callback = std::move(ws_callback);
+  }
+}
 void WebServer::listen(uint16_t port) {
   _port = port;
   _listener = make_shared_<Listener>(*this, port, false);
@@ -58,6 +66,12 @@ void WebServer::destroy() {
   }
   if (_secure_listener != nullptr) {
     _secure_listener->destroy();
+  }
+  if (_v1_conn_callback != nullptr) {
+    _v1_conn_callback = nullptr;
+  }
+  if (_v1_ws_callback != nullptr) {
+    _v1_ws_callback = nullptr;
   }
 }
 

@@ -40,6 +40,8 @@ set(SOURCES
         module/authorizer/permission_nodes.cc
         module/client/token_nodes.cc
         v1/v1_session.cc
+        v1/v1_session_manager.cc
+        v1/v1_server_connection.cc
         )
 
 add_library(dsa_broker ${SOURCES})

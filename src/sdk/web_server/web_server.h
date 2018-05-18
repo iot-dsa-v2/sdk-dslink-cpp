@@ -11,17 +11,25 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
+#include "core/editable_strand.h"
 #include "listener.h"
 #include "module/logger.h"
 #include "websocket.h"
-#include "core/editable_strand.h"
 
 namespace dsa {
 
 class App;
 class Connection;
+class HttpConnection;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
+  friend class HttpConnection;
+ public:
+  typedef std::function<void(const string_& dsid, const string_& token,
+                             const string_& body)>
+      V1ConnCallback;
+  typedef std::function<void(std::unique_ptr<Websocket>&&)> V1WsCallback;
+
  private:
   boost::asio::io_service& _io_service;
   SharedLinkStrandRef _shared_strand;
@@ -31,9 +39,15 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   std::shared_ptr<Listener> _secure_listener;
   boost::asio::ssl::context _ssl_context;
 
+  V1ConnCallback _v1_conn_callback;
+  V1WsCallback _v1_ws_callback;
+
  public:
   WebServer(App& app, const LinkStrandRef& strand);
   ~WebServer();
+
+  void initV1Connection(V1ConnCallback&& conn_callback,
+                        V1WsCallback&& ws_callback);
 
   void listen(uint16_t port = 80);
   void secure_listen(uint16_t port = 443);

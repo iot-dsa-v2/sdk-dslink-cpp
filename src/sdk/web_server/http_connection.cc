@@ -45,9 +45,8 @@ void HttpConnection::accept() {
 
               // check error
               if (error != boost::system::errc::success) {
-                LOG_ERROR(
-                    __FILENAME__,
-                    LOG << "websocket handshake failed: " << error.message());
+                LOG_ERROR(__FILENAME__, LOG << "websocket handshake failed: "
+                                            << error.message());
                 // TODO: send error response
               }
 
@@ -59,19 +58,21 @@ void HttpConnection::accept() {
 
               _websocket->set_websocket();
 
-              if (_req.target().to_string() == "/ws") {
-
+              if (_web_server._v1_ws_callback != nullptr &&
+                  _req.target().to_string() == "/ws") {
+                _web_server._v1_ws_callback(std::move(_websocket));
               } else {
                 _connection = make_shared_<WsServerConnection>(
                     std::move(_websocket), _web_server.get_shared_strand());
                 std::dynamic_pointer_cast<WsConnection>(_connection)->accept();
               }
 
-
               return;
             });  // async_accept
           } else {
-            // TODO: http code
+            if (_web_server._v1_conn_callback != nullptr &&
+                _req.target().to_string() == "/conn") {
+            }
             return;
           }
         });  // async_read
@@ -94,9 +95,8 @@ void HttpConnection::accept() {
 
                     // check error
                     if (error != boost::system::errc::success) {
-                      LOG_ERROR(
-                          __FILENAME__,
-                          LOG << "HTTPS read failed: " << error.message());
+                      LOG_ERROR(__FILENAME__, LOG << "HTTPS read failed: "
+                                                  << error.message());
                       // TODO: send error response
                     }
 
