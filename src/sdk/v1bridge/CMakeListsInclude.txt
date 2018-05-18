@@ -1,7 +1,0 @@
-list(APPEND V1SourceFiles
-       v1_session.cc
-)
-
-foreach(file ${V1SourceFiles})
-  list(APPEND ProjectSourceFiles ${LIB_V1}/${file})
-endforeach()

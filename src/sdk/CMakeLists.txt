@@ -25,7 +25,7 @@ set(LIB_CORE "./core")
 set(LIB_MODULE "./module")
 set(LIB_DSLINK "./dslink")
 set(LIB_WEBSERVER "./web_server")
-set(LIB_V1 "./v1bridge")
+
 # SOURCE FILES
 set(ProjectSourceFiles dsa_common.cc dsa_common.h)
 
@@ -44,7 +44,6 @@ include(${LIB_CORE}/CMakeListsInclude.txt)
 include(${LIB_MODULE}/CMakeListsInclude.txt)
 include(${LIB_DSLINK}/CMakeListsInclude.txt)
 include(${LIB_WEBSERVER}/CMakeListsInclude.txt)
-include(${LIB_V1}/CMakeListsInclude.txt)
 
 add_library(dsa_sdk STATIC ${ProjectSourceFiles}
         $<TARGET_OBJECTS:msgpackc-object>

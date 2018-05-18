@@ -28,11 +28,9 @@ class BrokerClientManager : public ClientManager {
   ref_<BrokerClientsRoot> _clients_root;
   ref_<QuaratineRoot> _quarantine_root;
   ref_<TokensRoot> _tokens_root;
+  ref_<NodeState> _downstream;
 
   ref_<BrokerClientManagerConfig> _config;
-
-  // map its name in Downstream back to dsid
-  std::unordered_map<string_, string_> _path2id;
 
   bool _allow_all_links = true;
   bool _quarantine_enabled = false;

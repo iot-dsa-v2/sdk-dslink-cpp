@@ -13,6 +13,7 @@
 #include "module/stream_acceptor.h"
 #include "quaratine_node.h"
 #include "responder/node_state.h"
+#include "responder/node_state_manager.h"
 #include "responder/value_node_model.h"
 #include "stream/responder/outgoing_invoke_stream.h"
 #include "token_nodes.h"
@@ -35,22 +36,6 @@ ref_<NodeModel> BrokerClientManager::get_quarantine_root() {
   return _quarantine_root;
 }
 ref_<NodeModel> BrokerClientManager::get_tokens_root() { return _tokens_root; }
-
-void BrokerClientManager::rebuild_path2id() {
-  if (is_destroyed()) return;
-
-  _path2id.clear();
-  for (auto& it : _clients_root->get_list_children()) {
-    auto* link_node = dynamic_cast<BrokerClientNode*>(it.second.get());
-    if (link_node != nullptr) {
-      if (!link_node->get_client_info().id.empty() &&
-          str_starts_with(link_node->get_client_info().responder_path,
-                          DOWNSTREAM_PATH))
-        _path2id[link_node->get_client_info().responder_path.substr(
-            DOWNSTREAM_PATH.size())] = it.first;
-    }
-  }
-}
 
 StatusDetail BrokerClientManager::update_client_path(const string_& dsid,
                                                      const string_& new_path) {
@@ -75,10 +60,11 @@ StatusDetail BrokerClientManager::update_client_path(const string_& dsid,
               "Path should start with " + DOWNSTREAM_PATH};
     }
 
-    if (_path2id.count(path.data()->names[1]) > 0) {
+    auto state = _downstream->get_child(path.data()->names[1], true);
+
+    if (state->get_model() != nullptr) {
       return {Status::INVALID_PARAMETER, "Path already in use"};
     }
-    _path2id[path.data()->names[1]] = dsid;
   }
 
   static_cast<BrokerSessionManager&>(_strand->session_manager())
@@ -89,6 +75,9 @@ StatusDetail BrokerClientManager::update_client_path(const string_& dsid,
 }
 void BrokerClientManager::create_nodes(NodeModel& module_node,
                                        BrokerPubRoot& pub_root) {
+  _downstream = static_cast<NodeStateManager&>(_strand->stream_acceptor())
+                    .check_state(Path(DOWNSTREAM_NAME));
+
   pub_root.register_standard_profile_function(
       "Broker/Client/Remove",
       [ this, keepref = get_ref() ](Var&&, SimpleInvokeNode&,
@@ -100,11 +89,6 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
           const string_ dsid = parent->get_path().node_name();
           const string_ responder_path =
               client->get_client_info().responder_path;
-
-          // remove from path2id map
-          if (str_starts_with(responder_path, DOWNSTREAM_PATH)) {
-            _path2id.erase(responder_path.substr(responder_path.size()));
-          }
 
           // delete the storage
           _clients_root->_storage->remove(dsid);
@@ -174,11 +158,12 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
               return;
             }
             string_ downstream_name = path.substr(DOWNSTREAM_PATH.size());
-            if (_path2id.count(downstream_name) > 0) {
+            auto state = _downstream->get_child(downstream_name, true);
+
+            if (state->get_model() != nullptr) {
               stream.close(Status::INVALID_PARAMETER, "Path is already in use");
               return;
             }
-            _path2id[downstream_name] = dsid;
           }
           ClientInfo info(dsid);
           info.responder_path = path;
@@ -303,11 +288,6 @@ void BrokerClientManager::remove_clients_from_token(const string_& token_name) {
     const string_ responder_path =
         client_node->get_client_info().responder_path;
 
-    // remove from path2id map
-    if (str_starts_with(responder_path, DOWNSTREAM_PATH)) {
-      _path2id.erase(responder_path.substr(responder_path.size()));
-    }
-
     // delete the storage
     _clients_root->_storage->remove(dsid);
     // remove the node
@@ -406,7 +386,8 @@ void BrokerClientManager::get_client(const string_& id,
               _tokens_root->get_child(token_name).get());
           // find the token
           if (token_node != nullptr && token_node->is_valid()) {
-            if (validate_token_auth(id, token_node->_token, auth_token.substr(16))) {
+            if (validate_token_auth(id, token_node->_token,
+                                    auth_token.substr(16))) {
               // token is valid ! create a client for this id
               ClientInfo info(id);
               info.role = token_node->_role;
@@ -474,11 +455,13 @@ string_ BrokerClientManager::create_downstream_path(const string_& dsid) {
   if (dsid[start_len - 1] == '-') {
     start_len--;
   }
+
   for (; start_len < dsid.length(); ++start_len) {
     string_ name = dsid.substr(0, start_len);
-    if (_path2id.count(name) == 0) {
-      _path2id[name] = dsid;
-      return DOWNSTREAM_PATH + name;
+    auto state = _downstream->get_child(name, true);
+
+    if (state->get_model() == nullptr) {
+      return state->get_path().full_str();
     }
   }
   LOG_FATAL(__FILENAME__, LOG << "impossible conflict of dsid" << dsid);
@@ -500,7 +483,9 @@ void BrokerClientManager::set_quarantine_enabled(bool value) {
 }
 
 void BrokerClientManager::destroy_impl() {
+  _downstream.reset();
   _clients_root.reset();
+  _tokens_root.reset();
   _quarantine_root.reset();
   ClientManager::destroy_impl();
 }
