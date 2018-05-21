@@ -24,9 +24,10 @@ class HttpConnection;
 
 class WebServer : public std::enable_shared_from_this<WebServer> {
   friend class HttpConnection;
+
  public:
-  typedef std::function<void(const string_& dsid, const string_& token,
-                             const string_& body)>
+  typedef std::function<string_(const string_& dsid, const string_& token,
+                                const string_& body)>
       V1ConnCallback;
   typedef std::function<void(std::unique_ptr<Websocket>&&)> V1WsCallback;
 

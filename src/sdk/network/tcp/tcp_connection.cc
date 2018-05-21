@@ -16,9 +16,7 @@ TcpConnection::TcpConnection(const SharedLinkStrandRef &strand,
 
 void TcpConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
-  if (_socket_open.exchange(false)) {
-    _socket.close();
-  }
+  _socket.close();
   Connection::destroy_impl();
 }
 

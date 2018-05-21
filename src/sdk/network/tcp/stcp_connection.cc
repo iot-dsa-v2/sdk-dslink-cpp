@@ -17,9 +17,7 @@ StcpConnection::StcpConnection(const SharedLinkStrandRef &strand,
 
 void StcpConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
-  if (_socket_open.exchange(false)) {
-    _socket.lowest_layer().close();
-  }
+  _socket.lowest_layer().close();
   Connection::destroy_impl();
 }
 

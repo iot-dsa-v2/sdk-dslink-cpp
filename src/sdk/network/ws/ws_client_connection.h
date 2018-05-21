@@ -17,22 +17,17 @@ namespace dsa {
 // Handles client side of DSA handshake and starts read loop.
 class WsClientConnection final : public WsConnection {
  private:
-  bool _is_secured;
   tcp::socket _tcp_socket;
   boost::asio::ssl::context _ssl_context;
-  std::unique_ptr<Websocket> _websocket;
 
  protected:
   string_ _hostname;
   uint16_t _port;
-  std::mutex _mutex;
 
  public:
   WsClientConnection(bool is_secured, const SharedLinkStrandRef &strand,
                      const string_ &dsid_prefix, const string_ &ws_host,
                      uint16_t ws_port);
-
-  Websocket &ws_stream() { return *_websocket; }
 
   string_ name() final { return "WsClientConnection"; }
 

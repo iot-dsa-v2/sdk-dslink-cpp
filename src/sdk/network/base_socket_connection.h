@@ -34,7 +34,6 @@ class BaseSocketConnection : public Connection {
                   const boost::system::error_code &error,
                   size_t bytes_transferred);
 
-  std::atomic_bool _socket_open{true};
   void on_deadline_timer_(const boost::system::error_code &error,
                           shared_ptr_<Connection> &&sthis);
 

@@ -39,6 +39,8 @@ class WsConnection : public BaseSocketConnection {
   };
 
  protected:
+  std::unique_ptr<Websocket> _websocket;
+
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
     start_read(std::move(sthis));
   }
@@ -49,7 +51,7 @@ class WsConnection : public BaseSocketConnection {
   WsConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
                const string_ &path = "");
 
-  virtual Websocket &ws_stream() = 0;
+  Websocket &ws_stream() { return *_websocket; }
 
   void start_read(shared_ptr_<Connection> &&connection) final;
 

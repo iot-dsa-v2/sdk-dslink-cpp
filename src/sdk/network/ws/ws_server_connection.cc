@@ -9,8 +9,9 @@ WsServerConnection::WsServerConnection(std::unique_ptr<Websocket> websocket,
                                        const SharedLinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &path)
-    : WsConnection(strand, dsid_prefix, path),
-      _websocket(std::move(websocket)) {}
+    : WsConnection(strand, dsid_prefix, path) {
+  _websocket = std::move(websocket);
+}
 
 void WsServerConnection::accept() {
   {

@@ -16,22 +16,8 @@ WsConnection::WsConnection(const SharedLinkStrandRef &strand,
 void WsConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
 
-  auto on_close = [sthis =
-                       shared_from_this()](const boost::system::error_code ec) {
-    if (ec) {
-      LOG_DEBUG(__FILENAME__, LOG << "websocket close error: " << ec.message());
-    }
-  };
-
-  Websocket &websocket = ws_stream();
-  if (_socket_open.exchange(false)) {
-    if (websocket.is_secure_stream()) {
-      websocket.secure_stream().async_close(websocket::close_code::normal,
-                                            on_close);
-    } else {
-      websocket.stream().async_close(websocket::close_code::normal, on_close);
-    }
-  }
+  _websocket->destroy();
+  //  Websocket &websocket = ws_stream();
   Connection::destroy_impl();
 }
 
@@ -47,24 +33,13 @@ void WsConnection::start_read(shared_ptr_<Connection> &&connection) {
     buffer.resize(buffer.size() * 4);
   }
 
-  Websocket &websocket = ws_stream();
-  if (websocket.is_secure_stream()) {
-    websocket.secure_stream().async_read_some(
-        boost::asio::buffer(&buffer[partial_size],
-                            buffer.size() - partial_size),
-        [ this, connection = std::move(connection), partial_size ](
-            const boost::system::error_code &err, size_t transferred) mutable {
-          read_loop_(std::move(connection), partial_size, err, transferred);
-        });
-  } else {
-    websocket.stream().async_read_some(
-        boost::asio::buffer(&buffer[partial_size],
-                            buffer.size() - partial_size),
-        [ this, connection = std::move(connection), partial_size ](
-            const boost::system::error_code &err, size_t transferred) mutable {
-          read_loop_(std::move(connection), partial_size, err, transferred);
-        });
-  }
+  _websocket->async_read_some(
+      boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
+      CAST_LAMBDA(Websocket::Callback)[this, connection = std::move(connection),
+                                       partial_size](
+          const boost::system::error_code &err, size_t transferred) mutable {
+        read_loop_(std::move(connection), partial_size, err, transferred);
+      });
 }
 
 std::unique_ptr<ConnectionWriteBuffer> WsConnection::get_write_buffer() {
@@ -79,9 +54,8 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
                                     int32_t ack_id) {
   size_t total_size = size + message.size();
   if (total_size > MAX_BUFFER_SIZE) {
-    LOG_FATAL(
-        __FILENAME__,
-        LOG << "message is bigger than max buffer size: " << MAX_BUFFER_SIZE);
+    LOG_FATAL(__FILENAME__, LOG << "message is bigger than max buffer size: "
+                                << MAX_BUFFER_SIZE);
   }
 
   while (total_size > connection._write_buffer.size()) {
@@ -92,26 +66,13 @@ void WsConnection::WriteBuffer::add(const Message &message, int32_t rid,
 }
 void WsConnection::WriteBuffer::write(WriteHandler &&callback) {
   Websocket &websocket = connection.ws_stream();
-
-  if (websocket.is_secure_stream()) {
-    websocket.secure_stream().binary(true);
-    websocket.secure_stream().async_write(
-        boost::asio::buffer(connection._write_buffer.data(), size),
-        [callback = std::move(callback)](const boost::system::error_code &error,
-                                         size_t bytes_transferred) {
-          DSA_REF_GUARD;
-          callback(error);
-        });
-  } else {
-    websocket.stream().binary(true);
-    websocket.stream().async_write(
-        boost::asio::buffer(connection._write_buffer.data(), size),
-        [callback = std::move(callback)](const boost::system::error_code &error,
-                                         size_t bytes_transferred) {
-          DSA_REF_GUARD;
-          callback(error);
-        });
-  }
+  websocket.async_write(
+      boost::asio::buffer(connection._write_buffer.data(), size),
+      CAST_LAMBDA(Websocket::Callback)[callback = std::move(callback)](
+          const boost::system::error_code &error, size_t bytes_transferred) {
+        DSA_REF_GUARD;
+        callback(error);
+      });
 }
 
 }  // namespace dsa
