@@ -10,7 +10,7 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 
-#include "../../web_server/websocket.h"
+#include "web_server/socket.h"
 #include "../base_socket_connection.h"
 #include "util/enable_shared.h"
 

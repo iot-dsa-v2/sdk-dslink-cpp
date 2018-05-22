@@ -14,7 +14,7 @@
 #include "core/editable_strand.h"
 #include "listener.h"
 #include "module/logger.h"
-#include "websocket.h"
+#include "socket.h"
 
 namespace dsa {
 

@@ -9,7 +9,7 @@
 
 #include "core/editable_strand.h"
 #include "network/ws/ws_server_connection.h"
-#include "web_server/websocket.h"
+#include "web_server/socket.h"
 
 #include <mutex>
 

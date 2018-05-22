@@ -1,6 +1,6 @@
 #include "dsa_common.h"
 
-#include "websocket.h"
+#include "socket.h"
 
 #include <boost/asio/connect.hpp>
 #include "module/logger.h"

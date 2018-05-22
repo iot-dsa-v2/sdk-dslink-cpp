@@ -14,7 +14,7 @@
 #include "network/ws/ws_client_connection.h"
 #include "util/app.h"
 #include "util/certificate.h"
-#include "web_server/websocket.h"
+#include "web_server/socket.h"
 
 #include "responder/model_base.h"
 #include "responder/node_state_manager.h"

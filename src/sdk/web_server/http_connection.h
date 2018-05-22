@@ -11,7 +11,7 @@
 #include <boost/beast/core/flat_buffer.hpp>
 #include <boost/beast/http.hpp>
 
-#include "websocket.h"
+#include "socket.h"
 #include <memory>
 #include <mutex>
 
