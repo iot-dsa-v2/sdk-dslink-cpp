@@ -2,14 +2,13 @@
 
 #include "broker.h"
 
-#include <module/module_with_loader.h>
-#include <util/string.h>
 #include "config/broker_config.h"
 #include "module/authorizer/broker_authorizer.h"
 #include "module/client/broker_client_manager.h"
 #include "module/client_manager.h"
 #include "module/logger.h"
 #include "module/module_broker_default.h"
+#include "module/module_with_loader.h"
 #include "network/tcp/tcp_server.h"
 #include "node/broker_root.h"
 #include "remote_node/broker_session_manager.h"
@@ -19,6 +18,7 @@
 #include "util/app.h"
 #include "util/string.h"
 #include "util/temp_file.h"
+#include "v1/v1_session_manager.h"
 #include "web_server/web_server.h"
 
 namespace dsa {
@@ -60,9 +60,10 @@ void DsBroker::init(ref_<Module>&& default_module) {
   Logger::_().level =
       Logger::parse(_config->log_level().get_value().to_string());
 
-  strand->dispatch([
-    this, keepref = get_ref(), default_module = std::move(default_module)
-  ]() mutable {
+  strand->dispatch(CAST_LAMBDA(
+      std::function<void()>)[this, keepref = get_ref(),
+                             default_module =
+                                 std::move(default_module)]() mutable {
     if (default_module == nullptr)
       default_module = make_ref_<ModuleBrokerDefault>();
 
@@ -94,7 +95,11 @@ void DsBroker::init(ref_<Module>&& default_module) {
     strand->set_stream_acceptor(
         make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
 
-    // init session manager
+    // init v1 session manager
+    _v1_manager = make_shared_<V1SessionManager>(
+        strand, static_cast<NodeStateManager&>(strand->stream_acceptor()));
+
+    // init v2 session manager
     strand->set_session_manager(make_ref_<BrokerSessionManager>(
         strand, static_cast<NodeStateManager&>(strand->stream_acceptor())));
 
@@ -107,6 +112,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
 void DsBroker::destroy_impl() {
   _upstream->destroy();
   modules->destroy();
+  _v1_manager.reset();
 
   if (_tcp_server != nullptr) {
     _tcp_server->destroy();
@@ -135,9 +141,18 @@ void DsBroker::run(bool wait) {
   }
 
   // start web server
-  strand->dispatch([this]() {
+  strand->dispatch(CAST_LAMBDA(std::function<void()>)[this]() {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app, strand);
+    _web_server->initV1Connection(
+        CAST_LAMBDA(WebServer::V1ConnCallback)[v1_manager = this->_v1_manager](
+            const string_& dsid, const string_& token, const string_& body) {
+          return v1_manager->on_conn(dsid, token, body);
+        },
+        CAST_LAMBDA(WebServer::V1WsCallback)[v1_manager = this->_v1_manager](
+            std::unique_ptr<Websocket> && ws) {
+          v1_manager->on_ws(std::move(ws));
+        });
     uint16_t http_port =
         static_cast<uint16_t>(_config->http_port().get_value().get_int());
     _web_server->listen(http_port);

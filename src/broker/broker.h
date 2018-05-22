@@ -18,6 +18,7 @@ class Client;
 class BrokerConfig;
 class ModuleLoader;
 class UpstreamManager;
+class V1SessionManager;
 
 class DsBroker final : public WrapperStrand {
   friend class SubscribeMerger;
@@ -28,6 +29,7 @@ class DsBroker final : public WrapperStrand {
   ref_<Module> modules;
   ref_<UpstreamManager> _upstream;
 
+  shared_ptr_<V1SessionManager> _v1_manager;
  public:
   DsBroker(ref_<BrokerConfig>&& config,
            ref_<Module>&& modules = nullptr,
