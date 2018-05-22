@@ -71,48 +71,11 @@ class Websocket {
 
   // httt
   void http_async_read(
-      boost::beast::flat_buffer buffer,
+      boost::beast::flat_buffer& buffer,
       boost::beast::http::request<boost::beast::http::string_body>& req,
       Callback&& handler);
-  void http_async_write(boost::asio::mutable_buffer&& buffer,
+  void http_async_write(http::response<http::string_body>& res,
                         Callback&& handler);
-
-  //  template <typename... Args>
-  //  void async_write(Args&&... args) {
-  //    if (_is_websocket) return;
-  //
-  //    if (_is_secure_stream) {
-  //      http::async_write(_wss_stream->next_layer(),
-  //      std::forward<Args>(args)...);
-  //    } else {
-  //      http::async_write(_ws_stream->next_layer(),
-  //      std::forward<Args>(args)...);
-  //    }
-  //  }
-  //
-  //  template <typename... Args>
-  //  void write(Args&&... args) {
-  //    if (_is_websocket) return;
-  //
-  //    if (_is_secure_stream) {
-  //      http::async_write(_wss_stream->next_layer(),
-  //      std::forward<Args>(args)...);
-  //    } else {
-  //      http::async_write(_ws_stream->next_layer(),
-  //      std::forward<Args>(args)...);
-  //    }
-  //  }
-  //
-  //  template <typename... Args>
-  //  void shutdown(Args&&... args) {
-  //    if (_is_websocket) return;
-  //
-  //    if (_is_secure_stream) {
-  //      _wss_stream->lowest_layer().shutdown(std::forward<Args>(args)...);
-  //    } else {
-  //      _ws_stream->lowest_layer().shutdown(std::forward<Args>(args)...);
-  //    }
-  //  }
 };
 }  // namespace dsa
 

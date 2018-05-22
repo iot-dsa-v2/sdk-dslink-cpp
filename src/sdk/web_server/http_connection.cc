@@ -57,7 +57,8 @@ void HttpConnection::accept() {
   _websocket->http_async_read(
       _buffer, _req,
       CAST_LAMBDA(Websocket::Callback)[this, sthis = shared_from_this()](
-          const boost::system::error_code& error, size_t bytes_transferred) {
+          const boost::system::error_code& error,
+          size_t bytes_transferred) mutable {
 
         // check error
         if (error != boost::system::errc::success) {
@@ -71,7 +72,8 @@ void HttpConnection::accept() {
         if (websocket::is_upgrade(_req)) {
           _websocket->async_accept(
               _req,
-              CAST_LAMBDA(Websocket::ConnectCallback)[this, sthis = sthis](
+              CAST_LAMBDA(
+                  Websocket::ConnectCallback)[this, sthis = std::move(sthis)](
                   const boost::system::error_code& error) {
 
                 // check error
@@ -110,14 +112,24 @@ void HttpConnection::accept() {
           auto body = _req.body();
 
           if (_web_server._v1_conn_callback != nullptr && uri.path == "/conn") {
-            http::response<http::string_body> res{http::status::ok,
-                                                  _req.version()};
-            res.prepare_payload();
-            auto response =
+            auto resp = make_shared_<http::response<http::string_body>>(
+                http::status::ok, _req.version());
+
+            resp->body() =
                 _web_server._v1_conn_callback(uri.path, uri.dsid, uri.token);
-            // send(res);
+            resp->prepare_payload();
+
+            auto& raw_resp = *resp;
+            _websocket->http_async_write(
+                raw_resp,
+                CAST_LAMBDA(Websocket::Callback)[this, sthis = std::move(sthis),
+                                                 resp = std::move(resp)](
+                    const boost::system::error_code& err, size_t transferred) {
+                  _websocket->destroy();
+                });
             return;
           }
+          _websocket->destroy();
           return;
         }
       });  // async_read
