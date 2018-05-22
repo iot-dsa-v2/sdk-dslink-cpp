@@ -3,6 +3,7 @@ list(APPEND WebServerSourceFiles
         http_connection.cc
         listener.cc
         websocket.cc
+        httpsocket.cc
     )
 
 foreach (file ${WebServerSourceFiles})
