@@ -7,18 +7,17 @@
 namespace dsa {
 V1SessionManager::V1SessionManager(const LinkStrandRef& strand,
                                    NodeStateManager& state_manager)
-    : _strand_state_manager(
-          SharedRef<NodeStateManager>::make(state_manager.get_ref(), strand)) {}
+    : _strand(strand),
+      _state_manager(state_manager.get_ref()),
+      _shared_ptr(SharedRef<V1SessionManager>::make(get_ref(), strand)) {}
 V1SessionManager::~V1SessionManager() = default;
 
-void V1SessionManager::post_in_strand(std::function<void()>&& callback) {
-  _strand_state_manager->post(std::move(callback));
-}
-void V1SessionManager::destroy_impl() {}
+void V1SessionManager::destroy_impl() { _state_manager.reset(); }
 
-string_ V1SessionManager::on_conn(const string_& dsid, const string_& token,
-                                  const string_& body) {
-  return "{}";
+void V1SessionManager::on_conn(const string_& dsid, const string_& token,
+                               const string_& body,
+                               std::function<void(const string_&)>&& callback) {
+  callback("{}");
 }
-void V1SessionManager::on_ws(std::unique_ptr<Websocket>&& ws) {}
+void V1SessionManager::on_ws(shared_ptr_<Websocket>&& ws) {}
 }  // namespace dsa

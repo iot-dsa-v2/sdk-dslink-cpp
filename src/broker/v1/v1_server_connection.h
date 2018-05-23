@@ -6,7 +6,7 @@
 #endif
 
 #include "core/link_strand.h"
-
+#include "core/shared_strand_ref.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -14,13 +14,13 @@ class V1SessionManager;
 
 class V1ServerConnection : public SharedStrandPtr<V1ServerConnection> {
  protected:
-  shared_ptr_<V1SessionManager> _manager;
+  SharedLinkStrandRef _strand;
   void destroy_impl() override;
 
  public:
   void post_in_strand(std::function<void()>&& callback) override;
 
-  V1ServerConnection(shared_ptr_<V1SessionManager>& manager);
+  V1ServerConnection(const SharedLinkStrandRef _strand);
   ~V1ServerConnection() override ;
 };
 }  // namespace dsa

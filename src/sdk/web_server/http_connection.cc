@@ -49,10 +49,10 @@ V1Uri parseUri(const string_& str) {
 
 void HttpConnection::accept() {
   if (_is_secured) {
-    _websocket = std::make_unique<Websocket>(std::move(_socket),
-                                             _web_server.ssl_context());
+    _websocket =
+        make_shared_<Websocket>(std::move(_socket), _web_server.ssl_context());
   } else {
-    _websocket = std::make_unique<Websocket>(std::move(_socket));
+    _websocket = make_shared_<Websocket>(std::move(_socket));
   }
   _websocket->http_async_read(
       _buffer, _req,
@@ -112,21 +112,26 @@ void HttpConnection::accept() {
           auto body = _req.body();
 
           if (_web_server._v1_conn_callback != nullptr && uri.path == "/conn") {
-            auto resp = make_shared_<http::response<http::string_body>>(
-                http::status::ok, _req.version());
+            _web_server._v1_conn_callback(
+                uri.path, uri.dsid, uri.token,
+                [ this, sthis = std::move(sthis) ](const string_& response) {
+                  auto resp = make_shared_<http::response<http::string_body>>(
+                      http::status::ok, _req.version());
 
-            resp->body() =
-                _web_server._v1_conn_callback(uri.path, uri.dsid, uri.token);
-            resp->prepare_payload();
+                  resp->body() = response;
+                  resp->prepare_payload();
 
-            auto& raw_resp = *resp;
-            _websocket->http_async_write(
-                raw_resp,
-                CAST_LAMBDA(Websocket::Callback)[this, sthis = std::move(sthis),
-                                                 resp = std::move(resp)](
-                    const boost::system::error_code& err, size_t transferred) {
-                  _websocket->destroy();
+                  // get raw pointer before it's captured
+                  auto& raw_resp = *resp;
+                  _websocket->http_async_write(
+                      raw_resp,
+                      CAST_LAMBDA(
+                          Websocket::Callback)[this, sthis = std::move(sthis),
+                                               resp = std::move(resp)](
+                          const boost::system::error_code& err,
+                          size_t transferred) { _websocket->destroy(); });
                 });
+
             return;
           }
           _websocket->destroy();

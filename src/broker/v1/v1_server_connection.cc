@@ -5,13 +5,13 @@
 
 namespace dsa {
 
-V1ServerConnection::V1ServerConnection(shared_ptr_<V1SessionManager>& manager)
-    : _manager(manager) {}
+V1ServerConnection::V1ServerConnection(const SharedLinkStrandRef strand)
+    : _strand(strand) {}
 void V1ServerConnection::post_in_strand(std::function<void()>&& callback) {
-  _manager->_strand_state_manager->post(std::move(callback));
+  _strand->post(std::move(callback));
 }
 V1ServerConnection::~V1ServerConnection() = default;
 
-void V1ServerConnection::destroy_impl() { _manager.reset(); }
+void V1ServerConnection::destroy_impl() {}
 
 }  // namespace dsa

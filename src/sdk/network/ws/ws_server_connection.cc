@@ -5,7 +5,7 @@
 #define DEBUG 0
 
 namespace dsa {
-WsServerConnection::WsServerConnection(std::unique_ptr<Websocket> websocket,
+WsServerConnection::WsServerConnection(shared_ptr_<Websocket> websocket,
                                        const SharedLinkStrandRef &strand,
                                        const string_ &dsid_prefix,
                                        const string_ &path)

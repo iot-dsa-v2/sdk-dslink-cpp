@@ -26,10 +26,11 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   friend class HttpConnection;
 
  public:
-  typedef std::function<string_(const string_& dsid, const string_& token,
-                                const string_& body)>
+  typedef std::function<void(const string_& dsid, const string_& token,
+                             const string_& body,
+                             std::function<void(const string_&)>&&)>
       V1ConnCallback;
-  typedef std::function<void(std::unique_ptr<Websocket>&&)> V1WsCallback;
+  typedef std::function<void(shared_ptr_<Websocket>&&)> V1WsCallback;
 
  private:
   boost::asio::io_service& _io_service;

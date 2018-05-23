@@ -22,7 +22,7 @@ class WsServerConnection final : public WsConnection {
   http::request<http::string_body> _req;
 
  public:
-  WsServerConnection(std::unique_ptr<Websocket> websocket,
+  WsServerConnection(shared_ptr_<Websocket> websocket,
                      const SharedLinkStrandRef &strand,
                      const string_ &dsid_prefix = "", const string_ &path = "");
 

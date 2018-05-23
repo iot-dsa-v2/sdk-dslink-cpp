@@ -10,9 +10,9 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/ssl.hpp>
 
-#include "web_server/socket.h"
 #include "../base_socket_connection.h"
 #include "util/enable_shared.h"
+#include "web_server/socket.h"
 
 using tcp = boost::asio::ip::tcp;
 namespace ssl = boost::asio::ssl;
@@ -39,7 +39,7 @@ class WsConnection : public BaseSocketConnection {
   };
 
  protected:
-  std::unique_ptr<Websocket> _websocket;
+  shared_ptr_<Websocket> _websocket;
 
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
     start_read(std::move(sthis));

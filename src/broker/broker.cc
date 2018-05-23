@@ -96,7 +96,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
         make_ref_<NodeStateManager>(*strand, broker_root->get_ref()));
 
     // init v1 session manager
-    _v1_manager = make_shared_<V1SessionManager>(
+    _v1_manager = make_ref_<V1SessionManager>(
         strand, static_cast<NodeStateManager&>(strand->stream_acceptor()));
 
     // init v2 session manager
@@ -145,13 +145,26 @@ void DsBroker::run(bool wait) {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app, strand);
     _web_server->initV1Connection(
-        CAST_LAMBDA(WebServer::V1ConnCallback)[v1_manager = this->_v1_manager](
-            const string_& dsid, const string_& token, const string_& body) {
-          return v1_manager->on_conn(dsid, token, body);
+        CAST_LAMBDA(
+            WebServer::V1ConnCallback)[shared_v1_manager =
+                                           this->_v1_manager->share_this()](
+            const string_& dsid, const string_& token, const string_& body,
+            std::function<void(const string_&)>&& callback) mutable {
+          shared_v1_manager->post([
+            dsid, token, body, callback = std::move(callback)
+          ](ref_<V1SessionManager> & shared_v1_manager, LinkStrand&) mutable {
+            shared_v1_manager->on_conn(dsid, token, body, std::move(callback));
+          });
+
         },
-        CAST_LAMBDA(WebServer::V1WsCallback)[v1_manager = this->_v1_manager](
-            std::unique_ptr<Websocket> && ws) {
-          v1_manager->on_ws(std::move(ws));
+        CAST_LAMBDA(
+            WebServer::V1WsCallback)[shared_v1_manager =
+                                         this->_v1_manager->share_this()](
+            shared_ptr_<Websocket> && ws) {
+          shared_v1_manager->post([ws = std::move(ws)](
+              ref_<V1SessionManager> & shared_v1_manager, LinkStrand&) mutable {
+            shared_v1_manager->on_ws(std::move(ws));
+          });
         });
     uint16_t http_port =
         static_cast<uint16_t>(_config->http_port().get_value().get_int());

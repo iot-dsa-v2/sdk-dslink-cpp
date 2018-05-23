@@ -32,7 +32,7 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection> {
   boost::asio::ip::tcp::socket _socket;
   boost::beast::flat_buffer _buffer;
   boost::beast::http::request<boost::beast::http::string_body> _req;
-  std::unique_ptr<Websocket> _websocket;
+  shared_ptr_ <Websocket> _websocket;
   std::mutex _mutex;
 
  public:
