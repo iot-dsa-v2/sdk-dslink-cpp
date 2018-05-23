@@ -144,10 +144,9 @@ void DsBroker::run(bool wait) {
   strand->dispatch(CAST_LAMBDA(std::function<void()>)[this]() {
     // start web_server
     _web_server = std::make_shared<WebServer>(*_app, strand);
+    auto shared_v1_manager = _v1_manager->share_this();
     _web_server->initV1Connection(
-        CAST_LAMBDA(
-            WebServer::V1ConnCallback)[shared_v1_manager =
-                                           this->_v1_manager->share_this()](
+        CAST_LAMBDA(WebServer::V1ConnCallback)[shared_v1_manager](
             const string_& dsid, const string_& token, const string_& body,
             std::function<void(const string_&)>&& callback) mutable {
           shared_v1_manager->post([
@@ -157,9 +156,7 @@ void DsBroker::run(bool wait) {
           });
 
         },
-        CAST_LAMBDA(
-            WebServer::V1WsCallback)[shared_v1_manager =
-                                         this->_v1_manager->share_this()](
+        CAST_LAMBDA(WebServer::V1WsCallback)[shared_v1_manager](
             shared_ptr_<Websocket> && ws) {
           shared_v1_manager->post([ws = std::move(ws)](
               ref_<V1SessionManager> & v1_manager, LinkStrand&) mutable {

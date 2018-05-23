@@ -30,9 +30,9 @@ class DsBroker final : public WrapperStrand {
   ref_<UpstreamManager> _upstream;
 
   ref_<V1SessionManager> _v1_manager;
+
  public:
-  DsBroker(ref_<BrokerConfig>&& config,
-           ref_<Module>&& modules = nullptr,
+  DsBroker(ref_<BrokerConfig>&& config, ref_<Module>&& modules = nullptr,
            const shared_ptr_<App>& app = nullptr);
   ~DsBroker() final;
 
@@ -55,11 +55,11 @@ class DsBroker final : public WrapperStrand {
   ref_<BrokerConfig> _config;
   // initialization
 
-  void init(ref_<Module>&&  modules);
+  void init(ref_<Module>&& modules);
   void destroy_impl() final;
 
  public:
 };
-}
+}  // namespace dsa
 
 #endif  // DSA_BROKER_H
