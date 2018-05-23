@@ -152,8 +152,8 @@ void DsBroker::run(bool wait) {
             std::function<void(const string_&)>&& callback) mutable {
           shared_v1_manager->post([
             dsid, token, body, callback = std::move(callback)
-          ](ref_<V1SessionManager> & shared_v1_manager, LinkStrand&) mutable {
-            shared_v1_manager->on_conn(dsid, token, body, std::move(callback));
+          ](ref_<V1SessionManager> & v1_manager, LinkStrand&) mutable {
+            v1_manager->on_conn(dsid, token, body, std::move(callback));
           });
 
         },
@@ -162,8 +162,8 @@ void DsBroker::run(bool wait) {
                                          this->_v1_manager->share_this()](
             shared_ptr_<Websocket> && ws) {
           shared_v1_manager->post([ws = std::move(ws)](
-              ref_<V1SessionManager> & shared_v1_manager, LinkStrand&) mutable {
-            shared_v1_manager->on_ws(std::move(ws));
+              ref_<V1SessionManager> & v1_manager, LinkStrand&) mutable {
+            v1_manager->on_ws(std::move(ws));
           });
         });
     uint16_t http_port =
