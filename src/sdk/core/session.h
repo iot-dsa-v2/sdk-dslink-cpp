@@ -161,8 +161,8 @@ class Session final : public BaseSession {
   // used by broker to forward the pub path
   string_ map_pub_path(const string_ &path) final;
 
-  virtual bool destroy_resp_stream(int32_t rid);
-  virtual bool destroy_req_stream(int32_t rid);
+  bool destroy_resp_stream(int32_t rid) final;
+  bool destroy_req_stream(int32_t rid) final;
 
  protected:  // responder
   std::unordered_map<int32_t, ref_<MessageStream>> _outgoing_streams;

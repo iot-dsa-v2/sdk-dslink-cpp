@@ -97,7 +97,8 @@ void DsBroker::init(ref_<Module>&& default_module) {
 
     // init v1 session manager
     _v1_manager = make_ref_<V1SessionManager>(
-        strand, static_cast<NodeStateManager&>(strand->stream_acceptor()));
+        strand, static_cast<NodeStateManager&>(strand->stream_acceptor()),
+        get_dsid());
 
     // init v2 session manager
     strand->set_session_manager(make_ref_<BrokerSessionManager>(

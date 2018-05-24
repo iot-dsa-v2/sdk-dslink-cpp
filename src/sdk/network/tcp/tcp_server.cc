@@ -80,7 +80,8 @@ TcpServer::~TcpServer() {
 }
 void TcpServer::start() {
   // start taking connections
-  _next_connection = make_shared_<TcpServerConnection>(_shared_strand);
+  _next_connection =
+      make_shared_<TcpServerConnection>(_shared_strand, _dsid_prefix);
 
   _acceptor->async_accept(_next_connection->socket(), [
     this, sthis = shared_from_this()
@@ -92,8 +93,8 @@ void TcpServer::start() {
   }
 
   // if (!_secure_acceptor->is_open()) return;
-  _secure_next_connection =
-      make_shared_<StcpServerConnection>(_shared_strand, _context);
+  _secure_next_connection = make_shared_<StcpServerConnection>(
+      _shared_strand, _context, _dsid_prefix);
 
   _secure_acceptor->async_accept(_secure_next_connection->socket(), [
     this, sthis = shared_from_this()

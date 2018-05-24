@@ -113,7 +113,7 @@ void HttpConnection::accept() {
 
           if (_web_server._v1_conn_callback != nullptr && uri.path == "/conn") {
             _web_server._v1_conn_callback(
-                uri.path, uri.dsid, uri.token,
+                uri.dsid, uri.token, body,
                 [ this, sthis = std::move(sthis) ](const string_& response) {
                   auto resp = make_shared_<http::response<http::string_body>>(
                       http::status::ok, _req.version());
