@@ -11,6 +11,11 @@ inline bool str_starts_with(const string_ &str, const string_ &pattern) {
   return str.size() >= pattern.size() &&
          std::equal(pattern.begin(), pattern.end(), str.begin());
 }
+inline bool str_ends_with(const string_ &str, const string_ &pattern) {
+  return str.size() >= pattern.size() &&
+         std::equal(pattern.begin(), pattern.end(),
+                    str.begin() + (str.length() - pattern.length()));
+}
 
 inline string_ str_join_path(const string_ &path1, const string_ &path2) {
   if (path1.empty()) return path2;
