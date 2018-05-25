@@ -14,9 +14,9 @@ void Websocket::async_accept(
     LOG_FATAL("Websocket", LOG << "async_accept called on accepted connection");
   }
   if (is_secure_stream()) {
-    _wss_stream->async_accept(std::move(handler));
+    _wss_stream->async_accept(req, std::move(handler));
   } else {
-    _ws_stream->async_accept(std::move(handler));
+    _ws_stream->async_accept(req, std::move(handler));
   }
 }
 
