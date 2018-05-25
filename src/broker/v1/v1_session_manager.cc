@@ -2,6 +2,7 @@
 
 #include "v1_session_manager.h"
 
+#include "crypto/misc.h"
 #include "module/client_manager.h"
 #include "responder/node_state_manager.h"
 #include "v1_session.h"
@@ -13,6 +14,8 @@ V1SessionManager::V1SessionManager(const LinkStrandRef& strand,
     : _strand(strand),
       _state_manager(state_manager.get_ref()),
       _dsid(dsid),
+      _publick_key_b64(
+          base64_url_convert(base64_encode(strand->ecdh().get_public_key()))),
       _shared_ptr(SharedRef<V1SessionManager>::make(get_ref(), strand)) {}
 V1SessionManager::~V1SessionManager() = default;
 
@@ -48,8 +51,8 @@ void V1SessionManager::on_conn(const string_& dsid, const string_& token,
 
           Var response = Var({{"dsId", Var(_dsid)},
                               {"wsUri", Var("/ws")},
-                              // publicKey
-                              // tempKey
+                              {"publicKey", Var(_publick_key_b64)},
+                              {"tempKey", Var(_publick_key_b64)},
                               {"salt", Var(session->current_salt())},
                               {"format", Var("json")},
                               {"version", Var("1.1.2")}});
@@ -60,5 +63,6 @@ void V1SessionManager::on_conn(const string_& dsid, const string_& token,
     callback("");
   }
 }
-void V1SessionManager::on_ws(shared_ptr_<Websocket>&& ws) {}
+void V1SessionManager::on_ws(shared_ptr_<Websocket>&& ws, const string_& dsid,
+                             const string_& auth) {}
 }  // namespace dsa

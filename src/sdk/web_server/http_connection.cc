@@ -24,6 +24,7 @@ struct V1Uri {
   string_ path;
   string_ dsid;
   string_ token;
+  string_ auth;
 };
 V1Uri parseUri(const string_& str) {
   V1Uri result;
@@ -36,11 +37,14 @@ V1Uri parseUri(const string_& str) {
   result.path = std::move(splitted[0]);
   for (int i = 0; i + 1 < splitted.size(); ++i) {
     string_& current = splitted[i];
-    if (current == "dsid") {
+    if (current == "dsId") {
       result.dsid = std::move(splitted[i + 1]);
       ++i;
     } else if (current == "token") {
       result.token = std::move(splitted[i + 1]);
+      ++i;
+    } else if (current == "auth") {
+      result.auth = std::move(splitted[i + 1]);
       ++i;
     }
   }
@@ -97,7 +101,8 @@ void HttpConnection::accept() {
 
                 if (_web_server._v1_ws_callback != nullptr &&
                     uri.path == "/ws") {
-                  _web_server._v1_ws_callback(std::move(_websocket));
+                  _web_server._v1_ws_callback(std::move(_websocket), uri.dsid,
+                                              uri.auth);
                 } else {
                   _connection = make_shared_<WsServerConnection>(
                       std::move(_websocket), _web_server.get_shared_strand());

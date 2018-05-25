@@ -21,6 +21,7 @@ class V1SessionManager final : public DestroyableRef<V1SessionManager> {
   friend class V1ServerConnection;
 
   string_ _dsid;
+  string_ _publick_key_b64;
   LinkStrandRef _strand;
   ref_<NodeStateManager> _state_manager;
 
@@ -42,7 +43,8 @@ class V1SessionManager final : public DestroyableRef<V1SessionManager> {
 
   void on_conn(const string_& dsid, const string_& token, const string_& body,
                std::function<void(const string_&)>&&);
-  void on_ws(shared_ptr_<Websocket>&& ws);
+  void on_ws(shared_ptr_<Websocket>&& ws, const string_& dsid,
+             const string_& auth);
 };
 }  // namespace dsa
 

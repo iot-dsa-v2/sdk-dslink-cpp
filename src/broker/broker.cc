@@ -158,10 +158,11 @@ void DsBroker::run(bool wait) {
 
         },
         CAST_LAMBDA(WebServer::V1WsCallback)[shared_v1_manager](
-            shared_ptr_<Websocket> && ws) {
-          shared_v1_manager->post([ws = std::move(ws)](
+            shared_ptr_<Websocket> && ws, const string_& dsid,
+            const string_& auth) {
+          shared_v1_manager->post([ ws = std::move(ws), dsid, auth ](
               ref_<V1SessionManager> & v1_manager, LinkStrand&) mutable {
-            v1_manager->on_ws(std::move(ws));
+            v1_manager->on_ws(std::move(ws), dsid, auth);
           });
         });
     uint16_t http_port =
