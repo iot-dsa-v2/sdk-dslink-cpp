@@ -23,7 +23,26 @@ static int char2int(char input) {
 }
 
 namespace dsa {
-string_ base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len) {
+static void base64_url_convert_(string_ &str) {
+  size_t length = str.size();
+  for (size_t idx = 0; idx < length; ++idx) {
+    switch (str[idx]) {
+      case '+':
+        str[idx] = '-';
+        break;
+      case '/':
+        str[idx] = '_';
+        break;
+      case '=':
+        str.resize(idx);
+        return;
+      default:;
+    }
+  }
+}
+
+string_ base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len,
+                      bool url) {
   BIO *bio, *b64;
   BUF_MEM *bufferPtr;
 
@@ -42,48 +61,54 @@ string_ base64_encode(uint8_t const *bytes_to_encode, unsigned int in_len) {
   BIO_free_all(b64);
   BUF_MEM_free(bufferPtr);
 
-  return ret;
+  if (url) {
+    base64_url_convert_(ret);
+  }
+  return std::move(ret);
 }
 
-string_ base64_decode(string_ const &encoded_string) {
+std::vector<uint8_t> base64_decode(string_ const &encoded_string) {
   size_t in_len = encoded_string.size();
   BIO *bio, *b64;
 
-  auto *buffer = new uint8_t[in_len];
+  size_t in_buffer_len = (in_len + 3) / 4 * 4;
+  size_t out_buffer_len = in_len;
+  // allocate 2 buffer together
+  auto buffer = new uint8_t[in_buffer_len + out_buffer_len];
+  auto *in_buffer = buffer;
+  auto *out_buffer = buffer + in_buffer_len;
 
+  std::copy(encoded_string.begin(), encoded_string.end(), in_buffer);
+  for (uint8_t *p = in_buffer; p < out_buffer; ++p) {
+    // convert back from url safe characters
+    switch (*p) {
+      case '-':
+        *p = '+';
+        break;
+      case '_':
+        *p = '/';
+      default: {}
+    }
+  }
+  for (size_t i = in_len; i < in_buffer_len; ++i) {
+    // add padding
+    in_buffer[i] = '=';
+  }
   b64 = BIO_new(BIO_f_base64());
-  bio = BIO_new_mem_buf(encoded_string.c_str(), in_len);
+  bio = BIO_new_mem_buf(in_buffer, in_buffer_len);
   BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
   BIO_push(b64, bio);
 
-  size_t out_len = BIO_read(b64, buffer, in_len);
+  size_t out_len = BIO_read(b64, out_buffer, out_buffer_len);
   BIO_flush(b64);
 
-  string_ ret = string_((const char *)buffer, out_len);
+  auto ret = std::vector<uint8_t>(out_buffer, out_buffer + out_len);
 
   delete[] buffer;
 
   BIO_free_all(b64);
 
-  return ret;
-}
-
-void base64_url_convert_(string_ &str) {
-  size_t length = str.size();
-  for (size_t idx = 0; idx < length; ++idx) {
-    switch (str[idx]) {
-      case '+':
-        str[idx] = '-';
-        break;
-      case '/':
-        str[idx] = '_';
-        break;
-      case '=':
-        str.resize(idx);
-        return;
-      default:;
-    }
-  }
+  return std::move(ret);
 }
 
 string_ base64_url_convert(const string_ &str) {

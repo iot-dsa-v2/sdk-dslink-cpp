@@ -16,14 +16,10 @@ Var Var::to_variant(json_t *json_obj) {
     return Var(true);
   } else if (json_is_false(json_obj)) {
     return Var(false);
-  } else if (json_is_binary(json_obj)) {
-    size_t len;
-    auto ptr = json_binary_value_new(json_obj, len);
-    if (!ptr) return Var();
-    auto var = Var(ptr, len);
-    delete[] ptr;
-    return std::move(var);
   } else if (json_is_string(json_obj)) {
+    if (json_is_binary(json_obj)) {
+      return Var(json_binary_value(json_obj));
+    }
     return Var(json_string_value(json_obj), json_string_length(json_obj));
   } else if (json_is_array(json_obj)) {
     auto array = new VarArray();

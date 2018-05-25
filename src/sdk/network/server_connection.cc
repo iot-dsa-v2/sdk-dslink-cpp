@@ -83,8 +83,7 @@ bool Connection::validate_auth(HandshakeF2Message *f2) {
     hash.update(to_hash);
     auto digist = hash.digest();
 
-    if (names[2] ==
-        base64_url_convert(base64_encode(&digist[0], digist.size()))) {
+    if (names[2] == base64_encode(digist)) {
       _handshake_context.set_dummy_auth();
       return true;
     }

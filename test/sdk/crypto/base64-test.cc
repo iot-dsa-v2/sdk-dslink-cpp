@@ -1,5 +1,5 @@
-#include "dsa/crypto.h"
 #include <gtest/gtest.h>
+#include "dsa/crypto.h"
 
 #include <cstring>
 
@@ -27,11 +27,11 @@ TEST(Base64Test, Base64_EncodingDecoding) {
         "IGx1c3Qgb2YgdGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodC"
         "BpbiB0aGUgY29udGludWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25v"
         "d2xlZGdlLCBleGNlZWRzIHRoZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbG"
-        "Vhc3VyZS4=",
+        "Vhc3VyZS4",
         encoded);
 
-    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
-                         data_size));
+    EXPECT_EQ(0, memcmp((const char *)data, base64_decode(encoded).data(),
+                        data_size));
   }
   {
     const uint8_t data[] = "sdk-dslink-cpp";
@@ -39,10 +39,10 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     string_ encoded = base64_encode(data, data_size);
 
-    EXPECT_EQ("c2RrLWRzbGluay1jcHA=", encoded);
+    EXPECT_EQ("c2RrLWRzbGluay1jcHA", encoded);
 
-    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
-                         data_size));
+    EXPECT_EQ(0, memcmp((const char *)data, base64_decode(encoded).data(),
+                        data_size));
   }
   {
     const uint8_t data[] = "-dslink-cpp";
@@ -50,10 +50,10 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     string_ encoded = base64_encode(data, data_size);
 
-    EXPECT_EQ("LWRzbGluay1jcHA=", encoded);
+    EXPECT_EQ("LWRzbGluay1jcHA", encoded);
 
-    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
-                         data_size));
+    EXPECT_EQ(0, memcmp((const char *)data, base64_decode(encoded).data(),
+                        data_size));
   }
   {
     const uint8_t data[] = "dslink-cpp";
@@ -61,10 +61,10 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     string_ encoded = base64_encode(data, data_size);
 
-    EXPECT_EQ("ZHNsaW5rLWNwcA==", encoded);
+    EXPECT_EQ("ZHNsaW5rLWNwcA", encoded);
 
-    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
-                         data_size));
+    EXPECT_EQ(0, memcmp((const char *)data, base64_decode(encoded).data(),
+                        data_size));
   }
   {
     const uint8_t data[] = "-cpp";
@@ -72,10 +72,10 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     string_ encoded = base64_encode(data, data_size);
 
-    EXPECT_EQ("LWNwcA==", encoded);
+    EXPECT_EQ("LWNwcA", encoded);
 
-    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
-                         data_size));
+    EXPECT_EQ(0, memcmp((const char *)data, base64_decode(encoded).data(),
+                        data_size));
   }
   {
     const uint8_t data[] = "cpp";
@@ -85,30 +85,7 @@ TEST(Base64Test, Base64_EncodingDecoding) {
 
     EXPECT_EQ("Y3Bw", encoded);
 
-    EXPECT_EQ(0, strncmp((const char *)data, base64_decode(encoded).c_str(),
-                         data_size));
-  }
-}
-
-TEST(Base64Test, Base64URL) {
-  {
-    string_ s("=123");
-
-    EXPECT_EQ("", base64_url_convert(s));
-  }
-  {
-    string_ s("123==");
-
-    EXPECT_EQ("123", base64_url_convert(s));
-  }
-  {
-    string_ s("1+2+3==");
-
-    EXPECT_EQ("1-2-3", base64_url_convert(s));
-  }
-  {
-    string_ s("1////23==");
-
-    EXPECT_EQ("1____23", base64_url_convert(s));
+    EXPECT_EQ(0, memcmp((const char *)data, base64_decode(encoded).data(),
+                        data_size));
   }
 }

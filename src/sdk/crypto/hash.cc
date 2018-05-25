@@ -41,8 +41,6 @@ string_ Hash::digest_base64() throw(const std::runtime_error &) {
   }
   finalized = true;
 
-  string_ out = base64_encode(md_value, md_len);
-  base64_url_convert_(out);
-  return std::move(out);
+  return base64_encode(md_value, md_len);
 }
 }  // namespace dsa
