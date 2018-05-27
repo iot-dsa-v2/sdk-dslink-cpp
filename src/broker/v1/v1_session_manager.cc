@@ -8,6 +8,7 @@
 #include "responder/node_state_manager.h"
 #include "util/string.h"
 #include "v1_session.h"
+#include "web_server/socket.h"
 
 namespace dsa {
 V1SessionManager::V1SessionManager(const LinkStrandRef& strand,
@@ -48,34 +49,58 @@ void V1SessionManager::on_conn(const string_& dsid, const string_& token,
 
     _strand->client_manager().get_client(
         dsid, token, is_responder,
-        CAST_LAMBDA(
-            ClientInfo::GetClientCallback)[this, keepref = this->get_ref(),
-                                           callback = std::move(callback), dsid,
-                                           json = std::move(json)](
-            const ClientInfo client, bool error) {
-          if (error) {
-            callback("");
-            return;
-          }
-          if (!_sessions.count(dsid)) {
-            _sessions[dsid] = make_ref_<V1Session>(_strand);
-          }
-          auto& session = _sessions[dsid];
+        CAST_LAMBDA(ClientInfo::GetClientCallback)
+            [this, keepref = this->get_ref(), callback = std::move(callback),
+             dsid, remove_publickey_binary = std::move(remove_publickey_binary),
+             json = std::move(json)](const ClientInfo client,
+                                     bool error) mutable {
+              if (error) {
+                callback("");
+                return;
+              }
+              if (!_sessions.count(dsid)) {
+                _sessions[dsid] = make_ref_<V1Session>(
+                    _strand, dsid, std::move(remove_publickey_binary));
+              }
+              auto& session = _sessions[dsid];
 
-          Var response = Var({{"dsId", Var(_dsid)},
-                              {"wsUri", Var("/ws")},
-                              {"publicKey", Var(_publick_key_b64)},
-                              {"tempKey", Var(_publick_key_b64)},
-                              {"salt", Var(session->current_salt())},
-                              {"format", Var("json")},
-                              {"version", Var("1.1.2")}});
-          callback(response.to_json(1));
-        });
+              Var response = Var({{"dsId", Var(_dsid)},
+                                  {"wsUri", Var("/ws")},
+                                  {"publicKey", Var(_publick_key_b64)},
+                                  {"tempKey", Var(_publick_key_b64)},
+                                  {"salt", Var(session->current_salt())},
+                                  {"format", Var("json")},
+                                  {"version", Var("1.1.2")}});
+              callback(response.to_json(1));
+            });
   } else {
     // invalid handshake
     callback("");
   }
 }
 void V1SessionManager::on_ws(shared_ptr_<Websocket>&& ws, const string_& dsid,
-                             const string_& auth) {}
+                             const string_& auth) {
+  if (_sessions.count(dsid)) {
+    auto& session = _sessions[dsid];
+
+    if (session->_shared_secret.empty()) {
+      session->_shared_secret =
+          _strand->ecdh().compute_secret(session->_public_key);
+    }
+    const uint8_t* unsigned_begin =
+        reinterpret_cast<const uint8_t*>(session->_salt.data());
+    std::vector<uint8_t> v(unsigned_begin,
+                           unsigned_begin + session->_salt.length());
+    v.insert(v.end(), session->_shared_secret.begin(),
+             session->_shared_secret.end());
+    Hash hash;
+    hash.update(v);
+    if (auth == hash.digest_base64()) {
+      session->connected(std::move(ws));
+      return;
+    }
+  }
+
+  ws->destroy();
+}
 }  // namespace dsa

@@ -7,11 +7,20 @@
 #include "stream/requester/incoming_set_stream.h"
 #include "stream/requester/incoming_subscribe_stream.h"
 #include "util/string.h"
+#include "web_server/socket.h"
 
 namespace dsa {
-V1Session::V1Session(const LinkStrandRef &strand)
-    : _strand(strand), _salt(generate_random_string(8)) {}
+V1Session::V1Session(const LinkStrandRef &strand, const string_ &dsid,
+                     std::vector<uint8_t> &&public_key)
+    : _strand(strand),
+      _dsid(dsid),
+      _salt(generate_random_string(8)),
+      _public_key(std::move(public_key)) {}
 V1Session::~V1Session() = default;
+
+void V1Session::regenerateSalt() { _salt = generate_random_string(8); }
+
+void V1Session::connected(shared_ptr_<Websocket> &&websocket) {}
 
 void V1Session::write_stream(ref_<MessageStream> &&stream) {}
 // this stream must be handled first

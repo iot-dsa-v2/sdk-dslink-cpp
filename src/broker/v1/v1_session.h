@@ -5,19 +5,35 @@
 #pragma once
 #endif
 
+
 #include "core/session.h"
 
 namespace dsa {
+class V1SessionManager;
+class Websocket;
+
 class V1Session : public BaseSession {
+  friend class V1SessionManager;
+
   LinkStrandRef _strand;
 
   string_ _salt;
 
+  string_ _dsid;
+
+  std::vector<uint8_t> _public_key;
+  std::vector<uint8_t> _shared_secret;
+
  public:
   const string_ &current_salt() const { return _salt; };
 
-  V1Session(const LinkStrandRef &strand);
+  V1Session(const LinkStrandRef &strand, const string_ &dsid,
+            std::vector<uint8_t> &&public_key);
   ~V1Session();
+
+  void regenerateSalt();
+
+  void connected(shared_ptr_<Websocket> &&websocket);
 
  public:
   void write_stream(ref_<MessageStream> &&stream) override;
