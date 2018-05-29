@@ -98,9 +98,13 @@ void Websocket::destroy() {
     // destroy websocket
     if (is_secure_stream()) {
       std::lock_guard<std::mutex> lock(_mutex);
-      _wss_stream->async_close(websocket::close_code::normal, on_close);
+      if (_wss_stream->is_open()) {
+        _wss_stream->async_close(websocket::close_code::normal, on_close);
+      }
     } else {
-      _ws_stream->async_close(websocket::close_code::normal, on_close);
+      if (_ws_stream->is_open()) {
+        _ws_stream->async_close(websocket::close_code::normal, on_close);
+      }
     }
   } else {
     // destroy http
