@@ -2,10 +2,40 @@
 
 #include "variant.h"
 
+#include "crypto/misc.h"
 #include "jansson_9e7847e.h"
-#include "jansson_binary_extension.h"
 
 namespace dsa {
+
+enum JsonSpecialType {
+  JSON_NORMAL = 0,
+  JSON_NAN,
+  JSON_INFINITY,
+  JSON_N_INFINITY,
+  JSON_BINARY
+};
+static JsonSpecialType is_json_special(const char *str) {
+  if (*str != '\u001B') return JSON_NORMAL;
+  if (strncmp(str + 1, "bytes:", 6) == 0) {
+    return JSON_BINARY;
+  }
+  if (strcmp(str + 1, "NaN") == 0) {
+    return JsonSpecialType ::JSON_NAN;
+  }
+  if (strcmp(str + 1, "Infinity") == 0) {
+    return JsonSpecialType ::JSON_INFINITY;
+  }
+  if (strcmp(str + 1, "-Infinity") == 0) {
+    return JsonSpecialType ::JSON_N_INFINITY;
+  }
+  return JsonSpecialType ::JSON_NORMAL;
+}
+
+json_t *json_binary(const uint8_t *bin_value, size_t bin_len) {
+  string_ base64 = "\u001Bbytes:" + base64_encode(bin_value, bin_len);
+
+  return json_string(base64.c_str());
+}
 
 Var Var::to_variant(json_t *json_obj) {
   if (json_is_integer(json_obj)) {
@@ -17,10 +47,23 @@ Var Var::to_variant(json_t *json_obj) {
   } else if (json_is_false(json_obj)) {
     return Var(false);
   } else if (json_is_string(json_obj)) {
-    if (json_is_binary(json_obj)) {
-      return Var(json_binary_value(json_obj));
+    const char *str = json_string_value(json_obj);
+    JsonSpecialType t = is_json_special(str);
+    switch (t) {
+      case JSON_NORMAL:
+        return Var(json_string_value(json_obj), json_string_length(json_obj));
+      case JSON_BINARY:
+        return Var(base64_decode(str + 7));
+      case JSON_NAN:
+        return Var(NAN);
+      case JSON_INFINITY:
+        return Var(INFINITY);
+      case JSON_N_INFINITY:
+        return Var(-INFINITY);
+      default:
+        // impossible to reach here
+        return Var();
     }
-    return Var(json_string_value(json_obj), json_string_length(json_obj));
   } else if (json_is_array(json_obj)) {
     auto array = new VarArray();
     array->reserve(json_array_size(json_obj));
@@ -72,37 +115,43 @@ json_t *to_json_object(const Var &v) {
   json_t *json_obj;
 
   if (v.is_double()) {
-    json_obj = json_real(v.get_double());
+    double d = v.get_double();
+    if (d != d) {
+      return json_string("\u001BNaN");
+    } else if (d == INFINITY) {
+      return json_string("\u001BInfinity");
+    } else if (d == -INFINITY) {
+      return json_string("\u001BInfinity");
+    }
+    return json_real(v.get_double());
   } else if (v.is_int()) {
-    json_obj = json_integer(v.get_int());
+    return json_integer(v.get_int());
   } else if (v.is_bool()) {
-    json_obj = json_boolean(v.get_bool());
+    return json_boolean(v.get_bool());
   } else if (v.is_string()) {
-    json_obj = json_string(v.get_string().c_str());
+    return json_string(v.get_string().c_str());
   } else if (v.is_binary()) {
     auto bin = v.get_binary();
-    json_obj = json_binary(bin.data(), bin.size());
+    return json_binary(bin.data(), bin.size());
   } else if (v.is_null()) {
-    json_obj = json_null();
+    return json_null();
   } else if (v.is_array()) {
-    json_obj = json_array();
+    return json_array();
     VarArray &array = v.get_array();
     for (auto &it : array) {
       json_array_append_new(json_obj, to_json_object(it));
     }
   } else if (v.is_map()) {
     json_obj = json_object();
-
     VarMap &map = v.get_map();
     for (auto &it : map) {
       json_object_set_new_nocheck(json_obj, it.first.c_str(),
                                   to_json_object(it.second));
     }
+    return json_obj;
   } else {
-    json_obj = json_null();
+    return json_null();
   }
-
-  return json_obj;
 }
 
 string_ Var::to_json(size_t indent) const throw(const EncodingError &) {
