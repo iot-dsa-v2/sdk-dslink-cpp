@@ -112,8 +112,6 @@ Var Var::from_json(const string_ &str) {
 }
 
 json_t *to_json_object(const Var &v) {
-  json_t *json_obj;
-
   if (v.is_double()) {
     double d = v.get_double();
     if (d != d) {
@@ -136,13 +134,14 @@ json_t *to_json_object(const Var &v) {
   } else if (v.is_null()) {
     return json_null();
   } else if (v.is_array()) {
-    return json_array();
+    json_t *json_obj = json_array();
     VarArray &array = v.get_array();
     for (auto &it : array) {
       json_array_append_new(json_obj, to_json_object(it));
     }
+    return json_obj;
   } else if (v.is_map()) {
-    json_obj = json_object();
+    json_t *json_obj = json_object();
     VarMap &map = v.get_map();
     for (auto &it : map) {
       json_object_set_new_nocheck(json_obj, it.first.c_str(),
