@@ -2,6 +2,7 @@
 
 #include "variant.h"
 
+#include <cmath>
 #include "crypto/misc.h"
 #include "jansson_9e7847e.h"
 
@@ -20,15 +21,15 @@ static JsonSpecialType is_json_special(const char *str) {
     return JSON_BINARY;
   }
   if (strcmp(str + 1, "NaN") == 0) {
-    return JsonSpecialType ::JSON_NAN;
+    return JsonSpecialType::JSON_NAN;
   }
   if (strcmp(str + 1, "Infinity") == 0) {
-    return JsonSpecialType ::JSON_INFINITY;
+    return JsonSpecialType::JSON_INFINITY;
   }
   if (strcmp(str + 1, "-Infinity") == 0) {
-    return JsonSpecialType ::JSON_N_INFINITY;
+    return JsonSpecialType::JSON_N_INFINITY;
   }
-  return JsonSpecialType ::JSON_NORMAL;
+  return JsonSpecialType::JSON_NORMAL;
 }
 
 json_t *json_binary(const uint8_t *bin_value, size_t bin_len) {
