@@ -14,9 +14,11 @@
 #include "module/default/simple_security.h"
 #include "module/default/simple_session_manager.h"
 #include "module/logger.h"
+#include "network/tcp/stcp_client_connection.h"
 #include "network/tcp/tcp_server.h"
 #include "network/ws/ws_callback.h"
 #include "network/ws/ws_client_connection.h"
+#include "util/certificate.h"
 #include "util/date_time.h"
 
 using high_resolution_clock = std::chrono::high_resolution_clock;
@@ -80,12 +82,10 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
     client_strand.ws_port = 8080;
     client_strand.ws_path = "/";
 
-    client_strand.client_connection_maker =
-        [
-          dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
-          ws_port = client_strand.ws_port
-        ](const SharedLinkStrandRef& strand)
-            ->shared_ptr_<Connection> {
+    client_strand.client_connection_maker = [
+      dsid_prefix = dsid_prefix, ws_host = client_strand.ws_host,
+      ws_port = client_strand.ws_port
+    ](const SharedLinkStrandRef& strand)->shared_ptr_<Connection> {
       return make_shared_<WsClientConnection>(false, strand, dsid_prefix,
                                               ws_host, ws_port);
     };
@@ -101,13 +101,25 @@ WrapperStrand get_client_wrapper_strand(shared_ptr_<App>& app,
       return make_shared_<WsClientConnection>(true, strand, dsid_prefix,
                                               ws_host, ws_port);
     };
+  } else if (!protocol.compare("dss")) {
+    client_strand.tcp_port = 4128;
+
+    static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
+    boost::system::error_code error_code;
+    load_root_certificate(context, error_code);
+
+    client_strand.client_connection_maker = [
+      dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+      tcp_port = client_strand.tcp_port
+    ](const SharedLinkStrandRef& strand)->shared_ptr_<Connection> {
+      return make_shared_<StcpClientConnection>(strand, context, dsid_prefix,
+                                                tcp_host, tcp_port);
+    };
   } else {
-    client_strand.client_connection_maker =
-        [
-          dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
-          tcp_port = client_strand.tcp_port
-        ](const SharedLinkStrandRef& strand)
-            ->shared_ptr_<Connection> {
+    client_strand.client_connection_maker = [
+      dsid_prefix = dsid_prefix, tcp_host = client_strand.tcp_host,
+      tcp_port = client_strand.tcp_port
+    ](const SharedLinkStrandRef& strand)->shared_ptr_<Connection> {
       return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                                tcp_port);
     };
@@ -202,37 +214,37 @@ int main(int argc, const char* argv[]) {
 
   int64_t last_count = 0;
   int64_t last_time = DateTime::ms_since_epoch();
-  std::function<void(const boost::system::error_code&)> timer_callback =
-      [&](const boost::system::error_code& error) {
-        try {
-          int64_t current_time = DateTime::ms_since_epoch();
-          int64_t count = 0;
-          for (int i = 0; i < client_count; ++i) {
-            count += message_receive_count[i];
+  std::function<void(const boost::system::error_code&)> timer_callback = [&](
+      const boost::system::error_code& error) {
+    try {
+      int64_t current_time = DateTime::ms_since_epoch();
+      int64_t count = 0;
+      for (int i = 0; i < client_count; ++i) {
+        count += message_receive_count[i];
+      }
+      if (current_time - last_time > 1000) {
+        LOG_INFO("benchmark",
+                 LOG << "per second: " << ceil((count - last_count) * 1000.0 /
+                                               (current_time - last_time))
+                     << " total: " << count);
+        last_time = current_time;
+        last_count = count;
+      }
+      for (int i = 0; i < client_count; ++i) {
+        strands[i]->dispatch([&, i]() {
+          auto& node = root_nodes[i];
+          for (int j = 0; j < msg_per_interval; ++j) {
+            node->new_value();
           }
-          if (current_time - last_time > 1000) {
-            LOG_INFO("benchmark", LOG << "per second: "
-                                      << ceil((count - last_count) * 1000.0 /
-                                              (current_time - last_time))
-                                      << " total: " << count);
-            last_time = current_time;
-            last_count = count;
-          }
-          for (int i = 0; i < client_count; ++i) {
-            strands[i]->dispatch([&, i]() {
-              auto& node = root_nodes[i];
-              for (int j = 0; j < msg_per_interval; ++j) {
-                node->new_value();
-              }
-            });
-          }
+        });
+      }
 
-        } catch (std::exception& e) {
-          LOG_ERROR("benchmark", LOG << e.what());
-        }
-        timer.expires_from_now(interval);
-        timer.async_wait(timer_callback);
-      };
+    } catch (std::exception& e) {
+      LOG_ERROR("benchmark", LOG << e.what());
+    }
+    timer.expires_from_now(interval);
+    timer.async_wait(timer_callback);
+  };
   timer.async_wait(timer_callback);
   app->wait();
 }
