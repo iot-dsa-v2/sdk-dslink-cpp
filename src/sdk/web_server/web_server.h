@@ -41,7 +41,6 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   std::shared_ptr<Listener> _listener;
   int32_t _secure_port;
   std::shared_ptr<Listener> _secure_listener;
-  boost::asio::ssl::context _ssl_context;
 
   V1ConnCallback _v1_conn_callback;
   V1WsCallback _v1_ws_callback;
@@ -58,7 +57,6 @@ class WebServer : public std::enable_shared_from_this<WebServer> {
   void start();
   void destroy();
   boost::asio::io_service& io_service() { return _io_service; }
-  boost::asio::ssl::context& ssl_context() { return _ssl_context; }
   SharedLinkStrandRef get_shared_strand() { return _shared_strand; }
 
   // util functions

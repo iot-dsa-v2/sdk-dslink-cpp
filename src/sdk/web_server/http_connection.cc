@@ -11,6 +11,7 @@
 #include "network/connection.h"
 #include "network/ws/ws_callback.h"
 #include "web_server.h"
+#include "util/certificate.h"
 
 namespace websocket = boost::beast::websocket;
 
@@ -18,8 +19,29 @@ namespace dsa {
 
 HttpConnection::HttpConnection(WebServer& web_server, bool is_secured)
     : _web_server(web_server),
+      _ssl_context{boost::asio::ssl::context::sslv23},
       _socket(_web_server.io_service()),
-      _is_secured(is_secured) {}
+      _is_secured(is_secured) {
+
+  if (!_is_secured) return;
+  try {
+    _ssl_context.set_options(boost::asio::ssl::context::default_workarounds |
+                             boost::asio::ssl::context::no_sslv2);
+    _ssl_context.set_password_callback(
+        [](std::size_t, boost::asio::ssl::context_base::password_purpose) {
+          return "";
+        });
+
+    boost::system::error_code error_code;
+    if (!load_server_certificate(_ssl_context, error_code)) {
+      LOG_ERROR(__FILENAME__, LOG << "An error detected while loading SSL certificate");
+      return;
+    }
+  } catch (boost::system::system_error& e) {
+    LOG_ERROR(__FILENAME__, LOG << "SSL context setup error: " << e.what());
+    return;
+  }
+}
 struct V1Uri {
   string_ path;
   string_ dsid;
@@ -54,7 +76,7 @@ V1Uri parseUri(const string_& str) {
 void HttpConnection::accept() {
   if (_is_secured) {
     _websocket =
-        make_shared_<Websocket>(std::move(_socket), _web_server.ssl_context());
+        make_shared_<Websocket>(std::move(_socket), _ssl_context);
   } else {
     _websocket = make_shared_<Websocket>(std::move(_socket));
   }
