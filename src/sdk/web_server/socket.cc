@@ -89,15 +89,16 @@ void Websocket::destroy() {
   _destroyed = true;
 
   if (_is_websocket) {
-    auto on_close = [](const boost::system::error_code ec) {
+    auto on_close = [sthis = shared_from_this()](
+        const boost::system::error_code ec) {
       if (ec) {
         LOG_DEBUG(__FILENAME__,
                   LOG << "websocket close error: " << ec.message());
       }
     };
     // destroy websocket
+    std::lock_guard<std::mutex> lock(_mutex);
     if (is_secure_stream()) {
-      std::lock_guard<std::mutex> lock(_mutex);
       if (_wss_stream->is_open()) {
         _wss_stream->async_close(websocket::close_code::normal, on_close);
       }
