@@ -2,7 +2,6 @@
 
 #include "variant.h"
 
-#include <cmath>
 #include "crypto/misc.h"
 #include "jansson_9e7847e.h"
 
@@ -120,7 +119,7 @@ json_t *to_json_object(const Var &v) {
     } else if (d == INFINITY) {
       return json_string("\u001BInfinity");
     } else if (d == -INFINITY) {
-      return json_string("\u001BInfinity");
+      return json_string("\u001B-Infinity");
     }
     return json_real(v.get_double());
   } else if (v.is_int()) {

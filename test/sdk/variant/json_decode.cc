@@ -14,13 +14,42 @@ TEST(VariantTest, JsonDecodingInt) {
 }
 
 TEST(VariantTest, JsonDecodingDouble) {
-  string_ json_string("{\"\":1.23}");
+  {
+    string_ json_string("{\"\":1.23}");
 
-  Var v = Var::from_json(json_string.c_str());
+    Var v = Var::from_json(json_string.c_str());
 
-  string_ encoded_value = v.to_json();
+    string_ encoded_value = v.to_json();
 
-  EXPECT_EQ(json_string, encoded_value);
+    EXPECT_EQ(json_string, encoded_value);
+  }
+  {
+    string_ json_string("{\"\":\"\\u001BNaN\"}");
+
+    Var v = Var::from_json(json_string.c_str());
+
+    string_ encoded_value = v.to_json();
+
+    EXPECT_EQ(json_string, encoded_value);
+  }
+  {
+    string_ json_string("{\"\":\"\\u001BInfinity\"}");
+
+    Var v = Var::from_json(json_string.c_str());
+
+    string_ encoded_value = v.to_json();
+
+    EXPECT_EQ(json_string, encoded_value);
+  }
+  {
+    string_ json_string("{\"\":\"\\u001B-Infinity\"}");
+
+    Var v = Var::from_json(json_string.c_str());
+
+    string_ encoded_value = v.to_json();
+
+    EXPECT_EQ(json_string, encoded_value);
+  }
 }
 
 TEST(VariantTest, JsonDecodingBool) {

@@ -6,6 +6,7 @@
 #endif
 
 #include <boost/variant.hpp>
+#include <cmath>
 #include <map>
 #include <string>
 #include <utility>
