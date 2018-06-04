@@ -24,7 +24,7 @@ typedef websocket::stream<ssl::stream<tcp::socket&>> websocket_ssl_stream;
 
 namespace dsa {
 
-class Websocket {
+class Websocket : public std::enable_shared_from_this<Websocket> {
  public:
   typedef std::function<void(const boost::system::error_code& err,
                              size_t transferred)>
