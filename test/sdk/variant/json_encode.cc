@@ -12,11 +12,40 @@ TEST(VariantTest, JsonEncodingInt) {
 }
 
 TEST(VariantTest, JsonEncodingDouble) {
-  Var v(1.23);
+  {
+    Var v(1.23);
 
-  string_ encoded_value = v.to_json();
+    string_ encoded_value = v.to_json();
 
-  EXPECT_EQ("1.23", encoded_value);
+    EXPECT_EQ("1.23", encoded_value);
+  }
+  {
+    Var v(NAN);
+
+    string_ encoded_value = v.to_json();
+
+    string_ expected_encoded_value("\"\\u001BNaN\"");
+
+    EXPECT_EQ(expected_encoded_value, encoded_value);
+  }
+  {
+    Var v(INFINITY);
+
+    string_ encoded_value = v.to_json();
+
+    string_ expected_encoded_value("\"\\u001BInfinity\"");
+
+    EXPECT_EQ(expected_encoded_value, encoded_value);
+  }
+  {
+    Var v(-INFINITY);
+
+    string_ encoded_value = v.to_json();
+
+    string_ expected_encoded_value("\"\\u001B-Infinity\"");
+
+    EXPECT_EQ(expected_encoded_value, encoded_value);
+  }
 }
 
 TEST(VariantTest, JsonEncodingBool) {
