@@ -11,12 +11,25 @@ namespace dsa {
 using tcp = boost::asio::ip::tcp;
 
 Listener::Listener(WebServer& web_server, uint16_t port, bool is_secured)
-    : _web_server(web_server),
-      _is_secured(is_secured),
-      _acceptor(new tcp::acceptor(_web_server.io_service(),
-                                  // TODO - server port
-                                  // tcp:v6() already covers both ipv4 and ipv6
-                                  tcp::endpoint(tcp::v6(), port))) {}
+    : _web_server(web_server), _is_secured(is_secured) {
+  try {
+    _acceptor = std::make_shared<tcp::acceptor>(
+        _web_server.io_service(),
+        // TODO - server port
+        // tcp:v6() already covers both ipv4 and ipv6
+        tcp::endpoint(tcp::v6(), port));
+  } catch (boost::system::system_error& e) {
+    switch (e.code().value()) {
+      case boost::asio::error::address_in_use:
+      case boost::asio::error::access_denied:
+        LOG_FATAL(__FILENAME__,
+                  LOG << "Bind Error: port " << port << " is already in use\n");
+        break;
+      default:
+        LOG_FATAL(__FILENAME__, LOG << "Bind Error: " << e.what() << "\n");
+    }
+  }
+}
 
 void Listener::run() {
   std::lock_guard<std::mutex> lock(_mutex);
