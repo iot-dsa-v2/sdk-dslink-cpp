@@ -22,7 +22,7 @@ TcpServer::TcpServer(WrapperStrand &config)
         _shared_strand->get_io_context(),
         tcp::endpoint(boost::asio::ip::address::from_string(config.server_host),
                       config.tcp_server_port),
-        true));  // TODO: true means port reusable
+        false));  // TODO: true means port reusable
   } catch (boost::exception &e) {
     LOG_FATAL(__FILENAME__,
               LOG << "Bind Error: server port is already in use\n");
@@ -58,7 +58,7 @@ TcpServer::TcpServer(WrapperStrand &config)
                       tcp::endpoint(boost::asio::ip::address::from_string(
                                         config.server_host),
                                     _secure_port),
-                      true));
+                      false));
 
   } catch (boost::system::system_error &e) {
     LOG_ERROR(__FILENAME__, LOG << "Bind Error: " << e.what() << "\n");
