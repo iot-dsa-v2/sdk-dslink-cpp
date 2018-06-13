@@ -35,7 +35,7 @@ const bool DSA_DEBUG = false;
 #include <string>
 
 namespace std {
-#ifndef __APPLE__
+#ifndef __llvm__
 template <typename T>
 class shared_ptr;
 #else
