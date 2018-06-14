@@ -146,7 +146,7 @@ int64_t DateTime::parse_ts(const string_& ts) {
       boost::gregorian::date(year, month, day),
       boost::posix_time::time_duration(hour, minute, second));
   if (match[9].matched) {
-    int64_t since_epoch = to_time_t(ptime) * 1000 + ms;
+    int64_t since_epoch = (int64_t) to_time_t(ptime) * 1000 + ms;
     if (match[10].matched) {
       int tz_hour = atoi(match[11].str().c_str());
       int tz_minute = atoi(match[12].str().c_str());
