@@ -49,7 +49,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
         if (message_size > Message::MAX_MESSAGE_SIZE) {
           LOG_DEBUG(__FILENAME__,
                     LOG << "message is bigger than maxed buffer size");
-          destroy_in_strand(std::move(connection));
+          destroy_in_strand(std::move(connection), true);
           // TODO: send error, and close with std::move
           // TcpConnection::destroy_in_strand(std::move(connection));
           return;
@@ -70,7 +70,7 @@ void BaseSocketConnection::read_loop_(shared_ptr_<Connection> &&connection,
             LOG_DEBUG(__FILENAME__,
                       LOG << "invalid message received, close connection : "
                           << err.what());
-            destroy_in_strand(std::move(connection));
+            destroy_in_strand(std::move(connection), true);
             // TODO: send error, and close with std::move
             // TcpConnection::destroy_in_strand(std::move(connection));
             return;

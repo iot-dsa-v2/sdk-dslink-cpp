@@ -30,10 +30,16 @@ Connection::Connection(const SharedLinkStrandRef &strand,
       _shared_strand(strand),
       _path(path) {}
 
-void Connection::post_in_strand(std::function<void()> &&callback) {
-  std::lock_guard<std::mutex> unique_lock(mutex);
-  if (_shared_strand != nullptr) {
-    return _shared_strand->post(std::move(callback));
+void Connection::post_in_strand(std::function<void()> &&callback, bool locked) {
+  if (locked) {
+    if (_shared_strand != nullptr) {
+      return _shared_strand->post(std::move(callback));
+    }
+  } else {
+    std::lock_guard<std::mutex> unique_lock(mutex);
+    if (_shared_strand != nullptr) {
+      return _shared_strand->post(std::move(callback));
+    }
   }
 }
 
@@ -46,7 +52,7 @@ void Connection::start_deadline_timer(size_t seconds) {
   if (seconds > 0) {
     _deadline.expires_from_now(boost::posix_time::seconds(seconds));
     _deadline.async_wait([sthis = shared_from_this()](
-        const boost::system::error_code &error) mutable {
+                             const boost::system::error_code &error) mutable {
       if (error != boost::asio::error::operation_aborted) {
         sthis->on_deadline_timer_(error, std::move(sthis));
       }
@@ -77,20 +83,20 @@ void Connection::do_batch_post(shared_ptr_<Connection> &&sthis) {
   if (_session != nullptr && !_batch_post.empty()) {
     std::vector<MessageRef> copy;
     _batch_post.swap(copy);
-    _shared_strand->post([
-      this, sthis = std::move(sthis), messages = std::move(copy)
-    ](ref_<LinkStrand> &, LinkStrand & strand) mutable {
-      if (is_destroyed()) return;
-      // a special protection to give writing higher priority than reading
-      strand.check_injected();
+    _shared_strand->post(
+        [this, sthis = std::move(sthis), messages = std::move(copy)](
+            ref_<LinkStrand> &, LinkStrand &strand) mutable {
+          if (is_destroyed()) return;
+          // a special protection to give writing higher priority than reading
+          strand.check_injected();
 
-      continue_read_loop(std::move(sthis));
-      if (_session != nullptr) {
-        for (auto &it : messages) {
-          _session->receive_message(std::move(it));
-        }
-      }
-    });
+          continue_read_loop(std::move(sthis));
+          if (_session != nullptr) {
+            for (auto &it : messages) {
+              _session->receive_message(std::move(it));
+            }
+          }
+        });
   } else if (_session == nullptr) {
     LOG_ERROR(__FILENAME__, "Session is null in connection message reading");
   }

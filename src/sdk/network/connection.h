@@ -54,7 +54,8 @@ class Connection : public SharedStrandPtr<Connection> {
   virtual string_ name() = 0;
 
  public:
-  void post_in_strand(std::function<void()> &&callback) override;
+  void post_in_strand(std::function<void()> &&callback,
+                      bool locked = false) override;
 
   std::function<void(MessageRef)> on_read_message;
 
