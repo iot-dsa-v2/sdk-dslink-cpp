@@ -18,7 +18,8 @@ class V1ServerConnection : public SharedStrandPtr<V1ServerConnection> {
   void destroy_impl() override;
 
  public:
-  void post_in_strand(std::function<void()>&& callback, bool) override;
+  void post_in_strand(std::function<void()>&& callback,
+                      bool already_locked) override;
 
   V1ServerConnection(const SharedLinkStrandRef _strand);
   ~V1ServerConnection() override;

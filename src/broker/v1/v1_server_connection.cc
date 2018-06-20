@@ -8,7 +8,7 @@ namespace dsa {
 V1ServerConnection::V1ServerConnection(const SharedLinkStrandRef strand)
     : _strand(strand) {}
 void V1ServerConnection::post_in_strand(std::function<void()>&& callback,
-                                        bool) {
+                                        bool already_locked) {
   _strand->post(std::move(callback));
 }
 V1ServerConnection::~V1ServerConnection() = default;
