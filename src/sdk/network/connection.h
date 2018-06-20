@@ -55,7 +55,7 @@ class Connection : public SharedStrandPtr<Connection> {
 
  public:
   void post_in_strand(std::function<void()> &&callback,
-                      bool locked = false) override;
+                      bool already_locked = false) override;
 
   std::function<void(MessageRef)> on_read_message;
 

@@ -30,8 +30,9 @@ Connection::Connection(const SharedLinkStrandRef &strand,
       _shared_strand(strand),
       _path(path) {}
 
-void Connection::post_in_strand(std::function<void()> &&callback, bool locked) {
-  if (locked) {
+void Connection::post_in_strand(std::function<void()> &&callback,
+                                bool already_locked) {
+  if (already_locked) {
     if (_shared_strand != nullptr) {
       return _shared_strand->post(std::move(callback));
     }
