@@ -27,7 +27,8 @@ class Server : public SharedStrandPtr<Server> {
   explicit Server(WrapperStrand &config);
   virtual ~Server() = default;
 
-  void post_in_strand(std::function<void()> &&callback) override {
+  void post_in_strand(std::function<void()> &&callback,
+                      bool already_locked) override {
     return _shared_strand->post(std::move(callback));
   }
 

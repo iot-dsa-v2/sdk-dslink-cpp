@@ -62,21 +62,26 @@ template <typename T>
 class SharedStrandPtr : public SharedDestroyable<T> {
  private:
  protected:
-  virtual void post_in_strand(std::function<void()> &&) = 0;
+  virtual void post_in_strand(std::function<void()> &&,
+                              bool already_locked = false) = 0;
 
  public:
-  void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &&destroyable) {
+  void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &&destroyable,
+                         bool already_locked = false) {
     if (destroyable->is_destroyed()) {
       return;
     }
     post_in_strand(
-        [ this, keep_ptr = std::move(destroyable) ]() { this->destroy(); });
+        [this, keep_ptr = std::move(destroyable)]() { this->destroy(); },
+        already_locked);
   }
-  void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &destroyable) {
+  void destroy_in_strand(shared_ptr_<SharedStrandPtr<T>> &destroyable,
+                         bool already_locked = false) {
     if (destroyable->is_destroyed()) {
       return;
     }
-    post_in_strand([ this, keep_ptr = destroyable ]() { this->destroy(); });
+    post_in_strand([this, keep_ptr = destroyable]() { this->destroy(); },
+                   already_locked);
   }
 };
 }  // namespace dsa
