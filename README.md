@@ -18,7 +18,7 @@ standard locations, setup SDK to point to locations which those packages were in
 
   - By default, openSSL root directory is set to `/usr/local/ssl` on Linux and `/usr/local/Cellar/openssl/1.0.2n` on macOS. Modify `CMakeListConfig.txt`to point it to your openssl install location
 
-4. On Windows, refer to platform specific installation information below.
+4. On Windows and Android, refer to platform specific installation information below.
 
   On other platform, run ```./install.sh``` to build the sdk or you can use cmake directly by doing something along the lines of
 
@@ -78,3 +78,19 @@ Once homebrew is installed, run the command
 
 ```brew install cmake ninja boost openssl```
 
+## Android Setup
+
+* Install Termux app
+* Use Termux, install the following packages
+  - cmake
+  - clang
+  - booost and boost-dev
+  - openssl and openssl-dev
+  - git
+  - ninja
+
+* Check your Boost library's install root directory. Check if your Boost installlation came with static Boost libraries. Modify install.sh script accordingly.
+
+For example, if Boost is installed under /usr and there are no static Boost libraries installed, modify install.sh script as below
+
+cmake -GNinja . -DBOOST_ROOT=/usr -DCMAKE_INSTALL_PREFIX=. -B./build
