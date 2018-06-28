@@ -9,6 +9,7 @@
 
 #include "../connection.h"
 #include "stcp_connection.h"
+#include "util/certificate.h"
 #include "util/enable_shared.h"
 
 namespace dsa {
@@ -16,9 +17,11 @@ namespace dsa {
 // TCP server side connection.
 // Handles server side of DSA handshake and starts read loop.
 class StcpServerConnection final : public StcpConnection {
+ private:
+  boost::asio::ssl::context _context;
+
  public:
   StcpServerConnection(const SharedLinkStrandRef &strand,
-                       boost::asio::ssl::context &_context,
                        const string_ &dsid_prefix = "",
                        const string_ &path = "");
 
@@ -27,6 +30,7 @@ class StcpServerConnection final : public StcpConnection {
   string_ name() final { return "StcpServerConnection"; }
 
   void handle_handshake(const boost::system::error_code &error);
+  std::string get_password() const;
 };
 }  // namespace dsa
 

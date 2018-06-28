@@ -16,13 +16,14 @@ class Client;
 // Handles client side of DSA handshake and starts read loop.
 class StcpClientConnection final : public StcpConnection {
  private:
+  boost::asio::ssl::context _context;
+
  protected:
   string_ _hostname;
   uint16_t _port;
 
  public:
   StcpClientConnection(const SharedLinkStrandRef &strand,
-                       boost::asio::ssl::context &context,
                        const string_ &dsid_prefix, const string_ &tcp_host,
                        uint16_t tcp_port);
 

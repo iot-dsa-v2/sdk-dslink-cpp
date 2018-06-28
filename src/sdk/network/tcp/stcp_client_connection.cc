@@ -4,19 +4,30 @@
 
 #include "module/logger.h"
 #include "stcp_client_connection.h"
+#include "util/certificate.h"
 
 namespace dsa {
 
-StcpClientConnection::StcpClientConnection(const SharedLinkStrandRef &strand,
-                                           boost::asio::ssl::context& context,
+StcpClientConnection::StcpClientConnection(const SharedLinkStrandRef& strand,
                                            const string_& dsid_prefix,
                                            const string_& tcp_host,
                                            uint16_t tcp_port)
-    : StcpConnection(strand, context, dsid_prefix),
+    : StcpConnection(strand, dsid_prefix),
       _hostname(tcp_host),
-      _port(tcp_port) {
-  _socket.set_verify_mode(boost::asio::ssl::verify_peer);
-  _socket.set_verify_callback(
+      _port(tcp_port),
+      _context(boost::asio::ssl::context::sslv23) {
+  boost::system::error_code error_code;
+  _context.load_verify_file("certificate.pem", error_code);
+  if (error_code) {
+    LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
+  }
+
+  load_root_certificate(_context, error_code);
+
+  _socket = make_shared_<ssl_socket>(strand->get_io_context(), _context);
+
+  _socket->set_verify_mode(boost::asio::ssl::verify_peer);
+  _socket->set_verify_callback(
       [this](bool preverified,
              boost::asio::ssl::verify_context& context) -> bool {
         return verify_certificate(preverified, context);
@@ -27,17 +38,16 @@ void StcpClientConnection::connect(size_t reconnect_interval) {
   // connect to server
   using tcp = boost::asio::ip::tcp;
   tcp::resolver resolver(_shared_strand->get_io_context());
-  LOG_FINE(
-      __FILENAME__,
-      LOG << "Secure TCP client connecting to " << _hostname << ":" << _port);
+  LOG_FINE(__FILENAME__, LOG << "Secure TCP client connecting to " << _hostname
+                             << ":" << _port);
 
   tcp::resolver::results_type results =
       resolver.resolve(tcp::resolver::query(_hostname, std::to_string(_port)));
   boost::asio::async_connect(
-      _socket.lowest_layer(), results.begin(), results.end(),
+      _socket->lowest_layer(), results.begin(), results.end(),
       // capture shared_ptr to keep the instance
       // capture this to access protected member
-      [ connection = share_this<StcpConnection>(), this ](
+      [connection = share_this<StcpConnection>(), this](
           const boost::system::error_code& error,
           tcp::resolver::iterator) mutable {
         if (is_destroyed()) return;
@@ -47,20 +57,20 @@ void StcpClientConnection::connect(size_t reconnect_interval) {
           return;
         }
 
-        _socket.async_handshake(boost::asio::ssl::stream_base::client, [
-          connection = connection, this
-        ](const boost::system::error_code& error) mutable {
-          if (error != boost::system::errc::success) {
-            destroy_in_strand(std::move(connection));
-            LOG_ERROR(__FILENAME__,
-                      LOG << "Client SSL handshake failed");
-            return;
-          }
+        _socket->async_handshake(
+            boost::asio::ssl::stream_base::client,
+            [connection = connection,
+             this](const boost::system::error_code& error) mutable {
+              if (error != boost::system::errc::success) {
+                destroy_in_strand(std::move(connection));
+                LOG_ERROR(__FILENAME__, LOG << "Client SSL handshake failed");
+                return;
+              }
 
-          start_client_f0();
+              start_client_f0();
 
-          StcpConnection::start_read(std::move(connection));
-        });
+              StcpConnection::start_read(std::move(connection));
+            });
       });
   // use half of the reconnection time to resolve host
   start_deadline_timer((reconnect_interval >> 1) + 1);

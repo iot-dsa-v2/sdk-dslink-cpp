@@ -36,13 +36,13 @@ class StcpConnection : public BaseSocketConnection {
   void continue_read_loop(shared_ptr_<Connection> &&sthis) final {
     start_read(std::move(sthis));
   }
-  ssl_socket _socket;
+  shared_ptr_<ssl_socket> _socket;
 
   void destroy_impl() override;
 
  public:
-  StcpConnection(const SharedLinkStrandRef &strand, boost::asio::ssl::context &context,
-                 const string_ &dsid_prefix, const string_ &path = "");
+  StcpConnection(const SharedLinkStrandRef &strand, const string_ &dsid_prefix,
+                 const string_ &path = "");
 
   void start_read(shared_ptr_<Connection> &&connection) final;
 

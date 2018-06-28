@@ -96,7 +96,7 @@ void EditableStrand::check_injected() {
 
 void EditableStrand::_prepare_inject_callback() {
   std::lock_guard<std::mutex> lock(_inject_mutex);
-  _inject_callback = [ this, keep_ref = get_ref() ]() {
+  _inject_callback = [this, keep_ref = get_ref()]() {
     if (is_destroyed()) return;
     _prepare_inject_callback();
     check_injected();
@@ -113,7 +113,7 @@ void EditableStrand::inject(std::function<void()>&& callback) {
   } else if (is_destroyed()) {
     // no need to call it
     // just destroy the callback in strand
-    post([callback = std::move(callback)](){});
+    post([callback = std::move(callback)]() {});
   } else {
     // callback not ready, but still need to put it in queue
     _inject_queue.emplace_back(std::move(callback));
@@ -125,37 +125,28 @@ string_ WrapperStrand::get_dsid() const {
 }
 
 void WrapperStrand::set_client_connection_maker() {
-  static boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
-  boost::system::error_code error_code;
-
   if (tcp_port > 0 && secure) {
-    load_root_certificate(context, error_code);
-
     client_connection_maker =
-        [ dsid_prefix = dsid_prefix, tcp_host = tcp_host,
-          tcp_port = tcp_port ](const SharedLinkStrandRef& strand)
-            ->shared_ptr_<Connection> {
-      return make_shared_<StcpClientConnection>(strand, context, dsid_prefix,
-                                                tcp_host, tcp_port);
+        [dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port](
+            const SharedLinkStrandRef& strand) -> shared_ptr_<Connection> {
+      return make_shared_<StcpClientConnection>(strand, dsid_prefix, tcp_host,
+                                                tcp_port);
     };
     return;
   }
   if (ws_port > 0) {
     client_connection_maker =
-        [
-          dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port,
-          secure = secure
-        ](const SharedLinkStrandRef& strand)
-            ->shared_ptr_<Connection> {
+        [dsid_prefix = dsid_prefix, ws_host = ws_host, ws_port = ws_port,
+         secure = secure](
+            const SharedLinkStrandRef& strand) -> shared_ptr_<Connection> {
       return make_shared_<WsClientConnection>(secure, strand, dsid_prefix,
                                               ws_host, ws_port);
     };
     return;
   }
   client_connection_maker =
-      [ dsid_prefix = dsid_prefix, tcp_host = tcp_host,
-        tcp_port = tcp_port ](const SharedLinkStrandRef& strand)
-          ->shared_ptr_<Connection> {
+      [dsid_prefix = dsid_prefix, tcp_host = tcp_host, tcp_port = tcp_port](
+          const SharedLinkStrandRef& strand) -> shared_ptr_<Connection> {
     return make_shared_<TcpClientConnection>(strand, dsid_prefix, tcp_host,
                                              tcp_port);
   };
