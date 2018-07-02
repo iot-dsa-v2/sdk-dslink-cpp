@@ -25,7 +25,6 @@ class TcpServer : public Server {
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
   shared_ptr_<TcpServerConnection> _next_connection;
 
-  boost::asio::ssl::context _context;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> _secure_acceptor;
   shared_ptr_<StcpServerConnection> _secure_next_connection;
 
@@ -43,7 +42,6 @@ class TcpServer : public Server {
   int get_port();
 
   int get_secure_port();
-  std::string get_password() const;
 };
 
 typedef shared_ptr_<TcpServer> TcpServerPtr;

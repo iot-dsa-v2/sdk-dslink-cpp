@@ -10,14 +10,12 @@
 namespace dsa {
 
 StcpConnection::StcpConnection(const SharedLinkStrandRef &strand,
-                               boost::asio::ssl::context &context,
                                const string_ &dsid_prefix, const string_ &path)
-    : BaseSocketConnection(strand, dsid_prefix, path),
-      _socket(strand->get_io_context(), context) {}
+    : BaseSocketConnection(strand, dsid_prefix, path) {}
 
 void StcpConnection::destroy_impl() {
   LOG_DEBUG(__FILENAME__, LOG << "connection closed");
-  _socket.lowest_layer().close();
+  _socket->lowest_layer().close();
   Connection::destroy_impl();
 }
 
@@ -31,9 +29,9 @@ void StcpConnection::start_read(shared_ptr_<Connection> &&connection) {
   if (_read_next * 2 > buffer.size() && buffer.size() < MAX_BUFFER_SIZE) {
     buffer.resize(buffer.size() * 4);
   }
-  _socket.async_read_some(
+  _socket->async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
-      [ this, connection = std::move(connection), partial_size ](
+      [this, connection = std::move(connection), partial_size](
           const boost::system::error_code &err, size_t transferred) mutable {
         read_loop_(std::move(connection), partial_size, err, transferred);
       });
@@ -63,7 +61,7 @@ void StcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
 }
 void StcpConnection::WriteBuffer::write(WriteHandler &&callback) {
   boost::asio::async_write(
-      connection._socket,
+      *connection._socket,
       boost::asio::buffer(connection._write_buffer.data(), size),
       [callback = std::move(callback)](const boost::system::error_code &error,
                                        size_t bytes_transferred) {
@@ -74,7 +72,7 @@ void StcpConnection::WriteBuffer::write(WriteHandler &&callback) {
 }
 
 ssl_socket::lowest_layer_type &StcpConnection::socket() {
-  return _socket.lowest_layer();
+  return _socket->lowest_layer();
 }
 
 }  // namespace dsa

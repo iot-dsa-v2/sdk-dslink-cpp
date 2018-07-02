@@ -5,7 +5,6 @@
 #include "module/logger.h"
 #include "stcp_server_connection.h"
 #include "tcp_server_connection.h"
-#include "util/certificate.h"
 
 #include <iostream>
 
@@ -15,8 +14,7 @@ using tcp = boost::asio::ip::tcp;
 TcpServer::TcpServer(WrapperStrand &config)
     : Server(config),
       _port(config.tcp_port),
-      _secure_port(config.tcp_secure_port),
-      _context(boost::asio::ssl::context::sslv23) {
+      _secure_port(config.tcp_secure_port) {
   try {
     _acceptor = make_unique_<boost::asio::ip::tcp::acceptor>(tcp::acceptor(
         _shared_strand->get_io_context(),
@@ -42,12 +40,9 @@ TcpServer::TcpServer(WrapperStrand &config)
     return;
   }
 
-  _context.set_options(boost::asio::ssl::context::default_workarounds |
-                       boost::asio::ssl::context::no_sslv2);
-  _context.set_password_callback(boost::bind(&TcpServer::get_password, this));
-
+  ssl::context ssl_context{ssl::context::sslv23};
   boost::system::error_code error_code;
-  if (!load_server_certificate(_context, error_code)) {
+  if (!load_server_certificate(ssl_context, error_code)) {
     _secure_port = -1;
     return;
   }
@@ -83,9 +78,10 @@ void TcpServer::start() {
   _next_connection =
       make_shared_<TcpServerConnection>(_shared_strand, _dsid_prefix);
 
-  _acceptor->async_accept(_next_connection->socket(), [
-    this, sthis = shared_from_this()
-  ](const boost::system::error_code &error) { accept_loop(error); });
+  _acceptor->async_accept(
+      _next_connection->socket(),
+      [this, sthis = shared_from_this()](
+          const boost::system::error_code &error) { accept_loop(error); });
 
   // start taking secure connection
   if (_secure_port < 0) {
@@ -93,12 +89,14 @@ void TcpServer::start() {
   }
 
   // if (!_secure_acceptor->is_open()) return;
-  _secure_next_connection = make_shared_<StcpServerConnection>(
-      _shared_strand, _context, _dsid_prefix);
+  _secure_next_connection =
+      make_shared_<StcpServerConnection>(_shared_strand, _dsid_prefix);
 
-  _secure_acceptor->async_accept(_secure_next_connection->socket(), [
-    this, sthis = shared_from_this()
-  ](const boost::system::error_code &error) { secure_accept_loop(error); });
+  _secure_acceptor->async_accept(_secure_next_connection->socket(),
+                                 [this, sthis = shared_from_this()](
+                                     const boost::system::error_code &error) {
+                                   secure_accept_loop(error);
+                                 });
 }
 
 void TcpServer::destroy_impl() {
@@ -119,9 +117,10 @@ void TcpServer::accept_loop(const boost::system::error_code &error) {
   if (!error) {
     _next_connection->accept();
     _next_connection = make_shared_<TcpServerConnection>(_shared_strand);
-    _acceptor->async_accept(_next_connection->socket(), [
-      this, sthis = shared_from_this()
-    ](const boost::system::error_code &err) { accept_loop(err); });
+    _acceptor->async_accept(
+        _next_connection->socket(),
+        [this, sthis = shared_from_this()](
+            const boost::system::error_code &err) { accept_loop(err); });
   } else {
     destroy();
   }
@@ -132,10 +131,11 @@ void TcpServer::secure_accept_loop(const boost::system::error_code &error) {
   if (!error) {
     _secure_next_connection->accept();
     _secure_next_connection =
-        make_shared_<StcpServerConnection>(_shared_strand, _context);
-    _secure_acceptor->async_accept(_secure_next_connection->socket(), [
-      this, sthis = shared_from_this()
-    ](const boost::system::error_code &err) { secure_accept_loop(err); });
+        make_shared_<StcpServerConnection>(_shared_strand);
+    _secure_acceptor->async_accept(
+        _secure_next_connection->socket(),
+        [this, sthis = shared_from_this()](
+            const boost::system::error_code &err) { secure_accept_loop(err); });
   } else {
     destroy();
   }
@@ -143,6 +143,5 @@ void TcpServer::secure_accept_loop(const boost::system::error_code &error) {
 
 int TcpServer::get_port() { return _port; }
 int TcpServer::get_secure_port() { return _secure_port; }
-std::string TcpServer::get_password() const { return ""; }
 
 }  // namespace dsa
