@@ -43,6 +43,7 @@ class TestConfig : public WrapperStrand {
   std::shared_ptr<TcpServer> create_server();
   std::shared_ptr<WebServer> create_webserver();
   ref_<DsLink> create_dslink(bool async = true);
+  static void create_pem_files();
 };
 
 void destroy_client_in_strand(ref_<Client>& client);
