@@ -6,6 +6,7 @@ using BrokerDsLinkTest = SetUpBase;
 const string_ bucket_name("config");
 TEST_F(BrokerDsLinkTest, Reconnect) {
   Storage::get_config_bucket().remove_all();
+  TestConfig::create_pem_files();
 
   auto app = make_shared_<App>();
 

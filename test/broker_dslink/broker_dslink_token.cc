@@ -4,6 +4,7 @@ using BrokerDsLinkTest = SetUpBase;
 
 TEST_F(BrokerDsLinkTest, TokenTest) {
   Storage::get_config_bucket().remove_all();
+  TestConfig::create_pem_files();
 
   // First Create Broker
   auto app = make_shared_<App>();

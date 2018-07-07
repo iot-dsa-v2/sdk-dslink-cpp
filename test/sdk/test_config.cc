@@ -35,6 +35,7 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
   tcp_server_port = 0;
   tcp_secure_port = 0;
 
+#if 0
   std::vector<std::string> pem_files = {"key.pem", "certificate.pem"};
   namespace fs = boost::filesystem;
   for (auto pem_file : pem_files) {
@@ -43,6 +44,8 @@ TestConfig::TestConfig(std::shared_ptr<App> &app, bool async,
       break;
     }
   }
+#endif
+  TestConfig::create_pem_files();
 }
 
 WrapperStrand TestConfig::get_client_wrapper_strand() {
