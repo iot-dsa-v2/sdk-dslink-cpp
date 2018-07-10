@@ -60,6 +60,7 @@ void StcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size += message.size();
 }
 void StcpConnection::WriteBuffer::write(WriteHandler &&callback) {
+  std::lock_guard<std::mutex> read_loop_lock(connection.mutex);
   boost::asio::async_write(
       *connection._socket,
       boost::asio::buffer(connection._write_buffer.data(), size),
