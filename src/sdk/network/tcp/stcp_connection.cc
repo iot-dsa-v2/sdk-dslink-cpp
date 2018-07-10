@@ -31,7 +31,7 @@ void StcpConnection::start_read(shared_ptr_<Connection> &&connection) {
   }
   _socket->async_read_some(
       boost::asio::buffer(&buffer[partial_size], buffer.size() - partial_size),
-      [this, connection = std::move(connection), partial_size](
+      [ this, connection = std::move(connection), partial_size ](
           const boost::system::error_code &err, size_t transferred) mutable {
         read_loop_(std::move(connection), partial_size, err, transferred);
       });
@@ -60,16 +60,21 @@ void StcpConnection::WriteBuffer::add(const Message &message, int32_t rid,
   size += message.size();
 }
 void StcpConnection::WriteBuffer::write(WriteHandler &&callback) {
-  std::lock_guard<std::mutex> write_lock(connection.mutex);
-  boost::asio::async_write(
-      *connection._socket,
-      boost::asio::buffer(connection._write_buffer.data(), size),
-      [callback = std::move(callback)](const boost::system::error_code &error,
-                                       size_t bytes_transferred) {
-        DSA_REF_GUARD;
+  connection.socket().get_io_context().post([
+    size = size, conn_ptr = connection.share_this<StcpConnection>(),
+    callback = std::move(callback)
+  ]() {
+    std::lock_guard<std::mutex> write_lock(conn_ptr->mutex);
+    boost::asio::async_write(
+        *conn_ptr->_socket,
+        boost::asio::buffer(conn_ptr->_write_buffer.data(), size),
+        [callback = std::move(callback)](const boost::system::error_code &error,
+                                         size_t bytes_transferred) {
+          DSA_REF_GUARD;
 
-        callback(error);
-      });
+          callback(error);
+        });
+  });
 }
 
 ssl_socket::lowest_layer_type &StcpConnection::socket() {
