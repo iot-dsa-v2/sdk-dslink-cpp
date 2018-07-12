@@ -19,6 +19,7 @@ using BrokerSysTest = SetUpBase;
 
 TEST_F(BrokerSysTest, UpstreamTest) {
   Storage::get_config_bucket().remove_all();
+  TestConfig::create_pem_files();
 
   // First Create Broker
   auto broker = create_broker();

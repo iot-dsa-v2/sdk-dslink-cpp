@@ -17,10 +17,6 @@ StcpClientConnection::StcpClientConnection(const SharedLinkStrandRef& strand,
       _port(tcp_port),
       _context(boost::asio::ssl::context::sslv23) {
   boost::system::error_code error_code;
-  _context.load_verify_file("certificate.pem", error_code);
-  if (error_code) {
-    LOG_FATAL(__FILENAME__, LOG << "Failed to verify cetificate");
-  }
 
   load_root_certificate(_context, error_code);
 

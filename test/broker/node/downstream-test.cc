@@ -64,6 +64,7 @@ class MockNodeRoot : public NodeModel {
 
 TEST_F(BrokerDownstreamTest, Subscribe) {
   Storage::get_config_bucket().remove_all();
+  TestConfig::create_pem_files();
 
   typedef broker_downstream_test::MockNodeRoot MockNodeRoot;
 

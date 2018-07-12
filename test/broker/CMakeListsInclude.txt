@@ -8,6 +8,7 @@ set(BROKER_TEST_SOURCES
     broker/sys/permission-test.cc
     broker/sys/upstream-test.cc
     sdk/async_test.cc
+    sdk/test_config.cc
 )
 
 

@@ -15,6 +15,7 @@ void clean_config_files(dsa::ProtocolType protocol) {
 
 TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
   clean_config_files(protocol());
+  TestConfig::create_pem_files();
 
   // First Create Broker
   auto app = make_shared_<App>();
@@ -129,11 +130,12 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
   }
   app->wait();
 
-  clean_config_files(protocol());
+  Storage::get_config_bucket().remove_all();
 }
 
 TEST_F(BrokerDsLinkTest, ClientPathTest) {
   clean_config_files(protocol());
+  TestConfig::create_pem_files();
 
   // First Create Broker
   auto app = make_shared_<App>();
@@ -221,7 +223,7 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
   }
   app->wait();
 
-  clean_config_files(protocol());
+  Storage::get_config_bucket().remove_all();
 }
 
 bool get_connected(const shared_ptr_<Connection> &connection) {
@@ -239,6 +241,7 @@ bool get_connected(const shared_ptr_<Connection> &connection) {
 
 TEST_F(BrokerDsLinkTest, QuarantineTest) {
   clean_config_files(protocol());
+  TestConfig::create_pem_files();
 
   // First Create Broker
   auto app = make_shared_<App>();
@@ -370,11 +373,12 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
   }
   app->wait();
 
-  clean_config_files(protocol());
+  Storage::get_config_bucket().remove_all();
 }
 
 TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
   clean_config_files(protocol());
+  TestConfig::create_pem_files();
 
   // First Create Broker
   auto app = make_shared_<App>();
@@ -428,5 +432,5 @@ TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
   }
   app->wait();
 
-  clean_config_files(protocol());
+  Storage::get_config_bucket().remove_all();
 }
