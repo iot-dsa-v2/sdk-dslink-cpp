@@ -219,7 +219,7 @@ size_t Session::peek_next_message(size_t available, int64_t time) {
   return 0;
 }
 
-void Session::write_loop(ref_<Session> ref) {
+void Session::write_loop(ref_<Session> &&ref) {
   Connection *connection = ref->_connection.get();
   if (connection == nullptr) {
     // not connected or already destroyed
@@ -265,8 +265,8 @@ void Session::write_loop(ref_<Session> ref) {
   write_buffer->write([ref = std::move(ref)](
       const boost::system::error_code &error) mutable {
     LinkStrandRef &strand = ref->_strand;
-    strand->inject([ref = std::move(ref)]() mutable {
-      Session::write_loop(std::move(ref));
+    strand->inject([ref_move = std::move(ref)]() mutable {
+      Session::write_loop(std::move(ref_move));
     });
   });
 }

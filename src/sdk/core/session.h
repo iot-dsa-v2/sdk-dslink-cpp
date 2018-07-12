@@ -109,7 +109,7 @@ class Session final : public BaseSession {
 
   size_t peek_next_message(size_t available, int64_t time);
 
-  static void write_loop(ref_<Session> sthis);
+  static void write_loop(ref_<Session> &&sthis);
 
   void receive_message(MessageRef &&message);
 

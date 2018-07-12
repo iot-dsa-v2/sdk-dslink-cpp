@@ -63,7 +63,7 @@ void StcpConnection::WriteBuffer::write(WriteHandler &&callback) {
   connection.socket().get_io_context().post([
     size = size, conn_ptr = connection.share_this<StcpConnection>(),
     callback = std::move(callback)
-  ]() {
+  ]() mutable {
     std::lock_guard<std::mutex> write_lock(conn_ptr->mutex);
     boost::asio::async_write(
         *conn_ptr->_socket,
