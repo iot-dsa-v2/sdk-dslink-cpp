@@ -79,7 +79,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
                     .check_state(Path(DOWNSTREAM_NAME));
 
   pub_root.register_standard_profile_function(
-      "Broker/Client/Remove",
+      "broker/client/remove",
       [ this, keepref = get_ref() ](Var&&, SimpleInvokeNode&,
                                     OutgoingInvokeStream & stream,
                                     ref_<NodeState> && parent) {
@@ -106,7 +106,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
       });
 
   pub_root.register_standard_profile_function(
-      "Broker/Client/Detach_Token",
+      "broker/client/detach-token",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -122,7 +122,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
       });
 
   pub_root.register_standard_profile_function(
-      "Broker/Quarantine_Client/Authorize",
+      "broker/quarantine-client/authorize",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -172,7 +172,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
           auto child = make_ref_<BrokerClientNode>(
               _strand, _clients_root->get_ref(),
-              _strand->stream_acceptor().get_profile("Broker/Client", true),
+              _strand->stream_acceptor().get_profile("broker/client", true),
               dsid);
           child->set_client_info(std::move(info));
 
@@ -190,7 +190,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
       });
 
   pub_root.register_standard_profile_function(
-      "Broker/Token/Remove",
+      "broker/token/remove",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -209,7 +209,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         }
       });
   pub_root.register_standard_profile_function(
-      "Broker/Token/Remove_All_Clients",
+      "broker/token/remove-all-clients",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -223,7 +223,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
         }
       });
   pub_root.register_standard_profile_function(
-      "Broker/Token/Regenerate",
+      "broker/token/regenerate",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var&&, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -243,7 +243,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _clients_root
       ->add_list_child(
-          "Allow_All",
+          "allow-all",
           make_ref_<ValueNodeModel>(
               _strand, "bool",
               [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
@@ -258,7 +258,7 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
 
   _quarantine_root
       ->add_list_child(
-          "Enabled",
+          "enabled",
           make_ref_<ValueNodeModel>(
               _strand, "bool",
               [ this, keepref = get_ref() ](const Var& v)->StatusDetail {
@@ -350,7 +350,7 @@ void BrokerClientManager::get_client(const string_& id,
         // add to downstream
         auto child = make_ref_<BrokerClientNode>(
             _strand, _clients_root->get_ref(),
-            _strand->stream_acceptor().get_profile("Broker/Client", true), id);
+            _strand->stream_acceptor().get_profile("broker/client", true), id);
         child->temporary_client = true;
         child->set_client_info(std::move(info));
 
@@ -406,7 +406,7 @@ void BrokerClientManager::get_client(const string_& id,
               // add to downstream
               auto child = make_ref_<BrokerClientNode>(
                   _strand, _clients_root->get_ref(),
-                  _strand->stream_acceptor().get_profile("Broker/Client", true),
+                  _strand->stream_acceptor().get_profile("broker/client", true),
                   id);
               child->set_client_info(std::move(info));
 
@@ -429,7 +429,7 @@ void BrokerClientManager::get_client(const string_& id,
           // add to downstream
           auto child = make_ref_<BrokerClientNode>(
               _strand, _clients_root->get_ref(),
-              _strand->stream_acceptor().get_profile("Broker/Client", true),
+              _strand->stream_acceptor().get_profile("broker/client", true),
               id);
           child->set_client_info(std::move(info));
 

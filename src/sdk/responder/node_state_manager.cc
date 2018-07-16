@@ -19,7 +19,7 @@
 
 namespace dsa {
 
-static const Path PUB_PATH = Path("Pub");
+static const Path PUB_PATH = Path("pub");
 
 NodeStateManager::NodeStateManager(LinkStrand &strand, ModelRef &&root_model,
                                    size_t timer_interval)

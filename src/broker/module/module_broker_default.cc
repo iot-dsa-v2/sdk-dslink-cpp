@@ -36,15 +36,15 @@ void ModuleBrokerDefault::add_module_node(NodeModel &module_node,
   if (_client_manager != nullptr) {
     auto &client_manager = static_cast<BrokerClientManager &>(*_client_manager);
     client_manager.create_nodes(module_node, pub_root);
-    module_node.add_list_child("Clients", client_manager.get_clients_root());
-    module_node.add_list_child("Quarantine",
+    module_node.add_list_child("clients", client_manager.get_clients_root());
+    module_node.add_list_child("quarantine",
                                client_manager.get_quarantine_root());
-    module_node.add_list_child("Tokens", client_manager.get_tokens_root());
+    module_node.add_list_child("tokens", client_manager.get_tokens_root());
   }
   if (_authorizer != nullptr) {
     auto &authorizer = static_cast<BrokerAuthorizer &>(*_authorizer);
     authorizer.create_nodes(module_node, pub_root);
-    module_node.add_list_child("Roles", authorizer.get_permission_root());
+    module_node.add_list_child("roles", authorizer.get_permission_root());
   }
 }
 }  // namespace dsa

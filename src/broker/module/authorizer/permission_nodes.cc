@@ -11,11 +11,11 @@
 
 namespace dsa {
 
-static const string_ DEFAULT_ROLE_NAME = "Default";
+static const string_ DEFAULT_ROLE_NAME = "default";
 
 PermissionRoleRootNode::PermissionRoleRootNode(const LinkStrandRef &strand)
     : NodeModel(strand),
-      _storage(_strand->storage().get_strand_bucket("Roles", _strand)) {}
+      _storage(_strand->storage().get_strand_bucket("roles", _strand)) {}
 
 void PermissionRoleRootNode::destroy_impl() {
   _storage.reset();
@@ -43,7 +43,7 @@ void PermissionRoleRootNode::initialize() {
           } else {
             child = make_ref_<PermissionRoleNode>(
                 _strand, get_ref(),
-                _strand->stream_acceptor().get_profile("Broker/Permission_Role",
+                _strand->stream_acceptor().get_profile("broker/permission-role",
                                                        true));
           }
           child->load(map.get_map());
@@ -84,12 +84,12 @@ void PermissionRoleRootNode::init_default_role_node() {
   // copy a profile node into list children
   // since the profile node is already in state tree
   // its state will still be the original one under Pub node
-  _default_role->add_list_child("Add_Rule",
+  _default_role->add_list_child("add-rule",
                                 _strand->stream_acceptor().get_profile(
-                                    "Broker/Permission_Role/Add_Rule", true));
+                                    "broker/permission-role/add-rule", true));
 
   // remove fallback node
-  _default_role->remove_list_child("Fallback");
+  _default_role->remove_list_child("fallback");
 }
 
 PermissionRoleNode::PermissionRoleNode(const LinkStrandRef &strand,
@@ -111,7 +111,7 @@ PermissionRoleNode::PermissionRoleNode(const LinkStrandRef &strand,
         }
         return Status::INVALID_PARAMETER;
       }));
-  add_list_child("Fallback", std::move(_fallback_name_node));
+  add_list_child("fallback", std::move(_fallback_name_node));
 }
 PermissionRoleNode::~PermissionRoleNode() = default;
 
@@ -218,7 +218,7 @@ void PermissionRoleNode::load_extra(VarMap &map) {
           // create a rule node for it
           auto rule = make_ref_<PermissionRuleNode>(
               _strand, get_ref(),
-              _strand->stream_acceptor().get_profile("Broker/Permission_Rule",
+              _strand->stream_acceptor().get_profile("broker/permission-rule",
                                                      true));
           rule->_path = it.first;
           rule->_level = level;

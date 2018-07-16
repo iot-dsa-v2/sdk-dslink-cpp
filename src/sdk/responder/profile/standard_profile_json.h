@@ -3,40 +3,40 @@
 
 static const std::string standard_profile = R"({
  "2.0": {
-  "Broker": {
-   "User": {
-    "Remove": {
+  "broker": {
+   "user": {
+    "remove": {
      "$invokable": "config"
     }
    },
-   "Client": {
-    "Remove": {
+   "client": {
+    "remove": {
      "$invokable": "config"
     },
-    "Detach_Token": {
+    "detach-token": {
      "$invokable": "config"
     },
-    "Role": {
+    "role": {
      "$type": "string",
      "$writable": "config"
     },
-    "Path": {
+    "path": {
      "$type": "string",
      "$writable": "config"
     },
-    "Max_Session": {
+    "max-session": {
      "$type": "number",
      "$writable": "config"
     },
-    "Current_Session": {
+    "current-session": {
      "$type": "number"
     },
-    "From_Token": {
+    "from-token": {
      "$type": "string"
     }
    },
-   "Quarantine_Client": {
-    "Authorize": {
+   "quarantine-client": {
+    "authorize": {
      "$invokable": "config",
      "$params": [
       {
@@ -54,14 +54,14 @@ static const std::string standard_profile = R"({
      ]
     }
    },
-   "Permission_Role": {
+   "permission-role": {
     "$type": "string",
     "$writable": "config",
     "$editor": "enum[,none,list,read,write,config]",
-    "Remove": {
+    "remove": {
      "$invokable": "config"
     },
-    "Add_Rule": {
+    "add-rule": {
      "$invokable": "config",
      "$params": [
       {
@@ -75,81 +75,81 @@ static const std::string standard_profile = R"({
       }
      ]
     },
-    "Fallback": {
+    "fallback": {
      "$type": "string",
      "$writable": "config"
     }
    },
-   "Permission_Rule": {
+   "permission-rule": {
     "$type": "string",
     "$writable": "config",
     "$editor": "enum[none,list,read,write,config]",
-    "Remove": {
+    "remove": {
      "$invokable": "config"
     }
    },
-   "Token": {
-    "Remove": {
+   "token": {
+    "remove": {
      "$invokable": "config"
     },
-    "Remove_All_Clients": {
+    "remove-all-clients": {
      "$invokable": "config"
     },
-    "Regenerate": {
+    "regenerate": {
      "$invokable": "config"
     },
-    "Role": {
+    "role": {
      "$type": "string",
      "$writable": "config"
     },
-    "Time_Range": {
+    "time-range": {
      "$type": "string",
      "$editor": "daterange",
      "$writable": "config"
     },
-    "Count": {
+    "count": {
      "$type": "number",
      "$writable": "config"
     },
-    "Max_Session": {
+    "max-session": {
      "$type": "number",
      "$writable": "config"
     },
-    "Managed": {
+    "managed": {
      "$type": "bool",
      "$writable": "config"
     },
-    "Token": {
+    "token": {
      "$type": "string"
     }
    },
-   "Upstream_Connection": {
-    "Remove": {
+   "upstream-connection": {
+    "remove": {
      "$invokable": "config"
     },
-    "Enabled": {
+    "enabled": {
      "$type": "bool",
      "$writable": "config"
     },
-    "Url": {
+    "url": {
      "$type": "string",
      "$writable": "config"
     },
-    "Token": {
+    "token": {
      "$type": "string",
      "$writable": "config"
     },
-    "Role": {
+    "role": {
      "$type": "string",
      "$writable": "config"
     },
-    "Status": {
+    "status": {
      "$type": "string"
     },
-    "Remote_Id": {
+    "remote-id": {
      "$type": "string"
     },
-    "Remote_Path": {
+    "remote-path": {
      "$type": "string"
     }
    }

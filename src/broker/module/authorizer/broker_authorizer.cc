@@ -45,7 +45,7 @@ void BrokerAuthorizer::check_permission(const string_& id, const string_& role,
 void BrokerAuthorizer::create_nodes(NodeModel& sys_node,
                                     BrokerPubRoot& pub_root) {
   pub_root.register_standard_profile_function(
-      "Broker/Permission_Role/Add_Rule",
+      "broker/permission-role/add-rule",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -70,7 +70,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& sys_node,
 
           auto rule = make_ref_<PermissionRuleNode>(
               _strand, role->get_ref(),
-              _strand->stream_acceptor().get_profile("Broker/Permission_Rule",
+              _strand->stream_acceptor().get_profile("broker/permission-rule",
                                                      true));
           rule->_path = path;
           rule->_level = permisison_level;
@@ -88,7 +88,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& sys_node,
       });
 
   pub_root.register_standard_profile_function(
-      "Broker/Permission_Role/Remove",
+      "broker/permission-role/remove",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -106,7 +106,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& sys_node,
       });
 
   pub_root.register_standard_profile_function(
-      "Broker/Permission_Rule/Remove",
+      "broker/permission-rule/remove",
       CAST_LAMBDA(SimpleInvokeNode::FullCallback)[this, keepref = get_ref()](
           Var && v, SimpleInvokeNode&, OutgoingInvokeStream & stream,
           ref_<NodeState> && parent) {
@@ -131,7 +131,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& sys_node,
 
   _permission_root.reset(new PermissionRoleRootNode(_strand));
   _permission_root->add_list_child(
-      "Add_Role",
+      "add-role",
       make_ref_<SimpleInvokeNode>(
           _strand, [ this, keepref = get_ref() ](Var && v)->Var {
             if (_permission_root != nullptr && v.is_map()) {
@@ -149,7 +149,7 @@ void BrokerAuthorizer::create_nodes(NodeModel& sys_node,
               auto role = make_ref_<PermissionRoleNode>(
                   _strand, _permission_root->get_ref(),
                   _strand->stream_acceptor().get_profile(
-                      "Broker/Permission_Role", true));
+                      "broker/permission-role", true));
               _permission_root->add_list_child(name, std::move(role));
               return Var(Status::DONE);
             } else {
