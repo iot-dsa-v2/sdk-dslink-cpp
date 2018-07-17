@@ -40,14 +40,14 @@ TEST_F(BrokerSysTest, UpstreamTest) {
   EXPECT_TRUE(port != 0);
 
   WrapperStrand client_strand1 =
-      get_client_wrapper_strand(broker, "Test1", protocol());
+      get_client_wrapper_strand(broker, "test1", protocol());
 
   auto root_node = make_ref_<NodeModel>(client_strand1.strand);
   auto child_node =
       make_ref_<ValueNodeModel>(client_strand1.strand, "string",
                                 [](const Var &) { return StatusDetail(); });
   child_node->set_value(Var("hello"));
-  root_node->add_list_child("Value", std::move(child_node));
+  root_node->add_list_child("value", std::move(child_node));
   client_strand1.strand->set_responder_model(ModelRef(root_node.get()));
   auto client_1 = make_ref_<Client>(client_strand1);
 
@@ -62,7 +62,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
           upstream_added = true;
         },
         make_ref_<InvokeRequestMessage>(
-            "Sys/Upstream/Add",
+            "sys/upstream/add",
             Var({{"Node_Name", Var("up1")},
                  {"Connection_Name", Var("down1")},
                  {"Url", Var(string_("127.0.0.1:") + std::to_string(port))}})));
@@ -73,7 +73,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
   string_ upstream_status = "";
   client_strand1.strand->dispatch([&]() {
     client_1->get_session().subscribe(
-        "Sys/Upstream/up1/Status",
+        "sys/upstream/up1/status",
         CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
             IncomingSubscribeStream &,
             ref_<const SubscribeResponseMessage> && msg) {
@@ -88,7 +88,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
   bool value_upstream_checked = false;
   client_strand1.strand->dispatch([&]() {
     client_1->get_session().subscribe(
-        "Upstream/up1/Downstream/Test1/Value",
+        "upstream/up1/downstream/test1/value",
         CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
             IncomingSubscribeStream &,
             ref_<const SubscribeResponseMessage> && msg) {
@@ -102,7 +102,7 @@ TEST_F(BrokerSysTest, UpstreamTest) {
   bool value_downstream_checked = false;
   client_strand1.strand->dispatch([&]() {
     client_1->get_session().subscribe(
-        "Downstream/down1/Downstream/Test1/Value",
+        "downstream/down1/downstream/test1/value",
         CAST_LAMBDA(IncomingSubscribeStreamCallback)[&](
             IncomingSubscribeStream &,
             ref_<const SubscribeResponseMessage> && msg) {

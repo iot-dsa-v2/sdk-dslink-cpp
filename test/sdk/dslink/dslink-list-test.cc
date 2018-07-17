@@ -29,8 +29,8 @@ class MockNodeRoot : public NodeModel {
   bool need_list() { return _need_list; }
 
   explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
-    add_list_child("Child_a", make_ref_<MockNodeChild>(_strand));
-    add_list_child("Child_b", make_ref_<MockNodeChild>(_strand));
+    add_list_child("child-a", make_ref_<MockNodeChild>(_strand));
+    add_list_child("child-b", make_ref_<MockNodeChild>(_strand));
   };
 
   //  void on_list(BaseOutgoingListStream &stream, bool first_request) override
@@ -80,13 +80,13 @@ TEST_F(DslinkTest, ListTest) {
         {
           EXPECT_TRUE(root_list_responses.size() == 1);
           EXPECT_TRUE(root_list_responses[0].size() == 0);
-          EXPECT_TRUE(cache.get_map().at("Child_a").is_map());
+          EXPECT_TRUE(cache.get_map().at("child-a").is_map());
           EXPECT_EQ(
-              cache.get_map().at("Child_a").get_map().at("$is").to_string(),
+              cache.get_map().at("child-a").get_map().at("$is").to_string(),
               "test_class");
-          EXPECT_TRUE(cache.get_map().at("Child_b").is_map());
+          EXPECT_TRUE(cache.get_map().at("child-b").is_map());
           EXPECT_EQ(
-              cache.get_map().at("Child_b").get_map().at("$is").to_string(),
+              cache.get_map().at("child-b").get_map().at("$is").to_string(),
               "test_class");
         }
       } else {
@@ -95,7 +95,7 @@ TEST_F(DslinkTest, ListTest) {
 
       // list on child node
       auto list_cache2 = link_req->list(
-          "Child_a",
+          "child-a",
           [&](IncomingListCache &cache1, const std::vector<string_> &str) {
             if (!flag3) {
               EXPECT_TRUE(cache1.get_map().size() != 0);
@@ -113,7 +113,7 @@ TEST_F(DslinkTest, ListTest) {
             if (!flag3) {
               server_strand.strand->post([&]() {
                 root_node->add_list_child(
-                    "Child_c", new MockNodeChild(server_strand.strand));
+                    "child-c", new MockNodeChild(server_strand.strand));
                 flag3 = true;
                 //
               });
@@ -126,10 +126,10 @@ TEST_F(DslinkTest, ListTest) {
         {
           EXPECT_TRUE(root_list_responses.size() == 1);
           EXPECT_TRUE(root_list_responses[0].size() == 1);
-          EXPECT_TRUE(root_list_responses[0][0] == "Child_c");
-          EXPECT_TRUE(cache.get_map().at("Child_c").is_map());
+          EXPECT_TRUE(root_list_responses[0][0] == "child-c");
+          EXPECT_TRUE(cache.get_map().at("child-c").is_map());
           EXPECT_EQ(
-              cache.get_map().at("Child_c").get_map().at("$is").to_string(),
+              cache.get_map().at("child-c").get_map().at("$is").to_string(),
               "test_class");
         }
 

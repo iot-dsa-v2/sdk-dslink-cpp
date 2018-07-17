@@ -36,7 +36,7 @@ class MockNodeMain : public NodeModel {
   explicit MockNodeMain(const LinkStrandRef &strand) : NodeModel(strand){};
 
   bool save_child(const string_ &name) const override {
-    if (name == "Add_Child")
+    if (name == "add-child")
       return false;
     else
       return true;
@@ -63,7 +63,7 @@ TEST_F(DslinkTest, SaveMainNode) {
   ref_<MockNodeMain> main_node =
       make_ref_<MockNodeMain>(link->strand);
   main_node->add_list_child(
-      "Add_Child",
+      "add-child",
       make_ref_<SimpleInvokeNode>(
           link->strand,
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
@@ -87,8 +87,8 @@ TEST_F(DslinkTest, SaveMainNode) {
 
     // invoke the Add_Child node to add new child
     auto request = make_ref_<InvokeRequestMessage>();
-    request->set_target_path("Main/Add_Child");
-    request->set_body(Var("Child_A").to_msgpack());
+    request->set_target_path("main/add-child");
+    request->set_body(Var("child-a").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
@@ -98,8 +98,8 @@ TEST_F(DslinkTest, SaveMainNode) {
 
     // invoke the Add_Child node to add second child
     auto request2 = make_ref_<InvokeRequestMessage>();
-    request2->set_target_path("Main/Add_Child");
-    request2->set_body(Var("Child_B").to_msgpack());
+    request2->set_target_path("main/add-child");
+    request2->set_body(Var("child-b").to_msgpack());
     link_req->invoke(
         [&](IncomingInvokeStream &, ref_<const InvokeResponseMessage> &&msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
@@ -120,7 +120,7 @@ TEST_F(DslinkTest, SaveMainNode) {
 
   storage_bucket->remove_all();
   //save main node
-  main_node->save(*storage_bucket, "Main", false, true);
+  main_node->save(*storage_bucket, "main", false, true);
 
   destroy_dslink_in_strand(link);
   main_node.reset();
@@ -134,7 +134,7 @@ TEST_F(DslinkTest, SaveMainNode) {
   ref_<MockNodeMain> main_node2 =
       make_ref_<MockNodeMain>(link2->strand);
   main_node2->add_list_child(
-      "Add_Child",
+      "add-child",
       make_ref_<SimpleInvokeNode>(
           link2->strand,
           [&](Var &&v, SimpleInvokeNode &node, OutgoingInvokeStream &stream,
@@ -164,7 +164,7 @@ TEST_F(DslinkTest, SaveMainNode) {
                                std::vector<uint8_t> vec,
                                BucketReadStatus read_status) {
 
-    if (storage_key == "Main") {
+    if (storage_key == "main") {
       std::string str(vec.begin(), vec.end());
 
       auto v = Var::from_json(str);
@@ -187,7 +187,7 @@ TEST_F(DslinkTest, SaveMainNode) {
 
     // list on Main node
     auto list_cache1 = link_req->list(
-        "Main",
+        "main",
         [
               &,
               link_req = static_cast<ref_<DsLinkRequester>>(link_req->get_ref())
@@ -198,14 +198,14 @@ TEST_F(DslinkTest, SaveMainNode) {
           {
             EXPECT_TRUE(root_list_responses.size() == 1);
             EXPECT_TRUE(root_list_responses[0].size() == 0);
-            EXPECT_TRUE(cache.get_map().at("Child_A").is_map());
+            EXPECT_TRUE(cache.get_map().at("child-a").is_map());
             EXPECT_EQ(
-                cache.get_map().at("Child_A").get_map().at("$is").to_string(),
-                "Child_A");
-            EXPECT_TRUE(cache.get_map().at("Child_B").is_map());
+                cache.get_map().at("child-a").get_map().at("$is").to_string(),
+                "child-a");
+            EXPECT_TRUE(cache.get_map().at("child-b").is_map());
             EXPECT_EQ(
-                cache.get_map().at("Child_B").get_map().at("$is").to_string(),
-                "Child_B");
+                cache.get_map().at("child-b").get_map().at("$is").to_string(),
+                "child-b");
           }
           flag1 = true;
         });

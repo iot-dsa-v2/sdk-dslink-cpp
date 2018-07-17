@@ -23,7 +23,7 @@ QuaratineRemoteRoot::QuaratineRemoteRoot(const LinkStrandRef &strand,
 
 void QuaratineRemoteRoot::initialize() {
   auto profile =
-      _strand->stream_acceptor().get_profile("Broker/Quarantine_Client", true);
+      _strand->stream_acceptor().get_profile("broker/quarantine-client", true);
 
   if (profile != nullptr) {
     set_override_meta(

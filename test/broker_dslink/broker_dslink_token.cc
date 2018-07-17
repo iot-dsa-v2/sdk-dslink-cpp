@@ -25,11 +25,11 @@ TEST_F(BrokerDsLinkTest, TokenTest) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
   auto link_3 =
-      broker_dslink_test::create_dslink(app, port, "Test3", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test3", false, protocol());
 
   bool allow_all_set = false;
   string_ token;
@@ -45,7 +45,7 @@ TEST_F(BrokerDsLinkTest, TokenTest) {
           EXPECT_TRUE(msg->get_status() == Status::DONE);
           allow_all_set = true;
         },
-        make_ref_<SetRequestMessage>("Sys/Clients/Allow_All", Var(false)));
+        make_ref_<SetRequestMessage>("sys/clients/allow-all", Var(false)));
 
     link_req->invoke(
         [&, link_req](IncomingInvokeStream &stream,
@@ -56,7 +56,7 @@ TEST_F(BrokerDsLinkTest, TokenTest) {
           token = v["Token"].to_string();
           EXPECT_FALSE(token.empty());
         },
-        make_ref_<InvokeRequestMessage>("Sys/Tokens/Add",
+        make_ref_<InvokeRequestMessage>("sys/tokens/add",
                                         Var({{"Count", Var(1)}})));
 
   });

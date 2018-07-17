@@ -39,7 +39,7 @@ TEST_F(BrokerSysTest, StopBroker) {
   tcp_client->connect([&](const shared_ptr_<Connection>& connection) {
 
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
-    invoke_req->set_target_path("Sys/Stop");
+    invoke_req->set_target_path("sys/stop");
     invoke_req->set_value(Var(token));
 
     tcp_client->get_session().invoke(
