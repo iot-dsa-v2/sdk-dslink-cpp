@@ -167,7 +167,7 @@ int main(int argc, const char* argv[]) {
     message_receive_count.emplace_back(0);
 
     WrapperStrand strand = get_client_wrapper_strand(
-        app, "Benchmark" + std::to_string(i), protocol);
+        app, "benchmark" + std::to_string(i), protocol);
     auto client = make_shared_<Client>(strand);
     auto root_node = make_ref_<BenchmarkNodeRoot>(strand.strand, point_count);
     root_nodes.emplace_back(root_node);
@@ -179,7 +179,7 @@ int main(int argc, const char* argv[]) {
       SubscribeOptions options;
       options.qos = QosLevel::_1;
       for (int a = 0; a < client_count; ++a) {
-        string_ node_path = "Downstream/Benchmark" + std::to_string(a);
+        string_ node_path = "downstream/benchmark" + std::to_string(a);
         for (int b = 0; b < point_count; ++b) {
           string_ point_path = node_path + "/v" + std::to_string(b);
           client->get_session().subscribe(
