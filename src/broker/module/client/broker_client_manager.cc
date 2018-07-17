@@ -135,10 +135,10 @@ void BrokerClientManager::create_nodes(NodeModel& module_node,
             role = v["Role"].get_string();
           }
           int64_t max_session = 1;
-          if (v["Max_Session"].is_int()) {
-            max_session = v["Max_Session"].get_int();
+          if (v["Max Session"].is_int()) {
+            max_session = v["Max Session"].get_int();
             if (max_session < 1) {
-              stream.close(Status::INVALID_PARAMETER, "invalid Max_Session");
+              stream.close(Status::INVALID_PARAMETER, "invalid Max Session");
               return;
             }
           }

@@ -48,7 +48,7 @@ static const std::string standard_profile = R"({
        "type": "string"
       },
       {
-       "name": "Max_Session",
+       "name": "Max Session",
        "type": "number"
       }
      ]
