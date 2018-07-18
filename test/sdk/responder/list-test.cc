@@ -30,8 +30,8 @@ class MockNodeRoot : public NodeModel {
   bool need_list() { return _need_list; }
 
   explicit MockNodeRoot(const LinkStrandRef &strand) : NodeModel(strand) {
-    add_list_child("Child_a", make_ref_<MockNodeChild>(_strand));
-    add_list_child("Child_b", make_ref_<MockNodeChild>(_strand));
+    add_list_child("child-a", make_ref_<MockNodeChild>(_strand));
+    add_list_child("child-b", make_ref_<MockNodeChild>(_strand));
   };
 };
 }
@@ -72,7 +72,7 @@ TEST_F(ResponderTest, ListTest) {
   // list on child node
   ref_<const ListResponseMessage> child_list_response;
   tcp_client->get_session().list(
-      "Child_a",
+      "child-a",
       [&](IncomingListStream &stream, ref_<const ListResponseMessage> &&msg) {
         child_list_response = msg;
       });
@@ -83,11 +83,11 @@ TEST_F(ResponderTest, ListTest) {
     // check root list response
     auto mapref = root_list_response->get_parsed_map();
     auto map = *mapref;
-    EXPECT_TRUE(map["Child_a"].is_map());
-    EXPECT_EQ(map["Child_a"]["$is"].to_string(), "test_class");
+    EXPECT_TRUE(map["child-a"].is_map());
+    EXPECT_EQ(map["child-a"]["$is"].to_string(), "test_class");
 
-    EXPECT_TRUE(map["Child_b"].is_map());
-    EXPECT_EQ(map["Child_b"]["$is"].to_string(), "test_class");
+    EXPECT_TRUE(map["child-b"].is_map());
+    EXPECT_EQ(map["child-b"]["$is"].to_string(), "test_class");
     root_list_response.reset();
   }
 
@@ -119,7 +119,7 @@ TEST_F(ResponderTest, ListTest) {
 
   // update root child
   server_strand.strand->post([&]() {
-    root_node->add_list_child("Child_c",
+    root_node->add_list_child("child-c",
                               new MockNodeChild(server_strand.strand));
   });
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
@@ -128,8 +128,8 @@ TEST_F(ResponderTest, ListTest) {
     // check root list response
     auto mapref = root_list_response->get_parsed_map();
     auto map = *mapref;
-    EXPECT_TRUE(map["Child_c"].is_map());
-    EXPECT_EQ(map["Child_c"]["$is"].to_string(), "test_class");
+    EXPECT_TRUE(map["child-c"].is_map());
+    EXPECT_EQ(map["child-c"]["$is"].to_string(), "test_class");
   }
 
   // close list stream

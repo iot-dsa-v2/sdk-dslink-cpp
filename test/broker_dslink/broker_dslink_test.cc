@@ -39,7 +39,7 @@ TEST_F(BrokerDsLinkTest, Reconnect) {
     changing_name->strand->post([&]() { changing_name->destroy(); });
 
     // Constant name with listing
-    auto link_1 = broker_dslink_test::create_dslink(app, port, "Test1", false,
+    auto link_1 = broker_dslink_test::create_dslink(app, port, "test1", false,
                                                     protocol());
 
     connected = false;
@@ -48,7 +48,7 @@ TEST_F(BrokerDsLinkTest, Reconnect) {
     WAIT_EXPECT_TRUE(1000, [&]() -> bool { return connected; });
 
     // Constant name main link
-    auto main_link = broker_dslink_test::create_dslink(app, port, "Main_Link",
+    auto main_link = broker_dslink_test::create_dslink(app, port, "main-link",
                                                        false, protocol());
 
     bool flag1 = false, flag2 = false;
@@ -56,7 +56,7 @@ TEST_F(BrokerDsLinkTest, Reconnect) {
     main_link->connect([&](const shared_ptr_<Connection> connection,
                            ref_<DsLinkRequester> link_req) {
       // 2. CHECK IF CONNECTION IS OK
-      auto list_path = "Downstream/Test1";
+      auto list_path = "downstream/test1";
 
       link_req->list(list_path, [&](IncomingListCache &cache,
                                     const std::vector<string_> &str) {
@@ -114,17 +114,17 @@ TEST_F(BrokerDsLinkTest, NotAvailableStep3) {
   // broker->strand->logger().level = Logger::ALL___;
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test_1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test-1", false, protocol());
   // link_1->strand->logger().level = Logger::ALL___;
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "Test_2", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test-2", false, protocol());
   // link_2->strand->logger().level = Logger::ALL___;
 
   int step = 0;
   // when list on downstream/test1 it should have a metadata for test1's dsid
   auto unavailable_child_list = [&](const shared_ptr_<Connection> &connection,
                                     ref_<DsLinkRequester> link_req) {
-    link_req->list("Downstream/Test_2", [&](IncomingListCache &cache,
+    link_req->list("downstream/test-2", [&](IncomingListCache &cache,
                                             const std::vector<string_>) {
       step++;
       switch (step) {
@@ -185,19 +185,19 @@ TEST_F(BrokerDsLinkTest, StopTest) {
 
   bool connected = false;
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test_1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test-1", false, protocol());
   link_1->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) { connected = true; });
   WAIT_EXPECT_TRUE(500, [&]() -> bool { return connected; });
   connected = false;
   bool invoked = false;
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "Test_2", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test-2", false, protocol());
   link_2->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
     ref_<InvokeRequestMessage> invoke_req = make_ref_<InvokeRequestMessage>();
     invoke_req->set_value(Var(master_token));
-    invoke_req->set_target_path("Downstream/Test_1/Sys/Stop");
+    invoke_req->set_target_path("downstream/test-1/sys/stop");
 
     link_req->invoke(
         [&](IncomingInvokeStream &stream,
@@ -241,15 +241,15 @@ TEST_F(BrokerDsLinkTest, SysListWithCloseToken) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test_1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test-1", false, protocol());
 
   bool listed = false;
   link_1->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
-    link_req->list("Sys",
+    link_req->list("sys",
                    [&](IncomingListCache &cache, const std::vector<string_>) {
                      VarMap vm = cache.get_map();
-                     EXPECT_TRUE(vm["Stop"].get_type() != Var::NUL);
+                     EXPECT_TRUE(vm["stop"].get_type() != Var::NUL);
                      listed = true;
                    });
   });
@@ -297,15 +297,15 @@ TEST_F(BrokerDsLinkTest, SysListWithoutCloseToken) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test_1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test-1", false, protocol());
 
   bool listed = false;
   link_1->connect([&](const shared_ptr_<Connection> connection,
                       ref_<DsLinkRequester> link_req) {
-    link_req->list("Sys",
+    link_req->list("sys",
                    [&](IncomingListCache &cache, const std::vector<string_>) {
                      VarMap vm = cache.get_map();
-                     EXPECT_TRUE(vm["Stop"].get_type() == Var::NUL);
+                     EXPECT_TRUE(vm["stop"].get_type() == Var::NUL);
                      listed = true;
                    });
   });

@@ -16,7 +16,7 @@ BrokerClientsRoot::BrokerClientsRoot(const LinkStrandRef& strand,
                                      ref_<BrokerClientManager>&& manager)
     : NodeModel(strand),
       _manager(std::move(manager)),
-      _storage(_strand->storage().get_strand_bucket("Clients", _strand)){};
+      _storage(_strand->storage().get_strand_bucket("clients", _strand)){};
 
 void BrokerClientsRoot::initialize() {
   NodeModel::initialize();
@@ -36,7 +36,7 @@ void BrokerClientsRoot::initialize() {
           // add a child dslink node
           auto child = make_ref_<BrokerClientNode>(
               _strand, get_ref(),
-              _strand->stream_acceptor().get_profile("Broker/Client", true),
+              _strand->stream_acceptor().get_profile("broker/client", true),
               key);
           child->load(map.get_map());
 
@@ -80,7 +80,7 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Role", _role_node->get_ref());
+  add_list_child("role", _role_node->get_ref());
 
   _path_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -106,20 +106,20 @@ BrokerClientNode::BrokerClientNode(const LinkStrandRef& strand,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Path", _path_node->get_ref());
+  add_list_child("path", _path_node->get_ref());
 
   _from_token_node.reset(new NodeModel(_strand));
   _from_token_node->update_property("$type", Var("string"));
-  add_list_child("From_Token", _from_token_node->get_ref());
+  add_list_child("from-token", _from_token_node->get_ref());
 
   // TODO make writable
   _max_session_node.reset(new NodeModel(_strand));
   _max_session_node->update_property("$type", Var("number"));
-  add_list_child("Max_Session", _max_session_node->get_ref());
+  add_list_child("max-session", _max_session_node->get_ref());
 
   _current_session_node.reset(new NodeModel(_strand));
   _current_session_node->update_property("$type", Var("number"));
-  add_list_child("Current_Session", _current_session_node->get_ref());
+  add_list_child("current-session", _current_session_node->get_ref());
 }
 BrokerClientNode::~BrokerClientNode() = default;
 

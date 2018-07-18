@@ -14,7 +14,7 @@ LinkSysRoot::LinkSysRoot(const LinkStrandRef &strand, DsLink &lnk)
     : NodeModel(strand) {
   if (lnk.get_master_token() != "") {
     add_list_child(
-        "Stop",
+        "stop",
         make_ref_<SimpleInvokeNode>(
             _strand,
             [link = ref_<DsLink>(lnk.get_ref())](

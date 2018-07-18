@@ -17,9 +17,9 @@ TokensRoot::TokensRoot(const LinkStrandRef &strand,
                        ref_<BrokerClientManager> &&manager)
     : NodeModel(strand),
       _manager(std::move(manager)),
-      _storage(_strand->storage().get_strand_bucket("Tokens", _strand)) {
+      _storage(_strand->storage().get_strand_bucket("tokens", _strand)) {
   add_list_child(
-      "Add",
+      "add",
       make_ref_<SimpleInvokeNode>(
           strand, [ this, keepref = get_ref() ](Var && v)->Var {
             if (v.is_map()) {
@@ -27,7 +27,7 @@ TokensRoot::TokensRoot(const LinkStrandRef &strand,
               string_ time_range = v["Time_Range"].to_string();
               int64_t count = v["Count"].to_int(-1);
               int64_t max_session = v["Max_Session"].to_int(1);
-              bool managed = v["Manager"].to_bool();
+              bool managed = v["Managed"].to_bool();
 
               string_ token_name = generate_random_string(16);
               while (_list_children.count(token_name) > 0) {
@@ -37,7 +37,7 @@ TokensRoot::TokensRoot(const LinkStrandRef &strand,
 
               auto new_token = make_ref_<TokenNode>(
                   _strand, get_ref(),
-                  _strand->stream_acceptor().get_profile("Broker/Token", true),
+                  _strand->stream_acceptor().get_profile("broker/token", true),
                   token, role, time_range, count, max_session, managed);
               add_list_child(token_name, new_token->get_ref());
               new_token->save_token();
@@ -73,7 +73,7 @@ void TokensRoot::initialize() {
           ref_<TokenNode> child;
           child = make_ref_<TokenNode>(
               _strand, get_ref(),
-              _strand->stream_acceptor().get_profile("Broker/Token", true));
+              _strand->stream_acceptor().get_profile("broker/token", true));
           child->load(map.get_map());
 
           add_list_child(key, child->get_ref());
@@ -96,7 +96,7 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
       _managed(managed) {
   _token_node.reset(new NodeModel(_strand));
   _token_node->update_property("$type", Var("string"));
-  add_list_child("Token", _token_node->get_ref());
+  add_list_child("token", _token_node->get_ref());
 
   _role_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -115,7 +115,7 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Role", _role_node->get_ref());
+  add_list_child("role", _role_node->get_ref());
 
   _time_range_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -135,7 +135,7 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Time_Range", _time_range_node->get_ref());
+  add_list_child("time-range", _time_range_node->get_ref());
 
   _count_node.reset(new ValueNodeModel(
       _strand, "number",
@@ -151,7 +151,7 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Count", _count_node->get_ref());
+  add_list_child("count", _count_node->get_ref());
 
   _max_session_node.reset(new ValueNodeModel(
       _strand, "number",
@@ -167,7 +167,7 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Max_Session", _max_session_node->get_ref());
+  add_list_child("max-session", _max_session_node->get_ref());
 
   _managed_node.reset(new ValueNodeModel(
       _strand, "bool",
@@ -183,7 +183,7 @@ TokenNode::TokenNode(const LinkStrandRef &strand, ref_<TokensRoot> &&parent,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Managed", _managed_node->get_ref());
+  add_list_child("managed", _managed_node->get_ref());
 
   update_node_values();
 }

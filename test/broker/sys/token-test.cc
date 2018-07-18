@@ -39,7 +39,7 @@ TEST_F(BrokerSysTest, TokenTest) {
   EXPECT_TRUE(port != 0);
 
   WrapperStrand client_strand1 =
-      get_client_wrapper_strand(broker, "Test1", protocol());
+      get_client_wrapper_strand(broker, "test1", protocol());
   auto client_1 = make_ref_<Client>(client_strand1);
 
   bool allow_all_set = false;
@@ -55,7 +55,7 @@ TEST_F(BrokerSysTest, TokenTest) {
           EXPECT_TRUE(msg->get_status() == Status::DONE);
           allow_all_set = true;
         },
-        make_ref_<SetRequestMessage>("Sys/Clients/Allow_All", Var(false)));
+        make_ref_<SetRequestMessage>("sys/clients/allow-all", Var(false)));
 
     client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
@@ -67,7 +67,7 @@ TEST_F(BrokerSysTest, TokenTest) {
           token = v["Token"].to_string();
           EXPECT_FALSE(token.empty());
         },
-        make_ref_<InvokeRequestMessage>("Sys/Tokens/Add",
+        make_ref_<InvokeRequestMessage>("sys/tokens/add",
                                         Var({{"Count", Var(1)}})));
 
   });
@@ -76,7 +76,7 @@ TEST_F(BrokerSysTest, TokenTest) {
 
   // connect link 2 without token
   WrapperStrand client_strand2 =
-      get_client_wrapper_strand(broker, "Test1", protocol());
+      get_client_wrapper_strand(broker, "test1", protocol());
   auto client_2 = make_ref_<Client>(client_strand2);
   client_2->connect([&](const shared_ptr_<Connection> connection) {
     client_2_connected = true;
@@ -84,7 +84,7 @@ TEST_F(BrokerSysTest, TokenTest) {
 
   // connect link 3 with token,
   WrapperStrand client_strand3 =
-      get_client_wrapper_strand(broker, "Test1", protocol());
+      get_client_wrapper_strand(broker, "test1", protocol());
   client_strand3.client_token = token;
   auto client_3 = make_ref_<Client>(client_strand3);
   client_3->connect(

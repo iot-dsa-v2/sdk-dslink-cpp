@@ -16,8 +16,8 @@ namespace dsa {
 
 UpstreamRootNode::UpstreamRootNode(const LinkStrandRef &strand)
     : NodeModel(strand),
-      _storage(_strand->storage().get_strand_bucket("Upstreams", _strand)) {
-  add_list_child("Add",
+      _storage(_strand->storage().get_strand_bucket("upstreams", _strand)) {
+  add_list_child("add",
                  make_ref_<SimpleInvokeNode>(
                      _strand, [ this, keepref = get_ref() ](Var && v)->Var {
                        if (v.is_map()) {
@@ -37,7 +37,7 @@ UpstreamRootNode::UpstreamRootNode(const LinkStrandRef &strand)
                              make_ref_<UpstreamConnectionNode>(
                                  _strand, get_ref(),
                                  _strand->stream_acceptor().get_profile(
-                                     "Broker/Upstream_Connection", true));
+                                     "broker/upstream-connection", true));
                          child->_enabled = true;
                          child->_connection_name = conn_name;
                          child->_url = url;
@@ -77,7 +77,7 @@ void UpstreamRootNode::initialize() {
               make_ref_<UpstreamConnectionNode>(
                   _strand, get_ref(),
                   _strand->stream_acceptor().get_profile(
-                      "Broker/Upstream_Connection", true));
+                      "broker/upstream-connection", true));
 
           child->load(map.get_map());
           add_list_child(key, child->get_ref());
@@ -105,7 +105,7 @@ UpstreamConnectionNode::UpstreamConnectionNode(const LinkStrandRef &strand,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Enabled", _enabled_node->get_ref());
+  add_list_child("enabled", _enabled_node->get_ref());
 
   _url_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -124,7 +124,7 @@ UpstreamConnectionNode::UpstreamConnectionNode(const LinkStrandRef &strand,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Url", _url_node->get_ref());
+  add_list_child("url", _url_node->get_ref());
 
   _token_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -143,7 +143,7 @@ UpstreamConnectionNode::UpstreamConnectionNode(const LinkStrandRef &strand,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Token", _token_node->get_ref());
+  add_list_child("token", _token_node->get_ref());
 
   _role_node.reset(new ValueNodeModel(
       _strand, "string",
@@ -162,16 +162,16 @@ UpstreamConnectionNode::UpstreamConnectionNode(const LinkStrandRef &strand,
         return Status::INVALID_PARAMETER;
       },
       PermissionLevel::CONFIG));
-  add_list_child("Role", _role_node->get_ref());
+  add_list_child("role", _role_node->get_ref());
 
   _status_node.reset(new NodeModel(_strand));
-  add_list_child("Status", _status_node->get_ref());
+  add_list_child("status", _status_node->get_ref());
 
   _remote_id_node.reset(new NodeModel(_strand));
-  add_list_child("Remote_Id", _remote_id_node->get_ref());
+  add_list_child("remote-id", _remote_id_node->get_ref());
 
   _remote_path_node.reset(new NodeModel(_strand));
-  add_list_child("Remote_Path", _remote_path_node->get_ref());
+  add_list_child("remote-path", _remote_path_node->get_ref());
 }
 UpstreamConnectionNode::~UpstreamConnectionNode() = default;
 
@@ -263,7 +263,7 @@ void UpstreamConnectionNode::connection_changed() {
                 static_cast<BrokerSessionManager &>(_strand->session_manager())
                     .add_responder_root(
                         connection->get_remote_dsid(),
-                        "Upstream/" + _state->get_path().node_name(),
+                        "upstream/" + _state->get_path().node_name(),
                         _client->get_session());
 
             _remote_id_node->set_value(Var(connection->get_remote_dsid()));

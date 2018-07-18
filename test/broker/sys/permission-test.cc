@@ -20,15 +20,15 @@ namespace broker_permission_test {
 class MockNodeRoot : public NodeModel {
  public:
   explicit MockNodeRoot(const LinkStrandRef& strand) : NodeModel(strand) {
-    add_list_child("Action_Read", make_ref_<SimpleInvokeNode>(
+    add_list_child("action-read", make_ref_<SimpleInvokeNode>(
                                       strand, [](Var&& v) { return Var("ok"); },
                                       PermissionLevel::READ));
     add_list_child(
-        "Action_Write",
+        "action-write",
         make_ref_<SimpleInvokeNode>(strand, [](Var&& v) { return Var("ok"); },
                                     PermissionLevel::WRITE));
     add_list_child(
-        "Action_Config",
+        "action-config",
         make_ref_<SimpleInvokeNode>(strand, [](Var&& v) { return Var("ok"); },
                                     PermissionLevel::CONFIG));
   };
@@ -60,7 +60,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
   EXPECT_TRUE(port != 0);
 
   WrapperStrand client_strand1 =
-      get_client_wrapper_strand(broker, "Test1", protocol());
+      get_client_wrapper_strand(broker, "test1", protocol());
   client_strand1.strand->set_responder_model(ModelRef(
       new broker_permission_test::MockNodeRoot(client_strand1.strand)));
 
@@ -77,7 +77,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
           allow_all_set = true;
         },
-        make_ref_<SetRequestMessage>("Sys/Clients/Allow_All", Var(false)));
+        make_ref_<SetRequestMessage>("sys/clients/allow-all", Var(false)));
 
     client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
@@ -90,21 +90,21 @@ TEST_F(BrokerSysTest, PermissionTest) {
           EXPECT_FALSE(token.empty());
         },
         make_ref_<InvokeRequestMessage>(
-            "Sys/Tokens/Add", Var({{"Count", Var(1)}, {"Role", Var("G2")}})));
+            "sys/tokens/add", Var({{"Count", Var(1)}, {"Role", Var("G2")}})));
     client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
             IncomingInvokeStream & stream,
             ref_<const InvokeResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
         },
-        make_ref_<InvokeRequestMessage>("Sys/Roles/Add_Role",
+        make_ref_<InvokeRequestMessage>("sys/roles/add-role",
                                         Var({{"Name", Var("G2")}})));
     client_1->get_session().set(
         CAST_LAMBDA(IncomingSetStreamCallback)[&](
             IncomingSetStream & stream, ref_<const SetResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
         },
-        make_ref_<SetRequestMessage>("Sys/Roles/G2", Var("none")));
+        make_ref_<SetRequestMessage>("sys/roles/G2", Var("none")));
 
     client_1->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
@@ -112,8 +112,8 @@ TEST_F(BrokerSysTest, PermissionTest) {
             ref_<const InvokeResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
         },
-        make_ref_<InvokeRequestMessage>("Sys/Roles/G2/Add_Rule",
-                                        Var({{"Path", Var("Downstream/Test1")},
+        make_ref_<InvokeRequestMessage>("sys/roles/G2/add-rule",
+                                        Var({{"Path", Var("downstream/test1")},
                                              {"Permission", Var("write")}})));
 
   });
@@ -123,7 +123,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
   // connect link 2 with token
   bool client_2_connected = false;
   WrapperStrand client_strand2 =
-      get_client_wrapper_strand(broker, "Test2", protocol());
+      get_client_wrapper_strand(broker, "test2", protocol());
   client_strand2.client_token = token;
   auto client_2 = make_ref_<Client>(client_strand2);
 
@@ -146,7 +146,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
           action_read_done = true;
         },
-        make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Read", Var()));
+        make_ref_<InvokeRequestMessage>("downstream/test1/action-read", Var()));
 
     client_2->get_session().invoke(
         CAST_LAMBDA(IncomingInvokeStreamCallback)[&](
@@ -155,7 +155,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
           EXPECT_EQ(msg->get_status(), Status::DONE);
           action_write_done = true;
         },
-        make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Write",
+        make_ref_<InvokeRequestMessage>("downstream/test1/action-write",
                                         Var()));
 
     client_2->get_session().invoke(
@@ -165,11 +165,11 @@ TEST_F(BrokerSysTest, PermissionTest) {
           EXPECT_EQ(msg->get_status(), Status::PERMISSION_DENIED);
           action_config_done = true;
         },
-        make_ref_<InvokeRequestMessage>("Downstream/Test1/Action_Config",
+        make_ref_<InvokeRequestMessage>("downstream/test1/action-config",
                                         Var()));
 
     client_2->get_session().list(
-        "Downstream/Test1",
+        "downstream/test1",
         CAST_LAMBDA(IncomingListStreamCallback)[&](
             IncomingListStream&, ref_<const ListResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::OK);
@@ -177,7 +177,7 @@ TEST_F(BrokerSysTest, PermissionTest) {
         });
 
     client_2->get_session().list(
-        "Downstream",
+        "downstream",
         CAST_LAMBDA(IncomingListStreamCallback)[&](
             IncomingListStream&, ref_<const ListResponseMessage> && msg) {
           EXPECT_EQ(msg->get_status(), Status::PERMISSION_DENIED);

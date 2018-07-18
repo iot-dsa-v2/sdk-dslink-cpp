@@ -67,7 +67,7 @@ class MockNodeListRoot_0 : public NodeModelBase {
       : NodeModelBase(strand){};
 
   void initialize() override {
-    add_child("Child_a", ref_<NodeModelBase>(new MockNodeListChild_0(_strand)));
+    add_child("child-a", ref_<NodeModelBase>(new MockNodeListChild_0(_strand)));
   }
 };
 
@@ -100,7 +100,7 @@ TEST_F(ResponderTest, ModelAddChild) {
 
   // test invalid path scenario
   auto subscribe_stream = tcp_client->get_session().subscribe(
-      "Child_a", [&](IncomingSubscribeStream &stream,
+      "child-a", [&](IncomingSubscribeStream &stream,
                      ref_<const SubscribeResponseMessage> &&msg) { ; },
       initial_options);
 
@@ -147,13 +147,13 @@ TEST_F(ResponderTest, ModelGetChild) {
   ASYNC_EXPECT_TRUE(1000, *client_strand.strand,
                     [&]() { return tcp_client->get_session().is_connected(); });
 
-  ModelRef child_node = root_node->get_child("Child_a");
+  ModelRef child_node = root_node->get_child("child-a");
 
   EXPECT_EQ(nullptr, child_node);
 
-  root_node->add_child("Child_a",
+  root_node->add_child("child-a",
                        ModelRef(new MockNodeListChild_0(server_strand.strand)));
-  child_node = root_node->get_child("Child_a");
+  child_node = root_node->get_child("child-a");
 
   EXPECT_NE(nullptr, child_node);
 

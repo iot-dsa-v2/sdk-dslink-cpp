@@ -6,10 +6,10 @@
 #endif
 
 namespace dsa {
-const std::string DOWNSTREAM_NAME = "Downstream";
+const std::string DOWNSTREAM_NAME = "downstream";
 const std::string DOWNSTREAM_PATH = DOWNSTREAM_NAME + "/";
-const std::string PUB_PATH = "Pub/";
-const std::string QUARANTINE_PATH = "Sys/Quarantine/";
+const std::string PUB_PATH = "pub/";
+const std::string QUARANTINE_PATH = "sys/quarantine/";
 }  // namespace dsa
 
 #endif  // DSA_SDK_PATHS_H

@@ -20,8 +20,8 @@ bool MockNodeRoot::need_list() { return _need_list; }
 
 MockNodeRoot::MockNodeRoot(const LinkStrandRef &strand)
     : NodeModel(strand) {
-  add_list_child("Child_a", make_ref_<MockNodeChild>(_strand));
-  add_list_child("Child_b", make_ref_<MockNodeChild>(_strand));
+  add_list_child("child-a", make_ref_<MockNodeChild>(_strand));
+  add_list_child("child-b", make_ref_<MockNodeChild>(_strand));
 };
 
 ref_<DsBroker> create_broker(std::shared_ptr<App> app) {

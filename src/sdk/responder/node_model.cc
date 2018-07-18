@@ -27,7 +27,7 @@ NodeModel::NodeModel(const LinkStrandRef &strand, ref_<NodeModel> &&profile,
 
   if (_profile != nullptr) {
     auto &state = _profile->get_state();
-    if (state == nullptr || state->get_path().data()->names[0] != "Pub") {
+    if (state == nullptr || state->get_path().data()->names[0] != "pub") {
       LOG_FATAL(__FILENAME__, LOG << "invalid profile node");
     }
 
@@ -105,7 +105,7 @@ void NodeModel::initialize() {
 
 void NodeModel::on_list(BaseOutgoingListStream &stream, bool first_request) {
   if (_profile != nullptr) {
-    stream.update_list_pub_path("Pub");
+    stream.update_list_pub_path("pub");
   }
   send_props_list(stream);
   send_children_list(stream);

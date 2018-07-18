@@ -36,9 +36,9 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "Test2", true, protocol());
+      broker_dslink_test::create_dslink(app, port, "test2", true, protocol());
 
   int downstream_listed = 0, clients_listed = 0;
   bool link1_connected = false, allow_all_set = false;
@@ -49,7 +49,7 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
     // set request to change value
     auto set_request = make_ref_<SetRequestMessage>();
     set_request->set_value(Var(false));
-    set_request->set_target_path("Sys/Clients/Allow_All");
+    set_request->set_target_path("sys/clients/allow-all");
 
     // send set request
     link_req->set(
@@ -58,26 +58,26 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
           EXPECT_TRUE(msg->get_status() == Status::DONE);
           allow_all_set = true;
 
-          link_req->list("Downstream", [&, link_req](
+          link_req->list("downstream", [&, link_req](
                                            IncomingListCache &cache,
                                            const std::vector<string_> &str) {
             auto map = cache.get_map();
             downstream_listed++;
             if (downstream_listed == 1) {
-              EXPECT_TRUE(map.find("Test1") != map.end());
-              EXPECT_TRUE(map.find("Test2") != map.end());
+              EXPECT_TRUE(map.find("test1") != map.end());
+              EXPECT_TRUE(map.find("test2") != map.end());
 
               link_req->list(
-                  "Sys/Clients",
+                  "sys/clients",
                   [&, link_req](IncomingListCache &cache,
                                 const std::vector<string_> &str) {
                     auto map = cache.get_map();
                     bool test1_client = false;
                     string_ test2_id;
                     for (auto &items : map) {
-                      if (items.first.substr(0, 5) == "Test1")
+                      if (items.first.substr(0, 5) == "test1")
                         test1_client = true;
-                      else if (items.first.substr(0, 5) == "Test2") {
+                      else if (items.first.substr(0, 5) == "test2") {
                         test2_id = items.first;
                       }
                     }
@@ -85,8 +85,8 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
                     if (clients_listed == 1) {
                       EXPECT_TRUE(test1_client && !test2_id.empty());
                       auto invoke_request = make_ref_<InvokeRequestMessage>();
-                      invoke_request->set_target_path("Sys/Clients/" +
-                                                      test2_id + "/Remove");
+                      invoke_request->set_target_path("sys/clients/" +
+                                                      test2_id + "/remove");
 
                       link_req->invoke(
                           [&](IncomingInvokeStream &stream,
@@ -103,8 +103,8 @@ TEST_F(BrokerDsLinkTest, ClientRemoveTest) {
                   });
 
             } else {
-              EXPECT_TRUE(map.find("Test1") != map.end());
-              EXPECT_TRUE(map.find("Test2") == map.end());
+              EXPECT_TRUE(map.find("test1") != map.end());
+              EXPECT_TRUE(map.find("test2") == map.end());
               cache.close();
             }
           });
@@ -156,7 +156,7 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
 
   int downstream_listed = 0;
   bool link1_connected = false, test_end = false;
@@ -165,20 +165,20 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
     link1_connected = true;
 
     link_req->list(
-        "Downstream", [&, link_req](IncomingListCache &cache,
+        "downstream", [&, link_req](IncomingListCache &cache,
                                     const std::vector<string_> &str) {
           auto map = cache.get_map();
           downstream_listed++;
           if (downstream_listed == 1) {
-            EXPECT_TRUE(map.find("Test1") != map.end());
+            EXPECT_TRUE(map.find("test1") != map.end());
 
-            link_req->list("Sys/Clients", [&, link_req](
+            link_req->list("sys/clients", [&, link_req](
                                               IncomingListCache &cache,
                                               const std::vector<string_> &str) {
               auto map = cache.get_map();
               string_ test1_id;
               for (auto &items : map) {
-                if (items.first.substr(0, 5) == "Test1") {
+                if (items.first.substr(0, 5) == "test1") {
                   test1_id = items.first;
                 }
               }
@@ -186,8 +186,8 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
 
               // change path
               auto set_request = make_ref_<SetRequestMessage>();
-              set_request->set_value(Var("Downstream/Test_Changed"));
-              set_request->set_target_path("Sys/Clients/" + test1_id + "/Path");
+              set_request->set_value(Var("downstream/test-changed"));
+              set_request->set_target_path("sys/clients/" + test1_id + "/path");
               link_req->set(
                   [&, link_req](IncomingSetStream &stream,
                                 ref_<const SetResponseMessage> &&msg) {
@@ -200,8 +200,8 @@ TEST_F(BrokerDsLinkTest, ClientPathTest) {
             });
 
           } else {
-            EXPECT_TRUE(map.find("Test1") == map.end());
-            EXPECT_TRUE(map.find("Test_Changed") != map.end());
+            EXPECT_TRUE(map.find("test1") == map.end());
+            EXPECT_TRUE(map.find("test-changed") != map.end());
             cache.close();
             test_end = true;
           }
@@ -262,9 +262,9 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "Test2", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test2", false, protocol());
 
   int downstream_listed = 0, quarantine_listed = 0;
   bool link1_connected = false, link2_connected = false;
@@ -276,7 +276,7 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
     // set request to change value
     auto set_request = make_ref_<SetRequestMessage>();
     set_request->set_value(Var(false));
-    set_request->set_target_path("Sys/Clients/Allow_All");
+    set_request->set_target_path("sys/clients/allow-all");
 
     link_req->set(
         [&, link_req](IncomingSetStream &stream,
@@ -286,7 +286,7 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
           // set request to change value
           auto set_request = make_ref_<SetRequestMessage>();
           set_request->set_value(Var(true));
-          set_request->set_target_path("Sys/Quarantine/Enabled");
+          set_request->set_target_path("sys/quarantine/enabled");
 
           // send set request
           link_req->set(
@@ -300,26 +300,26 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
                   link2_connected = get_connected(connection2);
                   EXPECT_TRUE(link2_connected);
                   link1_req->list(
-                      "Downstream",
+                      "downstream",
                       [&, link1_req](IncomingListCache &cache,
                                      const std::vector<string_> &str) {
                         auto map = cache.get_map();
                         downstream_listed++;
                         if (downstream_listed == 1) {
-                          EXPECT_TRUE(map.find("Test2") == map.end());
+                          EXPECT_TRUE(map.find("test2") == map.end());
                         } else {
-                          EXPECT_TRUE(map.find("Test2") != map.end());
+                          EXPECT_TRUE(map.find("test2") != map.end());
                         }
                       });
                   link1_req->list(
-                      "Sys/Quarantine",
+                      "sys/quarantine",
                       [&, link1_req](IncomingListCache &cache,
                                      const std::vector<string_> &str) {
                         auto map = cache.get_map();
                         quarantine_listed++;
                         string_ test2_id;
                         for (auto &items : map) {
-                          if (items.first.substr(0, 5) == "Test2") {
+                          if (items.first.substr(0, 5) == "test2") {
                             test2_id = items.first;
                           }
                         }
@@ -329,9 +329,9 @@ TEST_F(BrokerDsLinkTest, QuarantineTest) {
                           auto invoke_request =
                               make_ref_<InvokeRequestMessage>();
                           invoke_request->set_target_path(
-                              "Sys/Quarantine/" + test2_id + "/Authorize");
+                              "sys/quarantine/" + test2_id + "/authorize");
                           invoke_request->set_value(
-                              Var({{"Path", Var("Downstream/Test2")}}));
+                              Var({{"Path", Var("downstream/test2")}}));
 
                           link1_req->invoke(
                               [&](IncomingInvokeStream &stream,
@@ -399,9 +399,9 @@ TEST_F(BrokerDsLinkTest, IdenticalClientTest) {
   EXPECT_TRUE(port != 0);
 
   auto link_1 =
-      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
   auto link_2 =
-      broker_dslink_test::create_dslink(app, port, "Test1", false, protocol());
+      broker_dslink_test::create_dslink(app, port, "test1", false, protocol());
 
   bool link1_connected = false;
   bool link2_connected = false;

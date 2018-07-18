@@ -10,9 +10,9 @@
 namespace dsa {
 LinkRoot::LinkRoot(const LinkStrandRef &strand, DsLink &link)
     : NodeModel(strand) {
-  add_list_child("Sys", new LinkSysRoot(_strand, link));
+  add_list_child("sys", new LinkSysRoot(_strand, link));
   _pub_node = new PubRoot(_strand, "");
-  add_list_child("Pub", _pub_node->get_ref());
+  add_list_child("pub", _pub_node->get_ref());
 }
 
 LinkRoot::~LinkRoot() = default;
@@ -23,7 +23,7 @@ void LinkRoot::destroy_impl() {
 }
 
 void LinkRoot::set_main(ref_<NodeModelBase> &&main_node) {
-  _main_node = add_list_child("Main", std::move(main_node));
+  _main_node = add_list_child("main", std::move(main_node));
 }
 
 ref_<NodeModelBase> LinkRoot::add_to_main(const string_ &name,
