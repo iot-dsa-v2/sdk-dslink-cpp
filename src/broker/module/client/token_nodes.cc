@@ -24,9 +24,9 @@ TokensRoot::TokensRoot(const LinkStrandRef &strand,
           strand, [ this, keepref = get_ref() ](Var && v)->Var {
             if (v.is_map()) {
               string_ role = v["Role"].to_string();
-              string_ time_range = v["Time_Range"].to_string();
+              string_ time_range = v["Time Range"].to_string();
               int64_t count = v["Count"].to_int(-1);
-              int64_t max_session = v["Max_Session"].to_int(1);
+              int64_t max_session = v["Max Session"].to_int(1);
               bool managed = v["Managed"].to_bool();
 
               string_ token_name = generate_random_string(16);

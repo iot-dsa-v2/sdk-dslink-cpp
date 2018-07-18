@@ -21,8 +21,8 @@ UpstreamRootNode::UpstreamRootNode(const LinkStrandRef &strand)
                  make_ref_<SimpleInvokeNode>(
                      _strand, [ this, keepref = get_ref() ](Var && v)->Var {
                        if (v.is_map()) {
-                         string_ node_name = v["Node_Name"].to_string();
-                         string_ conn_name = v["Connection_Name"].to_string();
+                         string_ node_name = v["Node Name"].to_string();
+                         string_ conn_name = v["Connection Name"].to_string();
                          string_ url = v["Url"].to_string();
                          string_ token = v["Token"].to_string();
                          string_ role = v["Role"].to_string();

@@ -63,8 +63,8 @@ TEST_F(BrokerSysTest, UpstreamTest) {
         },
         make_ref_<InvokeRequestMessage>(
             "sys/upstream/add",
-            Var({{"Node_Name", Var("up1")},
-                 {"Connection_Name", Var("down1")},
+            Var({{"Node Name", Var("up1")},
+                 {"Connection Name", Var("down1")},
                  {"Url", Var(string_("127.0.0.1:") + std::to_string(port))}})));
 
   });
