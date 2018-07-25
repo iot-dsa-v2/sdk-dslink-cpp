@@ -70,10 +70,12 @@ void EditableStrand::destroy_impl() {
   LinkStrand::destroy_impl();
   // destroy of following objects is handled in LinkStrand::destroy_impl()
   // but allow logger and storage continue to work without the strand
+  _ecdh.reset();
   _session_manager.reset();
   _stream_acceptor.reset();
   _client_manager.reset();
   _authorizer.reset();
+  _storage.reset();
 
   {
     std::lock_guard<std::mutex> lock(_inject_mutex);

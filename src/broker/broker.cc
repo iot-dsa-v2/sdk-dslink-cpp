@@ -113,6 +113,7 @@ void DsBroker::init(ref_<Module>&& default_module) {
 void DsBroker::destroy_impl() {
   _upstream->destroy();
   modules->destroy();
+  _v1_manager->destroy();
   _v1_manager.reset();
 
   if (_tcp_server != nullptr) {
