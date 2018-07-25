@@ -27,6 +27,7 @@ void V1SessionManager::destroy_impl() {
   }
   _sessions.clear();
   _state_manager.reset();
+  _shared_ptr.reset();
 }
 
 void V1SessionManager::on_conn(const string_& dsid, const string_& token,

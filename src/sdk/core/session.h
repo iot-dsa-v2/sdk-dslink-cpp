@@ -66,6 +66,8 @@ class BaseSession : public DestroyableRef<BaseSession> {
 
   virtual bool is_connected() const = 0;
   virtual string_ map_pub_path(const string_ &path) = 0;
+
+  virtual ~BaseSession() = default;
 };
 
 // maintain request and response streams

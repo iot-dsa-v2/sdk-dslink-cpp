@@ -74,6 +74,7 @@ void EditableStrand::destroy_impl() {
   _stream_acceptor.reset();
   _client_manager.reset();
   _authorizer.reset();
+  _storage.reset();
 
   {
     std::lock_guard<std::mutex> lock(_inject_mutex);
