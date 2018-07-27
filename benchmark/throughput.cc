@@ -8,6 +8,7 @@
 
 #include "core/client.h"
 #include "network/tcp/tcp_server.h"
+#include "module/logger.h"
 
 #include <chrono>
 #include <ctime>
@@ -61,6 +62,8 @@ int main(int argc, const char *argv[]) {
   bool encode_value = variables["encode-value"].as<bool>();
   bool decode_value = variables["decode-value"].as<bool>();
   int min_send_num = variables["num-message"].as<int>();
+
+  Logger::_().level = Logger::INFO__;
 
   std::cout << std::endl << "benchmark with " << client_count << " clients";
 
@@ -128,6 +131,8 @@ int main(int argc, const char *argv[]) {
   tick = [&](const boost::system::error_code &error) {
 
     if (!error) {
+
+      if (server_strand.strand == nullptr) return;
       server_strand.strand->dispatch([&]() {
         auto ts2 = high_resolution_clock::now();
 
@@ -195,6 +200,11 @@ int main(int argc, const char *argv[]) {
     destroy_client_in_strand(clients[i]);
   }
 
+  server_strand.destroy();
+  for (int i = 0; i < client_count; ++i) {
+    client_strands[i].destroy();
+  }
+
   app->close();
 
   wait_for_bool(500, [&]() -> bool { return app->is_stopped(); });
@@ -203,10 +213,6 @@ int main(int argc, const char *argv[]) {
     app->force_stop();
   }
 
-  server_strand.destroy();
-  for (int i = 0; i < client_count; ++i) {
-    client_strands[i].destroy();
-  }
   app->wait();
   return 0;
 }
