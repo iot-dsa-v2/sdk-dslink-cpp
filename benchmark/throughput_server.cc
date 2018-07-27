@@ -1,6 +1,7 @@
 #include "dsa/message.h"
-#include "dsa/stream.h"
 #include "dsa/network.h"
+#include "dsa/responder.h"
+#include "dsa/stream.h"
 
 #include "../test/sdk/async_test.h"
 #include "../test/sdk/test_config.h"
@@ -25,9 +26,11 @@ namespace opts = boost::program_options;
 
 class TestConfigExt : public TestConfig {
  public:
-  TestConfigExt(std::shared_ptr<App> &app, std::string host_ip_address, bool async = false)
+  TestConfigExt(std::shared_ptr<App> &app, std::string host_ip_address,
+                int host_port, bool async = false)
       : TestConfig(app, async) {
     tcp_host = host_ip_address;
+    tcp_server_port = host_port;
   }
 };
 
@@ -37,7 +40,8 @@ class MockNode : public NodeModelBase {
 
   explicit MockNode(const LinkStrandRef &strand) : NodeModelBase(strand){};
 
-  void on_subscribe(const SubscribeOptions &options, bool first_request) override {
+  void on_subscribe(const SubscribeOptions &options,
+                    bool first_request) override {
     first_client_subscribed = true;
   }
 };
@@ -52,8 +56,9 @@ int main(int argc, const char *argv[]) {
       "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration")(
       "host,i", opts::value<std::string>()->default_value("10.0.1.101"),
-      "Host's ip address")("num-thread,p", opts::value<int>()->default_value(4),
-                           "Number of threads");
+      "Host's ip address")("port,p", opts::value<int>()->default_value(4128),
+                           "Port")(
+      "num-thread", opts::value<int>()->default_value(4), "Number of threads");
 
   opts::variables_map variables;
   opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -69,6 +74,7 @@ int main(int argc, const char *argv[]) {
   int client_count = variables["client"].as<int>();
   int run_time = variables["time"].as<int>();
   std::string host_ip_address = variables["host"].as<std::string>();
+  int host_port = variables["port"].as<int>();
 
   if (client_count > MAX_CLIENT_COUNT || client_count < 1) {
     std::cout << "invalid Number of Clients, ( 1 ~ 255 )";
@@ -79,18 +85,20 @@ int main(int argc, const char *argv[]) {
   int min_send_num = variables["num-message"].as<int>();
   int num_thread = variables["num-thread"].as<int>();
 
+  Logger::_().level = Logger::INFO__;
+
   std::cout << std::endl << "host ip address: " << host_ip_address << std::endl;
+  std::cout << std::endl << "host port: " << host_port << std::endl;
   std::cout << "benchmark with " << client_count << " clients (" << num_thread
             << " threads)" << std::endl;
 
   auto app = std::make_shared<App>(num_thread);
 
-  TestConfigExt server_strand(app, host_ip_address);
+  TestConfigExt server_strand(app, host_ip_address, host_port);
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_strand.strand->set_responder_model(
-      ref_<MockNode>(root_node));
+  server_strand.strand->set_responder_model(ref_<MockNode>(root_node));
 
   //  auto tcp_server(new TcpServer(server_strand));
   auto tcp_server = make_shared_<TcpServer>(server_strand);
@@ -120,7 +128,6 @@ int main(int argc, const char *argv[]) {
 
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {
-
     if (!error) {
       server_strand.strand->dispatch([&]() {
         auto ts2 = high_resolution_clock::now();
@@ -141,7 +148,7 @@ int main(int argc, const char *argv[]) {
             }
           } else {
             for (int i = 0; i < num_message; ++i) {
-              root_node->set_message(copy_ref_(cached_message));
+              root_node->set_subscribe_response(copy_ref_(cached_message));
             }
           }
         }
@@ -159,6 +166,8 @@ int main(int argc, const char *argv[]) {
 
   tcp_server->destroy_in_strand(tcp_server);
 
+  server_strand.destroy();
+
   app->close();
 
   wait_for_bool(500, [&]() -> bool { return app->is_stopped(); });
@@ -167,7 +176,6 @@ int main(int argc, const char *argv[]) {
     app->force_stop();
   }
 
-  server_strand.destroy();
   app->wait();
 
   return 0;

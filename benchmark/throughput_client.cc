@@ -1,6 +1,7 @@
 #include "dsa/message.h"
 #include "dsa/stream.h"
 #include "dsa/network.h"
+#include "dsa/responder.h"
 
 #include "../test/sdk/async_test.h"
 #include "../test/sdk/test_config.h"
@@ -23,9 +24,11 @@ namespace opts = boost::program_options;
 
 class TestConfigExt : public TestConfig {
  public:
-  TestConfigExt(std::shared_ptr<App> app, std::string host_ip_address, bool async = false)
+  TestConfigExt(std::shared_ptr<App> &app, std::string host_ip_address,
+                int host_port, bool async = false)
       : TestConfig(app, async) {
     tcp_host = host_ip_address;
+    tcp_server_port = host_port;
   }
 };
 
@@ -44,8 +47,9 @@ int main(int argc, const char *argv[]) {
       "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration")(
       "host,i", opts::value<std::string>()->default_value("10.0.1.101"),
-      "Host's ip address")("num-thread,p", opts::value<int>()->default_value(4),
-                           "Number of threads");
+      "Host's ip address")("port,p", opts::value<int>()->default_value(4128),
+                           "Port")(
+      "num-thread", opts::value<int>()->default_value(4), "Number of threads");
 
   opts::variables_map variables;
   opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -61,6 +65,7 @@ int main(int argc, const char *argv[]) {
   int client_count = variables["client"].as<int>();
   int run_time = variables["time"].as<int>();
   std::string host_ip_address = variables["host"].as<std::string>();
+  int host_port = variables["port"].as<int>();
 
   if (client_count > MAX_CLIENT_COUNT || client_count < 1) {
     std::cout << "invalid Number of Clients, ( 1 ~ 255 )";
@@ -71,6 +76,8 @@ int main(int argc, const char *argv[]) {
   int min_send_num = variables["num-message"].as<int>();
   int num_thread = variables["num-thread"].as<int>();
 
+  Logger::_().level = Logger::INFO__;
+
   auto app = std::make_shared<App>(num_thread);
 
   std::cout << std::endl << "host ip address: " << host_ip_address;
@@ -78,7 +85,7 @@ int main(int argc, const char *argv[]) {
             << "benchmark with " << client_count << " clients (" << num_thread
             << " threads)";
 
-  TestConfigExt server_strand(app, host_ip_address);
+  TestConfigExt server_strand(app, host_ip_address, host_port);
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
@@ -194,16 +201,17 @@ int main(int argc, const char *argv[]) {
     destroy_client_in_strand(clients[i]);
   }
 
+  server_strand.destroy();
+  for (int i = 0; i < client_count; ++i) {
+    client_strands[i].destroy();
+  }
+
   app->close();
 
   wait_for_bool(500, [&]() -> bool { return app->is_stopped(); });
 
   if (!app->is_stopped()) {
     app->force_stop();
-  }
-  server_strand.destroy();
-  for (int i = 0; i < client_count; ++i) {
-    client_strands[i].destroy();
   }
   app->wait();
   return 0;
