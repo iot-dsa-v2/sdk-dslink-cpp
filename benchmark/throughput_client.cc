@@ -1,46 +1,8 @@
-#include "dsa/message.h"
-#include "dsa/stream.h"
-#include "dsa/network.h"
-#include "dsa/responder.h"
-
-#include "../test/sdk/async_test.h"
-#include "../test/sdk/test_config.h"
-
-#include "core/client.h"
-#include "network/tcp/tcp_server.h"
-
-#include <chrono>
-#include <ctime>
-
-#include <atomic>
-
-#include <boost/program_options.hpp>
-
-using high_resolution_clock = std::chrono::high_resolution_clock;
-using time_point = std::chrono::high_resolution_clock::time_point;
-
-using namespace dsa;
-namespace opts = boost::program_options;
-
-class TestConfigExt : public TestConfig {
- public:
-  TestConfigExt(std::shared_ptr<App> &app, std::string host_ip_address,
-                int host_port, bool async = false)
-      : TestConfig(app, async) {
-    tcp_host = host_ip_address;
-    tcp_server_port = host_port;
-  }
-};
-
-class MockNode : public NodeModelBase {
- public:
-  explicit MockNode(const LinkStrandRef &strand) : NodeModelBase(strand){};
-};
+#include "throughput_common.h"
 
 int main(int argc, const char *argv[]) {
   opts::options_description desc{"Options"};
   desc.add_options()("help,h", "Help screen")(
-      "client,c", opts::value<int>()->default_value(2), "Number of Clients")(
       "time,t", opts::value<int>()->default_value(20), "Time (seconds)")(
       "encode-value,e", opts::bool_switch(), "Encode value before sending")(
       "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
@@ -60,20 +22,12 @@ int main(int argc, const char *argv[]) {
     return 0;
   }
 
-  const int MAX_CLIENT_COUNT = 256;
-
-  int client_count = variables["client"].as<int>();
   int run_time = variables["time"].as<int>();
-  std::string host_ip_address = variables["host"].as<std::string>();
-  int host_port = variables["port"].as<int>();
-
-  if (client_count > MAX_CLIENT_COUNT || client_count < 1) {
-    std::cout << "invalid Number of Clients, ( 1 ~ 255 )";
-    return 0;
-  }
   bool encode_value = variables["encode-value"].as<bool>();
   bool decode_value = variables["decode-value"].as<bool>();
   int min_send_num = variables["num-message"].as<int>();
+  int host_port = variables["port"].as<int>();
+  std::string host_ip_address = variables["host"].as<std::string>();
   int num_thread = variables["num-thread"].as<int>();
 
   Logger::_().level = Logger::INFO__;
@@ -82,60 +36,55 @@ int main(int argc, const char *argv[]) {
 
   std::cout << std::endl << "host ip address: " << host_ip_address;
   std::cout << std::endl
-            << "benchmark with " << client_count << " clients (" << num_thread
-            << " threads)";
+            << "benchmark with " << num_thread << " threads)";
 
   TestConfigExt server_strand(app, host_ip_address, host_port);
 
   MockNode *root_node = new MockNode(server_strand.strand);
 
-  server_strand.strand->set_responder_model(
-      ref_<MockNode>(root_node));
-
-  //  auto tcp_server(new TcpServer(server_strand));
-
-  std::vector<WrapperStrand> client_strands;
-  std::vector<ref_<Client>> clients;
-  std::atomic_int receive_count[MAX_CLIENT_COUNT];
+  server_strand.strand->set_responder_model(ref_<MockNode>(root_node));
 
   SubscribeOptions initial_options;
   initial_options.qos = QosLevel::_1;
   initial_options.queue_size = 655360;
 
-  for (int i = 0; i < client_count; ++i) {
-    client_strands.emplace_back(server_strand.get_client_wrapper_strand());
-    clients.emplace_back(make_ref_<Client>(client_strands[i]));
-    clients[i]->connect();
+  MessageQueue sc_mq(open_only, sc_mq_name.c_str());
+  MessageQueue cs_mq(open_only, cs_mq_name.c_str());
 
-    wait_for_bool(500, *client_strands[i].strand,
-                  [&]() { return clients[i]->get_session().is_connected(); });
+  WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
+  ref_<Client> client = make_ref_<Client>(client_strand);
+  std::atomic_int receive_count;
+  client->connect();
 
-    if (!clients[i]->get_session().is_connected()) {
-      std::cout << std::endl
-                << "client " << i + 1 << " is NOT connected" << std::endl;
-      return 1;
-    }
+  wait_for_bool(500, *client_strand.strand,
+                [&]() { return client->get_session().is_connected(); });
+
+  if (!client->get_session().is_connected()) {
     std::cout << std::endl
-              << "client " << i + 1 << " is connected" << std::endl;
-
-    receive_count[i] = 0;
-
-    std::atomic_int &count = receive_count[i];
-
-    clients[i]->get_session().subscribe(
-        "",
-        [&](IncomingSubscribeStream &stream,
-            ref_<const SubscribeResponseMessage> &&msg) {
-          count.fetch_add(1);
-          if (decode_value) {
-            msg->get_value();
-          }
-        },
-        initial_options);
-
-    std::cout << "client " << i + 1 << " submitted a subscribe request"
-              << std::endl;
+              << "client is NOT connected" << std::endl;
+    return 1;
   }
+  std::cout << std::endl << "client is connected" << std::endl;
+
+  cs_mq.sync();
+  sc_mq.wait();
+
+  receive_count = 0;
+
+  std::atomic_int &count = receive_count;
+
+  client->get_session().subscribe(
+      "",
+      [&](IncomingSubscribeStream &stream,
+          ref_<const SubscribeResponseMessage> &&msg) {
+        count.fetch_add(1);
+        if (decode_value) {
+          msg->get_value();
+        }
+      },
+      initial_options);
+
+  std::cout << "client submitted a subscribe request" << std::endl;
 
   int64_t msg_per_second = 300000;
 
@@ -154,9 +103,9 @@ int main(int argc, const char *argv[]) {
 
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {
-
     if (!error) {
-      client_strands[0].strand->dispatch([&]() {
+      if (client_strand.strand == nullptr) return;
+      client_strand.strand->dispatch([&]() {
         auto ts2 = high_resolution_clock::now();
 
         auto ms =
@@ -166,22 +115,20 @@ int main(int argc, const char *argv[]) {
         if (ms > 0) {
           ts = ts2;
           int count = 0;
-          for (int i = 0; i < client_count; ++i) {
-            count += receive_count[i];
-            receive_count[i] = 0;
-          }
-          total_message += count;
 
-          count /= client_count;
+          count = receive_count;
+          receive_count = 0;
+
+          total_message += count;
 
           print_count += ms;
           if (print_count > 2000) {
             print_count = 0;
             std::cout << std::endl
                       << "message per second: "
-                      << (msg_per_second * client_count)
+                      << (msg_per_second * 1)
                       << "  current: " << count * 1000 / ms << " x "
-                      << client_count << ", interval " << ms;
+                      << 1 << ", interval " << ms;
           }
         }
         timer.async_wait(tick);
@@ -195,16 +142,12 @@ int main(int argc, const char *argv[]) {
   boost::this_thread::sleep(boost::posix_time::seconds(run_time));
   std::cout << std::endl << "end benchmark";
   timer.cancel();
-  std::cout << std::endl << "total message: " << total_message;
+  std::cout << std::endl << "total message: " << total_message << std::endl;
 
-  for (int i = 0; i < client_count; ++i) {
-    destroy_client_in_strand(clients[i]);
-  }
+  destroy_client_in_strand(client);
 
   server_strand.destroy();
-  for (int i = 0; i < client_count; ++i) {
-    client_strands[i].destroy();
-  }
+  client_strand.destroy();
 
   app->close();
 
@@ -213,6 +156,8 @@ int main(int argc, const char *argv[]) {
   if (!app->is_stopped()) {
     app->force_stop();
   }
+
   app->wait();
+
   return 0;
 }

@@ -1,50 +1,4 @@
-#include "dsa/message.h"
-#include "dsa/network.h"
-#include "dsa/responder.h"
-#include "dsa/stream.h"
-
-#include "../test/sdk/async_test.h"
-#include "../test/sdk/test_config.h"
-
-#include "core/client.h"
-#include "network/tcp/tcp_server.h"
-
-#include <chrono>
-#include <ctime>
-
-#include <atomic>
-
-#include <boost/program_options.hpp>
-
-#include <iostream>
-
-using high_resolution_clock = std::chrono::high_resolution_clock;
-using time_point = std::chrono::high_resolution_clock::time_point;
-
-using namespace dsa;
-namespace opts = boost::program_options;
-
-class TestConfigExt : public TestConfig {
- public:
-  TestConfigExt(std::shared_ptr<App> &app, std::string host_ip_address,
-                int host_port, bool async = false)
-      : TestConfig(app, async) {
-    tcp_host = host_ip_address;
-    tcp_server_port = host_port;
-  }
-};
-
-class MockNode : public NodeModelBase {
- public:
-  bool first_client_subscribed = false;
-
-  explicit MockNode(const LinkStrandRef &strand) : NodeModelBase(strand){};
-
-  void on_subscribe(const SubscribeOptions &options,
-                    bool first_request) override {
-    first_client_subscribed = true;
-  }
-};
+#include "throughput_common.h"
 
 int main(int argc, const char *argv[]) {
   opts::options_description desc{"Options"};
@@ -70,19 +24,18 @@ int main(int argc, const char *argv[]) {
   }
 
   const int MAX_CLIENT_COUNT = 256;
-
   int client_count = variables["client"].as<int>();
-  int run_time = variables["time"].as<int>();
-  std::string host_ip_address = variables["host"].as<std::string>();
-  int host_port = variables["port"].as<int>();
-
   if (client_count > MAX_CLIENT_COUNT || client_count < 1) {
     std::cout << "invalid Number of Clients, ( 1 ~ 255 )";
     return 0;
   }
+
+  int run_time = variables["time"].as<int>();
   bool encode_value = variables["encode-value"].as<bool>();
   bool decode_value = variables["decode-value"].as<bool>();
   int min_send_num = variables["num-message"].as<int>();
+  int host_port = variables["port"].as<int>();
+  std::string host_ip_address = variables["host"].as<std::string>();
   int num_thread = variables["num-thread"].as<int>();
 
   Logger::_().level = Logger::INFO__;
@@ -92,6 +45,13 @@ int main(int argc, const char *argv[]) {
   std::cout << "benchmark with " << client_count << " clients (" << num_thread
             << " threads)" << std::endl;
 
+  //Erase previous message queue
+  message_queue::remove(sc_mq_name.c_str());
+  message_queue::remove(cs_mq_name.c_str());
+  // Open a message queue.
+  MessageQueue sc_mq(create_only, sc_mq_name.c_str(), client_count, sizeof(int));
+  MessageQueue cs_mq(create_only, cs_mq_name.c_str(), client_count, sizeof(int));
+
   auto app = std::make_shared<App>(num_thread);
 
   TestConfigExt server_strand(app, host_ip_address, host_port);
@@ -100,18 +60,13 @@ int main(int argc, const char *argv[]) {
 
   server_strand.strand->set_responder_model(ref_<MockNode>(root_node));
 
-  //  auto tcp_server(new TcpServer(server_strand));
-  auto tcp_server = make_shared_<TcpServer>(server_strand);
+  auto tcp_server = server_strand.create_server();
   tcp_server->start();
 
-  wait_for_bool(5000,
-                [&]() { return root_node->first_client_subscribed == true; });
-  if (!root_node->first_client_subscribed) {
-    std::cout << "no subscribe request!" << std::endl;
-    return 1;
-  }
-
-  std::cout << "received first subscribe request" << std::endl;
+  // wait for all clients connect to the server
+  cs_mq.wait_all();
+  // starts responsing to subscribe requests
+  sc_mq.send_all();
 
   int64_t msg_per_second = 300000;
 
@@ -129,6 +84,7 @@ int main(int argc, const char *argv[]) {
   std::function<void(const boost::system::error_code &)> tick;
   tick = [&](const boost::system::error_code &error) {
     if (!error) {
+      if (server_strand.strand == nullptr) return;
       server_strand.strand->dispatch([&]() {
         auto ts2 = high_resolution_clock::now();
 
@@ -161,6 +117,8 @@ int main(int argc, const char *argv[]) {
 
   timer.async_wait(tick);
 
+  std::cout << std::endl
+            << "run benchmark for " << run_time << " seconds" << std::endl;
   boost::this_thread::sleep(boost::posix_time::seconds(run_time));
   timer.cancel();
 
