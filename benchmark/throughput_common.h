@@ -88,13 +88,17 @@ class MessageQueue : public message_queue {
   }
 
   void wait_all() {
+    int x;
+    wait_all(x);
+  }
+
+  void wait_all(int& number) {
     try {
       // Open a message queue.
       unsigned int priority;
       message_queue::size_type recvd_size;
 
       for (int i = 0; i < client_count; ++i) {
-        int number;
         this->receive(&number, sizeof(number), recvd_size, priority);
       }
     } catch (interprocess_exception &ex) {

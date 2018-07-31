@@ -45,12 +45,14 @@ int main(int argc, const char *argv[]) {
   std::cout << "benchmark with " << client_count << " clients (" << num_thread
             << " threads)" << std::endl;
 
-  //Erase previous message queue
+  // Erase previous message queue
   message_queue::remove(sc_mq_name.c_str());
   message_queue::remove(cs_mq_name.c_str());
   // Open a message queue.
-  MessageQueue sc_mq(create_only, sc_mq_name.c_str(), client_count, sizeof(int));
-  MessageQueue cs_mq(create_only, cs_mq_name.c_str(), client_count, sizeof(int));
+  MessageQueue sc_mq(create_only, sc_mq_name.c_str(), client_count,
+                     sizeof(int));
+  MessageQueue cs_mq(create_only, cs_mq_name.c_str(), client_count,
+                     sizeof(int));
 
   auto app = std::make_shared<App>(num_thread);
 
@@ -70,60 +72,82 @@ int main(int argc, const char *argv[]) {
 
   int64_t msg_per_second = 300000;
 
-  boost::posix_time::milliseconds interval(10);
-  boost::asio::deadline_timer timer(app->io_service(), interval);
+  int print_count = 0;  // print every 100 timer visit;
 
   auto ts = high_resolution_clock::now();
+  auto ts_then = ts;
+
   int total_ms = 0;
 
   int total_message = 0;
 
+  int receive_count = 0;
+
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Var(0));
 
-  std::function<void(const boost::system::error_code &)> tick;
-  tick = [&](const boost::system::error_code &error) {
-    if (!error) {
-      if (server_strand.strand == nullptr) return;
-      server_strand.strand->dispatch([&]() {
-        auto ts2 = high_resolution_clock::now();
+  do {
+    auto ts_now = high_resolution_clock::now();
+    auto ms_delta =
+        std::chrono::duration_cast<std::chrono::milliseconds>(ts_now - ts_then).count();
+    if (ms_delta > run_time*1000) break;
 
-        auto ms =
-            std::chrono::duration_cast<std::chrono::milliseconds>(ts2 - ts)
-                .count();
+    if (server_strand.strand == nullptr) break;
 
-        if (ms > 0) {
-          ts = ts2;
+    server_strand.strand->dispatch([&]() {
+      auto ts2 = high_resolution_clock::now();
 
-          // TODO: adjust dynamically
-          long num_message = 6000;
+      auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(ts2 - ts)
+                    .count();
 
-          if (encode_value) {
-            for (int i = 0; i < num_message; ++i) {
-              root_node->set_value(Var(i));
-            }
-          } else {
-            for (int i = 0; i < num_message; ++i) {
-              root_node->set_subscribe_response(copy_ref_(cached_message));
-            }
+      if (ms > 0) {
+        ts = ts2;
+	int count = 0;
+	count += receive_count;
+	receive_count = 0;
+	total_message += count;
+	
+	print_count += ms;
+        if (print_count > 2000) {
+          print_count = 0;
+          std::cout << std::endl
+                    << "message per second: "
+                    << (msg_per_second * client_count)
+                    << "  current: " << count * 1000 / ms << " x "
+                    << client_count << ", interval " << ms;
+        }
+
+        msg_per_second =
+            (count * 1000 + msg_per_second * total_ms) / (total_ms + ms);
+        total_ms += ms / 2;
+        if (total_ms > 5000) total_ms = 5000;
+
+        long tosend_per_second = msg_per_second;
+        if (tosend_per_second < min_send_num)
+          tosend_per_second = min_send_num;
+        // send a little bit more than the current speed,
+        // limited message queue size should handle the extra messages
+        long num_message = tosend_per_second * ms / (800 + total_ms / 50);
+
+        if (encode_value) {
+          for (int i = 0; i < num_message; ++i) {
+            root_node->set_value(Var(i));
+          }
+        } else {
+          for (int i = 0; i < num_message; ++i) {
+            root_node->set_subscribe_response(copy_ref_(cached_message));
           }
         }
-        timer.async_wait(tick);
-      });
-    } else {
-      std::cout << "tick: error!" << std::endl;
-    }
-  };
-
-  timer.async_wait(tick);
+      }
+    });
+    // TODO: timeout version is needed
+    cs_mq.wait_all();
+  } while (true);
 
   std::cout << std::endl
             << "run benchmark for " << run_time << " seconds" << std::endl;
-  boost::this_thread::sleep(boost::posix_time::seconds(run_time));
-  timer.cancel();
 
   tcp_server->destroy_in_strand(tcp_server);
-
   server_strand.destroy();
 
   app->close();

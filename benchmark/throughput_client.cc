@@ -95,7 +95,6 @@ int main(int argc, const char *argv[]) {
 
   auto ts = high_resolution_clock::now();
   int total_ms = 0;
-
   int total_message = 0;
 
   SubscribeResponseMessageCRef cached_message =
@@ -114,8 +113,10 @@ int main(int argc, const char *argv[]) {
 
         if (ms > 0) {
           ts = ts2;
-          int count = 0;
 
+          cs_mq.sync(receive_count);
+
+          int count = 0;
           count = receive_count;
           receive_count = 0;
 
