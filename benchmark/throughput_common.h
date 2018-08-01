@@ -54,14 +54,21 @@ class MessageQueue : public message_queue {
   MessageQueue(create_only_t create_only, std::string name,
                size_type max_num_msg, size_type max_msg_size,
                uint16_t peer_count = 1)
-    : message_queue(create_only, name.c_str(), max_num_msg, max_msg_size),
+      : message_queue(create_only, name.c_str(), max_num_msg, max_msg_size),
         peer_count(peer_count),
         mq_name(name) {}
 
-    MessageQueue(open_only_t open_only, std::string name, uint16_t peer_count = 1)
-      : message_queue(open_only, name.c_str()), mq_name(name), peer_count(peer_count) {}
+  MessageQueue(open_only_t open_only, std::string name, uint16_t peer_count = 1)
+      : message_queue(open_only, name.c_str()),
+        mq_name(name),
+        peer_count(peer_count) {}
 
   ~MessageQueue() { message_queue::remove(mq_name.c_str()); }
+
+  void send() {
+    uint32_t x = 0;
+    send(x);
+  }
 
   void send(uint32_t &value) {
     try {
@@ -125,8 +132,9 @@ class MessageQueues {
     for (int i = 0; i < peer_count; ++i) {
       std::string mq_name = base_name + std::to_string(i);
       try {
-	mq_map[mq_name] = std::make_unique<message_queue>(create_only, mq_name.c_str(), max_num_msg,
-		  max_msg_size);
+        message_queue::remove(mq_name.c_str());
+        mq_map[mq_name] = std::make_unique<message_queue>(
+            create_only, mq_name.c_str(), max_num_msg, max_msg_size);
       } catch (interprocess_exception &ex) {
         message_queue::remove(mq_name.c_str());
         std::cout << ex.what() << std::endl;

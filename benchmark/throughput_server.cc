@@ -47,13 +47,13 @@ int main(int argc, const char *argv[]) {
 
   const int MAX_NUM_MSG_PER_CLIENT = 10;
 
+  message_queue::remove(sc_mq_name.c_str());
   MessageQueue sc_mq(create_only, sc_mq_name,
                      client_count * MAX_NUM_MSG_PER_CLIENT, sizeof(int32_t),
                      client_count);
 
-  MessageQueues inbound_mqs(cs_mq_name_base,
-                     MAX_NUM_MSG_PER_CLIENT, sizeof(int32_t),
-                     client_count);
+  MessageQueues inbound_mqs(cs_mq_name_base, MAX_NUM_MSG_PER_CLIENT,
+                            sizeof(int32_t), client_count);
 
   auto app = std::make_shared<App>(num_thread);
 
@@ -68,7 +68,7 @@ int main(int argc, const char *argv[]) {
 
   // wait for all clients connect to the server
   inbound_mqs.gather();
-  // starts responsing to subscribe requests
+  // starts responding to subscribe requests
   sc_mq.scatter();
 
   int64_t msg_per_second = 300000;
@@ -80,7 +80,7 @@ int main(int argc, const char *argv[]) {
 
   int total_ms = 0;
 
-  int total_message = 0;
+  uint64_t total_message = 0;
 
   uint64_t count = 0;
 
@@ -94,6 +94,11 @@ int main(int argc, const char *argv[]) {
             .count();
     if (ms_delta > run_time * 1000) break;
 
+    count = 0;
+    // TODO: timeout version is needed
+    inbound_mqs.gather(count);
+    total_message += count;
+
     if (server_strand.strand == nullptr) break;
 
     server_strand.strand->dispatch([&]() {
@@ -105,19 +110,9 @@ int main(int argc, const char *argv[]) {
       if (ms > 0) {
         ts = ts2;
 
-        total_message += count;
-
-        print_count += ms;
-        if (print_count > 2000) {
-          print_count = 0;
-          std::cout << std::endl
-                    << "message per second: " << (msg_per_second * client_count)
-                    << "  current: " << count * 1000 / ms << " x "
-                    << client_count << ", interval " << ms;
-        }
-
         msg_per_second =
             (count * 1000 + msg_per_second * total_ms) / (total_ms + ms);
+
         total_ms += ms / 2;
         if (total_ms > 5000) total_ms = 5000;
 
@@ -126,6 +121,14 @@ int main(int argc, const char *argv[]) {
         // send a little bit more than the current speed,
         // limited message queue size should handle the extra messages
         long num_message = tosend_per_second * ms / (800 + total_ms / 50);
+
+        print_count += ms;
+        if (print_count > 2000) {
+          print_count = 0;
+          std::cout << std::endl
+                    << "message per second (provision): "
+                    << num_message * 1000 / ms;
+        }
 
         if (encode_value) {
           for (int i = 0; i < num_message; ++i) {
@@ -138,9 +141,6 @@ int main(int argc, const char *argv[]) {
         }
       }
     });
-    // TODO: timeout version is needed
-    count = 0;
-    inbound_mqs.gather(count);
   } while (true);
 
   std::cout << std::endl

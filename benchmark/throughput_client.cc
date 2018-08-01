@@ -11,7 +11,9 @@ int main(int argc, const char *argv[]) {
       "host,i", opts::value<std::string>()->default_value("127.0.0.1"),
       "Host's ip address")("port,p", opts::value<int>()->default_value(4128),
                            "Port")(
-      "num-thread", opts::value<int>()->default_value(4), "Number of threads");
+      "num-thread", opts::value<int>()->default_value(4), "Number of threads")
+("client-id", opts::value<int>()->default_value(0),
+                           "Client id");
 
   opts::variables_map variables;
   opts::store(opts::parse_command_line(argc, argv, desc), variables);
@@ -29,6 +31,7 @@ int main(int argc, const char *argv[]) {
   int host_port = variables["port"].as<int>();
   std::string host_ip_address = variables["host"].as<std::string>();
   int num_thread = variables["num-thread"].as<int>();
+  int client_id = variables["client-id"].as<int>();
 
   Logger::_().level = Logger::INFO__;
 
@@ -63,13 +66,10 @@ int main(int argc, const char *argv[]) {
   }
   std::cout << std::endl << "client is connected" << std::endl;
 
-  uint32_t client_id;
-  sc_mq.recv(client_id);
-
   std::string cs_mq_name = cs_mq_name_base + std::to_string(client_id);
   MessageQueue cs_mq(open_only, cs_mq_name);
 
-  sc_mq.recv();
+  cs_mq.send();
 
   receive_count = 0;
 
@@ -90,13 +90,12 @@ int main(int argc, const char *argv[]) {
 
   int64_t msg_per_second = 300000;
 
-  boost::posix_time::milliseconds interval(10);
+  boost::posix_time::milliseconds interval(1000);
   boost::asio::deadline_timer timer(app->io_service(), interval);
 
   int print_count = 0;  // print every 100 timer visit;
 
   auto ts = high_resolution_clock::now();
-  int total_ms = 0;
   int total_message = 0;
 
   SubscribeResponseMessageCRef cached_message =
@@ -117,6 +116,7 @@ int main(int argc, const char *argv[]) {
           ts = ts2;
 
           uint32_t count = receive_count;
+          receive_count = 0;
           cs_mq.send(count);
 
           total_message += count;
@@ -125,8 +125,7 @@ int main(int argc, const char *argv[]) {
           if (print_count > 2000) {
             print_count = 0;
             std::cout << std::endl
-                      << "message per second: " << (msg_per_second * 1)
-                      << "  current: " << count * 1000 / ms << " x " << 1
+                      << "message per second (current): " << count * 1000 / ms
                       << ", interval " << ms;
           }
         }
