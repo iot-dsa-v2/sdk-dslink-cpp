@@ -9,7 +9,7 @@ int main(int argc, const char *argv[]) {
       "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
       "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration")(
-      "host,i", opts::value<std::string>()->default_value("10.0.1.101"),
+      "host,i", opts::value<std::string>()->default_value("127.0.0.1"),
       "Host's ip address")("port,p", opts::value<int>()->default_value(4128),
                            "Port")(
       "num-thread", opts::value<int>()->default_value(4), "Number of threads");
@@ -45,14 +45,15 @@ int main(int argc, const char *argv[]) {
   std::cout << "benchmark with " << client_count << " clients (" << num_thread
             << " threads)" << std::endl;
 
-  // Erase previous message queue
-  message_queue::remove(sc_mq_name.c_str());
-  message_queue::remove(cs_mq_name.c_str());
-  // Open a message queue.
-  MessageQueue sc_mq(create_only, sc_mq_name.c_str(), client_count,
-                     sizeof(int));
-  MessageQueue cs_mq(create_only, cs_mq_name.c_str(), client_count,
-                     sizeof(int));
+  const int MAX_NUM_MSG_PER_CLIENT = 10;
+
+  MessageQueue sc_mq(create_only, sc_mq_name,
+                     client_count * MAX_NUM_MSG_PER_CLIENT, sizeof(int32_t),
+                     client_count);
+
+  MessageQueues inbound_mqs(cs_mq_name_base,
+                     MAX_NUM_MSG_PER_CLIENT, sizeof(int32_t),
+                     client_count);
 
   auto app = std::make_shared<App>(num_thread);
 
@@ -66,9 +67,9 @@ int main(int argc, const char *argv[]) {
   tcp_server->start();
 
   // wait for all clients connect to the server
-  cs_mq.wait_all();
+  inbound_mqs.gather();
   // starts responsing to subscribe requests
-  sc_mq.send_all();
+  sc_mq.scatter();
 
   int64_t msg_per_second = 300000;
 
@@ -81,7 +82,7 @@ int main(int argc, const char *argv[]) {
 
   int total_message = 0;
 
-  int receive_count = 0;
+  uint64_t count = 0;
 
   SubscribeResponseMessageCRef cached_message =
       make_ref_<SubscribeResponseMessage>(Var(0));
@@ -89,8 +90,9 @@ int main(int argc, const char *argv[]) {
   do {
     auto ts_now = high_resolution_clock::now();
     auto ms_delta =
-        std::chrono::duration_cast<std::chrono::milliseconds>(ts_now - ts_then).count();
-    if (ms_delta > run_time*1000) break;
+        std::chrono::duration_cast<std::chrono::milliseconds>(ts_now - ts_then)
+            .count();
+    if (ms_delta > run_time * 1000) break;
 
     if (server_strand.strand == nullptr) break;
 
@@ -102,17 +104,14 @@ int main(int argc, const char *argv[]) {
 
       if (ms > 0) {
         ts = ts2;
-	int count = 0;
-	count += receive_count;
-	receive_count = 0;
-	total_message += count;
-	
-	print_count += ms;
+
+        total_message += count;
+
+        print_count += ms;
         if (print_count > 2000) {
           print_count = 0;
           std::cout << std::endl
-                    << "message per second: "
-                    << (msg_per_second * client_count)
+                    << "message per second: " << (msg_per_second * client_count)
                     << "  current: " << count * 1000 / ms << " x "
                     << client_count << ", interval " << ms;
         }
@@ -123,8 +122,7 @@ int main(int argc, const char *argv[]) {
         if (total_ms > 5000) total_ms = 5000;
 
         long tosend_per_second = msg_per_second;
-        if (tosend_per_second < min_send_num)
-          tosend_per_second = min_send_num;
+        if (tosend_per_second < min_send_num) tosend_per_second = min_send_num;
         // send a little bit more than the current speed,
         // limited message queue size should handle the extra messages
         long num_message = tosend_per_second * ms / (800 + total_ms / 50);
@@ -141,7 +139,8 @@ int main(int argc, const char *argv[]) {
       }
     });
     // TODO: timeout version is needed
-    cs_mq.wait_all();
+    count = 0;
+    inbound_mqs.gather(count);
   } while (true);
 
   std::cout << std::endl

@@ -47,83 +47,121 @@ class MockNode : public NodeModelBase {
 
 class MessageQueue : public message_queue {
  private:
-  int client_count;
+  uint16_t peer_count;
   std::string mq_name;
 
  public:
-  MessageQueue(create_only_t create_only, const char *name,
-               size_type max_num_msg, size_type max_msg_size)
-      : message_queue(create_only, name, max_num_msg, max_msg_size),
-        client_count(max_num_msg),
+  MessageQueue(create_only_t create_only, std::string name,
+               size_type max_num_msg, size_type max_msg_size,
+               uint16_t peer_count = 1)
+    : message_queue(create_only, name.c_str(), max_num_msg, max_msg_size),
+        peer_count(peer_count),
         mq_name(name) {}
 
-  MessageQueue(open_only_t open_only, const char *name)
-      : message_queue(open_only, name),
-        mq_name(name) {
-    client_count = this->get_max_msg();
-    assert(client_count > 0);
-  }
+    MessageQueue(open_only_t open_only, std::string name, uint16_t peer_count = 1)
+      : message_queue(open_only, name.c_str()), mq_name(name), peer_count(peer_count) {}
 
-  ~MessageQueue() = default;
+  ~MessageQueue() { message_queue::remove(mq_name.c_str()); }
 
-  void send_all() {
+  void send(uint32_t &value) {
     try {
-      for (int i = 0; i < client_count; ++i) {
-        int j = 1;
-        this->send(&j, sizeof(j), 0);
-      }
+      message_queue::send(&value, sizeof(value), 0);
     } catch (interprocess_exception &ex) {
-      message_queue::remove(mq_name.c_str());
+      // message_queue::remove(mq_name.c_str());
       std::cout << ex.what() << std::endl;
     }
   }
 
-  void sync(int value = 1) {
-    try {
-      this->send(&value, sizeof(value), 0);
-    } catch (interprocess_exception &ex) {
-      message_queue::remove(mq_name.c_str());
-      std::cout << ex.what() << std::endl;
-    }
+  void recv() {
+    uint32_t x;
+    recv(x);
   }
 
-  void wait_all() {
-    int x;
-    wait_all(x);
-  }
-
-  void wait_all(int& number) {
+  void recv(uint32_t &value) {
     try {
-      // Open a message queue.
       unsigned int priority;
       message_queue::size_type recvd_size;
+      this->receive(&value, sizeof(value), recvd_size, priority);
+    } catch (interprocess_exception &ex) {
+      // message_queue::remove(mq_name.c_str());
+      std::cout << ex.what() << std::endl;
+    }
+  }
 
-      for (int i = 0; i < client_count; ++i) {
-        this->receive(&number, sizeof(number), recvd_size, priority);
+  void bcast(uint32_t &value) {
+    try {
+      for (int i = 0; i < peer_count; ++i) {
+        message_queue::send(&value, sizeof(value), 0);
       }
     } catch (interprocess_exception &ex) {
-      message_queue::remove(mq_name.c_str());
+      // message_queue::remove(mq_name.c_str());
       std::cout << ex.what() << std::endl;
     }
   }
 
-  void wait() {
+  void scatter() {
     try {
-      // Open a message queue.
+      for (uint32_t i = 0; i < peer_count; ++i) {
+        message_queue::send(&i, sizeof(i), 0);
+      }
+    } catch (interprocess_exception &ex) {
+      // message_queue::remove(mq_name.c_str());
+      std::cout << ex.what() << std::endl;
+    }
+  }
+};
+
+class MessageQueues {
+ private:
+  uint16_t peer_count;
+  std::unordered_map<std::string, std::unique_ptr<message_queue>> mq_map;
+
+ public:
+  MessageQueues(const std::string base_name, size_t max_num_msg,
+                size_t max_msg_size, uint16_t peer_count_)
+      : peer_count(peer_count_) {
+    assert(peer_count > 0 && peer_count <= 256);
+
+    for (int i = 0; i < peer_count; ++i) {
+      std::string mq_name = base_name + std::to_string(i);
+      try {
+	mq_map[mq_name] = std::make_unique<message_queue>(create_only, mq_name.c_str(), max_num_msg,
+		  max_msg_size);
+      } catch (interprocess_exception &ex) {
+        message_queue::remove(mq_name.c_str());
+        std::cout << ex.what() << std::endl;
+      }
+    }
+  }
+
+  ~MessageQueues() {
+    for (auto it = mq_map.begin(); it != mq_map.end(); ++it) {
+      message_queue::remove(it->first.c_str());
+    }
+  }
+
+  void gather() {
+    uint64_t x;
+    gather(x);
+  }
+
+  void gather(uint64_t &total) {
+    try {
+      uint32_t number;
       unsigned int priority;
       message_queue::size_type recvd_size;
-
-      int number;
-      this->receive(&number, sizeof(number), recvd_size, priority);
+      for (auto it = mq_map.begin(); it != mq_map.end(); ++it) {
+        it->second->receive(&number, sizeof(number), recvd_size, priority);
+        total += number;
+      }
     } catch (interprocess_exception &ex) {
-      message_queue::remove(mq_name.c_str());
+      // message_queue::remove(mq_name.c_str());
       std::cout << ex.what() << std::endl;
     }
   }
-
 };
 
 static std::string sc_mq_name("sc_throughput_mqueue");
-static std::string cs_mq_name("cs_throughput_mqueue");
+static std::string cs_mq_name_base("cs_throughput_mqueue");
 
 #endif  // DSA_BENCHMARK_THROUGHPUT_H

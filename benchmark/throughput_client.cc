@@ -8,7 +8,7 @@ int main(int argc, const char *argv[]) {
       "decode-value,d", opts::bool_switch(), "Decode value after receiving")(
       "num-message,n", opts::value<int>()->default_value(5000),
       "Minimal number of messages to send in each iteration")(
-      "host,i", opts::value<std::string>()->default_value("10.0.1.101"),
+      "host,i", opts::value<std::string>()->default_value("127.0.0.1"),
       "Host's ip address")("port,p", opts::value<int>()->default_value(4128),
                            "Port")(
       "num-thread", opts::value<int>()->default_value(4), "Number of threads");
@@ -35,8 +35,7 @@ int main(int argc, const char *argv[]) {
   auto app = std::make_shared<App>(num_thread);
 
   std::cout << std::endl << "host ip address: " << host_ip_address;
-  std::cout << std::endl
-            << "benchmark with " << num_thread << " threads)";
+  std::cout << std::endl << "benchmark with " << num_thread << " threads)";
 
   TestConfigExt server_strand(app, host_ip_address, host_port);
 
@@ -48,8 +47,7 @@ int main(int argc, const char *argv[]) {
   initial_options.qos = QosLevel::_1;
   initial_options.queue_size = 655360;
 
-  MessageQueue sc_mq(open_only, sc_mq_name.c_str());
-  MessageQueue cs_mq(open_only, cs_mq_name.c_str());
+  MessageQueue sc_mq(open_only, sc_mq_name);
 
   WrapperStrand client_strand = server_strand.get_client_wrapper_strand();
   ref_<Client> client = make_ref_<Client>(client_strand);
@@ -60,14 +58,18 @@ int main(int argc, const char *argv[]) {
                 [&]() { return client->get_session().is_connected(); });
 
   if (!client->get_session().is_connected()) {
-    std::cout << std::endl
-              << "client is NOT connected" << std::endl;
+    std::cout << std::endl << "client is NOT connected" << std::endl;
     return 1;
   }
   std::cout << std::endl << "client is connected" << std::endl;
 
-  cs_mq.sync();
-  sc_mq.wait();
+  uint32_t client_id;
+  sc_mq.recv(client_id);
+
+  std::string cs_mq_name = cs_mq_name_base + std::to_string(client_id);
+  MessageQueue cs_mq(open_only, cs_mq_name);
+
+  sc_mq.recv();
 
   receive_count = 0;
 
@@ -114,11 +116,8 @@ int main(int argc, const char *argv[]) {
         if (ms > 0) {
           ts = ts2;
 
-          cs_mq.sync(receive_count);
-
-          int count = 0;
-          count = receive_count;
-          receive_count = 0;
+          uint32_t count = receive_count;
+          cs_mq.send(count);
 
           total_message += count;
 
@@ -126,10 +125,9 @@ int main(int argc, const char *argv[]) {
           if (print_count > 2000) {
             print_count = 0;
             std::cout << std::endl
-                      << "message per second: "
-                      << (msg_per_second * 1)
-                      << "  current: " << count * 1000 / ms << " x "
-                      << 1 << ", interval " << ms;
+                      << "message per second: " << (msg_per_second * 1)
+                      << "  current: " << count * 1000 / ms << " x " << 1
+                      << ", interval " << ms;
           }
         }
         timer.async_wait(tick);
