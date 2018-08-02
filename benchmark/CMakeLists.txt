@@ -7,11 +7,11 @@ set(BENCHMARK_LIBS ${BENCHMARK_LIBS} ${OPENSSL_LIBRARIES})
 include_directories("../src/sdk")
 include_directories("../include")
 
-set(BENCHMARK_LIBS dsa_sdk ${GTEST_BOTH_LIBRARIES} ${BENCHMARK_LIBS})
+set(BENCHMARK_LIBS dsa_sdk ${GTEST_BOTH_LIBRARIES} -lrt ${BENCHMARK_LIBS})
 
 foreach (name "throughput"
-#              "throughput_server"
-#              "throughput_client"
+              "throughput_server"
+              "throughput_client"
 #              "message_queue"
               "broker_throughput"
 )
